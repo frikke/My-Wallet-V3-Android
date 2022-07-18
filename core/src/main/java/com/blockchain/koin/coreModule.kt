@@ -15,7 +15,6 @@ import com.blockchain.core.chains.dynamicselfcustody.NonCustodialRepository
 import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
-import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.data.Erc20L2StoreRepository
 import com.blockchain.core.chains.erc20.data.Erc20StoreRepository
@@ -26,7 +25,6 @@ import com.blockchain.core.chains.erc20.data.store.Erc20Store
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.custodial.BrokerageDataManager
-import com.blockchain.core.custodial.TradingBalanceCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
 import com.blockchain.core.custodial.data.TradingStoreRepository
@@ -39,7 +37,6 @@ import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import com.blockchain.core.eligibility.EligibilityRepository
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.fiatcurrencies.FiatCurrenciesRepository
-import com.blockchain.core.interest.InterestBalanceCallCache
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
 import com.blockchain.core.interest.data.InterestStoreRepository
@@ -160,14 +157,6 @@ val coreModule = module {
             )
         }
 
-        factory {
-            TradingBalanceCallCache(
-                balanceService = get(),
-                assetCatalogue = get(),
-                authenticator = get()
-            )
-        }
-
         scoped<TradingDataSource> {
             TradingStore(
                 balanceService = get(),
@@ -184,9 +173,7 @@ val coreModule = module {
 
         scoped {
             TradingBalanceDataManagerImpl(
-                balanceCallCache = get(),
-                tradingStoreService = get(),
-                speedUpLoginTradingFF = get(speedUpLoginTradingFeatureFlag)
+                tradingStoreService = get()
             )
         }.bind(TradingBalanceDataManager::class)
 
@@ -231,14 +218,6 @@ val coreModule = module {
             )
         }.bind(FiatCurrenciesService::class)
 
-        factory {
-            InterestBalanceCallCache(
-                balanceService = get(),
-                assetCatalogue = get(),
-                authenticator = get()
-            )
-        }
-
         scoped<InterestDataSource> {
             InterestStore(
                 interestService = get(),
@@ -276,10 +255,8 @@ val coreModule = module {
 
         scoped {
             InterestBalanceDataManagerImpl(
-                balanceCallCache = get(),
                 interestStoreService = get(),
-                interestDataSource = get(),
-                speedUpLoginInterestFF = get(speedUpLoginInterestFeatureFlag)
+                interestDataSource = get()
             )
         }.bind(InterestBalanceDataManager::class)
 
@@ -300,14 +277,6 @@ val coreModule = module {
                 nonCustodialEvmService = get()
             )
         }.bind(EthMessageSigner::class)
-
-        factory {
-            Erc20BalanceCallCache(
-                erc20Service = get(),
-                evmService = get(),
-                assetCatalogue = get()
-            )
-        }
 
         scoped<Erc20DataSource> {
             Erc20Store(
@@ -350,15 +319,13 @@ val coreModule = module {
         scoped {
             Erc20DataManagerImpl(
                 ethDataManager = get(),
-                balanceCallCache = get(),
                 historyCallCache = get(),
                 assetCatalogue = get(),
                 erc20StoreService = get(),
                 erc20DataSource = get(),
                 erc20L2StoreService = get(),
                 erc20L2DataSource = get(),
-                ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
-                speedUpLoginErc20FF = get(speedUpLoginErc20FeatureFlag)
+                ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
             )
         }.bind(Erc20DataManager::class)
 

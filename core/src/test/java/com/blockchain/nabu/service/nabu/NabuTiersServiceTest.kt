@@ -1,7 +1,6 @@
 package com.blockchain.nabu.service.nabu
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.FakeAuthenticator
 import com.blockchain.nabu.USD
 import com.blockchain.nabu.api.kyc.domain.KycStoreService
@@ -19,7 +18,6 @@ import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -30,18 +28,12 @@ class NabuTiersServiceTest {
 
     private val sessionToken = FakeNabuSessionTokenFactory.any
     private val nabu: Nabu = mock()
-    private val assetCatalogues: AssetCatalogue = mock {
-        on { fromNetworkTicker("USD") }.thenReturn(USD)
-    }
     private val kycStoreService: KycStoreService = mock()
-    private val speedUpLoginKycFF: FeatureFlag = mock()
     private val authenticator: FakeAuthenticator = FakeAuthenticator(sessionToken)
 
     private val subject: NabuTierService = NabuTierService(
         endpoint = nabu,
-        assetCatalogue = assetCatalogues,
         kycStoreService = kycStoreService,
-        speedUpLoginKycFF = speedUpLoginKycFF,
         authenticator = authenticator
     )
 
@@ -75,27 +67,7 @@ class NabuTiersServiceTest {
     )
 
     @Test
-    fun `speedUpLoginFF false, get tiers`() {
-        whenever(speedUpLoginKycFF.enabled).thenReturn(Single.just(false))
-
-        whenever(
-            nabu.getTiers(sessionToken.authHeader)
-        ).thenReturn(
-            Single.just(FakeKycTiersFactory.any)
-        )
-
-        subject.tiers()
-            .test()
-            .waitForCompletionWithoutErrors()
-            .assertValue {
-                it == kycTiers
-            }
-    }
-
-    @Test
-    fun `speedUpLoginFF true, get tiers`() {
-        whenever(speedUpLoginKycFF.enabled).thenReturn(Single.just(true))
-
+    fun `get tiers`() {
         whenever(kycStoreService.getKycTiers())
             .thenReturn(Single.just(kycTiers))
         Single.just(FakeKycTiersFactory.any)

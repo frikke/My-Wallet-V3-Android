@@ -2,7 +2,6 @@ package com.blockchain.core.custodial
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.custodial.domain.TradingStoreService
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.GBP
 import com.blockchain.nabu.USD
 import com.blockchain.testutils.waitForCompletionWithoutErrors
@@ -29,42 +28,14 @@ class TradingBalanceDataManagerImplTest {
         ioTrampoline()
     }
 
-    private val tradingBalanceCallCache: TradingBalanceCallCache = mock()
     private val tradingStoreService: TradingStoreService = mock()
-    private val speedUpLoginTradingFF: FeatureFlag = mock()
 
     private val subject = TradingBalanceDataManagerImpl(
-        balanceCallCache = tradingBalanceCallCache,
-        tradingStoreService = tradingStoreService,
-        speedUpLoginTradingFF = speedUpLoginTradingFF
+        tradingStoreService = tradingStoreService
     )
 
     @Test
-    fun `speedUpLoginFF false, will get balance for a given asset`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(false))
-
-        val cacheResult = buildCacheResult(
-            listOf(CRYPTO_ASSET_1, CRYPTO_ASSET_2, USD, GBP)
-        )
-
-        whenever(tradingBalanceCallCache.getTradingBalances())
-            .thenReturn(Single.just(cacheResult))
-
-        subject.getBalanceForCurrency(CRYPTO_ASSET_1)
-            .test()
-            .waitForCompletionWithoutErrors()
-            .assertValue {
-                val total = it.total
-                total is CryptoValue &&
-                    total.currency == CRYPTO_ASSET_1 &&
-                    total.isPositive
-            }
-    }
-
-    @Test
-    fun `speedUpLoginFF true, will get balance for a given asset`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(true))
-
+    fun `will get balance for a given asset`() {
         whenever(tradingStoreService.getBalanceFor(asset = any()))
             .thenReturn(Observable.just(anyBalanceForAsset(CRYPTO_ASSET_1)))
 
@@ -80,31 +51,7 @@ class TradingBalanceDataManagerImplTest {
     }
 
     @Test
-    fun `speedUpLoginFF false, balance not found for a given asset`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(false))
-
-        val cacheResult = buildCacheResult(
-            listOf(CRYPTO_ASSET_1),
-        )
-
-        whenever(tradingBalanceCallCache.getTradingBalances())
-            .thenReturn(Single.just(cacheResult))
-
-        subject.getBalanceForCurrency(CRYPTO_ASSET_2)
-            .test()
-            .waitForCompletionWithoutErrors()
-            .assertValue {
-                val total = it.total
-                total is CryptoValue &&
-                    total.currency == CRYPTO_ASSET_2 &&
-                    total.isZero
-            }
-    }
-
-    @Test
-    fun `speedUpLoginFF true, balance not found for a given asset`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(true))
-
+    fun `balance not found for a given asset`() {
         whenever(tradingStoreService.getBalanceFor(asset = any()))
             .thenReturn(Observable.just(zeroBalanceForAsset(CRYPTO_ASSET_2)))
 
@@ -120,31 +67,7 @@ class TradingBalanceDataManagerImplTest {
     }
 
     @Test
-    fun `speedUpLoginFF false, will get balance for a given fiat`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(false))
-
-        val cacheResult = buildCacheResult(
-            listOf(CRYPTO_ASSET_1, CRYPTO_ASSET_2, USD, GBP),
-        )
-
-        whenever(tradingBalanceCallCache.getTradingBalances())
-            .thenReturn(Single.just(cacheResult))
-
-        subject.getBalanceForCurrency(USD)
-            .test()
-            .await()
-            .assertValue {
-                val total = it.total as? FiatValue
-                total is FiatValue &&
-                    total.currencyCode == USD.networkTicker &&
-                    total.isPositive
-            }
-    }
-
-    @Test
-    fun `speedUpLoginFF true, will get balance for a given fiat`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(true))
-
+    fun `will get balance for a given fiat`() {
         whenever(tradingStoreService.getBalanceFor(asset = any()))
             .thenReturn(Observable.just(anyBalanceForAsset(USD)))
 
@@ -160,31 +83,7 @@ class TradingBalanceDataManagerImplTest {
     }
 
     @Test
-    fun `speedUpLoginFF false, balance not found for a given fiat`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(false))
-
-        val cacheResult = buildCacheResult(
-            listOf(CRYPTO_ASSET_1, GBP)
-        )
-
-        whenever(tradingBalanceCallCache.getTradingBalances())
-            .thenReturn(Single.just(cacheResult))
-
-        subject.getBalanceForCurrency(USD)
-            .test()
-            .await()
-            .assertValue {
-                val total = it.total
-                total is FiatValue &&
-                    total.currencyCode == USD.networkTicker &&
-                    total.isZero
-            }
-    }
-
-    @Test
-    fun `speedUpLoginFF true, balance not found for a given fiat`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(true))
-
+    fun `balance not found for a given fiat`() {
         whenever(tradingStoreService.getBalanceFor(asset = any()))
             .thenReturn(Observable.just(zeroBalanceForAsset(USD)))
 
@@ -200,31 +99,7 @@ class TradingBalanceDataManagerImplTest {
     }
 
     @Test
-    fun `speedUpLoginFF false, get active assets`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(false))
-
-        val cacheResult = buildCacheResult(
-            listOf(CRYPTO_ASSET_1, CRYPTO_ASSET_2, GBP)
-        )
-
-        whenever(tradingBalanceCallCache.getTradingBalances())
-            .thenReturn(Single.just(cacheResult))
-
-        subject.getActiveAssets()
-            .test()
-            .waitForCompletionWithoutErrors()
-            .assertValue {
-                it.size == 3 &&
-                    it.contains(CRYPTO_ASSET_1) &&
-                    it.contains(CRYPTO_ASSET_2) &&
-                    it.contains(GBP)
-            }
-    }
-
-    @Test
-    fun `speedUpLoginFF true, get active assets`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(true))
-
+    fun `get active assets`() {
         val cacheResult = buildStoreCacheResult(
             listOf(CRYPTO_ASSET_1, CRYPTO_ASSET_2, GBP)
         )
@@ -244,28 +119,7 @@ class TradingBalanceDataManagerImplTest {
     }
 
     @Test
-    fun `speedUpLoginFF false, there are no active assets`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(false))
-
-        val cacheResult = buildCacheResult(
-            emptyList()
-        )
-
-        whenever(tradingBalanceCallCache.getTradingBalances())
-            .thenReturn(Single.just(cacheResult))
-
-        subject.getActiveAssets()
-            .test()
-            .waitForCompletionWithoutErrors()
-            .assertValue {
-                it.isEmpty()
-            }
-    }
-
-    @Test
-    fun `speedUpLoginFF true, there are no active assets`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(true))
-
+    fun `there are no active assets`() {
         val cacheResult = buildStoreCacheResult(
             emptyList()
         )
@@ -282,28 +136,7 @@ class TradingBalanceDataManagerImplTest {
     }
 
     @Test
-    fun `speedUpLoginFF false, there are no active fiats`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(false))
-
-        val cacheResult = buildCacheResult(
-            emptyList()
-        )
-
-        whenever(tradingBalanceCallCache.getTradingBalances())
-            .thenReturn(Single.just(cacheResult))
-
-        subject.getActiveAssets()
-            .test()
-            .waitForCompletionWithoutErrors()
-            .assertValue {
-                it.isEmpty()
-            }
-    }
-
-    @Test
-    fun `speedUpLoginFF true, there are no active fiats`() {
-        whenever(speedUpLoginTradingFF.enabled).thenReturn(Single.just(true))
-
+    fun `there are no active fiats`() {
         val cacheResult = buildStoreCacheResult(
             emptyList()
         )
@@ -331,11 +164,6 @@ class TradingBalanceDataManagerImplTest {
             total = Money.zero(asset),
             withdrawable = Money.zero(asset),
             pending = Money.zero(asset)
-        )
-
-    private fun buildCacheResult(currencies: List<Currency>): TradingBalanceRecord =
-        TradingBalanceRecord(
-            balances = currencies.map { it to anyBalanceForAsset(it) }.toMap(),
         )
 
     private fun buildStoreCacheResult(currencies: List<Currency>): Map<Currency, TradingAccountBalance> =
