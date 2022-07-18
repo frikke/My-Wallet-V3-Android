@@ -2,32 +2,15 @@ package com.blockchain.blockchaincard.domain.models
 
 import android.os.Parcelable
 import com.blockchain.blockchaincard.R
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import java.util.Locale
 import kotlinx.parcelize.Parcelize
 
 sealed class BlockchainCardError {
-    object GetAuthFailed : BlockchainCardError()
-    object GetCardsRequestFailed : BlockchainCardError()
-    object CreateCardRequestFailed : BlockchainCardError()
-    object DeleteCardRequestFailed : BlockchainCardError()
-    object GetProductsRequestFailed : BlockchainCardError()
-    object GetCardWidgetTokenRequestFailed : BlockchainCardError()
-    object GetCardWidgetRequestFailed : BlockchainCardError()
-    object GetEligibleCardAccountsRequestFailed : BlockchainCardError()
-    object GetAccountBalanceFailed : BlockchainCardError()
-    object LinkCardAccountFailed : BlockchainCardError()
-    object GetCardLinkedAccountFailed : BlockchainCardError()
-    object LoadAllWalletsFailed : BlockchainCardError()
-    object LockCardRequestFailed : BlockchainCardError()
-    object UnlockCardRequestFailed : BlockchainCardError()
-    object GetAssetFailed : BlockchainCardError()
-    object GetFiatAccountFailed : BlockchainCardError()
-    object GetResidentialAddressFailed : BlockchainCardError()
-    object UpdateResidentialAddressFailed : BlockchainCardError()
-    object GetUserProfileFailed : BlockchainCardError()
-    object GetTransactionsFailed : BlockchainCardError()
+    object LocalCopyBlockchainCardError : BlockchainCardError()
+    data class UXBlockchainCardError(val uxError: ServerSideUxErrorInfo) : BlockchainCardError()
 }
 
 @Parcelize

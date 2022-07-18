@@ -3,6 +3,7 @@ package com.blockchain.blockchaincard.viewmodel
 import androidx.compose.runtime.mutableStateListOf
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.coincore.AccountBalance
@@ -20,5 +21,14 @@ data class BlockchainCardModelState(
     val userFirstAndLastName: String? = null,
     val transactionList: List<BlockchainCardTransaction>? = null,
     val selectedCardTransaction: BlockchainCardTransaction? = null,
-    val ssn: String? = null
+    val ssn: String? = null,
+    val errorState: BlockchainCardErrorState? = null,
 ) : ModelState
+
+sealed class BlockchainCardErrorState {
+
+    abstract val error: BlockchainCardError
+
+    data class SnackbarErrorState(override val error: BlockchainCardError) : BlockchainCardErrorState()
+    data class ScreenErrorState(override val error: BlockchainCardError) : BlockchainCardErrorState()
+}

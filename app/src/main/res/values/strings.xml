@@ -3091,7 +3091,7 @@
     <string name="address_update_success">Address Successfully Updated</string>
     <string name="address_update_success_description">Your billing address has been successfully changed and will take effect immediately.</string>
     <string name="address_update_failed">Address Update Failed</string>
-    <string name="address_update_description">Your billing address could not be updated. Please try again.</string>
+    <string name="address_update_failed_description">Your billing address could not be updated. Please try again.</string>
     <string name="verify_your_address">Verify Your Address</string>
     <string name="verify_your_address_description">Confirm your residential address below to avoid delays. You will be able to specify a different shipping address later.</string>
     <string name="residential_address">Residential Address</string>

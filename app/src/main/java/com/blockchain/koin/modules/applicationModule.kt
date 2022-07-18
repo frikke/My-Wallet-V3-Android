@@ -38,7 +38,7 @@ import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.DigitalTrust
-import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.kyc.data.store.KycDataSource
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentAccountMapper
 import com.blockchain.network.websocket.Options
@@ -279,7 +279,7 @@ val applicationModule = module {
                     get<TradingDataSource>(),
                     get<KycDataSource>(),
                     get<InterestDataSource>(),
-                    get<GetUserDataSource>(),
+                    get<GetUserStore>(),
                     get<Erc20DataSource>(),
                     get<Erc20L2DataSource>()
                 )

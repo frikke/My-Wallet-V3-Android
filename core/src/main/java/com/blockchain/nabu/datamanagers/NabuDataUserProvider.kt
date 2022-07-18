@@ -12,8 +12,8 @@ internal class NabuDataUserProviderNabuDataManagerAdapter(
     private val getUserStoreService: GetUserStoreService
 ) : NabuDataUserProvider {
 
-    // todo(othman) NabuDataUserProviderNabuDataManagerAdapter will be replaced by the store directly
-    // not doing here because the pr is gonna be too big
+    // todo(othman) NabuDataUserProviderNabuDataManagerAdapter will be replaced by the GetUserStoreService directly
+    // in code - not doing here because the pr is gonna be too big
     override fun getUser(): Single<NabuUser> {
         return getUserStoreService.getUser()
     }

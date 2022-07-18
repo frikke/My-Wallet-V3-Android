@@ -81,7 +81,7 @@ class AccountInteractor internal constructor(
 
     suspend fun getDebitCardState(): Outcome<BlockchainCardError, BlockchainCardOrderState> =
         blockchainCardRepository.getCards()
-            .mapError { BlockchainCardError.GetCardsRequestFailed }
+            .mapError { it }
             .flatMap { cards ->
                 val activeCards = cards.filter { it.status != BlockchainCardStatus.TERMINATED }
                 if (activeCards.isNotEmpty()) {
@@ -89,7 +89,7 @@ class AccountInteractor internal constructor(
                     Outcome.Success(BlockchainCardOrderState.Ordered(activeCards.first()))
                 } else {
                     blockchainCardRepository.getProducts()
-                        .mapError { BlockchainCardError.GetProductsRequestFailed }
+                        .mapError { it }
                         .map { products ->
                             if (products.isNotEmpty())
                                 BlockchainCardOrderState.Eligible(products)

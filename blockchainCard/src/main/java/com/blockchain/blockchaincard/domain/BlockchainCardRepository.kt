@@ -34,10 +34,6 @@ interface BlockchainCardRepository {
         cardId: String
     ): Outcome<BlockchainCardError, BlockchainCard>
 
-    suspend fun getCardWidgetToken(
-        cardId: String
-    ): Outcome<BlockchainCardError, String>
-
     suspend fun getCardWidgetUrl(
         cardId: String,
         last4Digits: String

@@ -103,7 +103,7 @@
     <string name="address_update_success"></string>
     <string name="address_update_success_description"></string>
     <string name="address_update_failed"></string>
-    <string name="address_update_description"></string>
+    <string name="address_update_failed_description"></string>
     <string name="verify_your_address"></string>
     <string name="verify_your_address_description"></string>
     <string name="residential_address"></string>
@@ -122,4 +122,5 @@
     <string name="verify_your_identity_description"></string>
     <string name="ssn_title"></string>
     <string name="ssn_hint"></string>
+    <string name="common_error"></string>
 </resources>

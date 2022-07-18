@@ -2,6 +2,7 @@ package com.blockchain.blockchaincard.viewmodel.managecard
 
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardErrorState
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardModelState
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
@@ -32,6 +33,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
     }
 
     override fun reduce(state: BlockchainCardModelState): BlockchainCardViewState = BlockchainCardViewState(
+        errorState = state.errorState,
         card = state.card,
         selectedCardProduct = state.selectedCardProduct,
         cardWidgetUrl = state.cardWidgetUrl,
@@ -59,6 +61,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                     blockchainCardRepository.lockCard(card.id).fold(
                         onFailure = { error ->
                             Timber.e("Card lock failed: $error")
+                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                         },
                         onSuccess = { cardUpdated ->
                             Timber.d("Card locked")
@@ -73,6 +76,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                     blockchainCardRepository.unlockCard(card.id).fold(
                         onFailure = { error ->
                             Timber.e("Card unlock failed: $error")
+                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                         },
                         onSuccess = { cardUpdated ->
                             Timber.d("Card unlocked")
@@ -88,8 +92,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         cardId = card.id,
                         last4Digits = card.last4
                     ).fold(
-                        onFailure = {
-                            Timber.d("Card widget url failed: $it") // TODO(labreu): handle error
+                        onFailure = { error ->
+                            Timber.d("Card widget url failed: $error")
+                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                         },
                         onSuccess = { cardWidgetUrl ->
                             updateState { it.copy(cardWidgetUrl = cardWidgetUrl) }
@@ -107,8 +112,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                             onIntent(BlockchainCardIntent.LoadEligibleAccountsBalances(eligibleAccounts))
                             navigate(BlockchainCardNavigationEvent.ChoosePaymentMethod)
                         },
-                        onFailure = {
-                            Timber.e("fetch eligible accounts failed: $it") // TODO(labreu): handle error
+                        onFailure = { error ->
+                            Timber.e("fetch eligible accounts failed: $error")
+                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                         }
                     )
                 }
@@ -137,7 +143,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                                     navigate(BlockchainCardNavigationEvent.TopUpCrypto(asset))
                                 },
                                 onFailure = {
-                                    Timber.e("Unable to get asset: $it")
+                                    Timber.e("Unable to get asset")
                                 }
                             )
                         }
@@ -157,8 +163,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                             onIntent(BlockchainCardIntent.LoadLinkedAccount)
                             navigate(BlockchainCardNavigationEvent.HideBottomSheet)
                         },
-                        onFailure = {
-                            Timber.e("Account linking failed: $it")
+                        onFailure = { error ->
+                            Timber.e("Account linking failed: $error")
+                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                         }
                     )
                 }
@@ -173,8 +180,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         onSuccess = { linkedTradingAccount ->
                             onIntent(BlockchainCardIntent.LoadAccountBalance(linkedTradingAccount as BlockchainAccount))
                         },
-                        onFailure = {
-                            Timber.e("Unable to get current linked account: $it")
+                        onFailure = { error ->
+                            Timber.e("Unable to get current linked account: $error")
+                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                         }
                     )
                 }
@@ -189,9 +197,14 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                             it.copy(linkedAccountBalance = balance, isLinkedAccountBalanceLoading = false)
                         }
                     },
-                    onFailure = {
-                        updateState { it.copy(isLinkedAccountBalanceLoading = false) }
-                        Timber.e("Load Account balance failed: $it")
+                    onFailure = { error ->
+                        Timber.e("Load Account balance failed: $error")
+                        updateState {
+                            it.copy(
+                                isLinkedAccountBalanceLoading = false,
+                                errorState = BlockchainCardErrorState.SnackbarErrorState(error)
+                            )
+                        }
                     }
                 )
             }
@@ -209,8 +222,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                                 it.copy(eligibleTradingAccountBalances = eligibleTradingAccountBalances)
                             }
                         },
-                        onFailure = {
-                            Timber.e("Load Account balance failed: $it")
+                        onFailure = { error ->
+                            Timber.e("Load Account balance failed: $error")
+                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                         }
                     )
                 }
@@ -231,8 +245,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                     onSuccess = { address ->
                         updateState { it.copy(residentialAddress = address) }
                     },
-                    onFailure = {
-                        Timber.e("Unable to get residential address: $it")
+                    onFailure = { error ->
+                        Timber.e("Unable to get residential address: $error")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                     }
                 )
             }
@@ -249,8 +264,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         updateState { it.copy(residentialAddress = newAddress) }
                         navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = true))
                     },
-                    onFailure = {
-                        Timber.e("Unable to update residential address: $it")
+                    onFailure = { error ->
+                        Timber.e("Unable to update residential address: $error")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.ScreenErrorState(error)) }
                         navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = false))
                     }
                 )
@@ -271,8 +287,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             is BlockchainCardIntent.ConfirmCloseCard -> {
                 modelState.card?.let { card ->
                     blockchainCardRepository.deleteCard(card.id).fold(
-                        onFailure = {
-                            Timber.d("Card delete failed: $it")
+                        onFailure = { error ->
+                            Timber.d("Card delete failed: $error")
+                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                         },
                         onSuccess = {
                             Timber.d("Card deleted")
@@ -287,8 +304,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                     onSuccess = { firstAndLastName ->
                         updateState { it.copy(userFirstAndLastName = firstAndLastName) }
                     },
-                    onFailure = {
-                        Timber.e("Unable to get user first and last name: $it")
+                    onFailure = { error ->
+                        Timber.e("Unable to get user first and last name: $error")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                     }
                 )
             }
@@ -299,8 +317,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         Timber.d("Transactions loaded: $transactions")
                         updateState { it.copy(transactionList = transactions, isTransactionListRefreshing = false) }
                     },
-                    onFailure = {
-                        Timber.e("Unable to get transactions: $it")
+                    onFailure = { error ->
+                        Timber.e("Unable to get transactions: $error")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                     }
                 )
             }
@@ -317,6 +336,10 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
 
             is BlockchainCardIntent.HideBottomSheet -> {
                 navigate(BlockchainCardNavigationEvent.HideBottomSheet)
+            }
+
+            is BlockchainCardIntent.SnackbarDismissed -> {
+                updateState { it.copy(errorState = null) }
             }
         }
     }
