@@ -191,7 +191,7 @@ class CoinViewModelTest {
         )
 
         val list: List<AssetDisplayInfo> = listOf(
-            AssetDisplayInfo(
+            AssetDisplayInfo.BrokerageDisplayInfo(
                 account = mock<CustodialTradingAccount>(),
                 filter = AssetFilter.Trading,
                 amount = mock(),
@@ -274,20 +274,9 @@ class CoinViewModelTest {
             }
         )
 
-        val list: List<AssetDisplayInfo> = listOf(
-            AssetDisplayInfo(
-                account = mock<CustodialTradingAccount>(),
-                filter = AssetFilter.Trading,
-                amount = mock(),
-                pendingAmount = mock(),
-                fiatValue = mock(),
-                actions = mock(),
-                interestRate = 0.0
-            )
-        )
         val assetInfo = AssetInformation.AccountsInfo(
             prices = prices,
-            accountsList = list,
+            accountsList = listOf(mock()),
             totalCryptoBalance = mock(),
             totalFiatBalance = mock(),
             isAddedToWatchlist = true
@@ -300,7 +289,13 @@ class CoinViewModelTest {
 
         localSubject.process(
             CoinViewIntent.UpdateAccountDetails(
-                CoinViewViewState.ShowAccountInfo(assetInfo, isAddedToWatchlist = true), assetInfo, asset, true
+                CoinViewViewState.ShowAccountInfo(
+                    totalCryptoBalance = assetInfo.totalCryptoBalance,
+                    totalFiatBalance = assetInfo.totalFiatBalance,
+                    assetDetails = listOf(mock()),
+                    isAddedToWatchlist = true
+                ),
+                assetInfo, asset, true
             )
         )
 
@@ -335,7 +330,13 @@ class CoinViewModelTest {
 
         subject.process(
             CoinViewIntent.UpdateAccountDetails(
-                CoinViewViewState.ShowAccountInfo(assetInfo, isAddedToWatchlist = true), assetInfo, asset, true
+                CoinViewViewState.ShowAccountInfo(
+                    totalCryptoBalance = assetInfo.totalCryptoBalance,
+                    totalFiatBalance = assetInfo.totalFiatBalance,
+                    assetDetails = emptyList(),
+                    isAddedToWatchlist = true
+                ),
+                assetInfo, asset, true
             )
         )
 

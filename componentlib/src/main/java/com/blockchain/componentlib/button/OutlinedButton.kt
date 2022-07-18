@@ -182,7 +182,7 @@ private fun OutlineButtonPreview() {
                         state = state,
                         text = text,
                         textColor = textColor,
-                        textAlpha = textAlpha,
+                        contentAlpha = textAlpha,
                         loadingIconResId = loadingIconResId
                     )
                 },

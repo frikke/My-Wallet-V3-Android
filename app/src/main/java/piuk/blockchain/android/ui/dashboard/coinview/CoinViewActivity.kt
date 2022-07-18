@@ -40,6 +40,7 @@ import com.blockchain.componentlib.expandables.ExpandableItem
 import com.blockchain.componentlib.sectionheader.BalanceSectionHeaderView
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.setMargins
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -50,6 +51,8 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.wallet.DefaultLabels
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
@@ -57,6 +60,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -78,9 +82,12 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
+import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.copyToClipboardWithConfirmationDialog
 import piuk.blockchain.android.util.putAccount
 
 class CoinViewActivity :
@@ -125,11 +132,15 @@ class CoinViewActivity :
 
     private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
 
+    private val walletMode = get<WalletModeService>().enabledWalletMode()
+
     override fun initBinding(): ActivityCoinviewBinding = ActivityCoinviewBinding.inflate(layoutInflater)
 
     private val adapterDelegate by lazy {
         AccountsAdapterDelegate(
             onAccountSelected = ::onAccountSelected,
+            onCopyAddressClicked = ::onCopyAddressClicked,
+            onReceiveClicked = ::onReceiveClicked,
             onLockedAccountSelected = ::showUpgradeKycSheet,
             labels = labels,
             onCardClicked = ::openOnboardingForRecurringBuy,
@@ -165,6 +176,17 @@ class CoinViewActivity :
     private fun initUI() {
         with(binding) {
             assetList.apply {
+
+                if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                    foreground = getDrawable(R.drawable.rounded_view_grey_100_border_16_radius)
+                    setMargins(
+                        start = resources.getDimensionPixelSize(R.dimen.small_margin),
+                        top = resources.getDimensionPixelSize(R.dimen.small_margin),
+                        end = resources.getDimensionPixelSize(R.dimen.small_margin),
+                        bottom = resources.getDimensionPixelSize(R.dimen.standard_margin),
+                    )
+                }
+
                 adapter = adapterDelegate
                 addItemDecoration(BlockchainListDividerDecor(this@CoinViewActivity))
             }
@@ -173,10 +195,15 @@ class CoinViewActivity :
             assetBalancesLoading.showIconLoader = false
             assetInfoLoading.showIconLoader = false
 
-            assetBalance.apply {
-                shouldShowIcon = true
-                onIconClick = {
-                    model.process(CoinViewIntent.ToggleWatchlist)
+            // not showing asset balance on defi
+            if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                assetBalancesSwitcher.gone()
+            } else {
+                assetBalance.apply {
+                    shouldShowIcon = true
+                    onIconClick = {
+                        model.process(CoinViewIntent.ToggleWatchlist)
+                    }
                 }
             }
 
@@ -432,9 +459,9 @@ class CoinViewActivity :
             CoinViewViewState.LoadingQuickActions -> showLoadingCtas()
             CoinViewViewState.LoadingAssetDetails -> binding.assetInformationSwitcher.displayedChild = INFO_LOADING
             is CoinViewViewState.ShowAccountInfo -> {
-                renderAccountsDetails(state.assetInfo.accountsList)
+                renderAccountsDetails(state.assetDetails)
                 renderBalanceInformation(
-                    state.assetInfo.totalCryptoBalance, state.assetInfo.totalFiatBalance, state.isAddedToWatchlist
+                    state.totalCryptoBalance, state.totalFiatBalance, state.isAddedToWatchlist
                 )
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
             }
@@ -883,6 +910,9 @@ class CoinViewActivity :
         totalFiatBalance: Money,
         isInWatchList: Boolean,
     ) {
+        // not showing this view in defi
+        if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) return
+
         totalCryptoBalance[AssetFilter.All]?.let { cryptoBalance ->
             with(binding) {
                 assetBalance.apply {
@@ -946,36 +976,24 @@ class CoinViewActivity :
     }
 
     private fun renderAccountsDetails(
-        assetDetails: List<AssetDisplayInfo>,
+        assetDetails: List<AssetDetailsItem.CryptoDetailsInfo>
     ) {
-        val itemList = mutableListOf<AssetDetailsItem>()
-
-        assetDetails.map {
-            itemList.add(
-                AssetDetailsItem.CryptoDetailsInfo(
-                    assetFilter = it.filter,
-                    account = it.account,
-                    balance = it.amount,
-                    fiatBalance = it.fiatValue,
-                    actions = it.actions,
-                    interestRate = it.interestRate
-                )
-            )
-        }
-
         listItems.removeIf { details ->
             details is AssetDetailsItem.CryptoDetailsInfo
         }
-        listItems.addAll(0, itemList)
+        listItems.addAll(0, assetDetails)
         updateList()
     }
 
     private fun onAccountSelected(
         accountDetails: AssetDetailsItem.CryptoDetailsInfo,
     ) {
-        if (accountDetails.account is CryptoAccount && accountDetails.account is TradingAccount) {
-            analytics.logEvent(CustodialBalanceClicked(accountDetails.account.currency))
+        accountDetails.account.let { account ->
+            if (account is CryptoAccount && account is TradingAccount) {
+                analytics.logEvent(CustodialBalanceClicked(account.currency))
+            }
         }
+
         analytics.logEvent(
             CoinViewAnalytics.WalletsAccountsClicked(
                 origin = LaunchOrigin.COIN_VIEW,
@@ -989,6 +1007,33 @@ class CoinViewActivity :
             )
         )
         model.process(CoinViewIntent.CheckScreenToOpen(accountDetails))
+    }
+
+    private fun onCopyAddressClicked(
+        cryptoAccount: CryptoAccount,
+    ) {
+        cryptoAccount.receiveAddress.subscribe { receiveAddress ->
+            analytics.logEvent(
+                TransferAnalyticsEvent.ReceiveDetailsCopied(
+                    accountType = TxFlowAnalyticsAccountType.fromAccount(cryptoAccount),
+                    asset = cryptoAccount.currency
+                )
+            )
+
+            copyToClipboardWithConfirmationDialog(
+                confirmationAnchorView = binding.root,
+                confirmationMessage = R.string.receive_address_to_clipboard,
+                label = "Send address",
+                text = receiveAddress.address
+            )
+        }
+    }
+
+    private fun onReceiveClicked(
+        account: BlockchainAccount,
+    ) {
+        logReceiveEvent()
+        startReceive(account)
     }
 
     private fun openOnboardingForRecurringBuy() {

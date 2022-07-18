@@ -25,22 +25,22 @@ import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItem
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
 
-class CryptoAccountDetailsDelegate(
+class BrokerageAccountDetailsDelegate(
     private val onAccountSelected: (AssetDetailsItem.CryptoDetailsInfo) -> Unit,
     private val onLockedAccountSelected: () -> Unit,
     private val labels: DefaultLabels,
-    private val assetResources: AssetResources
+    private val assetResources: AssetResources,
 ) : AdapterDelegate<AssetDetailsItem> {
     override fun isForViewType(items: List<AssetDetailsItem>, position: Int): Boolean =
-        items[position] is AssetDetailsItem.CryptoDetailsInfo
+        items[position] is AssetDetailsItem.BrokerageDetailsInfo
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         AssetWalletViewHolder(
             ViewCoinviewWalletsBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-            onAccountSelected,
-            onLockedAccountSelected,
-            labels,
-            assetResources
+            onAccountSelected = onAccountSelected,
+            onLockedAccountSelected = onLockedAccountSelected,
+            labels = labels,
+            assetResources = assetResources,
         )
 
     override fun onBindViewHolder(
@@ -48,8 +48,8 @@ class CryptoAccountDetailsDelegate(
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as AssetWalletViewHolder).bind(
-        items[position] as AssetDetailsItem.CryptoDetailsInfo,
-        items.indexOfFirst { it is AssetDetailsItem.CryptoDetailsInfo } == position
+        item = items[position] as AssetDetailsItem.BrokerageDetailsInfo,
+        isFirstItemOfCategory = items.indexOfFirst { it is AssetDetailsItem.BrokerageDetailsInfo } == position
     )
 }
 
@@ -62,7 +62,7 @@ private class AssetWalletViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(
-        item: AssetDetailsItem.CryptoDetailsInfo,
+        item: AssetDetailsItem.BrokerageDetailsInfo,
         isFirstItemOfCategory: Boolean
     ) {
         val asset = getAsset(item.account, item.balance.currencyCode)
@@ -75,6 +75,7 @@ private class AssetWalletViewHolder(
                 onLockedAccountSelected()
             }
             val walletLabel = when (item.assetFilter) {
+                // todo (othman) should be removed once universal mode is removed
                 AssetFilter.NonCustodial -> item.account.label
                 AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
                 AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
@@ -99,6 +100,7 @@ private class AssetWalletViewHolder(
                     bodyStart = buildAnnotatedString {
                         append(
                             when (item.assetFilter) {
+                                // todo (othman) should be removed once universal mode is removed
                                 AssetFilter.NonCustodial -> {
                                     if (account is MultiChainAccount) {
                                         context.getString(
@@ -109,6 +111,7 @@ private class AssetWalletViewHolder(
                                         context.getString(R.string.coinview_nc_desc)
                                     }
                                 }
+
                                 AssetFilter.Trading -> context.getString(R.string.coinview_c_available_desc)
                                 AssetFilter.Interest -> {
                                     val interestFormat = DecimalFormat("0.#")
@@ -121,9 +124,12 @@ private class AssetWalletViewHolder(
                             }
                         )
                     }
+
                     accountIcon.indicator?.let {
                         startImageResource =
-                            ImageResource.LocalWithBackgroundAndExternalResources(it, asset.colour, "#FFFFFF", 1F)
+                            ImageResource.LocalWithBackgroundAndExternalResources(
+                                it, asset.colour, "#FFFFFF", 1F
+                            )
                     }
                 }
             } else {
@@ -168,8 +174,4 @@ private class AssetWalletViewHolder(
             )
             else -> null
         } ?: throw IllegalStateException("Unsupported account type ${this::class.java}")
-}
-
-private fun List<AssetDetailsItem>.indexOfFirstItemOfCategory(category: AssetFilter) = indexOfFirst { item ->
-    item is AssetDetailsItem.CryptoDetailsInfo && item.assetFilter == category
 }

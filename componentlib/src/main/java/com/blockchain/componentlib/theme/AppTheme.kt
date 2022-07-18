@@ -26,6 +26,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.koin.java.KoinJavaComponent.get
+import org.koin.mp.KoinPlatformTools
 
 abstract class Theme {
     @get:Composable
@@ -180,9 +181,11 @@ fun AppTheme(
  */
 @Composable
 fun defValue(): AppThemeProvider {
-    return if (LocalInspectionMode.current) {
+    return if (KoinPlatformTools.defaultContext().getOrNull() == null || LocalInspectionMode.current) {
         FakeAppThemeProvider
-    } else get(AppThemeProvider::class.java)
+    } else {
+        get(AppThemeProvider::class.java)
+    }
 }
 
 @Composable
