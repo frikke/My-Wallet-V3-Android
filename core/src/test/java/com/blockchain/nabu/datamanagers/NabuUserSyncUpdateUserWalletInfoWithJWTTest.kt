@@ -1,7 +1,7 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.nabu.NabuUserSync
-import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.blockchain.nabu.service.NabuService
@@ -27,13 +27,13 @@ class NabuUserSyncUpdateUserWalletInfoWithJWTTest {
     private val jwt = "JWT"
     private val nabuDataManager: NabuDataManager = mockk()
     private val nabuService = mockk<NabuService>()
-    private val userDataSource = mockk<GetUserDataSource>()
+    private val getUserStore = mockk<GetUserStore>()
 
     private val nabuUserSync: NabuUserSync = NabuUserSyncUpdateUserWalletInfoWithJWT(
         authenticator = authenticator,
         nabuDataManager = nabuDataManager,
         nabuService = nabuService,
-        userDataSource = userDataSource
+        getUserStore = getUserStore
     )
 
     private val sessionToken = FakeNabuSessionTokenFactory.any

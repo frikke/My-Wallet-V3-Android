@@ -144,7 +144,7 @@ val redesignSettingsModule = module {
                 emailUpdater = get(),
                 settingsDataManager = get(),
                 authPrefs = get(),
-                userDataSource = get()
+                getUserStore = get()
             )
         }
 

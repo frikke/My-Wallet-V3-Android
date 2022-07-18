@@ -5,7 +5,7 @@ import com.blockchain.api.services.FiatCurrenciesApiService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
 import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.api.getuser.data.store.GetUserStore
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
@@ -16,7 +16,6 @@ import com.blockchain.store.StoreRequest
 import com.blockchain.store.firstOutcome
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
-import kotlinx.coroutines.flow.map
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 internal class FiatCurrenciesRepository(

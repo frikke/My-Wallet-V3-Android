@@ -1,4 +1,4 @@
-package com.blockchain.nabu.api.getuser.data.store
+package com.blockchain.nabu.api.getuser.data
 
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.Authenticator
@@ -12,15 +12,13 @@ import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Mediator
 import com.blockchain.store.Store
-import com.blockchain.store.StoreRequest
-import com.blockchain.store.StoreResponse
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
+import com.blockchain.storedatasource.FlushableDataSource
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.flow.Flow
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
-internal class GetUserStore(
+class GetUserStore(
     private val nabuService: NabuService,
     private val authenticator: Authenticator,
     private val userReporter: NabuUserReporter,
@@ -77,10 +75,7 @@ internal class GetUserStore(
             }
         }
     ),
-    GetUserDataSource {
-
-    override fun stream(refresh: Boolean): Flow<StoreResponse<Exception, NabuUser>> =
-        stream(StoreRequest.Cached(forceRefresh = refresh))
+    FlushableDataSource {
 
     override fun invalidate() {
         markAsStale()
