@@ -43,10 +43,13 @@ class DashboardModel(
                 interactor.joinNftWaitlist()
             }
             is DashboardIntent.GetActiveAssets -> interactor.fetchActiveAssets(this)
-            is DashboardIntent.UpdateActiveAssets -> interactor.fetchAccounts(
-                intent.assetList,
-                this
-            )
+            is DashboardIntent.UpdateActiveAssets -> {
+                interactor.fetchAccounts(
+                    intent.assetList,
+                    this
+                )
+                null
+            }
             is DashboardIntent.UpdateAllAssetsAndBalances -> {
                 process(DashboardIntent.LoadFundsLocked)
                 interactor.refreshBalances(

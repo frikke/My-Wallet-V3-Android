@@ -55,11 +55,7 @@ class AnnouncementQueries(
     private val fiatCurrenciesService: FiatCurrenciesService,
 ) {
     fun hasFundedFiatWallets(): Single<Boolean> =
-        coincore.fiatAssets.accountGroup().toSingle().map {
-            it.accounts.any { acc ->
-                acc.isFunded
-            }
-        }
+        coincore.fiatAssets.map { fiatAssets -> fiatAssets.any { it.custodialAccount.isFunded } }
 
     // Have we moved past kyc tier 1 - silver?
     fun isKycGoldStartedOrComplete(): Single<Boolean> {

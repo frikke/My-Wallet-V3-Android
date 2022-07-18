@@ -9,6 +9,7 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -122,6 +123,7 @@ internal fun FeatureAccess.Blocked.toActionState(): ActionState = when (val reas
 }
 
 interface Asset {
+    val assetInfo: Currency
     fun accountGroup(filter: AssetFilter = AssetFilter.All): Maybe<AccountGroup>
     fun transactionTargets(account: SingleAccount): Single<SingleAccountList>
     fun parseAddress(address: String, label: String? = null, isDomainAddress: Boolean = false): Maybe<ReceiveAddress>
@@ -142,8 +144,9 @@ interface CryptoAsset : Asset {
     fun historicRateSeries(period: HistoricalTimeSpan): Single<HistoricalRateList>
     fun lastDayTrend(): Single<HistoricalRateList>
 
-    // Temp feature accessors - this will change, but until it's building these have to be somewhere
-    val assetInfo: AssetInfo
+    // TODO: This is cheating for now. Unfortunately even CoinView knows that this is an AssetInfo and not a Currency
+    // we need to fix this.
+    override val assetInfo: AssetInfo
 }
 
 interface MultipleWalletsAsset {

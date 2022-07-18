@@ -72,6 +72,7 @@ import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
+import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
 
 class DashboardGroupLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
@@ -121,29 +122,21 @@ class DashboardActionInteractor(
                 }
             )
 
-    fun fetchAccounts(assets: List<Asset>, model: DashboardModel): Disposable {
-        val fiatAccounts = assets.filterIsInstance<FiatAsset>().firstOrNull()?.accountGroup(defFilter) ?: Maybe.empty()
+    fun fetchAccounts(assets: List<Asset>, model: DashboardModel) {
+        val fiatAccounts = assets.filterIsInstance<FiatAsset>()
 
-        return fiatAccounts.map { g -> g.accounts }
-            .switchIfEmpty(Single.just(emptyList())).subscribeBy(
-                onSuccess = { accounts ->
-                    model.process(
-                        DashboardIntent.UpdateAllAssetsAndBalances(
-                            assetList = assets.filterIsInstance<CryptoAsset>().map { crytpoAsset ->
-                                when (walletModeService.enabledWalletMode()) {
-                                    WalletMode.UNIVERSAL,
-                                    WalletMode.CUSTODIAL_ONLY -> BrokerageAsset(crytpoAsset.assetInfo)
-                                    WalletMode.NON_CUSTODIAL_ONLY -> DefiAsset(crytpoAsset.assetInfo)
-                                }
-                            },
-                            fiatAssetList = accounts.map { it as FiatAccount }
-                        )
-                    )
-                }, onError = {
-                Timber.e("Error fetching fiat accounts - $it")
-                throw it
-            }
+        return model.process(
+            DashboardIntent.UpdateAllAssetsAndBalances(
+                assetList = assets.filterIsInstance<CryptoAsset>().map { crytpoAsset ->
+                    when (walletModeService.enabledWalletMode()) {
+                        WalletMode.UNIVERSAL,
+                        WalletMode.CUSTODIAL_ONLY -> BrokerageAsset(crytpoAsset.assetInfo)
+                        WalletMode.NON_CUSTODIAL_ONLY -> DefiAsset(crytpoAsset.assetInfo)
+                    }
+                },
+                fiatAssetList = fiatAccounts.map { it.custodialAccount }
             )
+        )
     }
 
     fun fetchAssetPrice(model: DashboardModel, asset: AssetInfo): Disposable =
@@ -360,11 +353,13 @@ class DashboardActionInteractor(
                 AssetAction.FiatDeposit -> Feature.DepositFiat
                 else -> throw IllegalArgumentException("$action not supported")
             }
-        ).zipWith(coincore.fiatAssets.accountGroup().toSingle())
+        ).zipWith(
+            coincore.fiatAssets.flatMap { fiatAssets -> fiatAssets.map { it.accountGroup().toSingle() }.zipSingles() }
+        )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onSuccess = { (isEligible, fiatGroup) ->
+                onSuccess = { (isEligible, fiatGroups) ->
                     model.process(
                         if (isEligible) {
                             val networkTicker = if (currencyCode.isNotEmpty()) {
@@ -373,7 +368,7 @@ class DashboardActionInteractor(
                                 currencyPrefs.selectedFiatCurrency.networkTicker
                             }
 
-                            val selectedAccount = fiatGroup.accounts.first {
+                            val selectedAccount = fiatGroups.map { it.accounts }.flatten().first {
                                 (it as FiatAccount).currency.networkTicker == networkTicker
                             }
 

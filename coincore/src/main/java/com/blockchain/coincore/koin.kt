@@ -4,7 +4,6 @@ import com.blockchain.coincore.bch.BchAsset
 import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.eth.EthAsset
 import com.blockchain.coincore.evm.MaticAsset
-import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
@@ -98,17 +97,6 @@ val coincoreModule = module {
         }.bind(CryptoAsset::class)
 
         scoped {
-            FiatAsset(
-                labels = get(),
-                tradingBalanceDataManager = get(),
-                exchangeRateDataManager = get(),
-                custodialWalletManager = get(),
-                bankService = get(),
-                currencyPrefs = get()
-            )
-        }
-
-        scoped {
             val flag: FeatureFlag = get(ethLayerTwoFeatureFlag)
             val ncAssetList = if (flag.isEnabled) {
                 emptyList<AssetInfo>()
@@ -118,7 +106,6 @@ val coincoreModule = module {
             Coincore(
                 assetCatalogue = get(),
                 payloadManager = get(),
-                fiatAsset = get<FiatAsset>(),
                 assetLoader = get(),
                 txProcessorFactory = get(),
                 defaultLabels = get(),
@@ -126,7 +113,10 @@ val coincoreModule = module {
                 bankService = get(),
                 walletModeService = get(),
                 currencyPrefs = get(),
-                disabledEvmAssets = ncAssetList.toList()
+                disabledEvmAssets = ncAssetList.toList(),
+                custodialWalletManager = get(),
+                exchangeRateDataManager = get(),
+                tradingBalances = get()
             )
         }
 

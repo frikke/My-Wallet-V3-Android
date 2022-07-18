@@ -83,36 +83,15 @@ internal class DynamicAssetLoader(
             assetMap[assetInfo] = it
         }
 
-    override fun initAndPreload(): Completable {
-        return layerTwoFeatureFlag.enabled.flatMapCompletable { isEnabled ->
-            val enabledNonCustodialAssets = if (isEnabled) {
-                nonCustodialAssets
-            } else {
-                nonCustodialAssets.minus { cryptoAsset ->
-                    experimentalL1EvmAssets.contains(cryptoAsset.assetInfo)
-                }
-            }
+    override fun initAndPreload(): Completable =
+        getSupportedL1Assets().flatMapCompletable { enabledNonCustodialAssets ->
             nonCustodialActiveAssets.putAll(enabledNonCustodialAssets.associateBy { it.assetInfo })
-
             assetCatalogue.initialise()
                 .doOnSubscribe { remoteLogger.logEvent("Coincore init started") }
                 .flatMap { supportedAssets ->
                     // We need to make sure than any l1 assets - notably ETH - is initialised before
                     // create any l2s. So that things like balance calls will work
-                    initNonCustodialAssets(enabledNonCustodialAssets)
-                        // Do not load the non-custodial assets here otherwise they become DynamicOnlyTradingAsset
-                        // and the non-custodial accounts won't show up.
-                        .thenSingle {
-                            doLoadAssets(
-                                dynamicAssets = supportedAssets.filterIsInstance<AssetInfo>().toSet()
-                            ).zipWith(
-                                loadSelfCustodialAssets(
-                                    dynamicAssets = supportedAssets.filterIsInstance<AssetInfo>().toSet()
-                                )
-                            ) { assets, dscAssets ->
-                                assets.plus(dscAssets).toSet().toList()
-                            }
-                        }
+                    initAndLoadEnabledNonCustodialAssets(enabledNonCustodialAssets, supportedAssets)
                 }
                 .map { assets ->
                     // Local are the dominants
@@ -129,7 +108,35 @@ internal class DynamicAssetLoader(
                 .doOnError { Timber.e("init failed") }
                 .ignoreElement()
         }
+
+    private fun getSupportedL1Assets() = layerTwoFeatureFlag.enabled.map { isEnabled ->
+        if (isEnabled) {
+            nonCustodialAssets
+        } else {
+            nonCustodialAssets.minus { cryptoAsset ->
+                experimentalL1EvmAssets.contains(cryptoAsset.assetInfo)
+            }
+        }
     }
+
+    private fun initAndLoadEnabledNonCustodialAssets(
+        enabledNonCustodialAssets: Set<CryptoAsset>,
+        supportedAssets: Set<Currency>
+    ): Single<List<CryptoAsset>> =
+        initNonCustodialAssets(enabledNonCustodialAssets)
+            // Do not load the non-custodial assets here otherwise they become DynamicOnlyTradingAsset
+            // and the non-custodial accounts won't show up.
+            .thenSingle {
+                doLoadAssets(
+                    dynamicAssets = supportedAssets.filterIsInstance<AssetInfo>().toSet()
+                ).zipWith(
+                    loadSelfCustodialAssets(
+                        dynamicAssets = supportedAssets.filterIsInstance<AssetInfo>().toSet()
+                    )
+                ) { assets, dscAssets ->
+                    assets.plus(dscAssets).toSet().toList()
+                }
+            }
 
     private fun initNonCustodialAssets(assetList: Set<CryptoAsset>): Completable =
         assetList.filterIsInstance<NonCustodialSupport>().map {

@@ -1,5 +1,6 @@
 package com.blockchain.coincore
 
+import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.AllCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllNonCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
@@ -7,9 +8,12 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
+import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
@@ -22,6 +26,7 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import piuk.blockchain.androidcore.utils.extensions.then
 
 internal class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
 
@@ -38,12 +43,14 @@ class Coincore internal constructor(
     private val payloadManager: PayloadDataManager,
     private val txProcessorFactory: TxProcessorFactory,
     private val defaultLabels: DefaultLabels,
-    private val fiatAsset: Asset,
     private val currencyPrefs: CurrencyPrefs,
     private val remoteLogger: RemoteLogger,
     private val bankService: BankService,
     private val walletModeService: WalletModeService,
     private val disabledEvmAssets: List<AssetInfo>,
+    private val custodialWalletManager: CustodialWalletManager,
+    private val exchangeRateDataManager: ExchangeRatesDataManager,
+    private val tradingBalances: TradingBalanceDataManager
 ) {
     fun getWithdrawalLocks(localCurrency: Currency): Maybe<FundsLocks> =
         if (walletModeService.enabledWalletMode().custodialEnabled) {
@@ -60,6 +67,9 @@ class Coincore internal constructor(
 
     fun init(): Completable =
         assetLoader.initAndPreload()
+            .then {
+                initSupportedFiatAssets()
+            }
             .doOnComplete {
                 remoteLogger.logEvent("Coincore initialisation complete!")
             }
@@ -67,8 +77,32 @@ class Coincore internal constructor(
                 remoteLogger.logEvent("Coincore initialisation failed! $it")
             }
 
-    val fiatAssets: Asset
-        get() = fiatAsset
+    private fun initSupportedFiatAssets(): Completable =
+        custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency)
+            .flatMapCompletable { supportedFiatCurrencies ->
+                val supportedAssets = supportedFiatCurrencies.map { fiatCurrency ->
+                    FiatAsset(
+                        labels = defaultLabels,
+                        exchangeRateDataManager = exchangeRateDataManager,
+                        tradingBalanceDataManager = tradingBalances,
+                        custodialWalletManager = custodialWalletManager,
+                        bankService = bankService,
+                        assetInfo = fiatCurrency
+                    )
+                }
+                val selectedFiat = supportedAssets.find {
+                    it.assetInfo.networkTicker == currencyPrefs.selectedFiatCurrency.networkTicker
+                }
+                selectedFiat?.let {
+                    loadedFiatAssets.add(selectedFiat)
+                    loadedFiatAssets.addAll(supportedAssets.minus(selectedFiat))
+                } ?: loadedFiatAssets.addAll(supportedAssets)
+                Completable.complete()
+            }
+
+    private val loadedFiatAssets = mutableListOf<FiatAsset>()
+
+    val fiatAssets: Single<List<FiatAsset>> = Single.just(loadedFiatAssets.toList())
 
     /**
      * TODO(antonis-bc) This should get removed from here. Nothing to do with coincore
@@ -76,7 +110,7 @@ class Coincore internal constructor(
     fun validateSecondPassword(secondPassword: String) =
         payloadManager.validateSecondPassword(secondPassword)
 
-    private fun allLoadedAssets() = assetLoader.loadedAssets + fiatAsset
+    private fun allLoadedAssets() = assetLoader.loadedAssets + loadedFiatAssets
 
     fun allWallets(includeArchived: Boolean = false): Single<AccountGroup> =
         walletsWithFilter(includeArchived, AssetFilter.All).map { list ->
@@ -153,10 +187,9 @@ class Coincore internal constructor(
         val sameCurrencyTransactionTargets =
             get(sourceAccount.currency).transactionTargets(sourceAccount)
 
-        val fiatTargets = fiatAsset.accountGroup(AssetFilter.All)
-            .map {
-                it.accounts
-            }.defaultIfEmpty(emptyList())
+        val fiatTargets = Single.fromCallable {
+            loadedFiatAssets.map { it.custodialAccount }
+        }
 
         val sameCurrencyPlusFiat = sameCurrencyTransactionTargets
             .zipWith(fiatTargets) { crypto, fiat ->
@@ -296,7 +329,7 @@ class Coincore internal constructor(
         activeAssets(walletMode).filterIsInstance<CryptoAsset>()
 
     fun activeAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): List<Asset> =
-        assetLoader.activeAssets(walletMode) + fiatAssets
+        assetLoader.activeAssets(walletMode) + loadedFiatAssets
 
     fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets.minus(disabledEvmAssets.toSet())
 }
