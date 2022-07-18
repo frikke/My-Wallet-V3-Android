@@ -15,7 +15,6 @@ import com.blockchain.nabu.api.kyc.data.store.KycStore
 import com.blockchain.nabu.api.kyc.domain.KycStoreService
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.cache.CustodialAssetsEligibilityCache
-import com.blockchain.nabu.cache.UserCache
 import com.blockchain.nabu.datamanagers.AnalyticsNabuUserReporterImpl
 import com.blockchain.nabu.datamanagers.AnalyticsWalletReporter
 import com.blockchain.nabu.datamanagers.CreateNabuTokenAdapter
@@ -94,12 +93,6 @@ val nabuModule = module {
                 trust = get()
             )
         }.bind(NabuDataManager::class)
-
-        scoped {
-            UserCache(
-                nabuService = get()
-            )
-        }
 
         scoped {
             GetUserStore(
@@ -247,10 +240,8 @@ val nabuModule = module {
 
         factory {
             NabuTierService(
-                assetCatalogue = get(),
                 authenticator = get(),
                 kycStoreService = get(),
-                speedUpLoginKycFF = get(speedUpLoginKycFeatureFlag),
                 endpoint = get()
             )
         }.apply {
@@ -264,14 +255,7 @@ val nabuModule = module {
 
         factory<NabuDataUserProvider> {
             NabuDataUserProviderNabuDataManagerAdapter(
-                authenticator = get(),
-                userCache = get(),
-                userReporter = get(uniqueUserAnalytics),
-                trust = get(),
-                walletReporter = get(uniqueId),
-                payloadDataManager = get(),
-                getUserStoreService = get(),
-                speedUpLoginUserFF = get(speedUpLoginUserFeatureFlag)
+                getUserStoreService = get()
             )
         }
 

@@ -2,10 +2,8 @@ package com.blockchain.core.interest
 
 import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.interest.domain.InterestStoreService
-import com.blockchain.featureflag.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -30,49 +28,15 @@ interface InterestBalanceDataManager {
 }
 
 internal class InterestBalanceDataManagerImpl(
-    private val balanceCallCache: InterestBalanceCallCache,
     private val interestStoreService: InterestStoreService,
-    private val interestDataSource: InterestDataSource,
-    private val speedUpLoginInterestFF: FeatureFlag,
+    private val interestDataSource: InterestDataSource
 ) : InterestBalanceDataManager {
-    override fun getBalanceForAsset(asset: AssetInfo): Observable<InterestAccountBalance> {
-        return speedUpLoginInterestFF.enabled.flatMapObservable { isEnabled ->
-            if (isEnabled) {
-                interestStoreService.getBalanceFor(asset = asset)
-            } else {
-                balanceCallCache.getBalances().map {
-                    it.getOrDefault(asset, zeroBalance(asset))
-                }.toObservable()
-            }
-        }
-    }
+    override fun getBalanceForAsset(asset: AssetInfo): Observable<InterestAccountBalance> =
+        interestStoreService.getBalanceFor(asset = asset)
 
-    override fun getActiveAssets(): Single<Set<AssetInfo>> {
-        return speedUpLoginInterestFF.enabled.flatMap { isEnabled ->
-            if (isEnabled) {
-                interestStoreService.getActiveAssets()
-            } else {
-                balanceCallCache.getBalances().map { it.keys }
-            }
-        }
-    }
+    override fun getActiveAssets(): Single<Set<AssetInfo>> =
+        interestStoreService.getActiveAssets()
 
-    override fun flushCaches(asset: AssetInfo) {
-        speedUpLoginInterestFF.enabled.subscribe { isEnabled ->
-            if (isEnabled) {
-                interestDataSource.invalidate()
-            } else {
-                balanceCallCache.invalidate()
-            }
-        }
-    }
+    override fun flushCaches(asset: AssetInfo) =
+        interestDataSource.invalidate()
 }
-
-private fun zeroBalance(asset: Currency): InterestAccountBalance =
-    InterestAccountBalance(
-        totalBalance = Money.zero(asset),
-        pendingInterest = Money.zero(asset),
-        pendingDeposit = Money.zero(asset),
-        totalInterest = Money.zero(asset),
-        lockedBalance = Money.zero(asset)
-    )

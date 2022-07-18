@@ -22,11 +22,6 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.quickFillButtonsFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
-import com.blockchain.koin.speedUpLoginErc20FeatureFlag
-import com.blockchain.koin.speedUpLoginInterestFeatureFlag
-import com.blockchain.koin.speedUpLoginKycFeatureFlag
-import com.blockchain.koin.speedUpLoginTradingFeatureFlag
-import com.blockchain.koin.speedUpLoginUserFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
@@ -42,51 +37,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_sso_account_unification",
                 "SSO Account Unification"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(speedUpLoginInterestFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_speedup_login_interest",
-                "SpeedUp Login - /accounts/savings"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(speedUpLoginTradingFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_speedup_login_trading",
-                "SpeedUp Login - /accounts/simplebuy"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(speedUpLoginUserFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_speedup_login_user",
-                "SpeedUp Login - /user"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(speedUpLoginErc20FeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_speedup_login_erc20",
-                "SpeedUp Login - eth erc20"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(speedUpLoginKycFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_speedup_login_kyc",
-                "SpeedUp Login - /kyc/tiers"
             )
         )
     }.bind(FeatureFlag::class)
