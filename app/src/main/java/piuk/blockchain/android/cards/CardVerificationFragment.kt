@@ -170,6 +170,7 @@ class CardVerificationFragment :
                     CardError.CARD_CREATE_DEBIT_ONLY -> R.string.title_cardCreateDebitOnly
                     CardError.CARD_PAYMENT_DEBIT_ONLY -> R.string.title_cardPaymentDebitOnly
                     CardError.CARD_CREATE_NO_TOKEN -> R.string.title_cardCreateNoToken
+                    CardError.CARD_LIMIT_REACHED -> R.string.card_limit_reached_title
                     else -> R.string.linking_card_error_title
                 }
             )
@@ -194,6 +195,7 @@ class CardVerificationFragment :
                     CardError.ACTIVATION_FAIL -> R.string.could_not_activate_card
                     CardError.PENDING_AFTER_POLL -> R.string.card_still_pending
                     CardError.LINK_FAILED -> R.string.card_link_failed
+                    CardError.CARD_LIMIT_REACHED -> R.string.card_limit_reached_desc
                 }
             )
         }

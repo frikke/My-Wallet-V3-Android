@@ -2929,6 +2929,8 @@
     <string name="msg_cardPaymentDebitOnly">This payment method was unsuccessful. Please try another payment method.</string>
     <string name="title_cardCreateNoToken">Card Not Supported</string>
     <string name="msg_cardCreateNoToken">We were unable to add your card. Please try again or choose a different payment method.</string>
+    <string name="card_limit_reached_title">Too Many Cards</string>
+    <string name="card_limit_reached_desc">You have reached the max number of allowed cards. Please remove one before adding more or choose a different payment method.</string>
 
     <!--  Referral -->
     <string name="referral_code_title">Your referral code</string>

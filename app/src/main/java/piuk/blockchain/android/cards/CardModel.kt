@@ -137,6 +137,7 @@ class CardModel(
                 NabuErrorCodes.CardCreateDebitOnly -> CardError.CARD_CREATE_DEBIT_ONLY
                 NabuErrorCodes.CardPaymentDebitOnly -> CardError.CARD_PAYMENT_DEBIT_ONLY
                 NabuErrorCodes.CardCreateNoToken -> CardError.CARD_CREATE_NO_TOKEN
+                NabuErrorCodes.CardLimitReached -> CardError.CARD_LIMIT_REACHED
                 else -> defaultError
             }
         } else {
