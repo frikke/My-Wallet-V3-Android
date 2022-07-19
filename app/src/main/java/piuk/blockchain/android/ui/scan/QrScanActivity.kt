@@ -102,15 +102,12 @@ sealed class QrExpected : Parcelable {
     object ImportWalletKeysQr : QrExpected() // Import a wallet.
 
     @Parcelize
-    object LegacyPairingQr : QrExpected()
-
-    @Parcelize
     object WebLoginQr : QrExpected() // New auth
 
     companion object {
         val IMPORT_KEYS_QR = setOf(ImportWalletKeysQr)
-        val LEGACY_PAIRING_QR = setOf(LegacyPairingQr)
-        val MAIN_ACTIVITY_QR = setOf(AnyAssetAddressQr /*, WebLoginQr */, BitPayQr, WalletConnectQr)
+        val WEB_LOGIN_QR = setOf(WebLoginQr)
+        val MAIN_ACTIVITY_QR = setOf(AnyAssetAddressQr, BitPayQr, WalletConnectQr)
 
         @Suppress("FunctionName")
         fun ASSET_ADDRESS_QR(asset: AssetInfo) = setOf(AssetAddressQr(asset.networkTicker))
@@ -231,7 +228,6 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
                 is QrExpected.AssetAddressQr -> getString(R.string.qr_activity_hint_asset_address, expect.assetTicker)
                 is QrExpected.BitPayQr -> getString(R.string.qr_activity_hint_bitpay)
                 is QrExpected.ImportWalletKeysQr -> getString(R.string.qr_activity_hint_import_wallet)
-                is QrExpected.LegacyPairingQr -> getString(R.string.qr_activity_hint_pairing_code)
                 is QrExpected.WebLoginQr -> getString(R.string.qr_activity_hint_new_web_login)
                 is QrExpected.WalletConnectQr -> getString(R.string.empty)
             }

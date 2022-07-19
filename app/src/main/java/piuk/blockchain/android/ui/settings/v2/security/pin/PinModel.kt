@@ -76,6 +76,12 @@ class PinModel(
                                 interactor.clearPin()
                             }
                         )
+                } ?: run {
+                    // TODO This shouldn't happen, we may have multiple instances of PayloadData
+                    process(PinIntent.UpdatePinErrorState(PinError.CREATE_PIN_FAILED))
+                    interactor.clearPrefs()
+                    interactor.clearPin()
+                    null
                 }
             }
             is PinIntent.ValidatePIN -> {

@@ -24,7 +24,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -112,7 +111,7 @@ class LoginActivity :
             }
             if (environmentConfig.isRunningInDebugMode()) {
                 scanPairingButton.setOnClickListener {
-                    QrScanActivity.start(this@LoginActivity, QrExpected.MAIN_ACTIVITY_QR)
+                    QrScanActivity.start(this@LoginActivity, QrExpected.WEB_LOGIN_QR)
                 }
                 scanPairingButton.visibleIf {
                     environmentConfig.environment != Environment.PRODUCTION
