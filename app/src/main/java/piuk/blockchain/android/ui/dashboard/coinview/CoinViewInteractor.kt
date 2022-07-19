@@ -62,7 +62,7 @@ class CoinViewInteractor(
         get() = walletModeService.enabledWalletMode()
 
     fun loadAssetDetails(assetTicker: String): Single<Pair<CryptoAsset?, FiatCurrency>> =
-        Single.just(Pair(coincore[assetTicker], currencyPrefs.selectedFiatCurrency))
+        Single.just(Pair(coincore[assetTicker] as CryptoAsset, currencyPrefs.selectedFiatCurrency))
 
     fun loadAccountDetails(asset: CryptoAsset): Single<AssetInformation> =
         getAssetDisplayDetails(asset)
@@ -99,7 +99,7 @@ class CoinViewInteractor(
             identity.userAccessForFeature(Feature.Buy),
             identity.userAccessForFeature(Feature.Sell),
             identity.userAccessForFeature(Feature.DepositCrypto),
-            custodialWalletManager.isCurrencyAvailableForTrading(asset.assetInfo),
+            custodialWalletManager.isCurrencyAvailableForTrading(asset.currency),
         ) { tier, sddEligible, buyAccess,
             sellAccess, depositCryptoAccess, isSupportedPair ->
             val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
@@ -244,7 +244,7 @@ class CoinViewInteractor(
             accounts,
             load24hPriceDelta(asset),
             asset.interestRate(),
-            watchlistDataManager.isAssetInWatchlist(asset.assetInfo)
+            watchlistDataManager.isAssetInWatchlist(asset.currency)
         ) { accounts, prices, interestRate, isAddedToWatchlist ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // available accounts to see if we support custodial or PK balances as a guideline to asset support
@@ -261,8 +261,8 @@ class CoinViewInteractor(
                 val accountsList = mapAccounts(
                     accounts, prices.currentRate, interestRate
                 )
-                val totalCryptoMoney = Money.zero(asset.assetInfo)
-                var totalCryptoMoneyAll = Money.zero(asset.assetInfo)
+                val totalCryptoMoney = Money.zero(asset.currency)
+                var totalCryptoMoneyAll = Money.zero(asset.currency)
                 val totalCryptoBalance = hashMapOf(AssetFilter.All to totalCryptoMoneyAll)
                 var totalFiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency)
 

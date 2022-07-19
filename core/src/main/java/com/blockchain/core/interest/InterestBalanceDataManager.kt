@@ -23,7 +23,7 @@ data class InterestAccountBalance(
 interface InterestBalanceDataManager {
     fun getBalanceForAsset(asset: AssetInfo): Observable<InterestAccountBalance>
 
-    fun getActiveAssets(): Single<Set<AssetInfo>>
+    fun getActiveAssets(forceRefresh: Boolean): Single<Set<AssetInfo>>
     fun flushCaches(asset: AssetInfo)
 }
 
@@ -34,8 +34,8 @@ internal class InterestBalanceDataManagerImpl(
     override fun getBalanceForAsset(asset: AssetInfo): Observable<InterestAccountBalance> =
         interestStoreService.getBalanceFor(asset = asset)
 
-    override fun getActiveAssets(): Single<Set<AssetInfo>> =
-        interestStoreService.getActiveAssets()
+    override fun getActiveAssets(forceRefresh: Boolean): Single<Set<AssetInfo>> =
+        interestStoreService.getActiveAssets(forceRefresh)
 
     override fun flushCaches(asset: AssetInfo) =
         interestDataSource.invalidate()

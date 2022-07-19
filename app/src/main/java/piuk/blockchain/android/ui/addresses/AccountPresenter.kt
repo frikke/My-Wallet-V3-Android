@@ -6,9 +6,9 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AddressAnalytics
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.analytics.events.WalletAnalytics
+import com.blockchain.coincore.Asset
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.MultipleWalletsAsset
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
@@ -194,14 +194,14 @@ class AccountPresenter internal constructor(
             )
     }
 
-    private fun fetchAccountList(asset: CryptoAsset) {
+    private fun fetchAccountList(asset: Asset) {
         require(asset is MultipleWalletsAsset)
 
         compositeDisposable += asset.accountGroup(AssetFilter.NonCustodial)
             .map {
                 it.accounts
             }.subscribeBy(
-                onSuccess = { processCoincoreList(asset.assetInfo, it) },
+                onSuccess = { processCoincoreList(asset.currency, it) },
                 onError = { e ->
                     Timber.e("Failed to get account list for asset: $e")
                 }

@@ -15,7 +15,7 @@ data class TradingAccountBalance(
 
 interface TradingBalanceDataManager {
     fun getBalanceForCurrency(currency: Currency): Observable<TradingAccountBalance>
-    fun getActiveAssets(): Single<Set<Currency>>
+    fun getActiveAssets(forceRefresh: Boolean = false): Single<Set<Currency>>
 }
 
 internal class TradingBalanceDataManagerImpl(
@@ -24,6 +24,6 @@ internal class TradingBalanceDataManagerImpl(
     override fun getBalanceForCurrency(currency: Currency): Observable<TradingAccountBalance> =
         tradingStoreService.getBalanceFor(asset = currency)
 
-    override fun getActiveAssets(): Single<Set<Currency>> =
-        tradingStoreService.getActiveAssets()
+    override fun getActiveAssets(forceRefresh: Boolean): Single<Set<Currency>> =
+        tradingStoreService.getActiveAssets(forceRefresh)
 }

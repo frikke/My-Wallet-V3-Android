@@ -41,8 +41,8 @@ internal class Erc20StoreRepository(
         getBalances(refresh = true)
             .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
 
-    override fun getActiveAssets(): Single<Set<AssetInfo>> =
-        getBalances(refresh = false).map { it.keys }.firstElement().toSingle()
+    override fun getActiveAssets(refresh: Boolean): Single<Set<AssetInfo>> =
+        getBalances(refresh = refresh).map { it.keys }.firstElement().toSingle()
 }
 
 private fun Erc20TokenBalance?.mapBalance(asset: AssetInfo): Erc20Balance =

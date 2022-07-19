@@ -36,7 +36,7 @@ internal class CryptoCustodialTestAsset : CryptoAssetBase() {
         return Single.just(nonCustodialAccounts)
     }
 
-    override val assetInfo: AssetInfo
+    override val currency: AssetInfo
         get() = TEST_ASSET
 
     override fun parseAddress(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> =

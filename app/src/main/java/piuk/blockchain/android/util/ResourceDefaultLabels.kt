@@ -28,6 +28,9 @@ internal class ResourceDefaultLabels(
         return resources.getString(R.string.custodial_wallet_default_label_1)
     }
 
+    override fun getDefaultFiatWalletLabel(): String =
+        "Fiat Accounts"
+
     override fun getAssetMasterWalletLabel(asset: Currency): String =
         asset.name
 

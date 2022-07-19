@@ -33,7 +33,7 @@ internal class XlmAsset(
     private val addressResolver: IdentityAddressResolver,
 ) : CryptoAssetBase() {
 
-    override val assetInfo: AssetInfo
+    override val currency: AssetInfo
         get() = CryptoCurrency.XLM
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =

@@ -71,7 +71,7 @@ private class DefiAssetCardViewHolder(
 
         when {
             defiAsset.hasBalanceError -> renderError(defiAsset)
-            defiAsset.isLoading -> renderLoading()
+            defiAsset.isUILoading -> renderLoading()
             else -> renderLoaded(defiAsset, onCardClicked)
         }
     }

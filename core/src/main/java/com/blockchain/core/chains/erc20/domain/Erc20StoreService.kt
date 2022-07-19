@@ -10,5 +10,5 @@ interface Erc20StoreService {
 
     fun getBalanceFor(asset: AssetInfo): Observable<Erc20Balance>
 
-    fun getActiveAssets(): Single<Set<AssetInfo>>
+    fun getActiveAssets(refresh: Boolean = false): Single<Set<AssetInfo>>
 }

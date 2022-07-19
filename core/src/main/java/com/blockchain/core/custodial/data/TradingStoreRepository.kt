@@ -38,8 +38,8 @@ internal class TradingStoreRepository(
             .map { it.getOrDefault(asset, zeroBalance(asset)) }
     }
 
-    override fun getActiveAssets(): Single<Set<Currency>> {
-        return getBalances(false)
+    override fun getActiveAssets(forceRefresh: Boolean): Single<Set<Currency>> {
+        return getBalances(forceRefresh)
             .map { it.keys }.firstElement().toSingle()
     }
 }

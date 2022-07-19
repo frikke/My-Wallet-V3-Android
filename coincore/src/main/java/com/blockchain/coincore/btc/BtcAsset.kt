@@ -40,7 +40,7 @@ internal class BtcAsset(
 ) : CryptoAssetBase(),
     MultipleWalletsAsset {
 
-    override val assetInfo: AssetInfo
+    override val currency: AssetInfo
         get() = CryptoCurrency.BTC
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
@@ -75,7 +75,7 @@ internal class BtcAsset(
         }
 
         val notify = NotificationAddresses(
-            assetTicker = assetInfo.networkTicker,
+            assetTicker = currency.networkTicker,
             addressList = addressList
         )
         return notificationUpdater.updateNotificationBackend(notify)

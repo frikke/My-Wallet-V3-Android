@@ -54,23 +54,10 @@ class DashboardModel(
                 process(DashboardIntent.LoadFundsLocked)
                 interactor.refreshBalances(
                     model = this,
-                    activeAssets = intent.assetList.map { it.currency }.toSet(),
-                    fiatAccounts = intent.fiatAssetList.map { FiatBalanceInfo(it) }.toSet()
+                    activeAssets = intent.assetList.map { it.currency }.toSet()
                 )
             }
             is DashboardIntent.GetAssetPrice -> interactor.fetchAssetPrice(this, intent.asset)
-            is DashboardIntent.RefreshAllBalancesIntent -> {
-                if (previousState.activeAssets.isNotEmpty()) {
-                    interactor.refreshBalances(
-                        model = this,
-                        activeAssets = previousState.activeAssets.keys.toSet(),
-                        fiatAccounts = previousState.fiatAssets.fiatAccounts.values.toSet()
-                    )
-                } else {
-                    process(DashboardIntent.GetActiveAssets(loadSilently = false))
-                    null
-                }
-            }
             is DashboardIntent.BalanceUpdate -> {
                 process(DashboardIntent.RefreshPrices(previousState[intent.asset]))
                 null
@@ -87,14 +74,16 @@ class DashboardModel(
             is DashboardIntent.UpdateDepositButton -> userCanDeposit()
             is DashboardIntent.LoadFundsLocked -> interactor.loadWithdrawalLocks(this)
             is DashboardIntent.FetchOnboardingSteps -> interactor.getOnboardingSteps(this)
-            is DashboardIntent.RefreshFiatBalances -> interactor.refreshFiatBalances(intent.fiatAccounts, this)
             is DashboardIntent.FetchReferralSuccess -> interactor.checkReferralSuccess(this)
             is DashboardIntent.DismissReferralSuccess -> {
                 interactor.dismissReferralSuccess()
             }
+            is DashboardIntent.OnSwipeToRefresh -> {
+                process(DashboardIntent.GetActiveAssets(true))
+                null
+            }
             is DashboardIntent.ShowBankLinkingWithAlias,
             is DashboardIntent.ShowReferralSuccess,
-            is DashboardIntent.FiatBalanceUpdate,
             is DashboardIntent.BalanceUpdateError,
             is DashboardIntent.PriceHistoryUpdate,
             is DashboardIntent.ClearAnnouncement,
@@ -118,8 +107,8 @@ class DashboardModel(
             is DashboardIntent.SetDepositVisibility,
             DashboardIntent.ResetDashboardAssets,
             DashboardIntent.NoActiveAssets,
-            is DashboardIntent.UpdateNavigationAction,
-            -> null
+            is DashboardIntent.BalanceFetching,
+            is DashboardIntent.UpdateNavigationAction -> null
         }.exhaustive
     }
 

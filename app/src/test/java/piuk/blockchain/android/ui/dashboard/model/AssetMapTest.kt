@@ -31,7 +31,7 @@ class AssetMapTest {
 
     @Test
     fun `copy with patchAsset works as expected`() {
-        val newAsset = BrokerageAsset(
+        val newAsset = BrokerageCryptoAsset(
             currency = CryptoCurrency.BTC,
             accountBalance = mock {
                 on { total }.thenReturn(20.bitcoin())

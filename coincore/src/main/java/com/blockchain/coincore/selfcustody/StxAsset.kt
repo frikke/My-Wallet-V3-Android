@@ -17,7 +17,7 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 internal class StxAsset(
-    override val assetInfo: AssetInfo,
+    override val currency: AssetInfo,
     private val payloadManager: PayloadDataManager,
     private val addressResolver: IdentityAddressResolver,
     private val addressValidation: String? = null,
@@ -33,7 +33,7 @@ internal class StxAsset(
                     isEnabled -> listOf(
                         DynamicNonCustodialAccount(
                             payloadManager,
-                            assetInfo,
+                            currency,
                             coinConfiguration,
                             addressResolver,
                             selfCustodyService,
@@ -56,7 +56,7 @@ internal class StxAsset(
                 Maybe.just(
                     DynamicNonCustodialAddress(
                         address = address,
-                        asset = assetInfo,
+                        asset = currency,
                         isDomain = isDomainAddress
                     )
                 )

@@ -13,10 +13,7 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
-import info.blockchain.balance.FiatValue
-import info.blockchain.balance.Money
 import java.io.Serializable
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
@@ -40,14 +37,12 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     data class GetActiveAssets(
-        private val loadSilently: Boolean = false
+        private val loadSilently: Boolean
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
-            val activeAssets = if (loadSilently) oldState.activeAssets else AssetMap(mapOf())
-            val fiatAssets = if (loadSilently) oldState.fiatAssets else FiatAssetState()
+            val activeAssets = if (loadSilently) oldState.activeAssets else oldState.activeAssets.reset()
             return oldState.copy(
                 activeAssets = activeAssets,
-                fiatAssets = fiatAssets,
                 isLoadingAssets = !loadSilently || activeAssets.isEmpty()
             )
         }
@@ -70,26 +65,23 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class UpdateAllAssetsAndBalances(
-        val assetList: List<DashboardAsset>,
-        val fiatAssetList: List<FiatAccount>
+        val assetList: List<DashboardAsset>
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
-            val fiatState = FiatAssetState(
-                fiatAssetList.associateBy(
-                    keySelector = { it.currency },
-                    valueTransform = { FiatBalanceInfo(it) }
-                )
-            )
+
             return oldState.copy(
                 activeAssets = AssetMap(
                     assetList.associateBy(
                         keySelector = { it.currency },
                         valueTransform = {
-                            it
+                            if (oldState.containsDashboardAssetInValidState(it)) {
+                                oldState.activeAssets.getValue(it.currency)
+                            } else {
+                                it
+                            }
                         }
                     )
-                ),
-                fiatAssets = fiatState
+                )
             )
         }
     }
@@ -99,12 +91,12 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class AssetPriceUpdate(
-        val asset: AssetInfo,
+        val currency: Currency,
         val price: ExchangeRate
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
-            val updatedActiveList = if (oldState.activeAssets.contains(asset)) {
-                val oldAsset = oldState.activeAssets[asset]
+            val updatedActiveList = if (oldState.activeAssets.contains(currency)) {
+                val oldAsset = oldState.activeAssets[currency]
                 val newAsset = updateAsset(oldAsset, price)
                 oldState.activeAssets.copy(patchAsset = newAsset)
             } else {
@@ -145,7 +137,8 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             )
         }
 
-        override fun isValidFor(oldState: DashboardState): Boolean = oldState.activeAssets[asset] is BrokerageAsset
+        override fun isValidFor(oldState: DashboardState): Boolean =
+            oldState.activeAssets[asset] is BrokerageCryptoAsset
 
         private fun updateAsset(
             old: DashboardAsset,
@@ -172,24 +165,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             )
     }
 
-    class FiatBalanceUpdate(
-        private val balance: Money,
-        private val fiatBalance: Money,
-        private val balanceAvailable: Money,
-    ) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState {
-            val oldFiatValues = oldState.fiatAssets
-            return oldState.copy(
-                fiatAssets = oldFiatValues.updateWith(
-                    balance.currency,
-                    balance as FiatValue,
-                    fiatBalance as FiatValue,
-                    balanceAvailable
-                )
-            )
-        }
-    }
-
     object ResetNavigation : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
@@ -197,26 +172,18 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             )
     }
 
-    class RefreshAllBalancesIntent(private val loadSilently: Boolean) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState {
-            val activeAssets = if (loadSilently) oldState.activeAssets else oldState.activeAssets.reset()
-            val fiatAssets = if (loadSilently) oldState.fiatAssets else oldState.fiatAssets.reset()
-            return oldState.copy(activeAssets = activeAssets, fiatAssets = fiatAssets)
-        }
-    }
-
     object ResetDashboardAssets : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
-            return oldState.copy(activeAssets = oldState.activeAssets.reset(), fiatAssets = oldState.fiatAssets.reset())
+            return oldState.copy(activeAssets = oldState.activeAssets.reset())
         }
     }
 
     class BalanceUpdate(
-        val asset: AssetInfo,
+        val asset: Currency,
         private val newBalance: AccountBalance
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
-            val balance = newBalance.total as CryptoValue
+            val balance = newBalance.total
             require(asset == balance.currency) {
                 throw IllegalStateException("CryptoCurrency mismatch")
             }
@@ -234,7 +201,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class BalanceUpdateError(
-        val asset: AssetInfo,
+        val asset: Currency,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val oldAsset = oldState[asset]
@@ -242,6 +209,24 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
 
             return oldState.copy(activeAssets = newAssets)
+        }
+    }
+
+    class BalanceFetching(
+        private val asset: Currency,
+        private val isFetching: Boolean,
+    ) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState {
+            val oldAsset = oldState[asset]
+            val newAsset = oldAsset.updateFetchingBalanceState(isFetching)
+            val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
+
+            return oldState.copy(
+                activeAssets = newAssets,
+                isSwipingToRefresh = oldState.isSwipingToRefresh && oldState.activeAssets.values.any {
+                    it.isFetchingBalance
+                }
+            )
         }
     }
 
@@ -257,7 +242,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return if (oldState.activeAssets.contains(asset)) {
-                val oldAsset = oldState.activeAssets[asset] as? BrokerageAsset ?: throw IllegalStateException(
+                val oldAsset = oldState.activeAssets[asset] as? BrokerageCryptoAsset ?: throw IllegalStateException(
                     "Historic prices are only supported for brokerage"
                 )
                 val newAsset = updateAsset(oldAsset, historicPrices)
@@ -268,9 +253,9 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
 
         private fun updateAsset(
-            old: BrokerageAsset,
+            old: BrokerageCryptoAsset,
             historicPrices: HistoricalRateList
-        ): BrokerageAsset {
+        ): BrokerageCryptoAsset {
             val trend = historicPrices.map { it.rate.toFloat() }
             return old.copy(priceTrend = trend)
         }
@@ -469,10 +454,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         )
     }
 
-    class RefreshFiatBalances(val fiatAccounts: Map<Currency, FiatBalanceInfo>) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState = oldState
-    }
-
     object FetchReferralSuccess : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState.copy()
     }
@@ -486,6 +467,12 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     object DismissReferralSuccess : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(
             referralSuccessData = null
+        )
+    }
+
+    object OnSwipeToRefresh : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(
+            isSwipingToRefresh = true
         )
     }
 }

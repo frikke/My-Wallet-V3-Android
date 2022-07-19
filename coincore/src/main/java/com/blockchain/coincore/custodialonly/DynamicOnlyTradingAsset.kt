@@ -11,7 +11,7 @@ import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 internal class DynamicOnlyTradingAsset(
-    override val assetInfo: AssetInfo,
+    override val currency: AssetInfo,
     private val addressValidation: String? = null
 ) : CryptoAssetBase() {
 
@@ -28,7 +28,7 @@ internal class DynamicOnlyTradingAsset(
                 Maybe.just(
                     DynamicCustodialAddress(
                         address = address,
-                        asset = assetInfo as AssetInfo,
+                        asset = currency as AssetInfo,
                         isDomain = isDomainAddress
                     )
                 )

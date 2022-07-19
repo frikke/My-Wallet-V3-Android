@@ -7,7 +7,7 @@ import info.blockchain.balance.ValueTypeMismatchException
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-class ExchangeRate(
+data class ExchangeRate(
     private val rate: BigDecimal?,
     val from: Currency,
     val to: Currency

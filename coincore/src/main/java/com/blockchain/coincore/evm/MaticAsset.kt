@@ -38,13 +38,13 @@ internal class MaticAsset(
 
     private val nativeNetworkTicker = CryptoCurrency.MATIC.networkTicker.removeSuffix(".MATIC")
 
-    override val assetInfo: AssetInfo = CryptoCurrency.MATIC
+    override val currency: AssetInfo = CryptoCurrency.MATIC
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         layerTwoFeatureFlag.enabled.flatMap { isEnabled ->
             if (isEnabled) {
                 erc20DataManager.getSupportedNetworks().map { supportedNetworks ->
-                    if (assetInfo.categories.contains(AssetCategory.NON_CUSTODIAL)) {
+                    if (currency.categories.contains(AssetCategory.NON_CUSTODIAL)) {
                         supportedNetworks.firstOrNull { evmNetwork ->
                             evmNetwork.networkTicker == nativeNetworkTicker
                         }?.let { evmNetwork ->
@@ -61,7 +61,7 @@ internal class MaticAsset(
 
     private fun getNonCustodialAccount(evmNetwork: EvmNetwork): L1EvmNonCustodialAccount =
         L1EvmNonCustodialAccount(
-            assetInfo,
+            currency,
             ethDataManager,
             erc20DataManager,
             erc20address,

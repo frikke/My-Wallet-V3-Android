@@ -33,7 +33,7 @@ internal class EthAsset(
     private val addressResolver: EthHotWalletAddressResolver
 ) : CryptoAssetBase(),
     NonCustodialSupport {
-    override val assetInfo: AssetInfo
+    override val currency: AssetInfo
         get() = CryptoCurrency.ETHER
 
     override fun initToken(): Completable =
@@ -68,7 +68,7 @@ internal class EthAsset(
 
     private fun updateBackendNotificationAddresses(account: EthCryptoWalletAccount) {
         val notify = NotificationAddresses(
-            assetTicker = assetInfo.networkTicker,
+            assetTicker = currency.networkTicker,
             addressList = listOf(account.address)
         )
         return notificationUpdater.updateNotificationBackend(notify)

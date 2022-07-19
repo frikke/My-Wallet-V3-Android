@@ -73,7 +73,7 @@ interface Erc20DataManager {
     fun isContractAddress(address: String, l1Chain: String? = null): Single<Boolean>
 
     fun getErc20Balance(asset: AssetInfo): Observable<Erc20Balance>
-    fun getActiveAssets(): Single<Set<AssetInfo>>
+    fun getActiveAssets(refresh: Boolean): Single<Set<AssetInfo>>
 
     fun getSupportedNetworks(): Single<List<EvmNetwork>>
 
@@ -152,9 +152,9 @@ internal class Erc20DataManagerImpl(
         }
     }
 
-    override fun getActiveAssets(): Single<Set<AssetInfo>> {
+    override fun getActiveAssets(refresh: Boolean): Single<Set<AssetInfo>> {
         return ethLayerTwoFeatureFlag.enabled.flatMap { isEnabled ->
-            erc20StoreService.getActiveAssets()
+            erc20StoreService.getActiveAssets(refresh)
                 .flatMap { baseErc20Assets ->
                     if (isEnabled) {
                         getSupportedNetworks().flatMap { supportedNetworks ->

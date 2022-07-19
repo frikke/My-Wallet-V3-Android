@@ -15,8 +15,11 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
 
-class FiatAssetTransferTest {
+class FiatAssetTransferTest : KoinTest {
 
     @get:Rule
     val rxSchedulers = rxInit {
@@ -31,12 +34,31 @@ class FiatAssetTransferTest {
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val bankService: BankService = mock()
 
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            listOf(
+                module {
+                    factory {
+                        labels
+                    }
+                    factory {
+                        exchangeRateDataManager
+                    }
+                    factory {
+                        tradingBalanceDataManager
+                    }
+                    factory {
+                        custodialWalletManager
+                    }
+                    factory {
+                        bankService
+                    }
+                }
+            )
+        )
+    }
     private val subject = FiatAsset(
-        labels,
-        exchangeRateDataManager,
-        tradingBalanceDataManager,
-        custodialWalletManager,
-        bankService,
         SELECTED_FIAT
     )
 
