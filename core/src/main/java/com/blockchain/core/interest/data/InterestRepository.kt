@@ -1,9 +1,9 @@
 package com.blockchain.core.interest.data
 
 import com.blockchain.api.services.InterestBalanceDetails
-import com.blockchain.core.interest.domain.model.InterestAccountBalance
-import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.store.StoreRequest
 import com.blockchain.store.asObservable
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
@@ -16,11 +16,11 @@ import io.reactivex.rxjava3.core.Single
 
 internal class InterestRepository(
     private val assetCatalogue: AssetCatalogue,
-    private val interestDataSource: InterestDataSource
+    private val interestStore: InterestStore
 ) : InterestService {
 
     private fun getBalances(refresh: Boolean): Observable<Map<AssetInfo, InterestAccountBalance>> {
-        return interestDataSource.stream(refresh)
+        return interestStore.stream(StoreRequest.Cached(refresh))
             .mapData { interestBalanceDetailList ->
                 interestBalanceDetailList.mapNotNull { interestBalanceDetails ->
                     (assetCatalogue.fromNetworkTicker(interestBalanceDetails.assetTicker) as? AssetInfo)

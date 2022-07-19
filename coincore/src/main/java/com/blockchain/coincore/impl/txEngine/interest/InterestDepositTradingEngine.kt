@@ -16,7 +16,7 @@ import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.custodial.data.store.TradingDataSource
-import com.blockchain.core.interest.data.store.InterestDataSource
+import com.blockchain.core.interest.data.InterestStore
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -27,14 +27,14 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestDepositTradingEngine(
-    private val interestDataSource: InterestDataSource,
+    private val interestStore: InterestStore,
     private val tradingDataSource: TradingDataSource,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
 ) : InterestBaseEngine(walletManager) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(interestDataSource, tradingDataSource)
+        get() = listOf(interestStore, tradingDataSource)
 
     override fun assertInputsValid() {
         check(sourceAccount is TradingAccount)
@@ -152,7 +152,7 @@ class InterestDepositTradingEngine(
             origin = Product.BUY,
             destination = Product.SAVINGS
         ).doOnComplete {
-            interestDataSource.invalidate()
+            interestStore.invalidate()
         }.toSingle {
             TxResult.UnHashedTxResult(pendingTx.amount)
         }

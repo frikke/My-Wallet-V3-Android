@@ -166,7 +166,7 @@ val coincoreModule = module {
             TxProcessorFactory(
                 bitPayManager = get(),
                 exchangeRates = get(),
-                interestDataSource = get(),
+                interestStore = get(),
                 tradingDataSource = get(),
                 walletManager = get(),
                 bankService = get(),

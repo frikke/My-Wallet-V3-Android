@@ -12,7 +12,7 @@ import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
-import com.blockchain.core.interest.data.store.InterestDataSource
+import com.blockchain.core.interest.data.InterestStore
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
@@ -42,7 +42,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
     }
 
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val interestDataSource: InterestDataSource = mock()
+    private val interestStore: InterestStore = mock()
 
     private lateinit var subject: InterestWithdrawOnChainTxEngine
     val txResult: TxResult = mock()
@@ -70,7 +70,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
             )
 
         subject = InterestWithdrawOnChainTxEngine(
-            interestDataSource = interestDataSource,
+            interestStore = interestStore,
             walletManager = custodialWalletManager
         )
     }

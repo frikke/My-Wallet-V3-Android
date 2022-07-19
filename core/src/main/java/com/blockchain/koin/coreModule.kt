@@ -38,8 +38,7 @@ import com.blockchain.core.eligibility.EligibilityRepository
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.fiatcurrencies.FiatCurrenciesRepository
 import com.blockchain.core.interest.data.InterestRepository
-import com.blockchain.core.interest.data.store.InterestDataSource
-import com.blockchain.core.interest.data.store.InterestStore
+import com.blockchain.core.interest.data.InterestStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
@@ -89,6 +88,7 @@ import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
+import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -127,7 +127,6 @@ import piuk.blockchain.androidcore.utils.EncryptedPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.UUIDGenerator
-import java.util.UUID
 
 val coreModule = module {
 
@@ -216,7 +215,7 @@ val coreModule = module {
             )
         }.bind(FiatCurrenciesService::class)
 
-        scoped<InterestDataSource> {
+        scoped {
             InterestStore(
                 interestApiService = get(),
                 authenticator = get()
@@ -226,7 +225,7 @@ val coreModule = module {
         scoped<InterestService> {
             InterestRepository(
                 assetCatalogue = get(),
-                interestDataSource = get()
+                interestStore = get()
             )
         }
 

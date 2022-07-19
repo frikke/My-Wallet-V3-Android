@@ -37,7 +37,7 @@ import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectSignEngi
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectTransactionEngine
 import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.custodial.data.store.TradingDataSource
-import com.blockchain.core.interest.data.store.InterestDataSource
+import com.blockchain.core.interest.data.InterestStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
@@ -57,7 +57,7 @@ class TxProcessorFactory(
     private val walletManager: CustodialWalletManager,
     private val bankService: BankService,
     private val limitsDataManager: LimitsDataManager,
-    private val interestDataSource: InterestDataSource,
+    private val interestStore: InterestStore,
     private val tradingDataSource: TradingDataSource,
     private val walletPrefs: WalletStatusPrefs,
     private val ethMessageSigner: EthMessageSigner,
@@ -98,7 +98,7 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = InterestWithdrawTradingTxEngine(
-                            interestDataSource = interestDataSource,
+                            interestStore = interestStore,
                             tradingDataSource = tradingDataSource,
                             walletManager = walletManager
                         )
@@ -112,7 +112,7 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = InterestWithdrawOnChainTxEngine(
-                            interestDataSource = interestDataSource,
+                            interestStore = interestStore,
                             walletManager = walletManager
                         )
                     )
@@ -227,7 +227,7 @@ class TxProcessorFactory(
                             sourceAccount = source,
                             txTarget = it,
                             engine = InterestDepositOnChainTxEngine(
-                                interestDataSource = interestDataSource,
+                                interestStore = interestStore,
                                 walletManager = walletManager,
                                 onChainEngine = engine
                             )
@@ -312,7 +312,7 @@ class TxProcessorFactory(
                     sourceAccount = source,
                     txTarget = target,
                     engine = InterestDepositTradingEngine(
-                        interestDataSource = interestDataSource,
+                        interestStore = interestStore,
                         tradingDataSource = tradingDataSource,
                         walletManager = walletManager
                     )

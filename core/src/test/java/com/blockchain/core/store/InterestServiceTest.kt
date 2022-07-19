@@ -1,10 +1,11 @@
 package com.blockchain.core.store
 
 import com.blockchain.api.services.InterestBalanceDetails
-import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.data.InterestRepository
-import com.blockchain.core.interest.data.store.InterestDataSource
+import com.blockchain.core.interest.data.InterestStore
 import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
@@ -21,11 +22,11 @@ import org.junit.Test
 
 class InterestServiceTest {
     private val assetCatalogue = mockk<AssetCatalogue>()
-    private val interestDataSource = mockk<InterestDataSource>()
+    private val interestStore = mockk<InterestStore>()
 
     private val interestService: InterestService = InterestRepository(
         assetCatalogue = assetCatalogue,
-        interestDataSource = interestDataSource
+        interestStore = interestStore
     )
 
     private val cryptoCurrency = object : CryptoCurrency(
@@ -61,8 +62,8 @@ class InterestServiceTest {
 
     @Before
     fun setUp() {
-        every { interestDataSource.stream(any()) } returns flowOf(StoreResponse.Data(listOf(interestBalanceDetails)))
-        every { interestDataSource.invalidate() } just Runs
+        every { interestStore.stream(any()) } returns flowOf(StoreResponse.Data(listOf(interestBalanceDetails)))
+        every { interestStore.invalidate() } just Runs
 
         every { assetCatalogue.fromNetworkTicker("CRYPTO1") } returns cryptoCurrency
     }
@@ -75,7 +76,7 @@ class InterestServiceTest {
             .assertValue {
                 it == data
             }
-        verify(exactly = 1) { interestDataSource.stream(true) }
+        verify(exactly = 1) { interestStore.stream(StoreRequest.Cached(true)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
@@ -87,7 +88,7 @@ class InterestServiceTest {
             .assertValue {
                 it == interestAccountBalance
             }
-        verify(exactly = 1) { interestDataSource.stream(true) }
+        verify(exactly = 1) { interestStore.stream(StoreRequest.Cached(true)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
@@ -99,7 +100,7 @@ class InterestServiceTest {
             .assertValue {
                 it == setOf(cryptoCurrency)
             }
-        verify(exactly = 1) { interestDataSource.stream(false) }
+        verify(exactly = 1) { interestStore.stream(StoreRequest.Cached(false)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 }

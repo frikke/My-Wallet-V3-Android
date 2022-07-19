@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.interest.data
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
-import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager

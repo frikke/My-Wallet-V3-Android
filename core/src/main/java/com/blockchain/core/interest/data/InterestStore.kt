@@ -1,19 +1,17 @@
-package com.blockchain.core.interest.data.store
+package com.blockchain.core.interest.data
 
 import com.blockchain.api.services.InterestApiService
 import com.blockchain.api.services.InterestBalanceDetails
 import com.blockchain.nabu.Authenticator
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
-import com.blockchain.store.StoreRequest
-import com.blockchain.store.StoreResponse
 import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
-import kotlinx.coroutines.flow.Flow
+import com.blockchain.storedatasource.FlushableDataSource
 import kotlinx.serialization.builtins.ListSerializer
 
-internal class InterestStore(
+class InterestStore(
     private val interestApiService: InterestApiService,
     private val authenticator: Authenticator
 ) : Store<Throwable, List<InterestBalanceDetails>> by PersistedJsonSqlDelightStoreBuilder()
@@ -30,10 +28,7 @@ internal class InterestStore(
         dataSerializer = ListSerializer(InterestBalanceDetails.serializer()),
         mediator = FreshnessMediator(Freshness.DURATION_24_HOURS)
     ),
-    InterestDataSource {
-
-    override fun stream(refresh: Boolean): Flow<StoreResponse<Throwable, List<InterestBalanceDetails>>> =
-        stream(StoreRequest.Cached(refresh))
+    FlushableDataSource {
 
     override fun invalidate() {
         markAsStale()

@@ -29,7 +29,7 @@ import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.SECONDARY_TES
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.coincore.testutil.EUR
 import com.blockchain.core.custodial.data.store.TradingDataSource
-import com.blockchain.core.interest.data.store.InterestDataSource
+import com.blockchain.core.interest.data.InterestStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
@@ -49,7 +49,7 @@ class TxProcessorFactoryTest {
     private val bitPayManager: BitPayDataManager = mock()
     private val exchangeRates: ExchangeRatesDataManager = mock()
     private val walletManager: CustodialWalletManager = mock()
-    private val interestDataSource: InterestDataSource = mock()
+    private val interestStore: InterestStore = mock()
     private val tradingDataSource: TradingDataSource = mock()
     private val walletPrefs: WalletStatusPrefs = mock()
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
@@ -69,7 +69,7 @@ class TxProcessorFactoryTest {
             bitPayManager = bitPayManager,
             exchangeRates = exchangeRates,
             walletManager = walletManager,
-            interestDataSource = interestDataSource,
+            interestStore = interestStore,
             tradingDataSource = tradingDataSource,
             walletPrefs = walletPrefs,
             limitsDataManager = limitsDataManager,
