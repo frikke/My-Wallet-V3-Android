@@ -15,7 +15,7 @@ import com.blockchain.core.Database
 import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
 import com.blockchain.core.custodial.data.store.TradingDataSource
-import com.blockchain.core.interest.data.store.InterestDataSource
+import com.blockchain.core.interest.data.InterestStore
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
@@ -277,7 +277,7 @@ val applicationModule = module {
                 flushableDataSources = listOf(
                     get<TradingDataSource>(),
                     get<KycDataSource>(),
-                    get<InterestDataSource>(),
+                    get<InterestStore>(),
                     get<GetUserStore>(),
                     get<Erc20DataSource>(),
                     get<Erc20L2DataSource>()

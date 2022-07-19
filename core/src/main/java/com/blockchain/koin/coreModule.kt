@@ -37,12 +37,9 @@ import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import com.blockchain.core.eligibility.EligibilityRepository
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.fiatcurrencies.FiatCurrenciesRepository
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.interest.InterestBalanceDataManagerImpl
-import com.blockchain.core.interest.data.InterestStoreRepository
-import com.blockchain.core.interest.data.store.InterestDataSource
-import com.blockchain.core.interest.data.store.InterestStore
-import com.blockchain.core.interest.domain.InterestStoreService
+import com.blockchain.core.interest.data.InterestRepository
+import com.blockchain.core.interest.data.InterestStore
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
@@ -218,17 +215,17 @@ val coreModule = module {
             )
         }.bind(FiatCurrenciesService::class)
 
-        scoped<InterestDataSource> {
+        scoped {
             InterestStore(
-                interestService = get(),
+                interestApiService = get(),
                 authenticator = get()
             )
         }
 
-        scoped<InterestStoreService> {
-            InterestStoreRepository(
+        scoped<InterestService> {
+            InterestRepository(
                 assetCatalogue = get(),
-                interestDataSource = get()
+                interestStore = get()
             )
         }
 
@@ -252,13 +249,6 @@ val coreModule = module {
         scoped {
             BuyOrdersCache(authenticator = get(), nabuService = get())
         }
-
-        scoped {
-            InterestBalanceDataManagerImpl(
-                interestStoreService = get(),
-                interestDataSource = get()
-            )
-        }.bind(InterestBalanceDataManager::class)
 
         factory {
             EvmNetworksService(

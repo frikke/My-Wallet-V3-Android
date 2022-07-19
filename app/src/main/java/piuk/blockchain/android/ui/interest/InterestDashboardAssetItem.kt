@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetInfo
@@ -30,7 +30,7 @@ import timber.log.Timber
 class InterestDashboardAssetItem<in T>(
     private val assetResources: AssetResources,
     private val disposable: CompositeDisposable,
-    private val interestBalance: InterestBalanceDataManager,
+    private val interestService: InterestService,
     private val custodialWalletManager: CustodialWalletManager,
     private val itemClicked: (AssetInfo, Boolean) -> Unit
 ) : AdapterDelegate<T> {
@@ -51,12 +51,12 @@ class InterestDashboardAssetItem<in T>(
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as InterestAssetItemViewHolder).bind(
-        assetResources,
-        items[position] as InterestAssetInfoItem,
-        disposable,
-        interestBalance,
-        custodialWalletManager,
-        itemClicked
+        assetResources = assetResources,
+        interestAssetInfoItem = items[position] as InterestAssetInfoItem,
+        compositeDisposable = disposable,
+        interestService = interestService,
+        custodialWalletManager = custodialWalletManager,
+        itemClicked = itemClicked
     )
 }
 
@@ -66,24 +66,26 @@ private class InterestAssetItemViewHolder(
 
     fun bind(
         assetResources: AssetResources,
-        item: InterestAssetInfoItem,
-        disposables: CompositeDisposable,
-        interestBalance: InterestBalanceDataManager,
+        interestAssetInfoItem: InterestAssetInfoItem,
+        compositeDisposable: CompositeDisposable,
+        interestService: InterestService,
         custodialWalletManager: CustodialWalletManager,
         itemClicked: (AssetInfo, Boolean) -> Unit
     ) {
         with(binding) {
-            assetResources.loadAssetIcon(itemInterestAssetIcon, item.asset)
-            itemInterestAssetTitle.text = item.asset.name
+            assetResources.loadAssetIcon(itemInterestAssetIcon, interestAssetInfoItem.asset)
+            itemInterestAssetTitle.text = interestAssetInfoItem.asset.name
 
             itemInterestAccBalanceTitle.text =
-                context.getString(R.string.rewards_dashboard_item_balance_title, item.asset.displayTicker)
+                context.getString(
+                    R.string.rewards_dashboard_item_balance_title, interestAssetInfoItem.asset.displayTicker
+                )
         }
 
-        disposables += Single.zip(
-            interestBalance.getBalanceForAsset(item.asset).firstOrError(),
-            custodialWalletManager.getInterestAccountRates(item.asset),
-            custodialWalletManager.getInterestEligibilityForAsset(item.asset)
+        compositeDisposable += Single.zip(
+            interestService.getBalanceFor(interestAssetInfoItem.asset).firstOrError(),
+            custodialWalletManager.getInterestAccountRates(interestAssetInfoItem.asset),
+            custodialWalletManager.getInterestEligibilityForAsset(interestAssetInfoItem.asset)
         ) { details, rate, eligibility ->
             InterestDetails(
                 totalInterest = details.totalInterest,
@@ -95,7 +97,7 @@ private class InterestAssetItemViewHolder(
         }.observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onSuccess = { details ->
-                    showInterestDetails(details, item, itemClicked)
+                    showInterestDetails(details, interestAssetInfoItem, itemClicked)
                 },
                 onError = {
                     Timber.e("Error loading interest dashboard item: $it")

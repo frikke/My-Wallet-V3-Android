@@ -2,7 +2,7 @@ package com.blockchain.coincore
 
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.TradingAccountBalance
-import com.blockchain.core.interest.InterestAccountBalance
+import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetInfo

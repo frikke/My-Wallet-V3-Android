@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.interest
 
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -11,7 +11,7 @@ import piuk.blockchain.android.ui.resources.AssetResources
 class InterestDashboardAdapter(
     assetResources: AssetResources,
     disposables: CompositeDisposable,
-    interestBalance: InterestBalanceDataManager,
+    interestService: InterestService,
     custodialWalletManager: CustodialWalletManager,
     verificationClicked: () -> Unit,
     itemClicked: (AssetInfo, Boolean) -> Unit
@@ -24,7 +24,7 @@ class InterestDashboardAdapter(
                 InterestDashboardAssetItem(
                     assetResources = assetResources,
                     disposable = disposables,
-                    interestBalance = interestBalance,
+                    interestService = interestService,
                     custodialWalletManager = custodialWalletManager,
                     itemClicked = itemClicked
                 )
