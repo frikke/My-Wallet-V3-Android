@@ -1,7 +1,6 @@
 package com.blockchain.coincore.fiat
 
 import com.blockchain.coincore.AccountBalance
-import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
@@ -10,6 +9,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.SameCurrencyAccountGroup
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
@@ -22,6 +22,7 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
+import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -44,7 +45,12 @@ import java.util.concurrent.atomic.AtomicBoolean
             tradingBalanceDataManager.getBalanceForCurrency(currency),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
-            AccountBalance.from(balance, rate)
+            AccountBalance(
+                total = balance.total,
+                withdrawable = balance.withdrawable,
+                pending = balance.pending,
+                exchangeRate = rate,
+            )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override var hasTransactions: Boolean = false
@@ -114,10 +120,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 class FiatAccountGroup(
     override val label: String,
     override val accounts: SingleAccountList
-) : AccountGroup {
-    // Produce the sum of all balances of all accounts
-    override val balance: Observable<AccountBalance>
-        get() = Observable.error(NotImplementedError("No unified balance for All Fiat accounts"))
+) : SameCurrencyAccountGroup {
+    override val currency: Currency
+        get() = accounts[0].currency
 
     // All the activities for all the accounts
     override val activity: Single<ActivitySummaryList>

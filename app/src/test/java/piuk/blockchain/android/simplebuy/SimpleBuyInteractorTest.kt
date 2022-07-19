@@ -6,6 +6,8 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -15,6 +17,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.service.TierService
+import com.blockchain.outcome.Outcome
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.preferences.BankLinkingPrefs
@@ -57,6 +60,17 @@ class SimpleBuyInteractorTest {
     private val cardRejectionCheckFeatureFlag: FeatureFlag = mock()
     private val simpleBuyPrefs: SimpleBuyPrefs = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
+    private val eligibilityService: EligibilityService = mock {
+        onBlocking { getStatesList(any(), any()) }.thenReturn(
+            Outcome.Success(
+                listOf(
+                    Region.State("US", "Florida", false, "US-FL"),
+                    Region.State("US", "Georgia", false, "US-GA"),
+                    Region.State("US", "North Carolina", false, "US-NC")
+                )
+            )
+        )
+    }
 
     @Before
     fun setup() {
@@ -82,7 +96,8 @@ class SimpleBuyInteractorTest {
             quickFillButtonsFeatureFlag = quickFillButtonsFeatureFlag,
             simpleBuyPrefs = simpleBuyPrefs,
             onboardingPrefs = onboardingPrefs,
-            cardRejectionCheckFF = cardRejectionCheckFeatureFlag
+            cardRejectionCheckFF = cardRejectionCheckFeatureFlag,
+            eligibilityService = eligibilityService,
         )
     }
 
@@ -185,6 +200,16 @@ class SimpleBuyInteractorTest {
         test.assertValue {
             it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal.ZERO) &&
                 it.second == null
+        }
+    }
+
+    @Test
+    fun `when a list of States is requested, check if list is valid`() {
+        val test = subject.getListOfStates("US").test()
+        test.await().assertValue {
+            it.isNotEmpty() &&
+                it.size == 3 &&
+                it.contains(Region.State("US", "Georgia", false, "US-GA"))
         }
     }
 }

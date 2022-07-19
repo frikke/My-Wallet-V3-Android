@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.BlockchainSnackbar
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.koin.scopedInject
@@ -21,7 +23,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBillingAddressBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.US
 
 class BillingAddressFragment :
     MviFragment<CardModel, CardIntent, CardState, FragmentBillingAddressBinding>(),
@@ -71,15 +72,6 @@ class BillingAddressFragment :
                     )
                 )
             }
-            state.setOnClickListener {
-                showBottomSheet(
-                    SearchPickerItemBottomSheet.newInstance(
-                        US.values().map {
-                            StatePickerItem(it.ANSIAbbreviation, it.unabbreviated)
-                        }
-                    )
-                )
-            }
 
             fullName.addTextChangedListener(textWatcher)
             addressLine1.addTextChangedListener(textWatcher)
@@ -117,6 +109,8 @@ class BillingAddressFragment :
             }
         }
         activity.updateToolbarTitle(getString(R.string.add_card_address_title))
+
+        model.process(CardIntent.LoadListOfUsStates)
     }
 
     private fun setupUserDetails(user: NabuUser) {
@@ -177,6 +171,30 @@ class BillingAddressFragment :
     override fun render(newState: CardState) {
         if (newState.addCard) {
             navigator.navigateToCardVerification()
+        }
+
+        newState.usStateList?.let { stateList ->
+            if (stateList.isNotEmpty()) {
+                binding.state.setOnClickListener {
+                    showBottomSheet(
+                        SearchPickerItemBottomSheet.newInstance(
+                            stateList.map { state ->
+                                StatePickerItem(state.stateCode, state.name)
+                            }
+                        )
+                    )
+                }
+            } else {
+                BlockchainSnackbar.make(
+                    view = binding.root,
+                    message = getString(R.string.unable_to_load_list_of_states),
+                    type = SnackbarType.Error,
+                    actionLabel = getString(R.string.common_try_again),
+                    onClick = {
+                        model.process(CardIntent.LoadListOfUsStates)
+                    }
+                ).show()
+            }
         }
     }
 

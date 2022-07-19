@@ -485,7 +485,8 @@ val applicationModule = module {
                 quickFillButtonsFeatureFlag = get(quickFillButtonsFeatureFlag),
                 simpleBuyPrefs = get(),
                 onboardingPrefs = get(),
-                cardRejectionCheckFF = get(cardRejectionCheckFeatureFlag)
+                cardRejectionCheckFF = get(cardRejectionCheckFeatureFlag),
+                eligibilityService = get()
             )
         }
 

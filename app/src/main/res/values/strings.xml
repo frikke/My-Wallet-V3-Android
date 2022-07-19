@@ -1322,10 +1322,13 @@
     <string name="payment_wire_transfer_subtitle_dollars">Should arrive in 3-5 business days</string>
     <string name="payment_wire_transfer_subtitle_pounds">Should arrive same day</string>
     <string name="payment_wire_transfer_subtitle_euros">Should arrive in 1 business day</string>
+    <string name="payment_wire_transfer_subtitle_ars">Should arrive in 1-3 business days</string>
+    <string name="payment_wire_transfer_subtitle_default">Settlement time varies by region</string>
     <string name="payment_deposit">Bank Deposit</string>
     <string name="payment_deposit_subtitle_pounds">Should arrive instantly</string>
     <string name="payment_deposit_subtitle_dollars">Should arrive in 3 business days</string>
     <string name="payment_deposit_subtitle_euros">Should arrive instantly</string>
+    <string name="payment_deposit_subtitle_default">Reach out to your bank directly to understand their support for faster transfers.</string>
     <string name="credit_or_debit_card">Credit or Debit Card</string>
     <string name="instantly_buy_crypto_with_card">Instantly buy crypto with any Visa or Mastercard.</string>
     <string name="google_pay_instructions">Simply tap Buy with Google Pay, no forms or card details needed.</string>
@@ -1470,6 +1473,7 @@
     <string name="card_issuer_always_rejects_title">Buying crypto not supported</string>
     <string name="card_issuer_always_rejects_desc">This card doesn’t allow crypto transactions. Try another card instead.</string>
     <string name="card_issuer_sometimes_rejects_title">This card often declines crypto transactions.</string>
+    <string name="unable_to_load_list_of_states">Unable to load list of US states</string>
 
     <!-- Activity Details -->
     <string name="activity_details_created">Date</string>
@@ -1988,6 +1992,8 @@
     <string name="bank_transfer_blurb_pounds">Transfers are made through the UK Faster Payments System and usually arrive in seconds.</string>
     <string name="bank_transfer_blurb_dollars">For transferring large amounts. Bank fees may apply.</string>
     <string name="bank_transfer_blurb_euros">Bank fees may apply.</string>
+    <string name="bank_transfer_blurb_ars">Transfer funds directly from your bank account. Bank fees may apply.</string>
+    <string name="bank_transfer_blurb_default">Reach out to your bank directly for information regarding settlement times and bank fees.</string>
     <string name="easy_bank_transfer_blurb">Quick and secure without entering account details.</string>
 
     <!-- trading error messages -->

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
@@ -124,9 +123,6 @@ private class BalanceCardViewHolder(
                     val point = assetState.fiatBalance?.toFloat() ?: 0f
                     add(PieEntry(point))
                 }
-
-                // Add all fiat from Funds
-                add(PieEntry(state.getFundsFiat(selectedFiat).toFloat()))
             }
 
             if (entries.all { it.value == 0.0f }) {
@@ -134,10 +130,7 @@ private class BalanceCardViewHolder(
             } else {
                 val sliceColours = assets.map {
                     assetResources.assetColor(it.currency)
-                }.toMutableList()
-
-                // Add colour for Funds
-                sliceColours.add(ContextCompat.getColor(itemView.context, R.color.green_500))
+                }
 
                 pieChart.data = PieData(
                     PieDataSet(entries, null).apply {

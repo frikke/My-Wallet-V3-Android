@@ -8,13 +8,13 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visibleIf
 import info.blockchain.balance.Currency
-import info.blockchain.balance.Money
+import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.databinding.ItemDashboardFundsBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsBorderedBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsParentBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
+import piuk.blockchain.android.ui.dashboard.model.BrokearageFiatAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem
-import piuk.blockchain.android.ui.dashboard.model.FiatAssetState
 import piuk.blockchain.android.ui.dashboard.model.FiatBalanceInfo
 
 class FundsCardDelegate(
@@ -23,7 +23,7 @@ class FundsCardDelegate(
 ) : AdapterDelegate<DashboardItem> {
 
     override fun isForViewType(items: List<DashboardItem>, position: Int): Boolean =
-        items[position] is FiatAssetState
+        items[position] is FiatBalanceInfo
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         val binding = ItemDashboardFundsParentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -39,7 +39,7 @@ class FundsCardDelegate(
         items: List<DashboardItem>,
         position: Int,
         holder: RecyclerView.ViewHolder
-    ) = (holder as FundsCardViewHolder).bind(items[position] as FiatAssetState)
+    ) = (holder as FundsCardViewHolder).bind(items[position] as FiatBalanceInfo)
 }
 
 private class FundsCardViewHolder(
@@ -48,13 +48,14 @@ private class FundsCardViewHolder(
     private val onFundsItemClicked: (FiatAccount) -> Unit,
     private val selectedFiat: Currency
 ) : RecyclerView.ViewHolder(binding.root) {
+
     private val multipleFundsAdapter: MultipleFundsAdapter by lazy {
         MultipleFundsAdapter(onFundsItemClicked, selectedFiat)
     }
 
-    fun bind(funds: FiatAssetState) {
-        if (funds.fiatAccounts.size == 1) {
-            showSingleAsset(funds.fiatAccounts.values.first())
+    fun bind(fiats: FiatBalanceInfo) {
+        if (fiats.isSingleCurrency) {
+            showSingleAsset(fiats.funds[0])
         } else {
             with(binding) {
                 fundsSingleItem.gone()
@@ -63,29 +64,25 @@ private class FundsCardViewHolder(
                         LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
                     adapter = multipleFundsAdapter
                 }
-                multipleFundsAdapter.items = funds.fiatAccounts.values.toList()
+                multipleFundsAdapter.items = fiats.funds
             }
         }
     }
 
-    private fun showSingleAsset(assetInfo: FiatBalanceInfo) {
-        val ticker = assetInfo.account.currency.networkTicker
+    private fun showSingleAsset(item: BrokearageFiatAsset) {
         singleLayoutBinding.apply {
-            fundsUserFiatBalance.visibleIf { selectedFiat.networkTicker != ticker }
-            fundsUserFiatBalance.text = assetInfo.balance.toStringWithSymbol()
+            fundsUserFiatBalance.visibleIf { selectedFiat != item.currency }
+            fundsUserFiatBalance.text = item.fiatBalance?.toStringWithSymbol()
             binding.fundsList.gone()
             binding.fundsSingleItem.setOnClickListener {
-                onFundsItemClicked(assetInfo.account)
+                onFundsItemClicked(item.fiatAccount)
             }
-            fundsTitle.text = assetInfo.account.currency.name
-            fundsFiatTicker.text = ticker
-            fundsBalance.text = if (selectedFiat.networkTicker == ticker) {
-                assetInfo.balance.toStringWithSymbol()
-            } else {
-                val fiat = assetInfo.userFiat ?: Money.zero(selectedFiat)
-                fiat.toStringWithSymbol()
-            }
-            fundsIcon.setIcon(assetInfo.account.currency)
+            fundsTitle.text = item.currency.name
+            fundsFiatTicker.text = item.currency.displayTicker
+            fundsBalance.text =
+                item.accountBalance?.total?.toStringWithSymbol()
+
+            fundsIcon.setIcon(item.currency as FiatCurrency)
         }
     }
 }
@@ -95,7 +92,7 @@ private class MultipleFundsAdapter(
     private val selectedFiat: Currency
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var items = listOf<FiatBalanceInfo>()
+    var items = listOf<BrokearageFiatAsset>()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -104,7 +101,8 @@ private class MultipleFundsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         SingleFundsViewHolder(
             ItemDashboardFundsBorderedBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-            onFundsItemClicked, selectedFiat
+            onFundsItemClicked,
+            selectedFiat
         )
 
     override fun getItemCount(): Int = items.size
@@ -120,23 +118,19 @@ private class MultipleFundsAdapter(
         private val selectedFiat: Currency
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(assetInfo: FiatBalanceInfo) {
-            val ticker = assetInfo.account.currency.networkTicker
+        fun bind(item: BrokearageFiatAsset) {
+            val currency = item.currency as FiatCurrency
             binding.apply {
-                borderedFundsBalanceOtherFiat.visibleIf { selectedFiat.networkTicker != ticker }
-                borderedFundsBalanceOtherFiat.text = assetInfo.balance.toStringWithSymbol()
-
+                borderedFundsBalanceOtherFiat.visibleIf { selectedFiat != currency }
+                borderedFundsBalanceOtherFiat.text = item.accountBalance?.total?.toStringWithSymbol()
                 borderedFundsParent.setOnClickListener {
-                    onFundsItemClicked(assetInfo.account)
+                    onFundsItemClicked(item.fiatAccount)
                 }
-                borderedFundsTitle.text = assetInfo.account.currency.name
-                borderedFundsFiatTicker.text = ticker
-                borderedFundsBalance.text = if (selectedFiat.networkTicker == ticker) {
-                    assetInfo.balance.toStringWithSymbol()
-                } else {
-                    assetInfo.userFiat?.toStringWithSymbol()
-                }
-                borderedFundsIcon.setIcon(assetInfo.account.currency)
+                borderedFundsTitle.text = currency.name
+                borderedFundsFiatTicker.text = currency.displayTicker
+                borderedFundsBalance.text =
+                    item.fiatBalance?.toStringWithSymbol()
+                borderedFundsIcon.setIcon(currency)
             }
         }
     }

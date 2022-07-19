@@ -40,8 +40,8 @@ internal class InterestRepository(
             .map { it.getOrDefault(asset, zeroBalance(asset)) }
     }
 
-    override fun getActiveAssets(): Single<Set<AssetInfo>> {
-        return getBalances(refresh = false).map { it.keys }.firstElement().toSingle()
+    override fun getActiveAssets(refresh: Boolean): Single<Set<AssetInfo>> {
+        return getBalances(refresh = refresh).map { it.keys }.firstElement().toSingle()
     }
 }
 

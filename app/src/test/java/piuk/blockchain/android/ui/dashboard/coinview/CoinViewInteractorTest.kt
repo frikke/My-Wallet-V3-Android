@@ -120,7 +120,7 @@ class CoinViewInteractorTest {
         on { currentRate }.thenReturn(ExchangeRate(BigDecimal.ONE, assetInfo, FiatCurrency.Dollars))
     }
     private val asset: CryptoAsset = mock {
-        on { this.assetInfo }.thenReturn(assetInfo)
+        on { this.currency }.thenReturn(assetInfo)
         on { accountGroup(AssetFilter.NonCustodial) }.thenReturn(Maybe.just(nonCustodialGroup))
         on { accountGroup(AssetFilter.Trading) }.thenReturn(Maybe.just(custodialGroup))
         on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(interestGroup))
@@ -150,13 +150,13 @@ class CoinViewInteractorTest {
     @Test
     fun `load recurring buys should call endpoint`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
-        whenever(tradeDataService.getRecurringBuysForAsset(asset.assetInfo)).thenReturn(Single.just(emptyList()))
-        whenever(custodialWalletManager.isCurrencyAvailableForTrading(asset.assetInfo)).thenReturn(Single.just(true))
-        val test = subject.loadRecurringBuys(asset.assetInfo).test()
+        whenever(tradeDataService.getRecurringBuysForAsset(asset.currency)).thenReturn(Single.just(emptyList()))
+        whenever(custodialWalletManager.isCurrencyAvailableForTrading(asset.currency)).thenReturn(Single.just(true))
+        val test = subject.loadRecurringBuys(asset.currency).test()
         test.assertValue(Pair(emptyList(), true))
-        verify(tradeDataService).getRecurringBuysForAsset(asset.assetInfo)
+        verify(tradeDataService).getRecurringBuysForAsset(asset.currency)
     }
 
     @Test
@@ -169,7 +169,7 @@ class CoinViewInteractorTest {
             .thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(CryptoCurrency.BTC)
+            on { currency }.thenReturn(CryptoCurrency.BTC)
         }
         val btcAsset = CryptoCurrency.BTC
         val account: CustodialTradingAccount = mock()
@@ -204,7 +204,7 @@ class CoinViewInteractorTest {
             .thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(CryptoCurrency.BTC)
+            on { currency }.thenReturn(CryptoCurrency.BTC)
         }
         val btcAsset = CryptoCurrency.BTC
         val account: CustodialTradingAccount = mock()
@@ -367,12 +367,12 @@ class CoinViewInteractorTest {
     fun `load account details when asset is non tradeable`() {
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn(FiatCurrency.Dollars)
         val asset: CryptoAsset = mock {
-            on { this.assetInfo }.thenReturn(assetInfo)
+            on { this.currency }.thenReturn(assetInfo)
             on { accountGroup(AssetFilter.All) }.thenReturn(Maybe.empty())
             on { getPricesWith24hDelta() }.thenReturn(Single.just(prices))
             on { interestRate() }.thenReturn(Single.just(5.0))
         }
-        whenever(watchlistDataManager.isAssetInWatchlist(asset.assetInfo)).thenReturn(Single.just(true))
+        whenever(watchlistDataManager.isAssetInWatchlist(asset.currency)).thenReturn(Single.just(true))
 
         val test = subject.loadAccountDetails(asset).test()
 

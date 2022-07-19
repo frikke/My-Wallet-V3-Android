@@ -1,6 +1,7 @@
 package piuk.blockchain.android.cards
 
 import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
@@ -25,7 +26,8 @@ data class CardState(
     val authoriseCard: CardAcquirerCredentials? = null,
     @Transient
     val cardRequestStatus: CardRequestStatus? = null,
-    val cardRejectionState: @Contextual CardRejectionState? = null
+    val cardRejectionState: @Contextual CardRejectionState? = null,
+    val usStateList: List<@Contextual Region.State>? = null,
 ) : MviState
 
 @Serializable

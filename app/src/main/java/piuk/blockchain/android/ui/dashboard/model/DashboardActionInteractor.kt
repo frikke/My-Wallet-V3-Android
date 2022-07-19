@@ -40,9 +40,9 @@ import com.blockchain.store.KeyedStoreRequest
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -57,7 +57,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Optional
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
@@ -104,39 +104,55 @@ class DashboardActionInteractor(
         get() = walletModeService.enabledWalletMode().defaultFilter()
 
     fun fetchActiveAssets(model: DashboardModel): Disposable =
-        walletModeService.walletMode.map {
-            coincore.activeAssets(it)
-        }.asObservable()
-            .subscribeBy(
-                onNext = { activeAssets ->
-                    compositeDisposable.clear()
-                    model.process(
-                        DashboardIntent.UpdateActiveAssets(
-                            activeAssets
-                        )
+        walletModeService.walletMode.flatMapLatest {
+            coincore.reactiveActiveAssets(it)
+        }.asObservable().subscribeBy(
+            onNext = { activeAssets ->
+                model.process(
+                    DashboardIntent.UpdateActiveAssets(
+                        activeAssets
                     )
-                },
-                onError = {
-                    Timber.e("Error fetching active assets - $it")
-                    throw it
-                }
-            )
+                )
+            },
+            onError = {
+                Timber.e("Error fetching active assets - $it")
+                throw it
+            }
+        ).also {
+            compositeDisposable.clear()
+        }.also {
+            compositeDisposable.add(it)
+        }
 
     fun fetchAccounts(assets: List<Asset>, model: DashboardModel) {
-        val fiatAccounts = assets.filterIsInstance<FiatAsset>()
-
         return model.process(
             DashboardIntent.UpdateAllAssetsAndBalances(
-                assetList = assets.filterIsInstance<CryptoAsset>().map { crytpoAsset ->
-                    when (walletModeService.enabledWalletMode()) {
-                        WalletMode.UNIVERSAL,
-                        WalletMode.CUSTODIAL_ONLY -> BrokerageAsset(crytpoAsset.assetInfo)
-                        WalletMode.NON_CUSTODIAL_ONLY -> DefiAsset(crytpoAsset.assetInfo)
-                    }
-                },
-                fiatAssetList = fiatAccounts.map { it.custodialAccount }
+                assetList = assets.map { asset ->
+                    asset.toDashboardAsset(walletModeService.enabledWalletMode())
+                }
             )
         )
+    }
+
+    private fun Asset.toDashboardAsset(walletMode: WalletMode): DashboardAsset {
+        return when (this) {
+            is CryptoAsset -> when (walletMode) {
+                WalletMode.UNIVERSAL,
+                WalletMode.CUSTODIAL_ONLY -> BrokerageCryptoAsset(this.currency)
+                WalletMode.NON_CUSTODIAL_ONLY -> DefiAsset(this.currency)
+            }
+            is FiatAsset -> when (walletMode) {
+                WalletMode.UNIVERSAL,
+                WalletMode.CUSTODIAL_ONLY -> BrokearageFiatAsset(
+                    currency = this.currency,
+                    fiatAccount = this.custodialAccount
+                )
+                WalletMode.NON_CUSTODIAL_ONLY -> throw IllegalStateException(
+                    "fiats are not supported in Non custodial mode"
+                )
+            }
+            else -> throw IllegalArgumentException("$this is not a know asset type for dashboard")
+        }
     }
 
     fun fetchAssetPrice(model: DashboardModel, asset: AssetInfo): Disposable =
@@ -161,16 +177,11 @@ class DashboardActionInteractor(
 
     fun refreshBalances(
         model: DashboardModel,
-        activeAssets: Set<AssetInfo>,
-        fiatAccounts: Set<FiatBalanceInfo>
+        activeAssets: Set<Currency>,
     ): Disposable {
         loadBalances(activeAssets, model).forEach {
             it.addTo(compositeDisposable)
         }
-        fiatAccounts.forEach {
-            compositeDisposable += refreshFiatAssetBalance(it.account, model)
-        }
-
         warmWalletModeBalanceCache().forEach {
             it.addTo(compositeDisposable)
         }
@@ -197,7 +208,7 @@ class DashboardActionInteractor(
     }
 
     private fun loadBalances(
-        assets: Set<AssetInfo>,
+        assets: Set<Currency>,
         model: DashboardModel
     ): List<Disposable> {
         return assets.takeIf { it.isNotEmpty() }?.map { asset ->
@@ -210,26 +221,14 @@ class DashboardActionInteractor(
         }
     }
 
-    fun refreshFiatBalances(
-        fiatAccounts: Map<Currency, FiatBalanceInfo>,
-        model: DashboardModel,
-    ): Disposable {
-        val disposable = CompositeDisposable()
-        fiatAccounts
-            .values.forEach {
-                disposable += refreshFiatAssetBalance(it.account, model)
-            }
-        return disposable
-    }
-
-    private fun Maybe<AccountGroup>.logGroupLoadError(asset: AssetInfo, filter: AssetFilter) =
+    private fun Maybe<AccountGroup>.logGroupLoadError(asset: Currency, filter: AssetFilter) =
         this.doOnError { e ->
             remoteLogger.logException(
                 DashboardGroupLoadFailure("Cannot load group for ${asset.displayTicker} - $filter:", e)
             )
         }
 
-    private fun Observable<AccountBalance>.logBalanceLoadError(asset: AssetInfo, filter: AssetFilter) =
+    private fun Observable<AccountBalance>.logBalanceLoadError(asset: Currency, filter: AssetFilter) =
         this.doOnError { e ->
             remoteLogger.logException(
                 DashboardBalanceLoadFailure("Cannot load balance for ${asset.displayTicker} - $filter:", e)
@@ -237,48 +236,32 @@ class DashboardActionInteractor(
         }
 
     private fun refreshAssetBalance(
-        asset: AssetInfo,
+        currency: Currency,
         model: DashboardModel,
-    ): Single<CryptoValue> =
-        coincore[asset].accountGroup(defFilter)
-            .logGroupLoadError(asset, defFilter)
+    ): Single<Money> =
+        coincore[currency].accountGroup(defFilter)
+            .logGroupLoadError(currency, defFilter)
             .flatMapObservable { group ->
                 group.balance
-                    .logBalanceLoadError(asset, defFilter)
+                    .logBalanceLoadError(currency, defFilter)
+            }
+            .doOnSubscribe {
+                Timber.i("Fetching balance for asset ${currency.displayTicker}")
+                model.process(DashboardIntent.BalanceFetching(currency, true))
             }
             .doOnError { e ->
-                Timber.e("Failed getting balance for ${asset.displayTicker}: $e")
-                model.process(DashboardIntent.BalanceUpdateError(asset))
+                Timber.e("Failed getting balance for ${currency.displayTicker}: $e")
+                model.process(DashboardIntent.BalanceUpdateError(currency))
             }
             .doOnNext { accountBalance ->
-                Timber.d("Got balance for ${asset.displayTicker}")
-                model.process(DashboardIntent.BalanceUpdate(asset, accountBalance))
+                Timber.d("Got balance for ${currency.displayTicker}")
+                model.process(DashboardIntent.BalanceUpdate(currency, accountBalance))
             }
+            .doFinally { model.process(DashboardIntent.BalanceFetching(currency, false)) }
             .firstOrError()
             .map {
-                it.total as CryptoValue
+                it.total
             }
-
-    private fun refreshFiatAssetBalance(
-        account: FiatAccount,
-        model: DashboardModel,
-    ): Disposable =
-        account.balance
-            .firstOrError() // Ideally we shouldn't need this, but we need to kill existing subs on refresh first TODO
-            .subscribeBy(
-                onSuccess = { balances ->
-                    model.process(
-                        DashboardIntent.FiatBalanceUpdate(
-                            balance = balances.total,
-                            fiatBalance = balances.totalFiat,
-                            balanceAvailable = balances.withdrawable
-                        )
-                    )
-                },
-                onError = {
-                    Timber.e("Error while loading fiat balances $it")
-                }
-            )
 
     private fun refreshPricesWith24HDelta(model: DashboardModel, crypto: AssetInfo): Disposable =
         exchangeRates.getPricesWith24hDelta(crypto).firstOrError()
@@ -294,21 +277,22 @@ class DashboardActionInteractor(
 
     fun refreshPrices(model: DashboardModel, asset: DashboardAsset): Disposable =
         when (asset) {
-            is BrokerageAsset -> refreshPricesWith24HDelta(model, asset.currency)
+            is BrokerageCryptoAsset -> refreshPricesWith24HDelta(model, asset.currency as AssetInfo)
+            is BrokearageFiatAsset,
             is DefiAsset -> refreshPrice(model, asset.currency)
         }.also {
             compositeDisposable += it
         }
 
-    private fun refreshPrice(model: DashboardModel, crypto: AssetInfo): Disposable =
-        exchangeRates.exchangeRateToUserFiat(crypto).firstOrError()
+    private fun refreshPrice(model: DashboardModel, currency: Currency): Disposable =
+        exchangeRates.exchangeRateToUserFiat(currency).firstOrError()
             .map { price ->
-                DashboardIntent.AssetPriceUpdate(crypto, price)
+                DashboardIntent.AssetPriceUpdate(currency, price)
             }
             .subscribeBy(
                 onSuccess = { model.process(it) },
                 onError = {
-                    model.process(DashboardIntent.BalanceUpdateError(crypto))
+                    model.process(DashboardIntent.BalanceUpdateError(currency))
                 }
             )
 

@@ -9,23 +9,23 @@ import com.blockchain.domain.paymentmethods.model.FundsLocks
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
-import info.blockchain.balance.FiatValue
+import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
 import info.blockchain.balance.percentageDelta
 import info.blockchain.balance.total
 import java.io.Serializable
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
-import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.FIAT_FUNDS_INDEX
+import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.DASHBOARD_FIAT_ASSETS
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.LOCKS_INDEX
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
-class AssetMap(private val map: Map<AssetInfo, DashboardAsset>) :
-    Map<AssetInfo, DashboardAsset> by map {
+class AssetMap(private val map: Map<Currency, DashboardAsset>) :
+    Map<Currency, DashboardAsset> by map {
 
-    override operator fun get(key: AssetInfo): DashboardAsset {
+    override operator fun get(key: Currency): DashboardAsset {
         return map.getOrElse(key) {
             throw IllegalArgumentException("${key.networkTicker} is not a known CryptoCurrency")
         }
@@ -56,7 +56,7 @@ class AssetMap(private val map: Map<AssetInfo, DashboardAsset>) :
 }
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-fun mapOfAssets(vararg pairs: Pair<AssetInfo, BrokerageAsset>) = AssetMap(mapOf(*pairs))
+fun mapOfAssets(vararg pairs: Pair<AssetInfo, BrokerageCryptoAsset>) = AssetMap(mapOf(*pairs))
 
 interface DashboardItem {
     val index: Int
@@ -66,59 +66,21 @@ interface DashboardItem {
         const val ANNOUNCEMENT_INDEX = 0
         const val TOTAL_BALANCE_INDEX = 1
         const val LOCKS_INDEX = 2
-        const val FIAT_FUNDS_INDEX = 3
+        const val DASHBOARD_FIAT_ASSETS = 3
         const val DASHBOARD_CRYPTO_ASSETS = Int.MAX_VALUE
     }
 }
 
 data class FiatBalanceInfo(
-    val account: FiatAccount,
-    val balance: Money = Money.zero(account.currency),
-    val userFiat: Money? = null,
-    val availableBalance: Money? = null,
-)
-
-data class FiatAssetState(
-    val fiatAccounts: Map<Currency, FiatBalanceInfo> = emptyMap(),
+    val funds: List<BrokearageFiatAsset>,
 ) : DashboardItem {
     override val index: Int
-        get() = FIAT_FUNDS_INDEX
+        get() = DASHBOARD_FIAT_ASSETS
     override val id: String
-        get() = fiatAccounts.keys.joinToString()
+        get() = funds.joinToString { it.id }
 
-    fun updateWith(
-        currency: Currency,
-        balance: FiatValue,
-        userFiatBalance: FiatValue,
-        availableBalance: Money,
-    ): FiatAssetState {
-        val newBalanceInfo = fiatAccounts[currency]?.copy(
-            balance = balance,
-            userFiat = userFiatBalance,
-            availableBalance = availableBalance
-        )
-
-        return newBalanceInfo?.let {
-            val newMap = fiatAccounts.toMutableMap()
-            newMap[currency] = it
-            FiatAssetState(newMap)
-        } ?: this
-    }
-
-    fun reset(): FiatAssetState =
-        FiatAssetState(fiatAccounts.mapValues { old -> FiatBalanceInfo(old.value.account) })
-
-    val totalBalance: Money?
-        get() = if (fiatAccounts.isEmpty()) {
-            null
-        } else {
-            val fiatList = fiatAccounts.values.mapNotNull { it.userFiat }
-            if (fiatList.isNotEmpty()) {
-                fiatList.total()
-            } else {
-                null
-            }
-        }
+    val isSingleCurrency: Boolean
+        get() = funds.size == 1
 }
 
 data class Locks(
@@ -143,9 +105,9 @@ data class DashboardState(
     val dashboardNavigationAction: DashboardNavigationAction? = null,
     val selectedAsset: AssetInfo? = null,
     val filterBy: String = "",
+    val isSwipingToRefresh: Boolean = false,
     val activeAssets: AssetMap = AssetMap(emptyMap()), // portfolio-only from here
     val announcement: AnnouncementCard? = null,
-    val fiatAssets: FiatAssetState = FiatAssetState(),
     val selectedFiatAccount: FiatAccount? = null,
     val selectedCryptoAccount: SingleAccount? = null,
     val backupSheetDetails: BackupDetails? = null,
@@ -162,52 +124,63 @@ data class DashboardState(
     override val dashboardBalance: DashboardBalance?
         get() = when {
             activeAssets.isEmpty() -> null
-            activeAssets.values.all { it is BrokerageAsset } -> BrokerageBalanceState(
-                isLoading = activeAssets.values.all { it.isLoading },
-                fiatBalance = addFiatBalance(cryptoAssetFiatBalances()),
+            activeAssets.values.all { it is BrokerageDashboardAsset } -> BrokerageBalanceState(
+                isLoading = activeAssets.values.all { it.isUILoading },
+                fiatBalance = totalFiatAndCryptoBalance(),
                 assetList = activeAssets.values.map { it },
-                fiatAssets = fiatAssets,
                 delta = delta
             )
             activeAssets.values.all { it is DefiAsset } -> DefiBalanceState(
-                isLoading = activeAssets.values.all { it.isLoading },
-                fiatBalance = addFiatBalance(cryptoAssetFiatBalances())
+                isLoading = activeAssets.values.all { it.isUILoading },
+                fiatBalance = cryptoAssetsFiatBalances()
             )
             else -> throw IllegalStateException("Active assets should all be Defi or Brokerage")
         }
 
-    private fun cryptoAssetFiatBalances() = activeAssets.values
-        .filter { !it.isLoading && it.fiatBalance != null }
-        .map { it.fiatBalance!! }
-        .ifEmpty { null }?.total()
-
-    private val fiatBalance24h: Money? by unsafeLazy {
-        addFiatBalance(cryptoAssetFiatBalances24h())
+    private fun totalFiatAndCryptoBalance(): Money? {
+        val fiatBalance = fiatAssetsFiatBalance()
+        val cryptoBalance = cryptoAssetsFiatBalances()
+        return when {
+            fiatBalance != null && cryptoBalance != null -> fiatBalance + cryptoBalance
+            fiatBalance != null -> fiatBalance
+            cryptoBalance != null -> cryptoBalance
+            else -> null
+        }
     }
 
-    private fun cryptoAssetFiatBalances24h() = activeAssets.values
-        .filterIsInstance<BrokerageAsset>()
-        .filter { !it.isLoading && it.fiatBalance24h != null }
-        .map { it.fiatBalance24h!! }
+    private fun cryptoAssetsFiatBalances() = activeAssets.values
+        .filter { !it.isUILoading && it.fiatBalance != null && it.currency.type == CurrencyType.CRYPTO }
+        .map { it.fiatBalance ?: Money.zero(it.currency) }
         .ifEmpty { null }?.total()
+
+    private fun cryptoAssetsFiatBalances24hAgo() = activeAssets.values
+        .filter { !it.isUILoading && it.fiatBalance != null && it.currency.type == CurrencyType.CRYPTO }
+        .filterIsInstance<BrokerageCryptoAsset>()
+        .map { it.fiatBalance24h ?: Money.zero(it.currency) }
+        .ifEmpty { null }?.total()
+
+    private fun fiatAssetsFiatBalance() = activeAssets.values
+        .filter { !it.isUILoading && it.fiatBalance != null && it.currency.type == CurrencyType.FIAT }
+        .mapNotNull { it.fiatBalance }
+        .ifEmpty { null }?.total()
+
+    val fiatDashboardAssets: List<BrokearageFiatAsset>
+        get() = activeAssets.values.filterIsInstance<BrokearageFiatAsset>()
 
     /**
      * The idea here is that
      * - When in Defi mode we display all the non custodial coins regardless the balance
      * - When in Brokerage or Universal we display only assets with balances
      */
-    val displayableCryptoAssets: List<DashboardAsset>
+    val displayableAssets: List<DashboardAsset>
         get() {
             if (activeAssets.isEmpty()) return emptyList()
             if (activeAssets.all { it.value is DefiAsset }) return activeAssets.values.toList()
-            if (activeAssets.all { it.value is BrokerageAsset }) return activeAssets.values.filter {
+            if (activeAssets.all { it.value is BrokerageDashboardAsset }) return activeAssets.values.filter {
                 it.accountBalance?.total?.isPositive ?: false
             }
             throw IllegalStateException("State is not valid ${activeAssets.values.map { it.currency }}")
         }
-
-    val displayableFiatAssets: FiatAssetState?
-        get() = fiatAssets.fiatAccounts.takeIf { it.isNotEmpty() }?.let { fiatAssets }
 
     /**
      * States:
@@ -216,44 +189,33 @@ data class DashboardState(
      * - Loading: When dashboard is loading assets and no assets have been loaded yet.
      */
     val uiState: DashboardUIState
-        get() = if (displayableCryptoAssets.isNotEmpty() || displayableFiatAssets != null)
-            DashboardUIState.ASSETS
-        else if (!isLoadingAssets && displayableCryptoAssets.isEmpty() && displayableFiatAssets == null)
-            DashboardUIState.EMPTY
-        else if (isLoadingAssets) {
-            DashboardUIState.LOADING
-        } else throw IllegalStateException(
-            "State is undefined for loading: $isLoadingAssets --  ${activeAssets.size} assets --" +
-                " in state Loading ${activeAssets.values.map { it.isLoading }} -- active" +
-                " currencies: ${activeAssets.values.map { it.currency.networkTicker }}}"
-        )
-
-    private fun addFiatBalance(balance: Money?): Money? {
-        val fiatAssetBalance = fiatAssets.totalBalance
-
-        return if (balance != null) {
-            if (fiatAssetBalance != null) {
-                balance + fiatAssetBalance
-            } else {
-                balance
-            }
-        } else {
-            fiatAssetBalance
+        get() = when {
+            displayableAssets.isNotEmpty() -> DashboardUIState.ASSETS
+            !isLoadingAssets && displayableAssets.isEmpty() -> DashboardUIState.EMPTY
+            isLoadingAssets -> DashboardUIState.LOADING
+            else -> throw IllegalStateException(
+                "State is undefined for loading: $isLoadingAssets --  ${activeAssets.size} assets --" +
+                    " in state Loading ${activeAssets.values.map { it.isUILoading }} -- active" +
+                    " currencies: ${activeAssets.values.map { it.currency.networkTicker }}}"
+            )
         }
-    }
 
     private val delta: Pair<Money, Double>? by unsafeLazy {
-        val current = addFiatBalance(cryptoAssetFiatBalances())
-        val old = fiatBalance24h
-        if (current != null && old != null) {
-            Pair(current - old, current.percentageDelta(old))
-        } else {
-            null
-        }
+        val current = cryptoAssetsFiatBalances() ?: return@unsafeLazy null
+        val old = cryptoAssetsFiatBalances24hAgo() ?: return@unsafeLazy null
+        Pair(current - old, current.percentageDelta(old))
     }
 
-    operator fun get(currency: AssetInfo): DashboardAsset =
+    operator fun get(currency: Currency): DashboardAsset =
         activeAssets[currency]
+
+    fun containsDashboardAssetInValidState(dashboardAsset: DashboardAsset): Boolean {
+        return activeAssets.values.firstOrNull {
+            it.id == dashboardAsset.id
+        }?.let {
+            it.fiatBalance?.isPositive == true
+        } ?: false
+    }
 }
 
 enum class DashboardUIState {

@@ -1,6 +1,7 @@
 package piuk.blockchain.android.cards
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
@@ -85,5 +86,14 @@ sealed class CardIntent : MviIntent<CardState> {
     object ResetCardRejectionState : CardIntent() {
         override fun reduce(oldState: CardState): CardState =
             oldState.copy(cardRejectionState = null)
+    }
+
+    object LoadListOfUsStates : CardIntent() {
+        override fun reduce(oldState: CardState): CardState = oldState
+    }
+
+    data class UsStatesLoaded(val states: List<Region.State>) : CardIntent() {
+        override fun reduce(oldState: CardState): CardState =
+            oldState.copy(usStateList = states)
     }
 }

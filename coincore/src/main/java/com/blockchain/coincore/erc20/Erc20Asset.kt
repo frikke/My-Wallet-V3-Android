@@ -26,7 +26,7 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 internal class Erc20Asset(
-    override val assetInfo: AssetInfo,
+    override val currency: AssetInfo,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
@@ -42,9 +42,9 @@ internal class Erc20Asset(
         layerTwoFeatureFlag.enabled.flatMap { isEnabled ->
             if (isEnabled) {
                 erc20DataManager.getSupportedNetworks().map { supportedL2Networks ->
-                    if (assetInfo.categories.contains(AssetCategory.NON_CUSTODIAL)) {
+                    if (currency.categories.contains(AssetCategory.NON_CUSTODIAL)) {
                         supportedL2Networks.firstOrNull { evmNetwork ->
-                            evmNetwork.networkTicker == assetInfo.l1chainTicker
+                            evmNetwork.networkTicker == currency.l1chainTicker
                         }?.let { evmNetwork ->
                             listOf(getNonCustodialAccount(evmNetwork))
                         } ?: emptyList()
@@ -56,8 +56,8 @@ internal class Erc20Asset(
                 Single.fromCallable {
                     // Only load ERC20 accounts on the Ethereum network when the FF is disabled
                     if (
-                        assetInfo.categories.contains(AssetCategory.NON_CUSTODIAL) &&
-                        CryptoCurrency.ETHER.networkTicker == assetInfo.l1chainTicker
+                        currency.categories.contains(AssetCategory.NON_CUSTODIAL) &&
+                        CryptoCurrency.ETHER.networkTicker == currency.l1chainTicker
                     ) {
                         listOf(getNonCustodialAccount(EthDataManager.ethChain))
                     } else {
@@ -69,7 +69,7 @@ internal class Erc20Asset(
 
     private fun getNonCustodialAccount(evmNetwork: EvmNetwork): Erc20NonCustodialAccount =
         Erc20NonCustodialAccount(
-            assetInfo,
+            currency,
             erc20DataManager,
             erc20address,
             feeDataManager,
@@ -92,12 +92,12 @@ internal class Erc20Asset(
                     if (isValid) {
                         erc20DataManager.isContractAddress(
                             address = address,
-                            l1Chain = assetInfo.l1chainTicker
+                            l1Chain = currency.l1chainTicker
                         )
                             .flatMapMaybe { isContract ->
                                 Maybe.just(
                                     Erc20Address(
-                                        asset = assetInfo,
+                                        asset = currency,
                                         address = address,
                                         label = label ?: address,
                                         isDomain = isDomainAddress,
@@ -138,7 +138,7 @@ internal class Erc20Asset(
             it.startsWith(ERC20_ADDRESS_AMOUNT_PART, true)
         }?.let { param ->
             CryptoValue.fromMinor(
-                assetInfo, param.removePrefix(ERC20_ADDRESS_AMOUNT_PART).toBigDecimal()
+                currency, param.removePrefix(ERC20_ADDRESS_AMOUNT_PART).toBigDecimal()
             )
         }
 
@@ -148,12 +148,12 @@ internal class Erc20Asset(
 
         return erc20DataManager.isContractAddress(
             address = addressSegment,
-            l1Chain = assetInfo.l1chainTicker
+            l1Chain = currency.l1chainTicker
         )
             .flatMapMaybe { isContract ->
                 Maybe.just(
                     Erc20Address(
-                        asset = assetInfo,
+                        asset = currency,
                         address = receiveAddress,
                         label = label ?: receiveAddress,
                         isDomain = isDomainAddress,

@@ -8,5 +8,5 @@ import io.reactivex.rxjava3.core.Single
 interface InterestService {
     fun getBalances(): Observable<Map<AssetInfo, InterestAccountBalance>>
     fun getBalanceFor(asset: AssetInfo): Observable<InterestAccountBalance>
-    fun getActiveAssets(): Single<Set<AssetInfo>>
+    fun getActiveAssets(refresh: Boolean = false): Single<Set<AssetInfo>>
 }

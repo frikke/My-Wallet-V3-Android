@@ -112,11 +112,7 @@ val coincoreModule = module {
                 remoteLogger = get(),
                 bankService = get(),
                 walletModeService = get(),
-                currencyPrefs = get(),
                 disabledEvmAssets = ncAssetList.toList(),
-                custodialWalletManager = get(),
-                exchangeRateDataManager = get(),
-                tradingBalances = get()
             )
         }
 
@@ -141,6 +137,8 @@ val coincoreModule = module {
                 identityAddressResolver = get(),
                 selfCustodyService = get(),
                 ethHotWalletAddressResolver = get(),
+                currencyPrefs = get(),
+                custodialWalletManager = get(),
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
                 stxForAllFeatureFlag = get(stxForAllFeatureFlag)
             )

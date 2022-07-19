@@ -16,7 +16,7 @@ import piuk.blockchain.android.databinding.ItemDashboardAssetCardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.format
-import piuk.blockchain.android.ui.dashboard.model.BrokerageAsset
+import piuk.blockchain.android.ui.dashboard.model.BrokerageCryptoAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.showLoading
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -31,7 +31,7 @@ class BrokerageCardDelegate(
 ) : AdapterDelegate<DashboardItem> {
 
     override fun isForViewType(items: List<DashboardItem>, position: Int): Boolean =
-        items[position] is BrokerageAsset
+        items[position] is BrokerageCryptoAsset
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         AssetCardViewHolder(ItemDashboardAssetCardBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -41,7 +41,7 @@ class BrokerageCardDelegate(
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as AssetCardViewHolder).bind(
-        items[position] as BrokerageAsset,
+        items[position] as BrokerageCryptoAsset,
         prefs.selectedFiatCurrency,
         assetResources,
         onCardClicked
@@ -53,7 +53,7 @@ private class AssetCardViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(
-        state: BrokerageAsset,
+        state: BrokerageCryptoAsset,
         fiatSymbol: FiatCurrency,
         assetResources: AssetResources,
         onCardClicked: (AssetInfo) -> Unit
@@ -69,7 +69,7 @@ private class AssetCardViewHolder(
 
         when {
             state.hasBalanceError -> renderError(state)
-            state.isLoading -> renderLoading()
+            state.isUILoading -> renderLoading()
             else -> renderLoaded(state, fiatSymbol, assetResources, onCardClicked)
         }
     }
@@ -91,7 +91,7 @@ private class AssetCardViewHolder(
     }
 
     private fun renderLoaded(
-        state: BrokerageAsset,
+        state: BrokerageCryptoAsset,
         fiatCurrency: FiatCurrency,
         assetResources: AssetResources,
         onCardClicked: (AssetInfo) -> Unit
@@ -120,7 +120,7 @@ private class AssetCardViewHolder(
         }
     }
 
-    private fun renderError(state: BrokerageAsset) {
+    private fun renderError(state: BrokerageCryptoAsset) {
         showError()
 
         with(binding) {

@@ -42,7 +42,7 @@ internal class BchAsset internal constructor(
     NonCustodialSupport,
     MultipleWalletsAsset {
 
-    override val assetInfo: AssetInfo
+    override val currency: AssetInfo
         get() = CryptoCurrency.BCH
 
     override fun initToken(): Completable =
@@ -90,7 +90,7 @@ internal class BchAsset internal constructor(
         }
 
         val notify = NotificationAddresses(
-            assetTicker = assetInfo.networkTicker,
+            assetTicker = currency.networkTicker,
             addressList = result
         )
         return beNotifyUpdate.updateNotificationBackend(notify)

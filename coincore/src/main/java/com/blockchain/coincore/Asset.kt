@@ -123,17 +123,13 @@ internal fun FeatureAccess.Blocked.toActionState(): ActionState = when (val reas
 }
 
 interface Asset {
-    val assetInfo: Currency
+    val currency: Currency
+    fun defaultAccount(): Single<SingleAccount>
     fun accountGroup(filter: AssetFilter = AssetFilter.All): Maybe<AccountGroup>
     fun transactionTargets(account: SingleAccount): Single<SingleAccountList>
     fun parseAddress(address: String, label: String? = null, isDomainAddress: Boolean = false): Maybe<ReceiveAddress>
     fun isValidAddress(address: String): Boolean = false
-}
-
-interface CryptoAsset : Asset {
-
-    fun defaultAccount(): Single<SingleAccount>
-    fun interestRate(): Single<Double>
+    fun lastDayTrend(): Single<HistoricalRateList>
 
     // Fetch exchange rate to user's selected/display fiat
     @Deprecated("Use getPricesWith24hDelta() instead")
@@ -142,15 +138,15 @@ interface CryptoAsset : Asset {
     fun historicRate(epochWhen: Long): Single<ExchangeRate>
 
     fun historicRateSeries(period: HistoricalTimeSpan): Single<HistoricalRateList>
-    fun lastDayTrend(): Single<HistoricalRateList>
+}
 
-    // TODO: This is cheating for now. Unfortunately even CoinView knows that this is an AssetInfo and not a Currency
-    // we need to fix this.
-    override val assetInfo: AssetInfo
+interface CryptoAsset : Asset {
+    override val currency: AssetInfo
+    fun interestRate(): Single<Double>
 }
 
 interface MultipleWalletsAsset {
-    val assetInfo: AssetInfo
+    val currency: AssetInfo
     fun createWalletFromLabel(label: String, secondPassword: String?): Single<out SingleAccount>
     fun createWalletFromAddress(address: String): Completable
     fun importWalletFromKey(

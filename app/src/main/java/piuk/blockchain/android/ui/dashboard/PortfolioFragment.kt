@@ -33,7 +33,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -60,6 +59,7 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.dashboard.assetdetails.fiatAssetAction
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
+import piuk.blockchain.android.ui.dashboard.model.BrokearageFiatAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem
@@ -67,6 +67,7 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardOnboardingState
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
 import piuk.blockchain.android.ui.dashboard.model.DashboardUIState
+import piuk.blockchain.android.ui.dashboard.model.FiatBalanceInfo
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.model.Locks
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
@@ -206,14 +207,14 @@ class PortfolioFragment :
     }
 
     private fun isDashboardLoading(state: DashboardState): Boolean {
-        val atLeastOneAssetIsLoading = state.activeAssets.values.any { it.isLoading }
+        val atLeastOneAssetIsLoading = state.activeAssets.values.any { it.isUILoading }
         val dashboardLoading = state.isLoadingAssets
         return dashboardLoading || atLeastOneAssetIsLoading
     }
 
     @UiThread
     override fun render(newState: DashboardState) {
-        binding.swipe.isRefreshing = false
+        binding.swipe.isRefreshing = newState.isSwipingToRefresh
         updateDisplayList(newState)
         verifyAppRating(newState)
 
@@ -244,18 +245,17 @@ class PortfolioFragment :
             newState.locks.fundsLocks?.let {
                 newState.locks
             },
-            newState.displayableFiatAssets
+            newState.fiatDashboardAssets.takeIf { it.isNotEmpty() }?.let { FiatBalanceInfo(it) }
         )
 
-        val cryptoAssets = newState.displayableCryptoAssets.sortedWith(
+        val cryptoAssets = newState.displayableAssets.filterNot { it is BrokearageFiatAsset }.sortedWith(
             compareByDescending<DashboardAsset> { it.fiatBalance?.toBigInteger() }
                 .thenBy { it.currency.name }
         )
 
         renderState(newState.uiState)
         setupCtaButtons(newState)
-        theAdapter.items =
-            theAdapter.items.filterIsInstance<AnnouncementCard>().plus(items).plus(cryptoAssets)
+        theAdapter.items = theAdapter.items.filterIsInstance<AnnouncementCard>().plus(items).plus(cryptoAssets)
     }
 
     private fun renderState(uiState: DashboardUIState) {
@@ -463,7 +463,9 @@ class PortfolioFragment :
             val newBalance = state.accountBalance?.total
             if (newBalance != null && newBalance != oldState?.activeAssets?.get(asset)?.accountBalance?.total) {
                 // If we have the full set, this will fire
-                analyticsReporter.gotAssetBalance(asset, newBalance, newState.activeAssets.size)
+                (asset as? AssetInfo)?.let {
+                    analyticsReporter.gotAssetBalance(asset, newBalance, newState.activeAssets.size)
+                }
             }
         }
     }
@@ -515,7 +517,7 @@ class PortfolioFragment :
     private fun setupSwipeRefresh() {
         with(binding) {
             swipe.setOnRefreshListener {
-                model.process(DashboardIntent.RefreshAllBalancesIntent(false))
+                model.process(DashboardIntent.OnSwipeToRefresh)
                 model.process(DashboardIntent.LoadFundsLocked)
             }
 
@@ -538,9 +540,6 @@ class PortfolioFragment :
             model.process(DashboardIntent.ResetDashboardAssets)
         }
         if (isHidden) return
-        compositeDisposable += actionEvent.subscribe {
-            initOrUpdateAssets()
-        }
 
         announcements.checkLatest(announcementHost, compositeDisposable)
         model.process(DashboardIntent.FetchOnboardingSteps)
@@ -553,22 +552,12 @@ class PortfolioFragment :
         super.onHiddenChanged(hidden)
         if (!hidden) {
             model.process(
-                DashboardIntent.RefreshAllBalancesIntent(
+                DashboardIntent.GetActiveAssets(
                     loadSilently = activeFiat == currencyPrefs.selectedFiatCurrency
                 )
             )
             activeFiat = currencyPrefs.selectedFiatCurrency
             model.process(DashboardIntent.FetchOnboardingSteps)
-        }
-    }
-
-    private fun initOrUpdateAssets() {
-        model.process(DashboardIntent.RefreshAllBalancesIntent(false))
-    }
-
-    fun refreshFiatAssets() {
-        state?.fiatAssets?.let {
-            model.process(DashboardIntent.RefreshFiatBalances(it.fiatAccounts))
         }
     }
 
@@ -630,7 +619,7 @@ class PortfolioFragment :
         when (requestCode) {
             MainActivity.SETTINGS_EDIT,
             MainActivity.ACCOUNT_EDIT,
-            -> model.process(DashboardIntent.RefreshAllBalancesIntent(false))
+            -> model.process(DashboardIntent.GetActiveAssets(false))
             BACKUP_FUNDS_REQUEST_CODE -> {
                 state?.backupSheetDetails?.let {
                     model.process(DashboardIntent.CheckBackupStatus(it.account, it.action))

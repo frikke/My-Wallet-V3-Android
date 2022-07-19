@@ -20,7 +20,7 @@ class FiatCurrency private constructor(
     override val logo: String
         get() = "file:///android_asset/logo/${currencyCode.lowercase(Locale.ROOT)}/logo.png"
     override val colour: String
-        get() = "#00000000"
+        get() = "#FF00B26B"
     override val startDate: Long?
         get() = null
     override val symbol: String

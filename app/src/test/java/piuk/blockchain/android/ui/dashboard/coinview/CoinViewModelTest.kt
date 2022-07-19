@@ -66,14 +66,14 @@ class CoinViewModelTest {
             on { networkTicker }.thenReturn(ticker)
         }
         val asset: CryptoAsset = mock {
-            on { this.assetInfo }.thenReturn(assetInfo)
+            on { this.currency }.thenReturn(assetInfo)
         }
 
         val selectedFiat: FiatCurrency = FiatCurrency.Dollars
         whenever(interactor.loadAssetDetails(ticker)).thenReturn(Single.just(Pair(asset, selectedFiat)))
         whenever(interactor.loadAccountDetails(asset)).thenReturn(Single.error(Exception()))
-        whenever(interactor.loadRecurringBuys(asset.assetInfo)).thenReturn(Single.error(Exception()))
-        whenever(interactor.loadAssetInformation(asset.assetInfo)).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadRecurringBuys(asset.currency)).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadAssetInformation(asset.currency)).thenReturn(Single.error(Exception()))
 
         val test = subject.state.test()
         subject.process(CoinViewIntent.LoadAsset(ticker))
@@ -127,7 +127,7 @@ class CoinViewModelTest {
     @Test
     fun `load accounts should show account details non tradeable succeeds`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
         val prices: Prices24HrWithDelta = mock()
 
@@ -171,7 +171,7 @@ class CoinViewModelTest {
     @Test
     fun `load accounts should show account details and load quick actions`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
         val prices: Prices24HrWithDelta = mock()
 
@@ -237,7 +237,7 @@ class CoinViewModelTest {
     @Test
     fun `load accounts should show account details fails`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
         whenever(interactor.loadAccountDetails(asset)).thenReturn(Single.error(Exception()))
 
@@ -255,7 +255,7 @@ class CoinViewModelTest {
     @Test
     fun `update account details with selected fiat should load chart`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
         val prices: Prices24HrWithDelta = mock()
 
@@ -314,7 +314,7 @@ class CoinViewModelTest {
     @Test
     fun `update account details without selected fiat should fail`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
         val prices: Prices24HrWithDelta = mock()
 
@@ -353,7 +353,7 @@ class CoinViewModelTest {
     @Test
     fun `load asset chart succeeds when list is populated should send UI event`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
         val prices: Prices24HrWithDelta = mock()
         val priceList: HistoricalRateList = listOf(mock(), mock(), mock())
@@ -377,7 +377,7 @@ class CoinViewModelTest {
     @Test
     fun `load asset chart succeeds when list is not populated should send error event`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
         val prices: Prices24HrWithDelta = mock()
         val priceList: HistoricalRateList = emptyList()
@@ -401,7 +401,7 @@ class CoinViewModelTest {
     @Test
     fun `load asset chart fails`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
         val prices: Prices24HrWithDelta = mock()
         whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.error(Exception()))
@@ -424,7 +424,7 @@ class CoinViewModelTest {
     @Test
     fun `load new chart period with asset succeeds`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
         val prices: Prices24HrWithDelta = mock()
 
@@ -468,7 +468,7 @@ class CoinViewModelTest {
     @Test
     fun `load new chart period with asset succeeds but returns empty list`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
         val prices: Prices24HrWithDelta = mock()
 
@@ -529,7 +529,7 @@ class CoinViewModelTest {
     @Test
     fun `load new chart period with no asset prices should fail`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
 
         val state = CoinViewState(
@@ -572,7 +572,7 @@ class CoinViewModelTest {
     @Test
     fun `load new chart period with no selected fiat should fail`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
 
         val state = CoinViewState(
@@ -616,12 +616,12 @@ class CoinViewModelTest {
     @Test
     fun `load recurring buys succeeds`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
-        whenever(interactor.loadRecurringBuys(asset.assetInfo)).thenReturn(Single.just(Pair(emptyList(), true)))
+        whenever(interactor.loadRecurringBuys(asset.currency)).thenReturn(Single.just(Pair(emptyList(), true)))
 
         val test = subject.state.test()
-        subject.process(CoinViewIntent.LoadRecurringBuys(asset.assetInfo))
+        subject.process(CoinViewIntent.LoadRecurringBuys(asset.currency))
 
         test.assertValueAt(0) {
             it == defaultState
@@ -635,12 +635,12 @@ class CoinViewModelTest {
     @Test
     fun `load recurring buys fails`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
-        whenever(interactor.loadRecurringBuys(asset.assetInfo)).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadRecurringBuys(asset.currency)).thenReturn(Single.error(Exception()))
 
         val test = subject.state.test()
-        subject.process(CoinViewIntent.LoadRecurringBuys(asset.assetInfo))
+        subject.process(CoinViewIntent.LoadRecurringBuys(asset.currency))
 
         test.assertValueAt(0) {
             it == defaultState
@@ -654,7 +654,7 @@ class CoinViewModelTest {
     @Test
     fun `load quick actions succeeds`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
         whenever(interactor.loadQuickActions(any(), any(), eq(asset))).thenReturn(
             Single.just(
@@ -677,7 +677,7 @@ class CoinViewModelTest {
     @Test
     fun `load quick actions fails`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
         whenever(interactor.loadQuickActions(any(), any(), eq(asset))).thenReturn(Single.error(Exception()))
 
@@ -696,7 +696,7 @@ class CoinViewModelTest {
     @Test
     fun `toggle watchlist should add successfully`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
 
         val state = CoinViewState(
@@ -717,7 +717,7 @@ class CoinViewModelTest {
             }
         )
 
-        whenever(interactor.addToWatchlist(asset.assetInfo)).thenReturn(Single.just(mock()))
+        whenever(interactor.addToWatchlist(asset.currency)).thenReturn(Single.just(mock()))
 
         val test = localSubject.state.test()
         localSubject.process(CoinViewIntent.ToggleWatchlist)
@@ -743,7 +743,7 @@ class CoinViewModelTest {
     @Test
     fun `toggle watchlist should remove failure`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
 
         val state = CoinViewState(
@@ -764,7 +764,7 @@ class CoinViewModelTest {
             }
         )
 
-        whenever(interactor.removeFromWatchlist(asset.assetInfo)).thenReturn(Completable.error(Exception()))
+        whenever(interactor.removeFromWatchlist(asset.currency)).thenReturn(Completable.error(Exception()))
 
         val test = localSubject.state.test()
         localSubject.process(CoinViewIntent.ToggleWatchlist)
@@ -811,7 +811,7 @@ class CoinViewModelTest {
     @Test
     fun `toggle watchlist should remove`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
 
         val state = CoinViewState(
@@ -832,7 +832,7 @@ class CoinViewModelTest {
             }
         )
 
-        whenever(interactor.removeFromWatchlist(asset.assetInfo)).thenReturn(Completable.complete())
+        whenever(interactor.removeFromWatchlist(asset.currency)).thenReturn(Completable.complete())
 
         val test = localSubject.state.test()
         localSubject.process(CoinViewIntent.ToggleWatchlist)
@@ -869,7 +869,7 @@ class CoinViewModelTest {
     @Test
     fun `toggle watchlist add should fail`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
 
         val state = CoinViewState(
@@ -890,7 +890,7 @@ class CoinViewModelTest {
             }
         )
 
-        whenever(interactor.addToWatchlist(asset.assetInfo)).thenReturn(Single.error(Exception()))
+        whenever(interactor.addToWatchlist(asset.currency)).thenReturn(Single.error(Exception()))
 
         val test = localSubject.state.test()
         localSubject.process(CoinViewIntent.ToggleWatchlist)
@@ -927,14 +927,14 @@ class CoinViewModelTest {
     @Test
     fun `load asset info details succeding should fire state update`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
         val assetDetails = DetailedAssetInformation("", "", "")
-        whenever(interactor.loadAssetInformation(asset.assetInfo)).thenReturn(Single.just(assetDetails))
+        whenever(interactor.loadAssetInformation(asset.currency)).thenReturn(Single.just(assetDetails))
 
         val test = subject.state.test()
 
-        subject.process(CoinViewIntent.LoadAssetDetails(asset.assetInfo))
+        subject.process(CoinViewIntent.LoadAssetDetails(asset.currency))
 
         test.assertValueAt(0) {
             it == defaultState
@@ -950,13 +950,13 @@ class CoinViewModelTest {
     @Test
     fun `load asset info details failing should fire error update`() {
         val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+            on { currency }.thenReturn(mock())
         }
-        whenever(interactor.loadAssetInformation(asset.assetInfo)).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadAssetInformation(asset.currency)).thenReturn(Single.error(Exception()))
 
         val test = subject.state.test()
 
-        subject.process(CoinViewIntent.LoadAssetDetails(asset.assetInfo))
+        subject.process(CoinViewIntent.LoadAssetDetails(asset.currency))
 
         test.assertValueAt(0) {
             it == defaultState

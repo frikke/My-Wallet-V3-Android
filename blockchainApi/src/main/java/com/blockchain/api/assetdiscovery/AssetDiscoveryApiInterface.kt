@@ -14,11 +14,6 @@ internal interface AssetDiscoveryApiInterface {
 
     @Cacheable(maxAge = Cacheable.MAX_AGE_THREE_DAYS)
     @DoNotLogResponseBody
-    @GET("assets/currencies/coin")
-    fun getCurrencies(): Single<DynamicCurrencyList>
-
-    @Cacheable(maxAge = Cacheable.MAX_AGE_THREE_DAYS)
-    @DoNotLogResponseBody
     @GET("assets/currencies/fiat")
     fun getFiatCurrencies(): Single<DynamicCurrencyList>
 

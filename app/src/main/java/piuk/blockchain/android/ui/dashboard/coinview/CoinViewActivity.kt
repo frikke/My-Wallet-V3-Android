@@ -366,8 +366,8 @@ class CoinViewActivity :
     override fun render(newState: CoinViewState) {
         newState.asset?.let { cryptoAsset ->
             with(binding) {
-                assetAboutTitle.text = getString(R.string.coinview_about_asset, cryptoAsset.assetInfo.name)
-                assetPrice.endIcon = ImageResource.Remote(url = cryptoAsset.assetInfo.logo, shape = CircleShape)
+                assetAboutTitle.text = getString(R.string.coinview_about_asset, cryptoAsset.currency.name)
+                assetPrice.endIcon = ImageResource.Remote(url = cryptoAsset.currency.logo, shape = CircleShape)
                 assetBalance.updateIcon(newState.isAddedToWatchlist)
             }
         }
@@ -483,7 +483,7 @@ class CoinViewActivity :
             }
             is CoinViewViewState.QuickActionsLoaded -> {
                 newState.asset?.let { asset ->
-                    renderQuickActions(asset.assetInfo, state.actionableAccount, state.startAction, state.endAction)
+                    renderQuickActions(asset.currency, state.actionableAccount, state.startAction, state.endAction)
                 }
             }
             is CoinViewViewState.UpdatedWatchlist -> renderWatchlistIcon(state.addedToWatchlist)
@@ -640,7 +640,7 @@ class CoinViewActivity :
                 subtitle = getString(R.string.coinview_not_tradeable_subtitle, assetName)
             }
 
-            newState.asset?.assetInfo?.let { assetInfo ->
+            newState.asset?.currency?.let { assetInfo ->
                 newState.selectedFiat?.let { selectedFiat ->
                     renderBalanceInformation(
                         totalCryptoBalance = hashMapOf(AssetFilter.All to CryptoValue.zero(assetInfo)),

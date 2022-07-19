@@ -95,6 +95,10 @@ class LinkBankMethodChooserBottomSheet : SlidingModalBottomDialog<LinkBankMethod
                 arguments = Bundle().apply {
                     putSerializable(LINKABLE_METHODS, linkablePaymentMethodsForAction)
                     putBoolean(FOR_PAYMENT, isForPayment)
+                    putString(
+                        TARGET_CURRENCY_TICKER,
+                        linkablePaymentMethodsForAction.linkablePaymentMethods.currency.networkTicker
+                    )
                 }
             }
 

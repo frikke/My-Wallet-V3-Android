@@ -7,6 +7,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.componentlib.viewextensions.visible
@@ -78,7 +79,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
         accountsAreTheSame: Boolean
     ) {
         with(binding) {
-            compositeDisposable += coincore[account.currency]
+            compositeDisposable += (coincore[account.currency] as CryptoAsset)
                 .interestRate()
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { assetSubtitle.text = resources.getString(R.string.empty) }

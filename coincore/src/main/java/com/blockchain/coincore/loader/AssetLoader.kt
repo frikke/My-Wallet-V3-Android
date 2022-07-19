@@ -1,20 +1,22 @@
 package com.blockchain.coincore.loader
 
-import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.Asset
 import com.blockchain.walletmode.WalletMode
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
+import kotlinx.coroutines.flow.Flow
 
 internal interface AssetLoader {
     fun initAndPreload(): Completable
 
     // The assets which have balances and/or transaction history. This list is used for displaying content on the
     // Portfolio screen.
-    fun activeAssets(walletMode: WalletMode): List<CryptoAsset>
+    fun activeAssets(walletMode: WalletMode): List<Asset>
+    fun reactiveActiveAssets(walletMode: WalletMode): Flow<List<Asset>>
 
     // The assets which have been loaded so far. On startup we load the L1s, the assets with Custodial support and
     // the active assets. This list is used for Swap targets.
-    val loadedAssets: List<CryptoAsset>
+    val loadedAssets: List<Asset>
 
-    operator fun get(asset: AssetInfo): CryptoAsset
+    operator fun get(asset: Currency): Asset
 }

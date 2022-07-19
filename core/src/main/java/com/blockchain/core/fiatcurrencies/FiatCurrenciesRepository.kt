@@ -27,6 +27,7 @@ internal class FiatCurrenciesRepository(
     private val api: FiatCurrenciesApiService
 ) : FiatCurrenciesService {
 
+    @Suppress("DEPRECATION_ERROR")
     override val selectedTradingCurrency: FiatCurrency
         get() = currencyPrefs.tradingCurrency
             ?: throw UninitializedPropertyAccessException("Should have been initialized at app startup")
@@ -44,6 +45,7 @@ internal class FiatCurrenciesRepository(
                         assetCatalogue.fiatFromNetworkTicker(it)
                     }
                 ).also {
+                    @Suppress("DEPRECATION_ERROR")
                     currencyPrefs.tradingCurrency = it.selected
                 }
             }
@@ -54,6 +56,7 @@ internal class FiatCurrenciesRepository(
                 api.setSelectedTradingCurrency(authHeader, currency.networkTicker)
                     .mapError { it.exception }
                     .doOnSuccess {
+                        @Suppress("DEPRECATION_ERROR")
                         currencyPrefs.tradingCurrency = currency
                         analytics.logEvent(CurrencySelectionAnalytics.TradingCurrencyChanged(currency))
                     }

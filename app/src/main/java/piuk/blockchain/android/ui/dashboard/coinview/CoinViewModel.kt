@@ -35,8 +35,8 @@ class CoinViewModel(
                         asset?.let {
                             process(CoinViewIntent.AssetLoaded(it, fiatCurrency))
                             process(CoinViewIntent.LoadAccounts(it))
-                            process(CoinViewIntent.LoadRecurringBuys(it.assetInfo))
-                            process(CoinViewIntent.LoadAssetDetails(it.assetInfo))
+                            process(CoinViewIntent.LoadRecurringBuys(it.currency))
+                            process(CoinViewIntent.LoadAssetDetails(it.currency))
                         } ?: process(CoinViewIntent.UpdateErrorState(CoinViewError.UnknownAsset))
                     },
                     onError = {
@@ -78,7 +78,7 @@ class CoinViewModel(
         }
 
     private fun toggleWatchlist(previousState: CoinViewState) =
-        previousState.asset?.assetInfo?.let {
+        previousState.asset?.currency?.let {
             if (previousState.isAddedToWatchlist) {
                 interactor.removeFromWatchlist(it)
                     .subscribeBy(
