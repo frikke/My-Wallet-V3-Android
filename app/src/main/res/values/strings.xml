@@ -1470,6 +1470,7 @@
     <string name="card_issuer_always_rejects_title">Buying crypto not supported</string>
     <string name="card_issuer_always_rejects_desc">This card doesn’t allow crypto transactions. Try another card instead.</string>
     <string name="card_issuer_sometimes_rejects_title">This card often declines crypto transactions.</string>
+    <string name="unable_to_load_list_of_states">Unable to load list of US states</string>
 
     <!-- Activity Details -->
     <string name="activity_details_created">Date</string>

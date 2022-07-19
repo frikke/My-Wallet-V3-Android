@@ -11,6 +11,9 @@ import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.eligibility.model.GetRegionScope
+import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -66,9 +69,11 @@ import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 import kotlin.math.floor
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.json.Json
 import piuk.blockchain.android.cards.CardData
@@ -84,6 +89,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
 
 class SimpleBuyInteractor(
@@ -108,7 +114,8 @@ class SimpleBuyInteractor(
     private val quickFillButtonsFeatureFlag: FeatureFlag,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val onboardingPrefs: OnboardingPrefs,
-    private val cardRejectionCheckFF: FeatureFlag
+    private val cardRejectionCheckFF: FeatureFlag,
+    private val eligibilityService: EligibilityService,
 ) {
 
     // Hack until we have a proper limits api.
@@ -593,6 +600,11 @@ class SimpleBuyInteractor(
             }
 
             return@map Pair(prefilledAmount, quickFillButtonData)
+        }
+
+    fun getListOfStates(countryCode: String): Single<List<Region.State>> =
+        rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+            eligibilityService.getStatesList(countryCode, GetRegionScope.None)
         }
 
     private fun roundToNearest(lastAmount: Float, nearest: Int): Int {

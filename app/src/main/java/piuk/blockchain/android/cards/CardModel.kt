@@ -45,6 +45,7 @@ class CardModel(
             is CardIntent.CheckCardStatus -> checkCardStatus(previousState)
             CardIntent.LoadLinkedCards -> loadLinkedCards()
             is CardIntent.CheckProviderFailureRate -> checkCardFailureRate(intent.cardNumber)
+            is CardIntent.LoadListOfUsStates -> loadListOfUsStates()
             else -> null
         }
 
@@ -119,6 +120,18 @@ class CardModel(
                 )
             }
         )
+
+    private fun loadListOfUsStates() = interactor.getListOfStates("US").subscribeBy(
+        onSuccess = {
+            process(CardIntent.UsStatesLoaded(it))
+        },
+        onError = {
+            Timber.e("Error loading us states ${it.message}")
+            process(
+                CardIntent.UsStatesLoaded(emptyList())
+            )
+        }
+    )
 
     private fun Throwable.toCardError(defaultError: CardError): CardError {
         return if (this is NabuApiException) {
