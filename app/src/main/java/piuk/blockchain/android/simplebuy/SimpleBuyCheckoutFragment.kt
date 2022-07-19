@@ -339,8 +339,8 @@ class SimpleBuyCheckoutFragment :
                         totalPrice = newState.amount.toNetworkString(),
                         countryCode = newState.googlePayMerchantBankCountryCode.orEmpty(),
                         currencyCode = newState.fiatCurrency.networkTicker,
-                        allowPrepaidCards = newState.googlePayAllowPrepaidCards ?: true,
-                        allowCreditCards = newState.googlePayAllowCreditCards ?: true
+                        allowPrepaidCards = newState.googlePayAllowPrepaidCards,
+                        allowCreditCards = newState.googlePayAllowCreditCards
                     ),
                     requireActivity()
                 )

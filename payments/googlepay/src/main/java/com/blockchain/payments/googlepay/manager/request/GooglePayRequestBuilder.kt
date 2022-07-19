@@ -11,7 +11,7 @@ object GooglePayRequestBuilder {
                         billingAddressRequired = true,
                         billingAddressParameters = CardPaymentMethod.CardPaymentParameters.BillingAddressParameters(),
                         allowPrepaidCards = true,
-                        allowCreditCards = true
+                        allowCreditCards = false
                     )
                 )
             )
