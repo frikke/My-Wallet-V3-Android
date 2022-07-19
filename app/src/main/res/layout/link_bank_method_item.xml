@@ -58,6 +58,7 @@
         android:layout_marginStart="@dimen/small_margin"
         android:layout_marginTop="2dp"
         android:layout_marginEnd="@dimen/standard_margin"
+        tools:text=""
         app:layout_constraintBottom_toTopOf="@+id/badge"
         app:layout_constraintEnd_toStartOf="@id/add_payment_method_icon"
         app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
