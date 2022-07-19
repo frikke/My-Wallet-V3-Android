@@ -77,6 +77,13 @@ class UiTourView @JvmOverloads constructor(
         binding.pagerIndicator.count = UiTourStep.values().size
         binding.pagerIndicator.selectedIndex = 0
         binding.bottomNavigation.apply {
+            navigationItems = listOf(
+                NavigationItem.Home,
+                NavigationItem.Prices,
+                NavigationItem.BuyAndSell,
+                NavigationItem.Activity
+            )
+            hasMiddleButton = true
             onNavigationItemClick = {
                 val step = when (it) {
                     NavigationItem.Home -> null
