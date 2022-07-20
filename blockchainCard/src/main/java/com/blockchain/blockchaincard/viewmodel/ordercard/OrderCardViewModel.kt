@@ -34,6 +34,7 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
         selectedCardProduct = state.selectedCardProduct,
         residentialAddress = state.residentialAddress,
         ssn = state.ssn,
+        countryStateList = state.countryStateList,
     )
 
     override suspend fun handleIntent(
@@ -69,6 +70,15 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
             }
 
             is BlockchainCardIntent.SeeBillingAddress -> {
+                modelState.residentialAddress?.let { address ->
+                    blockchainCardRepository.getStatesList(address.country)
+                        .doOnSuccess { states ->
+                            updateState { it.copy(countryStateList = states) }
+                        }
+                        .doOnFailure {
+                            Timber.e("Unable to get states: $it")
+                        }
+                }
                 navigate(BlockchainCardNavigationEvent.SeeBillingAddress)
             }
 

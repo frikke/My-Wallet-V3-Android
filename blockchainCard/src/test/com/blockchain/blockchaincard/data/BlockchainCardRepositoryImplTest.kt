@@ -8,7 +8,9 @@ import com.blockchain.api.blockchainCard.data.PriceDto
 import com.blockchain.api.blockchainCard.data.ProductDto
 import com.blockchain.api.blockchainCard.data.ResidentialAddressDto
 import com.blockchain.api.blockchainCard.data.ResidentialAddressRequestDto
+import com.blockchain.api.eligibility.data.StateResponse
 import com.blockchain.api.services.BlockchainCardService
+import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
@@ -18,6 +20,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardType
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.Outcome
@@ -41,6 +44,8 @@ class BlockchainCardRepositoryImplTest {
 
     private val blockchainCardService = mockk<BlockchainCardService>()
 
+    private val eligibilityApiService = mockk<EligibilityApiService>()
+
     private val authenticator = mockk<Authenticator>()
 
     private val coincore = mockk<Coincore>()
@@ -51,6 +56,7 @@ class BlockchainCardRepositoryImplTest {
 
     private val blockchainCardRepository = BlockchainCardRepositoryImpl(
         blockchainCardService = blockchainCardService,
+        eligibilityApiService = eligibilityApiService,
         authenticator = authenticator,
         coincore = coincore,
         assetCatalogue = assetCatalogue,
@@ -168,6 +174,27 @@ class BlockchainCardRepositoryImplTest {
         country = "country"
     )
 
+    private val usStateListDto = listOf(
+        StateResponse(
+            "US-FL",
+            "Florida",
+            emptyList(),
+            "US"
+        ),
+        StateResponse(
+            "US-GA",
+            "Georgia",
+            emptyList(),
+            "US"
+        ),
+        StateResponse(
+            "US-NC",
+            "North Carolina",
+            emptyList(),
+            "US"
+        )
+    )
+
     @Before
     fun setUp() {
         coEvery { authenticator.getAuthHeader() } returns Single.just(authToken)
@@ -178,6 +205,7 @@ class BlockchainCardRepositoryImplTest {
         )
         every { fiatCustodialAccount.currency.networkTicker } returns "USD"
         every { custodialTradingAccount.currency.networkTicker } returns "BTC"
+        coEvery { eligibilityApiService.getStatesList(any(), any()) } returns Outcome.Success(usStateListDto)
     }
 
     @Test
@@ -347,5 +375,16 @@ class BlockchainCardRepositoryImplTest {
         assertEquals(residentialAddressRequestDto.address.city, cardResidentialAddressUnderTest.getOrNull()?.city)
         assertEquals(residentialAddressRequestDto.address.state, cardResidentialAddressUnderTest.getOrNull()?.state)
         assertEquals(residentialAddressRequestDto.address.country, cardResidentialAddressUnderTest.getOrNull()?.country)
+    }
+
+    @Test
+    fun `WHEN list of US states is requested, THEN response must include a valid list of US states`() = runTest {
+        val usStates = listOf(
+            Region.State("US", "Florida", false, "US-FL"),
+            Region.State("US", "Georgia", false, "US-GA"),
+            Region.State("US", "North Carolina", false, "US-NC")
+        )
+        val usStatesUnderTest = blockchainCardRepository.getStatesList("US").getOrNull()
+        assertEquals(usStates, usStatesUnderTest)
     }
 }

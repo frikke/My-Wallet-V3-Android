@@ -3055,7 +3055,7 @@
     <string name="go_to_dashboard">Go To Dashboard</string>
     <string name="change_source">Change Source</string>
     <string name="manage_card">Manage Card</string>
-    <string name="my_cards">My Cards</string>
+    <string name="my_card">My Card</string>
     <string name="recent_transactions">Recent Transactions</string>
     <string name="see_all">See All</string>
     <string name="personal_details">Personal Details</string>
@@ -3114,6 +3114,7 @@
     <string name="verify_your_identity_description">Please confirm your SSN or Tax ID below to prevent others from creating fraudulent accounts in your name.</string>
     <string name="ssn_title">SSN or Individual Tax ID #</string>
     <string name="ssn_hint">XXXXXXXXX</string>
+    <string name="bc_card_locked">Locked</string>
 
     <!--  Sanctions  -->
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>

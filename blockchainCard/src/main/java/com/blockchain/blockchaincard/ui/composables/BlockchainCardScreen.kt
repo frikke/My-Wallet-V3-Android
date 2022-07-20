@@ -238,7 +238,6 @@ fun BlockchainCardNavHost(
             bottomSheet(BlockchainCardDestination.PersonalDetailsDestination) {
                 state?.let { state ->
                     PersonalDetails(
-                        firstAndLastName = state.userFirstAndLastName,
                         shortAddress = state.residentialAddress?.getShortAddress(),
                         onCheckBillingAddress = { viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress) },
                         onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
@@ -247,14 +246,19 @@ fun BlockchainCardNavHost(
             }
 
             bottomSheet(BlockchainCardDestination.BillingAddressDestination) {
-                state?.residentialAddress?.let { address ->
-                    BillingAddress(
-                        address = address,
-                        onUpdateAddress = { newAddress ->
-                            viewModel.onIntent(BlockchainCardIntent.UpdateBillingAddress(newAddress = newAddress))
-                        },
-                        onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
-                    )
+                state?.let { state ->
+                    state.residentialAddress?.let { residentialAddress ->
+                        BillingAddress(
+                            address = residentialAddress,
+                            stateList = state.countryStateList,
+                            onUpdateAddress = { newAddress ->
+                                viewModel.onIntent(BlockchainCardIntent.UpdateBillingAddress(newAddress = newAddress))
+                            },
+                            onCloseBottomSheet = {
+                                viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
+                            }
+                        )
+                    }
                 }
             }
 

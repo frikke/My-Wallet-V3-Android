@@ -10,6 +10,8 @@ import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewState
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
+import com.blockchain.outcome.doOnFailure
+import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.fold
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -45,6 +47,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
         transactionList = state.transactionList,
         selectedCardTransaction = state.selectedCardTransaction,
         isTransactionListRefreshing = state.isTransactionListRefreshing,
+        countryStateList = state.countryStateList,
     )
 
     override suspend fun handleIntent(
@@ -253,6 +256,15 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             }
 
             is BlockchainCardIntent.SeeBillingAddress -> {
+                modelState.residentialAddress?.let { address ->
+                    blockchainCardRepository.getStatesList(address.country)
+                        .doOnSuccess { states ->
+                            updateState { it.copy(countryStateList = states) }
+                        }
+                        .doOnFailure {
+                            Timber.e("Unable to get states: $it")
+                        }
+                }
                 navigate(BlockchainCardNavigationEvent.SeeBillingAddress)
             }
 

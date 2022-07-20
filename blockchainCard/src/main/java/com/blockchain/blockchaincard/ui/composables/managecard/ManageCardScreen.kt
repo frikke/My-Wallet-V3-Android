@@ -23,10 +23,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedTextField
@@ -41,13 +41,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -70,6 +70,7 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.DestructivePrimaryButton
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.control.DropdownMenuSearch
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
@@ -84,6 +85,7 @@ import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.UltraLight
+import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toFormattedDate
 import com.blockchain.utils.toFormattedString
@@ -146,7 +148,7 @@ fun ManageCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 SimpleText(
-                    text = stringResource(R.string.my_cards),
+                    text = stringResource(R.string.my_card),
                     style = ComposeTypographies.Body2,
                     color = ComposeColors.Body,
                     gravity = ComposeGravities.Start,
@@ -322,34 +324,13 @@ fun ManageCardDetails(
 
         // Card details
         CardDetailsBottomSheetElement(
+            cardStatus,
             last4digits = last4digits,
             modifier = Modifier.padding(
                 AppTheme.dimensions.paddingLarge,
                 AppTheme.dimensions.paddingMedium
             )
         )
-
-        // Add to GPay
-        // TODO (labreu): GPay save to phone button should be its own composable
-        Button(
-            onClick = { /*TODO*/ },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = AppTheme.dimensions.paddingLarge,
-                    end = AppTheme.dimensions.paddingLarge,
-                    bottom = AppTheme.dimensions.paddingLarge
-                ),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_gpay_save_card),
-                contentDescription = stringResource(R.string.gpay_save_to_phone),
-                modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.Crop
-            )
-        }
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
         // Lock card
         ToggleTableRow(
@@ -471,7 +452,6 @@ private fun PreviewTransactionControls() {
 
 @Composable
 fun PersonalDetails(
-    firstAndLastName: String?,
     shortAddress: String?,
     onCheckBillingAddress: () -> Unit,
     onCloseBottomSheet: () -> Unit,
@@ -487,16 +467,7 @@ fun PersonalDetails(
             shouldShowDivider = false
         )
 
-        if (!firstAndLastName.isNullOrEmpty() && !shortAddress.isNullOrEmpty()) {
-            // Name
-            DefaultTableRow(
-                primaryText = stringResource(R.string.name),
-                secondaryText = firstAndLastName,
-                endImageResource = ImageResource.None,
-                onClick = {},
-            )
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
+        if (!shortAddress.isNullOrEmpty()) {
             // Address
             DefaultTableRow(
                 primaryText = stringResource(R.string.billing_address),
@@ -517,17 +488,20 @@ fun PersonalDetails(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewPersonalDetails() {
-    PersonalDetails("John Smith", "614 Lorimer Street, Sacramento CA", {}, {})
+    PersonalDetails("614 Lorimer Street, Sacramento CA", {}) {}
 }
 
 @Composable
 fun BillingAddress(
     address: BlockchainCardAddress,
+    stateList: List<Region.State>?,
     onUpdateAddress: (BlockchainCardAddress) -> Unit,
-    onCloseBottomSheet: () -> Unit
+    onCloseBottomSheet: () -> Unit,
 ) {
+    // content
     Column(
         modifier = Modifier
+            .verticalScroll(rememberScrollState())
             .fillMaxWidth()
             .padding(horizontal = AppTheme.dimensions.paddingMedium)
     ) {
@@ -548,6 +522,12 @@ fun BillingAddress(
         }
         var country by remember {
             mutableStateOf("US") // TODO(labreu): design doesn't support other countries yet
+        }
+        var selectedState by remember {
+            mutableStateOf(stateList?.find { it.stateCode == address.state }?.name ?: "")
+        }
+        val isStateValid = remember {
+            mutableStateOf(false)
         }
 
         // Header
@@ -649,21 +629,16 @@ fun BillingAddress(
                     color = ComposeColors.Body,
                     gravity = ComposeGravities.Start
                 )
-                OutlinedTextField(
-                    value = state,
-                    onValueChange = {
-                        state = it
-                    },
-                    placeholder = { Text(stringResource(R.string.address_state_placeholder)) },
-                    singleLine = true,
-                    textStyle = AppTheme.typography.body1,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = Grey000,
-                        unfocusedBorderColor = Grey000
+
+                stateList?.map { it.name }?.let { stateNameList ->
+                    DropdownMenuSearch(
+                        value = TextFieldValue(selectedState),
+                        onValueChange = {
+                            selectedState = it.text
+                        },
+                        initialSuggestions = stateNameList.toMutableList(),
                     )
-                )
+                }
             }
 
             Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
@@ -700,7 +675,8 @@ fun BillingAddress(
             addressLine1.isNotEmpty() &&
                 city.isNotEmpty() &&
                 state.isNotEmpty() &&
-                postalCode.isNotEmpty()
+                postalCode.isNotEmpty() &&
+                (stateList.isNullOrEmpty() || selectedState in stateList.map { it.name })
             )
 
         // Save
@@ -722,7 +698,7 @@ fun BillingAddress(
                         line2 = addressLine2,
                         postCode = postalCode,
                         city = city,
-                        state = state,
+                        state = stateList?.find { it.name == selectedState }?.stateCode.orEmpty(),
                         country = country
                     )
                 )
@@ -743,6 +719,7 @@ private fun PreviewBillingAddress() {
             state = "CA",
             country = "USA"
         ),
+        stateList = emptyList(),
         onUpdateAddress = {},
         onCloseBottomSheet = {}
     )
@@ -1048,7 +1025,11 @@ private fun PreviewCloseCard() {
 }
 
 @Composable
-private fun CardDetailsBottomSheetElement(last4digits: String, modifier: Modifier = Modifier) {
+private fun CardDetailsBottomSheetElement(
+    cardStatus: BlockchainCardStatus,
+    last4digits: String,
+    modifier: Modifier = Modifier
+) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -1067,8 +1048,12 @@ private fun CardDetailsBottomSheetElement(last4digits: String, modifier: Modifie
                     gravity = ComposeGravities.Start
                 )
 
+                val cardStatusLabel =
+                    if (cardStatus == BlockchainCardStatus.LOCKED) stringResource(R.string.bc_card_locked)
+                    else stringResource(R.string.ready_to_use)
+
                 SimpleText(
-                    text = stringResource(R.string.ready_to_use),
+                    text = cardStatusLabel,
                     style = ComposeTypographies.Caption2,
                     color = ComposeColors.Success,
                     gravity = ComposeGravities.Start
@@ -1089,7 +1074,7 @@ private fun CardDetailsBottomSheetElement(last4digits: String, modifier: Modifie
 @Composable
 @Preview(showBackground = true)
 private fun PreviewCardDetailsBottomSheetElement() {
-    CardDetailsBottomSheetElement("***3458")
+    CardDetailsBottomSheetElement(BlockchainCardStatus.ACTIVE, "***3458")
 }
 
 @Composable

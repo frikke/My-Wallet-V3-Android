@@ -6,7 +6,9 @@ import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardDto
 import com.blockchain.api.blockchainCard.data.ProductDto
 import com.blockchain.api.blockchainCard.data.ResidentialAddressDto
+import com.blockchain.api.eligibility.data.StateResponse
 import com.blockchain.api.services.BlockchainCardService
+import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
@@ -24,6 +26,8 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.core.eligibility.mapper.toDomain
+import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.Outcome
@@ -39,6 +43,7 @@ import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 internal class BlockchainCardRepositoryImpl(
     private val blockchainCardService: BlockchainCardService,
+    private val eligibilityApiService: EligibilityApiService,
     private val authenticator: Authenticator,
     private val coincore: Coincore,
     private val assetCatalogue: AssetCatalogue,
@@ -254,10 +259,15 @@ internal class BlockchainCardRepositoryImpl(
     override suspend fun getTransactions(): Outcome<BlockchainCardError, List<BlockchainCardTransaction>> =
         authenticator.getAuthHeader().awaitOutcome()
             .flatMap { tokenResponse ->
-                blockchainCardService.getTransactions("tokenResponse")
+                blockchainCardService.getTransactions(tokenResponse)
             }.map { response ->
                 response.map { it.toDomainModel() }
             }.wrapBlockchainCardError()
+
+    override suspend fun getStatesList(countryCode: String): Outcome<BlockchainCardError, List<Region.State>> =
+        eligibilityApiService.getStatesList(countryCode)
+            .map { states -> states.map(StateResponse::toDomain) }
+            .wrapBlockchainCardError()
 
     //
     // Domain Model Conversion

@@ -246,7 +246,9 @@
             android:name=".ui.locks.LocksDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity android:name=".ui.home.ActionActivity" />
-        <activity android:name=".ui.settings.v2.SettingsActivity" />
+        <activity
+            android:name=".ui.settings.v2.SettingsActivity"
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".ui.settings.v2.profile.ProfileActivity"
             android:windowSoftInputMode="adjustResize" />

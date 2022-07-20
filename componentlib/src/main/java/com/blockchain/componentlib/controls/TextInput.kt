@@ -2,6 +2,7 @@ package com.blockchain.componentlib.controls
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
@@ -55,6 +57,7 @@ fun TextInput(
     singleLine: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
     maxLength: Int = Int.MAX_VALUE,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     onFocusChanged: (FocusState) -> Unit = {},
     onTrailingIconClicked: () -> Unit = {}
 ) {
@@ -160,7 +163,8 @@ fun TextInput(
                 disabledTextColor = textColor,
                 disabledLabelColor = placeholderColor,
                 disabledPlaceholderColor = placeholderColor
-            )
+            ),
+            interactionSource = interactionSource
         )
 
         if (state.message != null) {

@@ -17,6 +17,6 @@ class EligibilityApiService(
     suspend fun getCountriesList(scope: String?): Outcome<ApiError, List<CountryResponse>> =
         api.getCountriesList(scope)
 
-    suspend fun getStatesList(countryCode: String, scope: String?): Outcome<ApiError, List<StateResponse>> =
+    suspend fun getStatesList(countryCode: String, scope: String? = null): Outcome<ApiError, List<StateResponse>> =
         api.getStatesList(countryCode, scope)
 }

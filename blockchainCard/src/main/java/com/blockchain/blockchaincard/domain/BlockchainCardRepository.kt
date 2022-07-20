@@ -9,6 +9,7 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.TradingAccount
+import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
 
@@ -73,4 +74,6 @@ interface BlockchainCardRepository {
     suspend fun getUserFirstAndLastName(): Outcome<BlockchainCardError, String>
 
     suspend fun getTransactions(): Outcome<BlockchainCardError, List<BlockchainCardTransaction>>
+
+    suspend fun getStatesList(countryCode: String): Outcome<BlockchainCardError, List<Region.State>>
 }

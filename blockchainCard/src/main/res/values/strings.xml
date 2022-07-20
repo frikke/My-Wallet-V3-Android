@@ -55,7 +55,7 @@
     <string name="common_try_again"></string>
     <string name="change_source"></string>
     <string name="manage_card"></string>
-    <string name="my_cards"></string>
+    <string name="my_card"></string>
     <string name="recent_transactions"></string>
     <string name="see_all"></string>
     <string name="personal_details"></string>
@@ -123,4 +123,5 @@
     <string name="ssn_title"></string>
     <string name="ssn_hint"></string>
     <string name="common_error"></string>
+    <string name="bc_card_locked"></string>
 </resources>
