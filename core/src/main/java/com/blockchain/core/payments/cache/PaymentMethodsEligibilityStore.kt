@@ -41,7 +41,8 @@ class PaymentMethodsEligibilityStore(
     ),
     keySerializer = Key.serializer(),
     dataSerializer = ListSerializer(PaymentMethodResponse.serializer()),
-    mediator = FreshnessMediator(Freshness.ofSeconds(20L))
+    // todo (othman) check with André about staleness strategy instead of short duration
+    mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
 ) {
 
     @Serializable

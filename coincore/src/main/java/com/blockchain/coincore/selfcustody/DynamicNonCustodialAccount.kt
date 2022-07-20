@@ -7,7 +7,7 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
+import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.flatMap

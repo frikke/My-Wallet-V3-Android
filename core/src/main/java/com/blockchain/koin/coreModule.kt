@@ -11,8 +11,9 @@ import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
-import com.blockchain.core.chains.dynamicselfcustody.NonCustodialRepository
-import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
+import com.blockchain.core.chains.dynamicselfcustody.data.NonCustodialRepository
+import com.blockchain.core.chains.dynamicselfcustody.data.NonCustodialSubscriptionsStore
+import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
@@ -498,10 +499,18 @@ val coreModule = module {
 
         scoped<NonCustodialService> {
             NonCustodialRepository(
+                subscriptionsStore = get(),
                 dynamicSelfCustodyService = get(),
                 payloadDataManager = get(),
                 currencyPrefs = get(),
                 assetCatalogue = get()
+            )
+        }
+
+        scoped {
+            NonCustodialSubscriptionsStore(
+                dynamicSelfCustodyService = get(),
+                authPrefs = get()
             )
         }
     }

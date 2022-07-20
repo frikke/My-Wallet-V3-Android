@@ -1,4 +1,4 @@
-package com.blockchain.core.chains.dynamicselfcustody
+package com.blockchain.core.chains.dynamicselfcustody.domain.model
 
 data class NonCustodialDerivedAddress(
     val address: String,

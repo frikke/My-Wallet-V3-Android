@@ -4,7 +4,7 @@ import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.impl.CryptoAssetBase
-import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
+import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
