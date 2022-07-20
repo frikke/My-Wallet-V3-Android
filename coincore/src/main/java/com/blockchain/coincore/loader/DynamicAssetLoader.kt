@@ -86,7 +86,8 @@ internal class DynamicAssetLoader(
         get() = assetMap.filterKeys { _custodialActiveCurrencies.contains(it) }
 
     private val allActive: Map<Currency, Asset>
-        get() = custodialActiveAssets + nonCustodialActiveAssets
+        get() = nonCustodialActiveAssets +
+            custodialActiveAssets.filterValues { it.currency !in nonCustodialActiveAssets.keys }
 
     private val assetMap = mutableMapOf<Currency, Asset>()
     override operator fun get(asset: Currency): Asset =

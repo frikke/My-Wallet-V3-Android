@@ -72,7 +72,6 @@ import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
-import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
 
 class DashboardGroupLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
@@ -338,7 +337,7 @@ class DashboardActionInteractor(
                 else -> throw IllegalArgumentException("$action not supported")
             }
         ).zipWith(
-            coincore.fiatAssets.flatMap { fiatAssets -> fiatAssets.map { it.accountGroup().toSingle() }.zipSingles() }
+            coincore.allWallets().map { it.accounts }.map { it.filterIsInstance<FiatAccount>() }
         )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -352,8 +351,8 @@ class DashboardActionInteractor(
                                 currencyPrefs.selectedFiatCurrency.networkTicker
                             }
 
-                            val selectedAccount = fiatGroups.map { it.accounts }.flatten().first {
-                                (it as FiatAccount).currency.networkTicker == networkTicker
+                            val selectedAccount = fiatGroups.first {
+                                it.currency.networkTicker == networkTicker
                             }
 
                             DashboardIntent.LaunchBankTransferFlow(

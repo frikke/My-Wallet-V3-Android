@@ -1,9 +1,9 @@
 package com.blockchain.coincore
 
-import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.AllCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllNonCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
+import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.loader.AssetCatalogueImpl
@@ -66,17 +66,13 @@ class Coincore internal constructor(
                 remoteLogger.logEvent("Coincore initialisation failed! $it")
             }
 
-    private val loadedFiatAssets = mutableListOf<FiatAsset>()
-
-    val fiatAssets: Single<List<FiatAsset>> = Single.just(loadedFiatAssets.toList())
-
     /**
      * TODO(antonis-bc) This should get removed from here. Nothing to do with coincore
      */
     fun validateSecondPassword(secondPassword: String) =
         payloadManager.validateSecondPassword(secondPassword)
 
-    private fun allLoadedAssets() = assetLoader.loadedAssets + loadedFiatAssets
+    private fun allLoadedAssets() = assetLoader.loadedAssets
 
     fun allWallets(includeArchived: Boolean = false): Single<AccountGroup> =
         walletsWithFilter(includeArchived, AssetFilter.All).map { list ->
@@ -150,63 +146,29 @@ class Coincore internal constructor(
         sourceAccount: CryptoAccount,
         action: AssetAction,
     ): Single<SingleAccountList> {
-        val sameCurrencyTransactionTargets =
-            get(sourceAccount.currency).transactionTargets(sourceAccount)
-
-        val fiatTargets = Single.fromCallable {
-            loadedFiatAssets.map { it.custodialAccount }
-        }
-
-        val sameCurrencyPlusFiat = sameCurrencyTransactionTargets
-            .zipWith(fiatTargets) { crypto, fiat ->
-                crypto + fiat
+        val sameCurrencyTransactionTargets = get(sourceAccount.currency).transactionTargets(sourceAccount)
+        return when (action) {
+            AssetAction.Sell -> allWallets().map { it.accounts }.map { it.filterIsInstance<FiatAccount>() }
+            AssetAction.Send -> sameCurrencyTransactionTargets
+            AssetAction.InterestDeposit -> sameCurrencyTransactionTargets.map {
+                it.filterIsInstance<CryptoInterestAccount>()
             }
-
-        return allWallets().map { it.accounts }
-            .flatMap { allWallets ->
-                if (action != AssetAction.Swap) {
-                    sameCurrencyPlusFiat
-                } else {
-                    Single.just(allWallets)
+            AssetAction.InterestWithdraw -> sameCurrencyTransactionTargets.map {
+                it.filterIsInstance<CustodialTradingAccount>()
+            }
+            AssetAction.Swap -> allWallets().map { it.accounts }
+                .map {
+                    it.filterIsInstance<CryptoAccount>()
+                        .filterNot { account -> account is InterestAccount || account is ExchangeAccount }
+                        .filterNot { account -> account.currency == sourceAccount.currency }
+                        .filter { cryptoAccount ->
+                            if (sourceAccount is TradingAccount)
+                                cryptoAccount is TradingAccount else true
+                        }
                 }
-            }.map {
-                it.filter(getActionFilter(action, sourceAccount))
-                    .filter { target -> target != sourceAccount }
-            }
+            else -> Single.just(emptyList())
+        }
     }
-
-    private fun getActionFilter(
-        action: AssetAction,
-        sourceAccount: CryptoAccount,
-    ): (SingleAccount) -> Boolean =
-        when (action) {
-            AssetAction.Sell -> {
-                {
-                    it is FiatAccount
-                }
-            }
-            AssetAction.Swap -> {
-                {
-                    it is CryptoAccount &&
-                        it !is InterestAccount &&
-                        it.currency != sourceAccount.currency &&
-                        it.filterTargetsByWalletMode(it, walletModeService.enabledWalletMode())
-                }
-            }
-            AssetAction.Send -> {
-                {
-                    it !is FiatAccount
-                }
-            }
-            AssetAction.InterestWithdraw -> {
-                {
-                    it is TradingAccount && it.currency == sourceAccount.currency
-                }
-            }
-            else -> {
-                { true }
-            }
-        }
 
     /**
      * When wallet is in Universal mode, you can swap from Trading to Trading, from PK to PK and from PK to Trading
@@ -297,7 +259,7 @@ class Coincore internal constructor(
         activeAssets(walletMode).filterIsInstance<CryptoAsset>()
 
     fun activeAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): List<Asset> =
-        assetLoader.activeAssets(walletMode) + loadedFiatAssets
+        assetLoader.activeAssets(walletMode)
 
     fun reactiveActiveAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): Flow<List<Asset>> =
         assetLoader.reactiveActiveAssets(walletMode)
