@@ -51,8 +51,11 @@ class PricesFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupViewModel()
+    }
+
+    override fun onResume() {
+        super.onResume()
         loadAssetsAvailable()
     }
 

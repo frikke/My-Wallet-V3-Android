@@ -380,9 +380,7 @@ class MainActivity :
     private fun NavigationItem.launch() {
         when (this) {
             NavigationItem.Home -> launchPortfolio()
-            NavigationItem.Prices -> {
-                launchPrices()
-            }
+            NavigationItem.Prices -> launchPrices()
             NavigationItem.BuyAndSell -> launchBuySell()
             NavigationItem.Activity -> startActivitiesFragment()
         }.exhaustive
