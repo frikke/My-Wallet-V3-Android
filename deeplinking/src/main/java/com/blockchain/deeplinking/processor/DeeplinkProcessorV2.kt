@@ -25,8 +25,9 @@ class DeeplinkProcessorV2 {
                             notificationPayload = payload
                         )
                     )
-                } else
-                    Single.just(DeepLinkResult.DeepLinkResultFailed)
+                } else {
+                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
+                }
             }
             BUY_URL -> {
                 val code = getAssetNetworkTicker(deeplinkUri)
@@ -42,7 +43,7 @@ class DeeplinkProcessorV2 {
                         )
                     )
                 } else {
-                    Single.just(DeepLinkResult.DeepLinkResultFailed)
+                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
                 }
             }
             SEND_URL -> {
@@ -59,7 +60,7 @@ class DeeplinkProcessorV2 {
                         )
                     )
                 } else {
-                    Single.just(DeepLinkResult.DeepLinkResultFailed)
+                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
                 }
             }
             ACTIVITY_URL -> {
@@ -83,7 +84,7 @@ class DeeplinkProcessorV2 {
                         )
                     )
                 } else {
-                    Single.just(DeepLinkResult.DeepLinkResultFailed)
+                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
                 }
             }
             DIFFERENT_PAYMENT_URL -> {
@@ -99,7 +100,7 @@ class DeeplinkProcessorV2 {
                         )
                     )
                 } else {
-                    Single.just(DeepLinkResult.DeepLinkResultFailed)
+                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
                 }
             }
             ENTER_AMOUNT_URL -> {
@@ -115,7 +116,7 @@ class DeeplinkProcessorV2 {
                         )
                     )
                 } else {
-                    Single.just(DeepLinkResult.DeepLinkResultFailed)
+                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
                 }
             }
             CUSTOMER_SUPPORT_URL -> {
@@ -157,7 +158,7 @@ class DeeplinkProcessorV2 {
                         )
                     )
                 } else {
-                    Single.just(DeepLinkResult.DeepLinkResultFailed)
+                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
                 }
             }
             DASHBOARD_URL -> {
@@ -170,7 +171,7 @@ class DeeplinkProcessorV2 {
                     )
                 )
             }
-            else -> Single.just(DeepLinkResult.DeepLinkResultFailed)
+            else -> Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
         }
     }
 
@@ -222,5 +223,5 @@ sealed class DeepLinkResult {
         val destination: Destination,
         val notificationPayload: NotificationPayload?
     ) : DeepLinkResult()
-    object DeepLinkResultFailed : DeepLinkResult()
+    data class DeepLinkResultFailed(val uri: Uri? = null) : DeepLinkResult()
 }
