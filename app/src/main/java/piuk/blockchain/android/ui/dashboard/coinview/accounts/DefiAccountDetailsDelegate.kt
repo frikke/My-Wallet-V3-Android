@@ -77,7 +77,7 @@ private class DefiWalletViewHolder(
                 assetDetailsNotAvailable.gone()
                 assetDetailsAvailable.apply {
                     visible()
-                    titleStart = buildAnnotatedString { append(account.currency.name) }
+                    titleStart = buildAnnotatedString { append(item.account.label) }
                     titleEnd = buildAnnotatedString { append(item.fiatBalance.toStringWithSymbol()) }
                     bodyEnd = buildAnnotatedString { append(item.balance.toStringWithSymbol()) }
                     bodyStart = buildAnnotatedString { append(account.currency.displayTicker) }
