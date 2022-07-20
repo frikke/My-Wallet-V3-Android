@@ -7,6 +7,7 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
+import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
@@ -32,7 +33,8 @@ internal class MaticAsset(
     private val formatUtils: FormatUtilities,
     private val addressResolver: EthHotWalletAddressResolver,
     private val layerTwoFeatureFlag: FeatureFlag,
-) : CryptoAssetBase() {
+) : CryptoAssetBase(),
+    StandardL1Asset {
     private val erc20address
         get() = erc20DataManager.accountHash
 

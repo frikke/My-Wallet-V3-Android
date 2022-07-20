@@ -21,7 +21,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.flow.Flow
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
@@ -86,20 +85,23 @@ class Coincore internal constructor(
             WalletMode.UNIVERSAL -> allWallets()
         }
 
-    fun activeWalletsInMode(walletMode: WalletMode): Single<AccountGroup> =
-        Maybe.concat(
-            activeAssets(walletMode).map {
-                it.accountGroup(walletMode.defaultFilter()).map { grp -> grp.accounts }
-            }
-        ).reduce { a, l -> a + l }
-            .toSingle()
-            .map {
-                when (walletMode) {
-                    WalletMode.UNIVERSAL -> AllWalletsAccount(it, defaultLabels)
-                    WalletMode.NON_CUSTODIAL_ONLY -> AllNonCustodialWalletsAccount(it, defaultLabels)
-                    WalletMode.CUSTODIAL_ONLY -> AllCustodialWalletsAccount(it, defaultLabels)
-                }
-            }
+    fun activeWalletsInMode(walletMode: WalletMode): Single<AccountGroup> {
+        val assets = activeAssets(walletMode)
+        return assets.flatMap {
+            if (it.isEmpty()) Single.just(NullAccountGroup)
+            else
+                Single.just(it).flattenAsObservable { it }.flatMapMaybe { asset ->
+                    asset.accountGroup(walletMode.defaultFilter()).map { grp -> grp.accounts }
+                }.reduce { a, l -> a + l }.switchIfEmpty(Single.just(emptyList()))
+                    .map {
+                        when (walletMode) {
+                            WalletMode.UNIVERSAL -> AllWalletsAccount(it, defaultLabels)
+                            WalletMode.NON_CUSTODIAL_ONLY -> AllNonCustodialWalletsAccount(it, defaultLabels)
+                            WalletMode.CUSTODIAL_ONLY -> AllCustodialWalletsAccount(it, defaultLabels)
+                        }
+                    }
+        }
+    }
 
     private fun walletsWithFilter(includeArchived: Boolean = false, filter: AssetFilter): Single<List<SingleAccount>> =
         Maybe.concat(
@@ -162,8 +164,9 @@ class Coincore internal constructor(
                         .filterNot { account -> account is InterestAccount || account is ExchangeAccount }
                         .filterNot { account -> account.currency == sourceAccount.currency }
                         .filter { cryptoAccount ->
-                            if (sourceAccount is TradingAccount)
-                                cryptoAccount is TradingAccount else true
+                            sourceAccount.filterTargetsByWalletMode(
+                                cryptoAccount, walletModeService.enabledWalletMode()
+                            )
                         }
                 }
             else -> Single.just(emptyList())
@@ -251,18 +254,11 @@ class Coincore internal constructor(
             .toList()
             .map { it.isEmpty() }
 
-    /**
-     * We provide here the default value so we dont have to change all the places in the code and
-     * at the same time make our code to work reactively.
-     */
-    fun activeCryptoAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): List<CryptoAsset> =
-        activeAssets(walletMode).filterIsInstance<CryptoAsset>()
-
-    fun activeAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): List<Asset> =
+    fun activeAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): Single<List<Asset>> =
         assetLoader.activeAssets(walletMode)
 
-    fun reactiveActiveAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): Flow<List<Asset>> =
-        assetLoader.reactiveActiveAssets(walletMode)
+    fun activeWallets(walletMode: WalletMode = walletModeService.enabledWalletMode()): Single<AccountGroup> =
+        activeWalletsInMode(walletMode)
 
     fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets.minus(disabledEvmAssets.toSet())
 }

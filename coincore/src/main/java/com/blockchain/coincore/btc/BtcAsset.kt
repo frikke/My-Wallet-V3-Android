@@ -10,6 +10,7 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.NotificationAddresses
+import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
@@ -38,6 +39,7 @@ internal class BtcAsset(
     private val notificationUpdater: BackendNotificationUpdater,
     private val addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase(),
+    StandardL1Asset,
     MultipleWalletsAsset {
 
     override val currency: AssetInfo

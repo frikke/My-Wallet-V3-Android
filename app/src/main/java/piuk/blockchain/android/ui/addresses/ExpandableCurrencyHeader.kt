@@ -27,6 +27,8 @@ import com.blockchain.koin.scopedInject
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Locale
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -70,12 +72,14 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
 
     init {
         // Inflate layout
-        coincore.activeCryptoAssets()
-            .filterIsInstance<MultipleWalletsAsset>()
-            .map { it.currency }
-            .forEach { asset ->
-                redesignTextView(asset)?.apply {
-                    setOnClickListener { closeLayout(asset) }
+        compositeDisposable += coincore.activeAssets()
+            .map { it.filterIsInstance<MultipleWalletsAsset>() }
+            .map { it.map { asset -> asset.currency } }
+            .subscribeBy { assets ->
+                assets.forEach { asset ->
+                    redesignTextView(asset)?.apply {
+                        setOnClickListener { closeLayout(asset) }
+                    }
                 }
             }
 

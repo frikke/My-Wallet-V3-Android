@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.kyc.address
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
-import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.extensions.exhaustive

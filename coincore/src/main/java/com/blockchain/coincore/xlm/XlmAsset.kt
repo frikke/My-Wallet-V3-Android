@@ -6,6 +6,7 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CryptoAssetBase
+import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.StellarPayment
 import com.blockchain.sunriver.XlmDataManager
@@ -31,7 +32,8 @@ internal class XlmAsset(
     private val walletOptionsDataManager: WalletOptionsDataManager,
     private val walletPreferences: WalletStatusPrefs,
     private val addressResolver: IdentityAddressResolver,
-) : CryptoAssetBase() {
+) : CryptoAssetBase(),
+    StandardL1Asset {
 
     override val currency: AssetInfo
         get() = CryptoCurrency.XLM

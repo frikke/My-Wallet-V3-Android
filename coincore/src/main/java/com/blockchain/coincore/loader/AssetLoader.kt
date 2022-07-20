@@ -4,15 +4,14 @@ import com.blockchain.coincore.Asset
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
-import kotlinx.coroutines.flow.Flow
+import io.reactivex.rxjava3.core.Single
 
 internal interface AssetLoader {
     fun initAndPreload(): Completable
 
     // The assets which have balances and/or transaction history. This list is used for displaying content on the
     // Portfolio screen.
-    fun activeAssets(walletMode: WalletMode): List<Asset>
-    fun reactiveActiveAssets(walletMode: WalletMode): Flow<List<Asset>>
+    fun activeAssets(walletMode: WalletMode): Single<List<Asset>>
 
     // The assets which have been loaded so far. On startup we load the L1s, the assets with Custodial support and
     // the active assets. This list is used for Swap targets.

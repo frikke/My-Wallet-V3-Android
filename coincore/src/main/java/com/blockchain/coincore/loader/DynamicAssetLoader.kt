@@ -5,25 +5,20 @@ import com.blockchain.coincore.CoincoreInitFailure
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.NonCustodialSupport
-import com.blockchain.coincore.bch.BchAsset
-import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
 import com.blockchain.coincore.erc20.Erc20Asset
-import com.blockchain.coincore.eth.EthAsset
-import com.blockchain.coincore.evm.MaticAsset
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
+import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.coincore.selfcustody.DynamicSelfCustodyAsset
 import com.blockchain.coincore.selfcustody.StxAsset
 import com.blockchain.coincore.wrap.FormatUtilities
-import com.blockchain.coincore.xlm.XlmAsset
 import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.extensions.minus
-import com.blockchain.extensions.replace
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -36,18 +31,18 @@ import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isCustodialOnly
 import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
 
@@ -76,32 +71,20 @@ internal class DynamicAssetLoader(
     private val stxForAllFeatureFlag: FeatureFlag,
 ) : AssetLoader {
 
-    private val _custodialActiveCurrencies = mutableSetOf<Currency>()
-    private val _nonCustodialActiveCurrencies = mutableSetOf<Currency>()
-
-    private val nonCustodialActiveAssets: Map<Currency, Asset>
-        get() = assetMap.filterKeys { _nonCustodialActiveCurrencies.contains(it) }
-
-    private val custodialActiveAssets: Map<Currency, Asset>
-        get() = assetMap.filterKeys { _custodialActiveCurrencies.contains(it) }
-
-    private val allActive: Map<Currency, Asset>
-        get() = nonCustodialActiveAssets +
-            custodialActiveAssets.filterValues { it.currency !in nonCustodialActiveAssets.keys }
-
     private val assetMap = mutableMapOf<Currency, Asset>()
     override operator fun get(asset: Currency): Asset =
         assetMap[asset] ?: attemptLoadAsset(asset)
 
-    private fun attemptLoadAsset(assetInfo: Currency): Asset =
+    private fun attemptLoadAsset(currency: Currency): Asset =
         when {
-            assetInfo.isErc20() -> loadErc20Asset(assetInfo)
-            (assetInfo as? AssetInfo)?.isCustodialOnly == true -> loadCustodialOnlyAsset(assetInfo)
-            (assetInfo as? AssetInfo)?.isNonCustodial == true -> loadSelfCustodialAsset(assetInfo)
-            else -> throw IllegalStateException("Unknown asset type enabled: ${assetInfo.networkTicker}")
+            currency.isErc20() -> loadErc20Asset(currency)
+            (currency as? AssetInfo)?.isCustodialOnly == true -> loadCustodialOnlyAsset(currency)
+            (currency as? AssetInfo)?.isNonCustodial == true -> loadSelfCustodialAsset(currency)
+            currency is FiatCurrency -> FiatAsset(currency)
+            else -> throw IllegalStateException("Unknown asset type enabled: ${currency.networkTicker}")
         }.also {
-            check(!assetMap.containsKey(assetInfo)) { "Asset already loaded" }
-            assetMap[assetInfo] = it
+            check(!assetMap.containsKey(currency)) { "Asset already loaded" }
+            assetMap[currency] = it
         }
 
     private val standardL1Assets: Single<Set<CryptoAsset>>
@@ -127,40 +110,32 @@ internal class DynamicAssetLoader(
     * Every asset loads the corresponding accounts, based on what it supports.
     * */
     override fun initAndPreload(): Completable {
-        return standardL1Assets.doOnSuccess { enabledNonCustodialAssets ->
-            _nonCustodialActiveCurrencies.addAll(enabledNonCustodialAssets.map { it.currency })
-        }.flatMapCompletable { enabledNonCustodialAssets ->
+        return standardL1Assets.flatMapCompletable { enabledNonCustodialAssets ->
             assetCatalogue.initialise()
                 .doOnSubscribe { remoteLogger.logEvent("Coincore init started") }
                 .flatMap { supportedAssets ->
-                    initNonCustodialAssets(enabledNonCustodialAssets)
-                        .thenSingle {
-                            doLoadAssets(
-                                supportedAssets = supportedAssets.filterIsInstance<AssetInfo>().toSet()
-                            )
-                        }
-                }
-                .map { assets ->
-                    /*
-                    * Now we need to keep only 1 type of every asset.
-                    * The order is:
-                    * 1.XXXAsset the local ones
-                    * 2.Erc20 Asset
-                    * 3.DynamicSelfCustody asset
-                    * 4.CustodialAsset
-                    *
-                    * If the same currency belongs to more than 1, then we need to keep the more dominant
-                    * */
-                    (assets + enabledNonCustodialAssets).keepStrongest()
-                }.flatMap { allCryptos ->
-                    initSupportedFiatAssets().doOnSuccess {
-                        _custodialActiveCurrencies.addAll(it.map { asset -> asset.currency })
-                    }.map { allFiats ->
-                        allCryptos + allFiats
+                    initNonCustodialAssets(enabledNonCustodialAssets).toSingle {
+                        loadErc20AndCustodialAssets(
+                            allAssets = supportedAssets
+                        )
+                    }.zipWith(loadSelfCustodialAssets()).map { (loadedAssets, self) ->
+                        enabledNonCustodialAssets + loadedAssets + self
                     }
                 }
                 .doOnSuccess { assetList ->
-                    assetMap.putAll(assetList.associateBy { it.currency })
+                    assetList.map { it.currency.networkTicker }.let { ids ->
+                        /**
+                         * checking that values here are unique
+                         */
+                        check(ids.size == ids.toSet().size)
+                    }
+                    /**
+                     * Persisting to loaded any custodial+the standardL1s
+                     */
+                    assetMap.putAll(
+                        assetList.filter { (it.currency as? AssetInfo)?.isCustodial == true || it is StandardL1Asset }
+                            .associateBy { it.currency }
+                    )
                 }
                 .doOnError { Timber.e("init failed") }
                 .ignoreElement()
@@ -193,21 +168,31 @@ internal class DynamicAssetLoader(
             }
         }.zipSingles().subscribeOn(Schedulers.io()).ignoreElement()
 
-    private fun loadSelfCustodialAssets(allSupportedAssets: Set<Currency>): Single<List<CryptoAsset>> {
+    private fun loadSelfCustodialAssets(): Single<List<CryptoAsset>> {
         return rxSingle {
             if (stxForAllFeatureFlag.isEnabled) {
                 val subscriptions = selfCustodyService.getSubscriptions().getOrDefault(emptyList())
                 // map the supported only subscriptions to Dynamic asset.
-                allSupportedAssets.filterIsInstance<AssetInfo>()
-                    .filter { it.isNonCustodial && subscriptions.contains(it.networkTicker) }
-                    .map { assetInfo ->
-                        loadSelfCustodialAsset(assetInfo)
+                subscriptions.mapNotNull {
+                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
+                        loadSelfCustodialAsset(asset)
                     }
+                }
             } else {
                 emptyList()
             }
         }
     }
+
+    private fun loadErc20AndCustodialAssets(allAssets: Set<Currency>): List<Asset> =
+        allAssets.mapNotNull { currency ->
+            when {
+                currency.isErc20() -> loadErc20Asset(currency)
+                currency is AssetInfo && currency.isCustodialOnly -> loadCustodialOnlyAsset(currency)
+                currency is FiatCurrency -> FiatAsset(currency)
+                else -> null
+            }
+        }
 
     /*
     * We need to request:
@@ -217,37 +202,40 @@ internal class DynamicAssetLoader(
     *
     * */
 
-    private fun doLoadAssets(
-        supportedAssets: Set<AssetInfo>,
-    ): Single<List<CryptoAsset>> {
-
+    private fun loadNonCustodialActiveAssets(): Single<List<Asset>> {
         val activePKWErc20s =
             erc20DataManager.getActiveAssets(false).map { assets ->
                 assets.filter {
-                    it.isErc20() &&
-                        supportedAssets.contains(it)
+                    it.isErc20()
                 }
-            }.doOnSuccess { _nonCustodialActiveCurrencies.addAll(it) }
+            }
                 .map { assets -> assets.map { loadErc20Asset(it) } }
                 .printTime("----- ::Erc20Assets - erc20DataManager")
+
+        val dynamicSelfCustodyAssets = loadSelfCustodialAssets()
+
+        return Single.zip(standardL1Assets, activePKWErc20s, dynamicSelfCustodyAssets) { a, b, c ->
+            a.toList() + b + c
+        }
+    }
+
+    private fun loadCustodialActiveAssets(): Single<List<Asset>> {
         val activeTrading =
-            tradingBalances.getActiveAssets(false).map { assets -> assets.filter { supportedAssets.contains(it) } }
-                .doOnSuccess { _custodialActiveCurrencies.addAll(it) }
+            tradingBalances.getActiveAssets(false)
                 .map { assets -> assets.filterIsInstance<AssetInfo>().map { loadCustodialOnlyAsset(it) } }
                 .printTime("----- ::CustodialAssets - tradingBalances")
 
         val activeInterest =
-            interestService.getActiveAssets(false).map { assets -> assets.filter { supportedAssets.contains(it) } }
-                .doOnSuccess { _custodialActiveCurrencies.addAll(it) }
+            interestService.getActiveAssets(false)
                 .map { assets -> assets.map { loadCustodialOnlyAsset(it) } }
                 .printTime("----- ::CustodialAssets - interestBalances")
 
-        val dynamicSelfCustodyAssets = loadSelfCustodialAssets(supportedAssets).doOnSuccess {
-            _nonCustodialActiveCurrencies.addAll(it.map { cryptoAsset -> cryptoAsset.currency })
-        }
+        val fiats = initSupportedFiatAssets()
 
-        return Single.zip(activePKWErc20s, activeTrading, activeInterest, dynamicSelfCustodyAssets) { a, b, c, d ->
-            a + b + c + d
+        return Single.zip(
+            activeTrading, activeInterest, fiats
+        ) { a, b, c ->
+            a + b + c
         }
     }
 
@@ -292,23 +280,18 @@ internal class DynamicAssetLoader(
         )
     }
 
-    override fun activeAssets(walletMode: WalletMode): List<Asset> = when (walletMode) {
-        WalletMode.CUSTODIAL_ONLY -> custodialActiveAssets
-        WalletMode.NON_CUSTODIAL_ONLY -> nonCustodialActiveAssets
-        WalletMode.UNIVERSAL -> allActive
-    }.values.toList()
-
-    override fun reactiveActiveAssets(walletMode: WalletMode): Flow<List<Asset>> {
+    override fun activeAssets(walletMode: WalletMode): Single<List<Asset>> {
         return when (walletMode) {
-            WalletMode.CUSTODIAL_ONLY -> flow {
-                emit(custodialActiveAssets.values.toList())
-                /* emit(getFreshCustodialActiveAssets())*/
+            WalletMode.CUSTODIAL_ONLY -> loadCustodialActiveAssets()
+            WalletMode.NON_CUSTODIAL_ONLY -> loadNonCustodialActiveAssets()
+            WalletMode.UNIVERSAL -> Single.zip(
+                loadNonCustodialActiveAssets(), loadCustodialActiveAssets()
+            ) { a, b ->
+                val uniqueCustodial = b.filter { it.currency.networkTicker !in a.map { it.currency.networkTicker } }
+                (a.map { it.currency } + uniqueCustodial.map { it.currency }.toSet()).map {
+                    this[it]
+                }
             }
-            WalletMode.NON_CUSTODIAL_ONLY -> flow {
-                emit(nonCustodialActiveAssets.values.toList())
-                /*                emit(freshNonCustodialAssets())*/
-            }
-            WalletMode.UNIVERSAL -> flow { emit(allActive.values.toList()) }
         }
     }
 
@@ -320,7 +303,7 @@ internal class DynamicAssetLoader(
                 assetMap[assetInfo]
             }
         }.await()
-        val selfCustodial = loadSelfCustodialAssets(assetMap.keys.filterIsInstance<AssetInfo>().toSet()).await()
+        val selfCustodial = loadSelfCustodialAssets().await()
         return (standardL1s + erc20ActiveAssets + selfCustodial).toList()
     }
 
@@ -336,37 +319,3 @@ internal class DynamicAssetLoader(
     override val loadedAssets: List<Asset>
         get() = assetMap.values.toList()
 }
-
-private fun List<CryptoAsset>.keepStrongest(): List<CryptoAsset> {
-    var strongest = listOf<CryptoAsset>()
-    this.forEach { asset ->
-        if (!strongest.containsAsset(asset.currency)) {
-            strongest = strongest.plus(asset)
-        } else if (asset.strength() > strongest.first { it.currency == asset.currency }.strength()) {
-            strongest = strongest.replace(strongest.first { it.currency == asset.currency }, asset)
-        }
-    }
-    return strongest
-}
-
-/**
- * TODO(antonis-bc) Remove the hardcoded assets
- */
-private fun Asset.strength(): Int =
-    when (this) {
-        is BtcAsset -> Int.MAX_VALUE
-        is EthAsset -> Int.MAX_VALUE
-        is XlmAsset -> Int.MAX_VALUE
-        is BchAsset -> Int.MAX_VALUE
-        is MaticAsset -> Int.MAX_VALUE
-        is StxAsset -> Int.MAX_VALUE
-        is Erc20Asset -> Int.MAX_VALUE
-        is FiatAsset -> Int.MAX_VALUE
-        is DynamicSelfCustodyAsset -> Int.MAX_VALUE - 1
-        is DynamicOnlyTradingAsset -> Int.MAX_VALUE - 2
-        // TODO(antonis-bc) after fiat asset pr Make Asset sealed and put all here.
-        else -> throw IllegalStateException("Undefined asset type $this")
-    }
-
-private fun List<CryptoAsset>.containsAsset(assetInfo: AssetInfo): Boolean =
-    this.any { it.currency == assetInfo }
