@@ -18,6 +18,8 @@ data class AppDimensions(
     val borderRadiiSmall: Dp = 8.dp,
     val borderRadiiMedium: Dp = 16.dp,
     val borderRadiiLarge: Dp = 100.dp,
+
+    val xxElevationSmall: Dp = 2.dp,
 )
 
 internal val LocalDimensions = staticCompositionLocalOf { AppDimensions() }

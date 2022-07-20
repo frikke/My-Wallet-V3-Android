@@ -40,7 +40,7 @@ abstract class MVIBottomSheet<TViewState : ViewState> : BottomSheetDialogFragmen
     }
 }
 
-fun <TViewState : ViewState> MVIBottomSheet<TViewState>.disableDragging() {
+fun BottomSheetDialogFragment.disableDragging() {
     (dialog as BottomSheetDialog).apply {
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
