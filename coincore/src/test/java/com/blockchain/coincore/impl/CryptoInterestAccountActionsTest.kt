@@ -3,8 +3,8 @@ package com.blockchain.coincore.impl
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.interest.InterestAccountBalance
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -29,7 +29,7 @@ import org.junit.Test
 class CryptoInterestAccountActionsTest : CoincoreTestBase() {
 
     private val custodialManager: CustodialWalletManager = mock()
-    private val interestBalanceDataManager: InterestBalanceDataManager = mock()
+    private val interestService: InterestService = mock()
     private val userIdentity: UserIdentity = mock()
 
     @Before
@@ -164,7 +164,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
             currency = TEST_ASSET,
             exchangeRates = exchangeRates,
             custodialWalletManager = custodialManager,
-            interestBalance = interestBalanceDataManager,
+            interestService = interestService,
             identity = userIdentity,
             internalAccountLabel = "Trading Account"
         )
@@ -194,7 +194,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
         whenever(custodialManager.getInterestEligibilityForAsset(TEST_ASSET)).thenReturn(
             Single.just(Eligibility(isInterestEnabled, ineligibilityReason))
         )
-        whenever(interestBalanceDataManager.getBalanceForAsset(TEST_ASSET))
+        whenever(interestService.getBalanceFor(TEST_ASSET))
             .thenReturn(Observable.just(balance))
     }
 

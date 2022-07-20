@@ -21,7 +21,7 @@ import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.extensions.minus
 import com.blockchain.extensions.replace
 import com.blockchain.featureflag.FeatureFlag
@@ -63,7 +63,7 @@ internal class DynamicAssetLoader(
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
     private val tradingBalances: TradingBalanceDataManager,
-    private val interestBalances: InterestBalanceDataManager,
+    private val interestService: InterestService,
     private val labels: DefaultLabels,
     private val custodialWalletManager: CustodialWalletManager,
     private val currencyPrefs: CurrencyPrefs,
@@ -86,7 +86,8 @@ internal class DynamicAssetLoader(
         get() = assetMap.filterKeys { _custodialActiveCurrencies.contains(it) }
 
     private val allActive: Map<Currency, Asset>
-        get() = custodialActiveAssets + nonCustodialActiveAssets
+        get() = nonCustodialActiveAssets +
+            custodialActiveAssets.filterValues { it.currency !in nonCustodialActiveAssets.keys }
 
     private val assetMap = mutableMapOf<Currency, Asset>()
     override operator fun get(asset: Currency): Asset =
@@ -236,7 +237,7 @@ internal class DynamicAssetLoader(
                 .printTime("----- ::CustodialAssets - tradingBalances")
 
         val activeInterest =
-            interestBalances.getActiveAssets(false).map { assets -> assets.filter { supportedAssets.contains(it) } }
+            interestService.getActiveAssets(false).map { assets -> assets.filter { supportedAssets.contains(it) } }
                 .doOnSuccess { _custodialActiveCurrencies.addAll(it) }
                 .map { assets -> assets.map { loadCustodialOnlyAsset(it) } }
                 .printTime("----- ::CustodialAssets - interestBalances")
@@ -325,7 +326,7 @@ internal class DynamicAssetLoader(
 
     private suspend fun getFreshCustodialActiveAssets(): List<Asset> {
         val trading = tradingBalances.getActiveAssets(true).await()
-        val interest = interestBalances.getActiveAssets(true).await()
+        val interest = interestService.getActiveAssets(true).await()
         val tradingAndInterest = trading + interest
         return tradingAndInterest.mapNotNull {
             assetMap[it]

@@ -4,6 +4,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.l1chain
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
@@ -25,9 +26,11 @@ internal class SwapTrendingPairsProvider(
 ) : TrendingPairsProvider {
 
     override fun getTrendingPairs(): Single<List<TrendingPair>> =
-        coincore.activeCryptoAssets().map { it.accountGroup(AssetFilter.Trading).toSingle() }
+        coincore.activeCryptoAssets().map { asset ->
+            asset.accountGroup(AssetFilter.Trading).switchIfEmpty(Maybe.just(NullAccountGroup)).toSingle()
+        }
             .zipSingles()
-            .map { it.isNotEmpty() }
+            .map { it.any { group -> group !is NullAccountGroup } }
             .flatMap { useCustodial ->
                 val filter = if (useCustodial) AssetFilter.Trading else AssetFilter.NonCustodial
 

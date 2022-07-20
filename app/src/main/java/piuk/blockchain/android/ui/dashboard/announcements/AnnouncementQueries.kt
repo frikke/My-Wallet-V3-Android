@@ -5,6 +5,7 @@ import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.FiatAccount
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.featureflag.FeatureFlag
@@ -51,7 +52,8 @@ class AnnouncementQueries(
     private val fiatCurrenciesService: FiatCurrenciesService,
 ) {
     fun hasFundedFiatWallets(): Single<Boolean> =
-        coincore.fiatAssets.map { fiatAssets -> fiatAssets.any { it.custodialAccount.isFunded } }
+        coincore.allWallets().map { it.accounts }.map { it.filterIsInstance<FiatAccount>() }
+            .map { it.any { fiatAccount -> fiatAccount.isFunded } }
 
     // Have we moved past kyc tier 1 - silver?
     fun isKycGoldStartedOrComplete(): Single<Boolean> {

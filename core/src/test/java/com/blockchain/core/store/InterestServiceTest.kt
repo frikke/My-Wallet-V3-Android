@@ -1,10 +1,11 @@
 package com.blockchain.core.store
 
 import com.blockchain.api.services.InterestBalanceDetails
-import com.blockchain.core.interest.InterestAccountBalance
-import com.blockchain.core.interest.data.InterestStoreRepository
-import com.blockchain.core.interest.data.store.InterestDataSource
-import com.blockchain.core.interest.domain.InterestStoreService
+import com.blockchain.core.interest.data.InterestRepository
+import com.blockchain.core.interest.data.InterestStore
+import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
@@ -19,13 +20,13 @@ import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
 
-class InterestStoreServiceTest {
+class InterestServiceTest {
     private val assetCatalogue = mockk<AssetCatalogue>()
-    private val interestDataSource = mockk<InterestDataSource>()
+    private val interestStore = mockk<InterestStore>()
 
-    private val interestStoreService: InterestStoreService = InterestStoreRepository(
+    private val interestService: InterestService = InterestRepository(
         assetCatalogue = assetCatalogue,
-        interestDataSource = interestDataSource
+        interestStore = interestStore
     )
 
     private val cryptoCurrency = object : CryptoCurrency(
@@ -61,45 +62,45 @@ class InterestStoreServiceTest {
 
     @Before
     fun setUp() {
-        every { interestDataSource.stream(any()) } returns flowOf(StoreResponse.Data(listOf(interestBalanceDetails)))
-        every { interestDataSource.invalidate() } just Runs
+        every { interestStore.stream(any()) } returns flowOf(StoreResponse.Data(listOf(interestBalanceDetails)))
+        every { interestStore.invalidate() } just Runs
 
         every { assetCatalogue.fromNetworkTicker("CRYPTO1") } returns cryptoCurrency
     }
 
     @Test
     fun testGetBalances() {
-        interestStoreService.getBalances()
+        interestService.getBalances()
             .test()
             .await()
             .assertValue {
                 it == data
             }
-        verify(exactly = 1) { interestDataSource.stream(true) }
+        verify(exactly = 1) { interestStore.stream(StoreRequest.Cached(true)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
     @Test
     fun testGetBalanceFor() {
-        interestStoreService.getBalanceFor(cryptoCurrency)
+        interestService.getBalanceFor(cryptoCurrency)
             .test()
             .await()
             .assertValue {
                 it == interestAccountBalance
             }
-        verify(exactly = 1) { interestDataSource.stream(true) }
+        verify(exactly = 1) { interestStore.stream(StoreRequest.Cached(true)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
     @Test
     fun testGetActiveAssets() {
-        interestStoreService.getActiveAssets()
+        interestService.getActiveAssets()
             .test()
             .await()
             .assertValue {
                 it == setOf(cryptoCurrency)
             }
-        verify(exactly = 1) { interestDataSource.stream(false) }
+        verify(exactly = 1) { interestStore.stream(StoreRequest.Cached(false)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 }

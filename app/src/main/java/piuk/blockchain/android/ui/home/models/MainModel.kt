@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.home.models
 
 import android.content.Intent
+import android.net.Uri
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.NabuApiException
 import com.blockchain.banking.BankPaymentApproval
@@ -143,7 +144,7 @@ class MainModel(
                 )
             }
             is MainIntent.ProcessPendingDeeplinkIntent -> {
-                intent.deeplinkIntent.data?.let { uri ->
+                intent.deeplinkIntent.data.takeIf { it != Uri.EMPTY }?.let { uri ->
                     interactor.processDeepLinkV2(uri).subscribeBy(
                         onComplete = {
                             // Nothing to do. Deeplink V2 was parsed successfully

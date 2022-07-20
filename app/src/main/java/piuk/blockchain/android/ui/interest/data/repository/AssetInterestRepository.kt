@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.interest.data.repository
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.service.TierService
@@ -24,7 +24,7 @@ import timber.log.Timber
 
 internal class AssetInterestRepository(
     private val kycTierService: TierService,
-    private val interestBalance: InterestBalanceDataManager,
+    private val interestService: InterestService,
     private val custodialWalletManager: CustodialWalletManager,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val coincore: Coincore,
@@ -60,7 +60,7 @@ internal class AssetInterestRepository(
     private suspend fun getAssetInterestInfo(cryptoCurrency: AssetInfo): InterestAsset {
         return supervisorScope {
             val deferredBalance =
-                async(dispatcher) { interestBalance.getBalanceForAsset(cryptoCurrency).awaitFirst() }
+                async(dispatcher) { interestService.getBalanceFor(cryptoCurrency).awaitFirst() }
             val deferredExchangeRate =
                 async(dispatcher) { exchangeRatesDataManager.exchangeRateToUserFiat(cryptoCurrency).awaitFirst() }
             val deferredInterestRate =

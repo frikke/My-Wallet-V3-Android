@@ -11,8 +11,7 @@ import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.data.store.TradingDataSource
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.interest.data.store.InterestDataSource
+import com.blockchain.core.interest.data.InterestStore
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
@@ -42,8 +41,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
     }
 
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val interestBalances: InterestBalanceDataManager = mock()
-    private val interestDataSource: InterestDataSource = mock()
+    private val interestStore: InterestStore = mock()
     private val tradingDataSource: TradingDataSource = mock()
 
     private lateinit var subject: InterestWithdrawTradingTxEngine
@@ -70,10 +68,9 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
                 )
             )
         subject = InterestWithdrawTradingTxEngine(
-            interestDataSource = interestDataSource,
+            interestStore = interestStore,
             tradingDataSource = tradingDataSource,
-            walletManager = custodialWalletManager,
-            interestBalances = interestBalances
+            walletManager = custodialWalletManager
         )
     }
 
