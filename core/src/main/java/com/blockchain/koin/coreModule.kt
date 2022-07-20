@@ -11,8 +11,9 @@ import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
-import com.blockchain.core.chains.dynamicselfcustody.NonCustodialRepository
-import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
+import com.blockchain.core.chains.dynamicselfcustody.data.NonCustodialRepository
+import com.blockchain.core.chains.dynamicselfcustody.data.NonCustodialSubscriptionsStore
+import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
@@ -88,7 +89,6 @@ import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
-import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -127,6 +127,7 @@ import piuk.blockchain.androidcore.utils.EncryptedPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.UUIDGenerator
+import java.util.UUID
 
 val coreModule = module {
 
@@ -498,12 +499,21 @@ val coreModule = module {
 
         scoped<NonCustodialService> {
             NonCustodialRepository(
+                subscriptionsStore = get(),
                 dynamicSelfCustodyService = get(),
                 payloadDataManager = get(),
                 currencyPrefs = get(),
                 assetCatalogue = get()
             )
         }
+
+        scoped {
+            NonCustodialSubscriptionsStore(
+                dynamicSelfCustodyService = get(),
+                authPrefs = get()
+            )
+        }
+
     }
 
     single {

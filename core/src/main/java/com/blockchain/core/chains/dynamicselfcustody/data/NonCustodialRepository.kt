@@ -1,4 +1,4 @@
-package com.blockchain.core.chains.dynamicselfcustody
+package com.blockchain.core.chains.dynamicselfcustody.data
 
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.selfcustody.BuildTxResponse
@@ -8,9 +8,17 @@ import com.blockchain.api.selfcustody.Status
 import com.blockchain.api.selfcustody.TransactionDirection
 import com.blockchain.api.selfcustody.TransactionResponse
 import com.blockchain.api.services.DynamicSelfCustodyService
+import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialAccountBalance
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialDerivedAddress
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTxHistoryItem
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.StoreRequest
+import com.blockchain.store.firstOutcome
+import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import kotlinx.serialization.json.JsonObject
@@ -19,6 +27,7 @@ import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class NonCustodialRepository(
+    private val subscriptionsStore: NonCustodialSubscriptionsStore,
     private val dynamicSelfCustodyService: DynamicSelfCustodyService,
     private val payloadDataManager: PayloadDataManager,
     private val currencyPrefs: CurrencyPrefs,
@@ -32,7 +41,11 @@ internal class NonCustodialRepository(
         )
             .map { it.success }
 
-    override suspend fun subscribe(currency: String, label: String, addresses: List<String>) =
+    override suspend fun subscribe(
+        currency: String,
+        label: String,
+        addresses: List<String>
+    ): Outcome<ApiError, Boolean> =
         dynamicSelfCustodyService.subscribe(
             guidHash = getHashedString(payloadDataManager.guid),
             sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
@@ -42,7 +55,7 @@ internal class NonCustodialRepository(
         )
             .map { it.success }
 
-    override suspend fun unsubscribe(currency: String) =
+    override suspend fun unsubscribe(currency: String): Outcome<ApiError, Boolean> =
         dynamicSelfCustodyService.unsubscribe(
             guidHash = getHashedString(payloadDataManager.guid),
             sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
@@ -50,16 +63,14 @@ internal class NonCustodialRepository(
         )
             .map { it.success }
 
-    override suspend fun getSubscriptions() =
-        dynamicSelfCustodyService.getSubscriptions(
-            guidHash = getHashedString(payloadDataManager.guid),
-            sharedKeyHash = getHashedString(payloadDataManager.sharedKey)
-        )
-            .map { subscriptionsResponse ->
+    override suspend fun getSubscriptions(): Outcome<ApiError, List<String>> =
+        subscriptionsStore.stream(StoreRequest.Cached(forceRefresh = false))
+            .mapData { subscriptionsResponse ->
                 subscriptionsResponse.currencies.map { it.ticker }
             }
+            .firstOutcome()
 
-    override suspend fun getBalances(currencies: List<String>) =
+    override suspend fun getBalances(currencies: List<String>): Outcome<ApiError, List<NonCustodialAccountBalance>> =
         dynamicSelfCustodyService.getBalances(
             guidHash = getHashedString(payloadDataManager.guid),
             sharedKeyHash = getHashedString(payloadDataManager.sharedKey),

@@ -15,8 +15,8 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
-import com.blockchain.core.chains.dynamicselfcustody.TransactionSignature
+import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.storedatasource.FlushableDataSource

@@ -3,7 +3,7 @@ package com.blockchain.coincore.selfcustody
 import com.blockchain.api.selfcustody.Status
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
-import com.blockchain.core.chains.dynamicselfcustody.NonCustodialTxHistoryItem
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTxHistoryItem
 import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
