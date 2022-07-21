@@ -5,7 +5,7 @@ object Versions {
     // Release info
     const val minSdk = 24
     const val targetSdk = 30
-    const val compileSdk = 31
+    const val compileSdk = 32
 
     const val versionCode = 20422
     const val versionName = "202207.2.0"
@@ -113,6 +113,8 @@ object Versions {
     const val systemUi = "0.24.3-alpha"
     const val navigationMaterial = "0.23.1"
     const val swipeRefresh = "0.23.1"
+    const val pager = "0.24.13-rc"
+    const val pagerIndicators = "0.24.13-rc"
 
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
@@ -303,6 +305,8 @@ object Libraries {
     const val composeNavigation = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
     const val accompanistFlowLayout = "com.google.accompanist:accompanist-flowlayout:${Versions.composeFlowLayout}"
     const val accompanistSwipeRefresh = "com.google.accompanist:accompanist-swiperefresh:${Versions.swipeRefresh}"
+    const val accompanistPager = "com.google.accompanist:accompanist-pager:${Versions.pager}"
+    const val accompanistPagerIndicators = "com.google.accompanist:accompanist-pager-indicators:${Versions.pagerIndicators}"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"

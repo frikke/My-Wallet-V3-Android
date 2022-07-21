@@ -3158,5 +3158,6 @@
     <string name="educational_wallet_mode_trading_title">Your trading account</string>
     <string name="educational_wallet_mode_trading_description">Access your Trading and Rewards accounts and buy and sell crypto.</string>
     <string name="educational_wallet_mode_trading_secure_tag">Secured by Blockchain.com</string>
+    <string name="educational_wallet_mode_cta">Get Started</string>
 
 </resources>

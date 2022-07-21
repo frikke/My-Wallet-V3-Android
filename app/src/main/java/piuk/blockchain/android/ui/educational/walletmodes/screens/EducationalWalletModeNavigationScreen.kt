@@ -1,76 +1,99 @@
 package piuk.blockchain.android.ui.educational.walletmodes.screens
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Grey900
-import com.blockchain.presentation.R
+import com.blockchain.utils.isLastIn
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.HorizontalPagerIndicator
+import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import piuk.blockchain.android.R
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun EducationalWalletModeNavigationScreen(
-    doneOnClick: () -> Unit,
+    getStartedOnClick: () -> Unit,
 ) {
+    val pagerState = rememberPagerState()
+    var buttonVisible by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        NavigationBar(title = stringResource(R.string.backup_phrase_title_secure_wallet), onBackButtonClick = null)
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }
+            .onEach { pageIndex ->
+                if (pageIndex isLastIn EducationalWalletModePages.values()) buttonVisible = true
+            }
+            .collect()
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            imageResource = ImageResource.Local(
+                R.drawable.background_gradient
+            ),
+            contentScale = ContentScale.FillBounds
+        )
+
+        HorizontalPager(
+            modifier = Modifier.fillMaxSize(),
+            count = EducationalWalletModePages.values().size,
+            state = pagerState
+        ) { pageIndex ->
+            EducationalWalletModePage(pageIndex)
+        }
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_margin)),
+                .align(Alignment.BottomCenter)
+                .padding(AppTheme.dimensions.paddingMedium),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.weight(1F))
+            if (buttonVisible) {
+                TertiaryButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.educational_wallet_mode_cta),
+                    onClick = getStartedOnClick
+                )
+            }
 
-            Image(
-                imageResource = ImageResource.Local(R.drawable.ic_backup_successful)
-            )
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
-
-            Text(
-                text = stringResource(R.string.backup_success_title),
-                style = AppTheme.typography.subheading,
-                color = Grey900,
-            )
-
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
-
-            Text(
-                text = stringResource(R.string.backup_success_description),
-                style = AppTheme.typography.body1,
-                textAlign = TextAlign.Center,
-                color = Grey900,
-            )
-
-            Spacer(modifier = Modifier.weight(2F))
-
-            PrimaryButton(
-                modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.done),
-                onClick = doneOnClick
+            HorizontalPagerIndicator(
+                modifier = Modifier.padding(AppTheme.dimensions.xPaddingSmall),
+                pagerState = pagerState,
+                activeColor = AppTheme.colors.background,
+                inactiveColor = AppTheme.colors.background.copy(alpha = 0.25F)
             )
         }
     }
+}
+
+@Composable
+private fun EducationalWalletModePage(index: Int) {
+    EducationalWalletModePages.values().first { it.index == index }.Content()
 }
 
 // ///////////////
