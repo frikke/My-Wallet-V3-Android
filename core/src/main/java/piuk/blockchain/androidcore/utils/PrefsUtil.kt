@@ -193,9 +193,9 @@ class PrefsUtil(
     override fun getSupportedCardTypes(): String? =
         getValue(KEY_SUPPORTED_CARDS_STATE, "").takeIf { it != "" }
 
-    override fun getLastAmountBought(pair: String): String = getValue(KEY_SIMPLE_BUY_AMOUNT + pair, "")
+    override fun getLastAmount(pair: String): String = getValue(KEY_SIMPLE_BUY_AMOUNT + pair, "")
 
-    override fun setLastAmountBought(pair: String, amount: String) = setValue(KEY_SIMPLE_BUY_AMOUNT + pair, amount)
+    override fun setLastAmount(pair: String, amount: String) = setValue(KEY_SIMPLE_BUY_AMOUNT + pair, amount)
 
     override fun getLastPaymentMethodId(): String = getValue(KEY_SIMPLE_BUY_PAYMENT_ID, "")
 

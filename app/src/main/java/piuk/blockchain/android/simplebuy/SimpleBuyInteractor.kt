@@ -508,7 +508,7 @@ class SimpleBuyInteractor(
         )
 
     fun getLastPaymentMethodId() =
-        simpleBuyPrefs.getLastPaymentMethodId()
+        simpleBuyPrefs.getLastPaymentMethodId().ifEmpty { null }
 
     fun shouldShowAppRating() =
         simpleBuyPrefs.buysCompletedCount >= APP_RATING_MINIMUM_BUY_ORDERS
@@ -547,9 +547,7 @@ class SimpleBuyInteractor(
             state = state
         )
 
-    fun updateCountersForCompletedOrders(pair: String, amount: String, paymentMethodId: String) {
-        simpleBuyPrefs.setLastAmountBought(pair, amount)
-        simpleBuyPrefs.setLastPaymentMethodId(paymentMethodId)
+    fun updateCountersForCompletedOrders() {
         simpleBuyPrefs.hasCompletedAtLeastOneBuy = true
         simpleBuyPrefs.buysCompletedCount += 1
         onboardingPrefs.isLandingCtaDismissed = true
@@ -564,7 +562,7 @@ class SimpleBuyInteractor(
             var prefilledAmount = FiatValue.zero(fiatCurrency)
 
             val quickFillButtonData = if (enabled) {
-                val amountString = simpleBuyPrefs.getLastAmountBought("$assetCode-${fiatCurrency.networkTicker}")
+                val amountString = simpleBuyPrefs.getLastAmount("$assetCode-${fiatCurrency.networkTicker}")
                     .ifEmpty {
                         DEFAULT_MIN_PREFILL_AMOUNT
                     }
@@ -572,7 +570,10 @@ class SimpleBuyInteractor(
 
                 prefilledAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
 
-                val lowestPrefillAmount = (2 * prefilledAmount.toFloat()).toInt()
+                val lowestPrefillAmount = roundToNearest(
+                    2 * prefilledAmount.toFloat(),
+                    ROUND_TO_NEAREST_10
+                )
 
                 if (checkIfUnderLimit(lowestPrefillAmount, buyMaxAmount)) {
                     listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(lowestPrefillAmount)))
@@ -607,6 +608,14 @@ class SimpleBuyInteractor(
             eligibilityService.getStatesList(countryCode, GetRegionScope.None)
         }
 
+    fun saveOrderAmountAndPaymentMethodId(pair: String, amount: String, paymentId: String) {
+        simpleBuyPrefs.setLastAmount(
+            pair = pair,
+            amount = amount
+        )
+        simpleBuyPrefs.setLastPaymentMethodId(paymentMethodId = paymentId)
+    }
+
     private fun roundToNearest(lastAmount: Float, nearest: Int): Int {
         return nearest * (floor(lastAmount.toDouble() / nearest) + 1).toInt()
     }
@@ -622,6 +631,7 @@ class SimpleBuyInteractor(
         private const val RETRIES_DEFAULT = 12
         private const val EMPTY_PAYMENT_TOKEN: PaymentToken = ""
 
+        private const val ROUND_TO_NEAREST_10 = 10
         private const val ROUND_TO_NEAREST_50 = 50
         private const val ROUND_TO_NEAREST_100 = 100
         private const val DEFAULT_MIN_PREFILL_AMOUNT = "50"

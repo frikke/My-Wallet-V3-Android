@@ -132,7 +132,7 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
 fun MnemonicWord(index: Int, word: String) {
     Row {
         Text(
-            modifier = Modifier.width(24.dp),
+            modifier = Modifier.width(dimensionResource(R.dimen.standard_margin)),
             text = index.toString(),
             style = AppTheme.typography.paragraphMono,
             color = Grey400,
