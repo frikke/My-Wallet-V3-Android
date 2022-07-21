@@ -45,9 +45,11 @@ import info.blockchain.balance.asFiatCurrencyOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.utils.extensions.mapList
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
+import java.util.concurrent.atomic.AtomicBoolean
 
 class CustodialTradingAccount(
     override val currency: AssetInfo,
@@ -182,7 +184,8 @@ class CustodialTradingAccount(
     }
 
     private fun sellEligibility(balance: AccountBalance): Single<StateAwareAction> {
-        val accountsFiat = custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }
+        val accountsFiat = rxSingle { custodialWalletManager.getSupportedFundsFiats().first() }
+            .onErrorReturn { emptyList() }
         val sellEligibility = identity.userAccessForFeature(Feature.Sell)
         return sellEligibility.zipWith(accountsFiat) { sellEligible, fiatAccounts ->
             StateAwareAction(

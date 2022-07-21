@@ -36,8 +36,13 @@ import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -48,6 +53,7 @@ import timber.log.Timber
 // This is a rubbish regex, but it'll do until I'm provided a better one
 private const val defaultCustodialAddressValidation = "[a-zA-Z0-9]{15,}"
 
+@OptIn(ExperimentalCoroutinesApi::class)
 internal class DynamicAssetLoader(
     private val nonCustodialAssets: Set<CryptoAsset>,
     private val experimentalL1EvmAssets: Set<CryptoCurrency>,
@@ -140,16 +146,6 @@ internal class DynamicAssetLoader(
         }
     }
 
-    private fun initSupportedFiatAssets(fresh: Boolean): Single<List<FiatAsset>> =
-        custodialWalletManager.getSupportedFundsFiats(fresh = fresh)
-            .map { supportedFiatCurrencies ->
-                supportedFiatCurrencies.map { fiatCurrency ->
-                    FiatAsset(
-                        currency = fiatCurrency
-                    )
-                }
-            }
-
     /*
     * Init the local non custodial assets currently BCH and ETH that require
     * metadata initialisation.
@@ -217,20 +213,19 @@ internal class DynamicAssetLoader(
         }
     }
 
-    private suspend fun loadCustodialActiveAssets(fresh: Boolean): List<Asset> {
-        val activeTrading =
-            tradingBalances.getActiveAssets(fresh)
-                .map { assets -> assets.filterIsInstance<AssetInfo>().map { loadCustodialOnlyAsset(it) } }
-                .await()
+    private fun loadCustodialActiveAssets(): Flow<List<Asset>> {
+        val activeTrading = tradingBalances.getActiveAssets()
+            .map { assets -> assets.filterIsInstance<AssetInfo>().map { loadCustodialOnlyAsset(it) } }
 
-        val activeInterest =
-            interestService.getActiveAssets(fresh)
-                .map { assets -> assets.map { loadCustodialOnlyAsset(it) } }
-                .await()
+        val activeInterest = interestService.getActiveAssets()
+            .map { assets -> assets.map { loadCustodialOnlyAsset(it) } }
 
-        val fiats = initSupportedFiatAssets(fresh).await()
+        val fiats = custodialWalletManager.getSupportedFundsFiats()
+            .map { supportedFiatCurrencies ->
+                supportedFiatCurrencies.map { FiatAsset(currency = it) }
+            }
 
-        return activeTrading + activeInterest + fiats
+        return merge(activeTrading, activeInterest, fiats)
     }
 
     private fun loadCustodialOnlyAsset(assetInfo: AssetInfo): CryptoAsset {
@@ -277,23 +272,21 @@ internal class DynamicAssetLoader(
     override fun activeAssets(walletMode: WalletMode): Flow<List<Asset>> {
         return when (walletMode) {
             WalletMode.CUSTODIAL_ONLY -> flow {
-                emit(loadCustodialActiveAssets(false))
-                emit(loadCustodialActiveAssets(true))
+                loadCustodialActiveAssets()
             }
             WalletMode.NON_CUSTODIAL_ONLY -> flow {
                 emit(loadNonCustodialActiveAssets(false))
                 emit(loadNonCustodialActiveAssets(true))
             }
             WalletMode.UNIVERSAL -> flow {
-                emit(allActive(false))
-                emit(allActive(true))
+                emit(allActive())
             }
         }
     }
 
-    private suspend fun allActive(fresh: Boolean): List<Asset> {
+    private suspend fun allActive(): Flow<List<Asset>> {
         val nonCustodial = loadNonCustodialActiveAssets(fresh)
-        val custodial = loadCustodialActiveAssets(fresh)
+        val custodial = loadCustodialActiveAssets()
         val uniqueCustodial =
             custodial.filter {
                 it.currency.networkTicker !in nonCustodial.map { asset -> asset.currency.networkTicker }

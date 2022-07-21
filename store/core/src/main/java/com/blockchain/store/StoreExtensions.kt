@@ -4,6 +4,7 @@ import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -67,3 +68,16 @@ fun <E, T, R> Flow<StoreResponse<E, T>>.mapError(mapper: (E) -> R): Flow<StoreRe
             is StoreResponse.Loading -> it
         }
     }
+
+/**
+ * E types will be removed by antonis pr
+ */
+fun <E, T> Flow<StoreResponse<E, T>>.getDataOrThrow(): Flow<T> =
+    filterNot { it is StoreResponse.Loading }
+        .map {
+            when (it) {
+                is StoreResponse.Data -> it.data
+                is StoreResponse.Error -> (it.error as? Exception)?.let { throw it } ?: throw Exception("todo")
+                is StoreResponse.Loading -> throw IllegalStateException()
+            }
+        }

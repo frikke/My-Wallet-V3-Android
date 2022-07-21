@@ -30,6 +30,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 import java.math.BigInteger
 import java.util.Date
 
@@ -165,9 +166,8 @@ interface CustodialWalletManager {
     fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
 
     fun getSupportedFundsFiats(
-        fiatCurrency: FiatCurrency = selectedFiatcurrency,
-        fresh: Boolean = false
-    ): Single<List<FiatCurrency>>
+        fiatCurrency: FiatCurrency = selectedFiatcurrency
+    ): Flow<List<FiatCurrency>>
 
     fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
 

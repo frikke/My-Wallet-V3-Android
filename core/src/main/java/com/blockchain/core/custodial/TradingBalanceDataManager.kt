@@ -5,6 +5,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 
 data class TradingAccountBalance(
     val total: Money,
@@ -15,7 +16,7 @@ data class TradingAccountBalance(
 
 interface TradingBalanceDataManager {
     fun getBalanceForCurrency(currency: Currency): Observable<TradingAccountBalance>
-    fun getActiveAssets(forceRefresh: Boolean = false): Single<Set<Currency>>
+    fun getActiveAssets(): Flow<Set<Currency>>
 }
 
 internal class TradingBalanceDataManagerImpl(
@@ -24,6 +25,6 @@ internal class TradingBalanceDataManagerImpl(
     override fun getBalanceForCurrency(currency: Currency): Observable<TradingAccountBalance> =
         tradingStoreService.getBalanceFor(asset = currency)
 
-    override fun getActiveAssets(forceRefresh: Boolean): Single<Set<Currency>> =
-        tradingStoreService.getActiveAssets(forceRefresh)
+    override fun getActiveAssets(): Flow<Set<Currency>> =
+        tradingStoreService.getActiveAssets()
 }

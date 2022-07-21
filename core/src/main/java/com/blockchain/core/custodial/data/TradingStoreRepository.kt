@@ -4,21 +4,24 @@ import com.blockchain.api.services.TradingBalance
 import com.blockchain.core.custodial.TradingAccountBalance
 import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.custodial.domain.TradingStoreService
-import com.blockchain.store.asObservable
+import com.blockchain.store.StoreRequest
+import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx3.asObservable
 
 internal class TradingStoreRepository(
     private val assetCatalogue: AssetCatalogue,
     private val tradingDataSource: TradingDataSource
 ) : TradingStoreService {
 
-    private fun getBalances(refresh: Boolean): Observable<Map<Currency, TradingAccountBalance>> {
-        return tradingDataSource.stream(refresh)
+    private fun getBalancesFlow(storeRequest: StoreRequest): Flow<Map<Currency, TradingAccountBalance>> {
+        return tradingDataSource.stream(storeRequest)
             .mapData { details ->
                 details.mapNotNull { balance ->
                     assetCatalogue.fromNetworkTicker(balance.assetTicker)?.let { currency ->
@@ -26,21 +29,25 @@ internal class TradingStoreRepository(
                     }
                 }.toMap()
             }
-            .asObservable { it }
+            .getDataOrThrow()
+    }
+
+    override fun getBalances(request: StoreRequest): Observable<Map<Currency, TradingAccountBalance>> {
+        return getBalancesFlow(request)
+            .asObservable()
             .onErrorReturn { emptyMap() }
     }
 
-    override fun getBalances(): Observable<Map<Currency, TradingAccountBalance>> =
-        getBalances(refresh = true)
-
-    override fun getBalanceFor(asset: Currency): Observable<TradingAccountBalance> {
-        return getBalances(refresh = true)
+    override fun getBalanceFor(asset: Currency, request: StoreRequest): Observable<TradingAccountBalance> {
+        return getBalancesFlow(request)
+            .asObservable()
+            .onErrorReturn { emptyMap() }
             .map { it.getOrDefault(asset, zeroBalance(asset)) }
     }
 
-    override fun getActiveAssets(forceRefresh: Boolean): Single<Set<Currency>> {
-        return getBalances(forceRefresh)
-            .map { it.keys }.firstElement().toSingle()
+    override fun getActiveAssets(request: StoreRequest): Flow<Set<Currency>> {
+        return getBalancesFlow(request)
+            .map { it.keys }
     }
 }
 

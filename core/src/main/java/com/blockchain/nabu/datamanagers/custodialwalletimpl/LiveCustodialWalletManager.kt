@@ -14,7 +14,6 @@ import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BankAccount
@@ -77,7 +76,8 @@ import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.KeyedStoreRequest
-import com.blockchain.store.asSingle
+import com.blockchain.store.getDataOrThrow
+import com.blockchain.store.mapData
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
@@ -91,9 +91,10 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.flatMapIterable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import java.math.BigInteger
 import java.util.Date
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class LiveCustodialWalletManager(
     private val assetCatalogue: AssetCatalogue,
@@ -566,11 +567,11 @@ class LiveCustodialWalletManager(
             )
         }
 
-    override fun getSupportedFundsFiats(fiatCurrency: FiatCurrency, fresh: Boolean): Single<List<FiatCurrency>> {
-        return Single.zip(
-            paymentMethods(fiatCurrency, true),
-            rxSingleOutcome { fiatCurrenciesService.getTradingCurrencies(fresh) }
-        ) { methods, tradingCurrencies ->
+    override fun getSupportedFundsFiats(fiatCurrency: FiatCurrency): Flow<List<FiatCurrency>> {
+        val paymentMethods = paymentMethods(fiatCurrency, true)
+        val fiatCurrencies = fiatCurrenciesService.getTradingCurrenciesFlow()
+
+        return combine(paymentMethods, fiatCurrencies) { methods, tradingCurrencies ->
             methods.filter { method ->
                 method.type.toPaymentMethodType() == PaymentMethodType.FUNDS &&
                     tradingCurrencies.allRecommended.any { it.networkTicker == method.currency } &&
@@ -603,15 +604,9 @@ class LiveCustodialWalletManager(
             ),
             forceRefresh = false
         )
-    ).asSingle(
-        errorMapper = {
-            when (it) {
-                is PaymentMethodsError.RequestFailed -> Exception(it.message)
-            }
-        }
-    ).map {
+    ).mapData {
         it.filter { paymentMethod -> paymentMethod.visible }
-    }
+    }.getDataOrThrow()
 
     override fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String> =
         authenticator.authenticateMaybe { sessionToken ->
