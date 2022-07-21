@@ -280,11 +280,12 @@ class BlockchainCardRepositoryImplTest {
             coEvery { blockchainCardService.getCardWidgetToken(any(), any()) } returns Outcome.Success(
                 cardWidgetTokenDto
             )
-            coEvery { blockchainCardService.getCardWidgetUrl(any(), any()) } returns Outcome.Success(cardWidgetUrl)
+            coEvery { blockchainCardService.getCardWidgetUrl(any(), any(), any()) } returns Outcome.Success(cardWidgetUrl)
 
             val cardWidgetUrlUnderTest = blockchainCardRepository.getCardWidgetUrl(
                 cardId = "cardId",
-                last4Digits = "1234"
+                last4Digits = "1234",
+                userFullName = "userFullName"
             )
 
             assertEquals(cardWidgetUrlUnderTest, Outcome.Success(cardWidgetUrl))

@@ -12,6 +12,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
+import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.fold
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -23,6 +24,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
         when (args) {
             is BlockchainCardArgs.CardArgs -> {
                 updateState { it.copy(card = args.card) }
+                onIntent(BlockchainCardIntent.LoadUserFirstAndLastName)
                 onIntent(BlockchainCardIntent.LoadCardWidget)
                 onIntent(BlockchainCardIntent.LoadLinkedAccount)
                 onIntent(BlockchainCardIntent.LoadTransactions)
@@ -90,11 +92,14 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             }
 
             is BlockchainCardIntent.LoadCardWidget -> {
-                modelState.card?.let { card ->
-                    blockchainCardRepository.getCardWidgetUrl(
-                        cardId = card.id,
-                        last4Digits = card.last4
-                    ).fold(
+                if (modelState.card != null) {
+                    blockchainCardRepository.getUserFirstAndLastName().flatMap { firstAndLastName ->
+                        blockchainCardRepository.getCardWidgetUrl(
+                            cardId = modelState.card.id,
+                            last4Digits = modelState.card.last4,
+                            userFullName = firstAndLastName
+                        )
+                    }.fold(
                         onFailure = { error ->
                             Timber.d("Card widget url failed: $error")
                             updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
@@ -239,7 +244,6 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
 
             is BlockchainCardIntent.SeePersonalDetails -> {
                 onIntent(BlockchainCardIntent.LoadResidentialAddress)
-                onIntent(BlockchainCardIntent.LoadUserFirstAndLastName)
                 navigate(BlockchainCardNavigationEvent.SeePersonalDetails)
             }
 
