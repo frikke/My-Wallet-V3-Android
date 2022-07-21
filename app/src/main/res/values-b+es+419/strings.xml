@@ -1427,7 +1427,7 @@ Tus fondos estarán disponibles para retirarlos una vez que se complete la trans
     <string name="verify_device_title">Verificar dispositivo</string>
     <string name="verify_device_desc">Si tienes una cuenta registrada con esta dirección de correo electrónico, recibirás un correo con un enlace para verificar tu dispositivo.</string>
     <string name="recurring_buy_toolbar">Compras recurrentes</string>
-    <string name="recurring_buy_one_time_cta">Una vez -></string>
+    <string name="recurring_buy_one_time_cta">Una vez</string>
     <string name="recurring_buy_one_time_selector">Compra única</string>
     <string name="recurring_buy_frequency_subtitle">El %s</string>
     <string name="recurring_buy_frequency_subtitle_each_day">aproximadamente %s</string>

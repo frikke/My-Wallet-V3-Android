@@ -2624,7 +2624,7 @@ Encuentra la aplicación aquí: https://blockchainwallet.page.link/join</string>
     <string name="settings_chart_vibration_desc">Toggle chart vibration</string>
     <string name="purchase_title_error">Purchasing error</string>
     <string name="purchase_description_error">We encountered a problem with the purchase. Please try again.</string>
-    <string name="recurring_buy_one_time_cta">Una vez -&gt;</string>
+    <string name="recurring_buy_one_time_cta">Una vez</string>
     <string name="recurring_buy_one_time_selector">Una vez</string>
     <string name="verify_your_identity">Verifica tu identidad</string>
     <string name="verify_your_identity_description">Por favor, confirma tu NSS o tu número de identificación individual para impuestos más abajo para evitar que otros creen cuentas fraudulentas a tu nombre.</string>

@@ -111,9 +111,8 @@
         app:layout_goneMarginEnd="@dimen/small_margin"
         tools:layout_height="20dp" />
 
-    <Button
+    <com.blockchain.componentlib.switcher.SwitcherItemView
         android:id="@+id/recurring_buy_cta"
-        style="@style/CtaButton.White.Slim"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/small_margin"

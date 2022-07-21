@@ -204,6 +204,13 @@
             android:text="Section Headers"
             android:textAllCaps="false" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/section_switchers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Switchers"
+            android:textAllCaps="false" />
+
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

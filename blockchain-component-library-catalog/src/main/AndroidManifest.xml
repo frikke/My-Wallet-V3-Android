@@ -22,6 +22,9 @@
             android:name=".abstract_compose_view.SectionHeadersActivity"
             android:exported="false" />
         <activity
+            android:name=".abstract_compose_view.SwitcherActivity"
+            android:exported="false" />
+        <activity
             android:name=".abstract_compose_view.TabLayoutActivity"
             android:exported="false" />
         <activity

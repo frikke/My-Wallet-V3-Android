@@ -2718,7 +2718,7 @@ PLEASE NOTE: Key should be used without \'blockchain.nabu.error.\' prefix and \'
     <string name="settings_chart_vibration_desc">Включить вибрацию графика</string>
     <string name="purchase_title_error">Ошибка покупки</string>
     <string name="purchase_description_error">Столкнулись с проблемой при покупке. Пожалуйста, попробуйте еще раз.</string>
-    <string name="recurring_buy_one_time_cta">Один раз - &gt;</string>
+    <string name="recurring_buy_one_time_cta">Один раз</string>
     <string name="recurring_buy_one_time_selector">Один раз</string>
     <string name="verify_your_identity">Подтвердить свою личность</string>
     <string name="verify_your_identity_description">Пожалуйста, подтвердите свой SSN или ИНН ниже, чтобы предотвратить создание мошеннических учетных записей от вашего имени другими лицами.</string>
