@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -184,7 +185,8 @@ fun ManageCard(
                         .padding(
                             top = AppTheme.dimensions.paddingMedium
                         )
-                        .requiredHeight(200.dp)
+                        .requiredHeight(355.dp)
+                        .requiredWidth(200.dp)
                 )
             } else {
                 CircularProgressIndicator(
@@ -324,7 +326,7 @@ fun ManageCardDetails(
 
         // Card details
         CardDetailsBottomSheetElement(
-            cardStatus,
+            cardStatus = cardStatus,
             last4digits = last4digits,
             modifier = Modifier.padding(
                 AppTheme.dimensions.paddingLarge,
@@ -1052,10 +1054,14 @@ private fun CardDetailsBottomSheetElement(
                     if (cardStatus == BlockchainCardStatus.LOCKED) stringResource(R.string.bc_card_locked)
                     else stringResource(R.string.ready_to_use)
 
+                val cardStatusColor =
+                    if (cardStatus == BlockchainCardStatus.LOCKED) ComposeColors.Warning
+                    else ComposeColors.Success
+
                 SimpleText(
                     text = cardStatusLabel,
                     style = ComposeTypographies.Caption2,
-                    color = ComposeColors.Success,
+                    color = cardStatusColor,
                     gravity = ComposeGravities.Start
                 )
             }
@@ -1074,7 +1080,7 @@ private fun CardDetailsBottomSheetElement(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewCardDetailsBottomSheetElement() {
-    CardDetailsBottomSheetElement(BlockchainCardStatus.ACTIVE, "***3458")
+    CardDetailsBottomSheetElement(BlockchainCardStatus.ACTIVE, "***3458",)
 }
 
 @Composable

@@ -1,4 +1,4 @@
-package com.blockchain.core.chains.dynamicselfcustody
+package com.blockchain.core.chains.dynamicselfcustody.domain.model
 
 import com.blockchain.api.selfcustody.Status
 import java.math.BigInteger

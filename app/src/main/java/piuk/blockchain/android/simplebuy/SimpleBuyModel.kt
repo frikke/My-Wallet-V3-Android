@@ -35,6 +35,7 @@ import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardAttributes
 import com.blockchain.nabu.datamanagers.CardPaymentState
+import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -225,7 +226,7 @@ class SimpleBuyModel(
 
                 processGetPaymentMethod(
                     fiatCurrency = intent.fiatCurrency,
-                    preselectedId = intent.selectedPaymentMethodId ?: lastPaymentMethodId.ifEmpty { null },
+                    preselectedId = intent.selectedPaymentMethodId ?: lastPaymentMethodId,
                     previousSelectedId = previousState.selectedPaymentMethod?.id,
                 )
             }
@@ -311,16 +312,26 @@ class SimpleBuyModel(
                     processOrderErrors(it)
                 }
             )
-            is SimpleBuyIntent.ConfirmOrder -> processConfirmOrder(
-                previousState.id,
-                previousState.selectedPaymentMethod
-            )
-            is SimpleBuyIntent.ConfirmGooglePayOrder -> processConfirmOrder(
-                previousState.id,
-                previousState.selectedPaymentMethod,
-                intent.googlePayPayload,
-                previousState.googlePayBeneficiaryId
-            )
+            is SimpleBuyIntent.ConfirmOrder -> {
+                require(previousState.selectedCryptoAsset != null) { "ConfirmOrder Missing assetInfo" }
+                processConfirmOrder(
+                    id = previousState.id,
+                    selectedPaymentMethod = previousState.selectedPaymentMethod,
+                    amount = previousState.amount,
+                    pair = CurrencyPair(previousState.selectedCryptoAsset, previousState.fiatCurrency).rawValue
+                )
+            }
+            is SimpleBuyIntent.ConfirmGooglePayOrder -> {
+                require(previousState.selectedCryptoAsset != null) { "ConfirmGooglePayOrder Missing assetInfo" }
+                processConfirmOrder(
+                    id = previousState.id,
+                    googlePayPayload = intent.googlePayPayload,
+                    googlePayBeneficiaryId = previousState.googlePayBeneficiaryId,
+                    amount = previousState.amount,
+                    pair = CurrencyPair(previousState.selectedCryptoAsset, previousState.fiatCurrency).rawValue,
+                    selectedPaymentMethod = null
+                )
+            }
             is SimpleBuyIntent.FinishedFirstBuy -> null
             is SimpleBuyIntent.CheckOrderStatus -> interactor.pollForOrderStatus(
                 previousState.id ?: throw IllegalStateException("Order Id not available")
@@ -397,6 +408,7 @@ class SimpleBuyModel(
                         Timber.e("Simplebuy: Getting prefill and quickfill data failed - ${it.message}")
                     }
                 )
+
             is SimpleBuyIntent.GooglePayInfoRequested -> requestGooglePayInfo(
                 previousState.fiatCurrency
             ).subscribeBy(
@@ -458,9 +470,19 @@ class SimpleBuyModel(
                 process(SimpleBuyIntent.PaymentPending)
             }
             buySellOrder.state.hasFailed() -> {
+                interactor.saveOrderAmountAndPaymentMethodId(
+                    pair = buySellOrder.pair,
+                    amount = buySellOrder.source.toStringWithoutSymbol(),
+                    paymentId = buySellOrder.paymentMethodId
+                )
                 handleErrorState(buySellOrder.paymentError)
             }
             else -> {
+                interactor.saveOrderAmountAndPaymentMethodId(
+                    pair = buySellOrder.pair,
+                    amount = buySellOrder.source.toStringWithoutSymbol(),
+                    paymentId = buySellOrder.paymentMethodId
+                )
                 when (val cardAttributes = buySellOrder.attributes?.cardAttributes ?: CardAttributes.Empty) {
                     is CardAttributes.EveryPay -> {
                         handleCardPaymentState(cardAttributes.paymentState)
@@ -808,6 +830,7 @@ class SimpleBuyModel(
         availablePaymentMethods: List<PaymentMethod>,
     ): String? =
         preselectedId?.let { availablePaymentMethods.firstOrNull { it.id == preselectedId }?.id }
+            ?: interactor.getLastPaymentMethodId()
             ?: previousSelectedId?.let { availablePaymentMethods.firstOrNull { it.id == previousSelectedId }?.id }
             ?: let {
                 val paymentMethodsThatCanBePreselected =
@@ -884,6 +907,8 @@ class SimpleBuyModel(
         selectedPaymentMethod: SelectedPaymentMethod?,
         googlePayPayload: String? = null,
         googlePayBeneficiaryId: String? = null,
+        amount: FiatValue,
+        pair: String,
     ): Disposable {
 
         return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId).map { it }
@@ -906,6 +931,11 @@ class SimpleBuyModel(
                     )
                 },
                 onError = {
+                    interactor.saveOrderAmountAndPaymentMethodId(
+                        pair = pair,
+                        amount = amount.toStringWithoutSymbol(),
+                        paymentId = selectedPaymentMethod?.id ?: googlePayBeneficiaryId!!
+                    )
                     processOrderErrors(it)
                 }
             )
@@ -990,7 +1020,8 @@ class SimpleBuyModel(
     }
 
     private fun updatePersistingCountersForCompletedOrders(pair: String, amount: String, paymentMethodId: String) {
-        interactor.updateCountersForCompletedOrders(pair, amount, paymentMethodId)
+        interactor.updateCountersForCompletedOrders()
+        interactor.saveOrderAmountAndPaymentMethodId(pair, amount, paymentMethodId)
     }
 
     private fun pollForOrderStatus() {

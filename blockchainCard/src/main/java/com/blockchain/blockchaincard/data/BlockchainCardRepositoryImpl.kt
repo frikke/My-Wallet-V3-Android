@@ -122,7 +122,11 @@ internal class BlockchainCardRepositoryImpl(
                 card.toDomainModel()
             }.wrapBlockchainCardError()
 
-    override suspend fun getCardWidgetUrl(cardId: String, last4Digits: String): Outcome<BlockchainCardError, String> =
+    override suspend fun getCardWidgetUrl(
+        cardId: String,
+        last4Digits: String,
+        userFullName: String
+    ): Outcome<BlockchainCardError, String> =
         authenticator.getAuthHeader().awaitOutcome()
             .flatMap { tokenResponse ->
                 blockchainCardService.getCardWidgetToken(
@@ -130,7 +134,7 @@ internal class BlockchainCardRepositoryImpl(
                     cardId = cardId,
                 )
             }.flatMap { widgetToken ->
-                blockchainCardService.getCardWidgetUrl(widgetToken.token, last4Digits)
+                blockchainCardService.getCardWidgetUrl(widgetToken.token, last4Digits, userFullName)
             }.wrapBlockchainCardError()
 
     override suspend fun getEligibleTradingAccounts(

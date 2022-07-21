@@ -1,5 +1,6 @@
 package com.blockchain.api.services
 
+import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.selfcustody.AccountInfo
 import com.blockchain.api.selfcustody.AddSubscriptionRequest
 import com.blockchain.api.selfcustody.AddressesRequest
@@ -11,6 +12,7 @@ import com.blockchain.api.selfcustody.CurrencyAddressInfo
 import com.blockchain.api.selfcustody.CurrencyInfo
 import com.blockchain.api.selfcustody.ExtraData
 import com.blockchain.api.selfcustody.GetSubscriptionsRequest
+import com.blockchain.api.selfcustody.GetSubscriptionsResponse
 import com.blockchain.api.selfcustody.PubKeyInfo
 import com.blockchain.api.selfcustody.PushTxRequest
 import com.blockchain.api.selfcustody.RemoveSubscriptionRequest
@@ -18,6 +20,7 @@ import com.blockchain.api.selfcustody.SelfCustodyApi
 import com.blockchain.api.selfcustody.Signature
 import com.blockchain.api.selfcustody.SubscriptionInfo
 import com.blockchain.api.selfcustody.TransactionHistoryRequest
+import com.blockchain.outcome.Outcome
 import kotlinx.serialization.json.JsonObject
 
 class DynamicSelfCustodyService(
@@ -66,14 +69,15 @@ class DynamicSelfCustodyService(
             )
         )
 
-    suspend fun getSubscriptions(guidHash: String, sharedKeyHash: String) = selfCustodyApi.getSubscriptions(
-        request = GetSubscriptionsRequest(
-            auth = AuthInfo(
-                guidHash = guidHash,
-                sharedKeyHash = sharedKeyHash,
+    suspend fun getSubscriptions(guidHash: String, sharedKeyHash: String): Outcome<ApiError, GetSubscriptionsResponse> =
+        selfCustodyApi.getSubscriptions(
+            request = GetSubscriptionsRequest(
+                auth = AuthInfo(
+                    guidHash = guidHash,
+                    sharedKeyHash = sharedKeyHash,
+                )
             )
         )
-    )
 
     suspend fun getBalances(guidHash: String, sharedKeyHash: String, currencies: List<String>, fiatCurrency: String) =
         selfCustodyApi.getBalances(

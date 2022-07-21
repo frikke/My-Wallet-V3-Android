@@ -2756,7 +2756,7 @@ Uygulama linki: https://blockchainwallet.page.link/join</string>
     <string name="settings_chart_vibration_desc">Grafik titreşimini aç/kapat</string>
     <string name="purchase_title_error">satın alma hatası</string>
     <string name="purchase_description_error">Satın alma işleminde bir sorunla karşılaştık. Lütfen tekrar deneyin.</string>
-    <string name="recurring_buy_one_time_cta">Bir kez - &gt;</string>
+    <string name="recurring_buy_one_time_cta">Bir kez</string>
     <string name="recurring_buy_one_time_selector">Tek sefer</string>
     <string name="verify_your_identity">Kimliğinizi Doğrulayın</string>
     <string name="verify_your_identity_description">Başkalarının sizin adınıza sahte hesaplar oluşturmasını önlemek için lütfen aşağıda SSN veya Vergi Numaranızı onaylayın.</string>

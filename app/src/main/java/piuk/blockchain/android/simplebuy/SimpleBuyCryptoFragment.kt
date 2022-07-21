@@ -23,6 +23,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.switcher.SwitcherState
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
@@ -99,8 +100,6 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoBottom
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
 import piuk.blockchain.android.util.StringLocalizationUtil
-import piuk.blockchain.android.util.getResolvedColor
-import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 
 class SimpleBuyCryptoFragment :
@@ -281,7 +280,9 @@ class SimpleBuyCryptoFragment :
                 .setPositiveButton(R.string.recurring_buy_cta_alert) { dialog, _ ->
                     val interval = RecurringBuyFrequency.ONE_TIME
                     model.process(SimpleBuyIntent.RecurringBuyIntervalUpdated(interval))
-                    binding.recurringBuyCta.text = interval.toHumanReadableRecurringBuy(requireContext())
+                    binding.recurringBuyCta.apply {
+                        text = interval.toHumanReadableRecurringBuy(requireContext())
+                    }
                     dialog.dismiss()
                 }
                 .create()
@@ -349,8 +350,9 @@ class SimpleBuyCryptoFragment :
             return
         }
 
-        binding.recurringBuyCta.text =
-            newState.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext())
+        binding.recurringBuyCta.apply {
+            text = newState.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext())
+        }
 
         newState.selectedCryptoAsset?.let {
             binding.inputAmount.configuration = FiatCryptoViewConfiguration(
@@ -668,9 +670,8 @@ class SimpleBuyCryptoFragment :
 
     private fun enableRecurringBuyCta() {
         binding.recurringBuyCta.apply {
-            background = requireContext().getResolvedDrawable(R.drawable.bkgd_button_white_selector)
-            setTextColor(requireContext().getResolvedColor(R.color.button_white_text_states))
-            setOnClickListener {
+            switcherState = SwitcherState.Enabled
+            onClick = {
                 showBottomSheet(RecurringBuySelectionBottomSheet.newInstance())
             }
         }
@@ -678,9 +679,8 @@ class SimpleBuyCryptoFragment :
 
     private fun disableRecurringBuyCta(paymentMethodDefined: Boolean) {
         binding.recurringBuyCta.apply {
-            background = requireContext().getResolvedDrawable(R.drawable.bkgd_grey_000_rounded)
-            setTextColor(requireContext().getResolvedColor(R.color.grey_800))
-            setOnClickListener {
+            switcherState = SwitcherState.Disabled
+            onClick = {
                 showDialogRecurringBuyUnavailable(paymentMethodDefined)
             }
         }
@@ -1034,7 +1034,9 @@ class SimpleBuyCryptoFragment :
 
     override fun onIntervalSelected(interval: RecurringBuyFrequency) {
         model.process(SimpleBuyIntent.RecurringBuyIntervalUpdated(interval))
-        binding.recurringBuyCta.text = interval.toHumanReadableRecurringBuy(requireContext())
+        binding.recurringBuyCta.apply {
+            text = interval.toHumanReadableRecurringBuy(requireContext())
+        }
     }
 
     override fun onActionInfoTriggered() {

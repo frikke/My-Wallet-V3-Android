@@ -2699,7 +2699,7 @@ Vous trouverez l\'appli ici : https://blockchainwallet.page.link/join</string>
     <string name="settings_chart_vibration_desc">Basculer la vibration du graphique</string>
     <string name="purchase_title_error">Erreur d\'achat</string>
     <string name="purchase_description_error">Nous avons rencontré un problème lors de l\'achat. Veuillez réessayer.</string>
-    <string name="recurring_buy_one_time_cta">Une fois - &gt;</string>
+    <string name="recurring_buy_one_time_cta">Une fois</string>
     <string name="recurring_buy_one_time_selector">Une fois</string>
     <string name="verify_your_identity">Vérifier votre Identité</string>
     <string name="verify_your_identity_description">Veuillez confirmer votre numéro de sécurité sociale ou votre numéro d\'identification fiscale ci-dessous pour empêcher les autres de créer des comptes frauduleux à votre nom.</string>

@@ -1,8 +1,12 @@
-package com.blockchain.core.chains.dynamicselfcustody
+package com.blockchain.core.chains.dynamicselfcustody.domain
 
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.selfcustody.BuildTxResponse
 import com.blockchain.api.selfcustody.PushTxResponse
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialAccountBalance
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialDerivedAddress
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTxHistoryItem
+import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
 import kotlinx.serialization.json.JsonObject
