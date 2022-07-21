@@ -65,7 +65,7 @@ class DynamicNonCustodialAccount(
 
     override fun getOnChainBalance(): Observable<Money> = rxSingle {
         // Check if we are subscribed to the given currency.
-        val subscriptions = nonCustodialService.getSubscriptions().getOrDefault(emptyList())
+        val subscriptions = nonCustodialService.getSubscriptions(false).getOrDefault(emptyList())
         if (subscriptions.contains(currency.networkTicker)) {
             // Get the balance if we found the currency in the subscriptions
             getBalance().getOrDefault(Money.fromMajor(currency, BigDecimal.ZERO))

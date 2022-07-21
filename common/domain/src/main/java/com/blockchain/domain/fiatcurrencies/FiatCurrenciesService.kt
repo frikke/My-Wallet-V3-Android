@@ -8,7 +8,7 @@ interface FiatCurrenciesService {
 
     val selectedTradingCurrency: FiatCurrency
 
-    suspend fun getTradingCurrencies(): Outcome<Exception, TradingCurrencies>
+    suspend fun getTradingCurrencies(fresh: Boolean = false): Outcome<Exception, TradingCurrencies>
 
     suspend fun setSelectedTradingCurrency(currency: FiatCurrency): Outcome<Exception, Unit>
 }

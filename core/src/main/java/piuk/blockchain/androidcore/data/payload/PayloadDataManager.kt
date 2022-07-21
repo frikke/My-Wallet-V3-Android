@@ -568,7 +568,6 @@ class PayloadDataManager internal constructor(
     fun getAddressBalance(xpub: XPubs): CryptoValue =
         payloadManager.getAddressBalance(xpub)
 
-    // Update if timeout of forceRefresh, get the balance - pull the code from ActivityCache/BtcCoinLikeToken
     private val balanceUpdater = RefreshUpdater<CryptoValue>(
         fnRefresh = { updateAllBalances() },
         refreshInterval = BALANCE_REFRESH_INTERVAL

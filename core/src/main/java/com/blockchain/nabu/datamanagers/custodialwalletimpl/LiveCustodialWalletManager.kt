@@ -566,10 +566,10 @@ class LiveCustodialWalletManager(
             )
         }
 
-    override fun getSupportedFundsFiats(fiatCurrency: FiatCurrency): Single<List<FiatCurrency>> {
+    override fun getSupportedFundsFiats(fiatCurrency: FiatCurrency, fresh: Boolean): Single<List<FiatCurrency>> {
         return Single.zip(
             paymentMethods(fiatCurrency, true),
-            rxSingleOutcome { fiatCurrenciesService.getTradingCurrencies() }
+            rxSingleOutcome { fiatCurrenciesService.getTradingCurrencies(fresh) }
         ) { methods, tradingCurrencies ->
             methods.filter { method ->
                 method.type.toPaymentMethodType() == PaymentMethodType.FUNDS &&

@@ -21,6 +21,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.rx3.asObservable
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
@@ -86,7 +88,7 @@ class Coincore internal constructor(
         }
 
     fun activeWalletsInMode(walletMode: WalletMode): Single<AccountGroup> {
-        val assets = activeAssets(walletMode)
+        val assets = activeAssets(walletMode).asObservable().firstOrError()
         return assets.flatMap {
             if (it.isEmpty()) Single.just(NullAccountGroup)
             else
@@ -254,7 +256,7 @@ class Coincore internal constructor(
             .toList()
             .map { it.isEmpty() }
 
-    fun activeAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): Single<List<Asset>> =
+    fun activeAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): Flow<List<Asset>> =
         assetLoader.activeAssets(walletMode)
 
     fun activeWallets(walletMode: WalletMode = walletModeService.enabledWalletMode()): Single<AccountGroup> =

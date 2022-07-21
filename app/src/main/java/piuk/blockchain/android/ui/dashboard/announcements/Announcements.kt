@@ -70,10 +70,13 @@ class AnnouncementList(
     fun checkLatest(host: AnnouncementHost, disposables: CompositeDisposable) {
         host.dismissAnnouncementCard()
 
-        disposables += showNextAnnouncement(host)
-            .doOnSubscribe { Timber.d("SB Sync: Checking announcements...") }
+        disposables += nextAnnouncement()
+            .observeOn(mainScheduler)
             .subscribeBy(
-                onComplete = { Timber.d("SB Sync: Announcements checked") },
+                onComplete = { },
+                onSuccess = { announcement ->
+                    announcement.show(host)
+                },
                 onError = Timber::e
             )
     }
@@ -84,15 +87,10 @@ class AnnouncementList(
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun showNextAnnouncement(host: AnnouncementHost): Maybe<AnnouncementRule> =
-        getNextAnnouncement()
-            .observeOn(mainScheduler)
-            .doOnSuccess { it.show(host) }
-
-    private fun getNextAnnouncement(): Maybe<AnnouncementRule> {
-        if (walletModeService.enabledWalletMode() == WalletMode.NON_CUSTODIAL_ONLY) {
+    fun nextAnnouncement(): Maybe<AnnouncementRule> {
+        if (walletModeService.enabledWalletMode() == WalletMode.NON_CUSTODIAL_ONLY)
             return Maybe.empty()
-        }
+
         return orderAdapter.announcementConfig
             .doOnSuccess { dismissRecorder.setPeriod(it.interval) }
             .map { buildAnnouncementList(it.order) }
@@ -100,6 +98,7 @@ class AnnouncementList(
             .concatMap { a ->
                 Observable.defer {
                     a.shouldShow()
+                        .onErrorReturn { false }
                         .filter { it }
                         .map { a }
                         .toObservable()

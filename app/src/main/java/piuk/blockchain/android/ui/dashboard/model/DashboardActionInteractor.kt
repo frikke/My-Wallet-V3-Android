@@ -57,6 +57,8 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Optional
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
@@ -102,10 +104,11 @@ class DashboardActionInteractor(
         get() = walletModeService.enabledWalletMode().defaultFilter()
 
     fun fetchActiveAssets(model: DashboardModel): Disposable =
-        walletModeService.walletMode.asObservable().flatMapSingle {
+        walletModeService.walletMode.flatMapLatest {
             coincore.activeAssets(it)
-        }.subscribeBy(
+        }.asObservable().subscribeBy(
             onNext = { activeAssets ->
+                Timber.v("Active assets ${activeAssets.map { it.currency.networkTicker }}")
                 model.process(
                     DashboardIntent.UpdateActiveAssets(
                         activeAssets

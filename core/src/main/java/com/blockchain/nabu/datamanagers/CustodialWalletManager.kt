@@ -164,7 +164,10 @@ interface CustodialWalletManager {
 
     fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
 
-    fun getSupportedFundsFiats(fiatCurrency: FiatCurrency = selectedFiatcurrency): Single<List<FiatCurrency>>
+    fun getSupportedFundsFiats(
+        fiatCurrency: FiatCurrency = selectedFiatcurrency,
+        fresh: Boolean = false
+    ): Single<List<FiatCurrency>>
 
     fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
 

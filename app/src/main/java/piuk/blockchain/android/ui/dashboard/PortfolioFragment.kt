@@ -24,6 +24,7 @@ import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.extensions.minus
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
@@ -62,7 +63,6 @@ import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.model.BrokearageFiatAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
-import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardOnboardingState
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
@@ -450,9 +450,8 @@ class PortfolioFragment :
     private fun showAnnouncement(card: AnnouncementCard?) {
         card?.let {
             theAdapter.items = theAdapter.items.plus(it)
-            binding.portfolioRecyclerView.smoothScrollToPosition(DashboardItem.ANNOUNCEMENT_INDEX)
         } ?: kotlin.run {
-            theAdapter.items = theAdapter.items.filterNot { it is AnnouncementCard }
+            theAdapter.items = theAdapter.items.minus { it is AnnouncementCard }
         }
     }
 

@@ -63,8 +63,8 @@ internal class NonCustodialRepository(
         )
             .map { it.success }
 
-    override suspend fun getSubscriptions(): Outcome<ApiError, List<String>> =
-        subscriptionsStore.stream(StoreRequest.Cached(forceRefresh = false))
+    override suspend fun getSubscriptions(fresh: Boolean): Outcome<ApiError, List<String>> =
+        subscriptionsStore.stream(StoreRequest.Cached(forceRefresh = fresh))
             .mapData { subscriptionsResponse ->
                 subscriptionsResponse.currencies.map { it.ticker }
             }

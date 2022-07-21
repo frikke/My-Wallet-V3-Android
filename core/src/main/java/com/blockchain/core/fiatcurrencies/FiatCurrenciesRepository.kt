@@ -32,8 +32,8 @@ internal class FiatCurrenciesRepository(
         get() = currencyPrefs.tradingCurrency
             ?: throw UninitializedPropertyAccessException("Should have been initialized at app startup")
 
-    override suspend fun getTradingCurrencies(): Outcome<Exception, TradingCurrencies> =
-        getUserStore.stream(StoreRequest.Cached(forceRefresh = false)).firstOutcome()
+    override suspend fun getTradingCurrencies(fresh: Boolean): Outcome<Exception, TradingCurrencies> =
+        getUserStore.stream(StoreRequest.Cached(forceRefresh = fresh)).firstOutcome()
             .map { user ->
                 TradingCurrencies(
                     selected = assetCatalogue.fiatFromNetworkTicker(user.currencies.preferredFiatTradingCurrency)

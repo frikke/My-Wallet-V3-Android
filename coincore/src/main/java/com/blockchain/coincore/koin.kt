@@ -137,7 +137,6 @@ val coincoreModule = module {
                 identityAddressResolver = get(),
                 selfCustodyService = get(),
                 ethHotWalletAddressResolver = get(),
-                currencyPrefs = get(),
                 custodialWalletManager = get(),
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
                 stxForAllFeatureFlag = get(stxForAllFeatureFlag)

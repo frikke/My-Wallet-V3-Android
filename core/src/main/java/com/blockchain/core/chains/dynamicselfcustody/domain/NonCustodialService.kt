@@ -19,7 +19,7 @@ interface NonCustodialService {
 
     suspend fun unsubscribe(currency: String): Outcome<ApiError, Boolean>
 
-    suspend fun getSubscriptions(): Outcome<ApiError, List<String>>
+    suspend fun getSubscriptions(fresh: Boolean): Outcome<ApiError, List<String>>
 
     suspend fun getBalances(currencies: List<String>): Outcome<ApiError, List<NonCustodialAccountBalance>>
 
