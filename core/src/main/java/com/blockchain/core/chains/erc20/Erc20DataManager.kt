@@ -20,17 +20,21 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.rx3.await
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
-import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
 import java.math.BigInteger
+import java.util.stream.Collectors.toList
 
 interface Erc20DataManager {
     val accountHash: String
@@ -155,21 +159,26 @@ internal class Erc20DataManagerImpl(
         }
     }
 
-    override fun getActiveAssets(): Flow<Set<AssetInfo>> {
-        return erc20StoreService.getActiveAssets()
-            .map { baseErc20Assets ->
-                if (ethLayerTwoFeatureFlag.isEnabled) {
-                    getSupportedNetworks().flatMap { supportedNetworks ->
-                        supportedNetworks.map { evmNetwork ->
-                            erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
-                        }.zipSingles().map {
-                            baseErc20Assets + it.flatten()
-                        }
-                    }.await()
-                } else {
-                    baseErc20Assets
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun getActiveAssets(): Flow<Set<AssetInfo>> = flow {
+        val erc20ActiveAssets = erc20StoreService.getActiveAssets()
+
+        if (ethLayerTwoFeatureFlag.isEnabled) {
+            val erc20L2ActiveAssets = getSupportedNetworks().await()
+                .map { evmNetwork ->
+                    erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
                 }
-            }
+                .merge()
+//            combine(it) { it.toList().flatten() }
+
+            emitAll(
+                combine(erc20ActiveAssets, erc20L2ActiveAssets) { erc20ActiveAssets, erc20L2ActiveAssets ->
+                    erc20ActiveAssets + erc20L2ActiveAssets
+                }
+            )
+        } else {
+            emitAll(erc20ActiveAssets)
+        }
     }
 
     override fun getErc20History(asset: AssetInfo, evmNetwork: EvmNetwork): Single<Erc20HistoryList> {

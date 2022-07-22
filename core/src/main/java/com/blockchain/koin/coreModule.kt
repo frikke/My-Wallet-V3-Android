@@ -209,6 +209,7 @@ val coreModule = module {
             FiatCurrenciesRepository(
                 authenticator = get(),
                 getUserStore = get(),
+                userService = get(),
                 assetCatalogue = get(),
                 currencyPrefs = get(),
                 analytics = get(),

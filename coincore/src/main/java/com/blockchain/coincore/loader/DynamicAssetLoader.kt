@@ -40,7 +40,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
@@ -192,7 +191,11 @@ internal class DynamicAssetLoader(
             }
         }
 
-        return merge(activePKWErc20s, dynamicSelfCustodyAssets, flowOf(standardAssets))
+        return combine(
+            activePKWErc20s, dynamicSelfCustodyAssets, flowOf(standardAssets)
+        ) { activePKWErc20s, dynamicSelfCustodyAssets, standardAssets ->
+            activePKWErc20s + dynamicSelfCustodyAssets + standardAssets
+        }
     }
 
     /**
@@ -213,7 +216,9 @@ internal class DynamicAssetLoader(
                 supportedFiatCurrencies.map { FiatAsset(currency = it) }
             }
 
-        return merge(activeTrading, activeInterest, fiats)
+        return combine(activeTrading, activeInterest, fiats) { activeTrading, activeInterest, fiats ->
+            activeTrading + activeInterest + fiats
+        }
     }
 
     private fun loadCustodialOnlyAsset(assetInfo: AssetInfo): CryptoAsset {
@@ -260,9 +265,7 @@ internal class DynamicAssetLoader(
     override fun activeAssets(walletMode: WalletMode): Flow<List<Asset>> {
         return when (walletMode) {
             WalletMode.CUSTODIAL_ONLY -> loadCustodialActiveAssets()
-
             WalletMode.NON_CUSTODIAL_ONLY -> loadNonCustodialActiveAssets()
-
             WalletMode.UNIVERSAL -> allActive()
         }
     }
