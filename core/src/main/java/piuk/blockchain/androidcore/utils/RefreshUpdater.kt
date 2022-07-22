@@ -3,25 +3,32 @@ package piuk.blockchain.androidcore.utils
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicLong
+import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
-class RefreshUpdater<T>(
+class RefreshUpdater<T : Any>(
     private val fnRefresh: () -> Completable,
     private val refreshInterval: Long = THIRTY_SECONDS
 ) {
     private val lastRefreshTime = AtomicLong(0)
+    private var single: Single<T>? = null
 
+    @Synchronized
     fun get(
-        fnFetch: () -> T,
+        local: () -> T,
         force: Boolean = false
     ): Single<T> {
-        val now = System.currentTimeMillis()
-
-        return if (force || (now - refreshInterval > lastRefreshTime.get())) {
-            lastRefreshTime.set(System.currentTimeMillis())
-            fnRefresh.invoke()
-                .toSingle { fnFetch.invoke() }
+        single?.let {
+            return it.map { local() }
+        }
+        return if (force || (System.currentTimeMillis() - refreshInterval > lastRefreshTime.get())) {
+            fnRefresh().thenSingle { Single.just(local()) }.cache().doFinally {
+                single = null
+            }.also {
+                lastRefreshTime.set(System.currentTimeMillis())
+                single = it
+            }
         } else {
-            Single.fromCallable { fnFetch() }
+            Single.defer { Single.just(local()) }
         }
     }
 

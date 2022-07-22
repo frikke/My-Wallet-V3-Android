@@ -1137,9 +1137,6 @@ Kripto paranızı yönetmek için cüzdanı kullanmaya devam edebilirsiniz.</str
         ister misiniz?
     </string>
     <string name="received_dgld">Alınan Wrapped-DGLD</string>
-    <string name="wdgld_available_card_title">Hemen wDGLD Al-Sat İ̇şlemi Yapın</string>
-    <string name="wdgld_available_card_body">Wrapped Digital Gold (wDGLD), altın destekli bir tokeni Ethereum\'un gücü ve esnekliğiyle birleştiren, DGLD\'nin ERC-20 olarak tokenleştirilmiş bir versiyonudur.</string>
-    <string name="wdgld_available_card_cta">Hemen wDGLD al-sat işlemi yapın</string>
     <string name="swap_faster">Daha hızlı</string>
     <string name="swap_trading_sheet_title">Daha Hızlı. Daha Ucuz. Al-Sat Cüzdanınızla
 Daha İyi Kripto Para Swap Yapın.</string>
@@ -1373,9 +1370,6 @@ Banka transferiniz %3$s tarihinde tamamlanınca para çekme işlemi gerçekleşt
     <string name="onboarding_fingerprint_enable_1">Biyometrik bilgileri etkinleştir</string>
     <string name="register_fingerprint_card_title_1">Biyometrik Oturum Açma</string>
     <string name="register_fingerprint_card_body_1">PIN\'inizi kullanmak yerine cüzdanınızda hızla oturum açmak için biyometriyi etkinleştirin.</string>
-    <string name="aave_yfi_dot_available_card_title">Aave, YFI ve DOT artık mevcut!</string>
-    <string name="aave_yfi_dot_available_card_body">Aave, YFI ve Polkadot tokenleri artık Cüzdanınızda Satın Alma, Satma, Swap Etme ve Gönderme için kullanılabilir.</string>
-    <string name="aave_yfi_dot_available_card_cta">Hemen Satın Al</string>
     <string name="old_default_non_custodial_wallet_label">%1s Cüzdanım</string>
     <string name="bank_transfer_in_progress_ob_blurb">Emriniz işleniyor. Biz arka planda emri güncellerken bu ekranı güvenle kapatabilirsiniz.</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">Cüzdanınızda mevcut ağ ücretleriyle satmak için yeterli %1$s yok.</string>
@@ -1649,8 +1643,6 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="fee">Ücret</string>
     <string name="address">Adres</string>
     <string name="amount">Tutar</string>
-    <string name="pax_renamed_card_title">USD Dijital artık Paxos Standart oldu</string>
-    <string name="pax_renamed_card_body">USD Dijital (USD-D) adını Paxos Standart (PAX) olarak güncelledik. Hesaptaki paralar bundan etkilenmez.</string>
     <string name="airdrop_received_sheet_amount_label">Tutar</string>
     <string name="kyc_email_hint_focused">E-posta Adresiniz</string>
     <string name="available">Kullanılabilir</string>
@@ -1921,9 +1913,6 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="rename_asset_card_title">%s yeni bir ada sahip</string>
     <string name="rename_asset_card_body">Dikkat: %1$s, %2$s olarak yeniden adlandırıldı. Hiçbir bakiye bundan etkilenmez.</string>
     <string name="rename_asset_card_cta">%s al sat</string>
-    <string name="ceur_announcement_title">Sınırlı Süreli cEUR Bonusu ve Reward\'ları</string>
-    <string name="ceur_announcement_description">25 cEUR satın alın, 10 cEUR bonus kazanın ve yıllık ödüllerde 16%% kazanın.</string>
-    <string name="ceur_announcement_action">Daha fazla bilgi</string>
     <string name="minimum_with_value">Minimum %1$s</string>
     <string name="maximum_with_value">Maksimum %1$s</string>
     <string name="not_enough_funds">Yetersiz %1$s</string>

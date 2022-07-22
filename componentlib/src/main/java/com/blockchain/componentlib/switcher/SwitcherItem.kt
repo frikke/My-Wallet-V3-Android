@@ -12,20 +12,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Dark400
-import com.blockchain.componentlib.theme.Dark700
-import com.blockchain.componentlib.theme.Dark800
-import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey100
-import com.blockchain.componentlib.theme.Grey700
-import com.blockchain.componentlib.theme.Grey900
 
 @Composable
 fun SwitcherItem(
@@ -39,13 +30,13 @@ fun SwitcherItem(
 ) {
 
     val textColor = when (state) {
-        SwitcherState.Enabled -> if (!isDarkMode) Grey900 else White
-        SwitcherState.Disabled -> if (!isDarkMode) Grey700 else Dark400
+        SwitcherState.Enabled -> AppTheme.colors.title
+        SwitcherState.Disabled -> AppTheme.colors.muted
     }
 
     val backgroundColor = when (state) {
-        SwitcherState.Enabled -> if (!isDarkMode) Grey000 else Grey100
-        SwitcherState.Disabled -> if (!isDarkMode) Dark700 else Dark800
+        SwitcherState.Enabled -> AppTheme.colors.light
+        SwitcherState.Disabled -> AppTheme.colors.medium
     }
 
     Row(
@@ -57,11 +48,7 @@ fun SwitcherItem(
                 backgroundColor,
                 RoundedCornerShape(dimensionResource(id = R.dimen.medium_margin))
             )
-            .padding(
-                start = 0.dp,
-                top = 8.dp,
-                bottom = 8.dp
-            ),
+            .padding(dimensionResource(id = R.dimen.tiny_margin)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -83,11 +70,7 @@ fun SwitcherItem(
 
         )
         Image(
-            imageResource = endIcon,
-            modifier = Modifier
-                .padding(
-                    end = dimensionResource(id = R.dimen.tiny_margin)
-                )
+            imageResource = endIcon
         )
     }
     Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_margin)))

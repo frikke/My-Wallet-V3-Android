@@ -23,5 +23,5 @@ class WalletModeBalanceCache(private val coincore: Coincore) : KeyedStore<
             it
         }
     ),
-    mediator = FreshnessMediator(Freshness.ofHours(1))
+    mediator = FreshnessMediator(Freshness.ofMinutes(30))
 )

@@ -578,7 +578,7 @@ class PayloadDataManager internal constructor(
         forceRefresh: Boolean = false
     ): Single<CryptoValue> =
         balanceUpdater.get(
-            fnFetch = { getAddressBalance(address) },
+            local = { getAddressBalance(address) },
             force = forceRefresh
         )
 

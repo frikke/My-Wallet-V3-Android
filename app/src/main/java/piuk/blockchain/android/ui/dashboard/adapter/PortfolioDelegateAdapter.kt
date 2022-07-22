@@ -8,6 +8,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
+import piuk.blockchain.android.ui.dashboard.announcements.CardAnnouncementDelegate
 import piuk.blockchain.android.ui.dashboard.announcements.MiniAnnouncementDelegate
 import piuk.blockchain.android.ui.dashboard.announcements.StdAnnouncementDelegate
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem
@@ -39,6 +40,7 @@ class PortfolioDelegateAdapter(
             addAdapterDelegate(StdAnnouncementDelegate(analytics))
             addAdapterDelegate(FundsLockedDelegate(onHoldAmountClicked))
             addAdapterDelegate(MiniAnnouncementDelegate(analytics))
+            addAdapterDelegate(CardAnnouncementDelegate(analytics))
             addAdapterDelegate(
                 BalanceCardDelegate(
                     prefs.selectedFiatCurrency,

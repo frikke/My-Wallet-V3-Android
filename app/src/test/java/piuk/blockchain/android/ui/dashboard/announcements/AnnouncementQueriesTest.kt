@@ -4,6 +4,9 @@ import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
@@ -17,6 +20,7 @@ import com.blockchain.nabu.models.responses.nabu.Tier
 import com.blockchain.nabu.models.responses.nabu.Tiers
 import com.blockchain.nabu.service.TierService
 import com.blockchain.payments.googlepay.manager.GooglePayManager
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.RemoteConfig
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -25,6 +29,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
@@ -46,6 +51,8 @@ class AnnouncementQueriesTest {
     private val paymentMethodsService: PaymentMethodsService = mock()
     private val authenticator: AuthHeaderProvider = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
+    private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
+    private val currencyPrefs: CurrencyPrefs = mock()
 
     private val sbSync: SimpleBuySyncFactory = mock()
 
@@ -66,7 +73,9 @@ class AnnouncementQueriesTest {
                 googlePayEnabledFlag = googlePayEnabledFlag,
                 paymentMethodsService = paymentMethodsService,
                 authenticator = authenticator,
-                fiatCurrenciesService = fiatCurrenciesService
+                fiatCurrenciesService = fiatCurrenciesService,
+                exchangeRatesDataManager = exchangeRatesDataManager,
+                currencyPrefs = currencyPrefs
             )
         )
     }
@@ -444,6 +453,22 @@ class AnnouncementQueriesTest {
         subject.isGooglePayAvailable().test().assertValue {
             it
         }
+    }
+
+    @Test
+    fun `asset price returns price`() {
+        val asset = CryptoCurrency.BTC
+        val prices24HrWithDelta = Prices24HrWithDelta(
+            0.0,
+            ExchangeRate.zeroRateExchangeRate(asset, FiatCurrency.Dollars),
+            ExchangeRate.zeroRateExchangeRate(asset, FiatCurrency.Dollars)
+        )
+        whenever(currencyPrefs.selectedFiatCurrency)
+            .thenReturn(FiatCurrency.Dollars)
+        whenever(exchangeRatesDataManager.getPricesWith24hDelta(asset, FiatCurrency.Dollars))
+            .thenReturn(Observable.just(prices24HrWithDelta))
+
+        subject.getAssetPrice(asset).test().assertValue(prices24HrWithDelta)
     }
 
     companion object {
