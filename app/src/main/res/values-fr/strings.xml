@@ -1077,9 +1077,6 @@ Vous pouvez continuer à utiliser le portefeuille pour gérer votre crypto.</str
         souhaitez continuer ?
     </string>
     <string name="received_dgld">Wrapped-DGLD reçue</string>
-    <string name="wdgld_available_card_title">Tradez wDGLD maintenant</string>
-    <string name="wdgld_available_card_body">Wrapped Digital Gold (wDGLD) est une version tokenisée ERC-20 de DGLD, combinant un token adossé à l\'or avec la puissance et la flexibilité d\'Ethereum.</string>
-    <string name="wdgld_available_card_cta">Tradez wDGLD maintenant</string>
     <string name="swap_faster">Plus rapide</string>
     <string name="swap_trading_sheet_title">Plus rapide. Moins cher. Meilleur
 Échangez de la crypto avec votre Portefeuille de trading.</string>
@@ -1314,9 +1311,6 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="onboarding_fingerprint_enable_1">Activer la biométrie</string>
     <string name="register_fingerprint_card_title_1">Connexion par biométrie</string>
     <string name="register_fingerprint_card_body_1">Activez la biométrie pour vous connecter rapidement à votre portefeuille au lieu d\'utiliser votre code PIN.</string>
-    <string name="aave_yfi_dot_available_card_title">Aave, YFI et DOT maintenant disponibles !</string>
-    <string name="aave_yfi_dot_available_card_body">Les jetons Aave, YFI et Polkadot peuvent désormais être achetés, vendus, échangés et envoyés dans votre portefeuille.</string>
-    <string name="aave_yfi_dot_available_card_cta">Acheter maintenant</string>
     <string name="old_default_non_custodial_wallet_label">Mon portefeuille %1s</string>
     <string name="bank_transfer_in_progress_ob_blurb">Votre ordre est en cours de traitement, nous vous informerons lorsqu\'il sera terminé. Vous pouvez fermer cet écran en toute sécurité pendant que nous mettons l\'ordre à jour en arrière-plan.</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">Pas assez de %1$s dans votre portefeuille pour vendre avec les frais de réseau actuels.</string>
@@ -1591,8 +1585,6 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="fee">Frais</string>
     <string name="address">Adresse</string>
     <string name="amount">Montant</string>
-    <string name="pax_renamed_card_title"> L\'USD Digital devient le Paxos Standard</string>
-    <string name="pax_renamed_card_body">Nous avons mis à jour l\'USD Digital (USD-D) qui est devenu le Paxos Standard (PAX). Les fonds détenus ne sont pas affectés.</string>
     <string name="airdrop_received_sheet_amount_label">Montant</string>
     <string name="kyc_email_hint_focused">Votre adresse électronique</string>
     <string name="available">Disponible</string>
@@ -1864,9 +1856,6 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="rename_asset_card_title">%s a un nouveau nom</string>
     <string name="rename_asset_card_body">Attention : %1$s a été renommé %2$s. Tous les soldes restent intacts.</string>
     <string name="rename_asset_card_cta">Trader des %s</string>
-    <string name="ceur_announcement_title">Bonus et Rewards en cEUR pour une durée limitée</string>
-    <string name="ceur_announcement_description">Achetez 25 cEUR, obtenez un bonus de 10 cEUR et gagnez 16 %% de récompenses annuelles.</string>
-    <string name="ceur_announcement_action">En savoir plus</string>
     <string name="minimum_with_value">%1$s Minimum</string>
     <string name="maximum_with_value">%1$s Maximum</string>
     <string name="not_enough_funds">Pas assez de %1$s</string>

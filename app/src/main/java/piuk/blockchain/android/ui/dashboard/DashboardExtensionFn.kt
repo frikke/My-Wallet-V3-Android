@@ -8,7 +8,6 @@ import com.elyeproj.loaderviewlibrary.LoaderTextView
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R
-import piuk.blockchain.android.util.context
 
 fun LoaderTextView.showLoading() =
     resetLoader()
@@ -18,7 +17,14 @@ fun Money?.format(cryptoCurrency: Currency) =
         ?: Money.zero(cryptoCurrency).toStringWithSymbol()
 
 fun Double.asPercentString() =
-    String.format("%.2f%%", this)
+    asString() + if (isNaN().not()) "%" else ""
+
+fun Double.asString(decimalPlaces: Int = 2) =
+    if (isNaN()) {
+        "--"
+    } else {
+        String.format("%.${decimalPlaces}f", this)
+    }
 
 fun TextView.setDeltaColour(
     delta: Double,
@@ -34,11 +40,7 @@ fun TextView.setDeltaColour(
 @SuppressLint("SetTextI18n")
 fun TextView.asDeltaPercent(delta: Double, prefix: String = "", postfix: String = "") {
 
-    text = prefix + if (delta.isNaN()) {
-        "--"
-    } else {
-        delta.asPercentString()
-    } + postfix
+    text = prefix + delta.asPercentString() + postfix
     setDeltaColour(delta)
 }
 

@@ -1133,9 +1133,6 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
         continuar?
     </string>
     <string name="received_dgld">Wrapped-DGLD recebido</string>
-    <string name="wdgld_available_card_title">Trocar wDGLD agora</string>
-    <string name="wdgld_available_card_body">Wrapped Digital Gold (wDGLD) é uma versão tokenizada ERC-20 da DGLD, combinando um token com apoio ao cliente em ouro com o poder e a flexibilidade do Ethereum.</string>
-    <string name="wdgld_available_card_cta">Trocar wDGLD agora</string>
     <string name="swap_faster">Mais rápido</string>
     <string name="swap_trading_sheet_title">Mais rápido. Mais barato. Melhor
 Troque crypto com a sua Carteira de Negociação.</string>
@@ -1373,9 +1370,6 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="onboarding_fingerprint_enable_1">Ativar biometria</string>
     <string name="register_fingerprint_card_title_1">Início de sessão com dados biométricos</string>
     <string name="register_fingerprint_card_body_1">Permita a autenticação biométrica para iniciar sessão rapidamente na sua carteira em vez de utilizar o seu PIN.</string>
-    <string name="aave_yfi_dot_available_card_title">Aave, YFI e DOT estão agora disponíveis!</string>
-    <string name="aave_yfi_dot_available_card_body">Os tokens Aave, YFI e Polkadot estão agora disponíveis para Comprar, Vender, Trocar e Enviar na sua Carteira.</string>
-    <string name="aave_yfi_dot_available_card_cta">Comprar agora</string>
     <string name="old_default_non_custodial_wallet_label">A minha Carteira %1s</string>
     <string name="bank_transfer_in_progress_ob_blurb">A sua encomenda está a ser processada. Pode fechar esta janela em segurança enquanto atualizamos a encomenda em segundo plano.</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">Não há %1$s suficiente na sua carteira para vender com as taxas de rede atuais.</string>
@@ -1649,8 +1643,6 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="fee">Taxa</string>
     <string name="address">Endereço</string>
     <string name="amount">Montante</string>
-    <string name="pax_renamed_card_title">USD Digital é agora Paxos Standard</string>
-    <string name="pax_renamed_card_body">Atualizámos o nome de USD Digital (USD-D) para Paxos Standard (PAX). Quaisquer fundos detidos não são afetados.</string>
     <string name="airdrop_received_sheet_amount_label">Montante</string>
     <string name="kyc_email_hint_focused">O seu e-mail</string>
     <string name="available">Disponível</string>
@@ -1922,9 +1914,6 @@ Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com 
     <string name="rename_asset_card_title">%s tem um novo nome</string>
     <string name="rename_asset_card_body">Atenção: %1$s mudou de nome para %2$s. Todos os saldos não são afetados.</string>
     <string name="rename_asset_card_cta">Negociar %s</string>
-    <string name="ceur_announcement_title">Bónus e prémios cEUR com prazo limitado</string>
-    <string name="ceur_announcement_description">Compre 25 cEUR, obtenha um bónus de 10 cEUR e ganhe até 16%% em prémios anuais.</string>
-    <string name="ceur_announcement_action">Saber mais</string>
     <string name="minimum_with_value">%1$s Mínimo</string>
     <string name="maximum_with_value">%1$s Máximo</string>
     <string name="not_enough_funds">%1$s Insuficiente</string>

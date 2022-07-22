@@ -1012,9 +1012,6 @@ Intenta otra vez más tarde.</string>
     <string name="swap_direction">%1$s-&gt;%2$s</string>
     <string name="recover_funds_warning_message_1">Siempre debes sincronizar o iniciar sesión si tienes acceso a tu ID y contraseña de Wallet. Recuperar tus fondos te permitirá crear una nueva ID de Wallet. ¿Deseas continuar?</string>
     <string name="received_dgld">DGLD recibido</string>
-    <string name="wdgld_available_card_title">Operar con wDGLD ahora</string>
-    <string name="wdgld_available_card_body">Wrapped Digital Gold (wDGLD) es una versión con token de ERC-20 de DGLD que combina un token respaldado por el oro con el poder y flexibilidad de Ethereum.</string>
-    <string name="wdgld_available_card_cta">Operar con wDGLD ahora</string>
     <string name="swap_faster">Más rápido</string>
     <string name="swap_trading_sheet_title">Más rápido. Más económico. Mejor.
 Intercambia criptomonedas con la función de intercambios con tu Trading Wallet.</string>
@@ -1250,9 +1247,6 @@ Escribe estas 12 palabras en orden y consérvalas en algún lugar seguro. Nunca 
     <string name="onboarding_fingerprint_enable_1">Habilitar datos biométricos</string>
     <string name="register_fingerprint_card_title_1">Inicio de sesión con datos biométricos</string>
     <string name="register_fingerprint_card_body_1">Habilita los datos biométricos para iniciar sesión rápidamente en tu billetera en lugar de usar el PIN.</string>
-    <string name="aave_yfi_dot_available_card_title">Aave, YFI y DOT ahora están disponibles.</string>
-    <string name="aave_yfi_dot_available_card_body">Los tokens de Aave, YFI y Polkadot ahora están disponibles para comprar, vender, intercambiar y enviar en tu Wallet.</string>
-    <string name="aave_yfi_dot_available_card_cta">Comprar ahora</string>
     <string name="old_default_non_custodial_wallet_label">Mi %1s Wallet</string>
     <string name="bank_transfer_in_progress_ob_blurb">Tu orden se está procesando. Puedes cerrar esta pantalla de manera segura mientras actualizamos la orden en segundo plano.</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">Sin %1$s suficientes en tu billetera para vender con las comisiones de red actuales.</string>
@@ -1526,8 +1520,6 @@ Tus fondos estarán disponibles para retirarlos una vez que se complete la trans
     <string name="fee">Comisión</string>
     <string name="address">Dirección</string>
     <string name="amount">Cantidad</string>
-    <string name="pax_renamed_card_title">USD Digital ahora es Paxos Standard</string>
-    <string name="pax_renamed_card_body">Hemos actualizado el nombre de USD Digital (USD-D) a Paxos Standard (PAX). Los fondos retenidos no se verán afectados.</string>
     <string name="airdrop_received_sheet_amount_label">Cantidad</string>
     <string name="kyc_email_hint_focused">Tu correo electrónico</string>
     <string name="available">Disponible</string>
@@ -1796,9 +1788,6 @@ Tu %1$s estará disponible en tu cuenta \"%2$s\" en el plazo de 2 días.</string
     <string name="rename_asset_card_title">%s tiene un nuevo nombre</string>
     <string name="rename_asset_card_body">Aviso: %1$s ha cambiado su nombre a %2$s. No se verán afectados los saldos.</string>
     <string name="rename_asset_card_cta">Operar %s</string>
-    <string name="ceur_announcement_title">Bonificación de cEUR y recompensas limitadas</string>
-    <string name="ceur_announcement_description">Compra 25 cEUR, obtén una bonificación de 10 cEUR y 16%% en recompensas anuales.</string>
-    <string name="ceur_announcement_action">Obtener más información</string>
     <string name="minimum_with_value">Mínimo de %1$s</string>
     <string name="maximum_with_value">Máximo de %1$s</string>
     <string name="not_enough_funds">Sin %1$s suficiente</string>
