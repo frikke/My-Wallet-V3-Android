@@ -89,14 +89,12 @@ internal class DynamicAssetLoader(
             assetMap[currency] = it
         }
 
-    private val standardL1Assets: Single<Set<CryptoAsset>>
-        get() = layerTwoFeatureFlag.enabled.map { isEnabled ->
-            if (isEnabled) {
-                nonCustodialAssets
-            } else {
-                nonCustodialAssets.minus { cryptoAsset ->
-                    cryptoAsset.currency in experimentalL1EvmAssets
-                }
+    private val standardL1Assets: Set<CryptoAsset>
+        get() = if (layerTwoFeatureFlag.isEnabled) {
+            nonCustodialAssets
+        } else {
+            nonCustodialAssets.minus { cryptoAsset ->
+                cryptoAsset.currency in experimentalL1EvmAssets
             }
         }
 
@@ -112,36 +110,34 @@ internal class DynamicAssetLoader(
     * Every asset loads the corresponding accounts, based on what it supports.
     * */
     override fun initAndPreload(): Completable {
-        return standardL1Assets.flatMapCompletable { enabledNonCustodialAssets ->
-            assetCatalogue.initialise()
-                .doOnSubscribe { remoteLogger.logEvent("Coincore init started") }
-                .flatMap { supportedAssets ->
-                    initNonCustodialAssets(enabledNonCustodialAssets).toSingle {
-                        loadErc20AndCustodialAssets(
-                            allAssets = supportedAssets
-                        )
-                    }.map { loadedAssets ->
-                        enabledNonCustodialAssets + loadedAssets
-                    }
-                }
-                .doOnSuccess { assetList ->
-                    assetList.map { it.currency.networkTicker }.let { ids ->
-                        /**
-                         * checking that values here are unique
-                         */
-                        check(ids.size == ids.toSet().size)
-                    }
-                    /**
-                     * Persisting to loaded any custodial+the standardL1s
-                     */
-                    assetMap.putAll(
-                        assetList.filter { (it.currency as? AssetInfo)?.isCustodial == true || it is StandardL1Asset }
-                            .associateBy { it.currency }
+        return assetCatalogue.initialise()
+            .doOnSubscribe { remoteLogger.logEvent("Coincore init started") }
+            .flatMap { supportedAssets ->
+                initNonCustodialAssets(standardL1Assets).toSingle {
+                    loadErc20AndCustodialAssets(
+                        allAssets = supportedAssets
                     )
+                }.map { loadedAssets ->
+                    standardL1Assets + loadedAssets
                 }
-                .doOnError { Timber.e("init failed") }
-                .ignoreElement()
-        }
+            }
+            .doOnSuccess { assetList ->
+                assetList.map { it.currency.networkTicker }.let { ids ->
+                    /**
+                     * checking that values here are unique
+                     */
+                    check(ids.size == ids.toSet().size)
+                }
+                /**
+                 * Persisting to loaded any custodial+the standardL1s
+                 */
+                assetMap.putAll(
+                    assetList.filter { (it.currency as? AssetInfo)?.isCustodial == true || it is StandardL1Asset }
+                        .associateBy { it.currency }
+                )
+            }
+            .doOnError { Timber.e("init failed") }
+            .ignoreElement()
     }
 
     /*
@@ -190,15 +186,15 @@ internal class DynamicAssetLoader(
             .map { assets -> assets.filter { it.isErc20() } }
             .map { assets -> assets.map { loadErc20Asset(it) } }
 
-        val dynamicSelfCustodyAssets = loadSelfCustodialAssets()
+        val standardAssets = standardL1Assets.toList()
 
-        //        val standardAssets = standardL1Assets.await().toList()
+        val dynamicSelfCustodyAssets = loadSelfCustodialAssets().map {
+            it.filter {
+                it.currency.networkTicker !in standardAssets.map { asset -> asset.currency.networkTicker }
+            }
+        }
 
-        //        return standardAssets + activePKWErc20s + dynamicSelfCustodyAssets.filter {
-        //            it.currency.networkTicker !in standardAssets.map { asset -> asset.currency.networkTicker }
-        //        }
-
-        return merge(activePKWErc20s, dynamicSelfCustodyAssets)
+        return merge(activePKWErc20s, dynamicSelfCustodyAssets, flowOf(standardAssets))
     }
 
     /**
