@@ -175,6 +175,13 @@ internal class DynamicAssetLoader(
             }
         }
 
+    /**
+     * We need to request:
+     * - All erc20 with balance.
+     * - All trading with balance.
+     * - All interest with balance.
+     * */
+    
     private fun loadNonCustodialActiveAssets(): Flow<List<Asset>> {
         val activePKWErc20sFlow = erc20DataManager.getActiveAssets()
             .map { assets -> assets.filter { it.isErc20() } }
@@ -195,12 +202,6 @@ internal class DynamicAssetLoader(
         }
     }
 
-    /**
-     * We need to request:
-     * - All erc20 with balance.
-     * - All trading with balance.
-     * - All interest with balance.
-     * */
     private fun loadCustodialActiveAssets(): Flow<List<Asset>> {
         val activeTradingFlow = tradingService.getActiveAssets()
             .map { assets -> assets.filterIsInstance<AssetInfo>().map { loadCustodialOnlyAsset(it) } }
