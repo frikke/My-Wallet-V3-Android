@@ -238,8 +238,8 @@ class MainActivity :
             model.process(MainIntent.CheckForInitialDialogs(startUiTour))
             model.process(MainIntent.PerformInitialChecks(intent))
             model.process(MainIntent.CheckReferralCode)
-            model.process(MainIntent.NavigationTabs)
         }
+        model.process(MainIntent.NavigationTabs)
     }
 
     override fun onResume() {
