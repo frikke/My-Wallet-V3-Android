@@ -112,6 +112,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         // Act
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue { actions ->
                 actions.map { it.action } == listOf(
                     AssetAction.ViewActivity,
@@ -141,6 +142,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.ViewActivity }?.state == ActionState.LockedForTier
             }
@@ -161,6 +163,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.ViewActivity }?.state == ActionState.Available
             }
@@ -182,6 +185,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Receive }?.state == ActionState.Unavailable
             }
@@ -202,6 +206,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Receive }?.state == ActionState.Available
             }
@@ -222,6 +227,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Buy }?.state == ActionState.Unavailable
             }
@@ -242,6 +248,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Buy }?.state == ActionState.Unavailable
             }
@@ -262,6 +269,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Buy }?.state == ActionState.Available
             }
@@ -282,6 +290,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Send }?.state == ActionState.Available
             }
@@ -302,6 +311,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Send }?.state == ActionState.LockedForBalance
             }
@@ -323,6 +333,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.InterestDeposit }?.state == ActionState.Unavailable
             }
@@ -343,6 +354,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.InterestDeposit }?.state == ActionState.Available
             }
@@ -363,6 +375,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.InterestDeposit }?.state == ActionState.LockedForTier
             }
@@ -383,6 +396,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.InterestDeposit }?.state == ActionState.LockedForBalance
             }
@@ -424,6 +438,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Swap }?.state == ActionState.Unavailable
             }
@@ -444,6 +459,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Swap }?.state == ActionState.LockedForBalance
             }
@@ -464,6 +480,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Swap }?.state == ActionState.Available
             }
@@ -485,6 +502,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Sell }?.state == ActionState.Unavailable
             }
@@ -525,6 +543,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Sell }?.state == ActionState.LockedForBalance
             }
@@ -545,6 +564,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Sell }?.state == ActionState.Available
             }

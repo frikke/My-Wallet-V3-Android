@@ -1,5 +1,6 @@
 package com.blockchain.core.custodial.data
 
+import app.cash.turbine.test
 import com.blockchain.api.services.TradingBalance
 import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.custodial.domain.TradingService
@@ -12,7 +13,10 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
@@ -64,7 +68,7 @@ class TradingStoreRepositoryTest {
         every { assetCatalogue.fromNetworkTicker(cryptoAsset2.displayTicker) } returns
             cryptoAsset2
 
-        every { tradingDataSource.stream(any()) } returns
+        every { tradingDataSource.streamData(any()) } returns
             flowOf(StoreResponse.Data(cacheResult))
     }
 
@@ -101,13 +105,9 @@ class TradingStoreRepositoryTest {
     }
 
     @Test
-    fun `WHEN getActiveAssets is called, THEN data-keys should be returned`() {
-        tradingService.getActiveAssets()
-            .test()
-            .await()
-            .assertValue {
-                it == data.keys
-            }
+    fun `WHEN getActiveAssets is called, THEN data-keys should be returned`() = runTest {
+        val result = tradingService.getActiveAssets().last()
+        assertEquals(data.keys, result)
     }
 
     private fun anyBalanceForAsset(asset: Currency): TradingAccountBalance =

@@ -16,7 +16,10 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
@@ -93,14 +96,12 @@ class InterestServiceTest {
     }
 
     @Test
-    fun testGetActiveAssets() {
-        interestService.getActiveAssets()
-            .test()
-            .await()
-            .assertValue {
-                it == setOf(cryptoCurrency)
-            }
-        verify(exactly = 1) { interestStore.stream(StoreRequest.Cached(false)) }
+    fun testGetActiveAssets() = runTest {
+        val result = interestService.getActiveAssets().last()
+
+        assertEquals(setOf(cryptoCurrency), result)
+
+        verify(exactly = 1) { interestStore.stream(StoreRequest.Cached(true)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 }
