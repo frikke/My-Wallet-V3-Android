@@ -37,12 +37,10 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.toSet
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
@@ -265,21 +263,23 @@ internal class DynamicAssetLoader(
 
             WalletMode.NON_CUSTODIAL_ONLY -> loadNonCustodialActiveAssets()
 
-            WalletMode.UNIVERSAL -> flow {
-                emit(allActive())
-            }
+            WalletMode.UNIVERSAL -> allActive()
         }
     }
 
-    private suspend fun allActive(): Flow<List<Asset>> {
-        val nonCustodial = loadNonCustodialActiveAssets()
-        val custodial = loadCustodialActiveAssets()
-        val uniqueCustodial =
-            custodial.filter {
+    private fun allActive(): Flow<List<Asset>> {
+        val nonCustodialFlow = loadNonCustodialActiveAssets()
+        val custodialFlow = loadCustodialActiveAssets()
+
+        return combine(nonCustodialFlow, custodialFlow) { nonCustodial, custodial ->
+            // remove any asset from custodial list that already exists in non custodial
+            val uniqueCustodial = custodial.filter {
                 it.currency.networkTicker !in nonCustodial.map { asset -> asset.currency.networkTicker }
             }
-        return (nonCustodial.map { it.currency } + uniqueCustodial.map { it.currency }.toSet()).map {
-            this[it]
+
+            // merge all
+            (nonCustodial.map { it.currency } + uniqueCustodial.map { it.currency })
+                .map { this[it] }
         }
     }
 
