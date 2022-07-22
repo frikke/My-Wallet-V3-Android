@@ -14,7 +14,7 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TxSourceState
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean
     override val label: String,
     override val currency: FiatCurrency,
     override val isDefault: Boolean = false,
-    private val tradingBalanceDataManager: TradingBalanceDataManager,
+    private val tradingService: TradingService,
     private val custodialWalletManager: CustodialWalletManager,
     private val bankService: BankService,
     private val exchangeRates: ExchangeRatesDataManager
@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
     override val balance: Observable<AccountBalance>
         get() = Observable.combineLatest(
-            tradingBalanceDataManager.getBalanceForCurrency(currency),
+            tradingService.getBalanceFor(currency),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             AccountBalance(

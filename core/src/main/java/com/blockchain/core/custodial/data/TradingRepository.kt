@@ -1,9 +1,9 @@
 package com.blockchain.core.custodial.data
 
 import com.blockchain.api.services.TradingBalance
-import com.blockchain.core.custodial.TradingAccountBalance
+import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.custodial.data.store.TradingDataSource
-import com.blockchain.core.custodial.domain.TradingStoreService
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.store.StoreRequest
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
@@ -15,10 +15,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asObservable
 
-internal class TradingStoreRepository(
+internal class TradingRepository(
     private val assetCatalogue: AssetCatalogue,
     private val tradingDataSource: TradingDataSource
-) : TradingStoreService {
+) : TradingService {
 
     private fun getBalancesFlow(storeRequest: StoreRequest): Flow<Map<Currency, TradingAccountBalance>> {
         return tradingDataSource.streamData(storeRequest)

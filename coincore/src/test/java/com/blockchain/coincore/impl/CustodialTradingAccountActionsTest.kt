@@ -6,8 +6,8 @@ import com.blockchain.coincore.testutil.CoinCoreFakeData
 import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_API_FIAT
 import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_USER_FIAT
 import com.blockchain.coincore.testutil.USD
-import com.blockchain.core.custodial.TradingAccountBalance
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.custodial.domain.model.TradingAccountBalance
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
@@ -29,6 +29,7 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -42,7 +43,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
 
     private val custodialManager: CustodialWalletManager = mock()
     private val payloadDataManager: PayloadDataManager = mock()
-    private val tradingBalances: TradingBalanceDataManager = mock()
+    private val tradingService: TradingService = mock()
     private val userIdentity: UserIdentity = mock()
 
     private val exchangeRates: ExchangeRatesDataManager = mock {
@@ -77,7 +78,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         }.bind(RemoteLogger::class)
 
         factory {
-            tradingBalances
+            tradingService
         }
 
         factory {
@@ -555,7 +556,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             label = "Test Account",
             exchangeRates = exchangeRates,
             custodialWalletManager = custodialManager,
-            tradingBalances = tradingBalances,
+            tradingService = tradingService,
             identity = userIdentity,
             walletModeService = mock {
                 on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
@@ -628,11 +629,11 @@ class CustodialTradingAccountActionsTest : KoinTest {
             pending = pendingBalance,
             hasTransactions = true
         )
-        whenever(tradingBalances.getBalanceForCurrency(TEST_ASSET))
+        whenever(tradingService.getBalanceFor(TEST_ASSET))
             .thenReturn(Observable.just(balance))
 
         whenever(custodialManager.getSupportedFundsFiats())
-            .thenReturn(Single.just(supportedFiat))
+            .thenReturn(flowOf(supportedFiat))
 
         whenever(custodialManager.isAssetSupportedForSwap(TEST_ASSET))
             .thenReturn(Single.just(swapSupported))

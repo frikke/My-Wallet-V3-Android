@@ -17,7 +17,6 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.StoreRequest
-import com.blockchain.store.firstOutcome
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue

@@ -13,11 +13,11 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Observable
+import java.math.BigInteger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asObservable
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import java.math.BigInteger
 
 internal class Erc20L2StoreRepository(
     private val assetCatalogue: AssetCatalogue,
@@ -26,7 +26,8 @@ internal class Erc20L2StoreRepository(
 ) : Erc20L2StoreService {
 
     private fun getBalancesFlow(
-        networkTicker: String, request: StoreRequest
+        networkTicker: String,
+        request: StoreRequest
     ): Flow<Map<AssetInfo, Erc20Balance>> {
         return erc20L2DataSource
             .streamData(request.toKeyed(Erc20L2Store.Key(networkTicker = networkTicker)))

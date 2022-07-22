@@ -1,12 +1,12 @@
 package com.blockchain.core.custodial.domain
 
-import com.blockchain.core.custodial.TradingAccountBalance
+import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.store.StoreRequest
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
 
-interface TradingStoreService {
+interface TradingService {
     fun getBalances(
         request: StoreRequest = StoreRequest.Cached(forceRefresh = true)
     ): Observable<Map<Currency, TradingAccountBalance>>

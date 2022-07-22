@@ -5,7 +5,7 @@ import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.testutil.USD
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -30,7 +30,7 @@ class FiatAssetTransferTest : KoinTest {
 
     private val labels: DefaultLabels = mock()
     private val exchangeRateDataManager: ExchangeRatesDataManager = mock()
-    private val tradingBalanceDataManager: TradingBalanceDataManager = mock()
+    private val traService: TradingService = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val bankService: BankService = mock()
 
@@ -46,7 +46,7 @@ class FiatAssetTransferTest : KoinTest {
                         exchangeRateDataManager
                     }
                     factory {
-                        tradingBalanceDataManager
+                        traService
                     }
                     factory {
                         custodialWalletManager

@@ -4,7 +4,6 @@ import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
 import com.blockchain.store.StoreRequest
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 
 interface Erc20StoreService {

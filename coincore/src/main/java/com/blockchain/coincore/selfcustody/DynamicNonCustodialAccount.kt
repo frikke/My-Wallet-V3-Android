@@ -23,6 +23,8 @@ import info.blockchain.wallet.keys.SigningKey
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigDecimal
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
 import org.spongycastle.util.encoders.Hex
@@ -30,8 +32,6 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
-import java.math.BigDecimal
-import java.util.concurrent.atomic.AtomicBoolean
 
 class DynamicNonCustodialAccount(
     val payloadManager: PayloadDataManager,

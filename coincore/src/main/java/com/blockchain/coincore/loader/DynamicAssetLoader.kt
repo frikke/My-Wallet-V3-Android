@@ -16,7 +16,7 @@ import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.isErc20
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
@@ -35,7 +35,6 @@ import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -48,7 +47,6 @@ import timber.log.Timber
 // This is a rubbish regex, but it'll do until I'm provided a better one
 private const val defaultCustodialAddressValidation = "[a-zA-Z0-9]{15,}"
 
-@OptIn(ExperimentalCoroutinesApi::class)
 internal class DynamicAssetLoader(
     private val nonCustodialAssets: Set<CryptoAsset>,
     private val experimentalL1EvmAssets: Set<CryptoCurrency>,
@@ -57,7 +55,7 @@ internal class DynamicAssetLoader(
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
-    private val tradingBalances: TradingBalanceDataManager,
+    private val tradingService: TradingService,
     private val interestService: InterestService,
     private val labels: DefaultLabels,
     private val custodialWalletManager: CustodialWalletManager,
@@ -205,7 +203,7 @@ internal class DynamicAssetLoader(
      * - All interest with balance.
      * */
     private fun loadCustodialActiveAssets(): Flow<List<Asset>> {
-        val activeTrading = tradingBalances.getActiveAssets()
+        val activeTrading = tradingService.getActiveAssets()
             .map { assets -> assets.filterIsInstance<AssetInfo>().map { loadCustodialOnlyAsset(it) } }
 
         val activeInterest = interestService.getActiveAssets()

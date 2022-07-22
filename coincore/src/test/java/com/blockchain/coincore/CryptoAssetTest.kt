@@ -3,7 +3,7 @@ package com.blockchain.coincore
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
@@ -76,7 +76,7 @@ private val mockedModule = module {
     }
 
     factory {
-        mock<TradingBalanceDataManager>()
+        mock<TradingService>()
     }
 
     factory {

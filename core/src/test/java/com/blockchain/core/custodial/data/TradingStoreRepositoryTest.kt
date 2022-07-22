@@ -1,9 +1,9 @@
 package com.blockchain.core.custodial.data
 
 import com.blockchain.api.services.TradingBalance
-import com.blockchain.core.custodial.TradingAccountBalance
+import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.custodial.data.store.TradingDataSource
-import com.blockchain.core.custodial.domain.TradingStoreService
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.store.StoreResponse
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
@@ -21,7 +21,7 @@ class TradingStoreRepositoryTest {
     private val assetCatalogue = mockk<AssetCatalogue>()
     private val tradingDataSource = mockk<TradingDataSource>()
 
-    private val tradingStoreService: TradingStoreService = TradingStoreRepository(
+    private val tradingService: TradingService = TradingRepository(
         assetCatalogue = assetCatalogue,
         tradingDataSource = tradingDataSource
     )
@@ -70,7 +70,7 @@ class TradingStoreRepositoryTest {
 
     @Test
     fun `WHEN getBalances is called, THEN data should be returned`() {
-        tradingStoreService.getBalances()
+        tradingService.getBalances()
             .test()
             .await()
             .assertValue {
@@ -80,7 +80,7 @@ class TradingStoreRepositoryTest {
 
     @Test
     fun `GIVEN asset included, WHEN getBalanceFor is called, THEN Balance should be returned`() {
-        tradingStoreService.getBalanceFor(asset = cryptoAsset1)
+        tradingService.getBalanceFor(asset = cryptoAsset1)
             .test()
             .await()
             .assertValue {
@@ -92,7 +92,7 @@ class TradingStoreRepositoryTest {
     fun `GIVEN asset not included, WHEN getBalanceFor is called, THEN zeroBalance should be returned`() {
         val asset = CryptoCurrency.BTC
 
-        tradingStoreService.getBalanceFor(asset = asset)
+        tradingService.getBalanceFor(asset = asset)
             .test()
             .await()
             .assertValue {
@@ -102,7 +102,7 @@ class TradingStoreRepositoryTest {
 
     @Test
     fun `WHEN getActiveAssets is called, THEN data-keys should be returned`() {
-        tradingStoreService.getActiveAssets()
+        tradingService.getActiveAssets()
             .test()
             .await()
             .assertValue {

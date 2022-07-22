@@ -13,7 +13,6 @@ internal class UserRepository(
     private val getUserStore: GetUserStore
 ) : UserService {
 
-
     private fun getUser(refresh: Boolean): Observable<NabuUser> {
         return getUserStore.stream(StoreRequest.Cached(forceRefresh = refresh))
             .asObservable { it }
@@ -21,7 +20,6 @@ internal class UserRepository(
 
     override fun getUser(): Single<NabuUser> =
         getUser(refresh = false).firstElement().toSingle()
-
 
     private fun getUser(request: StoreRequest): Flow<NabuUser> {
         return getUserStore.stream(request)
