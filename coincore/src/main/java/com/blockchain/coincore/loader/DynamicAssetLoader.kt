@@ -22,7 +22,6 @@ import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
@@ -40,11 +39,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.toSet
-import kotlinx.coroutines.rx3.await
-import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
@@ -162,19 +160,18 @@ internal class DynamicAssetLoader(
             }
         }.zipSingles().subscribeOn(Schedulers.io()).ignoreElement()
 
-    private fun loadSelfCustodialAssets(fresh: Boolean): Single<List<CryptoAsset>> {
-        return rxSingle {
-            if (stxForAllFeatureFlag.isEnabled) {
-                val subscriptions = selfCustodyService.getSubscriptions(fresh).getOrDefault(emptyList())
-                // map the supported only subscriptions to Dynamic asset.
-                subscriptions.mapNotNull {
-                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
-                        loadSelfCustodialAsset(asset)
+    private fun loadSelfCustodialAssets(): Flow<List<CryptoAsset>> {
+        return if (stxForAllFeatureFlag.isEnabled) {
+            selfCustodyService.getSubscriptions()
+                .map {
+                    it.mapNotNull {
+                        assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
+                            loadSelfCustodialAsset(asset)
+                        }
                     }
                 }
-            } else {
-                emptyList()
-            }
+        } else {
+            flowOf(emptyList())
         }
     }
 
@@ -189,19 +186,19 @@ internal class DynamicAssetLoader(
         }
 
     private fun loadNonCustodialActiveAssets(): Flow<List<Asset>> {
-        val activePKWErc20s =
-            erc20DataManager.getActiveAssets()
-                .map { assets -> assets.filter { it.isErc20() } }
-                .map { assets -> assets.map { loadErc20Asset(it) } }
+        val activePKWErc20s = erc20DataManager.getActiveAssets()
+            .map { assets -> assets.filter { it.isErc20() } }
+            .map { assets -> assets.map { loadErc20Asset(it) } }
 
-        val dynamicSelfCustodyAssets = loadSelfCustodialAssets(fresh).await()
-        val standardAssets = standardL1Assets.await().toList()
+        val dynamicSelfCustodyAssets = loadSelfCustodialAssets()
+
+        //        val standardAssets = standardL1Assets.await().toList()
 
         //        return standardAssets + activePKWErc20s + dynamicSelfCustodyAssets.filter {
         //            it.currency.networkTicker !in standardAssets.map { asset -> asset.currency.networkTicker }
         //        }
 
-        return merge(activePKWErc20s)
+        return merge(activePKWErc20s, dynamicSelfCustodyAssets)
     }
 
     /**

@@ -23,13 +23,15 @@ import info.blockchain.wallet.keys.SigningKey
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.math.BigDecimal
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
+import java.math.BigDecimal
+import java.util.concurrent.atomic.AtomicBoolean
 
 class DynamicNonCustodialAccount(
     val payloadManager: PayloadDataManager,
@@ -65,7 +67,9 @@ class DynamicNonCustodialAccount(
 
     override fun getOnChainBalance(): Observable<Money> = rxSingle {
         // Check if we are subscribed to the given currency.
-        val subscriptions = nonCustodialService.getSubscriptions(false).getOrDefault(emptyList())
+        val subscriptions = rxSingle { nonCustodialService.getSubscriptions().first() }
+            .awaitOutcome().getOrDefault(emptyList())
+
         if (subscriptions.contains(currency.networkTicker)) {
             // Get the balance if we found the currency in the subscriptions
             getBalance().getOrDefault(Money.fromMajor(currency, BigDecimal.ZERO))
