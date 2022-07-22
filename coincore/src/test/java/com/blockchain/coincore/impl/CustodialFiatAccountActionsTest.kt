@@ -4,8 +4,8 @@ import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager

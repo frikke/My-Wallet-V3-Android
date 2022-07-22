@@ -16,9 +16,10 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSig
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.StoreRequest
+import com.blockchain.refreshstrategy.RefreshStrategy
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
+import com.blockchain.store.toStoreRequest
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.flow.Flow
@@ -64,8 +65,8 @@ internal class NonCustodialRepository(
         )
             .map { it.success }
 
-    override fun getSubscriptions(request: StoreRequest): Flow<List<String>> {
-        return subscriptionsStore.stream(request)
+    override fun getSubscriptions(refreshStrategy: RefreshStrategy): Flow<List<String>> {
+        return subscriptionsStore.stream(refreshStrategy.toStoreRequest())
             .mapData { subscriptionsResponse ->
                 subscriptionsResponse.currencies.map { it.ticker }
             }

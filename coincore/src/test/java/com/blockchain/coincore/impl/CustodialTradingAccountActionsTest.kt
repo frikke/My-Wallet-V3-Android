@@ -6,8 +6,8 @@ import com.blockchain.coincore.testutil.CoinCoreFakeData
 import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_API_FIAT
 import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_USER_FIAT
 import com.blockchain.coincore.testutil.USD
-import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger

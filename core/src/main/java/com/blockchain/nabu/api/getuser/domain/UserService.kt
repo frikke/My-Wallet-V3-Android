@@ -2,7 +2,6 @@ package com.blockchain.nabu.api.getuser.domain
 
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.refreshstrategy.RefreshStrategy
-import com.blockchain.store.StoreRequest
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 

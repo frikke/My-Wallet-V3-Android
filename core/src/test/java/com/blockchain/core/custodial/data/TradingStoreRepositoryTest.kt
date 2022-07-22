@@ -1,9 +1,9 @@
 package com.blockchain.core.custodial.data
 
 import com.blockchain.api.services.TradingBalance
-import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.store.StoreResponse
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory

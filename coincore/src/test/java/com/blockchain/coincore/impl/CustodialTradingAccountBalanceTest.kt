@@ -2,8 +2,8 @@ package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager

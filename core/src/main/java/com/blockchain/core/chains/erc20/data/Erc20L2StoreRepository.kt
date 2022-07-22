@@ -13,11 +13,11 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Observable
+import java.math.BigInteger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asObservable
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import java.math.BigInteger
 
 internal class Erc20L2StoreRepository(
     private val assetCatalogue: AssetCatalogue,

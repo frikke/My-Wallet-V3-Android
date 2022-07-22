@@ -7,8 +7,8 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialAc
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialDerivedAddress
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTxHistoryItem
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
-import com.blockchain.refreshstrategy.RefreshStrategy
 import com.blockchain.outcome.Outcome
+import com.blockchain.refreshstrategy.RefreshStrategy
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.JsonObject

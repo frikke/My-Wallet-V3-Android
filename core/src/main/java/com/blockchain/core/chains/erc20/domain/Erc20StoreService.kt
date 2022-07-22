@@ -2,7 +2,6 @@ package com.blockchain.core.chains.erc20.domain
 
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
 import com.blockchain.refreshstrategy.RefreshStrategy
-import com.blockchain.store.StoreRequest
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
