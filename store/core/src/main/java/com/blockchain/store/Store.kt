@@ -1,6 +1,6 @@
 package com.blockchain.store
 
-import com.blockchain.store.StoreRequest.Cached
+import com.blockchain.refreshstrategy.RefreshStrategy
 import com.blockchain.store.StoreRequest.Fresh
 import com.blockchain.store.StoreResponse.Data
 import com.blockchain.store.StoreResponse.Error
@@ -97,15 +97,26 @@ sealed class StoreRequest {
     data class Cached(val forceRefresh: Boolean) : StoreRequest()
 }
 
-fun <K> StoreRequest.toKeyed(key: K): KeyedStoreRequest<K> {
+fun RefreshStrategy.toStoreRequest(): StoreRequest {
     return when (this) {
-        is Cached -> {
+        is RefreshStrategy.Cached -> {
+            StoreRequest.Cached(forceRefresh = refresh)
+        }
+        RefreshStrategy.Fresh -> {
+            StoreRequest.Fresh
+        }
+    }
+}
+
+fun <K> RefreshStrategy.toKeyedStoreRequest(key: K): KeyedStoreRequest<K> {
+    return when (this) {
+        is RefreshStrategy.Cached -> {
             KeyedStoreRequest.Cached(
                 key = key,
-                forceRefresh = forceRefresh
+                forceRefresh = refresh
             )
         }
-        Fresh -> {
+        RefreshStrategy.Fresh -> {
             KeyedStoreRequest.Fresh(
                 key = key
             )
