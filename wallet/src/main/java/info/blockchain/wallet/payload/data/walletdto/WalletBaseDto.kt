@@ -32,7 +32,7 @@ data class WalletBaseDto(
     private val storageToken: String? = null,
 
     @SerialName("sync_pubkeys")
-    val syncPubkeys: Boolean
+    private val _syncPubkeys: Boolean? = null
 ) {
 
     fun toJson() = Json.encodeToString(this)
@@ -42,9 +42,12 @@ data class WalletBaseDto(
 
     fun withSyncedKeys(): WalletBaseDto {
         return this.copy(
-            syncPubkeys = true
+            _syncPubkeys = true
         )
     }
+
+    val syncPubkeys: Boolean
+        get() = _syncPubkeys ?: false
 
     companion object {
         @JvmStatic
@@ -64,7 +67,7 @@ data class WalletBaseDto(
                 warChecksum = "",
                 language = "",
                 storageToken = "",
-                syncPubkeys = false,
+                _syncPubkeys = false,
             )
     }
 }

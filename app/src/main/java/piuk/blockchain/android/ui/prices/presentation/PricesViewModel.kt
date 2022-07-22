@@ -6,13 +6,10 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.extensions.minus
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Currency
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Observable
@@ -34,13 +31,12 @@ class PricesViewModel(
     private val coincore: Coincore,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val custodialWalletManager: CustodialWalletManager,
-    currencyPrefs: CurrencyPrefs,
 ) : MviViewModel<PricesIntents,
     PricesViewState,
     PricesModelState,
     PricesNavigationEvent,
     ModelConfigArgs.NoArgs>(
-    PricesModelState(fiatCurrency = currencyPrefs.selectedFiatCurrency, tradableCurrencies = emptyList())
+    PricesModelState(tradableCurrencies = emptyList())
 ) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -48,7 +44,9 @@ class PricesViewModel(
     override suspend fun handleIntent(modelState: PricesModelState, intent: PricesIntents) {
         when (intent) {
             is PricesIntents.LoadAssetsAvailable -> {
-                job?.cancel()
+                updateState {
+                    modelState.copy(fiatCurrency = intent.fiatCurrency)
+                }
                 loadAvailableAssets()
             }
             is PricesIntents.FilterData -> filterData(intent.filter)
@@ -62,7 +60,7 @@ class PricesViewModel(
     }
 
     private fun loadAvailableAssets() {
-        job = viewModelScope.launch {
+        viewModelScope.launch {
             try {
                 loadAssetsAndPrices().asFlow().onEach { prices ->
                     updateState {
@@ -71,7 +69,7 @@ class PricesViewModel(
                 }.collect()
             } catch (e: Exception) {
                 updateState {
-                    modelState.copy(isError = true, isLoadingData = false, data = emptyList())
+                    modelState.copy(isError = true, isLoadingData = false, data = emptyList(), fiatCurrency = null)
                 }
             }
         }
@@ -90,7 +88,7 @@ class PricesViewModel(
                     .thenByDescending { it.priceWithDelta?.marketCap }
                     .thenBy { it.assetInfo.name }
             ).map {
-                it.toPriceItemViewModel(state.fiatCurrency)
+                it.toPriceItemViewModel()
             }
         )
     }
@@ -147,33 +145,22 @@ class PricesViewModel(
     }
 }
 
-private fun PricesItem.toPriceItemViewModel(fiatCurrency: Currency): PriceItemViewState {
+private fun PricesItem.toPriceItemViewModel(): PriceItemViewState {
     return PriceItemViewState(
         hasError = this.hasError,
         assetInfo = this.assetInfo,
         delta = priceWithDelta?.delta24h,
         currentPrice = (
             priceWithDelta?.currentRate?.price?.let {
-                it.format(fiatCurrency)
+                it.format(currency)
             } ?: "--"
             )
     )
 }
 
-private fun PricesModelState.updateAllAssets(assets: List<AssetInfo>): PricesModelState =
-    copy(
-        isLoadingData = false,
-        isError = false,
-        data = assets.map {
-            PricesItem(
-                assetInfo = it,
-                hasError = false
-            )
-        }
-    )
-
-private fun PricesModelState.updateAssets(assetPriceInfo: List<AssetPriceInfo>): PricesModelState =
-    copy(
+private fun PricesModelState.updateAssets(assetPriceInfo: List<AssetPriceInfo>): PricesModelState {
+    require(this.fiatCurrency != null)
+    return copy(
         isLoadingData = false,
         isError = assetPriceInfo.isEmpty(),
         data = assetPriceInfo.map { priceInfo ->
@@ -181,10 +168,12 @@ private fun PricesModelState.updateAssets(assetPriceInfo: List<AssetPriceInfo>):
                 isTradingAccount = tradableCurrencies.contains(priceInfo.assetInfo.networkTicker),
                 assetInfo = priceInfo.assetInfo,
                 hasError = priceInfo.price == null,
+                currency = this.fiatCurrency,
                 priceWithDelta = priceInfo.price
             )
         }
     )
+}
 
 private data class AssetPriceInfo(
     val price: Prices24HrWithDelta? = null,
