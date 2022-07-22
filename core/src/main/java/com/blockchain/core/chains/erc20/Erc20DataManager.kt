@@ -20,7 +20,9 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
-import java.math.BigInteger
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx3.await
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.RawTransaction
@@ -28,6 +30,7 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
+import java.math.BigInteger
 
 interface Erc20DataManager {
     val accountHash: String
@@ -73,7 +76,7 @@ interface Erc20DataManager {
     fun isContractAddress(address: String, l1Chain: String? = null): Single<Boolean>
 
     fun getErc20Balance(asset: AssetInfo): Observable<Erc20Balance>
-    fun getActiveAssets(refresh: Boolean): Single<Set<AssetInfo>>
+    fun getActiveAssets(): Flow<Set<AssetInfo>>
 
     fun getSupportedNetworks(): Single<List<EvmNetwork>>
 
@@ -152,23 +155,21 @@ internal class Erc20DataManagerImpl(
         }
     }
 
-    override fun getActiveAssets(refresh: Boolean): Single<Set<AssetInfo>> {
-        return ethLayerTwoFeatureFlag.enabled.flatMap { isEnabled ->
-            erc20StoreService.getActiveAssets(refresh)
-                .flatMap { baseErc20Assets ->
-                    if (isEnabled) {
-                        getSupportedNetworks().flatMap { supportedNetworks ->
-                            supportedNetworks.map { evmNetwork ->
-                                erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
-                            }.zipSingles().map {
-                                baseErc20Assets + it.flatten()
-                            }
+    override fun getActiveAssets(): Flow<Set<AssetInfo>> {
+        return erc20StoreService.getActiveAssets()
+            .map { baseErc20Assets ->
+                if (ethLayerTwoFeatureFlag.isEnabled) {
+                    getSupportedNetworks().flatMap { supportedNetworks ->
+                        supportedNetworks.map { evmNetwork ->
+                            erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
+                        }.zipSingles().map {
+                            baseErc20Assets + it.flatten()
                         }
-                    } else {
-                        Single.just(baseErc20Assets)
-                    }
+                    }.await()
+                } else {
+                    baseErc20Assets
                 }
-        }
+            }
     }
 
     override fun getErc20History(asset: AssetInfo, evmNetwork: EvmNetwork): Single<Erc20HistoryList> {

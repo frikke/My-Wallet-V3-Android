@@ -188,31 +188,28 @@ internal class DynamicAssetLoader(
             }
         }
 
-    /*
-    * We need to request:
-    * - All erc20 with balance.
-    * - All trading with balance.
-    * - All interest with balance.
-    * */
-
-    private suspend fun loadNonCustodialActiveAssets(fresh: Boolean): List<Asset> {
+    private fun loadNonCustodialActiveAssets(): Flow<List<Asset>> {
         val activePKWErc20s =
-            erc20DataManager.getActiveAssets(fresh).map { assets ->
-                assets.filter {
-                    it.isErc20()
-                }
-            }
+            erc20DataManager.getActiveAssets()
+                .map { assets -> assets.filter { it.isErc20() } }
                 .map { assets -> assets.map { loadErc20Asset(it) } }
-                .await()
 
         val dynamicSelfCustodyAssets = loadSelfCustodialAssets(fresh).await()
         val standardAssets = standardL1Assets.await().toList()
 
-        return standardAssets + activePKWErc20s + dynamicSelfCustodyAssets.filter {
-            it.currency.networkTicker !in standardAssets.map { asset -> asset.currency.networkTicker }
-        }
+        //        return standardAssets + activePKWErc20s + dynamicSelfCustodyAssets.filter {
+        //            it.currency.networkTicker !in standardAssets.map { asset -> asset.currency.networkTicker }
+        //        }
+
+        return merge(activePKWErc20s)
     }
 
+    /**
+     * We need to request:
+     * - All erc20 with balance.
+     * - All trading with balance.
+     * - All interest with balance.
+     * */
     private fun loadCustodialActiveAssets(): Flow<List<Asset>> {
         val activeTrading = tradingBalances.getActiveAssets()
             .map { assets -> assets.filterIsInstance<AssetInfo>().map { loadCustodialOnlyAsset(it) } }
@@ -271,13 +268,10 @@ internal class DynamicAssetLoader(
 
     override fun activeAssets(walletMode: WalletMode): Flow<List<Asset>> {
         return when (walletMode) {
-            WalletMode.CUSTODIAL_ONLY -> flow {
-                loadCustodialActiveAssets()
-            }
-            WalletMode.NON_CUSTODIAL_ONLY -> flow {
-                emit(loadNonCustodialActiveAssets(false))
-                emit(loadNonCustodialActiveAssets(true))
-            }
+            WalletMode.CUSTODIAL_ONLY -> loadCustodialActiveAssets()
+
+            WalletMode.NON_CUSTODIAL_ONLY -> loadNonCustodialActiveAssets()
+
             WalletMode.UNIVERSAL -> flow {
                 emit(allActive())
             }
@@ -285,7 +279,7 @@ internal class DynamicAssetLoader(
     }
 
     private suspend fun allActive(): Flow<List<Asset>> {
-        val nonCustodial = loadNonCustodialActiveAssets(fresh)
+        val nonCustodial = loadNonCustodialActiveAssets()
         val custodial = loadCustodialActiveAssets()
         val uniqueCustodial =
             custodial.filter {

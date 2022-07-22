@@ -13,10 +13,10 @@ import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.store.mapData
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
 internal class Erc20Store(
     private val erc20Service: NonCustodialErc20Service,
@@ -65,18 +65,11 @@ internal class Erc20Store(
     ),
     Erc20DataSource {
 
-    override fun stream(
-        refresh: Boolean
-    ): Flow<StoreResponse<Throwable, List<Erc20TokenBalance>>> {
-        return stream(
-            StoreRequest.Cached(
-                forceRefresh = refresh
-            )
-        ).mapData { it.toDomain() }
+    override fun streamData(request: StoreRequest): Flow<StoreResponse<Throwable, List<Erc20TokenBalance>>> {
+        return stream(request).mapData { it.toDomain() }
     }
 
     override fun invalidate() {
-        println("----- ::invalidate Erc200000")
         markAsStale()
     }
 

@@ -21,7 +21,7 @@ internal class TradingStoreRepository(
 ) : TradingStoreService {
 
     private fun getBalancesFlow(storeRequest: StoreRequest): Flow<Map<Currency, TradingAccountBalance>> {
-        return tradingDataSource.stream(storeRequest)
+        return tradingDataSource.streamData(storeRequest)
             .mapData { details ->
                 details.mapNotNull { balance ->
                     assetCatalogue.fromNetworkTicker(balance.assetTicker)?.let { currency ->

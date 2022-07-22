@@ -7,5 +7,5 @@ import com.blockchain.storedatasource.FlushableDataSource
 import kotlinx.coroutines.flow.Flow
 
 interface TradingDataSource : FlushableDataSource {
-    fun stream(storeRequest: StoreRequest): Flow<StoreResponse<Throwable, List<TradingBalance>>>
+    fun streamData(storeRequest: StoreRequest): Flow<StoreResponse<Throwable, List<TradingBalance>>>
 }

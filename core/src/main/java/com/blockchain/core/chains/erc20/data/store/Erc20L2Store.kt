@@ -14,14 +14,14 @@ import com.blockchain.store.Mediator
 import com.blockchain.store.StoreResponse
 import com.blockchain.store.mapData
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
-internal class Erc20L2Store(
+class Erc20L2Store(
     private val evmService: NonCustodialEvmService,
     private val ethDataManager: EthDataManager,
 ) : KeyedStore<Erc20L2Store.Key, Throwable, Erc20L2BalancesStore> by PersistedJsonSqlDelightStoreBuilder()
@@ -74,16 +74,10 @@ internal class Erc20L2Store(
         val networkTicker: String
     )
 
-    override fun stream(
-        networkTicker: String,
-        refresh: Boolean
+    override fun streamData(
+        request: KeyedStoreRequest<Key>
     ): Flow<StoreResponse<Throwable, BalancesResponse>> {
-        return stream(
-            KeyedStoreRequest.Cached(
-                key = Key(networkTicker = networkTicker),
-                forceRefresh = refresh
-            )
-        ).mapData { it.toDomain() }
+        return stream(request).mapData { it.toDomain() }
     }
 
     override fun invalidate(param: String) {
