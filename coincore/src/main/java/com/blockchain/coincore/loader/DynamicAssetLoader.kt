@@ -152,6 +152,19 @@ internal class DynamicAssetLoader(
             }
         }.zipSingles().subscribeOn(Schedulers.io()).ignoreElement()
 
+    private fun loadSelfCustodialAssets(): Flow<List<CryptoAsset>> {
+        return if (stxForAllFeatureFlag.isEnabled) {
+            selfCustodyService.getSubscriptions()
+                .mapListNotNull {
+                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
+                        loadSelfCustodialAsset(asset)
+                    }
+                }
+        } else {
+            flowOf(emptyList())
+        }
+    }
+
     private fun loadErc20AndCustodialAssets(allAssets: Set<Currency>): List<Asset> =
         allAssets.mapNotNull { currency ->
             when {
@@ -179,19 +192,6 @@ internal class DynamicAssetLoader(
             activePKWErc20sFlow, selfCustodialAssetsFlow, flowOf(standardL1Assets)
         ) { activePKWErc20s, dynamicSelfCustodyAssets, standardAssets ->
             activePKWErc20s + dynamicSelfCustodyAssets + standardAssets
-        }
-    }
-
-    private fun loadSelfCustodialAssets(): Flow<List<CryptoAsset>> {
-        return if (stxForAllFeatureFlag.isEnabled) {
-            selfCustodyService.getSubscriptions()
-                .mapListNotNull {
-                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
-                        loadSelfCustodialAsset(asset)
-                    }
-                }
-        } else {
-            flowOf(emptyList())
         }
     }
 
