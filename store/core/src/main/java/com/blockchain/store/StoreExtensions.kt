@@ -4,7 +4,6 @@ import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -77,7 +76,9 @@ fun <E, T> Flow<StoreResponse<E, T>>.getDataOrThrow(): Flow<T> =
         .map {
             when (it) {
                 is StoreResponse.Data -> it.data
-                is StoreResponse.Error -> (it.error as? Exception)?.let { throw it } ?: throw Exception("todo")
+                is StoreResponse.Error -> throw it.error as? Exception
+                    ?: it.error as? Throwable
+                    ?: Throwable(it.error.toString())
                 is StoreResponse.Loading -> throw IllegalStateException()
             }
         }

@@ -21,6 +21,7 @@ internal class UserRepository(
     override fun getUser(): Single<NabuUser> =
         getUser(refresh = false).firstElement().toSingle()
 
+    // flow
     private fun getUser(request: StoreRequest): Flow<NabuUser> {
         return getUserStore.stream(request)
             .getDataOrThrow()

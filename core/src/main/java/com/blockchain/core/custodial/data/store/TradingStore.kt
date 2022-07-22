@@ -35,8 +35,8 @@ internal class TradingStore(
     ),
     TradingDataSource {
 
-    override fun streamData(storeRequest: StoreRequest): Flow<StoreResponse<Throwable, List<TradingBalance>>> =
-        stream(storeRequest).mapListData { it.toDomain() }
+    override fun streamData(request: StoreRequest): Flow<StoreResponse<Throwable, List<TradingBalance>>> =
+        stream(request).mapListData { it.toDomain() }
 
     override fun invalidate() {
         markAsStale()

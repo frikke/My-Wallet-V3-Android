@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers.custodialwalletimpl
 
+import android.icu.number.Precision.currency
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.core.SwapTransactionsCache
@@ -568,13 +569,13 @@ class LiveCustodialWalletManager(
         }
 
     override fun getSupportedFundsFiats(fiatCurrency: FiatCurrency): Flow<List<FiatCurrency>> {
-        val paymentMethods = paymentMethods(fiatCurrency, true)
-        val fiatCurrencies = fiatCurrenciesService.getTradingCurrenciesFlow()
+        val paymentMethodsFlow = paymentMethods(fiatCurrency, true)
+        val fiatCurrenciesFlow = fiatCurrenciesService.getTradingCurrenciesFlow()
 
-        return combine(paymentMethods, fiatCurrencies) { methods, tradingCurrencies ->
-            methods.filter { method ->
+        return combine(paymentMethodsFlow, fiatCurrenciesFlow) { paymentMethods, fiatCurrencies ->
+            paymentMethods.filter { method ->
                 method.type.toPaymentMethodType() == PaymentMethodType.FUNDS &&
-                    tradingCurrencies.allRecommended.any { it.networkTicker == method.currency } &&
+                    fiatCurrencies.allRecommended.any { it.networkTicker == method.currency } &&
                     method.eligible
             }.mapNotNull {
                 it.currency?.let { currency ->

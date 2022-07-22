@@ -20,8 +20,8 @@ internal class TradingRepository(
     private val tradingDataSource: TradingDataSource
 ) : TradingService {
 
-    private fun getBalancesFlow(storeRequest: StoreRequest): Flow<Map<Currency, TradingAccountBalance>> {
-        return tradingDataSource.streamData(storeRequest)
+    private fun getBalancesFlow(request: StoreRequest): Flow<Map<Currency, TradingAccountBalance>> {
+        return tradingDataSource.streamData(request)
             .mapData { details ->
                 details.mapNotNull { balance ->
                     assetCatalogue.fromNetworkTicker(balance.assetTicker)?.let { currency ->

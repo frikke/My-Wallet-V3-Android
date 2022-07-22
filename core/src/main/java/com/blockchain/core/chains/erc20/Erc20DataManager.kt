@@ -78,6 +78,7 @@ interface Erc20DataManager {
     fun latestBlockNumber(l1Chain: String? = null): Single<BigInteger>
     fun isContractAddress(address: String, l1Chain: String? = null): Single<Boolean>
 
+    // todo(othman) remove and use Erc20Service instead - will eventually contain all erc20 operations
     fun getErc20Balance(asset: AssetInfo): Observable<Erc20Balance>
     fun getActiveAssets(): Flow<Set<AssetInfo>>
 
@@ -167,8 +168,8 @@ internal class Erc20DataManagerImpl(
                 .map { evmNetwork ->
                     erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
                 }
+                // the result is a List<Flow>, we need to merge them into a single Flow
                 .merge()
-//            combine(it) { it.toList().flatten() }
 
             emitAll(
                 combine(erc20ActiveAssets, erc20L2ActiveAssets) { erc20ActiveAssets, erc20L2ActiveAssets ->

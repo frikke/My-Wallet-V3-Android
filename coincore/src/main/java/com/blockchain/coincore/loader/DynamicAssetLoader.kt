@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import piuk.blockchain.androidcore.utils.extensions.mapListNotNull
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
 
@@ -151,21 +152,6 @@ internal class DynamicAssetLoader(
             }
         }.zipSingles().subscribeOn(Schedulers.io()).ignoreElement()
 
-    private fun loadSelfCustodialAssets(): Flow<List<CryptoAsset>> {
-        return if (stxForAllFeatureFlag.isEnabled) {
-            selfCustodyService.getSubscriptions()
-                .map {
-                    it.mapNotNull {
-                        assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
-                            loadSelfCustodialAsset(asset)
-                        }
-                    }
-                }
-        } else {
-            flowOf(emptyList())
-        }
-    }
-
     private fun loadErc20AndCustodialAssets(allAssets: Set<Currency>): List<Asset> =
         allAssets.mapNotNull { currency ->
             when {
@@ -177,22 +163,35 @@ internal class DynamicAssetLoader(
         }
 
     private fun loadNonCustodialActiveAssets(): Flow<List<Asset>> {
-        val activePKWErc20s = erc20DataManager.getActiveAssets()
+        val activePKWErc20sFlow = erc20DataManager.getActiveAssets()
             .map { assets -> assets.filter { it.isErc20() } }
             .map { assets -> assets.map { loadErc20Asset(it) } }
 
-        val standardAssets = standardL1Assets.toList()
+        val standardL1Assets = standardL1Assets.toList()
 
-        val dynamicSelfCustodyAssets = loadSelfCustodialAssets().map {
+        val selfCustodialAssetsFlow = loadSelfCustodialAssets().map {
             it.filter {
-                it.currency.networkTicker !in standardAssets.map { asset -> asset.currency.networkTicker }
+                it.currency.networkTicker !in standardL1Assets.map { asset -> asset.currency.networkTicker }
             }
         }
 
         return combine(
-            activePKWErc20s, dynamicSelfCustodyAssets, flowOf(standardAssets)
+            activePKWErc20sFlow, selfCustodialAssetsFlow, flowOf(standardL1Assets)
         ) { activePKWErc20s, dynamicSelfCustodyAssets, standardAssets ->
             activePKWErc20s + dynamicSelfCustodyAssets + standardAssets
+        }
+    }
+
+    private fun loadSelfCustodialAssets(): Flow<List<CryptoAsset>> {
+        return if (stxForAllFeatureFlag.isEnabled) {
+            selfCustodyService.getSubscriptions()
+                .mapListNotNull {
+                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
+                        loadSelfCustodialAsset(asset)
+                    }
+                }
+        } else {
+            flowOf(emptyList())
         }
     }
 
@@ -203,19 +202,23 @@ internal class DynamicAssetLoader(
      * - All interest with balance.
      * */
     private fun loadCustodialActiveAssets(): Flow<List<Asset>> {
-        val activeTrading = tradingService.getActiveAssets()
+        val activeTradingFlow = tradingService.getActiveAssets()
             .map { assets -> assets.filterIsInstance<AssetInfo>().map { loadCustodialOnlyAsset(it) } }
 
-        val activeInterest = interestService.getActiveAssets()
+        val activeInterestFlow = interestService.getActiveAssets()
             .map { assets -> assets.map { loadCustodialOnlyAsset(it) } }
 
-        val fiats = custodialWalletManager.getSupportedFundsFiats()
+        val supportedFiatsFlow = custodialWalletManager.getSupportedFundsFiats()
             .map { supportedFiatCurrencies ->
                 supportedFiatCurrencies.map { FiatAsset(currency = it) }
             }
 
-        return combine(activeTrading, activeInterest, fiats) { activeTrading, activeInterest, fiats ->
-            activeTrading + activeInterest + fiats
+        return combine(
+            activeTradingFlow,
+            activeInterestFlow,
+            supportedFiatsFlow
+        ) { activeTrading, activeInterest, supportedFiats ->
+            activeTrading + activeInterest + supportedFiats
         }
     }
 
