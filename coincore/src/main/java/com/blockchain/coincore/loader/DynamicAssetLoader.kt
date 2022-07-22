@@ -20,6 +20,7 @@ import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
@@ -41,6 +42,9 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import piuk.blockchain.androidcore.utils.extensions.filterList
+import piuk.blockchain.androidcore.utils.extensions.filterListItemIsInstance
+import piuk.blockchain.androidcore.utils.extensions.mapList
 import piuk.blockchain.androidcore.utils.extensions.mapListNotNull
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
@@ -181,22 +185,21 @@ internal class DynamicAssetLoader(
      * - All trading with balance.
      * - All interest with balance.
      * */
-    
+
     private fun loadNonCustodialActiveAssets(): Flow<List<Asset>> {
         val activePKWErc20sFlow = erc20DataManager.getActiveAssets()
-            .map { assets -> assets.filter { it.isErc20() } }
-            .map { assets -> assets.map { loadErc20Asset(it) } }
+            .filterList { it.isErc20() }
+            .mapList { loadErc20Asset(it) }
 
         val standardL1Assets = standardL1Assets.toList()
 
-        val selfCustodialAssetsFlow = loadSelfCustodialAssets().map {
-            it.filter {
-                it.currency.networkTicker !in standardL1Assets.map { asset -> asset.currency.networkTicker }
-            }
-        }
+        val selfCustodialAssetsFlow = loadSelfCustodialAssets()
+            .filterList { it.currency.networkTicker !in standardL1Assets.map { asset -> asset.currency.networkTicker } }
 
         return combine(
-            activePKWErc20sFlow, selfCustodialAssetsFlow, flowOf(standardL1Assets)
+            activePKWErc20sFlow,
+            selfCustodialAssetsFlow,
+            flowOf(standardL1Assets)
         ) { activePKWErc20s, dynamicSelfCustodyAssets, standardAssets ->
             activePKWErc20s + dynamicSelfCustodyAssets + standardAssets
         }
@@ -204,15 +207,14 @@ internal class DynamicAssetLoader(
 
     private fun loadCustodialActiveAssets(): Flow<List<Asset>> {
         val activeTradingFlow = tradingService.getActiveAssets()
-            .map { assets -> assets.filterIsInstance<AssetInfo>().map { loadCustodialOnlyAsset(it) } }
+            .filterListItemIsInstance<AssetInfo>()
+            .mapList { loadCustodialOnlyAsset(it) }
 
         val activeInterestFlow = interestService.getActiveAssets()
-            .map { assets -> assets.map { loadCustodialOnlyAsset(it) } }
+            .mapList { loadCustodialOnlyAsset(it) }
 
         val supportedFiatsFlow = custodialWalletManager.getSupportedFundsFiats()
-            .map { supportedFiatCurrencies ->
-                supportedFiatCurrencies.map { FiatAsset(currency = it) }
-            }
+            .mapList { FiatAsset(currency = it) }
 
         return combine(
             activeTradingFlow,
