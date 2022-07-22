@@ -9,7 +9,7 @@ interface FiatCurrenciesService {
 
     val selectedTradingCurrency: FiatCurrency
 
-    // todo(othman) refactor
+    // todo(othman) rename & refactor
     @Deprecated("use getTradingCurrenciesFlow")
     suspend fun getTradingCurrencies(fresh: Boolean = false): Outcome<Exception, TradingCurrencies>
 
