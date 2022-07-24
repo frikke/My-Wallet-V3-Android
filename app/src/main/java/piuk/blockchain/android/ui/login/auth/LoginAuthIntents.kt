@@ -41,17 +41,10 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
             }
     }
 
-    data class AuthorizeApproval(val sessionId: String) : LoginAuthIntents() {
+    data class GetPayload(val sessionId: String) : LoginAuthIntents() {
         override fun reduce(oldState: LoginAuthState): LoginAuthState =
             oldState.copy(
                 sessionId = sessionId,
-                authStatus = AuthStatus.AuthorizeApproval
-            )
-    }
-
-    object GetPayload : LoginAuthIntents() {
-        override fun reduce(oldState: LoginAuthState): LoginAuthState =
-            oldState.copy(
                 authStatus = AuthStatus.GetPayload
             )
     }

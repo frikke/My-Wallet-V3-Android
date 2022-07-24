@@ -229,7 +229,6 @@ class LoginAuthActivity :
             AuthStatus.None,
             AuthStatus.InitAuthInfo -> binding.progressBar.visible()
             AuthStatus.GetSessionId,
-            AuthStatus.AuthorizeApproval,
             AuthStatus.GetPayload -> binding.progressBar.gone()
             AuthStatus.Submit2FA,
             AuthStatus.VerifyPassword,
