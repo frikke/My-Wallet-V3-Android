@@ -34,7 +34,12 @@ class BackupPhraseViewModel(
     initialState = BackupPhraseModelState()
 ) {
     override fun viewCreated(args: BackupPhraseArgs) {
-        updateState { it.copy(secondPassword = args.secondPassword) }
+        updateState {
+            it.copy(
+                secondPassword = args.secondPassword,
+                isForDefiOnboarding = args.isForDefiOnboarding
+            )
+        }
 
         onIntent(BackupPhraseIntent.LoadData)
     }
@@ -42,6 +47,7 @@ class BackupPhraseViewModel(
     override fun reduce(state: BackupPhraseModelState): BackupPhraseViewState {
         return with(state) {
             BackupPhraseViewState(
+                showSkipBackup = isForDefiOnboarding,
                 showLoading = isLoading,
                 showError = isError,
                 mnemonic = mnemonic,

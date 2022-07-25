@@ -60,6 +60,7 @@ fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
     viewState?.let { state ->
         BackupPhraseIntroScreen(
             backupStatus = state.backUpStatus,
+            showSkipBackup = state.showSkipBackup,
             backOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = false)) },
             backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackupProcess) },
             skipOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToSkipBackup) }
@@ -70,6 +71,7 @@ fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
 @Composable
 fun BackupPhraseIntroScreen(
     backupStatus: BackUpStatus,
+    showSkipBackup: Boolean,
     backOnClick: () -> Unit,
     backUpNowOnClick: () -> Unit,
     skipOnClick: () -> Unit,
@@ -125,13 +127,15 @@ fun BackupPhraseIntroScreen(
                 onClick = backUpNowOnClick
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
+            if (showSkipBackup) {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
 
-            MinimalButton(
-                modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.common_skip),
-                onClick = skipOnClick
-            )
+                MinimalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(id = R.string.common_skip),
+                    onClick = skipOnClick
+                )
+            }
         }
     }
 }
@@ -236,9 +240,18 @@ fun BackupPhraseIntroAcknowledgments(@StringRes acknowledgments: List<Int>, allC
 
 @Preview(name = "no backup", showBackground = true)
 @Composable
-fun PreviewBackupPhraseIntroScreenNoBackup() {
+fun PreviewBackupPhraseIntroScreen_NoBackup_Skip() {
     BackupPhraseIntroScreen(
-        BackUpStatus.NO_BACKUP,
+        BackUpStatus.NO_BACKUP, showSkipBackup = true,
+        backOnClick = {}, backUpNowOnClick = {}, skipOnClick = {}
+    )
+}
+
+@Preview(name = "no backup no skip", showBackground = true)
+@Composable
+fun PreviewBackupPhraseIntroScreen_NoBackup_NoSkip() {
+    BackupPhraseIntroScreen(
+        BackUpStatus.NO_BACKUP, showSkipBackup = false,
         backOnClick = {}, backUpNowOnClick = {}, skipOnClick = {}
     )
 }
@@ -247,7 +260,7 @@ fun PreviewBackupPhraseIntroScreenNoBackup() {
 @Composable
 fun PreviewBackupPhraseIntroScreenBackedUp() {
     BackupPhraseIntroScreen(
-        BackUpStatus.BACKED_UP,
+        BackUpStatus.BACKED_UP, showSkipBackup = true,
         backOnClick = {}, backUpNowOnClick = {}, skipOnClick = {}
     )
 }
