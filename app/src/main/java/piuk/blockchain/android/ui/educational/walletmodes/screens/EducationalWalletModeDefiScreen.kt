@@ -35,9 +35,7 @@ fun EducationalWalletModeDefiScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                imageResource = ImageResource.Local(
-                    R.drawable.ic_educational_wallet_defi
-                )
+                imageResource = ImageResource.Local(R.drawable.ic_educational_wallet_defi)
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))

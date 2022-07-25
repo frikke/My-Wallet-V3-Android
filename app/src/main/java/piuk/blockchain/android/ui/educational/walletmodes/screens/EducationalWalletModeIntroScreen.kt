@@ -34,9 +34,7 @@ fun EducationalWalletModeIntroScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                imageResource = ImageResource.Local(
-                    R.drawable.ic_blockchain_squared
-                )
+                imageResource = ImageResource.Local(R.drawable.ic_blockchain_squared)
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))

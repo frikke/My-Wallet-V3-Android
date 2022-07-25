@@ -38,31 +38,14 @@ class LoaderModel(
                 intent.isAfterWalletCreation,
                 intent.referralCode
             )
-            is LoaderIntents.OnEmailVerificationFinished -> {
-                process(
-                    LoaderIntents.LaunchDashboard(
-                        data = null,
-                        shouldLaunchUiTour = true
-                    )
-                )
-                null
-            }
 
             is LoaderIntents.LaunchDashboard -> {
-                process(
-                    // Wallet mode switch enabled +
-                    // have not seen educational screen yet +
-                    // did not come from signup (already logged in)
-                    // -> show educational screen
-                    if (walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL &&
-                        educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
-                        previousState.isAfterWalletCreation.not()
-                    ) {
-                        LoaderIntents.StartEducationWalletModeActivity(intent.data, intent.shouldLaunchUiTour)
-                    } else {
-                        LoaderIntents.StartMainActivity(intent.data, intent.shouldLaunchUiTour)
-                    }
+                launchDashboard(
+                    isAfterWalletCreation = previousState.isAfterWalletCreation,
+                    data = intent.data,
+                    shouldLaunchUiTour = intent.shouldLaunchUiTour
                 )
+
                 null
             }
             is LoaderIntents.UpdateLoadingStep -> {
@@ -143,6 +126,23 @@ class LoaderModel(
                     }
                 )
         }
+    }
+
+    private fun launchDashboard(isAfterWalletCreation: Boolean, data: String?, shouldLaunchUiTour: Boolean) {
+        process(
+            // Wallet mode switch enabled +
+            // have not seen educational screen yet +
+            // did not come from signup (already logged in)
+            // -> show educational screen
+            if (walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL &&
+                educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
+                isAfterWalletCreation.not()
+            ) {
+                LoaderIntents.StartEducationalWalletModeActivity(data, shouldLaunchUiTour)
+            } else {
+                LoaderIntents.StartMainActivity(data, shouldLaunchUiTour)
+            }
+        )
     }
 
     private fun showToast(toastType: ToastType) {

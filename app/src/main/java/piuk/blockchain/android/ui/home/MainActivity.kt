@@ -692,10 +692,6 @@ class MainActivity :
                 analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Origin.Deeplink))
                 showReferralBottomSheet(newState.referral.referralInfo)
             }
-
-//            ViewToLaunch.ShowEducationalWalletMode -> {
-//                showBottomSheet(EducationalWalletModeSheet.newInstance())
-//            }
         }.exhaustive
 
         // once we've completed a loop of render with a view to launch

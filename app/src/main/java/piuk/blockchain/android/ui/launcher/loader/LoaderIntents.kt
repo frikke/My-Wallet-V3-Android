@@ -28,13 +28,12 @@ sealed class LoaderIntents : MviIntent<LoaderState> {
             oldState.copy(nextLoadingStep = LoadingStep.Main(data, shouldLaunchUiTour))
     }
 
-    data class StartEducationWalletModeActivity(val data: String?, val shouldLaunchUiTour: Boolean) : LoaderIntents() {
+    data class StartEducationalWalletModeActivity(
+        val data: String?,
+        val shouldLaunchUiTour: Boolean
+    ) : LoaderIntents() {
         override fun reduce(oldState: LoaderState): LoaderState =
             oldState.copy(nextLoadingStep = LoadingStep.EducationalWalletMode(data, shouldLaunchUiTour))
-    }
-
-    object OnEmailVerificationFinished : LoaderIntents() {
-        override fun reduce(oldState: LoaderState): LoaderState = oldState
     }
 
     data class DecryptAndSetupMetadata(val secondPassword: String) : LoaderIntents() {

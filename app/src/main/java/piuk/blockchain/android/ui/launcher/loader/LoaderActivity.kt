@@ -139,11 +139,11 @@ class LoaderActivity :
         )
 
     override fun onEmailVerified() {
-        model.process(LoaderIntents.OnEmailVerificationFinished)
+        model.process(LoaderIntents.LaunchDashboard(data = null, shouldLaunchUiTour = true))
     }
 
     override fun onEmailVerificationSkipped() {
-        model.process(LoaderIntents.OnEmailVerificationFinished)
+        model.process(LoaderIntents.LaunchDashboard(data = null, shouldLaunchUiTour = true))
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffSkipped(LaunchOrigin.SIGN_UP))
     }
 
