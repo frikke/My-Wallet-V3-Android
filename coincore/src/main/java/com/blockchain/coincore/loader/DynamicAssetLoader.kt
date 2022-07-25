@@ -221,7 +221,9 @@ internal class DynamicAssetLoader(
             activeInterestFlow,
             supportedFiatsFlow
         ) { activeTrading, activeInterest, supportedFiats ->
-            activeTrading + activeInterest + supportedFiats
+            activeTrading +
+                activeInterest.filter { it.currency !in activeTrading.map { active -> active.currency } } +
+                supportedFiats
         }
     }
 

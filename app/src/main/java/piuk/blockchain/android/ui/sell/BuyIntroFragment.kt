@@ -173,9 +173,6 @@ class BuyIntroFragment :
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .trackProgress(activityIndicator.takeIf { showLoading })
-            .doOnSubscribe {
-                buyAdapter.items = emptyList()
-            }
             .subscribeBy(
                 onSuccess = { items ->
                     renderBuyIntro(items)

@@ -78,11 +78,11 @@ class NabuAnalyticsTest {
         val testSubscriber = subject.flush().test()
 
         testSubscriber.assertComplete()
-        Mockito.verify(analyticsService, times(9))
+        Mockito.verify(analyticsService, times(3))
             .postEvents(any(), any(), any(), any(), any(), anyOrNull())
 
-        Mockito.verify(localAnalyticsPersistence, times(8)).removeOldestItems(10)
-        Mockito.verify(localAnalyticsPersistence).removeOldestItems(4)
+        Mockito.verify(localAnalyticsPersistence, times(2)).removeOldestItems(30)
+        Mockito.verify(localAnalyticsPersistence).removeOldestItems(24)
     }
 
     @Test
