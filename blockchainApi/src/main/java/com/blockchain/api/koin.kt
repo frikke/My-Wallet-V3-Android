@@ -19,6 +19,7 @@ import com.blockchain.api.ethereum.evm.EvmApi
 import com.blockchain.api.fiatcurrencies.FiatCurrenciesApi
 import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.nabu.NabuUserApi
+import com.blockchain.api.nfts.api.NftApi
 import com.blockchain.api.nftwaitlist.data.api.NftWaitlistApi
 import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.payments.PaymentsApi
@@ -38,6 +39,7 @@ import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.api.services.FiatCurrenciesApiService
 import com.blockchain.api.services.InterestApiService
 import com.blockchain.api.services.NabuUserService
+import com.blockchain.api.services.NftService
 import com.blockchain.api.services.NftWaitlistApiService
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.services.NonCustodialErc20Service
@@ -324,6 +326,13 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(kotlinXApiRetrofit).create(NftWaitlistApi::class.java)
         NftWaitlistApiService(
             nftWaitlistApi = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(explorerApi).create(NftApi::class.java)
+        NftService(
+            nftApi = api
         )
     }
 }
