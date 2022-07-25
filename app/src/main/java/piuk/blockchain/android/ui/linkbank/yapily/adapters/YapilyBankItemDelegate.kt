@@ -42,7 +42,7 @@ class YapilyBankViewHolder(
             Glide.with(bankIcon)
                 .load(item.iconLink.toString())
                 .centerCrop()
-                .placeholder(R.drawable.ic_bank_transfer)
+                .placeholder(R.drawable.ic_bank_icon)
                 .into(bankIcon)
         }
     }

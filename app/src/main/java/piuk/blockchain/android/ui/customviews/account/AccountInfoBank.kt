@@ -47,7 +47,7 @@ class AccountInfoBank @JvmOverloads constructor(
     ) {
         with(binding) {
             bankName.text = account.label
-            bankLogo.setImageResource(R.drawable.ic_bank_transfer)
+            bankLogo.setImageResource(R.drawable.ic_bank_icon)
             bankDetails.text = context.getString(
                 R.string.common_hyphenated_strings,
                 if (account.accountType.isBlank()) {

@@ -21,6 +21,7 @@ import androidx.compose.ui.res.dimensionResource
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.switcher.SwitcherState
@@ -48,7 +49,6 @@ import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
-import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -80,7 +80,6 @@ import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditTe
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
-import piuk.blockchain.android.ui.dashboard.showLoading
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -403,9 +402,10 @@ class SimpleBuyCryptoFragment :
         updateInputStateUI(newState)
 
         if (newState.paymentOptions.availablePaymentMethods.isEmpty()) {
-            paymentMethodLoading()
+            showLoading(true)
             disableRecurringBuyCta(false)
         } else {
+            showLoading(false)
             newState.selectedPaymentMethodDetails?.let { paymentMethod ->
                 renderDefinedPaymentMethod(newState, paymentMethod)
             }
@@ -605,14 +605,14 @@ class SimpleBuyCryptoFragment :
         with(binding) {
             paymentMethod.visible()
             paymentMethodSeparator.visible()
-            paymentMethodTitle.visible()
-            paymentMethodLimit.visible()
-            paymentMethodDetailsRoot.visible()
-            paymentMethodDetailsRoot.setOnClickListener {
-                showPaymentMethodsBottomSheet(
-                    state = state.paymentOptions.availablePaymentMethods.toPaymentMethodChooserState(),
-                    paymentOptions = state.paymentOptions
-                )
+            paymentMethodDetailsRoot.apply {
+                visible()
+                onClick = {
+                    showPaymentMethodsBottomSheet(
+                        state = state.paymentOptions.availablePaymentMethods.toPaymentMethodChooserState(),
+                        paymentOptions = state.paymentOptions
+                    )
+                }
             }
         }
 
@@ -633,7 +633,7 @@ class SimpleBuyCryptoFragment :
             with(binding) {
                 btnError.gone()
                 btnContinue.visible()
-                paymentMethodTagRow.tags = emptyList()
+                paymentMethodDetailsRoot.tags = emptyList()
             }
         }
     }
@@ -687,98 +687,113 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun renderFundsPayment(paymentMethod: PaymentMethod.Funds) {
-        with(binding) {
-            paymentMethodBankInfo.gone()
-            assetResources.loadAssetIcon(paymentMethodIcon, paymentMethod.fiatCurrency)
-            paymentMethodTitle.text = paymentMethod.fiatCurrency.name
-
-            paymentMethodLimit.text = paymentMethod.limits.max.toStringWithSymbol()
+        binding.paymentMethodDetailsRoot.apply {
+            primaryText = paymentMethod.fiatCurrency.name
+            secondaryText = paymentMethod.limits.max.toStringWithSymbol()
+            startImageResource = if (paymentMethod.fiatCurrency.logo.isNotEmpty()) {
+                ImageResource.Remote(paymentMethod.fiatCurrency.logo)
+            } else {
+                ImageResource.Local(R.drawable.ic_default_asset_logo)
+            }
         }
     }
 
     private fun renderBankPayment(paymentMethod: PaymentMethod.Bank) {
-        with(binding) {
-            paymentMethodIcon.setImageResource(R.drawable.ic_bank_transfer)
-            if (paymentMethod.iconUrl.isNotEmpty()) {
-                Glide.with(requireContext()).load(paymentMethod.iconUrl).into(paymentMethodIcon)
+        binding.paymentMethodDetailsRoot.apply {
+            primaryText = paymentMethod.bankName
+            secondaryText = getString(R.string.payment_method_limit, paymentMethod.limits.max.toStringWithSymbol())
+            startImageResource = if (paymentMethod.iconUrl.isNotEmpty()) {
+                ImageResource.Remote(paymentMethod.iconUrl)
+            } else {
+                ImageResource.Local((R.drawable.ic_bank_icon))
             }
-
-            paymentMethodTitle.text = paymentMethod.bankName
-            paymentMethodBankInfo.text =
-                requireContext().getString(
-                    R.string.payment_method_type_account_info, paymentMethod.uiAccountType,
-                    paymentMethod.accountEnding
-                )
-            paymentMethodBankInfo.visible()
-            paymentMethodLimit.text =
-                getString(R.string.payment_method_limit, paymentMethod.limits.max.toStringWithSymbol())
         }
     }
 
     private fun renderUndefinedCardPayment(selectedPaymentMethod: PaymentMethod.UndefinedCard) {
-        with(binding) {
-            paymentMethodBankInfo.gone()
-            paymentMethodIcon.setImageResource(R.drawable.ic_payment_card)
-            paymentMethodTitle.text = if (canUseCreditCards())
-                getString(R.string.credit_or_debit_card) else getString(R.string.add_debit_card)
-            paymentMethodLimit.text =
+        binding.paymentMethodDetailsRoot.apply {
+            primaryText = if (canUseCreditCards()) {
+                getString(R.string.credit_or_debit_card)
+            } else {
+                getString(R.string.add_debit_card)
+            }
+            secondaryText =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+            startImageResource =
+                ImageResource.Local(contentDescription = "UndefinedCard", id = R.drawable.ic_payment_card)
         }
     }
 
     private fun renderUndefinedBankTransfer(selectedPaymentMethod: PaymentMethod.UndefinedBankTransfer) {
-        with(binding) {
-            paymentMethodBankInfo.gone()
-            paymentMethodIcon.setImageResource(R.drawable.ic_bank_transfer)
-            paymentMethodTitle.text = getString(R.string.easy_bank_transfer)
-            paymentMethodLimit.text =
+        binding.paymentMethodDetailsRoot.apply {
+            primaryText = getString(R.string.easy_bank_transfer)
+            secondaryText =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+            startImageResource = ImageResource.Local(
+                contentDescription = "UnderfinedBankTransfer",
+                id = R.drawable.ic_bank_icon
+            )
         }
     }
 
     private fun renderUndefinedBankAccount(selectedPaymentMethod: PaymentMethod.UndefinedBankAccount) {
-        with(binding) {
-            paymentMethodBankInfo.gone()
-            paymentMethodIcon.setImageResource(R.drawable.ic_bank_transfer)
-            paymentMethodTitle.text = getString(
+        binding.paymentMethodDetailsRoot.apply {
+            primaryText = getString(
                 StringLocalizationUtil.getBankDepositTitle(selectedPaymentMethod.fiatCurrency.networkTicker)
             )
-            paymentMethodLimit.text =
+            secondaryText =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+            startImageResource = ImageResource.Local(
+                contentDescription = "UnderfinedBankTransfer",
+                id = R.drawable.ic_bank_icon
+            )
         }
     }
 
     private fun renderCardPayment(selectedPaymentMethod: PaymentMethod.Card) {
         with(binding) {
-            paymentMethodBankInfo.gone()
-            paymentMethodIcon.setImageResource(selectedPaymentMethod.cardType.toCardType().icon())
-            paymentMethodTitle.text = selectedPaymentMethod.detailedLabel()
-            paymentMethodLimit.text =
-                getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
-
-            if (cardRejectionFF.isEnabled) {
-                when (val cardState = selectedPaymentMethod.cardRejectionState) {
-                    is CardRejectionState.AlwaysRejected -> {
-                        cardState.renderAlwaysRejectedCardError()
-                        btnContinue.gone()
-                    }
-                    is CardRejectionState.MaybeRejected -> {
-                        btnError.gone()
-                        btnContinue.visible()
-                        paymentMethodTagRow.tags = listOf(
-                            TagViewState(
-                                cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
-                                TagType.Warning()
+            paymentMethodDetailsRoot.apply {
+                primaryText = selectedPaymentMethod.dottedEndDigits()
+                secondaryText =
+                    getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+                startImageResource = ImageResource.Local(
+                    selectedPaymentMethod.cardType.toCardType().icon()
+                )
+                if (cardRejectionFF.isEnabled) {
+                    when (val cardState = selectedPaymentMethod.cardRejectionState) {
+                        is CardRejectionState.AlwaysRejected -> {
+                            cardState.renderAlwaysRejectedCardError()
+                            btnContinue.gone()
+                        }
+                        is CardRejectionState.MaybeRejected -> {
+                            btnError.gone()
+                            btnContinue.visible()
+                            tags = listOf(
+                                TagViewState(
+                                    cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
+                                    TagType.Warning()
+                                )
                             )
-                        )
-                    }
-                    else -> {
-                        btnError.gone()
-                        btnContinue.visible()
+                        }
+                        else -> {
+                            btnError.gone()
+                            btnContinue.visible()
+                        }
                     }
                 }
             }
         }
+    }
+
+    private fun renderGooglePayPayment(selectedPaymentMethod: PaymentMethod.GooglePay) {
+        binding.paymentMethodDetailsRoot.apply {
+            primaryText = selectedPaymentMethod.detailedLabel()
+            startImageResource = ImageResource.Local(
+                contentDescription = "googlePayIcon",
+                id = R.drawable.google_pay_mark
+            )
+        }
+        disableRecurringBuyCta(false)
     }
 
     private fun PaymentMethod?.isCardAndAlwaysRejected(): Boolean =
@@ -819,13 +834,17 @@ class SimpleBuyCryptoFragment :
             }
         }
 
-    private fun paymentMethodLoading() {
+    private fun showLoading(isVisible: Boolean) {
         with(binding) {
-            paymentMethodTitle.showLoading()
-            paymentMethodBankInfo.showLoading()
-            paymentMethodLimit.showLoading()
-            paymentMethodIcon.resetLoader()
-            binding.paymentMethodDetailsRoot.setOnClickListener { }
+            if (isVisible) {
+                paymentMethodDetailsRoot.gone()
+                shimmer.visible()
+                progressBar.visible()
+            } else {
+                shimmer.gone()
+                paymentMethodDetailsRoot.visible()
+                progressBar.gone()
+            }
         }
     }
 
@@ -1015,16 +1034,6 @@ class SimpleBuyCryptoFragment :
                 navigator().goToBlockedBuyScreen()
             }
         }.exhaustive
-    }
-
-    private fun renderGooglePayPayment(selectedPaymentMethod: PaymentMethod.GooglePay) {
-        with(binding) {
-            paymentMethodBankInfo.gone()
-            paymentMethodIcon.setImageResource(R.drawable.google_pay_mark)
-            paymentMethodTitle.text = selectedPaymentMethod.detailedLabel()
-            paymentMethodLimit.gone()
-        }
-        disableRecurringBuyCta(false)
     }
 
     override fun onPause() {
