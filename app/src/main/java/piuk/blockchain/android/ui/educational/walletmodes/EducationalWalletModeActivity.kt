@@ -69,6 +69,4 @@ class EducationalWalletModeActivity : BlockchainActivity() {
             putExtra(REDIRECT_TO_COWBOWS_PROMO, redirectToCowbowsPromo)
         }
     }
-
-    enum class NextScreen()
 }

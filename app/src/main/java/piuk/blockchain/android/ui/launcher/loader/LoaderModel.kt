@@ -128,28 +128,32 @@ class LoaderModel(
     }
 
     private fun launchDashboard(
-        isAfterWalletCreation:
-            Boolean,
+        isAfterWalletCreation: Boolean,
         data: String?,
         shouldLaunchUiTour: Boolean,
         isUserInCowboysPromo: Boolean
     ) {
         process(
-            // Wallet mode switch enabled +
-            // have not seen educational screen yet +
-            // did not come from signup (already logged in)
-            // -> show educational screen
-            if (walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL &&
-                educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
-                isAfterWalletCreation.not()
-            ) {
-                LoaderIntents.StartEducationalWalletModeActivity(
-                    data = data
-                )
-            } else if (isUserInCowboysPromo) {
-                LoaderIntents.StartCowboysInterstitialPromo
-            } else {
-                LoaderIntents.StartMainActivity(data, shouldLaunchUiTour)
+            when {
+
+                // Wallet mode switch enabled
+                // + have not seen educational screen yet
+                // + did not come from signup (already logged in)
+                // -> show educational screen
+                walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL &&
+                    educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
+                    isAfterWalletCreation.not() -> {
+                    LoaderIntents.StartEducationalWalletModeActivity(
+                        data = data
+                    )
+                }
+
+                isUserInCowboysPromo -> {
+                    LoaderIntents.StartCowboysInterstitialPromo
+                }
+                else -> {
+                    LoaderIntents.StartMainActivity(data, shouldLaunchUiTour)
+                }
             }
         )
     }

@@ -9,9 +9,7 @@ sealed class LoadingStep {
     object EmailVerification : LoadingStep()
     object RequestPin : LoadingStep()
     object CowboysInterstitial : LoadingStep()
-    data class EducationalWalletMode(
-        val data: String?
-    ) : LoadingStep()
+    data class EducationalWalletMode(val data: String?) : LoadingStep()
 }
 
 enum class ProgressStep {
