@@ -34,9 +34,7 @@ fun EducationalWalletModeTradingScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                imageResource = ImageResource.Local(
-                    R.drawable.ic_educational_wallet_trading
-                )
+                imageResource = ImageResource.Local(R.drawable.ic_educational_wallet_trading)
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))

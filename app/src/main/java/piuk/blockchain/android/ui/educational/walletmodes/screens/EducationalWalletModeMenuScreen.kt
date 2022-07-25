@@ -34,9 +34,7 @@ fun EducationalWalletModeMenuScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                imageResource = ImageResource.Local(
-                    R.drawable.ic_educational_wallet_menu
-                )
+                imageResource = ImageResource.Local(R.drawable.ic_educational_wallet_menu)
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))
