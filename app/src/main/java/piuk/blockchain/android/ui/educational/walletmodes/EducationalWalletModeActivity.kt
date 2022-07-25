@@ -18,11 +18,12 @@ class EducationalWalletModeActivity : BlockchainActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            EducationalWalletModeScreen {
-                viewModel.markAsSeen()
-
-                launchMainActivity()
-            }
+            EducationalWalletModeScreen(
+                onClick = {
+                    viewModel.markAsSeen()
+                    launchMainActivity()
+                }
+            )
         }
     }
 

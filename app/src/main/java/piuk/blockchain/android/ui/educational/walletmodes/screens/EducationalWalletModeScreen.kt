@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.educational.walletmodes.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -35,7 +36,7 @@ import piuk.blockchain.android.R
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun EducationalWalletModeScreen(
-    getStartedOnClick: () -> Unit,
+    onClick: () -> Unit,
 ) {
     val pagerState = rememberPagerState()
     var buttonVisible by remember { mutableStateOf(false) }
@@ -51,9 +52,7 @@ fun EducationalWalletModeScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             modifier = Modifier.fillMaxSize(),
-            imageResource = ImageResource.Local(
-                R.drawable.background_gradient
-            ),
+            imageResource = ImageResource.Local(R.drawable.background_gradient),
             contentScale = ContentScale.FillBounds
         )
 
@@ -65,6 +64,14 @@ fun EducationalWalletModeScreen(
             EducationalWalletModePage(pageIndex)
         }
 
+        Image(
+            modifier = Modifier
+                .clickable { onClick() }
+                .align(Alignment.TopEnd)
+                .padding(AppTheme.dimensions.paddingLarge),
+            imageResource = ImageResource.Local(R.drawable.ic_close_circle)
+        )
+
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -75,7 +82,7 @@ fun EducationalWalletModeScreen(
                 TertiaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.educational_wallet_mode_cta),
-                    onClick = getStartedOnClick
+                    onClick = onClick
                 )
             }
 
