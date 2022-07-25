@@ -29,7 +29,12 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.OrderCardConfirm -> {
-                destination = BlockchainCardDestination.OrderCardConfirmDestination
+                // Check if this destination is already in the backstack (popBackStack returns true)
+                // If not, create it and navigate to it
+                // If yes pop to it and return null.
+                if (!navController.popBackStack(BlockchainCardDestination.OrderCardConfirmDestination.route, false))
+                    destination = BlockchainCardDestination.OrderCardConfirmDestination
+                else null
             }
 
             is BlockchainCardNavigationEvent.RetryOrderCard -> {
@@ -58,6 +63,7 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.CreateCardFailed -> {
+                navController.popBackStack(BlockchainCardDestination.OrderCardDestination.route, true)
                 destination = BlockchainCardDestination.CreateCardFailedDestination
             }
 
@@ -138,6 +144,25 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             is BlockchainCardNavigationEvent.SeeTransactionDetails -> {
                 destination = BlockchainCardDestination.TransactionDetailsDestination
             }
+
+            is BlockchainCardNavigationEvent.SeeTermsAndConditions -> {
+                destination = BlockchainCardDestination.TermsAndConditionsDestination
+            }
+
+            is BlockchainCardNavigationEvent.SeeShortFormDisclosure -> {
+                destination = BlockchainCardDestination.ShortFormDisclosureDestination
+            }
+
+            // For now, all support pages go to the same place
+            is BlockchainCardNavigationEvent.SeeCardLostPage -> {
+                destination = BlockchainCardDestination.CardLostPageDestination
+            }
+            is BlockchainCardNavigationEvent.SeeFAQPage -> {
+                destination = BlockchainCardDestination.FAQPageDestination
+            }
+            is BlockchainCardNavigationEvent.SeeContactSupportPage -> {
+                destination = BlockchainCardDestination.ContactSupportPageDestination
+            }
         }.exhaustive
 
         if (destination !is BlockchainCardDestination.NoDestination)
@@ -197,6 +222,16 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
     object DismissBillingAddressUpdateResult : BlockchainCardNavigationEvent()
 
     object SeeTransactionDetails : BlockchainCardNavigationEvent()
+
+    object SeeTermsAndConditions : BlockchainCardNavigationEvent()
+
+    object SeeShortFormDisclosure : BlockchainCardNavigationEvent()
+
+    object SeeCardLostPage : BlockchainCardNavigationEvent()
+
+    object SeeFAQPage : BlockchainCardNavigationEvent()
+
+    object SeeContactSupportPage : BlockchainCardNavigationEvent()
 }
 
 sealed class BlockchainCardDestination(override val route: String) : ComposeNavigationDestination {
@@ -244,4 +279,14 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
         BlockchainCardDestination(route = "billing_address_update_failed")
 
     object TransactionDetailsDestination : BlockchainCardDestination(route = "transaction_details")
+
+    object TermsAndConditionsDestination : BlockchainCardDestination(route = "terms_and_conditions")
+
+    object ShortFormDisclosureDestination : BlockchainCardDestination(route = "short_form_disclosure")
+
+    object CardLostPageDestination : BlockchainCardDestination(route = "card_lost_page")
+
+    object FAQPageDestination : BlockchainCardDestination(route = "faq_page")
+
+    object ContactSupportPageDestination : BlockchainCardDestination(route = "contact_support_page")
 }

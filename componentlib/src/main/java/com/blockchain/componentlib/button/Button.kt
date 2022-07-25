@@ -60,8 +60,8 @@ fun Button(
         mutableStateOf(
             when (state) {
                 ButtonState.Loading,
-                ButtonState.Enabled -> if (isDarkTheme) defaultBackgroundLightColor else defaultBackgroundDarkColor
-                ButtonState.Disabled -> if (isDarkTheme) disabledBackgroundLightColor else disabledBackgroundDarkColor
+                ButtonState.Enabled -> if (isDarkTheme) defaultBackgroundDarkColor else defaultBackgroundLightColor
+                ButtonState.Disabled -> if (isDarkTheme) disabledBackgroundDarkColor else disabledBackgroundLightColor
             }
         )
     }

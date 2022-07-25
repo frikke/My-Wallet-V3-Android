@@ -10,6 +10,7 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     // Common
     object HideBottomSheet : BlockchainCardIntent()
     object SnackbarDismissed : BlockchainCardIntent()
+    object LoadLegalDocuments : BlockchainCardIntent()
 
     // Order Card
     data class OrderCardKycComplete(val ssn: String) : BlockchainCardIntent()
@@ -25,6 +26,9 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object ManageCard : BlockchainCardIntent()
     object OrderCardKYCAddress : BlockchainCardIntent()
     object OrderCardSSNAddress : BlockchainCardIntent()
+    object OnSeeTermsAndConditions : BlockchainCardIntent()
+    object TermsAndConditionsAccepted : BlockchainCardIntent()
+    object OnSeeShortFormDisclosure : BlockchainCardIntent()
 
     // ManageCard
     object LockCard : BlockchainCardIntent()
@@ -51,4 +55,7 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object LoadUserFirstAndLastName : BlockchainCardIntent()
     object LoadTransactions : BlockchainCardIntent()
     object RefreshTransactions : BlockchainCardIntent()
+    object SeeCardLostPage : BlockchainCardIntent()
+    object SeeFAQPage : BlockchainCardIntent()
+    object SeeContactSupportPage : BlockchainCardIntent()
 }

@@ -1,5 +1,6 @@
 package com.blockchain.api.blockchainCard.data
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -95,4 +96,25 @@ class BlockchainCardTransactionDto(
     val networkConversionRate: Int?,
     val declineReason: String?,
     val fee: PriceDto,
+)
+
+@Serializable
+class BlockchainCardLegalDocumentsDto(
+    @SerialName("short-form-disclosure")
+    val shortFormDisclosure: BlockchainCardLegalDocumentDto,
+
+    @SerialName("terms-and-conditions")
+    val termsAndConditions: BlockchainCardLegalDocumentDto
+)
+
+@Serializable
+class BlockchainCardLegalDocumentDto(
+    val url: String,
+    val version: String,
+    val acceptedVersion: String?
+)
+
+@Serializable
+class AcceptedDocumentFormDto(
+    val acceptedVersion: Int
 )

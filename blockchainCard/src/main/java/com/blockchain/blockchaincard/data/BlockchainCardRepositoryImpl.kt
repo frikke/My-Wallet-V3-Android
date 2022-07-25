@@ -2,6 +2,9 @@ package com.blockchain.blockchaincard.data
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.blockchainCard.data.AcceptedDocumentFormDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentsDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardDto
 import com.blockchain.api.blockchainCard.data.ProductDto
@@ -14,6 +17,8 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
+import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
+import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocuments
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
@@ -40,7 +45,6 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import java.math.BigDecimal
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
-
 internal class BlockchainCardRepositoryImpl(
     private val blockchainCardService: BlockchainCardService,
     private val eligibilityApiService: EligibilityApiService,
@@ -210,7 +214,7 @@ internal class BlockchainCardRepositoryImpl(
                                     )
                             }
                         }
-                    }
+                    }.wrapBlockchainCardError()
             }.wrapBlockchainCardError()
 
     override suspend fun loadAccountBalance(
@@ -273,6 +277,30 @@ internal class BlockchainCardRepositoryImpl(
             .map { states -> states.map(StateResponse::toDomain) }
             .wrapBlockchainCardError()
 
+    override suspend fun getLegalDocuments(): Outcome<BlockchainCardError, BlockchainCardLegalDocuments> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .flatMap { tokenResponse ->
+                blockchainCardService.getLegalDocuments(
+                    authHeader = tokenResponse
+                )
+            }.map { response ->
+                response.toDomainModel()
+            }.wrapBlockchainCardError()
+
+    override suspend fun acceptLegalDocument(
+        documentName: String,
+        acceptedVersion: String
+    ): Outcome<BlockchainCardError, BlockchainCardLegalDocuments> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .flatMap { tokenResponse ->
+                blockchainCardService.acceptLegalDocument(
+                    authHeader = tokenResponse,
+                    documentName = documentName,
+                    acceptedDocumentForm = AcceptedDocumentFormDto(acceptedVersion.toInt())
+                )
+            }.map { response ->
+                response.toDomainModel()
+            }.wrapBlockchainCardError()
     //
     // Domain Model Conversion
     //
@@ -354,6 +382,20 @@ internal class BlockchainCardRepositoryImpl(
                 fiatCurrency = FiatCurrency.fromCurrencyCode(fee.symbol),
                 major = BigDecimal(fee.value)
             ),
+        )
+
+    private fun BlockchainCardLegalDocumentsDto.toDomainModel(): BlockchainCardLegalDocuments =
+        BlockchainCardLegalDocuments(
+            shortFormDisclosure = shortFormDisclosure.toDomainModel(),
+            termsAndConditions = termsAndConditions.toDomainModel()
+        )
+
+    private fun BlockchainCardLegalDocumentDto.toDomainModel(): BlockchainCardLegalDocument =
+        BlockchainCardLegalDocument(
+            url = url,
+            version = version,
+            acceptedVersion = acceptedVersion,
+            seen = false
         )
 
     private fun NabuApiException.toBlockchainCardError(): BlockchainCardError =

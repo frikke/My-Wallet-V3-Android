@@ -11,6 +11,7 @@ import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewState
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
+import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.fold
 import timber.log.Timber
 
@@ -35,6 +36,7 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
         residentialAddress = state.residentialAddress,
         ssn = state.ssn,
         countryStateList = state.countryStateList,
+        legalDocuments = state.legalDocuments,
     )
 
     override suspend fun handleIntent(
@@ -54,6 +56,7 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
 
             is BlockchainCardIntent.OrderCardKycComplete -> {
                 updateState { it.copy(ssn = intent.ssn) }
+                onIntent(BlockchainCardIntent.LoadLegalDocuments)
                 navigate(BlockchainCardNavigationEvent.OrderCardConfirm)
             }
 
@@ -117,16 +120,29 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
             is BlockchainCardIntent.CreateCard -> {
                 modelState.selectedCardProduct?.let { product ->
                     modelState.ssn?.let { ssn ->
-                        navigate(BlockchainCardNavigationEvent.CreateCardInProgress)
-                        blockchainCardRepository.createCard(productCode = product.productCode, ssn = ssn)
-                            .doOnFailure { error ->
-                                updateState { it.copy(errorState = BlockchainCardErrorState.ScreenErrorState(error)) }
-                                navigate(BlockchainCardNavigationEvent.CreateCardFailed)
+                        modelState.legalDocuments?.let { documents ->
+                            navigate(BlockchainCardNavigationEvent.CreateCardInProgress)
+                            blockchainCardRepository.acceptLegalDocument(
+                                documentName = "terms-and-conditions",
+                                acceptedVersion = documents.termsAndConditions.version
+                            ).flatMap {
+                                blockchainCardRepository.createCard(productCode = product.productCode, ssn = ssn)
+                                    .doOnFailure { error ->
+                                        updateState {
+                                            it.copy(
+                                                errorState = BlockchainCardErrorState.ScreenErrorState(error)
+                                            )
+                                        }
+                                        navigate(BlockchainCardNavigationEvent.CreateCardFailed)
+                                    }
+                                    .doOnSuccess { card ->
+                                        updateState { it.copy(card = card) }
+                                        navigate(BlockchainCardNavigationEvent.CreateCardSuccess)
+                                    }
+                            }.doOnFailure { error ->
+                                Timber.e("Unable to update legal documents: $error")
                             }
-                            .doOnSuccess { card ->
-                                updateState { it.copy(card = card) }
-                                navigate(BlockchainCardNavigationEvent.CreateCardSuccess)
-                            }
+                        }
                     }
                 }
             }
@@ -142,6 +158,54 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
             is BlockchainCardIntent.ManageCard -> {
                 modelState.card?.let {
                     navigate(BlockchainCardNavigationEvent.ManageCard(modelState.card))
+                }
+            }
+
+            is BlockchainCardIntent.LoadLegalDocuments -> {
+                blockchainCardRepository.getLegalDocuments()
+                    .doOnSuccess { documents ->
+                        Timber.d("Legal documents loaded: $documents")
+                        updateState { it.copy(legalDocuments = documents) }
+                    }
+                    .doOnFailure { error ->
+                        Timber.e("Unable to get legal documents: $error")
+                    }
+            }
+
+            is BlockchainCardIntent.OnSeeTermsAndConditions -> {
+                modelState.legalDocuments?.let { documents ->
+                    val documentsUpdated = documents.copy(
+                        termsAndConditions = documents.termsAndConditions.copy(seen = true)
+                    )
+                    updateState { it.copy(legalDocuments = documentsUpdated) }
+
+                    navigate(BlockchainCardNavigationEvent.SeeTermsAndConditions)
+                }
+            }
+
+            is BlockchainCardIntent.TermsAndConditionsAccepted -> {
+                modelState.legalDocuments?.let { documents ->
+                    blockchainCardRepository.acceptLegalDocument(
+                        documentName = "terms-and-conditions",
+                        acceptedVersion = documents.termsAndConditions.version
+                    ).doOnSuccess { documentsUpdated ->
+                        Timber.d("Legal documents updated: $documentsUpdated")
+                        updateState { it.copy(legalDocuments = documents) }
+                        navigate(BlockchainCardNavigationEvent.OrderCardConfirm)
+                    }.doOnFailure { error ->
+                        Timber.e("Unable to update legal documents: $error")
+                    }
+                }
+            }
+
+            is BlockchainCardIntent.OnSeeShortFormDisclosure -> {
+                modelState.legalDocuments?.let { documents ->
+                    val documentsUpdated = documents.copy(
+                        shortFormDisclosure = documents.shortFormDisclosure.copy(seen = true)
+                    )
+                    updateState { it.copy(legalDocuments = documentsUpdated) }
+
+                    navigate(BlockchainCardNavigationEvent.SeeShortFormDisclosure)
                 }
             }
         }

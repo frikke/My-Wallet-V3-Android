@@ -69,6 +69,20 @@ data class BlockchainCardTransaction(
     val fee: FiatValue,
 ) : Parcelable
 
+@Parcelize
+data class BlockchainCardLegalDocuments(
+    val shortFormDisclosure: BlockchainCardLegalDocument,
+    val termsAndConditions: BlockchainCardLegalDocument
+) : Parcelable
+
+@Parcelize
+data class BlockchainCardLegalDocument(
+    val url: String,
+    val version: String,
+    val acceptedVersion: String?,
+    val seen: Boolean
+) : Parcelable
+
 enum class BlockchainCardBrand {
     VISA,
     MASTERCARD,

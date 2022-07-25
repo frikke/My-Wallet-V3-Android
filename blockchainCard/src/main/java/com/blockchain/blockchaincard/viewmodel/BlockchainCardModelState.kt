@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
+import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocuments
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.coincore.AccountBalance
@@ -25,6 +26,7 @@ data class BlockchainCardModelState(
     val ssn: String? = null,
     val countryStateList: List<Region.State>? = null,
     val errorState: BlockchainCardErrorState? = null,
+    val legalDocuments: BlockchainCardLegalDocuments? = null,
 ) : ModelState
 
 sealed class BlockchainCardErrorState {
