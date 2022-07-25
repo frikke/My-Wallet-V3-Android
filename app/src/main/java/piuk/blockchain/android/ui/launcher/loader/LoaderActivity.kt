@@ -231,8 +231,8 @@ class LoaderActivity :
         editText.setHint(R.string.password)
         editText.inputType =
             InputType.TYPE_CLASS_TEXT or
-                InputType.TYPE_TEXT_VARIATION_PASSWORD or
-                InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+            InputType.TYPE_TEXT_VARIATION_PASSWORD or
+            InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 
         val frameLayout = getAlertDialogPaddedView(editText)
 

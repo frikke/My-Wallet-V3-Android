@@ -129,7 +129,8 @@ class LoaderModel(
 
     private fun launchDashboard(
         isAfterWalletCreation:
-        Boolean, data: String?,
+            Boolean,
+        data: String?,
         shouldLaunchUiTour: Boolean,
         isUserInCowboysPromo: Boolean
     ) {
