@@ -63,7 +63,6 @@ fun EducationalWalletModeMenuScreen() {
                 .fillMaxWidth()
                 .weight(0.75F)
         ) {
-
         }
     }
 }

@@ -63,7 +63,6 @@ fun EducationalWalletModeIntroScreen() {
                 .fillMaxWidth()
                 .weight(0.75F)
         ) {
-
         }
     }
 }

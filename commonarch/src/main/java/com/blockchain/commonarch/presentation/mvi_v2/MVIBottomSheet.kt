@@ -49,7 +49,7 @@ fun BottomSheetDialogFragment.disableDragging() {
     }
 }
 
-fun BottomSheetDialog.forceExpanded(){
+fun BottomSheetDialog.forceExpanded() {
     setOnShowListener {
         behavior.apply {
             skipCollapsed = true

@@ -20,6 +20,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.BehaviorSubject
+import java.io.Serializable
 import kotlinx.coroutines.rx3.rxCompletable
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
@@ -27,7 +28,6 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
 import piuk.blockchain.androidcore.utils.extensions.then
-import java.io.Serializable
 
 class LoaderInteractor(
     private val payloadDataManager: PayloadDataManager,
