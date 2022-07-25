@@ -49,7 +49,7 @@ class BackupPhraseViewModelTest {
         every { backupPhraseService.isBackedUp() } returns true
         every { backupPhraseService.getMnemonic(any()) } returns Outcome.Success(mnemonic)
 
-        every { walletStatusPrefs.isWalletBackedUpSkipped = any() } just Runs
+        every { walletStatusPrefs.isWalletBackUpSkipped = any() } just Runs
     }
 
     @Test
@@ -115,12 +115,12 @@ class BackupPhraseViewModelTest {
         }
 
     @Test
-    fun `WHEN SkipBackup is called, THEN isWalletBackedUpSkipped should be true, EndFlow with isSuccessful called`() =
+    fun `WHEN SkipBackup is called, THEN isWalletBackUpSkipped should be true, EndFlow with isSuccessful called`() =
         runTest {
             viewModel.viewState.test {
                 viewModel.onIntent(BackupPhraseIntent.SkipBackup)
 
-                verify { walletStatusPrefs.isWalletBackedUpSkipped = true }
+                verify { walletStatusPrefs.isWalletBackUpSkipped = true }
 
                 val state = expectMostRecentItem()
                 assertEquals(FlowState.Ended(true), state.flowState)

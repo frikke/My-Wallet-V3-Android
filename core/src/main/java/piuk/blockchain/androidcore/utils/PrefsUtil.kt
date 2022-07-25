@@ -280,7 +280,7 @@ class PrefsUtil(
     override val isWalletBackedUp: Boolean
         get() = lastBackupTime != 0L
 
-    override var isWalletBackedUpSkipped: Boolean
+    override var isWalletBackUpSkipped: Boolean
         get() = getValue(IS_WALLET_BACKUP_SKIPPED, false)
         set(value) = setValue(IS_WALLET_BACKUP_SKIPPED, value)
 

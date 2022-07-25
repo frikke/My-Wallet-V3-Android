@@ -145,7 +145,7 @@ class BackupPhraseViewModel(
     }
 
     private fun markBackupAsSkipped() {
-        walletStatusPrefs.isWalletBackedUpSkipped = true
+        walletStatusPrefs.isWalletBackUpSkipped = true
     }
 
     private fun resetCopyState() {
