@@ -253,6 +253,7 @@
             android:name=".ui.settings.v2.profile.ProfileActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.dashboard.coinview.CoinViewActivity" />
+        <activity android:name=".ui.cowboys.CowboysFlowActivity" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

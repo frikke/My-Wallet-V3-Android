@@ -21,6 +21,11 @@ sealed class LoaderIntents : MviIntent<LoaderState> {
             oldState.copy(nextLoadingStep = LoadingStep.Main(data, shouldLaunchUiTour))
     }
 
+    object StartCowboysInterstitialPromo : LoaderIntents() {
+        override fun reduce(oldState: LoaderState): LoaderState =
+            oldState.copy(nextLoadingStep = LoadingStep.CowboysInterstitial)
+    }
+
     object OnEmailVerificationFinished : LoaderIntents() {
         override fun reduce(oldState: LoaderState): LoaderState = oldState
     }
@@ -47,6 +52,11 @@ sealed class LoaderIntents : MviIntent<LoaderState> {
 
     data class UpdateProgressStep(val progressStep: ProgressStep) : LoaderIntents() {
         override fun reduce(oldState: LoaderState): LoaderState = oldState.copy(nextProgressStep = progressStep)
+    }
+
+    data class UpdateCowboysPromo(private val isCowboysPromoUser: Boolean) : LoaderIntents() {
+        override fun reduce(oldState: LoaderState): LoaderState =
+            oldState.copy(isUserInCowboysPromo = isCowboysPromoUser)
     }
 
     data class UpdateLoadingStep(val loadingStep: LoadingStep) : LoaderIntents() {

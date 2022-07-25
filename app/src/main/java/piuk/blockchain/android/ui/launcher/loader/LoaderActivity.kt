@@ -21,6 +21,7 @@ import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
+import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
@@ -32,18 +33,20 @@ class LoaderActivity :
     MviActivity<LoaderModel, LoaderIntents, LoaderState, ActivityLoaderBinding>(),
     EmailEntryHost {
 
-    override val model: LoaderModel by scopedInject()
-
     private val referralCode: String? by lazy {
         intent?.getStringExtra(PinActivity.KEY_REFERRAL_CODE)
     }
+
+    private val compositeDisposable = CompositeDisposable()
+
+    override val model: LoaderModel by scopedInject()
 
     override val alwaysDisableScreenshots: Boolean = true
 
     override fun initBinding(): ActivityLoaderBinding = ActivityLoaderBinding.inflate(layoutInflater)
 
-    private var state: LoaderState? = null
-    private val compositeDisposable = CompositeDisposable()
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,23 +58,29 @@ class LoaderActivity :
         model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation, referralCode))
     }
 
-    override val toolbarBinding: ToolbarGeneralBinding
-        get() = binding.toolbar
-
     override fun render(newState: LoaderState) {
         when (val loaderStep = newState.nextLoadingStep) {
             is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
             is LoadingStep.RequestPin -> onRequestPin()
             // These below should always come only after a ProgressStep.FINISH has been emitted
-            is LoadingStep.EmailVerification -> launchEmailVerification()
+            is LoadingStep.EmailVerification -> launchEmailVerification(newState.isUserInCowboysPromo)
             is LoadingStep.Main -> onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
+            is LoadingStep.CowboysInterstitial -> startCowboysInterstitial()
             null -> {
+                // do nothing
             }
         }
 
         updateUi(newState)
+    }
 
-        state = newState
+    private fun startCowboysInterstitial() {
+        startActivity(
+            CowboysFlowActivity.newIntent(
+                context = this
+            )
+        )
+        finish()
     }
 
     private fun updateUi(newState: LoaderState) {
@@ -172,12 +181,16 @@ class LoaderActivity :
         finish()
     }
 
-    private fun launchEmailVerification() {
+    private fun launchEmailVerification(isUserInCowboysPromo: Boolean) {
         binding.progress.gone()
         binding.contentFrame.visible()
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))
         supportFragmentManager.beginTransaction()
-            .replace(R.id.content_frame, KycEmailEntryFragment(), KycEmailEntryFragment::class.simpleName)
+            .replace(
+                R.id.content_frame,
+                KycEmailEntryFragment.newInstance(isSkippable = !isUserInCowboysPromo),
+                KycEmailEntryFragment::class.simpleName
+            )
             .commitAllowingStateLoss()
     }
 

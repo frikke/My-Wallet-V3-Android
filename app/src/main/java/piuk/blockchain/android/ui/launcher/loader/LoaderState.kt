@@ -8,6 +8,7 @@ sealed class LoadingStep {
     object Launcher : LoadingStep()
     object EmailVerification : LoadingStep()
     object RequestPin : LoadingStep()
+    object CowboysInterstitial : LoadingStep()
 }
 
 enum class ProgressStep {
@@ -23,5 +24,6 @@ data class LoaderState(
     val nextLoadingStep: LoadingStep? = null,
     val toastType: ToastType? = null,
     val shouldShowSecondPasswordDialog: Boolean = false,
-    val shouldShowMetadataNodeFailure: Boolean = false
+    val shouldShowMetadataNodeFailure: Boolean = false,
+    val isUserInCowboysPromo: Boolean = false
 ) : MviState

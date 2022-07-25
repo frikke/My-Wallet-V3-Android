@@ -34,7 +34,11 @@ class LoaderModel(
                 intent.referralCode
             )
             is LoaderIntents.OnEmailVerificationFinished -> {
-                process(LoaderIntents.StartMainActivity(null, true))
+                if (previousState.isUserInCowboysPromo) {
+                    process(LoaderIntents.StartCowboysInterstitialPromo)
+                } else {
+                    process(LoaderIntents.StartMainActivity(null, true))
+                }
                 null
             }
             is LoaderIntents.UpdateLoadingStep -> {
@@ -85,7 +89,6 @@ class LoaderModel(
             }
         } else if (throwable is MetadataInitException) {
             process(LoaderIntents.ShowMetadataNodeFailure)
-            process(LoaderIntents.HideMetadataNodeFailure)
         } else {
             showToast(ToastType.UNEXPECTED_ERROR)
             process(LoaderIntents.UpdateLoadingStep(LoadingStep.RequestPin))
