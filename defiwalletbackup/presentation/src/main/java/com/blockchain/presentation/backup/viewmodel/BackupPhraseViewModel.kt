@@ -17,10 +17,10 @@ import com.blockchain.presentation.backup.CopyState
 import com.blockchain.presentation.backup.FlowState
 import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
 import com.blockchain.presentation.backup.navigation.BackupPhraseNavigationEvent
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import piuk.blockchain.androidcore.utils.EncryptedPrefs
-import java.util.concurrent.TimeUnit
 
 class BackupPhraseViewModel(
     private val backupPhraseService: BackupPhraseService,
