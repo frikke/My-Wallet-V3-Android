@@ -36,6 +36,7 @@ class BchDataManager(
     private val bchDataStore: BchDataStore,
     private val bitcoinApi: NonCustodialBitcoinService,
     private val defaultLabels: DefaultLabels,
+    private val bchBalanceCache: BchBalanceCache,
     private val metadataRepository: MetadataRepository,
     private val remoteLogger: RemoteLogger
 ) {
@@ -287,15 +288,6 @@ class BchDataManager(
 
     fun getImportedAddressStringList(): List<String> = payloadDataManager.importedAddressStringList
 
-    fun updateAllBalances(): Completable {
-        val importedAddresses = payloadDataManager.importedAddresses
-            .map { it.address }
-
-        val xpubs = getActiveXpubs()
-
-        return bchDataStore.bchWallet!!.updateAllBalances(xpubs, importedAddresses).applySchedulers()
-    }
-
     fun getAddressBalance(address: String): CryptoValue =
         CryptoValue(CryptoCurrency.BCH, bchDataStore.bchBalances[address] ?: BigInteger.ZERO)
 
@@ -304,16 +296,11 @@ class BchDataManager(
     }
 
     fun getBalance(xpubs: XPubs): Single<BigInteger> =
-        payloadDataManager.getBalanceOfBchAccounts(
-            listOf(xpubs)
-        ).map {
+        bchBalanceCache.getBalanceOfAddresses(getActiveXpubs()).map {
             it[xpubs.default.address]?.finalBalance ?: throw IllegalStateException("Balance call error")
-        }
-            .doOnNext { balance ->
-                updateBalanceForAddress(xpubs.default.address, balance)
-            }.doOnError(Timber::e)
-            .firstOrError()
-            .onErrorReturn { BigInteger.ZERO }
+        }.doOnSuccess { balance ->
+            updateBalanceForAddress(xpubs.default.address, balance)
+        }.doOnError(Timber::e)
 
     fun getAddressTransactions(
         address: String,

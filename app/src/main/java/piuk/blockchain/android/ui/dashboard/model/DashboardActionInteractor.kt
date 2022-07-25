@@ -624,7 +624,7 @@ class DashboardActionInteractor(
         return Singles.zip(
             getQuestionnaireIfNeeded(shouldSkipQuestionnaire, QuestionnaireContext.FIAT_WITHDRAW),
             userIdentity.userAccessForFeature(Feature.WithdrawFiat),
-            linkedBanksFactory.eligibleBankPaymentMethods(sourceAccount.currency as FiatCurrency)
+            linkedBanksFactory.eligibleBankPaymentMethods(sourceAccount.currency)
                 .map { paymentMethods ->
                     // Ignore any WireTransferMethods In case BankLinkTransfer should launch
                     paymentMethods.filter { it == PaymentMethodType.BANK_TRANSFER || !shouldLaunchBankLinkTransfer }

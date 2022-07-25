@@ -213,7 +213,7 @@ abstract class CryptoNonCustodialAccount(
 
     protected abstract val addressResolver: AddressResolver
 
-    protected abstract fun getOnChainBalance(): Observable<Money>
+    protected abstract fun getOnChainBalance(): Observable<out Money>
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = baseActions.map {

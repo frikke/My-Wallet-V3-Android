@@ -11,12 +11,12 @@ import com.blockchain.coincore.impl.AccountRefreshTrigger
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.transactionFetchCount
 import com.blockchain.coincore.impl.transactionFetchOffset
+import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.bch.BchMainNetParams
 import info.blockchain.wallet.bch.CashAddress
@@ -40,6 +40,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
     override val exchangeRates: ExchangeRatesDataManager,
     private val feeDataManager: FeeDataManager,
     private val sendDataManager: SendDataManager,
+    private val bchBalanceCache: BchBalanceCache,
     private val internalAccount: GenericMetadataAccount,
     private val walletPreferences: WalletStatusPrefs,
     private val custodialWalletManager: CustodialWalletManager,
@@ -57,7 +58,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
     override fun getOnChainBalance(): Observable<Money> =
         Single.fromCallable { internalAccount.xpubs() }
             .flatMap { xpub -> bchManager.getBalance(xpub) }
-            .map { CryptoValue.fromMinor(currency, it) as Money }
+            .map { Money.fromMinor(currency, it) }
             .doOnSuccess { hasFunds.set(it.isPositive) }
             .toObservable()
 
@@ -107,6 +108,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
             payloadDataManager = payloadDataManager,
             requireSecondPassword = payloadDataManager.isDoubleEncrypted,
             walletPreferences = walletPreferences,
+            bchBalanceCache = bchBalanceCache,
             resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
         )
 
@@ -176,6 +178,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
             exchangeRates: ExchangeRatesDataManager,
             feeDataManager: FeeDataManager,
             sendDataManager: SendDataManager,
+            bchBalanceCache: BchBalanceCache,
             walletPreferences: WalletStatusPrefs,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
@@ -187,6 +190,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
             exchangeRates = exchangeRates,
             feeDataManager = feeDataManager,
             sendDataManager = sendDataManager,
+            bchBalanceCache = bchBalanceCache,
             internalAccount = jsonAccount,
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialWalletManager,

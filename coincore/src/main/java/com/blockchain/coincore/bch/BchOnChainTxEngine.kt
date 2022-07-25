@@ -15,6 +15,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
@@ -54,6 +55,7 @@ class BchOnChainTxEngine(
     private val bchDataManager: BchDataManager,
     private val payloadDataManager: PayloadDataManager,
     private val sendDataManager: SendDataManager,
+    private val bchBalanceCache: BchBalanceCache,
     private val feeManager: FeeDataManager,
     walletPreferences: WalletStatusPrefs,
     requireSecondPassword: Boolean,
@@ -257,7 +259,7 @@ class BchOnChainTxEngine(
                 val bchPreparedTx = engineTx as BchPreparedTx
                 dustInput?.let {
                     sendDataManager.submitBchPayment(bchPreparedTx.bchTx, it)
-                }
+                } ?: Single.error(TransactionError.ExecutionFailed)
             }.doOnSuccess {
                 doOnTransactionSuccess(pendingTx)
             }.doOnError { e ->
@@ -318,6 +320,7 @@ class BchOnChainTxEngine(
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
         super.doPostExecute(pendingTx, txResult)
             .doOnComplete { bchSource.forceRefresh() }
+            .doOnComplete { bchBalanceCache.invalidate() }
 
     companion object {
         private val AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular)

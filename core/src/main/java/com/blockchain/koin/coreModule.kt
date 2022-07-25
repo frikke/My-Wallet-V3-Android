@@ -9,6 +9,7 @@ import com.blockchain.core.TransactionsCache
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.chains.EvmNetworksService
+import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
 import com.blockchain.core.chains.dynamicselfcustody.data.NonCustodialRepository
@@ -327,9 +328,16 @@ val coreModule = module {
                 payloadDataManager = get(),
                 bchDataStore = get(),
                 bitcoinApi = get(),
+                bchBalanceCache = get(),
                 defaultLabels = get(),
                 metadataRepository = get(),
                 remoteLogger = get()
+            )
+        }
+
+        scoped {
+            BchBalanceCache(
+                payloadDataManager = get()
             )
         }
 

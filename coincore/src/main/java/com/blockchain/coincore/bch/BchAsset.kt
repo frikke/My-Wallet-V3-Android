@@ -13,6 +13,7 @@ import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.NotificationAddresses
 import com.blockchain.coincore.impl.StandardL1Asset
+import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
@@ -36,6 +37,7 @@ internal class BchAsset internal constructor(
     private val feeDataManager: FeeDataManager,
     private val sendDataManager: SendDataManager,
     private val labels: DefaultLabels,
+    private val bchBalanceCache: BchBalanceCache,
     private val walletPreferences: WalletStatusPrefs,
     private val beNotifyUpdate: BackendNotificationUpdater,
     private val addressResolver: IdentityAddressResolver
@@ -62,6 +64,7 @@ internal class BchAsset internal constructor(
                             jsonAccount = account,
                             bchManager = bchDataManager,
                             addressIndex = i,
+                            bchBalanceCache = bchBalanceCache,
                             exchangeRates = exchangeRates,
                             feeDataManager = feeDataManager,
                             sendDataManager = sendDataManager,

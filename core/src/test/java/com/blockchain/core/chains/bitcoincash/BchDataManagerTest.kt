@@ -26,6 +26,7 @@ import info.blockchain.wallet.payload.model.Balance
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import junit.framework.Assert
 import org.junit.Before
@@ -59,6 +60,7 @@ class BchDataManagerTest {
             bchDataStore,
             bitcoinApi,
             defaultLabels,
+            mock(),
             metadataRepository,
             remoteLogger
         )
@@ -472,39 +474,30 @@ class BchDataManagerTest {
                 totalReceived = BigInteger.ZERO
             )
         )
+        whenever(bchDataStore.bchMetadata).thenReturn(
+            GenericMetadataWallet(
+                accounts = mutableListOf(
+                    GenericMetadataAccount(xpub = "address")
+                )
+            )
+        )
 
         BchDataManager(
             payloadDataManager = mock {
                 on { getBalanceOfBchAccounts(listOf(xpubs)) }.thenReturn(Observable.just(map))
             },
-            bchDataStore = mock(),
+            bchDataStore = bchDataStore,
             bitcoinApi = mock(),
             defaultLabels = defaultLabels,
             metadataRepository = mock(),
+            bchBalanceCache = mock {
+                on { getBalanceOfAddresses(listOf(xpubs)) }.thenReturn(Single.just(map))
+            },
             remoteLogger = mock()
         ).getBalance(xpubs)
             .test()
             .assertNoErrors()
             .assertValue(BigInteger.TEN)
-    }
-
-    @Test
-    fun `get balance returns zero on error`() {
-        val xpub = XPub("address", XPub.Format.LEGACY)
-        val xpubs = XPubs(xpub)
-        BchDataManager(
-            payloadDataManager = mock {
-                on { getBalanceOfBchAccounts(listOf(xpubs)) }.thenReturn(Observable.error(Exception()))
-            },
-            bchDataStore = mock(),
-            bitcoinApi = mock(),
-            defaultLabels = mock(),
-            metadataRepository = mock(),
-            remoteLogger = mock()
-        ).getBalance(xpubs)
-            .test()
-            .assertNoErrors()
-            .assertValue(BigInteger.ZERO)
     }
 
     private fun split(words: String): List<String> {
