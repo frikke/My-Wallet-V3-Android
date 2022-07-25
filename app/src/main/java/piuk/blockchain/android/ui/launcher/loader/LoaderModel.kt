@@ -5,6 +5,9 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.EducationalScreensPrefs
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Scheduler
@@ -24,7 +27,9 @@ class LoaderModel(
     private val payloadDataManager: PayloadDataManager,
     private val prerequisites: Prerequisites,
     private val authPrefs: AuthPrefs,
-    private val interactor: LoaderInteractor
+    private val interactor: LoaderInteractor,
+    private val walletModeService: WalletModeService,
+    private val educationalScreensPrefs: EducationalScreensPrefs
 ) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
         return when (intent) {
@@ -34,7 +39,30 @@ class LoaderModel(
                 intent.referralCode
             )
             is LoaderIntents.OnEmailVerificationFinished -> {
-                process(LoaderIntents.StartMainActivity(null, true))
+                process(
+                    LoaderIntents.LaunchDashboard(
+                        data = null,
+                        shouldLaunchUiTour = true
+                    )
+                )
+                null
+            }
+
+            is LoaderIntents.LaunchDashboard -> {
+                process(
+                    // Wallet mode switch enabled +
+                    // have not seen educational screen yet +
+                    // did not come from signup (already logged in)
+                    // -> show educational screen
+                    if (walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL &&
+                        educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
+                        previousState.isAfterWalletCreation.not()
+                    ) {
+                        LoaderIntents.StartEducationWalletModeActivity(intent.data, intent.shouldLaunchUiTour)
+                    } else {
+                        LoaderIntents.StartMainActivity(intent.data, intent.shouldLaunchUiTour)
+                    }
+                )
                 null
             }
             is LoaderIntents.UpdateLoadingStep -> {

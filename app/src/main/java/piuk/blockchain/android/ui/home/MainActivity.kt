@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.NotificationAppOpened
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.analytics.events.LaunchOrigin
@@ -55,6 +56,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.net.URLDecoder
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -691,6 +694,10 @@ class MainActivity :
                 analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Origin.Deeplink))
                 showReferralBottomSheet(newState.referral.referralInfo)
             }
+
+//            ViewToLaunch.ShowEducationalWalletMode -> {
+//                showBottomSheet(EducationalWalletModeSheet.newInstance())
+//            }
         }.exhaustive
 
         // once we've completed a loop of render with a view to launch

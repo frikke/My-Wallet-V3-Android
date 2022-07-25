@@ -21,6 +21,7 @@ import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
+import piuk.blockchain.android.ui.educational.walletmodes.EducationalWalletModeActivity
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
@@ -64,6 +65,9 @@ class LoaderActivity :
             is LoadingStep.RequestPin -> onRequestPin()
             // These below should always come only after a ProgressStep.FINISH has been emitted
             is LoadingStep.EmailVerification -> launchEmailVerification()
+            is LoadingStep.EducationalWalletMode -> launchEducationalWalletMode(
+                loaderStep.data, loaderStep.shouldLaunchUiTour
+            )
             is LoadingStep.Main -> onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
             null -> {
             }
@@ -172,6 +176,17 @@ class LoaderActivity :
         finish()
     }
 
+    private fun launchEducationalWalletMode(data: String?, shouldLaunchUiTour: Boolean) {
+        startActivity(
+            EducationalWalletModeActivity.newIntent(
+                context = this,
+                data = data,
+                shouldLaunchUiTour = shouldLaunchUiTour
+            )
+        )
+        finish()
+    }
+
     private fun launchEmailVerification() {
         binding.progress.gone()
         binding.contentFrame.visible()
@@ -202,8 +217,8 @@ class LoaderActivity :
         editText.setHint(R.string.password)
         editText.inputType =
             InputType.TYPE_CLASS_TEXT or
-            InputType.TYPE_TEXT_VARIATION_PASSWORD or
-            InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+                InputType.TYPE_TEXT_VARIATION_PASSWORD or
+                InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 
         val frameLayout = getAlertDialogPaddedView(editText)
 

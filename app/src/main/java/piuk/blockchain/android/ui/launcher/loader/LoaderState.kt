@@ -8,6 +8,7 @@ sealed class LoadingStep {
     object Launcher : LoadingStep()
     object EmailVerification : LoadingStep()
     object RequestPin : LoadingStep()
+    data class EducationalWalletMode(val data: String?, val shouldLaunchUiTour: Boolean) : LoadingStep()
 }
 
 enum class ProgressStep {
@@ -19,6 +20,7 @@ enum class ToastType {
 }
 
 data class LoaderState(
+    val isAfterWalletCreation: Boolean = false,
     val nextProgressStep: ProgressStep? = null,
     val nextLoadingStep: LoadingStep? = null,
     val toastType: ToastType? = null,

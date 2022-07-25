@@ -34,7 +34,7 @@ import piuk.blockchain.android.R
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun EducationalWalletModeNavigationScreen(
+fun EducationalWalletModeScreen(
     getStartedOnClick: () -> Unit,
 ) {
     val pagerState = rememberPagerState()
@@ -102,6 +102,6 @@ private fun EducationalWalletModePage(index: Int) {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewBackupSuccessScreen() {
-    EducationalWalletModeNavigationScreen {}
+fun PreviewEducationalWalletModeScreen() {
+    EducationalWalletModeScreen {}
 }

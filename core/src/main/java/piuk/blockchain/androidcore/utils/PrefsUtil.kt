@@ -17,6 +17,7 @@ import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.EducationalScreensPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
@@ -31,13 +32,13 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.crypto.AESUtil
-import java.util.concurrent.TimeUnit
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
+import java.util.concurrent.TimeUnit
 
 interface UUIDGenerator {
     fun generateUUID(): String
@@ -69,7 +70,8 @@ class PrefsUtil(
     AppRatingPrefs,
     NftAnnouncementPrefs,
     ReferralPrefs,
-    LocalSettingsPrefs {
+    LocalSettingsPrefs,
+    EducationalScreensPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -710,6 +712,10 @@ class PrefsUtil(
 
     override fun clearDeeplinkUri() = removeValue(KEY_DEEP_LINK_URI)
 
+    override var hasSeenEducationalWalletMode: Boolean
+        get() = getValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, false)
+        set(value) = setValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, value)
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -834,6 +840,9 @@ class PrefsUtil(
         // Security
         private const val KEY_OVERLAY_TRUSTED = "overlay_trusted"
         private const val KEY_ROOT_WARNING_DISABLED = "disable_root_warning"
+
+        // Educational Screens
+        private const val HAS_SEEN_EDUCATIONAL_WALLET_MODE = "has_seen_educational_wallet_mode"
     }
 }
 
