@@ -19,7 +19,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_bank_transfer" />
+        app:srcCompat="@drawable/ic_bank_icon" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/linked_bank_title"

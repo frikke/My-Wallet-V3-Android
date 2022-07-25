@@ -389,7 +389,7 @@ class SettingsFragment :
                     titleEnd = buildAnnotatedString { append(card.dottedEndDigits()) }
                     startImageResource = ImageResource.Local(
                         (card as? PaymentMethod.Card)?.cardType?.toCardType()?.icon()
-                            ?: R.drawable.ic_payment_card,
+                            ?: R.drawable.ic_card_icon,
                         null
                     )
                     bodyStart = buildAnnotatedString {
@@ -439,19 +439,35 @@ class SettingsFragment :
         paymentMethodInfo.linkedBanks.forEach { bankItem ->
             val bank = bankItem.bank
             addView(
-                DefaultTableRowView(requireContext()).apply {
+                BalanceTableRowView(requireContext()).apply {
                     alpha = 0f
-                    primaryText = bank.name
+                    titleStart = buildAnnotatedString { append(bank.name) }
+                    titleEnd =
+                        buildAnnotatedString { append(getString(R.string.dotted_suffixed_string, bank.accountEnding)) }
                     startImageResource = if (bank.iconUrl.isEmpty()) {
-                        ImageResource.Local(R.drawable.ic_bank_transfer, null)
+                        ImageResource.Local(R.drawable.ic_bank_icon, null)
                     } else {
                         ImageResource.Remote(url = bank.iconUrl, null)
                     }
-                    secondaryText = bank.accountEnding
-                    endTag = if (bankItem.canBeUsedToTransact) null else
-                        TagViewState(
-                            getString(R.string.common_unavailable), TagType.Error()
+                    bodyStart = buildAnnotatedString {
+                        append(
+                            getString(
+                                R.string.common_spaced_strings, bankItem.limits.max.toStringWithSymbol(),
+                                getString(R.string.deposit_enter_amount_limit_title)
+                            )
                         )
+                    }
+                    bodyEnd = buildAnnotatedString {
+                        append(bank.accountType)
+                    }
+
+                    if (!bankItem.canBeUsedToTransact) {
+                        tags = listOf(
+                            TagViewState(
+                                getString(R.string.common_unavailable), TagType.Error()
+                            )
+                        )
+                    }
                     onClick = {
                         showBottomSheet(RemoveLinkedBankBottomSheet.newInstance(bank))
                     }

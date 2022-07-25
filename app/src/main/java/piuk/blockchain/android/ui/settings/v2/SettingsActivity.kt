@@ -15,6 +15,7 @@ import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.featureflag.FeatureFlag
@@ -269,5 +270,6 @@ data class LinkablePaymentMethods(
 
 data class BankItem(
     val bank: LinkedPaymentMethod.Bank,
-    val canBeUsedToTransact: Boolean
+    val canBeUsedToTransact: Boolean,
+    val limits: PaymentLimits
 )

@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
 import piuk.blockchain.android.ui.educational.walletmodes.screens.EducationalWalletModeScreen
 import piuk.blockchain.android.ui.home.MainActivity
 
@@ -21,9 +22,16 @@ class EducationalWalletModeActivity : BlockchainActivity() {
             EducationalWalletModeScreen(
                 onClick = {
                     viewModel.markAsSeen()
-                    launchMainActivity()
+                    gotoNextStep()
                 }
             )
+        }
+    }
+
+    private fun gotoNextStep() {
+        when {
+            intent.getBooleanExtra(REDIRECT_TO_COWBOWS_PROMO, false) -> startCowboysInterstitial()
+            else -> launchMainActivity()
         }
     }
 
@@ -32,8 +40,17 @@ class EducationalWalletModeActivity : BlockchainActivity() {
             MainActivity.newIntent(
                 context = this,
                 intentData = intent.getStringExtra(MAIN_ACTIVITY_DATA),
-                shouldLaunchUiTour = intent.getBooleanExtra(START_UI_TOUR, false),
+                shouldLaunchUiTour = false,
                 shouldBeNewTask = true
+            )
+        )
+        finish()
+    }
+
+    private fun startCowboysInterstitial() {
+        startActivity(
+            CowboysFlowActivity.newIntent(
+                context = this
             )
         )
         finish()
@@ -41,15 +58,17 @@ class EducationalWalletModeActivity : BlockchainActivity() {
 
     companion object {
         private const val MAIN_ACTIVITY_DATA = "MAIN_ACTIVITY_DATA"
-        private const val START_UI_TOUR = "START_UI_TOUR"
+        private const val REDIRECT_TO_COWBOWS_PROMO = "REDIRECT_TO_COWBOWS_PROMO"
 
         fun newIntent(
             context: Context,
             data: String?,
-            shouldLaunchUiTour: Boolean
+            redirectToCowbowsPromo: Boolean
         ): Intent = Intent(context, EducationalWalletModeActivity::class.java).apply {
             putExtra(MAIN_ACTIVITY_DATA, data)
-            putExtra(START_UI_TOUR, shouldLaunchUiTour)
+            putExtra(REDIRECT_TO_COWBOWS_PROMO, redirectToCowbowsPromo)
         }
     }
+
+    enum class NextScreen()
 }

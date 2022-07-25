@@ -89,5 +89,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:text="@string/edit_email_address" />
+        tools:text="@string/send_again" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,6 +6,7 @@ import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.referral.ReferralService
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
@@ -43,6 +44,7 @@ class LoaderInteractor(
     private val ioScheduler: Scheduler,
     private val referralService: ReferralService,
     private val fiatCurrenciesService: FiatCurrenciesService,
+    private val cowboysPromoFeatureFlag: FeatureFlag
 ) {
 
     private val wallet: Wallet
@@ -93,7 +95,16 @@ class LoaderInteractor(
                 rxCompletable {
                     referralService.associateReferralCodeIfPresent(referralCode)
                 }
-            }.doOnSubscribe {
+            }.then {
+                Completable.fromAction {
+                    emitter.onNext(
+                        LoaderIntents.UpdateCowboysPromo(
+                            cowboysPromoFeatureFlag.isEnabled
+                        )
+                    )
+                }
+            }
+            .doOnSubscribe {
                 emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))
             }.subscribeBy(
                 onComplete = {

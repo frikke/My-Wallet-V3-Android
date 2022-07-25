@@ -28,12 +28,18 @@ sealed class LoaderIntents : MviIntent<LoaderState> {
             oldState.copy(nextLoadingStep = LoadingStep.Main(data, shouldLaunchUiTour))
     }
 
-    data class StartEducationalWalletModeActivity(
-        val data: String?,
-        val shouldLaunchUiTour: Boolean
-    ) : LoaderIntents() {
+    object StartCowboysInterstitialPromo : LoaderIntents() {
         override fun reduce(oldState: LoaderState): LoaderState =
-            oldState.copy(nextLoadingStep = LoadingStep.EducationalWalletMode(data, shouldLaunchUiTour))
+            oldState.copy(nextLoadingStep = LoadingStep.CowboysInterstitial)
+    }
+
+    data class StartEducationalWalletModeActivity(val data: String?) : LoaderIntents() {
+        override fun reduce(oldState: LoaderState): LoaderState =
+            oldState.copy(
+                nextLoadingStep = LoadingStep.EducationalWalletMode(
+                    data = data
+                )
+            )
     }
 
     data class DecryptAndSetupMetadata(val secondPassword: String) : LoaderIntents() {
@@ -58,6 +64,11 @@ sealed class LoaderIntents : MviIntent<LoaderState> {
 
     data class UpdateProgressStep(val progressStep: ProgressStep) : LoaderIntents() {
         override fun reduce(oldState: LoaderState): LoaderState = oldState.copy(nextProgressStep = progressStep)
+    }
+
+    data class UpdateCowboysPromo(private val isCowboysPromoUser: Boolean) : LoaderIntents() {
+        override fun reduce(oldState: LoaderState): LoaderState =
+            oldState.copy(isUserInCowboysPromo = isCowboysPromoUser)
     }
 
     data class UpdateLoadingStep(val loadingStep: LoadingStep) : LoaderIntents() {

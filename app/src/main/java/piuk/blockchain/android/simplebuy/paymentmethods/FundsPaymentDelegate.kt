@@ -2,8 +2,11 @@ package piuk.blockchain.android.simplebuy.paymentmethods
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FundsPaymentMethodLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -36,15 +39,18 @@ class FundsPaymentDelegate(private val assetResources: AssetResources) : Adapter
         fun bind(paymentMethodItem: PaymentMethodItem) {
             with(binding) {
                 (paymentMethodItem.paymentMethod as? PaymentMethod.Funds)?.let {
-                    assetResources.loadAssetIcon(
-                        paymentMethodIcon,
-                        it.fiatCurrency
-                    )
-                    ticker.text = paymentMethodItem.paymentMethod.fiatCurrency.displayTicker
-                    paymentMethodTitle.text = it.fiatCurrency.name
-                    balance.text = it.balance.toStringWithSymbol()
+                    fundsPayment.apply {
+                        titleStart = buildAnnotatedString { append(it.fiatCurrency.name) }
+                        titleEnd = buildAnnotatedString { append(it.balance.toStringWithSymbol()) }
+                        bodyStart = buildAnnotatedString { append(it.fiatCurrency.displayTicker) }
+                        startImageResource = if (it.fiatCurrency.logo.isNotEmpty()) {
+                            ImageResource.Remote(it.fiatCurrency.logo)
+                        } else {
+                            ImageResource.Local(R.drawable.ic_default_asset_logo)
+                        }
+                        onClick = { paymentMethodItem.clickAction() }
+                    }
                 }
-                paymentMethodRoot.setOnClickListener { paymentMethodItem.clickAction() }
             }
         }
     }

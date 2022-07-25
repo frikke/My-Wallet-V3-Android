@@ -1,0 +1,23 @@
+apply plugin: 'java-library'
+apply from: rootProject.file('gradle/local/common-feature.gradle')
+
+java {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = Versions.kotlinJvmTarget
+    }
+}
+
+dependencies {
+    implementation project(':common:interface')
+
+    // test
+    testImplementation Libraries.junit
+    testImplementation Libraries.kotlinTest
+    testImplementation Libraries.mockk
+    testImplementation Libraries.kotlinCoroutinesTest
+}

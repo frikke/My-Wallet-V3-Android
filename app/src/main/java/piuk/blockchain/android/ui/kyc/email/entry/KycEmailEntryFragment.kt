@@ -31,9 +31,12 @@ class KycEmailEntryFragment :
     )
 
     private val emailMustBeValidated by lazy {
-        if (arguments?.containsKey("mustBeValidated") == true)
-            EmailVerificationArgs.fromBundle(arguments ?: Bundle()).mustBeValidated
-        else false
+        when {
+            arguments?.containsKey("mustBeValidated") == true ->
+                EmailVerificationArgs.fromBundle(arguments ?: Bundle()).mustBeValidated
+            arguments?.containsKey(CAN_SKIP) == true -> !requireArguments().getBoolean(CAN_SKIP)
+            else -> false
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -166,6 +169,14 @@ class KycEmailEntryFragment :
 
     companion object {
         const val BOTTOM_SHEET = "BOTTOM_SHEET"
+        private const val CAN_SKIP = "CAN_SKIP"
+
+        fun newInstance(isSkippable: Boolean): KycEmailEntryFragment =
+            KycEmailEntryFragment().apply {
+                arguments = Bundle().apply {
+                    putBoolean(CAN_SKIP, isSkippable)
+                }
+            }
     }
 }
 

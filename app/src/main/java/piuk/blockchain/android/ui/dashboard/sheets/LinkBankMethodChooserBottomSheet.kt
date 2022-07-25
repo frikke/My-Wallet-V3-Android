@@ -178,7 +178,7 @@ private fun PaymentMethodType.toLinkBankMethodItemUI(
             title = R.string.easy_bank_transfer,
             subtitle = StringLocalizationUtil.subtitleForEasyTransfer(targetCurrencyTicker),
             blurb = R.string.easy_bank_transfer_blurb,
-            icon = R.drawable.ic_bank_transfer
+            icon = R.drawable.ic_bank_icon
         )
         else -> throw IllegalStateException("Not supported linking method")
     }

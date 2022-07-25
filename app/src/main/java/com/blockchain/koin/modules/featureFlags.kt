@@ -11,6 +11,7 @@ import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.coinWebSocketFeatureFlag
+import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
@@ -216,6 +217,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_card_rejection_check",
                 "Check Cards for tx rejection"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(cowboysPromoFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_cowboys_promo",
+                "Enable Cowboys promotion"
             )
         )
     }.bind(FeatureFlag::class)

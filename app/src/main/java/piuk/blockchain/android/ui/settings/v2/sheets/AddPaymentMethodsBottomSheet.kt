@@ -56,7 +56,7 @@ class AddPaymentMethodsBottomSheet : SlidingModalBottomDialog<DialogSheetAddPaym
 
             with(addBankLinkParent) {
                 primaryText = getString(R.string.easy_bank_transfer)
-                startImageResource = ImageResource.Local(R.drawable.ic_bank_transfer, null)
+                startImageResource = ImageResource.Local(R.drawable.ic_bank_icon, null)
                 secondaryText = getString(
                     StringLocalizationUtil.subtitleForEasyTransfer(
                         fiatCurrenciesService.selectedTradingCurrency.networkTicker

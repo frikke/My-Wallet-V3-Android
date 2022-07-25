@@ -43,9 +43,9 @@ class LoaderModel(
                 launchDashboard(
                     isAfterWalletCreation = previousState.isAfterWalletCreation,
                     data = intent.data,
-                    shouldLaunchUiTour = intent.shouldLaunchUiTour
+                    shouldLaunchUiTour = intent.shouldLaunchUiTour,
+                    isUserInCowboysPromo = previousState.isUserInCowboysPromo
                 )
-
                 null
             }
             is LoaderIntents.UpdateLoadingStep -> {
@@ -96,7 +96,6 @@ class LoaderModel(
             }
         } else if (throwable is MetadataInitException) {
             process(LoaderIntents.ShowMetadataNodeFailure)
-            process(LoaderIntents.HideMetadataNodeFailure)
         } else {
             showToast(ToastType.UNEXPECTED_ERROR)
             process(LoaderIntents.UpdateLoadingStep(LoadingStep.RequestPin))
@@ -128,7 +127,12 @@ class LoaderModel(
         }
     }
 
-    private fun launchDashboard(isAfterWalletCreation: Boolean, data: String?, shouldLaunchUiTour: Boolean) {
+    private fun launchDashboard(
+        isAfterWalletCreation:
+        Boolean, data: String?,
+        shouldLaunchUiTour: Boolean,
+        isUserInCowboysPromo: Boolean
+    ) {
         process(
             // Wallet mode switch enabled +
             // have not seen educational screen yet +
@@ -138,7 +142,11 @@ class LoaderModel(
                 educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
                 isAfterWalletCreation.not()
             ) {
-                LoaderIntents.StartEducationalWalletModeActivity(data, shouldLaunchUiTour)
+                LoaderIntents.StartEducationalWalletModeActivity(
+                    data = data
+                )
+            } else if (isUserInCowboysPromo) {
+                LoaderIntents.StartCowboysInterstitialPromo
             } else {
                 LoaderIntents.StartMainActivity(data, shouldLaunchUiTour)
             }

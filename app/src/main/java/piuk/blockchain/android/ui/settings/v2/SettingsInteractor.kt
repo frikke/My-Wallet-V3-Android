@@ -66,18 +66,44 @@ class SettingsInteractor internal constructor(
     fun getExistingPaymentMethods(): Single<PaymentMethods> {
         val fiatCurrency = userSelectedFiat
         return getAvailablePaymentMethodsTypes(fiatCurrency).flatMap { available ->
-            val limitsInfo = available.find { it.type == PaymentMethodType.PAYMENT_CARD }?.limits ?: PaymentLimits(
+            val limitsInfoCards = available.find { it.type == PaymentMethodType.PAYMENT_CARD }?.limits ?: PaymentLimits(
                 BigInteger.ZERO,
                 BigInteger.ZERO,
                 fiatCurrency
             )
 
+            val limitsInfoBanks =
+                available.find {
+                    it.type == PaymentMethodType.BANK_ACCOUNT ||
+                        it.type == PaymentMethodType.BANK_TRANSFER
+                }?.limits
+                    ?: PaymentLimits(
+                        BigInteger.ZERO,
+                        BigInteger.ZERO,
+                        fiatCurrency
+                    )
+
             val getLinkedCards =
-                if (available.any { it.type == PaymentMethodType.PAYMENT_CARD }) getLinkedCards(limitsInfo)
-                else Single.just(emptyList())
+                if (available.any { it.type == PaymentMethodType.PAYMENT_CARD }) {
+                    getLinkedCards(limitsInfoCards)
+                } else {
+                    Single.just(emptyList())
+                }
+
+            val getLinkedBanks =
+                if (available.any {
+                    it.type == PaymentMethodType.BANK_TRANSFER ||
+                        it.type == PaymentMethodType.BANK_ACCOUNT
+                }
+                ) {
+                    getLinkedBanks(fiatCurrency, available, limitsInfoBanks)
+                } else {
+                    Single.just(emptyList())
+                }
+
             Singles.zip(
                 getLinkedCards,
-                getLinkedBanks(fiatCurrency, available)
+                getLinkedBanks
             ).map { (linkedCards, linkedBanks) ->
                 PaymentMethods(
                     availablePaymentMethodTypes = available,
@@ -119,7 +145,8 @@ class SettingsInteractor internal constructor(
 
     private fun getLinkedBanks(
         fiatCurrency: FiatCurrency,
-        available: List<AvailablePaymentMethodType>
+        available: List<AvailablePaymentMethodType>,
+        limits: PaymentLimits,
     ): Single<List<BankItem>> =
         bankService.getLinkedBanks()
             .map { banks ->
@@ -132,7 +159,7 @@ class SettingsInteractor internal constructor(
                 linkedBanks.map { bank ->
                     val canBeUsedToTransact = availableBankPaymentMethodTypes.contains(bank.type) &&
                         fiatCurrency == bank.currency
-                    BankItem(bank, canBeUsedToTransact = canBeUsedToTransact)
+                    BankItem(bank, canBeUsedToTransact = canBeUsedToTransact, limits)
                 }
             }
 
