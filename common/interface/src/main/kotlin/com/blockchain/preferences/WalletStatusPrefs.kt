@@ -5,6 +5,7 @@ import info.blockchain.balance.AssetInfo
 interface WalletStatusPrefs {
     var lastBackupTime: Long // Seconds since epoch
     val isWalletBackedUp: Boolean
+    var isWalletBackedUpSkipped: Boolean
 
     val isWalletFunded: Boolean
     fun setWalletFunded()

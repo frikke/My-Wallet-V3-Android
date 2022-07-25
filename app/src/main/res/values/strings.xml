@@ -2950,6 +2950,10 @@
     <string name="backup_phrase_intro_ack_3">It is my full responsibility to keep my secret phrase secure.</string>
     <string name="back_up_now">Back Up Now</string>
 
+    <string name="skip_backup_title">Are you sure you want to continue?</string>
+    <string name="skip_backup_description">By skipping your DeFi Wallet backup, you risk losing access to your funds.</string>
+    <string name="skip_backup_cta">Yes, skip backup</string>
+
     <string name="recovery_phrase_title">Your Recovery Phrase</string>
     <string name="recovery_phrase_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>
     <string name="recovery_phrase_backup_again">Back Up Again</string>

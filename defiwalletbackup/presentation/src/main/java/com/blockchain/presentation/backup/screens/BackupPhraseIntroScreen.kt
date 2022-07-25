@@ -30,6 +30,7 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.NoPaddingRadio
 import com.blockchain.componentlib.control.RadioButtonState
@@ -60,7 +61,8 @@ fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
         BackupPhraseIntroScreen(
             backupStatus = state.backUpStatus,
             backOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = false)) },
-            backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackupProcess) }
+            backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackupProcess) },
+            skipOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToSkipBackup) }
         )
     }
 }
@@ -70,6 +72,7 @@ fun BackupPhraseIntroScreen(
     backupStatus: BackUpStatus,
     backOnClick: () -> Unit,
     backUpNowOnClick: () -> Unit,
+    skipOnClick: () -> Unit,
 ) {
     var allAcknowledgementsChecked by remember { mutableStateOf(false) }
 
@@ -120,6 +123,14 @@ fun BackupPhraseIntroScreen(
                 text = stringResource(id = R.string.back_up_now),
                 state = if (allAcknowledgementsChecked) ButtonState.Enabled else ButtonState.Disabled,
                 onClick = backUpNowOnClick
+            )
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
+
+            MinimalButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.common_skip),
+                onClick = skipOnClick
             )
         }
     }
@@ -228,7 +239,7 @@ fun BackupPhraseIntroAcknowledgments(@StringRes acknowledgments: List<Int>, allC
 fun PreviewBackupPhraseIntroScreenNoBackup() {
     BackupPhraseIntroScreen(
         BackUpStatus.NO_BACKUP,
-        backOnClick = {}, backUpNowOnClick = { }
+        backOnClick = {}, backUpNowOnClick = {}, skipOnClick = {}
     )
 }
 
@@ -237,7 +248,7 @@ fun PreviewBackupPhraseIntroScreenNoBackup() {
 fun PreviewBackupPhraseIntroScreenBackedUp() {
     BackupPhraseIntroScreen(
         BackUpStatus.BACKED_UP,
-        backOnClick = {}, backUpNowOnClick = { }
+        backOnClick = {}, backUpNowOnClick = {}, skipOnClick = {}
     )
 }
 

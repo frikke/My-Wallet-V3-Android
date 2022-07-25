@@ -6,6 +6,7 @@ import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupOption
 import com.blockchain.presentation.backup.BackupPhraseArgs
@@ -16,14 +17,15 @@ import com.blockchain.presentation.backup.CopyState
 import com.blockchain.presentation.backup.FlowState
 import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
 import com.blockchain.presentation.backup.navigation.BackupPhraseNavigationEvent
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import piuk.blockchain.androidcore.utils.EncryptedPrefs
+import java.util.concurrent.TimeUnit
 
 class BackupPhraseViewModel(
     private val backupPhraseService: BackupPhraseService,
-    private val backupPrefs: EncryptedPrefs
+    private val backupPrefs: EncryptedPrefs,
+    private val walletStatusPrefs: WalletStatusPrefs
 ) : MviViewModel<BackupPhraseIntent,
     BackupPhraseViewState,
     BackupPhraseModelState,
@@ -59,6 +61,15 @@ class BackupPhraseViewModel(
 
             BackupPhraseIntent.LoadData -> {
                 loadData()
+            }
+
+            BackupPhraseIntent.GoToSkipBackup -> {
+                navigate(BackupPhraseNavigationEvent.SkipBackup)
+            }
+
+            BackupPhraseIntent.SkipBackup -> {
+                markBackupAsSkipped()
+                onIntent(BackupPhraseIntent.EndFlow(isSuccessful = true))
             }
 
             BackupPhraseIntent.StartBackupProcess -> {
@@ -131,6 +142,10 @@ class BackupPhraseViewModel(
             .doOnFailure {
                 updateState { modelState.copy(isError = true) }
             }
+    }
+
+    private fun markBackupAsSkipped() {
+        walletStatusPrefs.isWalletBackedUpSkipped = true
     }
 
     private fun resetCopyState() {
