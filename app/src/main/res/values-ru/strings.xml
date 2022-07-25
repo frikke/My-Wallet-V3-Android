@@ -1099,9 +1099,6 @@ Blockchain Wallet:
     <string name="swap_direction">%1$s-&gt;%2$s</string>
     <string name="recover_funds_warning_message_1">Если у вас есть доступ к ID кошелька и паролю, вы должны всегда выполнять сопряжение или входить в систему. В рамках процесса восстановления ваших средств будет создан новый ID кошелька. Вы хотите продолжить?</string>
     <string name="received_dgld">Получено Wrapped-DGLD</string>
-    <string name="wdgld_available_card_title">Торговать wDGLD сейчас</string>
-    <string name="wdgld_available_card_body">Wrapped Digital Gold (wDGLD) — это ERC-20, токенизированная версия DGLD, сочетающая в себе токен с золотым обеспечением, мощность и гибкость Ethereum.</string>
-    <string name="wdgld_available_card_cta">Торговать wDGLD сейчас</string>
     <string name="swap_faster">Быстрее</string>
     <string name="swap_trading_sheet_title">Быстрее. Дешевле. Эффективнее
 Обмен криптовалюты на свой торговый кошелек.</string>
@@ -1332,9 +1329,6 @@ Blockchain Wallet:
     <string name="onboarding_fingerprint_enable_1">Включить биометрию</string>
     <string name="register_fingerprint_card_title_1">Биометрический вход</string>
     <string name="register_fingerprint_card_body_1">Для быстрого входа в свой кошелек включите биометрию вместо использования PIN-кода.</string>
-    <string name="aave_yfi_dot_available_card_title">Теперь доступны Aave, YFI и DOT!</string>
-    <string name="aave_yfi_dot_available_card_body">Токены Aave, YFI и Polkadot теперь доступны для покупки, продажи, обмена и отправки в вашем кошельке.</string>
-    <string name="aave_yfi_dot_available_card_cta">Купить сейчас</string>
     <string name="old_default_non_custodial_wallet_label">Мой %1s Кошелек</string>
     <string name="bank_transfer_in_progress_ob_blurb">Ваш ордер обрабатывается. Вы можете безопасно закрыть этот экран, пока мы обновляем ордер в фоновом режиме.</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">В вашем кошельке недостаточно %1$s, чтобы продавать с текущими сетевыми комиссиями.</string>
@@ -1607,8 +1601,6 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="fee">Комиссия</string>
     <string name="address">Адрес</string>
     <string name="amount">Сумма</string>
-    <string name="pax_renamed_card_title"> USD Digital теперь Paxos Standard</string>
-    <string name="pax_renamed_card_body">Мы изменили название USD Digital (USD-D) на Paxos Standard (PAX). На имеющиеся средства это никак не влияет.</string>
     <string name="airdrop_received_sheet_amount_label">Сумма</string>
     <string name="kyc_email_hint_focused">Ваш адрес электронной почты</string>
     <string name="available">Доступно</string>
@@ -1880,9 +1872,6 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="rename_asset_card_title">%s получил новое имя</string>
     <string name="rename_asset_card_body">Внимание! %1$s переименован в %2$s. Ни один из балансов не затронут.</string>
     <string name="rename_asset_card_cta">Торговать %s</string>
-    <string name="ceur_announcement_title">Бонус и награды cEUR с ограниченным сроком действия</string>
-    <string name="ceur_announcement_description">Покупайте 25 cEUR, получайте бонус в размере 10 cEUR и зарабатывайте до 16%% годовых вознаграждений.</string>
-    <string name="ceur_announcement_action">Подробнее</string>
     <string name="minimum_with_value">Минимум %1$s</string>
     <string name="maximum_with_value">Максимум %1$s</string>
     <string name="not_enough_funds">Недостаточно %1$s</string>

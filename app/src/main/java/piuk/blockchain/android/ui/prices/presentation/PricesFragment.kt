@@ -18,7 +18,9 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.koin.payloadScope
+import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
+import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.scope.Scope
@@ -29,7 +31,7 @@ class PricesFragment :
 
     override val scope: Scope = payloadScope
     private val viewModel: PricesViewModel by viewModel()
-
+    private val currencyPrefs: CurrencyPrefs by inject()
     private val navigationRouter: NavigationRouter<PricesNavigationEvent> by lazy {
         activity as? NavigationRouter<PricesNavigationEvent>
             ?: error("host does not implement NavigationRouter<PricesNavigationEvent>")
@@ -87,7 +89,7 @@ class PricesFragment :
     override fun onStateUpdated(state: PricesViewState) {}
 
     private fun loadAssetsAvailable() {
-        viewModel.onIntent(PricesIntents.LoadAssetsAvailable)
+        viewModel.onIntent(PricesIntents.LoadAssetsAvailable(currencyPrefs.selectedFiatCurrency))
     }
 
     private fun pricesItemClicked(cryptoCurrency: AssetInfo) {

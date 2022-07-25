@@ -40,7 +40,7 @@ import com.blockchain.api.services.CollateralLocks
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
@@ -142,7 +142,7 @@ class PaymentsRepositoryTest {
     private val paymentsService: PaymentsService = mockk()
     private val paymentMethodsService: PaymentMethodsService = mockk(relaxed = true)
     private val linkedCardsStore: LinkedCardsStore = mockk(relaxed = true)
-    private val tradingBalanceDataManager: TradingBalanceDataManager = mockk()
+    private val tradingService: TradingService = mockk()
     private val assetCatalogue: AssetCatalogue = mockk()
     private val simpleBuyPrefs: SimpleBuyPrefs = mockk()
     private val authenticator: AuthHeaderProvider = mockk<AuthHeaderProvider>().apply {
@@ -168,7 +168,7 @@ class PaymentsRepositoryTest {
             paymentsService,
             paymentMethodsService,
             linkedCardsStore,
-            tradingBalanceDataManager,
+            tradingService,
             assetCatalogue,
             simpleBuyPrefs,
             withdrawLocksCache,

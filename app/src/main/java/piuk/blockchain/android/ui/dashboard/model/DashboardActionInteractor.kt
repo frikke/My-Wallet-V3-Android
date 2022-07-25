@@ -57,6 +57,8 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Optional
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
@@ -102,10 +104,11 @@ class DashboardActionInteractor(
         get() = walletModeService.enabledWalletMode().defaultFilter()
 
     fun fetchActiveAssets(model: DashboardModel): Disposable =
-        walletModeService.walletMode.asObservable().flatMapSingle {
+        walletModeService.walletMode.flatMapLatest {
             coincore.activeAssets(it)
-        }.subscribeBy(
+        }.distinctUntilChangedBy { c -> c.map { it.currency } }.asObservable().subscribeBy(
             onNext = { activeAssets ->
+                Timber.v("Active assets ${activeAssets.map { it.currency.networkTicker }}")
                 model.process(
                     DashboardIntent.UpdateActiveAssets(
                         activeAssets
@@ -192,14 +195,14 @@ class DashboardActionInteractor(
             walletModeBalanceCache.stream(
                 request = KeyedStoreRequest.Cached(
                     key = WalletMode.NON_CUSTODIAL_ONLY,
-                    forceRefresh = true
+                    forceRefresh = false
                 )
             ).asObservable().emptySubscribe(),
 
             walletModeBalanceCache.stream(
                 request = KeyedStoreRequest.Cached(
                     key = WalletMode.CUSTODIAL_ONLY,
-                    forceRefresh = true
+                    forceRefresh = false
                 )
             ).asObservable().emptySubscribe()
         )
@@ -621,7 +624,7 @@ class DashboardActionInteractor(
         return Singles.zip(
             getQuestionnaireIfNeeded(shouldSkipQuestionnaire, QuestionnaireContext.FIAT_WITHDRAW),
             userIdentity.userAccessForFeature(Feature.WithdrawFiat),
-            linkedBanksFactory.eligibleBankPaymentMethods(sourceAccount.currency as FiatCurrency)
+            linkedBanksFactory.eligibleBankPaymentMethods(sourceAccount.currency)
                 .map { paymentMethods ->
                     // Ignore any WireTransferMethods In case BankLinkTransfer should launch
                     paymentMethods.filter { it == PaymentMethodType.BANK_TRANSFER || !shouldLaunchBankLinkTransfer }

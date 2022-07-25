@@ -152,8 +152,6 @@ public class PayloadManager {
 
         saveNewWallet(email);
 
-        updateAllBalances();
-
         return getPayload();
     }
 
@@ -181,7 +179,6 @@ public class PayloadManager {
 
         saveNewWallet(email);
 
-        updateAllBalances();
 
         return getPayload();
     }
@@ -215,7 +212,6 @@ public class PayloadManager {
         } catch (Throwable t) {
             throw t;
         }
-        updateAllBalances();
     }
 
     /**
@@ -255,7 +251,6 @@ public class PayloadManager {
         } catch (Throwable t) {
             throw t;
         }
-        updateAllBalances();
     }
 
     public void updateDerivationsForAccounts(List<Account> accounts) throws HDWalletException,
@@ -363,7 +358,6 @@ public class PayloadManager {
                 throw new ServerConnectionException(errorMessage);
             }
         }
-        updateAllBalances();
     }
 
     public void initializeAndDecryptFromQR(
@@ -396,7 +390,6 @@ public class PayloadManager {
             throw new ServerConnectionException(exe.code() + " - " + exe.errorBody().string());
         }
 
-        updateAllBalances();
     }
 
     /**
@@ -415,8 +408,6 @@ public class PayloadManager {
         try {
             walletBase = WalletBase.fromJson(payload).withDecryptedPayload(password);
             setTempPassword(password);
-
-            updateAllBalances();
         } catch (DecryptionException decryptionException) {
             log.warn("", decryptionException);
             throw decryptionException;

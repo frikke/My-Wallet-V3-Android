@@ -17,7 +17,7 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.toActionState
 import com.blockchain.coincore.toFiat
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -46,6 +46,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.utils.extensions.mapList
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
@@ -54,7 +56,7 @@ class CustodialTradingAccount(
     override val label: String,
     override val exchangeRates: ExchangeRatesDataManager,
     val custodialWalletManager: CustodialWalletManager,
-    val tradingBalances: TradingBalanceDataManager,
+    private val tradingService: TradingService,
     private val identity: UserIdentity,
     private val walletModeService: WalletModeService,
 ) : CryptoAccountBase(), TradingAccount {
@@ -103,7 +105,7 @@ class CustodialTradingAccount(
 
     override val balance: Observable<AccountBalance>
         get() = Observable.combineLatest(
-            tradingBalances.getBalanceForCurrency(currency),
+            tradingService.getBalanceFor(currency),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             setHasTransactions(balance.hasTransactions)
@@ -182,7 +184,8 @@ class CustodialTradingAccount(
     }
 
     private fun sellEligibility(balance: AccountBalance): Single<StateAwareAction> {
-        val accountsFiat = custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }
+        val accountsFiat = rxSingle { custodialWalletManager.getSupportedFundsFiats().first() }
+            .onErrorReturn { emptyList() }
         val sellEligibility = identity.userAccessForFeature(Feature.Sell)
         return sellEligibility.zipWith(accountsFiat) { sellEligible, fiatAccounts ->
             StateAwareAction(

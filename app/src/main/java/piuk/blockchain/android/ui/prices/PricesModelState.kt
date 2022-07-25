@@ -8,7 +8,7 @@ import info.blockchain.balance.Currency
 data class PricesModelState(
     val isLoadingData: Boolean = false,
     val isError: Boolean = false,
-    val fiatCurrency: Currency,
+    val fiatCurrency: Currency? = null,
     val tradableCurrencies: List<String>,
     val data: List<PricesItem> = listOf(),
     val filterBy: String = ""
@@ -17,6 +17,7 @@ data class PricesModelState(
 data class PricesItem(
     val assetInfo: AssetInfo,
     val hasError: Boolean,
+    val currency: Currency,
     val priceWithDelta: Prices24HrWithDelta? = null,
     val isTradingAccount: Boolean? = false
 )

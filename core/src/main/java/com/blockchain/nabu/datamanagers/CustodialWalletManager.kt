@@ -32,6 +32,7 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
 
 enum class OrderState {
     UNKNOWN,
@@ -164,7 +165,9 @@ interface CustodialWalletManager {
 
     fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
 
-    fun getSupportedFundsFiats(fiatCurrency: FiatCurrency = selectedFiatcurrency): Single<List<FiatCurrency>>
+    fun getSupportedFundsFiats(
+        fiatCurrency: FiatCurrency = selectedFiatcurrency
+    ): Flow<List<FiatCurrency>>
 
     fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
 

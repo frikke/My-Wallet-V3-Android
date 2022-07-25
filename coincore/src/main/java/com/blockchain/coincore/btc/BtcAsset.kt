@@ -13,7 +13,6 @@ import com.blockchain.coincore.impl.NotificationAddresses
 import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.websocket.CoinsWebSocketInterface
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -34,7 +33,6 @@ internal class BtcAsset(
     private val payloadManager: PayloadDataManager,
     private val sendDataManager: SendDataManager,
     private val feeDataManager: FeeDataManager,
-    private val coinsWebsocket: CoinsWebSocketInterface,
     private val walletPreferences: WalletStatusPrefs,
     private val notificationUpdater: BackendNotificationUpdater,
     private val addressResolver: IdentityAddressResolver
@@ -119,14 +117,12 @@ internal class BtcAsset(
             .singleOrError()
             .map { btcAccountFromPayloadAccount(payloadManager.accountCount - 1, it) }
             .doOnSuccess { forceAccountsRefresh() }
-            .doOnSuccess { coinsWebsocket.subscribeToXpubBtc(it.xpubAddress) }
 
     override fun createWalletFromLabel(label: String, secondPassword: String?): Single<BtcCryptoWalletAccount> =
         payloadManager.createNewAccount(label, secondPassword)
             .singleOrError()
             .map { btcAccountFromPayloadAccount(payloadManager.accountCount - 1, it) }
             .doOnSuccess { forceAccountsRefresh() }
-            .doOnSuccess { coinsWebsocket.subscribeToXpubBtc(it.xpubAddress) }
 
     override fun createWalletFromAddress(address: String): Completable =
         throw UnsupportedOperationException("Action not supported")
@@ -153,8 +149,6 @@ internal class BtcAsset(
             btcAccountFromImportedAccount(importedAddress)
         }.doOnSuccess {
             forceAccountsRefresh()
-        }.doOnSuccess { btcAccount ->
-            coinsWebsocket.subscribeToExtraBtcAddress(btcAccount.xpubAddress)
         }
     }
 

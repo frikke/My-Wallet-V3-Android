@@ -18,7 +18,6 @@ enum class AuthStatus {
     None,
     InitAuthInfo,
     GetSessionId,
-    AuthorizeApproval,
     GetPayload,
     VerifyPassword,
     Submit2FA,

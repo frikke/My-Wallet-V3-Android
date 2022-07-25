@@ -357,6 +357,18 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             is BlockchainCardIntent.SnackbarDismissed -> {
                 updateState { it.copy(errorState = null) }
             }
+
+            is BlockchainCardIntent.SeeCardLostPage -> {
+                navigate(BlockchainCardNavigationEvent.SeeCardLostPage)
+            }
+
+            is BlockchainCardIntent.SeeFAQPage -> {
+                navigate(BlockchainCardNavigationEvent.SeeFAQPage)
+            }
+
+            is BlockchainCardIntent.SeeContactSupportPage -> {
+                navigate(BlockchainCardNavigationEvent.SeeContactSupportPage)
+            }
         }
     }
 }

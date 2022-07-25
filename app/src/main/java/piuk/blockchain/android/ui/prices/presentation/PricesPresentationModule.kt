@@ -11,8 +11,7 @@ val pricesPresentationModule = module {
                 walletModeService = get(),
                 coincore = get(),
                 exchangeRatesDataManager = get(),
-                custodialWalletManager = get(),
-                currencyPrefs = get()
+                custodialWalletManager = get()
             )
         }
     }

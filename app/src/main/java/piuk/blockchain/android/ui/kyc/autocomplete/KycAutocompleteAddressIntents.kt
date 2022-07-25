@@ -12,6 +12,9 @@ sealed class KycAutocompleteAddressIntents : MviIntent<KycAutocompleteAddressSta
     data class UpdateSearchText(val addressSearchText: String, val countryCode: String) :
         KycAutocompleteAddressIntents() {
         override fun reduce(oldState: KycAutocompleteAddressState) = oldState
+        override fun isValidFor(oldState: KycAutocompleteAddressState): Boolean {
+            return addressSearchText.length > 4
+        }
     }
 
     data class UpdateAddresses(val addresses: List<KycAddressResult>) :

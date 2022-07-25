@@ -26,10 +26,12 @@ import com.blockchain.blockchaincard.ui.composables.managecard.ManageCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCardDetails
 import com.blockchain.blockchaincard.ui.composables.managecard.PersonalDetails
 import com.blockchain.blockchaincard.ui.composables.managecard.Support
+import com.blockchain.blockchaincard.ui.composables.managecard.SupportPage
 import com.blockchain.blockchaincard.ui.composables.managecard.TransactionControls
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationFailed
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationInProgress
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationSuccess
+import com.blockchain.blockchaincard.ui.composables.ordercard.LegalDocument
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCard
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardAddressKYC
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardContent
@@ -102,10 +104,14 @@ fun BlockchainCardNavHost(
             }
 
             composable(BlockchainCardDestination.OrderCardConfirmDestination) {
-                OrderCardContent(
-                    onCreateCard = { viewModel.onIntent(BlockchainCardIntent.CreateCard) },
-                    onSeeProductDetails = { viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails) },
-                )
+                state?.legalDocuments?.let { legalDocuments ->
+                    OrderCardContent(
+                        termsAndConditionsSeen = legalDocuments.termsAndConditions.seen,
+                        onCreateCard = { viewModel.onIntent(BlockchainCardIntent.CreateCard) },
+                        onSeeProductDetails = { viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails) },
+                        onSeeTermsAndConditions = { viewModel.onIntent(BlockchainCardIntent.OnSeeTermsAndConditions) }
+                    )
+                }
             }
 
             composable(BlockchainCardDestination.CreateCardInProgressDestination) {
@@ -160,10 +166,28 @@ fun BlockchainCardNavHost(
 
             bottomSheet(BlockchainCardDestination.SeeProductLegalInfoDestination) {
                 ProductLegalInfo(
-                    onCloseProductLegalInfoBottomSheet = {
-                        viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
-                    }
+                    onCloseProductLegalInfoBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) },
+                    onClickShortFormDisclosure = { viewModel.onIntent(BlockchainCardIntent.OnSeeShortFormDisclosure) },
+                    onClickTermsAndConditions = { viewModel.onIntent(BlockchainCardIntent.OnSeeTermsAndConditions) }
                 )
+            }
+
+            composable(BlockchainCardDestination.TermsAndConditionsDestination) {
+                state?.legalDocuments?.let { legalDocuments ->
+                    LegalDocument(
+                        legalDocument = legalDocuments.termsAndConditions,
+                        onContinue = { viewModel.onIntent(BlockchainCardIntent.TermsAndConditionsAccepted) }
+                    )
+                }
+            }
+
+            composable(BlockchainCardDestination.ShortFormDisclosureDestination) {
+                state?.legalDocuments?.let { legalDocuments ->
+                    LegalDocument(
+                        legalDocument = legalDocuments.shortFormDisclosure,
+                        onContinue = { viewModel.onIntent(BlockchainCardIntent.TermsAndConditionsAccepted) }
+                    )
+                }
             }
 
             // Manage Card Screens
@@ -302,6 +326,15 @@ fun BlockchainCardNavHost(
                     },
                     onCloseBottomSheet = {
                         viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
+                    },
+                    onClickCardLost = {
+                        viewModel.onIntent(BlockchainCardIntent.SeeCardLostPage)
+                    },
+                    onClickFAQ = {
+                        viewModel.onIntent(BlockchainCardIntent.SeeFAQPage)
+                    },
+                    onClickContactSupport = {
+                        viewModel.onIntent(BlockchainCardIntent.SeeContactSupportPage)
                     }
                 )
             }
@@ -338,6 +371,18 @@ fun BlockchainCardNavHost(
                         onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
                     )
                 }
+            }
+
+            composable(BlockchainCardDestination.CardLostPageDestination) {
+                SupportPage()
+            }
+
+            composable(BlockchainCardDestination.FAQPageDestination) {
+                SupportPage()
+            }
+
+            composable(BlockchainCardDestination.ContactSupportPageDestination) {
+                SupportPage()
             }
         }
     }

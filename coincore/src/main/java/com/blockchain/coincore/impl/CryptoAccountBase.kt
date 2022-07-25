@@ -36,11 +36,12 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.asFiatCurrencyOrThrow
-import info.blockchain.balance.total
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.rx3.rxSingle
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -213,7 +214,7 @@ abstract class CryptoNonCustodialAccount(
 
     protected abstract val addressResolver: AddressResolver
 
-    protected abstract fun getOnChainBalance(): Observable<Money>
+    protected abstract fun getOnChainBalance(): Observable<out Money>
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = baseActions.map {
@@ -308,7 +309,8 @@ abstract class CryptoNonCustodialAccount(
 
     private fun sellActionEligibility(activeAndFunded: Boolean): Single<StateAwareAction> {
         val sellEligibility = identity.userAccessForFeature(Feature.Sell)
-        val fiatAccounts = custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }
+        val fiatAccounts = rxSingle { custodialWalletManager.getSupportedFundsFiats().first() }
+            .onErrorReturn { emptyList() }
         return sellEligibility.zipWith(fiatAccounts) { sellEligible, fiatAccountsSupported ->
             StateAwareAction(
                 when {

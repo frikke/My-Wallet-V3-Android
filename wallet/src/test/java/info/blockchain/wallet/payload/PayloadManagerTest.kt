@@ -422,7 +422,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         Assert.assertEquals("1NzpLHV6LLVFCYdYA5woYL9pHJ48KQJc9K", nextChangeAddress)
     }
 
-    @Test @Throws(Exception::class) fun balance() {
+    @Test fun balance() {
         val walletBase = loadResourceContent("wallet_v3_6.txt")
         val responseList = LinkedList<String>()
         responseList.add(walletBase)
@@ -456,6 +456,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
             "any",
             "MyTestWallet"
         )
+        payloadManager.updateAllBalances()
 
         // 'All' wallet balance and transactions
         Assert.assertEquals(743071, payloadManager.walletBalance.toLong())

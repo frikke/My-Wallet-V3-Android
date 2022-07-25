@@ -1,9 +1,10 @@
 package com.blockchain.core.custodial.data
 
+import app.cash.turbine.test
 import com.blockchain.api.services.TradingBalance
-import com.blockchain.core.custodial.TradingAccountBalance
 import com.blockchain.core.custodial.data.store.TradingDataSource
-import com.blockchain.core.custodial.domain.TradingStoreService
+import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.store.StoreResponse
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
@@ -12,7 +13,10 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
@@ -21,7 +25,7 @@ class TradingStoreRepositoryTest {
     private val assetCatalogue = mockk<AssetCatalogue>()
     private val tradingDataSource = mockk<TradingDataSource>()
 
-    private val tradingStoreService: TradingStoreService = TradingStoreRepository(
+    private val tradingService: TradingService = TradingRepository(
         assetCatalogue = assetCatalogue,
         tradingDataSource = tradingDataSource
     )
@@ -64,13 +68,13 @@ class TradingStoreRepositoryTest {
         every { assetCatalogue.fromNetworkTicker(cryptoAsset2.displayTicker) } returns
             cryptoAsset2
 
-        every { tradingDataSource.stream(any()) } returns
+        every { tradingDataSource.streamData(any()) } returns
             flowOf(StoreResponse.Data(cacheResult))
     }
 
     @Test
     fun `WHEN getBalances is called, THEN data should be returned`() {
-        tradingStoreService.getBalances()
+        tradingService.getBalances()
             .test()
             .await()
             .assertValue {
@@ -80,7 +84,7 @@ class TradingStoreRepositoryTest {
 
     @Test
     fun `GIVEN asset included, WHEN getBalanceFor is called, THEN Balance should be returned`() {
-        tradingStoreService.getBalanceFor(asset = cryptoAsset1)
+        tradingService.getBalanceFor(asset = cryptoAsset1)
             .test()
             .await()
             .assertValue {
@@ -92,7 +96,7 @@ class TradingStoreRepositoryTest {
     fun `GIVEN asset not included, WHEN getBalanceFor is called, THEN zeroBalance should be returned`() {
         val asset = CryptoCurrency.BTC
 
-        tradingStoreService.getBalanceFor(asset = asset)
+        tradingService.getBalanceFor(asset = asset)
             .test()
             .await()
             .assertValue {
@@ -101,13 +105,9 @@ class TradingStoreRepositoryTest {
     }
 
     @Test
-    fun `WHEN getActiveAssets is called, THEN data-keys should be returned`() {
-        tradingStoreService.getActiveAssets()
-            .test()
-            .await()
-            .assertValue {
-                it == data.keys
-            }
+    fun `WHEN getActiveAssets is called, THEN data-keys should be returned`() = runTest {
+        val result = tradingService.getActiveAssets().last()
+        assertEquals(data.keys, result)
     }
 
     private fun anyBalanceForAsset(asset: Currency): TradingAccountBalance =

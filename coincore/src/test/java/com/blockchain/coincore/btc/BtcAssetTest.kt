@@ -2,17 +2,14 @@ package com.blockchain.coincore.btc
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.impl.BackendNotificationUpdater
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.websocket.CoinsWebSocketInterface
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import exchange.ExchangeLinking
 import info.blockchain.balance.CryptoCurrency
@@ -47,7 +44,6 @@ class BtcAssetTest : KoinTest {
     private val payloadManager: PayloadDataManager = mock()
     private val sendDataManager: SendDataManager = mock()
     private val feeDataManager: FeeDataManager = mock()
-    private val coinsWebsocket: CoinsWebSocketInterface = mock()
     private val walletPreferences: WalletStatusPrefs = mock()
     private val notificationUpdater: BackendNotificationUpdater = mock()
 
@@ -55,7 +51,6 @@ class BtcAssetTest : KoinTest {
         payloadManager = payloadManager,
         sendDataManager = sendDataManager,
         feeDataManager = feeDataManager,
-        coinsWebsocket = coinsWebsocket,
         notificationUpdater = notificationUpdater,
         walletPreferences = walletPreferences,
         addressResolver = mock()
@@ -84,8 +79,6 @@ class BtcAssetTest : KoinTest {
                     !it.isArchived &&
                     it.xpubAddress == NEW_XPUB
             }.assertComplete()
-
-        verify(coinsWebsocket).subscribeToXpubBtc(NEW_XPUB)
     }
 
     @Test
@@ -97,8 +90,6 @@ class BtcAssetTest : KoinTest {
         subject.createAccount(TEST_LABEL, null)
             .test()
             .assertError(Exception::class.java)
-
-        verifyNoMoreInteractions(coinsWebsocket)
     }
 
     @Test
@@ -123,8 +114,6 @@ class BtcAssetTest : KoinTest {
                     !it.isArchived &&
                     it.xpubAddress == IMPORTED_ADDRESS
             }.assertComplete()
-
-        verify(coinsWebsocket).subscribeToExtraBtcAddress(IMPORTED_ADDRESS)
     }
 
     @Test
@@ -139,8 +128,6 @@ class BtcAssetTest : KoinTest {
         subject.importWalletFromKey(KEY_DATA, NON_BIP38_FORMAT, null, null)
             .test()
             .assertError(Exception::class.java)
-
-        verifyNoMoreInteractions(coinsWebsocket)
     }
 
     @Test
@@ -151,8 +138,6 @@ class BtcAssetTest : KoinTest {
         subject.importWalletFromKey(KEY_DATA, NON_BIP38_FORMAT, null, null)
             .test()
             .assertError(Exception::class.java)
-
-        verifyNoMoreInteractions(coinsWebsocket)
     }
 
     @Test
@@ -177,8 +162,6 @@ class BtcAssetTest : KoinTest {
                     !it.isArchived &&
                     it.xpubAddress == IMPORTED_ADDRESS
             }.assertComplete()
-
-        verify(coinsWebsocket).subscribeToExtraBtcAddress(IMPORTED_ADDRESS)
     }
 
     @Test
@@ -189,8 +172,6 @@ class BtcAssetTest : KoinTest {
         subject.importWalletFromKey(KEY_DATA, BIP38_FORMAT, KEY_PASSWORD, null)
             .test()
             .assertError(BadPassphraseException::class.java)
-
-        verifyNoMoreInteractions(coinsWebsocket)
     }
 
     @Test
@@ -328,7 +309,7 @@ private val mockAssetDependenciesModule = module {
     }
 
     factory {
-        mock<TradingBalanceDataManager>()
+        mock<TradingService>()
     }
 
     factory {

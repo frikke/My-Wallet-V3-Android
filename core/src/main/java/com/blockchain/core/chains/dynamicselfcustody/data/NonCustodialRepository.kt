@@ -16,11 +16,13 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSig
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.StoreRequest
-import com.blockchain.store.firstOutcome
+import com.blockchain.refreshstrategy.RefreshStrategy
+import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
+import com.blockchain.store.toStoreRequest
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.JsonObject
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
@@ -63,12 +65,13 @@ internal class NonCustodialRepository(
         )
             .map { it.success }
 
-    override suspend fun getSubscriptions(): Outcome<ApiError, List<String>> =
-        subscriptionsStore.stream(StoreRequest.Cached(forceRefresh = false))
+    override fun getSubscriptions(refreshStrategy: RefreshStrategy): Flow<List<String>> {
+        return subscriptionsStore.stream(refreshStrategy.toStoreRequest())
             .mapData { subscriptionsResponse ->
                 subscriptionsResponse.currencies.map { it.ticker }
             }
-            .firstOutcome()
+            .getDataOrThrow()
+    }
 
     override suspend fun getBalances(currencies: List<String>): Outcome<ApiError, List<NonCustodialAccountBalance>> =
         dynamicSelfCustodyService.getBalances(

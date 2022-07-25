@@ -24,7 +24,6 @@ import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardRejectionCheckFeatureFlag
-import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
@@ -58,7 +57,6 @@ import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.websocket.CoinsWebSocketInterface
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
 import exchange.ExchangeLinking
@@ -88,8 +86,6 @@ import piuk.blockchain.android.data.biometrics.BiometricsControllerImpl
 import piuk.blockchain.android.data.biometrics.BiometricsDataRepositoryImpl
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.data.biometrics.WalletBiometricDataFactory
-import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
-import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy
 import piuk.blockchain.android.deeplink.BlockchainDeepLinkParser
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.EmailVerificationDeepLinkHelper
@@ -215,12 +211,6 @@ val applicationModule = module {
 
     factory { RootUtil() }
 
-    single {
-        CoinsWebSocketService(
-            applicationContext = get()
-        )
-    }
-
     factory { get<Context>().resources }
 
     single { CurrentContextAccess() }
@@ -300,24 +290,6 @@ val applicationModule = module {
         factory(ars) {
             ARSPaymentAccountMapper(resources = get())
         }.bind(PaymentAccountMapper::class)
-
-        scoped {
-            CoinsWebSocketStrategy(
-                coinsWebSocket = get(),
-                ethDataManager = get(),
-                erc20DataManager = get(),
-                bchDataManager = get(),
-                stringUtils = get(),
-                featureFlag = get(coinWebSocketFeatureFlag),
-                json = get(),
-                payloadDataManager = get(),
-                rxBus = get(),
-                authPrefs = get(),
-                appUtil = get(),
-                assetCatalogue = get(),
-                crashLogger = get()
-            )
-        }.bind(CoinsWebSocketInterface::class)
 
         factory {
             OkHttpClient()

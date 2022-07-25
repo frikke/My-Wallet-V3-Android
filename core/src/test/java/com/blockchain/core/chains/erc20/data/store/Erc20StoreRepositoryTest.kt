@@ -14,7 +14,10 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
@@ -54,7 +57,7 @@ class Erc20StoreRepositoryTest {
 
     @Before
     fun setUp() {
-        every { erc20DataSource.stream(any()) } returns flowOf(StoreResponse.Data(listOf(erc20TokenBalance)))
+        every { erc20DataSource.streamData(any()) } returns flowOf(StoreResponse.Data(listOf(erc20TokenBalance)))
         every { erc20DataSource.invalidate() } just Runs
         every { assetCatalogue.assetFromL1ChainByContractAddress(any(), any()) } returns cryptoCurrency
     }
@@ -99,12 +102,8 @@ class Erc20StoreRepositoryTest {
     }
 
     @Test
-    fun `WHEN getActiveAssets is called, THEN data-keys should be returned`() {
-        erc20StoreService.getActiveAssets()
-            .test()
-            .await()
-            .assertValue {
-                it == data.keys
-            }
+    fun `WHEN getActiveAssets is called, THEN data-keys should be returned`() = runTest {
+        val result = erc20StoreService.getActiveAssets().last()
+        assertEquals(data.keys, result)
     }
 }

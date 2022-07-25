@@ -1,5 +1,6 @@
 package com.blockchain.core.chains.erc20.data.store
 
+import app.cash.turbine.test
 import com.blockchain.api.ethereum.evm.BalancesResponse
 import com.blockchain.api.ethereum.evm.EvmAddressResponse
 import com.blockchain.api.ethereum.evm.EvmBalanceResponse
@@ -16,7 +17,10 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
@@ -87,7 +91,7 @@ class Erc20L2StoreRepositoryTest {
 
     @Before
     fun setUp() {
-        every { erc20L2DataSource.stream(any(), any()) } returns flowOf(StoreResponse.Data(balancesResponse))
+        every { erc20L2DataSource.streamData(any()) } returns flowOf(StoreResponse.Data(balancesResponse))
         every { erc20L2DataSource.invalidate(any()) } just Runs
         every { assetCatalogue.assetFromL1ChainByContractAddress(l1chain = "CRYPTO2", any()) } returns cryptoCurrency
         every { assetCatalogue.assetInfoFromNetworkTicker(symbol = "CRYPTO_NATIVE") } returns cryptoCurrencyNative
@@ -144,12 +148,8 @@ class Erc20L2StoreRepositoryTest {
     }
 
     @Test
-    fun `WHEN getActiveAssets is called, THEN data-keys should be returned`() {
-        erc20L2StoreService.getActiveAssets(networkTicker = "CRYPTO2")
-            .test()
-            .await()
-            .assertValue {
-                it == data.keys
-            }
+    fun `WHEN getActiveAssets is called, THEN data-keys should be returned`() = runTest {
+        val result = erc20L2StoreService.getActiveAssets(networkTicker = "CRYPTO2").last()
+        assertEquals(data.keys, result)
     }
 }

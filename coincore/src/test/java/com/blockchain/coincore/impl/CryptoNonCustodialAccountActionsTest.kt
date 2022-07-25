@@ -29,6 +29,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -90,7 +91,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         configureActionTest()
 
         subject.stateAwareActions
-            .test().assertValue {
+            .test().await().assertValue {
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                     it.contains(StateAwareAction(ActionState.Available, AssetAction.Receive))
             }
@@ -103,7 +104,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         configureActionTest()
 
         subject.stateAwareActions
-            .test().assertValue {
+            .test().await().assertValue {
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                     it.contains(StateAwareAction(ActionState.Available, AssetAction.Send))
             }
@@ -116,7 +117,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         configureActionTest()
 
         subject.stateAwareActions
-            .test().assertValue {
+            .test().await().assertValue {
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                     it.contains(StateAwareAction(ActionState.LockedForBalance, AssetAction.Send))
             }
@@ -129,7 +130,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         configureActionTest(isAssetSupportedForSwap = false)
 
         subject.stateAwareActions
-            .test().assertValue {
+            .test().await().assertValue {
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                     it.contains(StateAwareAction(ActionState.Unavailable, AssetAction.Swap))
             }
@@ -141,7 +142,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
 
         configureActionTest(userAccessForSwap = FeatureAccess.Blocked(BlockedReason.NotEligible))
         subject.stateAwareActions
-            .test().assertValue {
+            .test().await().assertValue {
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                     it.contains(StateAwareAction(ActionState.Unavailable, AssetAction.Swap))
             }
@@ -153,7 +154,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
 
         configureActionTest()
 
-        subject.stateAwareActions.test().assertValue {
+        subject.stateAwareActions.test().await().assertValue {
             it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                 it.contains(StateAwareAction(ActionState.LockedForBalance, AssetAction.Swap))
         }
@@ -165,7 +166,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
 
         configureActionTest()
 
-        subject.stateAwareActions.test().assertValue {
+        subject.stateAwareActions.test().await().assertValue {
             it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.Swap))
         }
@@ -177,7 +178,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
 
         configureActionTest(userAccessForSell = FeatureAccess.Blocked(BlockedReason.NotEligible))
 
-        subject.stateAwareActions.test().assertValue {
+        subject.stateAwareActions.test().await().assertValue {
             it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                 it.contains(StateAwareAction(ActionState.Unavailable, AssetAction.Sell))
         }
@@ -189,7 +190,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
 
         configureActionTest(supportedFiatFunds = emptyList())
 
-        subject.stateAwareActions.test().assertValue {
+        subject.stateAwareActions.test().await().assertValue {
             it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                 it.contains(StateAwareAction(ActionState.LockedForTier, AssetAction.Sell))
         }
@@ -200,7 +201,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         val subject = configureActionSubject(false)
 
         configureActionTest()
-        subject.stateAwareActions.test().assertValue {
+        subject.stateAwareActions.test().await().assertValue {
             it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                 it.contains(StateAwareAction(ActionState.LockedForBalance, AssetAction.Sell))
         }
@@ -212,7 +213,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
 
         configureActionTest()
 
-        subject.stateAwareActions.test().assertValue {
+        subject.stateAwareActions.test().await().assertValue {
             it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.Sell))
         }
@@ -225,7 +226,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         configureActionTest(userAccessForCryptoDeposit = FeatureAccess.Blocked(BlockedReason.NotEligible))
 
         subject.stateAwareActions
-            .test().assertValue {
+            .test().await().assertValue {
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                     it.contains(StateAwareAction(ActionState.Unavailable, AssetAction.InterestDeposit))
             }
@@ -238,7 +239,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         configureActionTest(userAccessForInterestDeposit = FeatureAccess.Blocked(BlockedReason.NotEligible))
 
         subject.stateAwareActions
-            .test().assertValue {
+            .test().await().assertValue {
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                     it.contains(StateAwareAction(ActionState.Unavailable, AssetAction.InterestDeposit))
             }
@@ -251,7 +252,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         configureActionTest(eligibleForInterest = false)
 
         subject.stateAwareActions
-            .test().assertValue {
+            .test().await().assertValue {
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                     it.contains(StateAwareAction(ActionState.LockedForTier, AssetAction.InterestDeposit))
             }
@@ -264,7 +265,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         configureActionTest()
 
         subject.stateAwareActions
-            .test().assertValue {
+            .test().await().assertValue {
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                     it.contains(StateAwareAction(ActionState.LockedForBalance, AssetAction.InterestDeposit))
             }
@@ -277,7 +278,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         configureActionTest()
 
         subject.stateAwareActions
-            .test().assertValue {
+            .test().await().assertValue {
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
                     it.contains(StateAwareAction(ActionState.Available, AssetAction.InterestDeposit))
             }
@@ -308,7 +309,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
     ) {
         whenever(custodialManager.selectedFiatcurrency).thenReturn(FiatCurrency.Dollars)
         whenever(custodialManager.getSupportedFundsFiats(FiatCurrency.Dollars)).thenReturn(
-            Single.just(supportedFiatFunds)
+            flowOf(supportedFiatFunds)
         )
         whenever(userIdentity.isEligibleFor(Feature.Interest(TEST_ASSET))).thenReturn(Single.just(eligibleForInterest))
         whenever(userIdentity.userAccessForFeature(Feature.Swap)).thenReturn(Single.just(userAccessForSwap))

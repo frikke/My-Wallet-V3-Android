@@ -1,6 +1,8 @@
 package com.blockchain.api.blockchainCard
 
 import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.blockchainCard.data.AcceptedDocumentFormDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentsDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardAccountDto
 import com.blockchain.api.blockchainCard.data.CardAccountLinkDto
@@ -103,4 +105,16 @@ internal interface BlockchainCardApi {
         @Query("fromId") fromId: String?,
         @Query("limit") limit: Int?
     ): Outcome<ApiError, List<BlockchainCardTransactionDto>>
+
+    @GET("card-issuing/legal")
+    suspend fun getLegalDocuments(
+        @Header("authorization") authorization: String,
+    ): Outcome<ApiError, BlockchainCardLegalDocumentsDto>
+
+    @PUT("card-issuing/legal/{documentName}")
+    suspend fun acceptLegalDocument(
+        @Header("authorization") authorization: String,
+        @Path("documentName") documentName: String,
+        @Body acceptedDocumentForm: AcceptedDocumentFormDto
+    ): Outcome<ApiError, BlockchainCardLegalDocumentsDto>
 }

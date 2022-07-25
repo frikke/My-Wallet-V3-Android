@@ -8,6 +8,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import java.lang.IllegalStateException
+import kotlinx.coroutines.rx3.asObservable
 import timber.log.Timber
 
 interface TransactionTarget {
@@ -58,18 +59,19 @@ class AddressFactoryImpl(
      * an empty set
      **/
     override fun parse(address: String): Single<Set<ReceiveAddress>> =
-        coincore.activeAssets().map { it.filterIsInstance<CryptoAsset>() }.flattenAsObservable {
-            it
-        }.flatMapSingle {
-            it.parseAddress(address).switchIfEmpty(Single.just(NullAddress))
-        }.reduce<Set<ReceiveAddress>>(mutableSetOf()) { set, t2 ->
-            val s = set.plus(t2)
-            s
-        }.onErrorReturn {
-            emptySet()
-        }.map {
-            it.filter { address -> address == NullAddress }.toSet()
-        }
+        coincore.activeAssets().asObservable().firstOrError().map { it.filterIsInstance<CryptoAsset>() }
+            .flattenAsObservable {
+                it
+            }.flatMapSingle {
+                it.parseAddress(address).switchIfEmpty(Single.just(NullAddress))
+            }.reduce<Set<ReceiveAddress>>(mutableSetOf()) { set, t2 ->
+                val s = set.plus(t2)
+                s
+            }.onErrorReturn {
+                emptySet()
+            }.map {
+                it.filter { address -> address == NullAddress }.toSet()
+            }
 
     override fun parse(address: String, ccy: AssetInfo): Maybe<ReceiveAddress> =
         isDomainAddress(address)

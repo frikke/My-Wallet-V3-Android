@@ -108,7 +108,7 @@
     <string name="verify_your_address_description"></string>
     <string name="residential_address"></string>
     <string name="card_intro_title"></string>
-    <string name="next"></string>
+    <string name="common_next"></string>
     <string name="merchant"></string>
     <string name="date"></string>
     <string name="type"></string>

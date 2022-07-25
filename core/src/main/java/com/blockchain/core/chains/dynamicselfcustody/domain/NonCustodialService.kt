@@ -8,7 +8,9 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialDe
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTxHistoryItem
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
 import com.blockchain.outcome.Outcome
+import com.blockchain.refreshstrategy.RefreshStrategy
 import info.blockchain.balance.AssetInfo
+import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.JsonObject
 
 interface NonCustodialService {
@@ -19,7 +21,9 @@ interface NonCustodialService {
 
     suspend fun unsubscribe(currency: String): Outcome<ApiError, Boolean>
 
-    suspend fun getSubscriptions(): Outcome<ApiError, List<String>>
+    fun getSubscriptions(
+        refreshStrategy: RefreshStrategy = RefreshStrategy.Cached(refresh = true)
+    ): Flow<List<String>>
 
     suspend fun getBalances(currencies: List<String>): Outcome<ApiError, List<NonCustodialAccountBalance>>
 

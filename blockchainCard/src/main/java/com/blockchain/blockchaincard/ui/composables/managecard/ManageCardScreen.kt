@@ -1,8 +1,5 @@
 package com.blockchain.blockchaincard.ui.composables.managecard
 
-import android.view.ViewGroup
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -51,7 +48,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.blockchaincard.R
@@ -76,6 +72,7 @@ import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.system.Webview
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tablerow.ToggleTableRow
@@ -169,18 +166,9 @@ fun ManageCard(
             }
 
             if (!cardWidgetUrl.isNullOrEmpty()) {
-                AndroidView(
-                    factory = {
-                        WebView(it).apply {
-                            layoutParams = ViewGroup.LayoutParams(
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.MATCH_PARENT
-                            )
-                            webViewClient = WebViewClient()
-                            settings.javaScriptEnabled = true
-                            loadUrl(cardWidgetUrl)
-                        }
-                    },
+                Webview(
+                    url = cardWidgetUrl,
+                    disableScrolling = true,
                     modifier = Modifier
                         .padding(
                             top = AppTheme.dimensions.paddingMedium
@@ -861,7 +849,13 @@ private fun PreviewBillingAddressUpdatedError() {
 }
 
 @Composable
-fun Support(onCloseCard: () -> Unit, onCloseBottomSheet: () -> Unit) {
+fun Support(
+    onCloseCard: () -> Unit,
+    onClickCardLost: () -> Unit,
+    onClickFAQ: () -> Unit,
+    onClickContactSupport: () -> Unit,
+    onCloseBottomSheet: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -880,7 +874,7 @@ fun Support(onCloseCard: () -> Unit, onCloseBottomSheet: () -> Unit) {
         DefaultTableRow(
             primaryText = stringResource(R.string.card_lost),
             secondaryText = stringResource(R.string.card_lost_description),
-            onClick = {},
+            onClick = onClickCardLost,
         )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
@@ -888,7 +882,7 @@ fun Support(onCloseCard: () -> Unit, onCloseBottomSheet: () -> Unit) {
         DefaultTableRow(
             primaryText = stringResource(R.string.visit_faq),
             secondaryText = stringResource(R.string.visit_faq_description),
-            onClick = {},
+            onClick = onClickFAQ,
         )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
@@ -896,7 +890,7 @@ fun Support(onCloseCard: () -> Unit, onCloseBottomSheet: () -> Unit) {
         DefaultTableRow(
             primaryText = stringResource(R.string.contact_support),
             secondaryText = stringResource(R.string.contact_support_description),
-            onClick = {},
+            onClick = onClickContactSupport,
         )
 
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
@@ -920,7 +914,7 @@ fun Support(onCloseCard: () -> Unit, onCloseBottomSheet: () -> Unit) {
 @Composable
 @Preview(showBackground = true)
 private fun PreviewSupport() {
-    Support({}, {})
+    Support({}, {}, {}, {}, {})
 }
 
 @Composable
@@ -1313,5 +1307,15 @@ fun PreviewCardTransactionDetails() {
             networkConversionRate = null
         ),
         onCloseBottomSheet = {}
+    )
+}
+
+@Composable
+fun SupportPage() {
+    // TODO (labreu): For now, all support pages point to FAQ page
+    Webview(
+        url = "https://www.blockchain.com/faq",
+        modifier = Modifier
+            .padding(top = AppTheme.dimensions.paddingMedium)
     )
 }

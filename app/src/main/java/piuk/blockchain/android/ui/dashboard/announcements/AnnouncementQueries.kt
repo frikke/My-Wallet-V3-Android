@@ -6,6 +6,7 @@ import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.FiatAccount
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.featureflag.FeatureFlag
@@ -19,9 +20,11 @@ import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
 import com.blockchain.payments.googlepay.manager.request.allowedCardNetworks
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.RemoteConfig
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
@@ -50,6 +53,8 @@ class AnnouncementQueries(
     private val paymentMethodsService: PaymentMethodsService,
     private val authenticator: AuthHeaderProvider,
     private val fiatCurrenciesService: FiatCurrenciesService,
+    private val exchangeRatesDataManager: ExchangeRatesDataManager,
+    private val currencyPrefs: CurrencyPrefs
 ) {
     fun hasFundedFiatWallets(): Single<Boolean> =
         coincore.allWallets().map { it.accounts }.map { it.filterIsInstance<FiatAccount>() }
@@ -162,6 +167,9 @@ class AnnouncementQueries(
                 GooglePayRequestBuilder.buildForPaymentStatus(allowedAuthMethods, allowedCardNetworks)
             )
         }
+
+    fun getAssetPrice(asset: Currency) =
+        exchangeRatesDataManager.getPricesWith24hDelta(asset, currencyPrefs.selectedFiatCurrency)
 
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

@@ -30,6 +30,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Locale
+import kotlinx.coroutines.rx3.asObservable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
@@ -72,7 +73,7 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
 
     init {
         // Inflate layout
-        compositeDisposable += coincore.activeAssets()
+        compositeDisposable += coincore.activeAssets().asObservable().firstOrError()
             .map { it.filterIsInstance<MultipleWalletsAsset>() }
             .map { it.map { asset -> asset.currency } }
             .subscribeBy { assets ->

@@ -847,9 +847,13 @@
     <string name="max_with_value">%1$s Max</string>
 
     <!-- New asset announcement -->
+    <string name="new_asset_card_header">1 %1$s = %2$s</string>
+    <string name="new_asset_card_subheader">%1$s (%2$s)</string>
+    <string name="new_asset_card_subheader_suffix">Today</string>
     <string name="new_asset_card_title">%1$s (%2$s) is Now Trading</string>
     <string name="new_asset_card_body">Buy, sell, swap, send, receive and store %1$s in your Blockchain.com Wallet.</string>
     <string name="new_asset_card_cta">Buy %1$s</string>
+
     <!-- Verify email announcement -->
     <string name="verify_email_card_title">Verify Your Email Address</string>
     <string name="verify_email_card_body">In order to start using your Blockchain wallet, you need to confirm your email address.</string>
@@ -864,10 +868,6 @@
     <string name="cloud_backup_card_title">Introducing Cloud Backups</string>
     <string name="cloud_backup_card_body">You can now backup your wallet securely to the cloud. You can opt-out of backups in your wallet settings.</string>
     <string name="cloud_backup_card_cta">Learn More</string>
-
-    <!-- Pax Renamed announcement -->
-    <string name="pax_renamed_card_title"> USD Digital is Now Paxos Standard</string>
-    <string name="pax_renamed_card_body">We\'ve updated the name of USD Digital (USD-D) to Paxos Standard (PAX). Any held funds are not affected.</string>
 
     <!-- Buy Bitcoin announcement -->
     <string name="buy_crypto_card_title">Buy Crypto</string>
@@ -910,16 +910,6 @@
     <string name="rewards_announcement_description">Transfer Crypto and start earning Rewards on BTC, ETH and many more.</string>
     <string name="rewards_announcement_action">Learn More</string>
 
-    <!-- WDGLD announcement -->
-    <string name="wdgld_available_card_title">Trade wDGLD Now</string>
-    <string name="wdgld_available_card_body">Wrapped Digital Gold (wDGLD) is an ERC-20 tokenized version of DGLD, combining a gold-backed token with the power and flexibility of Ethereum.</string>
-    <string name="wdgld_available_card_cta">Trade wDGLD now</string>
-
-    <!-- AAVE/YFI/DOT announcement -->
-    <string name="aave_yfi_dot_available_card_title">Aave, YFI and DOT now available!</string>
-    <string name="aave_yfi_dot_available_card_body">Aave, YFI and Polkadot tokens are now available to Buy, Sell, Swap and Send in your Wallet.</string>
-    <string name="aave_yfi_dot_available_card_cta">Buy Now</string>
-
     <!-- Domain address announcement -->
     <string name="domain_announcement_title">Introducing Send to Domains</string>
     <string name="domain_announcement_description">You can send money directly to registered Unstoppable and ENS domains. Send crypto to .crypto, .eth, .xyz extensions and many more!</string>
@@ -934,11 +924,6 @@
     <string name="re_verify_identity_card_title">Verification Needed</string>
     <string name="re_verify_identity_card_body">Please re-verify your identity to access our full products and services</string>
     <string name="re_verify_identity_card_cta">Reverify Account</string>
-
-    <!-- CeloEUR announcement -->
-    <string name="ceur_announcement_title">Limited-Time cEUR Bonus and Rewards</string>
-    <string name="ceur_announcement_description">Buy 25 cEUR, get a 10 cEUR bonus, and earn 16%% in annual rewards.</string>
-    <string name="ceur_announcement_action">Learn more</string>
 
     <!-- Rename asset announcement -->
     <string name="rename_asset_card_title">%s has a new name</string>

@@ -2,6 +2,7 @@ package com.blockchain.blockchaincard.ui.composables.ordercard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.blockchaincard.R
+import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.blockchaincard.viewmodel.ordercard.OrderCardViewModel
 import com.blockchain.componentlib.basic.ComposeColors
@@ -51,6 +53,7 @@ import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.system.Webview
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -164,7 +167,7 @@ fun OrderCardAddressKYC(onContinue: () -> Unit, onCheckBillingAddress: () -> Uni
             horizontalAlignment = CenterHorizontally
         ) {
             PrimaryButton(
-                text = stringResource(R.string.next),
+                text = stringResource(R.string.common_next),
                 onClick = onContinue,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -234,9 +237,9 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
             horizontalAlignment = CenterHorizontally
         ) {
             PrimaryButton(
-                text = stringResource(R.string.next),
+                text = stringResource(R.string.common_next),
                 onClick = { onContinue(ssn) },
-                state = if (ssn.isNotEmpty()) ButtonState.Enabled else ButtonState.Disabled,
+                state = if (ssn.isNotEmpty() && ssn.length == SSN_LENGTH) ButtonState.Enabled else ButtonState.Disabled,
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -252,8 +255,10 @@ private fun OrderCardSsnKYCPreview() {
 
 @Composable
 fun OrderCardContent(
+    termsAndConditionsSeen: Boolean = false,
     onCreateCard: () -> Unit,
-    onSeeProductDetails: () -> Unit
+    onSeeProductDetails: () -> Unit,
+    onSeeTermsAndConditions: () -> Unit,
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -300,15 +305,25 @@ fun OrderCardContent(
             Checkbox(
                 state = termsAndConditionsCheckboxState.value,
                 onCheckChanged = { checked ->
-                    if (checked) termsAndConditionsCheckboxState.value = CheckboxState.Checked
-                    else termsAndConditionsCheckboxState.value = CheckboxState.Unchecked
+                    if (checked) {
+                        if (termsAndConditionsSeen) {
+                            termsAndConditionsCheckboxState.value = CheckboxState.Checked
+                        } else {
+                            onSeeTermsAndConditions()
+                        }
+                    } else {
+                        termsAndConditionsCheckboxState.value = CheckboxState.Unchecked
+                    }
                 },
             )
             SimpleText(
                 text = stringResource(id = R.string.terms_and_conditions_label),
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Muted,
-                gravity = ComposeGravities.Start
+                gravity = ComposeGravities.Start,
+                modifier = Modifier.clickable {
+                    onSeeTermsAndConditions()
+                }
             )
         }
 
@@ -329,7 +344,7 @@ fun OrderCardContent(
 private fun PreviewOrderCardContent() {
     AppTheme(darkTheme = false) {
         AppSurface {
-            OrderCardContent({ }, {})
+            OrderCardContent(false, { }, {}, {})
         }
     }
 }
@@ -412,7 +427,9 @@ fun PreviewProductDetails() {
 
 @Composable
 fun ProductLegalInfo(
-    onCloseProductLegalInfoBottomSheet: () -> Unit
+    onCloseProductLegalInfoBottomSheet: () -> Unit,
+    onClickShortFormDisclosure: () -> Unit,
+    onClickTermsAndConditions: () -> Unit,
 ) {
     val backgroundColor = if (!isSystemInDarkTheme()) {
         Color.White
@@ -443,7 +460,7 @@ fun ProductLegalInfo(
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
         DefaultTableRow(
             primaryText = stringResource(R.string.short_form_disclosure),
-            onClick = {}
+            onClick = onClickShortFormDisclosure
         )
 
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
@@ -453,7 +470,7 @@ fun ProductLegalInfo(
         )
         DefaultTableRow(
             primaryText = stringResource(R.string.terms_and_conditions),
-            onClick = {}
+            onClick = onClickTermsAndConditions
         )
     }
 }
@@ -463,7 +480,7 @@ fun ProductLegalInfo(
 fun PreviewProductLegalInfo() {
     AppTheme(darkTheme = false) {
         AppSurface {
-            ProductLegalInfo({})
+            ProductLegalInfo({}, {}, {})
         }
     }
 }
@@ -609,5 +626,32 @@ private fun PreviewCardCreationFailed() {
                 onTryAgain = {}
             )
         }
+    }
+}
+
+@Composable
+fun LegalDocument(legalDocument: BlockchainCardLegalDocument, onContinue: () -> Unit) {
+    Column(
+        horizontalAlignment = CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = AppTheme.dimensions.paddingSmall)
+    ) {
+        Webview(
+            url = legalDocument.url,
+            modifier = Modifier
+                .padding(top = AppTheme.dimensions.paddingMedium)
+                .weight(0.9f)
+        )
+
+        PrimaryButton(
+            text = stringResource(id = R.string.common_ok),
+            state = ButtonState.Enabled,
+            onClick = onContinue,
+            modifier = Modifier
+                .padding(AppTheme.dimensions.paddingLarge)
+                .fillMaxWidth()
+                .weight(0.1f)
+        )
     }
 }

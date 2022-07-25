@@ -39,7 +39,6 @@ val coincoreModule = module {
                 payloadManager = get(),
                 sendDataManager = get(),
                 feeDataManager = get(),
-                coinsWebsocket = get(),
                 walletPreferences = get(),
                 notificationUpdater = get(),
                 addressResolver = get()
@@ -55,7 +54,8 @@ val coincoreModule = module {
                 sendDataManager = get(),
                 walletPreferences = get(),
                 beNotifyUpdate = get(),
-                addressResolver = get()
+                addressResolver = get(),
+                bchBalanceCache = get()
             )
         }.bind(CryptoAsset::class)
 
@@ -128,7 +128,7 @@ val coincoreModule = module {
                 payloadManager = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
-                tradingBalances = get(),
+                tradingService = get(),
                 interestService = get(),
                 remoteLogger = get(),
                 labels = get(),
@@ -137,7 +137,6 @@ val coincoreModule = module {
                 identityAddressResolver = get(),
                 selfCustodyService = get(),
                 ethHotWalletAddressResolver = get(),
-                currencyPrefs = get(),
                 custodialWalletManager = get(),
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
                 stxForAllFeatureFlag = get(stxForAllFeatureFlag)

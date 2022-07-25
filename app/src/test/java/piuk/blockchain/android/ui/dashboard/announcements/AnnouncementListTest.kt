@@ -3,14 +3,11 @@ package piuk.blockchain.android.ui.dashboard.announcements
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.never
-import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import io.reactivex.rxjava3.schedulers.TestScheduler
 import kotlin.test.assertEquals
 import org.junit.Test
 
@@ -110,7 +107,7 @@ class AnnouncementListTest {
         )
 
         createAnnouncementList(available)
-            .showNextAnnouncement(host)
+            .nextAnnouncement()
 
         verifyZeroInteractions(host)
     }
@@ -129,13 +126,11 @@ class AnnouncementListTest {
         )
 
         createAnnouncementList(available)
-            .showNextAnnouncement(host)
+            .nextAnnouncement()
             .test()
             .assertValue(available[1])
             .assertComplete()
             .assertNoErrors()
-
-        verify(available[1]).show(host)
     }
 
     @Test
@@ -151,7 +146,7 @@ class AnnouncementListTest {
         )
 
         createAnnouncementList(available)
-            .showNextAnnouncement(host)
+            .nextAnnouncement()
             .test()
             .assertValues()
             .assertComplete()
@@ -172,13 +167,11 @@ class AnnouncementListTest {
         )
 
         createAnnouncementList(available)
-            .showNextAnnouncement(host)
+            .nextAnnouncement()
             .test()
             .assertValue(available[0])
             .assertComplete()
             .assertNoErrors()
-
-        verify(available[0]).show(host)
     }
 
     @Test
@@ -193,42 +186,9 @@ class AnnouncementListTest {
         )
 
         createAnnouncementList(available)
-            .showNextAnnouncement(host)
+            .nextAnnouncement()
             .test()
             .assertNoValues()
-            .assertComplete()
-            .assertNoErrors()
-    }
-
-    @Test
-    fun `calls first announcement that says it should show - alternative scheduler`() {
-
-        val order = listOf("one", "two", "three")
-        whenever(orderAdapter.announcementConfig).thenReturn(Single.just(AnnounceConfig(order, INTERVAL)))
-
-        val available = listOf(
-            dontShowAnnouncement("one"),
-            dontShowAnnouncement("two"),
-            announcement("three"),
-            dontShowAnnouncement("four")
-        )
-
-        val scheduler = TestScheduler()
-
-        val test = createAnnouncementList(available, scheduler)
-            .showNextAnnouncement(host)
-            .test()
-            .assertValues()
-            .assertNoErrors()
-            .assertNotComplete()
-
-        verify(available[2], never()).show(host)
-
-        scheduler.triggerActions()
-
-        verify(available[2]).show(host)
-
-        test.assertValue(available[2])
             .assertComplete()
             .assertNoErrors()
     }
