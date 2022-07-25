@@ -38,6 +38,8 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.rx3.rxSingle
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -409,7 +411,7 @@ class SellIntroFragment : ViewPagerFragment() {
 
     private fun supportedCryptoCurrencies(): Single<List<AssetInfo>> {
         val availableFiats =
-            custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency)
+            rxSingle { custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency).first() }
         return Single.zip(
             custodialWalletManager.getSupportedBuySellCryptoCurrencies(), availableFiats
         ) { supportedPairs, fiats ->

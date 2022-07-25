@@ -65,18 +65,11 @@ internal class Erc20Store(
     ),
     Erc20DataSource {
 
-    override fun stream(
-        refresh: Boolean
-    ): Flow<StoreResponse<Throwable, List<Erc20TokenBalance>>> {
-        return stream(
-            StoreRequest.Cached(
-                forceRefresh = refresh
-            )
-        ).mapData { it.toDomain() }
+    override fun streamData(request: StoreRequest): Flow<StoreResponse<Throwable, List<Erc20TokenBalance>>> {
+        return stream(request).mapData { it.toDomain() }
     }
 
     override fun invalidate() {
-        println("----- ::invalidate Erc200000")
         markAsStale()
     }
 

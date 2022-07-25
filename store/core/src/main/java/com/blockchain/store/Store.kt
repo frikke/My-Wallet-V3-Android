@@ -1,10 +1,14 @@
 package com.blockchain.store
 
+import com.blockchain.refreshstrategy.RefreshStrategy
+import com.blockchain.store.StoreRequest.Fresh
+import com.blockchain.store.StoreResponse.Data
+import com.blockchain.store.StoreResponse.Error
+import com.blockchain.store.StoreResponse.Loading
 import kotlinx.coroutines.flow.*
 
 internal typealias Millis = Long
 typealias StoreId = String
-
 
 /**
  * A Store is responsible for managing a particular data request.
@@ -91,6 +95,33 @@ interface KeyedStore<K : Any, E : Any, T : Any> {
 sealed class StoreRequest {
     object Fresh : StoreRequest()
     data class Cached(val forceRefresh: Boolean) : StoreRequest()
+}
+
+fun RefreshStrategy.toStoreRequest(): StoreRequest {
+    return when (this) {
+        is RefreshStrategy.Cached -> {
+            StoreRequest.Cached(forceRefresh = refresh)
+        }
+        RefreshStrategy.Fresh -> {
+            StoreRequest.Fresh
+        }
+    }
+}
+
+fun <K> RefreshStrategy.toKeyedStoreRequest(key: K): KeyedStoreRequest<K> {
+    return when (this) {
+        is RefreshStrategy.Cached -> {
+            KeyedStoreRequest.Cached(
+                key = key,
+                forceRefresh = refresh
+            )
+        }
+        RefreshStrategy.Fresh -> {
+            KeyedStoreRequest.Fresh(
+                key = key
+            )
+        }
+    }
 }
 
 /**

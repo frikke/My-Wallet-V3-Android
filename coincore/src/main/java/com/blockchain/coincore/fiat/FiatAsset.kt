@@ -7,7 +7,7 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
@@ -31,7 +31,7 @@ class FiatAsset(
     private val exchangeRates: ExchangeRatesDataManager by inject()
     private val bankService: BankService by scopedInject()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
-    private val tradingBalanceDataManager: TradingBalanceDataManager by scopedInject()
+    private val tradingService: TradingService by scopedInject()
     private val labels: DefaultLabels by inject()
 
     override fun defaultAccount(): Single<SingleAccount> = accountGroup(AssetFilter.All).map {
@@ -57,7 +57,7 @@ class FiatAsset(
         FiatCustodialAccount(
             label = labels.getDefaultCustodialFiatWalletLabel(currency),
             currency = currency,
-            tradingBalanceDataManager = tradingBalanceDataManager,
+            tradingService = tradingService,
             exchangeRates = exchangeRates,
             custodialWalletManager = custodialWalletManager,
             bankService = bankService

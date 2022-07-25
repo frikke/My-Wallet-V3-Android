@@ -67,3 +67,18 @@ fun <E, T, R> Flow<StoreResponse<E, T>>.mapError(mapper: (E) -> R): Flow<StoreRe
             is StoreResponse.Loading -> it
         }
     }
+
+/**
+ * E types will be removed by antonis pr
+ */
+fun <E, T> Flow<StoreResponse<E, T>>.getDataOrThrow(): Flow<T> =
+    filterNot { it is StoreResponse.Loading }
+        .map {
+            when (it) {
+                is StoreResponse.Data -> it.data
+                is StoreResponse.Error -> throw it.error as? Exception
+                    ?: it.error as? Throwable
+                    ?: Throwable(it.error.toString())
+                is StoreResponse.Loading -> throw IllegalStateException()
+            }
+        }

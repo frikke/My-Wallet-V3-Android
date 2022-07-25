@@ -6,6 +6,7 @@ import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.api.getuser.data.GetUserStore
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
@@ -16,11 +17,14 @@ import com.blockchain.store.StoreRequest
 import com.blockchain.store.firstOutcome
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 internal class FiatCurrenciesRepository(
     private val authenticator: Authenticator,
     private val getUserStore: GetUserStore,
+    private val userService: UserService,
     private val assetCatalogue: AssetCatalogue,
     private val currencyPrefs: CurrencyPrefs,
     private val analytics: Analytics,
@@ -49,6 +53,25 @@ internal class FiatCurrenciesRepository(
                     currencyPrefs.tradingCurrency = it.selected
                 }
             }
+
+    override fun getTradingCurrenciesFlow(): Flow<TradingCurrencies> {
+        return userService.getUserFlow()
+            .map { user ->
+                TradingCurrencies(
+                    selected = assetCatalogue.fiatFromNetworkTicker(user.currencies.preferredFiatTradingCurrency)
+                        ?: FiatCurrency.Dollars,
+                    allRecommended = user.currencies.userFiatCurrencies.mapNotNull {
+                        assetCatalogue.fiatFromNetworkTicker(it)
+                    },
+                    allAvailable = user.currencies.usableFiatCurrencies.mapNotNull {
+                        assetCatalogue.fiatFromNetworkTicker(it)
+                    }
+                ).also {
+                    @Suppress("DEPRECATION_ERROR")
+                    currencyPrefs.tradingCurrency = it.selected
+                }
+            }
+    }
 
     override suspend fun setSelectedTradingCurrency(currency: FiatCurrency): Outcome<Exception, Unit> =
         authenticator.getAuthHeader().awaitOutcome()

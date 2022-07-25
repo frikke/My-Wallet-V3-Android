@@ -36,7 +36,7 @@ import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.toMobilePaymentType
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -128,7 +128,7 @@ class PaymentsRepository(
     private val paymentsService: PaymentsService,
     private val paymentMethodsService: PaymentMethodsService,
     private val linkedCardsStore: LinkedCardsStore,
-    private val tradingBalanceDataManager: TradingBalanceDataManager,
+    private val tradingService: TradingService,
     private val assetCatalogue: AssetCatalogue,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val withdrawLocksCache: WithdrawLocksCache,
@@ -268,7 +268,7 @@ class PaymentsRepository(
     ): Single<List<LinkedPaymentMethod>> =
         authenticator.getAuthHeader().flatMap { authToken ->
             Single.zip(
-                tradingBalanceDataManager.getBalanceForCurrency(currency).firstOrError(),
+                tradingService.getBalanceFor(currency).firstOrError(),
                 getLinkedCards(),
                 paymentMethodsService.getBanks(authToken).onErrorReturn { emptyList() }
             ) { fundsResponse, cards, linkedBanks ->

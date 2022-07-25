@@ -46,6 +46,9 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.rx3.rxSingle
+import okio.`-DeprecatedOkio`.source
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -131,7 +134,7 @@ class TransactionInteractor(
 
     private fun sellTargets(sourceAccount: CryptoAccount): Single<List<SingleAccount>> {
         val availableFiats =
-            custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency)
+            rxSingle { custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency).first() }
         val apiPairs = Single.zip(
             custodialWalletManager.getSupportedBuySellCryptoCurrencies(),
             availableFiats

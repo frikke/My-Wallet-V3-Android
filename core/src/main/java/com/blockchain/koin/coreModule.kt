@@ -27,12 +27,10 @@ import com.blockchain.core.chains.erc20.data.store.Erc20Store
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.custodial.BrokerageDataManager
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
-import com.blockchain.core.custodial.data.TradingStoreRepository
+import com.blockchain.core.custodial.data.TradingRepository
 import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.custodial.data.store.TradingStore
-import com.blockchain.core.custodial.domain.TradingStoreService
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.dataremediation.DataRemediationRepository
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
@@ -163,18 +161,12 @@ val coreModule = module {
             )
         }
 
-        scoped<TradingStoreService> {
-            TradingStoreRepository(
+        scoped<TradingService> {
+            TradingRepository(
                 assetCatalogue = get(),
                 tradingDataSource = get()
             )
         }
-
-        scoped {
-            TradingBalanceDataManagerImpl(
-                tradingStoreService = get()
-            )
-        }.bind(TradingBalanceDataManager::class)
 
         scoped {
             BrokerageDataManager(
@@ -210,6 +202,7 @@ val coreModule = module {
             FiatCurrenciesRepository(
                 authenticator = get(),
                 getUserStore = get(),
+                userService = get(),
                 assetCatalogue = get(),
                 currencyPrefs = get(),
                 analytics = get(),
@@ -463,7 +456,7 @@ val coreModule = module {
             PaymentsRepository(
                 paymentsService = get(),
                 paymentMethodsService = get(),
-                tradingBalanceDataManager = get(),
+                tradingService = get(),
                 simpleBuyPrefs = get(),
                 authenticator = get(),
                 googlePayManager = get(),

@@ -1,25 +1,22 @@
-package com.blockchain.core.chains.erc20.domain
+package com.blockchain.core.custodial.domain
 
-import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
+import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.refreshstrategy.RefreshStrategy
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
 
-interface Erc20L2StoreService {
+interface TradingService {
     fun getBalances(
-        networkTicker: String,
         refreshStrategy: RefreshStrategy = RefreshStrategy.Cached(refresh = true)
-    ): Observable<Map<AssetInfo, Erc20Balance>>
+    ): Observable<Map<Currency, TradingAccountBalance>>
 
     fun getBalanceFor(
-        networkTicker: String,
-        asset: AssetInfo,
+        asset: Currency,
         refreshStrategy: RefreshStrategy = RefreshStrategy.Cached(refresh = true)
-    ): Observable<Erc20Balance>
+    ): Observable<TradingAccountBalance>
 
     fun getActiveAssets(
-        networkTicker: String,
         refreshStrategy: RefreshStrategy = RefreshStrategy.Cached(refresh = true)
-    ): Flow<Set<AssetInfo>>
+    ): Flow<Set<Currency>>
 }
