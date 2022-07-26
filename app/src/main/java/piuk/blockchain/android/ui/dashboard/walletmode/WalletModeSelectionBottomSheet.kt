@@ -95,7 +95,7 @@ class WalletModeSelectionBottomSheet :
     override fun route(navigationEvent: WalletModeSelectionNavigationEvent) {
         when (navigationEvent) {
             is WalletModeSelectionNavigationEvent.PhraseRecovery -> {
-                launchPhraseRecovery(showDefiOnboarding = navigationEvent.showDefiOnboarding)
+                launchPhraseRecovery(walletActivationRequired = navigationEvent.walletActivationRequired)
             }
 
             is WalletModeSelectionNavigationEvent.Close -> {
@@ -104,9 +104,9 @@ class WalletModeSelectionBottomSheet :
         }.exhaustive
     }
 
-    private fun launchPhraseRecovery(showDefiOnboarding: Boolean) {
+    private fun launchPhraseRecovery(walletActivationRequired: Boolean) {
         onDeFiOnboardingResult.launch(
-            if (showDefiOnboarding) {
+            if (walletActivationRequired) {
                 DeFiOnboardingActivity.newIntent(context = requireContext())
             } else {
                 BackupPhraseActivity.newIntent(context = requireContext())

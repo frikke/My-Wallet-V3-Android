@@ -130,7 +130,7 @@ class WalletModeSelectionViewModel(
                 if (modelState.shouldBackupPhraseForMode(intent.walletMode)) {
                     navigate(
                         WalletModeSelectionNavigationEvent.PhraseRecovery(
-                            showDefiOnboarding = modelState.shouldActivateWalletForMode(intent.walletMode)
+                            walletActivationRequired = modelState.shouldActivateWalletForMode(intent.walletMode)
                         )
                     )
                 } else {
@@ -204,7 +204,7 @@ sealed class BalanceState {
 }
 
 sealed interface WalletModeSelectionNavigationEvent : NavigationEvent {
-    data class PhraseRecovery(val showDefiOnboarding: Boolean) : WalletModeSelectionNavigationEvent
+    data class PhraseRecovery(val walletActivationRequired: Boolean) : WalletModeSelectionNavigationEvent
     data class Close(val walletMode: WalletMode) : WalletModeSelectionNavigationEvent
 }
 
