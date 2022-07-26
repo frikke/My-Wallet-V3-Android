@@ -51,7 +51,7 @@ class TradingStoreRepositoryTest {
 
     private val data = listOf(cryptoAsset1, cryptoAsset2).associateWith { anyBalanceForAsset(it) }
 
-    private val cacheResult = listOf(cryptoAsset1, cryptoAsset2).associate {
+    private val cacheResult: Map<String, TradingBalanceResponseDto> = listOf(cryptoAsset1, cryptoAsset2).associate {
         Pair(
             it.displayTicker,
             TradingBalanceResponseDto(
