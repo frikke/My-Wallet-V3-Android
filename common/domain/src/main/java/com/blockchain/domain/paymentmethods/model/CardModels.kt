@@ -45,14 +45,21 @@ sealed class CardRejectionState {
     @Serializable
     data class MaybeRejected(
         val title: String?,
-        val actions: List<ServerErrorAction> = emptyList()
+        val description: String?,
+        val actions: List<ServerErrorAction> = emptyList(),
+        val iconUrl: String?,
+        val statusIconUrl: String?,
+        val analyticsCategories: List<String>
     ) : CardRejectionState()
 
     @Serializable
     data class AlwaysRejected(
         val title: String?,
         val description: String?,
-        val actions: List<ServerErrorAction> = emptyList()
+        val actions: List<ServerErrorAction> = emptyList(),
+        val iconUrl: String?,
+        val statusIconUrl: String?,
+        val analyticsCategories: List<String>
     ) : CardRejectionState()
 }
 

@@ -11,8 +11,10 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.card.CardButton
+import com.blockchain.componentlib.utils.VibrationManager
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.koin.scopedInject
@@ -24,6 +26,9 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAddNewCardBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.BottomSheetInformation
+import piuk.blockchain.android.ui.base.ErrorButtonCopies
+import piuk.blockchain.android.ui.base.ErrorDialogData
+import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.urllinks.URL_CREDIT_CARD_FAILURES
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.openUrl
@@ -52,6 +57,10 @@ class AddNewCardFragment :
     private val textWatcher = object : AfterTextChangedWatcher() {
         override fun afterTextChanged(s: Editable?) {
             with(binding) {
+                if (cardNumber.isError) {
+                    resetCardRejectionState()
+                }
+
                 btnNext.buttonState = if (cardName.isValid && cardNumber.isValid && cvv.isValid && expiryDate.isValid) {
                     ButtonState.Enabled
                 } else {
@@ -195,8 +204,11 @@ class AddNewCardFragment :
 
     private fun resetCardRejectionState() {
         with(binding) {
-            btnNext.visible()
-            btnAlert.gone()
+            btnNext.apply {
+                visible()
+                isEnabled = true
+            }
+
             cardInputAlert.gone()
             cardInputAlertInfo.gone()
         }
@@ -206,75 +218,104 @@ class AddNewCardFragment :
         with(binding) {
             when (state) {
                 is CardRejectionState.AlwaysRejected -> {
-                    btnNext.gone()
-                    val tryAnotherCardActionTitle = if (state.actions.isNotEmpty() &&
-                        state.actions[0].deeplinkPath.isNotEmpty()
-                    ) {
-                        state.actions[0].title
-                    } else {
-                        getString(R.string.common_ok)
-                    }
-                    val learnMoreActionTitle = if (state.actions.isNotEmpty() &&
-                        state.actions.size == 2 &&
-                        state.actions[1].deeplinkPath.isNotEmpty()
-                    ) {
-                        secondaryCtaLink = state.actions[1].deeplinkPath
-                        state.actions[1].title
-                    } else {
-                        getString(R.string.common_ok)
-                    }
+                    btnNext.isEnabled = false
 
-                    btnAlert.apply {
-                        text = state.title ?: getString(R.string.card_issuer_always_rejects_title)
-                        onClick = {
-                            showBottomSheet(
-                                BottomSheetInformation.newInstance(
-                                    title = state.title ?: getString(R.string.card_issuer_always_rejects_title),
-                                    description = state.description ?: getString(
-                                        R.string.card_issuer_always_rejects_desc
-                                    ),
-                                    ctaPrimaryText = tryAnotherCardActionTitle,
-                                    ctaSecondaryText = learnMoreActionTitle,
-                                    icon = null // TODO (dserrano) check if there will be icons here
-                                )
-                            )
-                        }
-                        visible()
-                    }
+                    val actionTitle = state.title ?: getString(R.string.card_issuer_always_rejects_title)
+                    val ctaCopies = getActionTexts(state.actions)
+
+                    VibrationManager.vibrate(requireContext(), intensity = VibrationManager.VibrationIntensity.High)
+
+                    showCardRejectionAlert(title = actionTitle, isError = true)
+                    showCardRejectionLearnMore(
+                        title = actionTitle,
+                        description = state.description ?: getString(R.string.card_issuer_always_rejects_desc),
+                        primaryCtaText = ctaCopies.first,
+                        secondaryCtaText = ctaCopies.second,
+                        iconUrl = state.iconUrl,
+                        statusIconUrl = state.statusIconUrl,
+                        analyticsCategories = state.analyticsCategories
+                    )
                 }
                 is CardRejectionState.MaybeRejected -> {
-                    binding.cardInputAlert.apply {
-                        style = ComposeTypographies.Caption1
-                        textColor = ComposeColors.Warning
-                        text = state.title ?: getString(R.string.card_issuer_sometimes_rejects_title)
-                        visible()
-                    }
-                    val learnMoreActionTitle = if (state.actions.isNotEmpty()) {
-                        state.actions[0].title
-                    } else {
-                        getString(R.string.common_ok)
-                    }
+                    val actionTitle = state.title ?: getString(R.string.card_issuer_sometimes_rejects_title)
+                    val ctaCopies = getActionTexts(state.actions)
 
-                    binding.cardInputAlertInfo.apply {
-                        style = ComposeTypographies.Caption1
-                        textColor = ComposeColors.Primary
-                        text = learnMoreActionTitle
-                        onClick = {
-                            if (state.actions.isNotEmpty() && state.actions[0].deeplinkPath.isNotEmpty()) {
-                                openUrl(
-                                    state.actions[0].deeplinkPath
-                                )
-                            } else {
-                                resetCardRejectionState()
-                            }
-                        }
-                        visible()
-                    }
+                    VibrationManager.vibrate(requireContext(), intensity = VibrationManager.VibrationIntensity.Medium)
+
+                    showCardRejectionAlert(title = actionTitle, isError = false)
+                    showCardRejectionLearnMore(
+                        title = actionTitle,
+                        description = state.description ?: getString(R.string.card_issuer_sometimes_rejects_desc),
+                        primaryCtaText = ctaCopies.first,
+                        secondaryCtaText = ctaCopies.second,
+                        iconUrl = state.iconUrl,
+                        statusIconUrl = state.statusIconUrl,
+                        analyticsCategories = state.analyticsCategories
+                    )
                 }
                 CardRejectionState.NotRejected -> {
                     resetCardRejectionState()
                 }
             }
+        }
+    }
+
+    private fun getActionTexts(actions: List<ServerErrorAction>): Pair<String, String> {
+        val primaryCtaText = if (actions.isNotEmpty() && actions[0].deeplinkPath.isNotEmpty()) {
+            actions[0].title
+        } else {
+            getString(R.string.common_ok)
+        }
+        val secondaryCtaText = if (actions.isNotEmpty() && actions.size == 2 && actions[1].deeplinkPath.isNotEmpty()) {
+            secondaryCtaLink = actions[1].deeplinkPath
+            actions[1].title
+        } else {
+            getString(R.string.common_ok)
+        }
+
+        return Pair(primaryCtaText, secondaryCtaText)
+    }
+
+    private fun showCardRejectionAlert(title: String, isError: Boolean) {
+        binding.cardInputAlert.apply {
+            style = ComposeTypographies.Caption1
+            textColor = if (isError) ComposeColors.Error else ComposeColors.Warning
+            text = title
+            visible()
+        }
+    }
+
+    private fun showCardRejectionLearnMore(
+        title: String,
+        description: String,
+        primaryCtaText: String,
+        secondaryCtaText: String,
+        iconUrl: String?,
+        statusIconUrl: String?,
+        analyticsCategories: List<String>
+    ) {
+        binding.cardInputAlertInfo.apply {
+            style = ComposeTypographies.Caption1
+            textColor = ComposeColors.Primary
+            text = getString(R.string.common_learn_more)
+            onClick = {
+                showBottomSheet(
+                    ErrorSlidingBottomDialog.newInstance(
+                        ErrorDialogData(
+                            title = title,
+                            description = description,
+                            errorButtonCopies = ErrorButtonCopies(
+                                primaryCtaText,
+                                secondaryCtaText
+                            ),
+                            iconUrl = iconUrl,
+                            statusIconUrl = statusIconUrl,
+                            analyticsCategories = analyticsCategories
+                        )
+                    )
+                )
+            }
+            visible()
         }
     }
 

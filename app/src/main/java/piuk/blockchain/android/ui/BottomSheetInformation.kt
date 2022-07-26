@@ -110,16 +110,16 @@ class BottomSheetInformation : BottomSheetDialogFragment() {
         fun newInstance(
             title: String,
             description: String,
-            ctaPrimaryText: String,
-            ctaSecondaryText: String? = null,
+            primaryCtaText: String,
+            secondaryCtaText: String? = null,
             @DrawableRes icon: Int? = R.drawable.ic_phone
         ): BottomSheetInformation {
             return BottomSheetInformation().apply {
                 arguments = Bundle().apply {
                     putString(TITLE, title)
                     putString(DESCRIPTION, description)
-                    putString(CTA_TEXT_PRIMARY, ctaPrimaryText)
-                    putString(CTA_TEXT_SECONDARY, ctaSecondaryText)
+                    putString(CTA_TEXT_PRIMARY, primaryCtaText)
+                    putString(CTA_TEXT_SECONDARY, secondaryCtaText)
                     icon?.let {
                         putInt(SHEET_ICON, it)
                     }

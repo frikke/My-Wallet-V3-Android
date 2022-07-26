@@ -686,19 +686,26 @@ class PaymentsRepository(
                             title = data.title,
                             deeplinkPath = data.url.orEmpty()
                         )
-                    }.orEmpty()
+                    }.orEmpty(),
+                    iconUrl = this.ux?.icon?.url,
+                    statusIconUrl = this.ux?.icon?.status?.url,
+                    analyticsCategories = this.ux?.categories.orEmpty()
                 )
             }
             false -> {
                 if (this.ux?.actions?.isNotEmpty() == true) {
                     CardRejectionState.MaybeRejected(
                         title = this.ux?.title,
+                        description = this.ux?.message,
                         actions = this.ux?.actions.takeUnless { it.isNullOrEmpty() }?.map { data ->
                             ServerErrorAction(
                                 title = data.title,
                                 deeplinkPath = data.url.orEmpty()
                             )
-                        }.orEmpty()
+                        }.orEmpty(),
+                        iconUrl = this.ux?.icon?.url,
+                        statusIconUrl = this.ux?.icon?.status?.url,
+                        analyticsCategories = this.ux?.categories.orEmpty()
                     )
                 } else {
                     CardRejectionState.NotRejected

@@ -424,7 +424,9 @@ class SimpleBuyActivity :
                     nabuApiException = nabuApiException,
                     errorDescription = description,
                     action = ACTION_BUY,
-                    analyticsCategories = nabuApiException?.getServerSideErrorInfo()?.categories ?: emptyList()
+                    analyticsCategories = nabuApiException?.getServerSideErrorInfo()?.categories ?: emptyList(),
+                    iconUrl = nabuApiException?.getServerSideErrorInfo()?.iconUrl,
+                    statusIconUrl = nabuApiException?.getServerSideErrorInfo()?.statusUrl
                 )
             )
         )

@@ -65,6 +65,7 @@ fun AlertButton(
                     Text(
                         text = text,
                         color = color,
+                        style = AppTheme.typography.body2,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )

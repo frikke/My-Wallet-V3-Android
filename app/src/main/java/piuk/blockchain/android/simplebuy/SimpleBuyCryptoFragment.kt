@@ -826,8 +826,8 @@ class SimpleBuyCryptoFragment :
                         description = description ?: getString(
                             R.string.card_issuer_always_rejects_desc
                         ),
-                        ctaPrimaryText = tryAnotherCardActionTitle,
-                        ctaSecondaryText = learnMoreActionTitle,
+                        primaryCtaText = tryAnotherCardActionTitle,
+                        secondaryCtaText = learnMoreActionTitle,
                         icon = null
                     )
                 )

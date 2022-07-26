@@ -93,8 +93,8 @@ class SupportCentreActivity :
                             BottomSheetInformation.newInstance(
                                 title = getString(R.string.customer_support_error_title),
                                 description = getString(R.string.customer_support_error_description),
-                                ctaPrimaryText = getString(R.string.customer_support_error_cta),
-                                ctaSecondaryText = getString(R.string.common_close)
+                                primaryCtaText = getString(R.string.customer_support_error_cta),
+                                secondaryCtaText = getString(R.string.common_close)
                             )
                         )
                     } else {

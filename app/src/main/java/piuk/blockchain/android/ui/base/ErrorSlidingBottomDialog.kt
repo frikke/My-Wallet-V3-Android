@@ -1,11 +1,16 @@
 package piuk.blockchain.android.ui.base
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.annotation.DrawableRes
 import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.common.model.ServerErrorAction
@@ -14,6 +19,8 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ErrorSlidingBottomDialogBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_UNKNOWN
+import piuk.blockchain.android.util.loadRemoteErrorAndStatusIcons
+import piuk.blockchain.android.util.loadRemoteErrorIcon
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDialogBinding>() {
@@ -40,8 +47,15 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
 
     override fun initControls(binding: ErrorSlidingBottomDialogBinding) {
         with(binding) {
-            title.text = errorDialogData.title
-            description.text = errorDialogData.description
+            errorSheetIndicator.image = ImageResource.Local(R.drawable.vector_sheet_indicator_small)
+
+            loadRemoteIcons(
+                title = errorDialogData.title,
+                description = errorDialogData.description,
+                iconUrl = errorDialogData.iconUrl.orEmpty(),
+                statusIconUrl = errorDialogData.statusIconUrl.orEmpty()
+            )
+
             errorDialogData.errorButtonCopies?.primaryButtonText?.let { primaryButtonText ->
                 primaryCtaButton.apply {
                     text = primaryButtonText.ifEmpty { getString(R.string.common_ok) }
@@ -92,6 +106,154 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
         )
     }
 
+    private fun loadRemoteIcons(
+        iconUrl: String,
+        statusIconUrl: String = "", // not all server side errors will have a status icon
+        title: String,
+        description: String,
+        @DrawableRes defaultErrorIcon: Int = R.drawable.ic_alert_white_bkgd,
+    ) {
+        when {
+            // we have been provided both icon and status
+            iconUrl.isNotEmpty() && statusIconUrl.isNotEmpty() -> {
+                loadRemoteErrorAndStatusIcons(
+                    iconUrl,
+                    statusIconUrl,
+                    title,
+                    description,
+                    defaultErrorIcon
+                )
+            }
+            // we only have one icon
+            iconUrl.isNotEmpty() && statusIconUrl.isEmpty() -> {
+                loadRemoteErrorIcon(
+                    iconUrl,
+                    title,
+                    description,
+                    defaultErrorIcon
+                )
+            }
+            // no icons provided
+            else -> showDefaultErrorIcon(
+                title = title,
+                description = description,
+                errorIcon = defaultErrorIcon
+            )
+        }
+    }
+
+    private fun loadRemoteErrorIcon(
+        iconUrl: String,
+        title: String,
+        description: String,
+        @DrawableRes defaultErrorIcon: Int,
+    ) {
+        requireContext().loadRemoteErrorIcon(
+            iconUrl,
+            onIconLoadSuccess = { drawable ->
+                updateErrorIcon(
+                    title = title,
+                    subtitle = description,
+                    icon = drawable
+                )
+            },
+            onIconLoadError = {
+                showDefaultErrorIcon(
+                    title = title,
+                    description = description,
+                    errorIcon = defaultErrorIcon
+                )
+            }
+        )
+    }
+
+    private fun updateErrorIcon(
+        title: String,
+        subtitle: CharSequence,
+        icon: Drawable,
+    ) {
+        with(binding) {
+            errorSheetIcon.image = ImageResource.LocalWithResolvedBitmap(icon.toBitmap())
+            this.title.text = title
+            description.text = subtitle
+        }
+    }
+
+    private fun showDefaultErrorIcon(title: String, description: String, @DrawableRes errorIcon: Int) {
+        with(binding) {
+            this.title.text = title
+            this.description.text = description
+            this.errorSheetIcon.image = ImageResource.Local(errorIcon)
+        }
+    }
+
+    private fun loadRemoteErrorAndStatusIcons(
+        iconUrl: String,
+        statusIconUrl: String,
+        title: String,
+        description: String,
+        @DrawableRes defaultStatusIcon: Int,
+    ) {
+        requireContext().loadRemoteErrorAndStatusIcons(
+            iconUrl,
+            statusIconUrl,
+            onIconLoadSuccess = { drawable ->
+                updateErrorIcon(
+                    title = title,
+                    subtitle = description,
+                    icon = drawable
+                )
+            },
+            onIconLoadError = {
+                showDefaultErrorIcon(
+                    title = title,
+                    description = description,
+                    errorIcon = defaultStatusIcon
+                )
+            },
+            onStatusIconLoadSuccess = { drawable ->
+                updateStatusIcon(
+                    title = title,
+                    subtitle = description,
+                    statusIcon = drawable
+                )
+            },
+            onStatusIconLoadError = {
+                binding.errorSheetStatus.gone()
+                showDefaultErrorIcon(
+                    title = title,
+                    description = description,
+                    errorIcon = defaultStatusIcon
+                )
+            }
+        )
+    }
+
+    private fun updateStatusIcon(
+        title: String,
+        subtitle: CharSequence,
+        statusIcon: Drawable,
+    ) {
+        with(binding) {
+            errorSheetStatus.image = ImageResource.LocalWithResolvedBitmap(statusIcon.toBitmap())
+            errorSheetStatus.visible()
+            this.title.text = title
+            description.text = subtitle
+        }
+    }
+
+    private fun Drawable.toBitmap(): Bitmap {
+        val bitmap = Bitmap.createBitmap(
+            intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888
+        )
+
+        val canvas = Canvas(bitmap)
+        setBounds(0, 0, canvas.width, canvas.height)
+        draw(canvas)
+
+        return bitmap
+    }
+
     private fun logClientError(
         title: String,
         error: String,
@@ -132,7 +294,9 @@ data class ErrorDialogData(
     val errorDescription: String? = null,
     val action: String? = ACTION_UNKNOWN,
     val errorButtonCopies: ErrorButtonCopies?,
-    val analyticsCategories: List<String>
+    val analyticsCategories: List<String>,
+    val iconUrl: String? = null,
+    val statusIconUrl: String? = null
 ) : Parcelable
 
 fun List<ServerErrorAction>.mapToErrorCopies(): ErrorButtonCopies {

@@ -13,14 +13,9 @@ import piuk.blockchain.android.cards.icon
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class CardNumberEditText : CardEditText, KoinComponent {
-    constructor(context: Context?) : super(context) {}
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {}
-    constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(
-        context,
-        attrs,
-        defStyle
-    ) {
-    }
+    constructor(context: Context?) : super(context)
+    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle)
 
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
 

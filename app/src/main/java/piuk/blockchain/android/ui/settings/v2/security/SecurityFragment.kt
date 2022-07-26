@@ -366,7 +366,7 @@ class SecurityFragment :
             BottomSheetInformation.newInstance(
                 title = getString(R.string.security_missing_phone_number),
                 description = getString(R.string.security_missing_phone_number_description),
-                ctaPrimaryText = getString(R.string.security_missing_phone_number_cta),
+                primaryCtaText = getString(R.string.security_missing_phone_number_cta),
             )
         )
     }

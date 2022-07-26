@@ -432,7 +432,10 @@ class CardModelTest {
         val expectedResult = CardRejectionState.AlwaysRejected(
             title = "title",
             description = "description",
-            actions = emptyList()
+            actions = emptyList(),
+            iconUrl = null,
+            statusIconUrl = null,
+            analyticsCategories = emptyList()
         )
         whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
             Single.just(expectedResult)
@@ -453,7 +456,11 @@ class CardModelTest {
         val binNumber = "1234"
         val expectedResult = CardRejectionState.MaybeRejected(
             title = "title",
-            actions = emptyList()
+            description = "description",
+            actions = emptyList(),
+            iconUrl = null,
+            statusIconUrl = null,
+            analyticsCategories = emptyList()
         )
         whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
             Single.just(expectedResult)

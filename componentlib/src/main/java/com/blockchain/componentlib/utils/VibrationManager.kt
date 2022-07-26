@@ -9,9 +9,12 @@ import androidx.appcompat.app.AppCompatActivity
 
 object VibrationManager {
     private const val VIBRATION_DURATION = 75L
-    private const val VIBRATION_INTENSITY = 200 // ranges from 0-255
 
-    fun vibrate(context: Context, duration: Long = VIBRATION_DURATION) {
+    fun vibrate(
+        context: Context,
+        duration: Long = VIBRATION_DURATION,
+        intensity: VibrationIntensity = VibrationIntensity.High
+    ) {
         val vib = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vibratorManager =
                 context.getSystemService(AppCompatActivity.VIBRATOR_MANAGER_SERVICE) as VibratorManager
@@ -21,10 +24,17 @@ object VibrationManager {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vib.vibrate(VibrationEffect.createOneShot(duration, VIBRATION_INTENSITY))
+            vib.vibrate(VibrationEffect.createOneShot(duration, intensity.strength))
         } else {
             // deprecated in API 26
             vib.vibrate(duration)
         }
+    }
+
+    // Vibration strength ranges from 0-255
+    enum class VibrationIntensity(val strength: Int) {
+        High(200),
+        Medium(125),
+        Low(75)
     }
 }
