@@ -83,7 +83,6 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
     private fun launchPhraseBackup() {
         onBackupPhraseResult.launch(
             BackupPhraseActivity.newIntent(context = this)
-                .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         )
     }
 
