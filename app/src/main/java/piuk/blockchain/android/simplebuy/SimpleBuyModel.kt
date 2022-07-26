@@ -219,7 +219,8 @@ class SimpleBuyModel(
                 processGetPaymentMethod(
                     fiatCurrency = intent.fiatCurrency,
                     preselectedId = intent.selectedPaymentMethodId,
-                    previousSelectedId = previousState.selectedPaymentMethod?.id
+                    previousSelectedId = previousState.selectedPaymentMethod?.id,
+                    usePrefilledAmount = false
                 )
             is SimpleBuyIntent.FetchSuggestedPaymentMethod -> {
                 val lastPaymentMethodId = interactor.getLastPaymentMethodId()
@@ -228,6 +229,7 @@ class SimpleBuyModel(
                     fiatCurrency = intent.fiatCurrency,
                     preselectedId = intent.selectedPaymentMethodId ?: lastPaymentMethodId,
                     previousSelectedId = previousState.selectedPaymentMethod?.id,
+                    usePrefilledAmount = true
                 )
             }
 
@@ -241,7 +243,8 @@ class SimpleBuyModel(
                         previousState.selectedCryptoAsset,
                         previousState.fiatCurrency,
                         selectedPaymentMethod,
-                        intent.paymentOptions.availablePaymentMethods
+                        intent.paymentOptions.availablePaymentMethods,
+                        intent.usePrefilledAmount
                     )
                 } ?: run {
                     process(SimpleBuyIntent.ErrorIntent(ErrorState.BuyPaymentMethodsUnavailable))
@@ -298,7 +301,8 @@ class SimpleBuyModel(
                         updateSelectedAndAvailablePaymentMethodMethodsIntent(
                             previousSelectedId = previousState.selectedPaymentMethod?.id,
                             availablePaymentMethods = it,
-                            preselectedId = null
+                            preselectedId = null,
+                            usePrefilledAmount = true
                         )
                     )
 
@@ -504,6 +508,7 @@ class SimpleBuyModel(
         fiatCurrency: FiatCurrency,
         selectedPaymentMethod: SelectedPaymentMethod,
         availablePaymentMethods: List<PaymentMethod>,
+        usePrefilledAmount: Boolean
     ): Disposable {
         return interactor.fetchBuyLimits(
             fiat = fiatCurrency,
@@ -573,17 +578,19 @@ class SimpleBuyModel(
                             )
                         )
                     }
-                    process(
-                        SimpleBuyIntent.GetPrefillAndQuickFillAmounts(
-                            assetCode = asset.networkTicker,
-                            fiatCurrency = fiatCurrency,
-                            maxAmount = if (limits.max is TxLimit.Limited) {
-                                limits.max.amount as? FiatValue ?: FiatValue.zero(fiatCurrency)
-                            } else {
-                                FiatValue.zero(fiatCurrency)
-                            }
+                    if (usePrefilledAmount) {
+                        process(
+                            SimpleBuyIntent.GetPrefillAndQuickFillAmounts(
+                                assetCode = asset.networkTicker,
+                                fiatCurrency = fiatCurrency,
+                                maxAmount = if (limits.max is TxLimit.Limited) {
+                                    limits.max.amount as? FiatValue ?: FiatValue.zero(fiatCurrency)
+                                } else {
+                                    FiatValue.zero(fiatCurrency)
+                                }
+                            )
                         )
-                    )
+                    }
                 }
             )
     }
@@ -617,18 +624,6 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.SelectedPaymentMethodUpdate(paymentMethod))
                     process(SimpleBuyIntent.UpdateErrorState(errorState))
                 }
-
-                process(
-                    SimpleBuyIntent.GetPrefillAndQuickFillAmounts(
-                        assetCode = state.selectedCryptoAsset.networkTicker,
-                        fiatCurrency = state.fiatCurrency,
-                        maxAmount = if (limits.max is TxLimit.Limited) {
-                            limits.max.amount as? FiatValue ?: FiatValue.zero(state.fiatCurrency)
-                        } else {
-                            FiatValue.zero(state.fiatCurrency)
-                        }
-                    )
-                )
             },
             onError = {
                 processOrderErrors(it)
@@ -761,6 +756,7 @@ class SimpleBuyModel(
         fiatCurrency: FiatCurrency,
         preselectedId: String?,
         previousSelectedId: String?,
+        usePrefilledAmount: Boolean
     ) =
         fetchEligiblePaymentMethods(fiatCurrency)
             .flatMap { paymentMethods ->
@@ -775,7 +771,8 @@ class SimpleBuyModel(
                         updateSelectedAndAvailablePaymentMethodMethodsIntent(
                             preselectedId = preselectedId,
                             previousSelectedId = previousSelectedId,
-                            availablePaymentMethods = availablePaymentMethods
+                            availablePaymentMethods = availablePaymentMethods,
+                            usePrefilledAmount = usePrefilledAmount
                         )
                     )
                 },
@@ -794,6 +791,7 @@ class SimpleBuyModel(
         preselectedId: String?,
         previousSelectedId: String?,
         availablePaymentMethods: List<PaymentMethod>,
+        usePrefilledAmount: Boolean
     ): SimpleBuyIntent.PaymentMethodsUpdated {
         val paymentOptions = PaymentOptions(
             availablePaymentMethods = availablePaymentMethods
@@ -809,6 +807,7 @@ class SimpleBuyModel(
         }
 
         return SimpleBuyIntent.PaymentMethodsUpdated(
+            usePrefilledAmount = usePrefilledAmount,
             paymentOptions = paymentOptions,
             selectedPaymentMethod = selectedPaymentMethod?.let {
                 SelectedPaymentMethod(

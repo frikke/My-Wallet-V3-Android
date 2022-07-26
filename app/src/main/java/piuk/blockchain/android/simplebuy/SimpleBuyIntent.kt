@@ -125,6 +125,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     class PaymentMethodsUpdated(
         val paymentOptions: PaymentOptions,
         val selectedPaymentMethod: SelectedPaymentMethod?,
+        val usePrefilledAmount: Boolean
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
             return oldState
