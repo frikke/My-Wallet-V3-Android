@@ -36,7 +36,7 @@ class WalletModeSelectionViewModel(
         ModelConfigArgs.NoArgs>(
         initialState = WalletModeSelectionModelState(
             isWalletBackedUp = false,
-            isWalletBackUpSkipped = walletStatusPrefs.isWalletBackUpSkipped,
+            isWalletBackUpSkipped = false,//todo walletStatusPrefs.isWalletBackUpSkipped,
             brokerageBalance = null,
             defiBalance = null,
             enabledWalletMode = walletModeService.enabledWalletMode()

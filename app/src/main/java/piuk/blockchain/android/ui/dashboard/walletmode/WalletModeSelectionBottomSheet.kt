@@ -26,6 +26,7 @@ import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
+import com.blockchain.presentation.backup.BackupPhraseActivity
 import com.blockchain.presentation.onboarding.DeFiOnboardingActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -55,17 +56,9 @@ class WalletModeSelectionBottomSheet :
              * mandatory Dispatchers.IO otherwise the nav event is not caught as we're coming back from another activity
              * has to do with running things serially in main thread where [Lifecycle.repeatOnLifecycle]
              * is supposed to start collecting
-             *
-             * With the navigation flow being lifecycle aware and tied to [Lifecycle.State.STARTED],
-             * [Lifecycle.repeatOnLifecycle] with [Lifecycle.State.RESUMED] ↓ should've been enough
-             * so not sure if it's a lifecycle edge case
              */
-            var job: Job? = null
-            job = lifecycleScope.launch(Dispatchers.IO) {
-                lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                    deFiOnboardingComplete()
-                    job?.cancel()
-                }
+            lifecycleScope.launch(Dispatchers.IO) {
+                lifecycleScope.launchWhenStarted { deFiOnboardingComplete() }
             }
         }
     }
@@ -118,8 +111,7 @@ class WalletModeSelectionBottomSheet :
             if (showDefiOnboarding) {
                 DeFiOnboardingActivity.newIntent(context = requireContext())
             } else {
-                // todo pin -
-                DeFiOnboardingActivity.newIntent(context = requireContext())
+                BackupPhraseActivity.newIntent(context = requireContext())
             }
         )
     }
