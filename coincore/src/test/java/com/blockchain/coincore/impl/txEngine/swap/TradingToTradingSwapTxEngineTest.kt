@@ -15,7 +15,7 @@ import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.xlm.XlmCryptoWalletAccount
 import com.blockchain.core.SwapTransactionsCache
-import com.blockchain.core.custodial.data.store.TradingDataSource
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -65,12 +65,12 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             )
         )
     }
-    private val tradingDataSource: TradingDataSource = mock()
+    private val tradingStore: TradingStore = mock()
 
     private val environmentConfig: EnvironmentConfig = mock()
 
     private val subject = TradingToTradingSwapTxEngine(
-        tradingDataSource = tradingDataSource,
+        tradingStore = tradingStore,
         walletManager = walletManager,
         quotesEngine = quotesEngine,
         limitsDataManager = limitsDataManager,

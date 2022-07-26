@@ -261,7 +261,7 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(nabuApi).create(CustodialBalanceApi::class.java)
         CustodialBalanceService(
-            api = api
+            custodialBalanceApi = api
         )
     }
 

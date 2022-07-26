@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class TradingBalanceResponseDto(
+data class TradingBalanceResponseDto(
     @SerialName("pending")
     val pending: String,
     @SerialName("available") // Badly named param, is actually the total including uncleared & locked

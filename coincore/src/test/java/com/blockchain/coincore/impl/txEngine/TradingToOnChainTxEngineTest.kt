@@ -11,7 +11,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.erc20.Erc20NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoAccountCompoundGroupTest.Companion.testValue
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.custodial.data.store.TradingDataSource
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -57,10 +57,10 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             )
         )
     }
-    private val tradingDataSource: TradingDataSource = mock()
+    private val tradingStore: TradingStore = mock()
 
     private val subject = TradingToOnChainTxEngine(
-        tradingDataSource = tradingDataSource,
+        tradingStore = tradingStore,
         walletManager = walletManager,
         isNoteSupported = isNoteSupported,
         limitsDataManager = limitsDataManager,
