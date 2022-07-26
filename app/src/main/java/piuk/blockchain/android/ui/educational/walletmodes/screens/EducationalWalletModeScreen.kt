@@ -24,7 +24,6 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.utils.isLastIn
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
@@ -44,7 +43,7 @@ fun EducationalWalletModeScreen(
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }
             .onEach { pageIndex ->
-                if (pageIndex isLastIn EducationalWalletModePages.values()) buttonVisible = true
+                if (pageIndex == EducationalWalletModePages.values().lastIndex) buttonVisible = true
             }
             .collect()
     }
@@ -100,7 +99,7 @@ fun EducationalWalletModeScreen(
 
 @Composable
 private fun EducationalWalletModePage(index: Int) {
-    EducationalWalletModePages.values().first { it.index == index }.Content()
+    EducationalWalletModePages.values()[index].Content()
 }
 
 // ///////////////
