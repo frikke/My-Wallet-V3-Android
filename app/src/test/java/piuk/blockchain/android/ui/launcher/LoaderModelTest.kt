@@ -114,7 +114,7 @@ class LoaderModelTest {
         // Assert
         testState
             .assertValueAt(testState.values().size - 1) {
-                it == LoaderState(isAfterWalletCreation = false, nextLoadingStep = LoadingStep.EducationalWalletMode("data", false))
+                it == LoaderState(isAfterWalletCreation = false, nextLoadingStep = LoadingStep.EducationalWalletMode("data"))
             }
     }
 
