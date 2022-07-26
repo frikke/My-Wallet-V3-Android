@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.compose.ui.platform.ComposeView
+    <com.blockchain.componentlib.system.CircularProgressBarView
         android:id="@+id/quote_expiration"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="@dimen/standard_margin"
