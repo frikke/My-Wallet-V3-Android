@@ -37,6 +37,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -190,11 +191,13 @@ internal class DynamicAssetLoader(
         val activePKWErc20sFlow = erc20DataManager.getActiveAssets()
             .filterList { it.isErc20() }
             .mapList { loadErc20Asset(it) }
+            .catch { emit(emptyList()) }
 
         val standardL1Assets = standardL1Assets.toList()
 
         val selfCustodialAssetsFlow = loadSelfCustodialAssets()
             .filterList { it.currency.networkTicker !in standardL1Assets.map { asset -> asset.currency.networkTicker } }
+            .catch { emit(emptyList()) }
 
         return combine(
             activePKWErc20sFlow,
@@ -209,12 +212,15 @@ internal class DynamicAssetLoader(
         val activeTradingFlow = tradingService.getActiveAssets()
             .filterListItemIsInstance<AssetInfo>()
             .mapList { loadCustodialOnlyAsset(it) }
+            .catch { emit(emptyList()) }
 
         val activeInterestFlow = interestService.getActiveAssets()
             .mapList { loadCustodialOnlyAsset(it) }
+            .catch { emit(emptyList()) }
 
         val supportedFiatsFlow = custodialWalletManager.getSupportedFundsFiats()
             .mapList { FiatAsset(currency = it) }
+            .catch { emit(emptyList()) }
 
         return combine(
             activeTradingFlow,
