@@ -35,16 +35,12 @@ fun WalletModes(viewModel: WalletModeSelectionViewModel) {
 
     viewState?.let { state ->
         WalletModesDialogContent(
-            showEnableDeFiMessage = state.showEnableDeFiMessage,
             totalBalance = state.totalBalance,
             portfolioBalanceState = state.brokerageBalance,
             defiWalletBalance = state.defiWalletBalance,
             selectedMode = state.enabledWalletMode,
             onItemClicked = {
-                viewModel.onIntent(WalletModeSelectionIntent.ActivateWalletMode(it))
-            },
-            enableDeFiClicked = {
-                viewModel.onIntent(WalletModeSelectionIntent.EnableDeFiWallet)
+                viewModel.onIntent(WalletModeSelectionIntent.ActivateWalletModeRequested(it))
             }
         )
     }
@@ -52,13 +48,11 @@ fun WalletModes(viewModel: WalletModeSelectionViewModel) {
 
 @Composable
 fun WalletModesDialogContent(
-    showEnableDeFiMessage: Boolean,
     totalBalance: BalanceState,
     portfolioBalanceState: BalanceState,
     defiWalletBalance: BalanceState,
     selectedMode: WalletMode,
     onItemClicked: (WalletMode) -> Unit,
-    enableDeFiClicked: () -> Unit,
 ) {
 
     Column(
@@ -101,9 +95,9 @@ fun WalletModesDialogContent(
             }
         )
 
-        if (showEnableDeFiMessage) {
+        if (defiWalletBalance is BalanceState.ActivationRequired) {
             EnableDeFiTableRow(
-                onClick = enableDeFiClicked
+                onClick = { onItemClicked(WalletMode.NON_CUSTODIAL_ONLY) }
             )
         } else {
             DefaultTableRow(
@@ -143,13 +137,11 @@ private fun WalletModePreview() {
     AppTheme {
         AppSurface {
             WalletModesDialogContent(
-                showEnableDeFiMessage = false,
                 totalBalance = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 1000.toBigInteger())),
                 portfolioBalanceState = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 300.toBigInteger())),
                 defiWalletBalance = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 444.toBigInteger())),
                 selectedMode = WalletMode.CUSTODIAL_ONLY,
-                onItemClicked = {},
-                enableDeFiClicked = {}
+                onItemClicked = {}
             )
         }
     }
@@ -161,13 +153,11 @@ private fun WalletModePreviewEnableWallet() {
     AppTheme {
         AppSurface {
             WalletModesDialogContent(
-                showEnableDeFiMessage = true,
                 totalBalance = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 1000.toBigInteger())),
                 portfolioBalanceState = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 300.toBigInteger())),
-                defiWalletBalance = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 444.toBigInteger())),
+                defiWalletBalance = BalanceState.ActivationRequired,
                 selectedMode = WalletMode.CUSTODIAL_ONLY,
-                onItemClicked = {},
-                enableDeFiClicked = {}
+                onItemClicked = {}
             )
         }
     }

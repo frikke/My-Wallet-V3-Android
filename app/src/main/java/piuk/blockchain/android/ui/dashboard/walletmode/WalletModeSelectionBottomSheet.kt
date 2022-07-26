@@ -103,8 +103,8 @@ class WalletModeSelectionBottomSheet :
 
     override fun route(navigationEvent: WalletModeSelectionNavigationEvent) {
         when (navigationEvent) {
-            WalletModeSelectionNavigationEvent.DeFiOnboarding -> {
-                launchDeFiOnboarding()
+            is WalletModeSelectionNavigationEvent.PhraseRecovery -> {
+                launchPhraseRecovery(showDefiOnboarding = navigationEvent.showDefiOnboarding)
             }
 
             is WalletModeSelectionNavigationEvent.Close -> {
@@ -113,8 +113,15 @@ class WalletModeSelectionBottomSheet :
         }.exhaustive
     }
 
-    private fun launchDeFiOnboarding() {
-        onDeFiOnboardingResult.launch(DeFiOnboardingActivity.newIntent(context = requireContext()))
+    private fun launchPhraseRecovery(showDefiOnboarding: Boolean) {
+        onDeFiOnboardingResult.launch(
+            if (showDefiOnboarding) {
+                DeFiOnboardingActivity.newIntent(context = requireContext())
+            } else {
+                // todo pin -
+                DeFiOnboardingActivity.newIntent(context = requireContext())
+            }
+        )
     }
 
     private fun deFiOnboardingComplete() {
