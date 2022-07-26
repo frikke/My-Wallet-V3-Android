@@ -95,7 +95,7 @@ class CardModel(
             },
             onError = {
                 process(
-                    CardIntent.UpdateRequestState(CardRequestStatus.Error(it.toCardError(CardError.CREATION_FAILED)))
+                    CardIntent.UpdateRequestState(CardRequestStatus.Error(it.toCardError(CardError.CreationFailed)))
                 )
             }
         )
@@ -103,23 +103,22 @@ class CardModel(
     private fun activateCard(intent: CardIntent.ActivateCard) = cardActivator.activateCard(
         intent.card,
         intent.cardId
+    ).doOnSubscribe {
+        process(CardIntent.UpdateRequestState(CardRequestStatus.Loading))
+    }.subscribeBy(
+        onSuccess = {
+            process(
+                CardIntent.AuthoriseCard(
+                    credentials = it.toCardAcquirerCredentials()
+                )
+            )
+        },
+        onError = {
+            process(
+                CardIntent.UpdateRequestState(CardRequestStatus.Error(it.toCardError(CardError.ActivationFailed)))
+            )
+        }
     )
-        .doOnSubscribe {
-            process(CardIntent.UpdateRequestState(CardRequestStatus.Loading))
-        }.subscribeBy(
-            onSuccess = {
-                process(
-                    CardIntent.AuthoriseCard(
-                        credentials = it.toCardAcquirerCredentials()
-                    )
-                )
-            },
-            onError = {
-                process(
-                    CardIntent.UpdateRequestState(CardRequestStatus.Error(it.toCardError(CardError.ACTIVATION_FAIL)))
-                )
-            }
-        )
 
     private fun loadListOfUsStates() = interactor.getListOfStates("US").subscribeBy(
         onSuccess = {
@@ -135,23 +134,35 @@ class CardModel(
 
     private fun Throwable.toCardError(defaultError: CardError): CardError {
         return if (this is NabuApiException) {
-            when (this.getErrorCode()) {
-                NabuErrorCodes.InsufficientCardFunds -> CardError.INSUFFICIENT_CARD_BALANCE
-                NabuErrorCodes.CardBankDeclined -> CardError.CARD_BANK_DECLINED
-                NabuErrorCodes.CardDuplicate -> CardError.CARD_DUPLICATE
-                NabuErrorCodes.CardBlockchainDecline -> CardError.CARD_BLOCKCHAIN_DECLINED
-                NabuErrorCodes.CardAcquirerDecline -> CardError.CARD_ACQUIRER_DECLINED
-                NabuErrorCodes.CardPaymentNotSupported -> CardError.CARD_PAYMENT_NOT_SUPPORTED
-                NabuErrorCodes.CardCreateFailed -> CardError.CARD_CREATED_FAILED
-                NabuErrorCodes.CardPaymentFailed -> CardError.CARD_PAYMENT_FAILED
-                NabuErrorCodes.CardCreateAbandoned -> CardError.CARD_CREATED_ABANDONED
-                NabuErrorCodes.CardCreateExpired -> CardError.CARD_CREATED_EXPIRED
-                NabuErrorCodes.CardCreateBankDeclined -> CardError.CARD_CREATE_BANK_DECLINED
-                NabuErrorCodes.CardCreateDebitOnly -> CardError.CARD_CREATE_DEBIT_ONLY
-                NabuErrorCodes.CardPaymentDebitOnly -> CardError.CARD_PAYMENT_DEBIT_ONLY
-                NabuErrorCodes.CardCreateNoToken -> CardError.CARD_CREATE_NO_TOKEN
-                NabuErrorCodes.CardLimitReached -> CardError.CARD_LIMIT_REACHED
-                else -> defaultError
+            val info = getServerSideErrorInfo()
+            if (info != null) {
+                CardError.ServerSideCardError(
+                    title = info.title,
+                    message = info.description,
+                    iconUrl = info.iconUrl,
+                    statusIconUrl = info.statusUrl,
+                    actions = info.actions,
+                    categories = info.categories
+                )
+            } else {
+                when (this.getErrorCode()) {
+                    NabuErrorCodes.InsufficientCardFunds -> CardError.InsufficientCardBalance
+                    NabuErrorCodes.CardBankDeclined -> CardError.CardBankDeclined
+                    NabuErrorCodes.CardDuplicate -> CardError.CardDuplicated
+                    NabuErrorCodes.CardBlockchainDecline -> CardError.CardBlockchainDeclined
+                    NabuErrorCodes.CardAcquirerDecline -> CardError.CardAcquirerDeclined
+                    NabuErrorCodes.CardPaymentNotSupported -> CardError.CardPaymentNotSupportedDeclined
+                    NabuErrorCodes.CardCreateFailed -> CardError.CardCreatedFailed
+                    NabuErrorCodes.CardPaymentFailed -> CardError.CardPaymentFailed
+                    NabuErrorCodes.CardCreateAbandoned -> CardError.CardCreatedAbandoned
+                    NabuErrorCodes.CardCreateExpired -> CardError.CardCreatedExpired
+                    NabuErrorCodes.CardCreateBankDeclined -> CardError.CardCreateBankDeclined
+                    NabuErrorCodes.CardCreateDebitOnly -> CardError.CardCreateDebitOnly
+                    NabuErrorCodes.CardPaymentDebitOnly -> CardError.CardPaymentDebitOnly
+                    NabuErrorCodes.CardCreateNoToken -> CardError.CardCreateNoToken
+                    NabuErrorCodes.CardLimitReached -> CardError.CardLimitReach
+                    else -> defaultError
+                }
             }
         } else {
             defaultError
@@ -180,15 +191,15 @@ class CardModel(
                     process(
                         CardIntent.UpdateRequestState(
                             CardRequestStatus.Error(
-                                if (it.cardDetails.status == CardStatus.PENDING) CardError.PENDING_AFTER_POLL
-                                else CardError.LINK_FAILED
+                                if (it.cardDetails.status == CardStatus.PENDING) CardError.PendingAfterPoll
+                                else CardError.LinkedFailed
                             )
                         )
                     )
                 }
             },
             onError = {
-                process(CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.PENDING_AFTER_POLL)))
+                process(CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.PendingAfterPoll)))
             }
         )
 

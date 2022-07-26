@@ -58,7 +58,8 @@ interface PaymentMethodsApi {
     @POST("payments/cards")
     fun addNewCard(
         @Header("authorization") authHeader: String,
-        @Body addNewCardBody: AddNewCardBodyRequest
+        @Body addNewCardBody: AddNewCardBodyRequest,
+        @Query("localisedError") localisedError: String?
     ): Single<AddNewCardResponse>
 
     @POST("payments/cards/{cardId}/activate")

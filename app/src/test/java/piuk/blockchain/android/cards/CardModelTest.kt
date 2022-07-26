@@ -188,7 +188,7 @@ class CardModelTest {
             it.cardRequestStatus == CardRequestStatus.Loading
         }.assertValueAt(2) {
             it.cardRequestStatus is CardRequestStatus.Error &&
-                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.CARD_CREATE_NO_TOKEN
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.CardCreateNoToken
         }
     }
 
@@ -220,7 +220,7 @@ class CardModelTest {
             it.cardRequestStatus == CardRequestStatus.Loading
         }.assertValueAt(2) {
             it.cardRequestStatus is CardRequestStatus.Error &&
-                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.CREATION_FAILED
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.CreationFailed
         }
     }
 
@@ -290,7 +290,7 @@ class CardModelTest {
             it.cardRequestStatus == CardRequestStatus.Loading
         }.assertValueAt(2) {
             (it.cardRequestStatus is CardRequestStatus.Error) &&
-                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.INSUFFICIENT_CARD_BALANCE
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.InsufficientCardBalance
         }
     }
 
@@ -321,7 +321,7 @@ class CardModelTest {
             it.cardRequestStatus == CardRequestStatus.Loading
         }.assertValueAt(2) {
             (it.cardRequestStatus is CardRequestStatus.Error) &&
-                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.ACTIVATION_FAIL
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.ActivationFailed
         }
     }
 
@@ -388,7 +388,7 @@ class CardModelTest {
             it.cardStatus == card.status
         }.assertValueAt(3) {
             it.cardRequestStatus is CardRequestStatus.Error &&
-                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.LINK_FAILED
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.LinkedFailed
         }
     }
 
@@ -407,7 +407,7 @@ class CardModelTest {
             it.cardRequestStatus == CardRequestStatus.Loading
         }.assertValueAt(2) {
             it.cardRequestStatus is CardRequestStatus.Error &&
-                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.PENDING_AFTER_POLL
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.PendingAfterPoll
         }
     }
 

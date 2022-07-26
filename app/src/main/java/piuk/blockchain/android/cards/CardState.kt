@@ -1,6 +1,7 @@
 package piuk.blockchain.android.cards
 
 import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
@@ -58,24 +59,32 @@ fun CardType.icon() =
         else -> this.frontResource
     }
 
-enum class CardError {
-    CREATION_FAILED,
-    ACTIVATION_FAIL,
-    PENDING_AFTER_POLL,
-    LINK_FAILED,
-    INSUFFICIENT_CARD_BALANCE,
-    CARD_BANK_DECLINED,
-    CARD_DUPLICATE,
-    CARD_BLOCKCHAIN_DECLINED,
-    CARD_ACQUIRER_DECLINED,
-    CARD_PAYMENT_NOT_SUPPORTED,
-    CARD_CREATED_FAILED,
-    CARD_PAYMENT_FAILED,
-    CARD_CREATED_ABANDONED,
-    CARD_CREATED_EXPIRED,
-    CARD_CREATE_BANK_DECLINED,
-    CARD_CREATE_DEBIT_ONLY,
-    CARD_PAYMENT_DEBIT_ONLY,
-    CARD_CREATE_NO_TOKEN,
-    CARD_LIMIT_REACHED
+sealed class CardError {
+    object CreationFailed : CardError()
+    object ActivationFailed : CardError()
+    object PendingAfterPoll : CardError()
+    object LinkedFailed : CardError()
+    object InsufficientCardBalance : CardError()
+    object CardBankDeclined : CardError()
+    object CardDuplicated : CardError()
+    object CardBlockchainDeclined : CardError()
+    object CardAcquirerDeclined : CardError()
+    object CardPaymentNotSupportedDeclined : CardError()
+    object CardCreatedFailed : CardError()
+    object CardPaymentFailed : CardError()
+    object CardCreatedAbandoned : CardError()
+    object CardCreatedExpired : CardError()
+    object CardCreateBankDeclined : CardError()
+    object CardCreateDebitOnly : CardError()
+    object CardPaymentDebitOnly : CardError()
+    object CardCreateNoToken : CardError()
+    object CardLimitReach : CardError()
+    class ServerSideCardError(
+        val title: String,
+        val message: String,
+        val iconUrl: String,
+        val statusIconUrl: String,
+        val actions: List<ServerErrorAction>,
+        val categories: List<String>
+    ) : CardError()
 }

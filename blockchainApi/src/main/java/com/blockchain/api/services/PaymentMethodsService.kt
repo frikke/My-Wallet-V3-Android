@@ -57,7 +57,7 @@ class PaymentMethodsService internal constructor(
     fun addNewCard(
         authorization: String,
         addNewCardBodyRequest: AddNewCardBodyRequest
-    ) = api.addNewCard(authorization, addNewCardBodyRequest)
+    ) = api.addNewCard(authorization, addNewCardBodyRequest, getLocalisedErrorIfEnabled())
 
     fun activateCard(
         authorization: String,

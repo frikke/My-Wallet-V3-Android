@@ -20,7 +20,9 @@ data class AddNewCardResponse(
     @SerialName("id")
     val id: String,
     @SerialName("partner")
-    val partner: String
+    val partner: String,
+    @SerialName("ux")
+    val ux: NabuUxErrorResponse? = null
 )
 
 @Serializable
@@ -51,7 +53,9 @@ data class ActivateCardResponse(
     @SerialName("everypay")
     val everypay: EveryPayCardCredentialsResponse?,
     @SerialName("cardProvider")
-    val cardProvider: CardProviderResponse?
+    val cardProvider: CardProviderResponse?,
+    @SerialName("ux")
+    val ux: NabuUxErrorResponse? = null
 )
 
 @Serializable
