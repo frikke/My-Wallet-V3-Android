@@ -37,7 +37,7 @@ class BackupPhraseViewModel(
         updateState {
             it.copy(
                 secondPassword = args.secondPassword,
-                isForDefiOnboarding = args.isForDefiOnboarding
+                allowSkipBackup = args.allowSkipBackup
             )
         }
 
@@ -47,7 +47,7 @@ class BackupPhraseViewModel(
     override fun reduce(state: BackupPhraseModelState): BackupPhraseViewState {
         return with(state) {
             BackupPhraseViewState(
-                showSkipBackup = isForDefiOnboarding,
+                showSkipBackup = allowSkipBackup,
                 showLoading = isLoading,
                 showError = isError,
                 mnemonic = mnemonic,

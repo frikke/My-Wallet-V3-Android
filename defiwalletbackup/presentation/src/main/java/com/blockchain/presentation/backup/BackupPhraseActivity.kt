@@ -84,13 +84,13 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
     }
 
     companion object {
-        fun newIntent(context: Context, secondPassword: String?, isForDefiOnboarding: Boolean = false): Intent =
+        fun newIntent(context: Context, secondPassword: String?, allowSkipBackup: Boolean = false): Intent =
             Intent(context, BackupPhraseActivity::class.java).apply {
                 putExtra(
                     BackupPhraseArgs.ARGS_KEY,
                     BackupPhraseArgs(
                         secondPassword = secondPassword,
-                        isForDefiOnboarding = isForDefiOnboarding
+                        allowSkipBackup = allowSkipBackup
                     )
                 )
             }

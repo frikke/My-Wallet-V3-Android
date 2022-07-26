@@ -111,7 +111,7 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
                 .newIntent(
                     context = this,
                     secondPassword = secondPassword,
-                    isForDefiOnboarding = true
+                    allowSkipBackup = true
                 )
                 .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         )
