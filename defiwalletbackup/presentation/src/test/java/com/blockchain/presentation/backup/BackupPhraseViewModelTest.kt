@@ -35,7 +35,7 @@ class BackupPhraseViewModelTest {
 
     private lateinit var viewModel: BackupPhraseViewModel
 
-    private val args = BackupPhraseArgs(secondPassword = "secondPassword")
+    private val args = BackupPhraseArgs(secondPassword = "secondPassword", isForDefiOnboarding = true)
     private val mnemonic = listOf("A", "B")
 
     @Before
