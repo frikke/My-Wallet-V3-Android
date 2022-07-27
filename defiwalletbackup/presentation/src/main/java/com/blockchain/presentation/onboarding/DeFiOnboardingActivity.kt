@@ -107,7 +107,12 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
     // phrase backup
     private fun launchPhraseBackup(secondPassword: String? = null) {
         onBackupPhraseResult.launch(
-            BackupPhraseActivity.newIntent(context = this, secondPassword = secondPassword)
+            BackupPhraseActivity
+                .newIntent(
+                    context = this,
+                    secondPassword = secondPassword,
+                    allowSkipBackup = true
+                )
                 .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         )
     }

@@ -13,6 +13,7 @@ import com.blockchain.presentation.R
 const val TOTAL_STEP_COUNT = 2
 
 data class BackupPhraseViewState(
+    val showSkipBackup: Boolean,
     val showLoading: Boolean,
     val showError: Boolean,
     val mnemonic: List<String>,

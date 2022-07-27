@@ -16,6 +16,7 @@ import com.blockchain.presentation.backup.screens.BackupSuccess
 import com.blockchain.presentation.backup.screens.CloudBackupConfirmation
 import com.blockchain.presentation.backup.screens.ManualBackup
 import com.blockchain.presentation.backup.screens.RecoveryPhrase
+import com.blockchain.presentation.backup.screens.SkipBackup
 import com.blockchain.presentation.backup.screens.VerifyPhrase
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 
@@ -49,6 +50,9 @@ fun BackupPhraseNavHost(
         // Intro
         backupPhraseIntroDestination(viewModel)
 
+        // Skip Backup
+        skipBackupDestination(viewModel)
+
         // Recovery Phrase
         recoveryPhraseDestination(viewModel)
 
@@ -75,6 +79,12 @@ private fun NavGraphBuilder.backedUpPhraseDestination(viewModel: BackupPhraseVie
 private fun NavGraphBuilder.backupPhraseIntroDestination(viewModel: BackupPhraseViewModel) {
     composable(navigationEvent = BackPhraseDestination.BackupPhraseIntro) {
         BackupPhraseIntro(viewModel)
+    }
+}
+
+private fun NavGraphBuilder.skipBackupDestination(viewModel: BackupPhraseViewModel) {
+    composable(navigationEvent = BackPhraseDestination.SkipBackup) {
+        SkipBackup(viewModel)
     }
 }
 

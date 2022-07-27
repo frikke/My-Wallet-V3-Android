@@ -23,6 +23,10 @@ class BackupPhraseNavigationRouter(
                 }
             }
 
+            BackupPhraseNavigationEvent.SkipBackup -> {
+                navController.navigate(BackPhraseDestination.SkipBackup.route)
+            }
+
             BackupPhraseNavigationEvent.RecoveryPhrase -> {
                 navController.navigate(BackPhraseDestination.RecoveryPhrase.route)
             }

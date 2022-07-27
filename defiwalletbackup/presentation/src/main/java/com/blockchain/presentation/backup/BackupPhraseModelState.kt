@@ -4,6 +4,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 
 data class BackupPhraseModelState(
     val secondPassword: String? = null,
+    val allowSkipBackup: Boolean = false,
     val hasBackup: Boolean = false,
     val isLoading: Boolean = false,
     val isError: Boolean = false,

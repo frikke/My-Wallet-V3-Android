@@ -282,6 +282,10 @@ class PrefsUtil(
     override val isWalletBackedUp: Boolean
         get() = lastBackupTime != 0L
 
+    override var isWalletBackUpSkipped: Boolean
+        get() = getValue(IS_WALLET_BACKUP_SKIPPED, false)
+        set(value) = setValue(IS_WALLET_BACKUP_SKIPPED, value)
+
     override val isWalletFunded: Boolean
         get() = getValue(WALLET_FUNDED_KEY, false)
 
@@ -754,6 +758,7 @@ class PrefsUtil(
         private const val KEY_ONBOARDING_COMPLETE = "KEY_ONBOARDING_COMPLETE"
 
         private const val BACKUP_DATE_KEY = "BACKUP_DATE_KEY"
+        private const val IS_WALLET_BACKUP_SKIPPED = "IS_WALLET_BACKUP_SKIPPED"
         private const val WALLET_FUNDED_KEY = "WALLET_FUNDED_KEY"
         private const val BITPAY_TRANSACTION_SUCCEEDED = "BITPAY_TRANSACTION_SUCCEEDED"
         private const val NETWORK_FEE_PRIORITY_KEY = "fee_type_key_"
