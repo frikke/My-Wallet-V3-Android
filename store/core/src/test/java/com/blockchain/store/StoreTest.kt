@@ -16,7 +16,7 @@ class StoreTest {
 
     val testScope = TestScope()
 
-    val fetcher: Fetcher<Key, Throwable, Item> = mockk()
+    val fetcher: Fetcher<Key,  Item> = mockk()
 
     val cacheReadState = MutableSharedFlow<CachedData<Key, Item>?>(replay = 1)
     val cache: Cache<Key, Item> = mockk {
@@ -24,7 +24,7 @@ class StoreTest {
         coEvery { write(any()) } just Runs
     }
     val mediator: Mediator<Key, Item> = mockk()
-    val store: KeyedStore<Key, Throwable, Item> = RealStore(testScope, fetcher, cache, mediator)
+    val store: KeyedStore<Key, Item> = RealStore(testScope, fetcher, cache, mediator)
 
     @Test
     fun `fresh request on failure should not get the current cached value but still listen for future updates to cache`() = testScope.runTest {

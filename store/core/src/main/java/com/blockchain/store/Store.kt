@@ -67,8 +67,8 @@ typealias StoreId = String
  * }
  * ```
  */
-interface Store<E : Any, T : Any> {
-    fun stream(request: StoreRequest): Flow<StoreResponse<E, T>>
+interface Store<T : Any> {
+    fun stream(request: StoreRequest): Flow<StoreResponse<T>>
     fun markAsStale()
 }
 
@@ -78,8 +78,8 @@ interface Store<E : Any, T : Any> {
  *
  * See [Store] for more documentation and [PaymentMethodsEligibilityStore] for a working example.
  */
-interface KeyedStore<K : Any, E : Any, T : Any> {
-    fun stream(request: KeyedStoreRequest<K>): Flow<StoreResponse<E, T>>
+interface KeyedStore<K : Any, T : Any> {
+    fun stream(request: KeyedStoreRequest<K>): Flow<StoreResponse<T>>
     fun markAsStale(key: K)
     fun markStoreAsStale()
 }
@@ -129,10 +129,21 @@ fun <K> RefreshStrategy.toKeyedStoreRequest(key: K): KeyedStoreRequest<K> {
  * [Data] : emitted when the fetcher completes successfully or when we get a Cached value
  * [Error] : emitted exclusively when fetching from network, when a Fetcher error has occurred
  */
-sealed class StoreResponse<out E, out T> {
-    object Loading : StoreResponse<Nothing, Nothing>()
-    data class Data<out T>(val data: T) : StoreResponse<Nothing, T>()
-    data class Error<out E>(val error: E) : StoreResponse<E, Nothing>()
+sealed class StoreResponse<out T> {
+    object Loading : StoreResponse<Nothing>()
+    data class Data<out T>(val data: T) : StoreResponse<T>() {
+
+        // This is used internally to make StoreResponse.firstOutcome() work as expected,
+        // allowing it to ignore the first cachedData when it's stale or it's doing a force refresh
+        internal var isStale: Boolean = false
+            private set
+
+        internal constructor(data: T, isStale: Boolean) : this(data) {
+            this.isStale = isStale
+        }
+    }
+
+    data class Error(val error: Exception) : StoreResponse<Nothing>()
 }
 
 /**

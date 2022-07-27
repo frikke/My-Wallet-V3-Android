@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.Flow
 internal class KycStore(
     private val endpoint: Nabu,
     private val authenticator: Authenticator,
-) : Store<Throwable, TiersResponse> by PersistedJsonSqlDelightStoreBuilder()
+) : Store<TiersResponse> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(
@@ -28,8 +28,7 @@ internal class KycStore(
                 authenticator.authenticate {
                     endpoint.getTiers(it.authHeader)
                 }
-            },
-            errorMapper = { it }
+            }
         ),
         dataSerializer = TiersResponse.serializer(),
         mediator = object : Mediator<Unit, TiersResponse> {
@@ -68,7 +67,7 @@ internal class KycStore(
     ),
     KycDataSource {
 
-    override fun stream(refresh: Boolean): Flow<StoreResponse<Throwable, TiersResponse>> =
+    override fun stream(refresh: Boolean): Flow<StoreResponse<TiersResponse>> =
         stream(StoreRequest.Cached(forceRefresh = refresh))
 
     override fun invalidate() {

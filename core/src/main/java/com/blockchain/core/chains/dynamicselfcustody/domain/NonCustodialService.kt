@@ -1,6 +1,6 @@
 package com.blockchain.core.chains.dynamicselfcustody.domain
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.selfcustody.BuildTxResponse
 import com.blockchain.api.selfcustody.PushTxResponse
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialAccountBalance
@@ -15,24 +15,24 @@ import kotlinx.serialization.json.JsonObject
 
 interface NonCustodialService {
 
-    suspend fun authenticate(): Outcome<ApiError, Boolean>
+    suspend fun authenticate(): Outcome<ApiException, Boolean>
 
-    suspend fun subscribe(currency: String, label: String, addresses: List<String>): Outcome<ApiError, Boolean>
+    suspend fun subscribe(currency: String, label: String, addresses: List<String>): Outcome<ApiException, Boolean>
 
-    suspend fun unsubscribe(currency: String): Outcome<ApiError, Boolean>
+    suspend fun unsubscribe(currency: String): Outcome<ApiException, Boolean>
 
     fun getSubscriptions(
         refreshStrategy: RefreshStrategy = RefreshStrategy.Cached(refresh = true)
     ): Flow<List<String>>
 
-    suspend fun getBalances(currencies: List<String>): Outcome<ApiError, List<NonCustodialAccountBalance>>
+    suspend fun getBalances(currencies: List<String>): Outcome<ApiException, List<NonCustodialAccountBalance>>
 
-    suspend fun getAddresses(currencies: List<String>): Outcome<ApiError, List<NonCustodialDerivedAddress>>
+    suspend fun getAddresses(currencies: List<String>): Outcome<ApiException, List<NonCustodialDerivedAddress>>
 
     suspend fun getTransactionHistory(
         currency: String,
         contractAddress: String?
-    ): Outcome<ApiError, List<NonCustodialTxHistoryItem>>
+    ): Outcome<ApiException, List<NonCustodialTxHistoryItem>>
 
     suspend fun buildTransaction(
         currency: String,
@@ -43,7 +43,7 @@ interface NonCustodialService {
         fee: String,
         memo: String = "",
         feeCurrency: String = currency
-    ): Outcome<ApiError, BuildTxResponse>
+    ): Outcome<ApiException, BuildTxResponse>
 
     fun getFeeCurrencyFor(asset: AssetInfo): AssetInfo
 
@@ -51,5 +51,5 @@ interface NonCustodialService {
         currency: String,
         rawTx: JsonObject,
         signatures: List<TransactionSignature>
-    ): Outcome<ApiError, PushTxResponse>
+    ): Outcome<ApiException, PushTxResponse>
 }

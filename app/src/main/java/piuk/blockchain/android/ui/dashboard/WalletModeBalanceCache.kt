@@ -11,16 +11,12 @@ import com.blockchain.walletmode.WalletMode
 
 class WalletModeBalanceCache(private val coincore: Coincore) : KeyedStore<
     WalletMode,
-    Throwable,
     AccountBalance
     > by InMemoryCacheStoreBuilder().buildKeyed(
     storeId = "WalletModeBalanceCache",
     fetcher = Fetcher.Keyed.ofSingle(
         mapper = { walletMode: WalletMode ->
             coincore.activeWalletsInMode(walletMode).flatMap { it.balance.firstOrError() }
-        },
-        errorMapper = {
-            it
         }
     ),
     mediator = FreshnessMediator(Freshness.ofMinutes(30))

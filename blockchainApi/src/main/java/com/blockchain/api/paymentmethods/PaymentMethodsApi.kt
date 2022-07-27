@@ -1,6 +1,6 @@
 package com.blockchain.api.paymentmethods
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.paymentmethods.models.ActivateCardResponse
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardResponse
@@ -177,17 +177,17 @@ interface PaymentMethodsApi {
         @Header("authorization") authorization: String,
         @Body body: AliasInfoRequestBody,
         @Query("localisedError") localisedError: String?
-    ): Outcome<ApiError, AliasInfoResponse>
+    ): Outcome<ApiException, AliasInfoResponse>
 
     @PUT("payments/bind/beneficiary")
     suspend fun activateBeneficiary(
         @Header("authorization") authorization: String,
         @Body body: LinkWithAliasRequestBody
-    ): Outcome<ApiError, Unit>
+    ): Outcome<ApiException, Unit>
 
     @GET("payments/cards/success-rate")
     suspend fun checkNewCardRejectionState(
         @Header("authorization") authorization: String,
         @Query("bin") binNumber: String
-    ): Outcome<ApiError, CardRejectionStateResponse>
+    ): Outcome<ApiException, CardRejectionStateResponse>
 }

@@ -1,6 +1,6 @@
 package com.blockchain.api.services
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.blockchainCard.WalletHelperUrl
 import com.blockchain.api.blockchainCard.data.AcceptedDocumentFormDto
@@ -21,17 +21,17 @@ class BlockchainCardService internal constructor(
     private val api: BlockchainCardApi,
     private val walletHelperUrl: WalletHelperUrl
 ) {
-    suspend fun getProducts(authHeader: String): Outcome<ApiError, List<ProductDto>> =
+    suspend fun getProducts(authHeader: String): Outcome<ApiException, List<ProductDto>> =
         api.getProducts(authHeader)
 
-    suspend fun getCards(authHeader: String): Outcome<ApiError, List<CardDto>> =
+    suspend fun getCards(authHeader: String): Outcome<ApiException, List<CardDto>> =
         api.getCards(authHeader)
 
     suspend fun createCard(
         authHeader: String,
         productCode: String,
         ssn: String
-    ): Outcome<ApiError, CardDto> = api.createCard(
+    ): Outcome<ApiException, CardDto> = api.createCard(
         authorization = authHeader,
         cardCreationRequest = CardCreationRequestBodyDto(
             productCode = productCode,
@@ -42,7 +42,7 @@ class BlockchainCardService internal constructor(
     suspend fun deleteCard(
         authHeader: String,
         cardId: String
-    ): Outcome<ApiError, CardDto> = api.deleteCard(
+    ): Outcome<ApiException, CardDto> = api.deleteCard(
         authorization = authHeader,
         cardId = cardId
     )
@@ -50,7 +50,7 @@ class BlockchainCardService internal constructor(
     suspend fun getCardWidgetToken(
         authHeader: String,
         cardId: String
-    ): Outcome<ApiError, CardWidgetTokenDto> = api.getCardWidgetToken(
+    ): Outcome<ApiException, CardWidgetTokenDto> = api.getCardWidgetToken(
         authorization = authHeader,
         cardId = cardId
     )
@@ -59,7 +59,7 @@ class BlockchainCardService internal constructor(
         widgetToken: String,
         last4Digits: String,
         userFullName: String
-    ): Outcome<ApiError, String> = Outcome.Success(buildCardWidgetUrl(widgetToken, last4Digits, userFullName))
+    ): Outcome<ApiException, String> = Outcome.Success(buildCardWidgetUrl(widgetToken, last4Digits, userFullName))
 
     private fun buildCardWidgetUrl(
         widgetToken: String,
@@ -70,7 +70,7 @@ class BlockchainCardService internal constructor(
     suspend fun getEligibleAccounts(
         authHeader: String,
         cardId: String
-    ): Outcome<ApiError, List<CardAccountDto>> = api.getEligibleAccounts(
+    ): Outcome<ApiException, List<CardAccountDto>> = api.getEligibleAccounts(
         authorization = authHeader,
         cardId = cardId
     )
@@ -79,7 +79,7 @@ class BlockchainCardService internal constructor(
         authHeader: String,
         cardId: String,
         accountCurrency: String
-    ): Outcome<ApiError, CardAccountLinkDto> = api.linkCardAccount(
+    ): Outcome<ApiException, CardAccountLinkDto> = api.linkCardAccount(
         authorization = authHeader,
         cardId = cardId,
         cardAccountLinkDto = CardAccountLinkDto(
@@ -90,7 +90,7 @@ class BlockchainCardService internal constructor(
     suspend fun getCardLinkedAccount(
         authHeader: String,
         cardId: String
-    ): Outcome<ApiError, CardAccountLinkDto> = api.getCardLinkedAccount(
+    ): Outcome<ApiException, CardAccountLinkDto> = api.getCardLinkedAccount(
         authorization = authHeader,
         cardId = cardId
     )
@@ -98,7 +98,7 @@ class BlockchainCardService internal constructor(
     suspend fun lockCard(
         authHeader: String,
         cardId: String
-    ): Outcome<ApiError, CardDto> = api.lockCard(
+    ): Outcome<ApiException, CardDto> = api.lockCard(
         authorization = authHeader,
         cardId = cardId
     )
@@ -106,21 +106,21 @@ class BlockchainCardService internal constructor(
     suspend fun unlockCard(
         authHeader: String,
         cardId: String
-    ): Outcome<ApiError, CardDto> = api.unlockCard(
+    ): Outcome<ApiException, CardDto> = api.unlockCard(
         authorization = authHeader,
         cardId = cardId
     )
 
     suspend fun getResidentialAddress(
         authHeader: String,
-    ): Outcome<ApiError, ResidentialAddressRequestDto> = api.getResidentialAddress(
+    ): Outcome<ApiException, ResidentialAddressRequestDto> = api.getResidentialAddress(
         authorization = authHeader
     )
 
     suspend fun updateResidentialAddress(
         authHeader: String,
         residentialAddress: ResidentialAddressDto
-    ): Outcome<ApiError, ResidentialAddressRequestDto> = api.updateResidentialAddress(
+    ): Outcome<ApiException, ResidentialAddressRequestDto> = api.updateResidentialAddress(
         authorization = authHeader,
         residentialAddress = ResidentialAddressUpdateDto(address = residentialAddress)
     )
@@ -134,7 +134,7 @@ class BlockchainCardService internal constructor(
         toId: String? = null,
         fromId: String? = null,
         limit: Int? = null,
-    ): Outcome<ApiError, List<BlockchainCardTransactionDto>> = api.getTransactions(
+    ): Outcome<ApiException, List<BlockchainCardTransactionDto>> = api.getTransactions(
         authorization = authHeader,
         cardId = cardId,
         types = types,
@@ -147,7 +147,7 @@ class BlockchainCardService internal constructor(
 
     suspend fun getLegalDocuments(
         authHeader: String
-    ): Outcome<ApiError, BlockchainCardLegalDocumentsDto> = api.getLegalDocuments(
+    ): Outcome<ApiException, BlockchainCardLegalDocumentsDto> = api.getLegalDocuments(
         authorization = authHeader
     )
 
@@ -155,7 +155,7 @@ class BlockchainCardService internal constructor(
         authHeader: String,
         documentName: String,
         acceptedDocumentForm: AcceptedDocumentFormDto
-    ): Outcome<ApiError, BlockchainCardLegalDocumentsDto> = api.acceptLegalDocument(
+    ): Outcome<ApiException, BlockchainCardLegalDocumentsDto> = api.acceptLegalDocument(
         authorization = authHeader,
         documentName = documentName,
         acceptedDocumentForm = acceptedDocumentForm

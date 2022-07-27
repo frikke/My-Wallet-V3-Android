@@ -1,6 +1,6 @@
 package com.blockchain.core.dataremediation.mapper
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.dataremediation.models.QuestionnaireHeaderResponse
 import com.blockchain.api.dataremediation.models.QuestionnaireNodeResponse
 import com.blockchain.api.dataremediation.models.QuestionnaireResponse
@@ -52,20 +52,20 @@ private fun QuestionnaireHeaderResponse.toDomain(): QuestionnaireHeader = Questi
     description = description
 )
 
-internal fun ApiError.toError(): SubmitQuestionnaireError {
+internal fun ApiException.toError(): SubmitQuestionnaireError {
     val nodeId = this.tryParseNodeIdFromApiError()
     return if (nodeId != null) {
         SubmitQuestionnaireError.InvalidNode(nodeId)
     } else {
         SubmitQuestionnaireError.RequestFailed(
-            message = (this as? ApiError.KnownError)?.errorDescription.takeIf { !it.isNullOrBlank() }
+            message = (this as? ApiException.KnownError)?.errorDescription.takeIf { !it.isNullOrBlank() }
                 ?: this.exception.message
         )
     }
 }
 
-private fun ApiError.tryParseNodeIdFromApiError(): NodeId? =
-    if (this is ApiError.KnownError && errorDescription.count { it == '#' } == 2) {
+private fun ApiException.tryParseNodeIdFromApiError(): NodeId? =
+    if (this is ApiException.KnownError && errorDescription.count { it == '#' } == 2) {
         val indexOfStart = errorDescription.indexOf('#') + 1
         val indexOfEnd = errorDescription.substring(indexOfStart).indexOf('#')
         errorDescription.substring(indexOfStart, indexOfStart + indexOfEnd)

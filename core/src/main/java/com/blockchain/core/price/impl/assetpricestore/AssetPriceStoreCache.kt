@@ -5,7 +5,6 @@ import com.blockchain.api.services.AssetPriceService
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.impl.getStartTimeForTimeSpan
 import com.blockchain.core.price.impl.suggestTimescaleInterval
-import com.blockchain.core.price.model.AssetPriceError
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.domain.common.model.toMillis
 import com.blockchain.outcome.flatMap
@@ -24,7 +23,6 @@ internal class AssetPriceStoreCache(
     private val supportedTickersStore: SupportedTickersStore
 ) : KeyedStore<
     AssetPriceStoreCache.Key,
-    AssetPriceError,
     List<AssetPriceRecord>
     > by InMemoryCacheStoreBuilder().buildKeyed(
     storeId = STORE_ID,
@@ -33,7 +31,7 @@ internal class AssetPriceStoreCache(
             .stream(StoreRequest.Cached(false))
             .firstOutcome()
             .flatMap { supportedTickers ->
-                val single = when (key) {
+                when (key) {
                     is Key.GetAllCurrent -> assetPriceService.getCurrentPrices(
                         baseTickerList = supportedTickers.baseTickers.toSet(),
                         quoteTickerList = setOf(key.quoteTicker)
@@ -51,13 +49,9 @@ internal class AssetPriceStoreCache(
                         start = Calendar.getInstance().getStartTimeForTimeSpan(key.timeSpan, key.base),
                         scale = key.timeSpan.suggestTimescaleInterval()
                     )
-                }
-
-                single.awaitOutcome { error ->
-                    AssetPriceError.RequestFailed(error.localizedMessage)
-                }
+                }.awaitOutcome()
             }.map {
-                it.map { it.toAssetPriceRecord() }
+                it.map { item -> item.toAssetPriceRecord() }
             }
     },
     mediator = AssetPriceStoreMediator

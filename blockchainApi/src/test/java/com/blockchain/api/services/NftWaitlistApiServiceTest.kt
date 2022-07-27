@@ -1,6 +1,6 @@
 package com.blockchain.api.services
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.nftwaitlist.data.api.NftWaitlistApi
 import com.blockchain.api.nftwaitlist.data.model.NftWaitlistDto
 import com.blockchain.outcome.Outcome
@@ -17,7 +17,7 @@ class NftWaitlistApiServiceTest {
 
     private val nftWaitlistApiService = NftWaitlistApiService(nftWaitlistApi = nftWaitlistApi)
     private val dto = mockk<NftWaitlistDto>()
-    private val apiError = mockk<ApiError>()
+    private val apiError = mockk<ApiException>()
 
     @Test
     fun `GIVEN joinNftWaitlist Successful, WHEN joinNftWaitlist is called, THEN Success should be returned`() = runTest {

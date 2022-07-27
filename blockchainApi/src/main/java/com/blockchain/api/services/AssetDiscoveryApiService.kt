@@ -1,6 +1,6 @@
 package com.blockchain.api.services
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
 import com.blockchain.api.assetdiscovery.data.AssetInformationResponse
 import com.blockchain.api.assetdiscovery.data.CeloTokenAsset
@@ -68,13 +68,13 @@ class AssetDiscoveryApiService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    suspend fun getL2AssetsForL1(l1Ticker: String): Outcome<ApiError, DynamicAssetList> =
+    suspend fun getL2AssetsForL1(l1Ticker: String): Outcome<ApiException, DynamicAssetList> =
         api.getL2CurrenciesForL1(l1Ticker)
             .map { dto ->
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    suspend fun getAssetInformation(assetTicker: String): Outcome<ApiError, DetailedAssetInformation?> =
+    suspend fun getAssetInformation(assetTicker: String): Outcome<ApiException, DetailedAssetInformation?> =
         api.getAssetInfo(assetTicker).map {
             it.toAssetInfo()
         }

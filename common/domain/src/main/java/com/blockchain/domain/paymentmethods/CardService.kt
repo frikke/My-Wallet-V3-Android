@@ -9,7 +9,6 @@ import com.blockchain.domain.paymentmethods.model.GooglePayInfo
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PartnerCredentials
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
-import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
 import com.blockchain.outcome.Outcome
 import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
@@ -23,7 +22,7 @@ interface CardService {
     fun getLinkedCards(
         request: StoreRequest,
         vararg states: CardStatus
-    ): Flow<StoreResponse<PaymentMethodsError, List<LinkedPaymentMethod.Card>>>
+    ): Flow<StoreResponse<List<LinkedPaymentMethod.Card>>>
 
     fun getLinkedCards(vararg states: CardStatus): Single<List<LinkedPaymentMethod.Card>>
 

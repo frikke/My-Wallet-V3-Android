@@ -1,6 +1,5 @@
 package com.blockchain.core.chains.dynamicselfcustody.data
 
-import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.selfcustody.GetSubscriptionsResponse
 import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.preferences.AuthPrefs
@@ -16,7 +15,7 @@ import org.spongycastle.util.encoders.Hex
 internal class NonCustodialSubscriptionsStore(
     private val dynamicSelfCustodyService: DynamicSelfCustodyService,
     private val authPrefs: AuthPrefs
-) : Store<ApiError, GetSubscriptionsResponse> by PersistedJsonSqlDelightStoreBuilder()
+) : Store<GetSubscriptionsResponse> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.ofOutcome(

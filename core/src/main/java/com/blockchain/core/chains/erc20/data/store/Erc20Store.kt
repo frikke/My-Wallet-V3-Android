@@ -21,7 +21,7 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 internal class Erc20Store(
     private val erc20Service: NonCustodialErc20Service,
     private val ethDataManager: EthDataManager,
-) : Store<Throwable, Erc20TokenBalancesStore> by PersistedJsonSqlDelightStoreBuilder()
+) : Store<Erc20TokenBalancesStore> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.ofSingle(
@@ -31,9 +31,7 @@ internal class Erc20Store(
                         it.toStore(accountHash = ethDataManager.accountAddress)
                     }
             },
-            errorMapper = {
-                it
-            }
+
         ),
         dataSerializer = Erc20TokenBalancesStore.serializer(),
         mediator = object : Mediator<Unit, Erc20TokenBalancesStore> {
@@ -65,7 +63,7 @@ internal class Erc20Store(
     ),
     Erc20DataSource {
 
-    override fun streamData(request: StoreRequest): Flow<StoreResponse<Throwable, List<Erc20TokenBalance>>> {
+    override fun streamData(request: StoreRequest): Flow<StoreResponse<List<Erc20TokenBalance>>> {
         return stream(request).mapData { it.toDomain() }
     }
 

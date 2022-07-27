@@ -6,5 +6,5 @@ import com.blockchain.storedatasource.FlushableDataSource
 import kotlinx.coroutines.flow.Flow
 
 interface KycDataSource : FlushableDataSource {
-    fun stream(refresh: Boolean): Flow<StoreResponse<Throwable, TiersResponse>>
+    fun stream(refresh: Boolean): Flow<StoreResponse<TiersResponse>>
 }

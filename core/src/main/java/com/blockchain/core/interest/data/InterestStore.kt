@@ -14,7 +14,7 @@ import kotlinx.serialization.builtins.ListSerializer
 class InterestStore(
     private val interestApiService: InterestApiService,
     private val authenticator: Authenticator
-) : Store<Throwable, List<InterestBalanceDetails>> by PersistedJsonSqlDelightStoreBuilder()
+) : Store< List<InterestBalanceDetails>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.ofSingle(
@@ -22,8 +22,7 @@ class InterestStore(
                 authenticator.authenticate {
                     interestApiService.getAllInterestAccountBalances(it.authHeader)
                 }
-            },
-            errorMapper = { it }
+            }
         ),
         dataSerializer = ListSerializer(InterestBalanceDetails.serializer()),
         mediator = FreshnessMediator(Freshness.DURATION_24_HOURS)

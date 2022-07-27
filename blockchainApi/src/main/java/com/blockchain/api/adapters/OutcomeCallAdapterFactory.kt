@@ -33,7 +33,7 @@ class OutcomeCallAdapterFactory : CallAdapter.Factory() {
     private fun extractReturnType(responseType: ParameterizedType): Type? {
         // We only support ApiErrors for now on Outcome
         return when (getParameterUpperBound(0, responseType)) {
-            ApiError::class.java -> {
+            ApiException::class.java -> {
                 return getParameterUpperBound(1, responseType)
             }
             else -> null

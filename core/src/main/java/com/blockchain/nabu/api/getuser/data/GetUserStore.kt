@@ -25,7 +25,7 @@ class GetUserStore(
     private val trust: DigitalTrust,
     private val walletReporter: WalletReporter,
     private val payloadDataManager: PayloadDataManager
-) : Store<Exception, NabuUser> by PersistedJsonSqlDelightStoreBuilder()
+) : Store< NabuUser> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(
@@ -39,8 +39,7 @@ class GetUserStore(
                             walletReporter.reportWalletGuid(payloadDataManager.guid)
                         }
                 }
-            },
-            errorMapper = { Exception(it) }
+            }
         ),
         dataSerializer = NabuUser.serializer(),
         mediator = object : Mediator<Unit, NabuUser> {

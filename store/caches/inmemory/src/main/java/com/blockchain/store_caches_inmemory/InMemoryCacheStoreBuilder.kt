@@ -17,12 +17,12 @@ import kotlinx.coroutines.flow.Flow
 
 class InMemoryCacheStoreBuilder {
     @OptIn(DelicateCoroutinesApi::class)
-    fun <E : Any, T : Any> build(
+    fun <T : Any> build(
         storeId: StoreId,
-        fetcher: Fetcher<Unit, E, T>,
+        fetcher: Fetcher<Unit, T>,
         mediator: Mediator<Unit, T>,
         scope: CoroutineScope = GlobalScope
-    ): Store<E, T> = object : Store<E, T> {
+    ): Store<T> = object : Store<T> {
         private val backingStore = buildKeyed(
             storeId = storeId,
             fetcher = fetcher,
@@ -30,7 +30,7 @@ class InMemoryCacheStoreBuilder {
             scope = scope,
         )
 
-        override fun stream(request: StoreRequest): Flow<StoreResponse<E, T>> = backingStore.stream(
+        override fun stream(request: StoreRequest): Flow<StoreResponse<T>> = backingStore.stream(
             when (request) {
                 StoreRequest.Fresh -> KeyedStoreRequest.Fresh(Unit)
                 is StoreRequest.Cached -> KeyedStoreRequest.Cached(Unit, request.forceRefresh)
@@ -41,12 +41,12 @@ class InMemoryCacheStoreBuilder {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun <K : Any, E : Any, T : Any> buildKeyed(
+    fun <K : Any, T : Any> buildKeyed(
         storeId: StoreId,
-        fetcher: Fetcher<K, E, T>,
+        fetcher: Fetcher<K, T>,
         mediator: Mediator<K, T>,
         scope: CoroutineScope = GlobalScope
-    ): KeyedStore<K, E, T> = RealStore<K, E, T>(
+    ): KeyedStore<K, T> = RealStore(
         scope,
         MulticasterFetcher(fetcher, scope),
         InMemoryCache.Builder(storeId).build(),

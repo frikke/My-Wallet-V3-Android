@@ -5,7 +5,7 @@ import app.cash.turbine.test
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuUxErrorResponse
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.paymentmethods.models.ActivateCardResponse
 import com.blockchain.api.paymentmethods.models.AddNewCardResponse
 import com.blockchain.api.paymentmethods.models.AliasInfoResponse
@@ -67,7 +67,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetailsError
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
 import com.blockchain.domain.paymentmethods.model.SettlementInfo
@@ -801,7 +800,7 @@ class PaymentsRepositoryTest {
     fun `getLinkedCards() should return cached data from LinkedCardsStore`() = runTest {
         // ARRANGE
         val storeRequest: StoreRequest = mockk()
-        val linkedCardsStoreFlow = MutableSharedFlow<StoreResponse<PaymentMethodsError, List<CardResponse>>>(replay = 1)
+        val linkedCardsStoreFlow = MutableSharedFlow<StoreResponse<List<CardResponse>>>(replay = 1)
         val cardResponse = CardResponse(
             id = "id",
             partner = "CARDPROVIDER",
@@ -831,7 +830,7 @@ class PaymentsRepositoryTest {
     fun `getLinkedCards() with invalid state should return empty list`() = runTest {
         // ARRANGE
         val storeRequest: StoreRequest = mockk()
-        val linkedCardsStoreFlow = MutableSharedFlow<StoreResponse<PaymentMethodsError, List<CardResponse>>>(replay = 1)
+        val linkedCardsStoreFlow = MutableSharedFlow<StoreResponse<List<CardResponse>>>(replay = 1)
         val cardResponse = CardResponse(
             id = "id",
             partner = "CARDPROVIDER",
@@ -1022,7 +1021,7 @@ class PaymentsRepositoryTest {
     fun `getPaymentMethodForId() - HttpError`() = runTest {
         // ARRANGE
         coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiError.HttpError(Exception()))
+            Outcome.Failure(ApiException.HttpError(Exception()))
 
         // ACT
         val result = subject.getPaymentMethodDetailsForId(ID)
@@ -1037,7 +1036,7 @@ class PaymentsRepositoryTest {
     fun `getPaymentMethodForId() - NetworkError`() = runTest {
         // ARRANGE
         coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiError.NetworkError(Exception()))
+            Outcome.Failure(ApiException.NetworkError(Exception()))
 
         // ACT
         val result = subject.getPaymentMethodDetailsForId(ID)
@@ -1052,7 +1051,7 @@ class PaymentsRepositoryTest {
     fun `getPaymentMethodForId() - UnknownApiError`() = runTest {
         // ARRANGE
         coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiError.UnknownApiError(Exception()))
+            Outcome.Failure(ApiException.UnknownApiError(Exception()))
 
         // ACT
         val result = subject.getPaymentMethodDetailsForId(ID)
@@ -1067,7 +1066,7 @@ class PaymentsRepositoryTest {
     fun `getPaymentMethodForId() - KnownError`() = runTest {
         // ARRANGE
         coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiError.KnownError(mockk(relaxed = true)))
+            Outcome.Failure(ApiException.KnownError(mockk(relaxed = true)))
 
         // ACT
         val result = subject.getPaymentMethodDetailsForId(ID)

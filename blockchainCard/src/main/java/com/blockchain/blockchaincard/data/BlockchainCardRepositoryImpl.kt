@@ -1,7 +1,7 @@
 package com.blockchain.blockchaincard.data
 
 import com.blockchain.api.NabuApiException
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.blockchainCard.data.AcceptedDocumentFormDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentsDto
@@ -405,7 +405,7 @@ internal class BlockchainCardRepositoryImpl(
 
     private fun <Exception, R> Outcome<Exception, R>.wrapBlockchainCardError(): Outcome<BlockchainCardError, R> =
         mapError {
-            if (it is ApiError.KnownError) it.exception.toBlockchainCardError()
+            if (it is ApiException.KnownError) it.exception.toBlockchainCardError()
             else BlockchainCardError.LocalCopyBlockchainCardError
         }
 }

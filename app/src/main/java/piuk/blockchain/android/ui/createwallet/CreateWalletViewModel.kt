@@ -9,7 +9,6 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.domain.eligibility.EligibilityService
-import com.blockchain.domain.eligibility.model.EligibilityError
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.enviroment.EnvironmentConfig
@@ -112,7 +111,7 @@ class CreateWalletViewModel(
                     updateState {
                         it.copy(
                             countryInputState = CountryInputState.Loaded(emptyList(), null),
-                            error = error.toErrorState()
+                            error = CreateWalletError.Unknown(error.message)
                         )
                     }
                 }
@@ -171,7 +170,7 @@ class CreateWalletViewModel(
                                 updateState {
                                     it.copy(
                                         stateInputState = StateInputState.Loaded(emptyList(), null),
-                                        error = error.toErrorState()
+                                        error = CreateWalletError.Unknown(error.message)
                                     )
                                 }
                             }
@@ -256,10 +255,6 @@ class CreateWalletViewModel(
         !PasswordUtil.getStrength(passwordInput).roundToInt().isStrongEnough() ->
             Outcome.Failure(CreateWalletError.InvalidPasswordTooWeak)
         else -> Outcome.Success(Unit)
-    }
-
-    private fun EligibilityError.toErrorState(): CreateWalletError = when (this) {
-        is EligibilityError.RequestFailed -> CreateWalletError.Unknown(this.message)
     }
 
     private fun Int.isStrongEnough(): Boolean {

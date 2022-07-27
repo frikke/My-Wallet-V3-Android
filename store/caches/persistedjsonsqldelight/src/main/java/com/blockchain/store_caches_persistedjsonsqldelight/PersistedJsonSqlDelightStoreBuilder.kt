@@ -1,7 +1,6 @@
 package com.blockchain.store_caches_persistedjsonsqldelight
 
 import com.blockchain.store.Fetcher
-import com.blockchain.store.KeyedStore
 import com.blockchain.store.KeyedStoreRequest
 import com.blockchain.store.Mediator
 import com.blockchain.store.Store
@@ -23,14 +22,14 @@ import org.koin.core.component.get
 class PersistedJsonSqlDelightStoreBuilder : KoinComponent {
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun <E : Any, T : Any> build(
+    fun <T : Any> build(
         storeId: StoreId,
-        fetcher: Fetcher<Unit, E, T>,
+        fetcher: Fetcher<Unit, T>,
         dataSerializer: KSerializer<T>,
         mediator: Mediator<Unit, T>,
         scope: CoroutineScope = GlobalScope
-    ): Store<E, T> = object : Store<E, T> {
-        private val backingStore = buildKeyed<Unit, E, T>(
+    ): Store<T> = object : Store<T> {
+        private val backingStore = buildKeyed(
             storeId = storeId,
             fetcher = fetcher,
             keySerializer = Unit.serializer(),
@@ -39,7 +38,7 @@ class PersistedJsonSqlDelightStoreBuilder : KoinComponent {
             scope = scope,
         )
 
-        override fun stream(request: StoreRequest): Flow<StoreResponse<E, T>> = backingStore.stream(
+        override fun stream(request: StoreRequest): Flow<StoreResponse<T>> = backingStore.stream(
             when (request) {
                 StoreRequest.Fresh -> KeyedStoreRequest.Fresh(Unit)
                 is StoreRequest.Cached -> KeyedStoreRequest.Cached(Unit, request.forceRefresh)
@@ -50,17 +49,17 @@ class PersistedJsonSqlDelightStoreBuilder : KoinComponent {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun <K : Any, E : Any, T : Any> buildKeyed(
+    fun <K : Any, T : Any> buildKeyed(
         storeId: StoreId,
-        fetcher: Fetcher<K, E, T>,
+        fetcher: Fetcher<K, T>,
         keySerializer: KSerializer<K>,
         dataSerializer: KSerializer<T>,
         mediator: Mediator<K, T>,
         scope: CoroutineScope = GlobalScope
-    ): KeyedStore<K, E, T> = RealStore<K, E, T>(
+    ): RealStore<K, T> = RealStore(
         scope,
         MulticasterFetcher(fetcher, scope),
-        PersistedJsonSqlDelightCache.Builder<K, T>(
+        PersistedJsonSqlDelightCache.Builder(
             storeId,
             JsonParser(get(), keySerializer),
             JsonParser(get(), dataSerializer)

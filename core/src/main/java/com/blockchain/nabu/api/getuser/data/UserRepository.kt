@@ -17,7 +17,7 @@ internal class UserRepository(
 
     private fun getUser(refresh: Boolean): Observable<NabuUser> {
         return getUserStore.stream(StoreRequest.Cached(forceRefresh = refresh))
-            .asObservable { it }
+            .asObservable()
     }
 
     override fun getUser(): Single<NabuUser> =

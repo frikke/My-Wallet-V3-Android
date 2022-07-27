@@ -1,6 +1,6 @@
 package com.blockchain.core.chains.dynamicselfcustody.data
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.selfcustody.BuildTxResponse
 import com.blockchain.api.selfcustody.PushTxResponse
 import com.blockchain.api.selfcustody.Signature
@@ -36,7 +36,7 @@ internal class NonCustodialRepository(
     private val assetCatalogue: AssetCatalogue
 ) : NonCustodialService {
 
-    override suspend fun authenticate(): Outcome<ApiError, Boolean> =
+    override suspend fun authenticate(): Outcome<ApiException, Boolean> =
         dynamicSelfCustodyService.authenticate(
             guid = payloadDataManager.guid,
             sharedKey = getHashedString(payloadDataManager.sharedKey)
@@ -47,7 +47,7 @@ internal class NonCustodialRepository(
         currency: String,
         label: String,
         addresses: List<String>
-    ): Outcome<ApiError, Boolean> =
+    ): Outcome<ApiException, Boolean> =
         dynamicSelfCustodyService.subscribe(
             guidHash = getHashedString(payloadDataManager.guid),
             sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
@@ -57,7 +57,7 @@ internal class NonCustodialRepository(
         )
             .map { it.success }
 
-    override suspend fun unsubscribe(currency: String): Outcome<ApiError, Boolean> =
+    override suspend fun unsubscribe(currency: String): Outcome<ApiException, Boolean> =
         dynamicSelfCustodyService.unsubscribe(
             guidHash = getHashedString(payloadDataManager.guid),
             sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
@@ -73,7 +73,8 @@ internal class NonCustodialRepository(
             .getDataOrThrow()
     }
 
-    override suspend fun getBalances(currencies: List<String>): Outcome<ApiError, List<NonCustodialAccountBalance>> =
+    override suspend fun getBalances(currencies: List<String>):
+        Outcome<ApiException, List<NonCustodialAccountBalance>> =
         dynamicSelfCustodyService.getBalances(
             guidHash = getHashedString(payloadDataManager.guid),
             sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
@@ -90,7 +91,8 @@ internal class NonCustodialRepository(
             }
         }
 
-    override suspend fun getAddresses(currencies: List<String>): Outcome<ApiError, List<NonCustodialDerivedAddress>> =
+    override suspend fun getAddresses(currencies: List<String>):
+        Outcome<ApiException, List<NonCustodialDerivedAddress>> =
         dynamicSelfCustodyService.getAddresses(
             guidHash = getHashedString(payloadDataManager.guid),
             sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
@@ -113,7 +115,7 @@ internal class NonCustodialRepository(
     override suspend fun getTransactionHistory(
         currency: String,
         contractAddress: String?
-    ): Outcome<ApiError, List<NonCustodialTxHistoryItem>> =
+    ): Outcome<ApiException, List<NonCustodialTxHistoryItem>> =
         dynamicSelfCustodyService.getTransactionHistory(
             guidHash = getHashedString(payloadDataManager.guid),
             sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
@@ -134,7 +136,7 @@ internal class NonCustodialRepository(
         fee: String,
         memo: String,
         feeCurrency: String
-    ): Outcome<ApiError, BuildTxResponse> =
+    ): Outcome<ApiException, BuildTxResponse> =
         dynamicSelfCustodyService.buildTransaction(
             getHashedString(payloadDataManager.guid),
             getHashedString(payloadDataManager.sharedKey),
@@ -156,7 +158,7 @@ internal class NonCustodialRepository(
         currency: String,
         rawTx: JsonObject,
         signatures: List<TransactionSignature>
-    ): Outcome<ApiError, PushTxResponse> =
+    ): Outcome<ApiException, PushTxResponse> =
         dynamicSelfCustodyService.pushTransaction(
             guidHash = getHashedString(payloadDataManager.guid),
             sharedKeyHash = getHashedString(payloadDataManager.sharedKey),

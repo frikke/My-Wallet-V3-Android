@@ -4,6 +4,7 @@ import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
 
-suspend fun <E, T> Flow<StoreResponse<E, T>>.firstOutcome(): Outcome<E, T> =
+suspend fun <T> Flow<StoreResponse<T>>.firstOutcome(): Outcome<Exception, T> =
     mapNotNull {
         when (it) {
             StoreResponse.Loading -> null
@@ -20,28 +21,29 @@ suspend fun <E, T> Flow<StoreResponse<E, T>>.firstOutcome(): Outcome<E, T> =
         }
     }.first()
 
-fun <E, T : Any> Flow<StoreResponse<E, T>>.asSingle(
-    errorMapper: (E) -> Throwable,
-): Single<T> = rxSingle {
-    when (val result = this@asSingle.firstOutcome()) {
-        is Outcome.Success -> result.value
-        is Outcome.Failure -> throw errorMapper(result.failure)
+/**
+ * todo filter any loading and take first.
+ */
+fun <T : Any> Flow<StoreResponse<T>>.asSingle(): Single<T> = rxSingle {
+    val first = this@asSingle.filterNot { it is StoreResponse.Loading }.first()
+    when (first) {
+        is StoreResponse.Data -> first.data
+        is StoreResponse.Error -> throw first.error
+        is StoreResponse.Loading -> throw IllegalStateException("Should data or error")
     }
 }
 
-fun <E, T : Any> Flow<StoreResponse<E, T>>.asObservable(
-    errorMapper: (E) -> Throwable,
-): Observable<T> = filterNot { it is StoreResponse.Loading }
+fun <T : Any> Flow<StoreResponse<T>>.asObservable(): Observable<T> = filterNot { it is StoreResponse.Loading }
     .asObservable()
     .map { storeResponse ->
         when (storeResponse) {
             is StoreResponse.Data -> storeResponse.data
-            is StoreResponse.Error -> throw errorMapper(storeResponse.error)
+            is StoreResponse.Error -> throw storeResponse.error
             StoreResponse.Loading -> throw IllegalStateException()
         }
     }
 
-fun <E, T, R> Flow<StoreResponse<E, T>>.mapData(mapper: (T) -> R): Flow<StoreResponse<E, R>> =
+fun <T, R> Flow<StoreResponse<T>>.mapData(mapper: (T) -> R): Flow<StoreResponse<R>> =
     map {
         when (it) {
             is StoreResponse.Data -> StoreResponse.Data(mapper(it.data))
@@ -50,7 +52,7 @@ fun <E, T, R> Flow<StoreResponse<E, T>>.mapData(mapper: (T) -> R): Flow<StoreRes
         }
     }
 
-fun <E, T, R> Flow<StoreResponse<E, List<T>>>.mapListData(mapper: (T) -> R): Flow<StoreResponse<E, List<R>>> =
+fun <T, R> Flow<StoreResponse<List<T>>>.mapListData(mapper: (T) -> R): Flow<StoreResponse<List<R>>> =
     map {
         when (it) {
             is StoreResponse.Data -> StoreResponse.Data(it.data.map(mapper))
@@ -59,19 +61,19 @@ fun <E, T, R> Flow<StoreResponse<E, List<T>>>.mapListData(mapper: (T) -> R): Flo
         }
     }
 
-fun <E, T, R> Flow<StoreResponse<E, T>>.mapError(mapper: (E) -> R): Flow<StoreResponse<R, T>> =
+/*
+fun <T, R> Flow<StoreResponse<T>>.mapError(mapper: (Exception) -> R): Flow<StoreResponse<R, T>> =
     map {
         when (it) {
             is StoreResponse.Data -> it
             is StoreResponse.Error -> StoreResponse.Error(mapper(it.error))
             is StoreResponse.Loading -> it
         }
-    }
+<<<<<<< HEAD
+    }*/
 
-/**
- * E types will be removed by antonis pr
- */
-fun <E, T> Flow<StoreResponse<E, T>>.getDataOrThrow(): Flow<T> =
+
+fun <T> Flow<StoreResponse< T>>.getDataOrThrow(): Flow<T> =
     filterNot { it is StoreResponse.Loading }
         .map {
             when (it) {

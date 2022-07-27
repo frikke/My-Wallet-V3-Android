@@ -1,7 +1,7 @@
 package com.blockchain.core.payments
 
 import com.blockchain.api.NabuApiExceptionFactory
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.nabu.data.AddressRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.AliasInfoResponse
@@ -75,7 +75,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetailsError
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibility
-import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
 import com.blockchain.domain.paymentmethods.model.SettlementInfo
@@ -149,12 +148,12 @@ class PaymentsRepository(
     ): Outcome<PaymentMethodDetailsError, PaymentMethodDetails> {
         // TODO Turn getAuthHeader() into a suspension function
         val auth = authenticator.getAuthHeader().await()
-        return paymentsService.getPaymentMethodDetailsForId(auth, paymentId).mapError { apiError: ApiError ->
+        return paymentsService.getPaymentMethodDetailsForId(auth, paymentId).mapError { apiError: ApiException ->
             when (apiError) {
-                is ApiError.HttpError -> PaymentMethodDetailsError.REQUEST_FAILED
-                is ApiError.NetworkError -> PaymentMethodDetailsError.SERVICE_UNAVAILABLE
-                is ApiError.UnknownApiError -> PaymentMethodDetailsError.UNKNOWN
-                is ApiError.KnownError -> PaymentMethodDetailsError.REQUEST_FAILED
+                is ApiException.HttpError -> PaymentMethodDetailsError.REQUEST_FAILED
+                is ApiException.NetworkError -> PaymentMethodDetailsError.SERVICE_UNAVAILABLE
+                is ApiException.UnknownApiError -> PaymentMethodDetailsError.UNKNOWN
+                is ApiException.KnownError -> PaymentMethodDetailsError.REQUEST_FAILED
             }
         }
     }
@@ -282,11 +281,11 @@ class PaymentsRepository(
     override fun getLinkedCards(
         request: StoreRequest,
         vararg states: CardStatus,
-    ): Flow<StoreResponse<PaymentMethodsError, List<LinkedPaymentMethod.Card>>> =
+    ): Flow<StoreResponse<List<LinkedPaymentMethod.Card>>> =
         linkedCardsStore.stream(request)
             .mapData {
                 it.filter { states.contains(it.state.toCardStatus()) || states.isEmpty() }
-                    .map { it.toPaymentMethod() }
+                    .map { item -> item.toPaymentMethod() }
             }
 
     override fun getLinkedCards(
@@ -294,11 +293,6 @@ class PaymentsRepository(
     ): Single<List<LinkedPaymentMethod.Card>> =
         rxSingleOutcome {
             getLinkedCards(StoreRequest.Fresh, *states).firstOutcome()
-                .mapError {
-                    when (it) {
-                        is PaymentMethodsError.RequestFailed -> Exception(it.message)
-                    }
-                }
         }
 
     override fun getLinkedBank(id: String): Single<LinkedBank> =

@@ -8,5 +8,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface Erc20DataSource : FlushableDataSource {
     // todo(othman) check with andré about not using datasource interface, but allow mapping to/from store model
-    fun streamData(request: StoreRequest): Flow<StoreResponse<Throwable, List<Erc20TokenBalance>>>
+    fun streamData(request: StoreRequest): Flow<StoreResponse<List<Erc20TokenBalance>>>
 }

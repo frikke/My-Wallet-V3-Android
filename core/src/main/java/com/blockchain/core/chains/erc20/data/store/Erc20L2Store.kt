@@ -24,7 +24,7 @@ import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 class Erc20L2Store(
     private val evmService: NonCustodialEvmService,
     private val ethDataManager: EthDataManager,
-) : KeyedStore<Erc20L2Store.Key, Throwable, Erc20L2BalancesStore> by PersistedJsonSqlDelightStoreBuilder()
+) : KeyedStore<Erc20L2Store.Key, Erc20L2BalancesStore> by PersistedJsonSqlDelightStoreBuilder()
     .buildKeyed(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(
@@ -33,9 +33,6 @@ class Erc20L2Store(
                     evmService.getBalances(ethDataManager.accountAddress, key.networkTicker)
                         .map { it.toStore(ethDataManager.accountAddress) }
                 }
-            },
-            errorMapper = {
-                it
             }
         ),
         keySerializer = Key.serializer(),
@@ -76,7 +73,7 @@ class Erc20L2Store(
 
     override fun streamData(
         request: KeyedStoreRequest<Key>
-    ): Flow<StoreResponse<Throwable, BalancesResponse>> {
+    ): Flow<StoreResponse<BalancesResponse>> {
         return stream(request).mapData { it.toDomain() }
     }
 

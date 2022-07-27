@@ -17,11 +17,11 @@ class StoreBuilder {
 
     @OptIn(DelicateCoroutinesApi::class)
     fun <E : Any, T : Any> build(
-        fetcher: Fetcher<Unit, E, T>,
+        fetcher: Fetcher<Unit, T>,
         cache: Cache<Unit, T>,
         mediator: Mediator<Unit, T>,
         scope: CoroutineScope = GlobalScope
-    ): Store<E, T> = object : Store<E, T> {
+    ): Store<T> = object : Store<T> {
         private val backingStore = buildKeyed<Unit, E, T>(
             fetcher = fetcher,
             cache = cache,
@@ -29,7 +29,7 @@ class StoreBuilder {
             scope = scope,
         )
 
-        override fun stream(request: StoreRequest): Flow<StoreResponse<E, T>> = backingStore.stream(
+        override fun stream(request: StoreRequest): Flow<StoreResponse<T>> = backingStore.stream(
             when (request) {
                 StoreRequest.Fresh -> KeyedStoreRequest.Fresh(Unit)
                 is StoreRequest.Cached -> KeyedStoreRequest.Cached(Unit, request.forceRefresh)
@@ -41,11 +41,11 @@ class StoreBuilder {
 
     @OptIn(DelicateCoroutinesApi::class)
     fun <K : Any, E : Any, T : Any> buildKeyed(
-        fetcher: Fetcher<K, E, T>,
+        fetcher: Fetcher<K,  T>,
         cache: Cache<K, T>,
         mediator: Mediator<K, T>,
         scope: CoroutineScope = GlobalScope
-    ): KeyedStore<K, E, T> = RealStore<K, E, T>(
+    ): KeyedStore<K,  T> = RealStore<K, T>(
         scope,
         MulticasterFetcher(fetcher, scope),
         cache,

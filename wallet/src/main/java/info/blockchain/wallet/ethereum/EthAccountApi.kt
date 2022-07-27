@@ -1,6 +1,6 @@
 package info.blockchain.wallet.ethereum
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import info.blockchain.wallet.ethereum.data.EthAddressResponse
@@ -27,7 +27,7 @@ class EthAccountApi internal constructor(
      *
      * @return An [Single] wrapping an [EthLatestBlock]
      */
-    suspend fun getLatestBlockNumber(nodeUrl: String): Outcome<ApiError, EthLatestBlockNumber> {
+    suspend fun getLatestBlockNumber(nodeUrl: String): Outcome<ApiException, EthLatestBlockNumber> {
         return ethNodeEndpoints.processRequest(
             nodeUrl = nodeUrl,
             request = EthJsonRpcRequest.create(
@@ -99,7 +99,7 @@ class EthAccountApi internal constructor(
         nodeUrl: String,
         requestType: RequestType,
         vararg params: String
-    ): Outcome<ApiError, EthJsonRpcResponse> =
+    ): Outcome<ApiException, EthJsonRpcResponse> =
         ethNodeEndpoints.processRequest(
             nodeUrl = nodeUrl,
             request = EthJsonRpcRequest.create(

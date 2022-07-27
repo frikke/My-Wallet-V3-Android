@@ -18,7 +18,7 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
 internal class TradingStore(
     private val balanceService: CustodialBalanceService,
     private val authenticator: Authenticator,
-) : Store<Throwable, List<TradingBalanceStoreModel>> by PersistedJsonSqlDelightStoreBuilder()
+) : Store<List<TradingBalanceStoreModel>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.ofSingle(
@@ -27,15 +27,14 @@ internal class TradingStore(
                     balanceService.getTradingBalanceForAllAssets(it.authHeader)
                         .mapList { it.toStore() }
                 }
-            },
-            errorMapper = { it }
+            }
         ),
         dataSerializer = ListSerializer(TradingBalanceStoreModel.serializer()),
         mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
     ),
     TradingDataSource {
 
-    override fun streamData(request: StoreRequest): Flow<StoreResponse<Throwable, List<TradingBalance>>> =
+    override fun streamData(request: StoreRequest): Flow<StoreResponse<List<TradingBalance>>> =
         stream(request).mapListData { it.toDomain() }
 
     override fun invalidate() {
