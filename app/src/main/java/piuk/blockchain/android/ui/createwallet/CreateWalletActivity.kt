@@ -110,7 +110,14 @@ class CreateWalletActivity :
             updatePasswordDisclaimer()
 
             walletPassConfirm.setOnEditorActionListener { _, i, _ ->
-                consume { if (i == EditorInfo.IME_ACTION_GO) viewModel.onIntent(CreateWalletIntent.NextClicked) }
+                consume {
+                    if (i != EditorInfo.IME_ACTION_NEXT) return@consume
+                    hideKeyboard()
+                    val countryInputState = viewState?.countryInputState
+                    if (countryInputState is CountryInputState.Loaded) {
+                        openCountryPicker(countryInputState)
+                    }
+                }
             }
         }
     }
@@ -129,7 +136,9 @@ class CreateWalletActivity :
         hideKeyboard()
     }
 
+    private var viewState: CreateWalletViewState? = null
     override fun onStateUpdated(state: CreateWalletViewState) = with(binding) {
+        viewState = state
         if (emailAddress.text.toString() != state.emailInput) emailAddress.setText(state.emailInput)
         if (walletPass.text.toString() != state.passwordInput) walletPass.setText(state.passwordInput)
         if (walletPassConfirm.text.toString() != state.passwordConfirmationInput)
@@ -143,13 +152,7 @@ class CreateWalletActivity :
             }
             is CountryInputState.Loaded -> {
                 country.setOnClickListener {
-                    showBottomSheet(
-                        SearchPickerItemBottomSheet.newInstance(
-                            state.countryInputState.countries.map { country ->
-                                CountryPickerItem(country.countryCode)
-                            }
-                        )
-                    )
+                    openCountryPicker(state.countryInputState)
                 }
                 country.setText(state.countryInputState.selected?.name)
                 selectCountry.endIconDrawable =
@@ -245,6 +248,16 @@ class CreateWalletActivity :
         }
     }
 
+    private fun openCountryPicker(countryInputState: CountryInputState.Loaded) {
+        showBottomSheet(
+            SearchPickerItemBottomSheet.newInstance(
+                countryInputState.countries.map { country ->
+                    CountryPickerItem(country.countryCode)
+                }
+            )
+        )
+    }
+
     private fun updatePasswordDisclaimer() {
         val linksMap = mapOf<String, Uri>(
             "backup" to Uri.parse(URL_BACKUP_INFO),
@@ -266,6 +279,7 @@ class CreateWalletActivity :
 
     override fun onSheetClosed() {
         // no op
+        hideKeyboard()
     }
 
     private fun CreateWalletError.errorMessage(): String = when (this) {

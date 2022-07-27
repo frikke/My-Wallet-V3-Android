@@ -192,8 +192,6 @@ class CreateWalletViewModel(
                 it.copy(areTermsOfServiceChecked = intent.isChecked)
             }
             CreateWalletIntent.NextClicked -> {
-                require(modelState.validateIsNextEnabled())
-
                 analytics.logEventOnce(AnalyticsEvents.WalletSignupCreated)
                 val validateInputsOutcome = modelState.validateInputs()
                 if (validateInputsOutcome is Outcome.Failure) {
