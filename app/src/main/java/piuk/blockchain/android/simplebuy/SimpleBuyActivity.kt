@@ -405,6 +405,8 @@ class SimpleBuyActivity :
         error: String,
         errorDescription: String?,
         nabuApiException: NabuApiException?,
+        analyticsCategories: List<String>,
+        errorId: String?
     ) {
         serverErrorHandling.assignErrorActions()
 
@@ -424,9 +426,10 @@ class SimpleBuyActivity :
                     nabuApiException = nabuApiException,
                     errorDescription = description,
                     action = ACTION_BUY,
-                    analyticsCategories = nabuApiException?.getServerSideErrorInfo()?.categories ?: emptyList(),
+                    analyticsCategories = nabuApiException?.getServerSideErrorInfo()?.categories ?: analyticsCategories,
                     iconUrl = nabuApiException?.getServerSideErrorInfo()?.iconUrl,
-                    statusIconUrl = nabuApiException?.getServerSideErrorInfo()?.statusUrl
+                    statusIconUrl = nabuApiException?.getServerSideErrorInfo()?.statusUrl,
+                    errorId = errorId
                 )
             )
         )

@@ -264,6 +264,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
     ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
+
                 nabuApiException = nabuApiException,
                 errorDescription = description,
                 error = error,
@@ -296,7 +297,8 @@ data class ErrorDialogData(
     val errorButtonCopies: ErrorButtonCopies?,
     val analyticsCategories: List<String>,
     val iconUrl: String? = null,
-    val statusIconUrl: String? = null
+    val statusIconUrl: String? = null,
+    val errorId: String? = null
 ) : Parcelable
 
 fun List<ServerErrorAction>.mapToErrorCopies(): ErrorButtonCopies {

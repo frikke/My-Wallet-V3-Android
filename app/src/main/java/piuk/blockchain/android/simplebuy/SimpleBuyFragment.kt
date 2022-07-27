@@ -49,7 +49,9 @@ interface ErrorBuyNavigator {
         serverErrorHandling: List<ServerErrorAction> = emptyList(),
         error: String,
         errorDescription: String? = null,
-        nabuApiException: NabuApiException? = null
+        nabuApiException: NabuApiException? = null,
+        analyticsCategories: List<String> = emptyList(),
+        errorId: String? = null
     )
 
     fun showBankRefreshError(accountId: String)

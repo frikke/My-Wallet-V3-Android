@@ -12,6 +12,7 @@ sealed class ClientErrorAnalytics(
 ) : AnalyticsEvent {
 
     class ClientLogError(
+        val errorId: String? = null,
         val nabuApiException: NabuApiException?,
         val errorDescription: String? = null,
         val error: String,
@@ -22,7 +23,7 @@ sealed class ClientErrorAnalytics(
     ) : ClientErrorAnalytics(
         event = AnalyticsNames.CLIENT_ERROR.eventName,
         params = mapOf(
-            "id" to nabuApiException?.getServerSideErrorInfo()?.id,
+            "id" to (errorId ?: nabuApiException?.getServerSideErrorInfo()?.id),
             "error" to error,
             "source" to source.name,
             "title" to title,

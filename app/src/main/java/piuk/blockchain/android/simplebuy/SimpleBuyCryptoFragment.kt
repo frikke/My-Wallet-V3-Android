@@ -996,7 +996,9 @@ class SimpleBuyCryptoFragment :
                     title = errorState.serverSideUxErrorInfo.title,
                     description = errorState.serverSideUxErrorInfo.description,
                     error = ClientErrorAnalytics.SERVER_SIDE_HANDLED_ERROR,
-                    serverErrorHandling = errorState.serverSideUxErrorInfo.actions
+                    serverErrorHandling = errorState.serverSideUxErrorInfo.actions,
+                    analyticsCategories = errorState.serverSideUxErrorInfo.categories,
+                    errorId = errorState.serverSideUxErrorInfo.id
                 )
             is ErrorState.SettlementRefreshRequired -> navigator().showBankRefreshError(errorState.accountId)
             ErrorState.ApproveBankInvalid,
