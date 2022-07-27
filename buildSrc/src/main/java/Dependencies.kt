@@ -113,8 +113,8 @@ object Versions {
     const val systemUi = "0.24.3-alpha"
     const val navigationMaterial = "0.23.1"
     const val swipeRefresh = "0.23.1"
-    const val pager = "0.24.13-rc"
-    const val pagerIndicators = "0.24.13-rc"
+    const val pager = "0.23.1"
+    const val pagerIndicators = "0.23.1"
 
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
