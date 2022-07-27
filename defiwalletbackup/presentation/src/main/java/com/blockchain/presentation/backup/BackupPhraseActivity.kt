@@ -27,12 +27,14 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
     override val alwaysDisableScreenshots: Boolean = true
 
     override val scope: Scope = payloadScope
-    val viewModel: BackupPhraseViewModel by viewModel()
+    private val viewModel: BackupPhraseViewModel by viewModel()
 
-    val pinService: BackupPhrasePinService by inject()
+    private val pinService: BackupPhrasePinService by inject()
 
-    val arg: BackupPhraseArgs = intent.getParcelableExtra(BackupPhraseArgs.ARGS_KEY)
-        ?: BackupPhraseArgs(secondPassword = null, allowSkipBackup = false)
+    private val args: BackupPhraseArgs by lazy {
+        intent.getParcelableExtra(BackupPhraseArgs.ARGS_KEY)
+            ?: BackupPhraseArgs(secondPassword = null, allowSkipBackup = false)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +50,7 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
         setContent {
             BackupPhraseNavHost(
                 viewModel = viewModel,
-                backupPhraseArgs = arg.copy(secondPassword = secondPassword)
+                backupPhraseArgs = args.copy(secondPassword = secondPassword)
             )
         }
     }
