@@ -4,6 +4,7 @@ import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.refreshstrategy.RefreshStrategy
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 
 interface InterestService {
@@ -19,4 +20,6 @@ interface InterestService {
     fun getActiveAssets(
         refreshStrategy: RefreshStrategy = RefreshStrategy.Cached(refresh = true)
     ): Flow<Set<AssetInfo>>
+
+    fun getEnabledStatusForAllAssets(): Single<List<AssetInfo>>
 }

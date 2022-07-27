@@ -1,12 +1,13 @@
 package com.blockchain.nabu.datamanagers.repositories.interest
 
 import com.blockchain.core.common.caching.TimedCacheRequest
+import com.blockchain.core.interest.domain.InterestService
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 
 class InterestRepository(
     private val interestLimitsProvider: InterestLimitsProvider,
-    private val interestAvailabilityProvider: InterestAvailabilityProvider,
+    private val interestService: InterestService,
     private val interestEligibilityProvider: InterestEligibilityProvider
 ) {
     private val limitsCache = TimedCacheRequest(
@@ -16,7 +17,7 @@ class InterestRepository(
 
     private val availabilityCache = TimedCacheRequest(
         cacheLifetimeSeconds = LONG_LIFETIME,
-        refreshFn = { interestAvailabilityProvider.getEnabledStatusForAllAssets() }
+        refreshFn = { interestService.getEnabledStatusForAllAssets() }
     )
 
     private val eligibilityCache = TimedCacheRequest(
