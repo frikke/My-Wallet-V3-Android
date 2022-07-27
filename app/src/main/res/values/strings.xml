@@ -3133,4 +3133,17 @@
     <string name="purchase_title_error">Purchasing error</string>
     <string name="purchase_description_error">We encountered a problem with the purchase. Please try again.</string>
 
+    <!-- Educational - wallet modes-->
+    <string name="educational_wallet_mode_intro_title">Your Wallet just got better</string>
+    <string name="educational_wallet_mode_intro_description"> We’ve made some major improvements to the Blockchain.com app.</string>
+    <string name="educational_wallet_mode_menu_title">A new way to navigate</string>
+    <string name="educational_wallet_mode_menu_description">Easily move between Trading Account and DeFi Wallet.</string>
+    <string name="educational_wallet_mode_defi_title">Your new home for DeFi</string>
+    <string name="educational_wallet_mode_defi_description">Access your Private Key Wallets and engage with web3 and decentralized finance.</string>
+    <string name="educational_wallet_mode_defi_secure_tag">Secured by You</string>
+    <string name="educational_wallet_mode_trading_title">Your trading account</string>
+    <string name="educational_wallet_mode_trading_description">Access your Trading and Rewards accounts and buy and sell crypto.</string>
+    <string name="educational_wallet_mode_trading_secure_tag">Secured by Blockchain.com</string>
+    <string name="educational_wallet_mode_cta">Get Started</string>
+
 </resources>

@@ -34,7 +34,6 @@ import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey600
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.theme.UltraLight
-import com.blockchain.utils.isNotLastIn
 import kotlin.math.max
 import piuk.blockchain.android.R
 
@@ -189,7 +188,7 @@ fun ReferralCriteria(criteria: List<String>) {
         criteria.forEachIndexed { index, value ->
             SingleReferralCriteria(index, value)
 
-            if (index isNotLastIn criteria) {
+            if (index != criteria.lastIndex) {
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
             }
         }

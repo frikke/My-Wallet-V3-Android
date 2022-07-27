@@ -43,7 +43,6 @@ import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
-import com.blockchain.utils.isNotLastIn
 
 /**
  * figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=260%3A17284
@@ -212,7 +211,7 @@ fun BackupPhraseIntroAcknowledgments(@StringRes acknowledgments: List<Int>, allC
                 }
             }
 
-            if (index isNotLastIn acknowledgments) {
+            if (index != acknowledgments.lastIndex) {
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
             }
         }
