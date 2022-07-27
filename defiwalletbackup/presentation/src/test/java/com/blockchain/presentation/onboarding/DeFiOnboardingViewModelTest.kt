@@ -31,18 +31,18 @@ class DeFiOnboardingViewModelTest {
                 viewModel.onIntent(DeFiOnboardingIntent.EnableDeFiWallet)
 
                 val state = expectMostRecentItem()
-                assertEquals(true, state.shouldLaunchPinVerification)
+                assertEquals(true, state.shouldLaunchPhraseBackup)
             }
         }
 
     @Test
-    fun `WHEN PinVerificationRequested is called, THEN requiresPinVerification should be false`() =
+    fun `WHEN PhraseBackupRequested is called, THEN requiresPinVerification should be false`() =
         runTest {
             viewModel.viewState.test {
-                viewModel.onIntent(DeFiOnboardingIntent.PinVerificationRequested)
+                viewModel.onIntent(DeFiOnboardingIntent.PhraseBackupRequested)
 
                 val state = expectMostRecentItem()
-                assertEquals(false, state.shouldLaunchPinVerification)
+                assertEquals(false, state.shouldLaunchPhraseBackup)
             }
         }
 
