@@ -30,6 +30,7 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.NoPaddingRadio
 import com.blockchain.componentlib.control.RadioButtonState
@@ -43,7 +44,6 @@ import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
-import com.blockchain.utils.isNotLastIn
 
 /**
  * figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=260%3A17284
@@ -59,8 +59,10 @@ fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
     viewState?.let { state ->
         BackupPhraseIntroScreen(
             backupStatus = state.backUpStatus,
+            showSkipBackup = state.showSkipBackup,
             backOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = false)) },
-            backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackupProcess) }
+            backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackupProcess) },
+            skipOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToSkipBackup) }
         )
     }
 }
@@ -68,8 +70,10 @@ fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
 @Composable
 fun BackupPhraseIntroScreen(
     backupStatus: BackUpStatus,
+    showSkipBackup: Boolean,
     backOnClick: () -> Unit,
     backUpNowOnClick: () -> Unit,
+    skipOnClick: () -> Unit,
 ) {
     var allAcknowledgementsChecked by remember { mutableStateOf(false) }
 
@@ -121,6 +125,16 @@ fun BackupPhraseIntroScreen(
                 state = if (allAcknowledgementsChecked) ButtonState.Enabled else ButtonState.Disabled,
                 onClick = backUpNowOnClick
             )
+
+            if (showSkipBackup) {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
+
+                MinimalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(id = R.string.common_skip),
+                    onClick = skipOnClick
+                )
+            }
         }
     }
 }
@@ -212,7 +226,7 @@ fun BackupPhraseIntroAcknowledgments(@StringRes acknowledgments: List<Int>, allC
                 }
             }
 
-            if (index isNotLastIn acknowledgments) {
+            if (index != acknowledgments.lastIndex) {
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
             }
         }
@@ -225,10 +239,19 @@ fun BackupPhraseIntroAcknowledgments(@StringRes acknowledgments: List<Int>, allC
 
 @Preview(name = "no backup", showBackground = true)
 @Composable
-fun PreviewBackupPhraseIntroScreenNoBackup() {
+fun PreviewBackupPhraseIntroScreen_NoBackup_Skip() {
     BackupPhraseIntroScreen(
-        BackUpStatus.NO_BACKUP,
-        backOnClick = {}, backUpNowOnClick = { }
+        BackUpStatus.NO_BACKUP, showSkipBackup = true,
+        backOnClick = {}, backUpNowOnClick = {}, skipOnClick = {}
+    )
+}
+
+@Preview(name = "no backup no skip", showBackground = true)
+@Composable
+fun PreviewBackupPhraseIntroScreen_NoBackup_NoSkip() {
+    BackupPhraseIntroScreen(
+        BackUpStatus.NO_BACKUP, showSkipBackup = false,
+        backOnClick = {}, backUpNowOnClick = {}, skipOnClick = {}
     )
 }
 
@@ -236,8 +259,8 @@ fun PreviewBackupPhraseIntroScreenNoBackup() {
 @Composable
 fun PreviewBackupPhraseIntroScreenBackedUp() {
     BackupPhraseIntroScreen(
-        BackUpStatus.BACKED_UP,
-        backOnClick = {}, backUpNowOnClick = { }
+        BackUpStatus.BACKED_UP, showSkipBackup = true,
+        backOnClick = {}, backUpNowOnClick = {}, skipOnClick = {}
     )
 }
 

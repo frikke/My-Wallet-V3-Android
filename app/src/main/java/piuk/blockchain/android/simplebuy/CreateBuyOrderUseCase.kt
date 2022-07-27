@@ -5,7 +5,6 @@ import com.blockchain.core.custodial.models.BuyOrderAndQuote
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderInput
@@ -15,7 +14,6 @@ import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrNull
-import com.blockchain.outcome.getOrThrow
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -24,9 +22,9 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.kotlin.withLatestFrom
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
+import java.lang.IllegalStateException
 import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
@@ -38,7 +36,7 @@ class CreateBuyOrderUseCase(
     private val custodialWalletManager: CustodialWalletManager,
     buyQuoteRefreshFF: FeatureFlag,
 ) {
-    private var latestPendingOrder: BuySellOrder? = null
+    private var latestPendingOrder: BuyOrderAndQuote? = null
     private val stop = PublishSubject.create<Unit>()
     private val compositeDisposable = CompositeDisposable()
     private val subject: PublishSubject<Outcome<Throwable, BuyOrderAndQuote>> = PublishSubject.create()
@@ -46,7 +44,7 @@ class CreateBuyOrderUseCase(
         get() = subject.doOnNext {
             it.getOrNull()?.let { buyOrderAndQuote ->
                 Timber.i("New quote ${buyOrderAndQuote.buyOrder.id} --- ${buyOrderAndQuote.quote.secondsToExpire}")
-                latestPendingOrder = buyOrderAndQuote.buyOrder
+                latestPendingOrder = buyOrderAndQuote
             }
         }
 
@@ -73,7 +71,7 @@ class CreateBuyOrderUseCase(
             }
 
         val orderToGetCancelled = latestPendingOrder?.let {
-            it.id
+            it.buyOrder.id
         } ?: oldStateId
 
         val updateOrder =
@@ -84,9 +82,9 @@ class CreateBuyOrderUseCase(
                         quoteTimeToExpire,
                         quoteTimeToExpire,
                         TimeUnit.MILLISECONDS
-                    ).withLatestFrom(
-                        subject.map { it.getOrThrow() }
-                    ).flatMapSingle { (_, lastBuyAndQuoteOrder) ->
+                    ).map {
+                        latestPendingOrder ?: throw IllegalStateException("Missing quote for original order")
+                    }.flatMapSingle { lastBuyAndQuoteOrder ->
                         newOrder(lastBuyAndQuoteOrder.buyOrder.id)
                     }.startWithItem(buyOrderAndQuote)
                 } else {

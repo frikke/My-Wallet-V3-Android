@@ -20,6 +20,8 @@ val loaderModule = module {
                 payloadDataManager = get(),
                 prerequisites = get(),
                 appUtil = get(),
+                walletModeService = get(),
+                educationalScreensPrefs = get()
             )
         }
 

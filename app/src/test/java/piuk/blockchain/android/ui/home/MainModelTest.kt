@@ -661,6 +661,7 @@ class MainModelTest {
         }
 
         val nabuUxErrorResponse = NabuUxErrorResponse(
+            "id",
             "title",
             "message",
             IconData(

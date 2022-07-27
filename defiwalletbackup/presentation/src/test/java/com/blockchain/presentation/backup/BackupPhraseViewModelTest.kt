@@ -3,6 +3,7 @@ package com.blockchain.presentation.backup
 import app.cash.turbine.test
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.outcome.Outcome
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.presentation.backup.navigation.BackupPhraseNavigationEvent
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import com.blockchain.testutils.CoroutineTestRule
@@ -30,21 +31,25 @@ class BackupPhraseViewModelTest {
 
     private val backupPhraseService = mockk<BackupPhraseService>()
     private val backupPrefs = mockk<EncryptedPrefs>()
+    private val walletStatusPrefs = mockk<WalletStatusPrefs>()
 
     private lateinit var viewModel: BackupPhraseViewModel
 
-    private val args = BackupPhraseArgs(secondPassword = "secondPassword")
+    private val args = BackupPhraseArgs(secondPassword = "secondPassword", allowSkipBackup = true)
     private val mnemonic = listOf("A", "B")
 
     @Before
     fun setUp() {
         viewModel = BackupPhraseViewModel(
             backupPhraseService = backupPhraseService,
-            backupPrefs = backupPrefs
+            backupPrefs = backupPrefs,
+            walletStatusPrefs = walletStatusPrefs
         )
 
         every { backupPhraseService.isBackedUp() } returns true
         every { backupPhraseService.getMnemonic(any()) } returns Outcome.Success(mnemonic)
+
+        every { walletStatusPrefs.isWalletBackUpSkipped = any() } just Runs
     }
 
     @Test
@@ -94,6 +99,31 @@ class BackupPhraseViewModelTest {
                 verify(exactly = 1) { backupPhraseService.getMnemonic(any()) }
                 val state = expectMostRecentItem()
                 assertEquals(mnemonic, state.mnemonic)
+            }
+        }
+
+    @Test
+    fun `WHEN GoToSkipBackup is called, THEN SkipBackup should be called`() =
+        runTest {
+            viewModel.navigationEventFlow.test {
+                viewModel.onIntent(BackupPhraseIntent.GoToSkipBackup)
+
+                val navigation = expectMostRecentItem()
+
+                assertEquals(BackupPhraseNavigationEvent.SkipBackup, navigation)
+            }
+        }
+
+    @Test
+    fun `WHEN SkipBackup is called, THEN isWalletBackUpSkipped should be true, EndFlow with isSuccessful called`() =
+        runTest {
+            viewModel.viewState.test {
+                viewModel.onIntent(BackupPhraseIntent.SkipBackup)
+
+                verify { walletStatusPrefs.isWalletBackUpSkipped = true }
+
+                val state = expectMostRecentItem()
+                assertEquals(FlowState.Ended(true), state.flowState)
             }
         }
 

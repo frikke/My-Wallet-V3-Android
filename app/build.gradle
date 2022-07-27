@@ -483,6 +483,8 @@ dependencies {
     implementation Libraries.composeCoilSvg
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.accompanistNavigationMaterial
+    implementation Libraries.accompanistPager
+    implementation Libraries.accompanistPagerIndicators
 
     // Stripe
     implementation(Libraries.stripe) {

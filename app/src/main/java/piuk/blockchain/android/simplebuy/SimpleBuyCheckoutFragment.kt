@@ -16,10 +16,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.mvi.MviFragment
-import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
@@ -88,7 +86,7 @@ class SimpleBuyCheckoutFragment :
 
     private var lastState: SimpleBuyState? = null
     private val checkoutAdapterDelegate = CheckoutAdapterDelegate()
-    private lateinit var countDownTimer: CountDownTimer
+    private var countDownTimer: CountDownTimer? = null
     private var chunksCounter = mutableListOf<Int>()
 
     private val isForPendingPayment: Boolean by unsafeLazy {
@@ -173,17 +171,12 @@ class SimpleBuyCheckoutFragment :
             override fun onTick(millisUntilFinished: Long) {
                 if (millisUntilFinished > 0) {
                     val formattedTime = DateUtils.formatElapsedTime(max(0, millisUntilFinished / 1000))
-
                     binding.quoteExpiration.apply {
-                        setContent {
-                            CircularProgressBar(
-                                text = getString(
-                                    R.string.simple_buy_quote_message,
-                                    formattedTime
-                                ),
-                                progress = (millisUntilFinished / 1000L) / remainingTime.toFloat()
-                            )
-                        }
+                        text = getString(
+                            R.string.simple_buy_quote_message,
+                            formattedTime
+                        )
+                        progress = (millisUntilFinished / 1000L) / remainingTime.toFloat()
                     }
                 }
             }
@@ -191,19 +184,25 @@ class SimpleBuyCheckoutFragment :
             override fun onFinish() {
                 if (chunksCounter.isNotEmpty()) chunksCounter.removeAt(0)
                 if (chunksCounter.size > 0) {
+                    countDownTimer?.cancel()
                     startCounter(quote, chunksCounter.first())
+                } else {
+                    countDownTimer?.cancel()
+                    countDownTimer = null
                 }
             }
         }
-        countDownTimer.start()
+        countDownTimer?.start()
     }
 
     override fun render(newState: SimpleBuyState) {
         if ((lastState == null || newState.hasQuoteChanged) &&
-            newState.quote != null && binding.quoteExpiration.isVisible
+            newState.quote != null && animateRefreshQuote
         ) {
-            chunksCounter = getListOfTotalTimes(newState.quote.remainingTime.toDouble())
-            startCounter(newState.quote, chunksCounter.first())
+            if (countDownTimer == null) {
+                chunksCounter = getListOfTotalTimes(newState.quote.remainingTime.toDouble())
+                startCounter(newState.quote, chunksCounter.first())
+            }
         }
 
         binding.buttonAction.isEnabled = (newState.quote?.remainingTime ?: 0) > 0
@@ -448,7 +447,7 @@ class SimpleBuyCheckoutFragment :
                 label = getString(R.string.quote_price, state.selectedCryptoAsset.displayTicker),
                 title = state.exchangeRate?.toStringWithSymbol().orEmpty(),
                 expandableContent = priceExplanation,
-                hasChanged = state.hasQuoteChanged
+                hasChanged = state.hasQuoteChanged && animateRefreshQuote
             ),
             buildPaymentMethodItem(state),
             if (state.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
@@ -524,7 +523,7 @@ class SimpleBuyCheckoutFragment :
                 title = feeDetails.fee.toStringWithSymbol(),
                 expandableContent = feeExplanation,
                 promoLayout = viewForPromo(feeDetails),
-                hasChanged = state.hasQuoteChanged
+                hasChanged = state.hasQuoteChanged && animateRefreshQuote
             )
         }
 
@@ -797,9 +796,7 @@ class SimpleBuyCheckoutFragment :
 
     override fun onDestroy() {
         compositeDisposable.clear()
-        if (::countDownTimer.isInitialized) {
-            countDownTimer.cancel()
-        }
+        countDownTimer?.cancel()
         super.onDestroy()
     }
 

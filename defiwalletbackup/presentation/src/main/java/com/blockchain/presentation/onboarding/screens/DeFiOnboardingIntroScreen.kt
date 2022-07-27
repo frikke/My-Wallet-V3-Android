@@ -40,7 +40,6 @@ import com.blockchain.componentlib.utils.circleAround
 import com.blockchain.presentation.R
 import com.blockchain.presentation.onboarding.DeFiOnboardingIntent
 import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
-import com.blockchain.utils.isNotLastIn
 
 /**
  * figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=260%3A16643
@@ -195,7 +194,7 @@ fun DeFiOnboardingProperties(properties: List<DeFiProperty>) {
                 subtitle = stringResource(property.subtitle),
             )
 
-            if (index isNotLastIn properties) {
+            if (index != properties.lastIndex) {
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
             }
         }

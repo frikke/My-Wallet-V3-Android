@@ -22,6 +22,7 @@ sealed class ClientErrorAnalytics(
     ) : ClientErrorAnalytics(
         event = AnalyticsNames.CLIENT_ERROR.eventName,
         params = mapOf(
+            "id" to nabuApiException?.getServerSideErrorInfo()?.id,
             "error" to error,
             "source" to source.name,
             "title" to title,

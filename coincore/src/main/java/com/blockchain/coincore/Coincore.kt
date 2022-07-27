@@ -90,7 +90,7 @@ class Coincore internal constructor(
     fun activeWalletsInMode(walletMode: WalletMode): Single<AccountGroup> {
         val assets = activeAssets(walletMode).asObservable().firstOrError()
         return assets.flatMap {
-            if (it.isEmpty()) Single.just(NullAccountGroup)
+            if (it.isEmpty()) Single.just(EmptyAccountGroup)
             else
                 Single.just(it).flattenAsObservable { it }.flatMapMaybe { asset ->
                     asset.accountGroup(walletMode.defaultFilter()).map { grp -> grp.accounts }

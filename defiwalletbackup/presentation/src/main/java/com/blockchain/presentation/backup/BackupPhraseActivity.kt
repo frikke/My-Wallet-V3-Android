@@ -31,6 +31,9 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
 
     val pinService: BackupPhrasePinService by inject()
 
+    val arg: BackupPhraseArgs = intent.getParcelableExtra(BackupPhraseArgs.ARGS_KEY)
+        ?: BackupPhraseArgs(secondPassword = null, allowSkipBackup = false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -45,7 +48,7 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
         setContent {
             BackupPhraseNavHost(
                 viewModel = viewModel,
-                backupPhraseArgs = BackupPhraseArgs(secondPassword)
+                backupPhraseArgs = arg.copy(secondPassword = secondPassword)
             )
         }
     }
@@ -103,7 +106,15 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
     }
 
     companion object {
-        fun newIntent(context: Context): Intent =
-            Intent(context, BackupPhraseActivity::class.java)
+        fun newIntent(context: Context, allowSkipBackup: Boolean = false): Intent =
+            Intent(context, BackupPhraseActivity::class.java).apply {
+                putExtra(
+                    BackupPhraseArgs.ARGS_KEY,
+                    BackupPhraseArgs(
+                        secondPassword = null,
+                        allowSkipBackup = allowSkipBackup
+                    )
+                )
+            }
     }
 }

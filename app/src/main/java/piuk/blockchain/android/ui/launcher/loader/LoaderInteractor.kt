@@ -138,8 +138,9 @@ class LoaderInteractor(
             emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.EmailVerification))
         } else {
             emitter.onNext(
-                LoaderIntents.UpdateLoadingStep(
-                    LoadingStep.Main(deepLinkPersistence.popDataFromSharedPrefs(), false)
+                LoaderIntents.LaunchDashboard(
+                    data = deepLinkPersistence.popDataFromSharedPrefs(),
+                    shouldLaunchUiTour = false
                 )
             )
         }

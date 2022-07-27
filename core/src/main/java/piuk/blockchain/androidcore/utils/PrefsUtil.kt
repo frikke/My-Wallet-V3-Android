@@ -17,6 +17,7 @@ import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.EducationalScreensPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
@@ -69,7 +70,8 @@ class PrefsUtil(
     AppRatingPrefs,
     NftAnnouncementPrefs,
     ReferralPrefs,
-    LocalSettingsPrefs {
+    LocalSettingsPrefs,
+    EducationalScreensPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -279,6 +281,10 @@ class PrefsUtil(
 
     override val isWalletBackedUp: Boolean
         get() = lastBackupTime != 0L
+
+    override var isWalletBackUpSkipped: Boolean
+        get() = getValue(IS_WALLET_BACKUP_SKIPPED, false)
+        set(value) = setValue(IS_WALLET_BACKUP_SKIPPED, value)
 
     override val isWalletFunded: Boolean
         get() = getValue(WALLET_FUNDED_KEY, false)
@@ -710,6 +716,10 @@ class PrefsUtil(
 
     override fun clearDeeplinkUri() = removeValue(KEY_DEEP_LINK_URI)
 
+    override var hasSeenEducationalWalletMode: Boolean
+        get() = getValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, false)
+        set(value) = setValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, value)
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -748,6 +758,7 @@ class PrefsUtil(
         private const val KEY_ONBOARDING_COMPLETE = "KEY_ONBOARDING_COMPLETE"
 
         private const val BACKUP_DATE_KEY = "BACKUP_DATE_KEY"
+        private const val IS_WALLET_BACKUP_SKIPPED = "IS_WALLET_BACKUP_SKIPPED"
         private const val WALLET_FUNDED_KEY = "WALLET_FUNDED_KEY"
         private const val BITPAY_TRANSACTION_SUCCEEDED = "BITPAY_TRANSACTION_SUCCEEDED"
         private const val NETWORK_FEE_PRIORITY_KEY = "fee_type_key_"
@@ -834,6 +845,9 @@ class PrefsUtil(
         // Security
         private const val KEY_OVERLAY_TRUSTED = "overlay_trusted"
         private const val KEY_ROOT_WARNING_DISABLED = "disable_root_warning"
+
+        // Educational Screens
+        private const val HAS_SEEN_EDUCATIONAL_WALLET_MODE = "has_seen_educational_wallet_mode"
     }
 }
 

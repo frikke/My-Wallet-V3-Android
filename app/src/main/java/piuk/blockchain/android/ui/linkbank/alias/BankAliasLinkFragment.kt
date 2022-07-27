@@ -442,12 +442,20 @@ fun PreviewAliasErrorScreen() {
         viewState = BankAliasLinkViewState(
             showAliasInput = false,
             error = AliasError.ServerSideUxError(
-                ServerSideUxErrorInfo("title", "description", "", "", emptyList(), emptyList())
+                ServerSideUxErrorInfo(
+                    id = "123",
+                    title = "title",
+                    description = "description",
+                    iconUrl = "",
+                    statusUrl = "",
+                    actions = emptyList(),
+                    categories = emptyList()
+                )
             )
         ),
-        {},
-        {},
-        {}
+        aliasUpdated = {},
+        searchAccountClicked = {},
+        continueClicked = {}
     )
 }
 

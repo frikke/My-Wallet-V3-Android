@@ -41,6 +41,8 @@ private data class NabuErrorResponse(
 
 @Serializable
 data class NabuUxErrorResponse(
+    @SerialName("id")
+    val id: String?,
     @SerialName("title")
     val title: String,
     @SerialName("message")
@@ -165,6 +167,7 @@ object NabuApiExceptionFactory {
             path = null,
             id = null,
             serverSideUxError = ServerSideUxErrorInfo(
+                id = uxErrorResponse.id,
                 title = uxErrorResponse.title,
                 description = uxErrorResponse.message,
                 iconUrl = uxErrorResponse.icon?.url.orEmpty(),
@@ -190,6 +193,7 @@ object NabuApiExceptionFactory {
                 val path = exception.response()?.raw()?.request?.url?.pathSegments?.joinToString(" , ")
                 val serverSideUxError = it.ux?.let { nabuUxResponse ->
                     ServerSideUxErrorInfo(
+                        id = nabuUxResponse.id,
                         title = nabuUxResponse.title,
                         description = nabuUxResponse.message,
                         iconUrl = nabuUxResponse.icon?.url.orEmpty(),

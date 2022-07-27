@@ -417,6 +417,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Swap }?.state == ActionState.Unavailable
             }
@@ -523,6 +524,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         )
         subject.stateAwareActions
             .test()
+            .await()
             .assertValue {
                 it.find { it.action == AssetAction.Sell }?.state == ActionState.LockedForTier
             }
