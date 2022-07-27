@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 import android.text.Spannable
 import androidx.annotation.VisibleForTesting
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
@@ -28,6 +29,9 @@ class TaxCenterAnnouncement(
             .defaultIfEmpty("")
             .map { country -> country == "US" }
     }
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
 
     override fun show(host: AnnouncementHost) {
         val bodyTextSpannable = host.context?.let {

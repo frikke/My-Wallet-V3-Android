@@ -59,6 +59,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Optional
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
@@ -104,7 +105,9 @@ class DashboardActionInteractor(
         get() = walletModeService.enabledWalletMode().defaultFilter()
 
     fun fetchActiveAssets(model: DashboardModel): Disposable =
-        walletModeService.walletMode.flatMapLatest {
+        walletModeService.walletMode.onEach {
+            model.process(DashboardIntent.ClearAnnouncement)
+        }.flatMapLatest {
             coincore.activeAssets(it)
         }.distinctUntilChangedBy { c -> c.map { it.currency } }.asObservable().subscribeBy(
             onNext = { activeAssets ->

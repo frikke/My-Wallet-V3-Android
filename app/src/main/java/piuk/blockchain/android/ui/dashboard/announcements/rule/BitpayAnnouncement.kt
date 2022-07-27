@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
@@ -14,6 +15,9 @@ class BitpayAnnouncement(
     dismissRecorder: DismissRecorder,
     val walletStatusPrefs: WalletStatusPrefs
 ) : AnnouncementRule(dismissRecorder) {
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.NON_CUSTODIAL_ONLY)
 
     override val dismissKey = DISMISS_KEY
 

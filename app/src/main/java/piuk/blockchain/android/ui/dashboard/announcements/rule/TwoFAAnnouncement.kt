@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
@@ -29,6 +30,8 @@ class TwoFAAnnouncement(
             .map { !it.isSmsVerified && walletStatusPrefs.isWalletFunded && it.authType == Settings.AUTH_TYPE_OFF }
             .singleOrError()
     }
+    override val associatedWalletModes: List<WalletMode>
+        get() = WalletMode.values().toList()
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(

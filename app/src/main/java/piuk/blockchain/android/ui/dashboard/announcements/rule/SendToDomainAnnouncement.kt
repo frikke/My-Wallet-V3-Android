@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.Coincore
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
@@ -25,6 +26,9 @@ class SendToDomainAnnouncement(
         return coincore.allWallets()
             .map { it.accounts.any { a -> a.isFunded } }
     }
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.NON_CUSTODIAL_ONLY)
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(
