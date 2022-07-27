@@ -36,7 +36,7 @@ class WalletModeSelectionViewModel(
         ModelConfigArgs.NoArgs>(
         initialState = WalletModeSelectionModelState(
             isWalletBackedUp = false,
-            isWalletBackUpSkipped = false, // todo sync after merging pr-3641 walletStatusPrefs.isWalletBackUpSkipped
+            isWalletBackUpSkipped = walletStatusPrefs.isWalletBackUpSkipped,
             brokerageBalance = null,
             defiBalance = null,
             enabledWalletMode = walletModeService.enabledWalletMode()
