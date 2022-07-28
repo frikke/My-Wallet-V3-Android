@@ -88,7 +88,7 @@
         android:layout_marginEnd="@dimen/standard_margin"
         android:gravity="top|center_horizontal"
         app:autoSizeMaxTextSize="14sp"
-        app:autoSizeMinTextSize="8sp"
+        app:autoSizeMinTextSize="12sp"
         app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toTopOf="@+id/tx_primary_btn"
         app:layout_constraintEnd_toEndOf="parent"

@@ -100,7 +100,7 @@
             android:layout_height="20dp"
             style="@style/Text.Standard.16"
             app:autoSizeTextType="uniform"
-            app:autoSizeMinTextSize="8sp"
+            app:autoSizeMinTextSize="12sp"
             android:ellipsize="none"
             app:autoSizeMaxTextSize="16sp"
             android:gravity="center_vertical"

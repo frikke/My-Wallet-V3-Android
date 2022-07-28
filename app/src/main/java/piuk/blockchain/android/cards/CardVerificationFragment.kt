@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.blockchain.payments.stripe.StripeFactory
@@ -57,7 +59,7 @@ class CardVerificationFragment :
             when (it) {
                 is CardRequestStatus.Loading -> renderLoadingState()
                 is CardRequestStatus.Error -> renderErrorState(it.type)
-                is CardRequestStatus.Success -> navigator.exitWithSuccess(it.card)
+                is CardRequestStatus.Success -> renderSuccessState(it.card)
             }
         }
 
@@ -126,9 +128,26 @@ class CardVerificationFragment :
 
     private fun renderLoadingState() {
         with(binding.transactionProgressView) {
+            setAssetIcon(R.drawable.ic_card_icon)
             showTxInProgress(
                 title = getString(R.string.linking_card_title),
                 subtitle = getString(R.string.linking_card_subtitle)
+            )
+        }
+    }
+
+    private fun renderSuccessState(card: PaymentMethod.Card) {
+        binding.transactionProgressView.apply {
+            showTxSuccess(
+                title = getString(R.string.linking_card_success_title),
+                subtitle = getString(R.string.linking_card_success_subtitle)
+            )
+
+            setupPrimaryCta(
+                text = getString(R.string.common_ok),
+                onClick = {
+                    navigator.exitWithSuccess(card)
+                }
             )
         }
     }
@@ -145,7 +164,14 @@ class CardVerificationFragment :
                     )
 
                     showServerSideActionErrorCtas(
-                        list = error.actions,
+                        list = error.actions.ifEmpty {
+                            listOf(
+                                ServerErrorAction(
+                                    title = getString(R.string.common_ok),
+                                    deeplinkPath = getString(R.string.empty)
+                                )
+                            )
+                        },
                         currencyCode = currencyPrefs.selectedFiatCurrency.networkTicker,
                         onActionsClickedCallback = object : TransactionProgressView.TransactionProgressActions {
                             override fun onPrimaryButtonClicked() {
