@@ -475,16 +475,22 @@ class SimpleBuyActivity :
                 0 -> primaryErrorCtaAction = {
                     if (info.deeplinkPath.isNotEmpty()) {
                         redirectToDeeplinkProcessor(info.deeplinkPath)
+                    } else {
+                        finish()
                     }
                 }
                 1 -> secondaryErrorCtaAction = {
                     if (info.deeplinkPath.isNotEmpty()) {
                         redirectToDeeplinkProcessor(info.deeplinkPath)
+                    } else {
+                        finish()
                     }
                 }
                 2 -> tertiaryErrorCtaAction = {
                     if (info.deeplinkPath.isNotEmpty()) {
                         redirectToDeeplinkProcessor(info.deeplinkPath)
+                    } else {
+                        finish()
                     }
                 }
                 else -> {

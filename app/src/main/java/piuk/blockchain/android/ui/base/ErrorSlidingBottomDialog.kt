@@ -47,6 +47,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
 
     override fun initControls(binding: ErrorSlidingBottomDialogBinding) {
         with(binding) {
+
             errorSheetIndicator.image = ImageResource.Local(R.drawable.vector_sheet_indicator_small)
 
             loadRemoteIcons(
@@ -56,16 +57,15 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
                 statusIconUrl = errorDialogData.statusIconUrl.orEmpty()
             )
 
-            errorDialogData.errorButtonCopies?.primaryButtonText?.let { primaryButtonText ->
-                primaryCtaButton.apply {
-                    text = primaryButtonText.ifEmpty { getString(R.string.common_ok) }
-                    onClick = {
-                        dismiss()
-                        host.onErrorPrimaryCta()
-                    }
-                    visible()
+            primaryCtaButton.apply {
+                text = errorDialogData.errorButtonCopies?.primaryButtonText?.ifEmpty { getString(R.string.common_ok) }
+                    ?: getString(R.string.common_ok)
+                onClick = {
+                    dismiss()
+                    host.onErrorPrimaryCta()
                 }
-            } ?: primaryCtaButton.gone()
+                visible()
+            }
 
             errorDialogData.errorButtonCopies?.secondaryButtonText?.let { secondaryButtonText ->
                 if (secondaryButtonText.isNotEmpty()) {
@@ -81,6 +81,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
                     secondaryCtaButton.gone()
                 }
             } ?: secondaryCtaButton.gone()
+
             errorDialogData.errorButtonCopies?.tertiaryButtonText?.let { tertiaryButtonText ->
                 if (tertiaryButtonText.isNotEmpty()) {
                     tertiaryCtaButton.apply {
