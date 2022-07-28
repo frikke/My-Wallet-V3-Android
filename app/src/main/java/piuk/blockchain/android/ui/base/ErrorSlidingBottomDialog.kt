@@ -264,7 +264,6 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
     ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
-
                 nabuApiException = nabuApiException,
                 errorDescription = description,
                 error = error,
