@@ -1,8 +1,11 @@
 package com.blockchain.core.store
 
 import com.blockchain.api.services.InterestBalanceDetails
-import com.blockchain.core.interest.data.InterestBalancesStore
 import com.blockchain.core.interest.data.InterestRepository
+import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
+import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.data.FreshnessStrategy
@@ -16,20 +19,26 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import kotlin.test.assertEquals
 
 class InterestServiceTest {
     private val assetCatalogue = mockk<AssetCatalogue>()
-    private val interestStore = mockk<InterestBalancesStore>()
+    private val interestBalancesStore = mockk<InterestBalancesStore>()
+    private val interestEligibilityTimedCache = mockk<InterestEligibilityTimedCache>()
+    private val interestAvailableAssetsTimedCache = mockk<InterestAvailableAssetsTimedCache>()
+    private val interestLimitsTimedCache = mockk<InterestLimitsTimedCache>()
 
     private val interestService: InterestService = InterestRepository(
         assetCatalogue = assetCatalogue,
-        interestStore = interestStore
+        interestBalancesStore = interestBalancesStore,
+        interestEligibilityTimedCache = interestEligibilityTimedCache,
+        interestAvailableAssetsTimedCache = interestAvailableAssetsTimedCache,
+        interestLimitsTimedCache = interestLimitsTimedCache,
     )
 
     private val cryptoCurrency = object : CryptoCurrency(
@@ -65,8 +74,8 @@ class InterestServiceTest {
 
     @Before
     fun setUp() {
-        every { interestStore.stream(any()) } returns flowOf(StoreResponse.Data(listOf(interestBalanceDetails)))
-        every { interestStore.invalidate() } just Runs
+        every { interestBalancesStore.stream(any()) } returns flowOf(StoreResponse.Data(listOf(interestBalanceDetails)))
+        every { interestBalancesStore.invalidate() } just Runs
 
         every { assetCatalogue.fromNetworkTicker("CRYPTO1") } returns cryptoCurrency
     }
@@ -79,7 +88,7 @@ class InterestServiceTest {
             .assertValue {
                 it == data
             }
-        verify(exactly = 1) { interestStore.stream(FreshnessStrategy.Cached(true)) }
+        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(true)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
@@ -91,7 +100,7 @@ class InterestServiceTest {
             .assertValue {
                 it == interestAccountBalance
             }
-        verify(exactly = 1) { interestStore.stream(FreshnessStrategy.Cached(true)) }
+        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(true)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
@@ -101,7 +110,9 @@ class InterestServiceTest {
 
         assertEquals(setOf(cryptoCurrency), result)
 
-        verify(exactly = 1) { interestStore.stream(FreshnessStrategy.Cached(true)) }
+        verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(true)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
+
+    // todo (othman) more unit tests
 }

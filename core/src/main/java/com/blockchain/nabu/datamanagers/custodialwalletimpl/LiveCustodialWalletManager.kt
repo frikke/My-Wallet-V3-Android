@@ -7,6 +7,7 @@ import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
@@ -44,7 +45,6 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.nabu.models.data.RecurringBuy
@@ -91,10 +91,10 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.flatMapIterable
-import java.math.BigInteger
-import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import java.math.BigInteger
+import java.util.Date
 
 class LiveCustodialWalletManager(
     private val assetCatalogue: AssetCatalogue,
@@ -106,7 +106,7 @@ class LiveCustodialWalletManager(
     private val swapOrdersCache: SwapTransactionsCache,
     private val paymentMethodsEligibilityStore: PaymentMethodsEligibilityStore,
     private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
-    private val interestRepository: InterestRepository,
+    private val interestService: InterestService,
     private val currencyPrefs: CurrencyPrefs,
     private val custodialRepository: CustodialRepository,
     private val transactionErrorMapper: TransactionErrorMapper,
@@ -544,16 +544,16 @@ class LiveCustodialWalletManager(
         }
 
     override fun getInterestLimits(asset: AssetInfo): Single<InterestLimits> =
-        interestRepository.getLimitForAsset(asset)
+        interestService.getLimitsForAsset(asset)
 
     override fun getInterestAvailabilityForAsset(asset: AssetInfo): Single<Boolean> =
-        interestRepository.getAvailabilityForAsset(asset)
+        interestService.isAssetAvailableForInterest(asset)
 
     override fun getInterestEnabledAssets(): Single<List<AssetInfo>> =
-        interestRepository.getAvailableAssets()
+        interestService.getAvailableAssetsForInterest()
 
     override fun getInterestEligibilityForAsset(asset: AssetInfo): Single<InterestEligibility> =
-        interestRepository.getEligibilityForAsset(asset)
+        interestService.getEligibilityForAsset(asset)
 
     override fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String) =
         authenticator.authenticateCompletable {

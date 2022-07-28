@@ -223,9 +223,8 @@ val coreModule = module {
                 assetCatalogue = get(),
                 interestBalancesStore = get(),
                 interestEligibilityTimedCache = get(),
-                nabuService = get(),
-                authenticator = get(),
-                currencyPrefs = get()
+                interestAvailableAssetsTimedCache = get(),
+                interestLimitsTimedCache = get()
             )
         }
 

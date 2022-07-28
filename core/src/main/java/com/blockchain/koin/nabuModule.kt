@@ -1,7 +1,9 @@
 package com.blockchain.koin
 
 import com.blockchain.auth.AuthHeaderProvider
+import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
 import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
+import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.NabuToken
@@ -34,7 +36,6 @@ import com.blockchain.nabu.datamanagers.WalletReporter
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapActivityProvider
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapActivityProviderImpl
@@ -112,7 +113,7 @@ val nabuModule = module {
                     "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd), "ARS" to get(ars)
                 ),
                 transactionsCache = get(),
-                interestRepository = get(),
+                interestService = get(),
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
                 currencyPrefs = get(),
@@ -152,6 +153,23 @@ val nabuModule = module {
                 authenticator = get(),
                 assetCatalogue = get(),
                 service = get()
+            )
+        }
+
+        scoped {
+            InterestAvailableAssetsTimedCache(
+                authenticator = get(),
+                assetCatalogue = get(),
+                nabuService = get()
+            )
+        }
+
+        scoped {
+            InterestLimitsTimedCache(
+                authenticator = get(),
+                assetCatalogue = get(),
+                nabuService = get(),
+                currencyPrefs = get()
             )
         }
 
@@ -234,12 +252,6 @@ val nabuModule = module {
             CustodialRepository(
                 pairsProvider = get(),
                 activityProvider = get()
-            )
-        }
-
-        scoped {
-            InterestRepository(
-                interestService = get()
             )
         }
 
