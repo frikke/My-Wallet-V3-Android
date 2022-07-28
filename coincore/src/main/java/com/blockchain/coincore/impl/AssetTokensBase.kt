@@ -57,7 +57,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     protected val identity: UserIdentity by scopedInject()
 
     private val activeAccounts: ActiveAccountList by unsafeLazy {
-        ActiveAccountList(currency, custodialManager)
+        ActiveAccountList(currency, interestService)
     }
 
     protected val accounts: Single<SingleAccountList>
@@ -131,7 +131,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     abstract fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList>
 
     private fun loadInterestAccounts(): Single<SingleAccountList> =
-        custodialManager.getInterestAvailabilityForAsset(currency)
+        interestService.isAssetAvailableForInterest(currency)
             .map {
                 if (it) {
                     listOf(
@@ -151,7 +151,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             }
 
     final override fun interestRate(): Single<Double> =
-        custodialManager.getInterestAvailabilityForAsset(currency)
+        interestService.isAssetAvailableForInterest(currency)
             .flatMap {
                 if (it) {
                     custodialManager.getInterestAccountRates(currency)
@@ -284,7 +284,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 internal class ActiveAccountList(
     private val asset: AssetInfo,
-    private val custodialManager: CustodialWalletManager,
+    private val interestService: InterestService
 ) {
     private val activeList = mutableSetOf<CryptoAccount>()
 
@@ -309,7 +309,7 @@ internal class ActiveAccountList(
     private fun shouldRefresh() =
         Singles.zip(
             Single.just(interestEnabled),
-            custodialManager.getInterestAvailabilityForAsset(asset),
+            interestService.isAssetAvailableForInterest(asset),
             Single.just(forceRefreshOnNext.getAndSet(false))
         ) { wasEnabled, isEnabled, force ->
             interestEnabled = isEnabled

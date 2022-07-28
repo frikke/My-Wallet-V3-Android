@@ -153,8 +153,6 @@ interface CustodialWalletManager {
 
     fun getInterestActivity(asset: AssetInfo): Single<List<InterestActivityItem>>
 
-    fun getInterestAvailabilityForAsset(asset: AssetInfo): Single<Boolean>
-
     fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
 
     fun getSupportedFundsFiats(

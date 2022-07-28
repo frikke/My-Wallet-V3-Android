@@ -541,9 +541,6 @@ class LiveCustodialWalletManager(
             }
         }
 
-    override fun getInterestAvailabilityForAsset(asset: AssetInfo): Single<Boolean> =
-        interestService.isAssetAvailableForInterest(asset)
-
     override fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String) =
         authenticator.authenticateCompletable {
             nabuService.createInterestWithdrawal(
