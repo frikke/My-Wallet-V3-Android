@@ -9,8 +9,8 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
-import timber.log.Timber
 import java.util.Calendar
+import timber.log.Timber
 
 class InterestLimitsTimedCache(
     private val authenticator: Authenticator,
