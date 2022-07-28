@@ -333,7 +333,7 @@ class SimpleBuyModel(
                     googlePayBeneficiaryId = previousState.googlePayBeneficiaryId,
                     amount = previousState.amount,
                     pair = CurrencyPair(previousState.selectedCryptoAsset, previousState.fiatCurrency).rawValue,
-                    selectedPaymentMethod = null
+                    selectedPaymentMethod = previousState.selectedPaymentMethod
                 )
             }
             is SimpleBuyIntent.FinishedFirstBuy -> null
