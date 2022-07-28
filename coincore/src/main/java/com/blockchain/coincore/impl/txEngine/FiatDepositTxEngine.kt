@@ -27,6 +27,7 @@ import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
+import com.blockchain.domain.paymentmethods.model.SettlementType
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
@@ -200,42 +201,35 @@ class FiatDepositTxEngine(
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
         sourceAccount.receiveAddress.flatMap {
-            isPlaidAccount().zipWith(plaidFeatureFlag.enabled)
-                .flatMap { (isPlaidAccount, isPlaidEnabled) ->
-                    if (isPlaidAccount && isPlaidEnabled) {
-                        checkSettlementBeforeDeposit(it, pendingTx)
-                    } else {
-                        startBankTransfer(it, pendingTx)
-                    }
+            plaidFeatureFlag.enabled.flatMap { isPlaidEnabled ->
+                if (isPlaidEnabled) {
+                    checkSettlementBeforeDeposit(it, pendingTx)
+                } else {
+                    startBankTransfer(it, pendingTx)
                 }
+            }
         }.map {
             TxResult.HashedTxResult(it, pendingTx.amount)
         }
 
-    private fun isPlaidAccount(): Single<Boolean> {
-        val plaidBankAccount = if (sourceAccount is LinkedBankAccount) {
-            bankService.getLinkedBank((sourceAccount as LinkedBankAccount).accountId)
-                .map { it.partner == BankPartner.PLAID }
-        } else {
-            Single.just(false)
-        }
-        return plaidBankAccount
-    }
-
     private fun checkSettlementBeforeDeposit(it: ReceiveAddress, pendingTx: PendingTx) =
         bankService.checkSettlement(it.address, pendingTx.amount).flatMap { settlement ->
-            when (settlement.settlementReason) {
-                SettlementReason.GENERIC,
-                SettlementReason.UNKNOWN ->
-                    Single.error(TransactionError.SettlementGenericError)
-                SettlementReason.INSUFFICIENT_BALANCE ->
-                    Single.error(TransactionError.SettlementInsufficientBalance)
-                SettlementReason.STALE_BALANCE ->
-                    Single.error(TransactionError.SettlementStaleBalance)
-                SettlementReason.REQUIRES_UPDATE ->
-                    Single.error(TransactionError.SettlementRefreshRequired(it.address))
-                SettlementReason.NONE ->
-                    startBankTransfer(it, pendingTx)
+            if (settlement.settlementType == SettlementType.UNAVAILABLE) {
+                when (settlement.settlementReason) {
+                    SettlementReason.GENERIC,
+                    SettlementReason.UNKNOWN ->
+                        Single.error(TransactionError.SettlementGenericError)
+                    SettlementReason.INSUFFICIENT_BALANCE ->
+                        Single.error(TransactionError.SettlementInsufficientBalance)
+                    SettlementReason.STALE_BALANCE ->
+                        Single.error(TransactionError.SettlementStaleBalance)
+                    SettlementReason.REQUIRES_UPDATE ->
+                        Single.error(TransactionError.SettlementRefreshRequired(it.address))
+                    SettlementReason.NONE ->
+                        startBankTransfer(it, pendingTx)
+                }
+            } else {
+                startBankTransfer(it, pendingTx)
             }
         }
 
@@ -252,16 +246,15 @@ class FiatDepositTxEngine(
         )
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable {
-        return isPlaidAccount().zipWith(plaidFeatureFlag.enabled)
-            .flatMapCompletable { (isPlaidAccount, isPlaidEnabled) ->
-                if (isOpenBankingCurrency()) {
-                    pollForOpenBanking(txResult)
-                } else if (isPlaidAccount && isPlaidEnabled) {
-                    pollForPlaid(txResult)
-                } else {
-                    Completable.complete()
-                }
+        return plaidFeatureFlag.enabled.flatMapCompletable { isPlaidEnabled ->
+            if (isOpenBankingCurrency()) {
+                pollForOpenBanking(txResult)
+            } else if (isPlaidEnabled) {
+                pollForPlaid(txResult)
+            } else {
+                Completable.complete()
             }
+        }
     }
 
     private fun pollForOpenBanking(txResult: TxResult): Completable {
