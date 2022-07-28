@@ -7,6 +7,7 @@ import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.eligibility.mapper.toDomain
 import com.blockchain.core.eligibility.mapper.toNetwork
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
@@ -16,7 +17,6 @@ import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
-import com.blockchain.store.StoreRequest
 import com.blockchain.store.firstOutcome
 
 class EligibilityRepository(
@@ -39,7 +39,7 @@ class EligibilityRepository(
 
     override suspend fun getProductEligibility(product: EligibleProduct):
         Outcome<Exception, ProductEligibility> =
-        productsEligibilityStore.stream(StoreRequest.Cached(false))
+        productsEligibilityStore.stream(FreshnessStrategy.Cached(false))
             .firstOutcome()
             .map { data ->
                 data.products[product] ?: ProductEligibility.asEligible(product)
@@ -47,7 +47,7 @@ class EligibilityRepository(
 
     override suspend fun getMajorProductsNotEligibleReasons():
         Outcome<Exception, List<ProductNotEligibleReason>> =
-        productsEligibilityStore.stream(StoreRequest.Cached(false))
+        productsEligibilityStore.stream(FreshnessStrategy.Cached(false))
             .firstOutcome()
             .map { data -> data.majorProductsNotEligibleReasons }
 }

@@ -42,6 +42,7 @@ import com.blockchain.api.services.PaymentsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
 import com.blockchain.domain.paymentmethods.model.AliasInfo
@@ -82,7 +83,6 @@ import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.testutils.GBP
@@ -799,7 +799,7 @@ class PaymentsRepositoryTest {
     @Test
     fun `getLinkedCards() should return cached data from LinkedCardsStore`() = runTest {
         // ARRANGE
-        val storeRequest: StoreRequest = mockk()
+        val freshness: FreshnessStrategy = mockk()
         val linkedCardsStoreFlow = MutableSharedFlow<StoreResponse<List<CardResponse>>>(replay = 1)
         val cardResponse = CardResponse(
             id = "id",
@@ -809,11 +809,11 @@ class PaymentsRepositoryTest {
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
-        every { linkedCardsStore.stream(storeRequest) } returns linkedCardsStoreFlow
+        every { linkedCardsStore.stream(freshness) } returns linkedCardsStoreFlow
         linkedCardsStoreFlow.emit(StoreResponse.Data(listOf(cardResponse)))
 
         // ACT
-        val result = subject.getLinkedCards(storeRequest, CardStatus.ACTIVE)
+        val result = subject.getLinkedCards(freshness, CardStatus.ACTIVE)
 
         // ASSERT
         result.test {
@@ -829,7 +829,7 @@ class PaymentsRepositoryTest {
     @Test
     fun `getLinkedCards() with invalid state should return empty list`() = runTest {
         // ARRANGE
-        val storeRequest: StoreRequest = mockk()
+        val freshness: FreshnessStrategy = mockk()
         val linkedCardsStoreFlow = MutableSharedFlow<StoreResponse<List<CardResponse>>>(replay = 1)
         val cardResponse = CardResponse(
             id = "id",
@@ -839,11 +839,11 @@ class PaymentsRepositoryTest {
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
-        every { linkedCardsStore.stream(storeRequest) } returns linkedCardsStoreFlow
+        every { linkedCardsStore.stream(freshness) } returns linkedCardsStoreFlow
         linkedCardsStoreFlow.emit(StoreResponse.Data(listOf(cardResponse)))
 
         // ACT
-        val result = subject.getLinkedCards(storeRequest, CardStatus.ACTIVE)
+        val result = subject.getLinkedCards(freshness, CardStatus.ACTIVE)
 
         // ASSERT
         result.test {

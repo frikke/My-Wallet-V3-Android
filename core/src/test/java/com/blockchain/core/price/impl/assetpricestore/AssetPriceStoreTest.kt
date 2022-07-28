@@ -4,8 +4,8 @@ import app.cash.turbine.test
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
+import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.outcome.Outcome
-import com.blockchain.store.KeyedStoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.testutils.USD
 import info.blockchain.balance.CryptoCurrency
@@ -47,7 +47,7 @@ class AssetPriceStoreTest {
         subject.getCurrentPriceForAsset(BTC, USD).test {
             verify {
                 cache.stream(
-                    KeyedStoreRequest.Cached(
+                    KeyedFreshnessStrategy.Cached(
                         AssetPriceStoreCache.Key.GetAllCurrent(USD.networkTicker), forceRefresh = false
                     )
                 )
@@ -101,7 +101,7 @@ class AssetPriceStoreTest {
             subject.getYesterdayPriceForAsset(BTC, USD).test {
                 verify {
                     cache.stream(
-                        KeyedStoreRequest.Cached(
+                        KeyedFreshnessStrategy.Cached(
                             AssetPriceStoreCache.Key.GetAllYesterday(USD.networkTicker), forceRefresh = false
                         )
                     )

@@ -3,6 +3,7 @@ apply from: rootProject.file('gradle/local/common-feature-android.gradle')
 
 dependencies {
     implementation project(':store:core')
+    implementation project(':common:interface')
     implementation Libraries.kotlinCoroutines
     implementation Libraries.sqlDelight
     implementation Libraries.coroutinesSqlDelight

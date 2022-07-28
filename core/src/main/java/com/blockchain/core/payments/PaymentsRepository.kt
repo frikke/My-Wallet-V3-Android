@@ -38,6 +38,7 @@ import com.blockchain.api.services.toMobilePaymentType
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
@@ -97,7 +98,6 @@ import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
 import com.blockchain.payments.googlepay.manager.request.allowedCardNetworks
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.store.firstOutcome
 import com.blockchain.store.mapData
@@ -279,7 +279,7 @@ class PaymentsRepository(
         }
 
     override fun getLinkedCards(
-        request: StoreRequest,
+        request: FreshnessStrategy,
         vararg states: CardStatus,
     ): Flow<StoreResponse<List<LinkedPaymentMethod.Card>>> =
         linkedCardsStore.stream(request)
@@ -292,7 +292,7 @@ class PaymentsRepository(
         vararg states: CardStatus,
     ): Single<List<LinkedPaymentMethod.Card>> =
         rxSingleOutcome {
-            getLinkedCards(StoreRequest.Fresh, *states).firstOutcome()
+            getLinkedCards(FreshnessStrategy.Fresh, *states).firstOutcome()
         }
 
     override fun getLinkedBank(id: String): Single<LinkedBank> =

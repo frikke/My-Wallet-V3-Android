@@ -2,10 +2,10 @@ package com.blockchain.core.custodial.data.store
 
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.TradingBalance
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.Authenticator
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
-import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
@@ -34,7 +34,7 @@ internal class TradingStore(
     ),
     TradingDataSource {
 
-    override fun streamData(request: StoreRequest): Flow<StoreResponse<List<TradingBalance>>> =
+    override fun streamData(request: FreshnessStrategy): Flow<StoreResponse<List<TradingBalance>>> =
         stream(request).mapListData { it.toDomain() }
 
     override fun invalidate() {
