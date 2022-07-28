@@ -2,6 +2,7 @@ package com.blockchain.core.interest.domain
 
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.domain.model.InterestEligibility
+import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.data.FreshnessStrategy
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Observable
@@ -45,4 +46,9 @@ interface InterestService {
      * returns a map composed of each [AssetInfo] with its [InterestEligibility]
      */
     fun getEligibilityForAssets(): Single<Map<AssetInfo, InterestEligibility>>
+
+    /**
+     * returns a map composed of each [AssetInfo] with its [InterestLimitsList]
+     */
+    fun getLimitsForAssets(): Single<Map<AssetInfo, InterestLimits>>
 }

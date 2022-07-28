@@ -6,9 +6,11 @@ import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCac
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.domain.model.InterestEligibility
+import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.service.NabuService
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
@@ -21,6 +23,8 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asObservable
+import timber.log.Timber
+import java.util.Calendar
 
 internal class InterestRepository(
     private val assetCatalogue: AssetCatalogue,
@@ -28,6 +32,7 @@ internal class InterestRepository(
     private val interestEligibilityTimedCache: InterestEligibilityTimedCache,
     private val nabuService: NabuService,
     private val authenticator: Authenticator,
+    private val currencyPrefs: CurrencyPrefs
 ) : InterestService {
 
     private fun getBalancesFlow(refreshStrategy: FreshnessStrategy): Flow<Map<AssetInfo, InterestAccountBalance>> {
@@ -74,6 +79,41 @@ internal class InterestRepository(
 
     override fun getEligibilityForAssets(): Single<Map<AssetInfo, InterestEligibility>> {
         return interestEligibilityTimedCache.cached()
+    }
+
+    override fun getLimitsForAssets(): Single<Map<AssetInfo, InterestLimits>> {
+        return authenticator.authenticate { token ->
+            nabuService.getInterestLimits(token, currencyPrefs.selectedFiatCurrency.networkTicker)
+                .map { interestLimits ->
+                    interestLimits.limits.entries.mapNotNull { entry ->
+                        assetCatalogue.assetInfoFromNetworkTicker(entry.key)?.let { asset ->
+
+                            val calendar = Calendar.getInstance().apply {
+                                set(Calendar.DAY_OF_MONTH, 1)
+                                add(Calendar.MONTH, 1)
+                            }
+
+                            val minDepositFiatValue = Money.fromMinor(
+                                currencyPrefs.selectedFiatCurrency,
+                                entry.value.minDepositAmount.toBigInteger()
+                            )
+                            val maxWithdrawalFiatValue = Money.fromMinor(
+                                currencyPrefs.selectedFiatCurrency,
+                                entry.value.maxWithdrawalAmount.toBigInteger()
+                            )
+
+                            val interestLimit = InterestLimits(
+                                interestLockUpDuration = entry.value.lockUpDuration,
+                                nextInterestPayment = calendar.time,
+                                minDepositFiatValue = minDepositFiatValue,
+                                maxWithdrawalFiatValue = maxWithdrawalFiatValue
+                            )
+
+                            Pair(asset, interestLimit)
+                        }
+                    }.toMap()
+                }
+        }.doOnError { Timber.e("Limits call failed $it") }
     }
 }
 

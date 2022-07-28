@@ -8,6 +8,7 @@ import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.interest.domain.model.InterestEligibility
+import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -43,7 +44,6 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem

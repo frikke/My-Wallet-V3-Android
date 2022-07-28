@@ -34,8 +34,6 @@ import com.blockchain.nabu.datamanagers.WalletReporter
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimitsProvider
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimitsProviderImpl
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapActivityProvider
@@ -149,15 +147,6 @@ val nabuModule = module {
             )
         }.bind(SimpleBuyEligibilityProvider::class)
 
-        factory {
-            InterestLimitsProviderImpl(
-                assetCatalogue = get(),
-                nabuService = get(),
-                authenticator = get(),
-                currencyPrefs = get()
-            )
-        }.bind(InterestLimitsProvider::class)
-
         scoped {
             InterestEligibilityTimedCache(
                 authenticator = get(),
@@ -250,7 +239,6 @@ val nabuModule = module {
 
         scoped {
             InterestRepository(
-                interestLimitsProvider = get(),
                 interestService = get()
             )
         }

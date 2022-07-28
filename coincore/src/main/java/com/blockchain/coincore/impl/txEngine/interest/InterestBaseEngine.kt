@@ -4,8 +4,8 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
+import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
@@ -38,8 +38,10 @@ abstract class InterestBaseEngine(
                 )
             )
 
-    protected fun getLimits(): Single<InterestLimits> =
-        walletManager.getInterestLimits(sourceAssetInfo)
+    protected fun getLimits(): Single<Pair<AssetInfo, InterestLimits>> =
+        walletManager.getInterestLimits(sourceAssetInfo).map { interestLimits ->
+            Pair(sourceAssetInfo, interestLimits)
+        }
 
     protected fun areOptionsValid(pendingTx: PendingTx): Boolean {
         val terms = getTermsOptionValue(pendingTx)

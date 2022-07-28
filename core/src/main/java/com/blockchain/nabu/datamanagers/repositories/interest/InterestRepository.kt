@@ -3,16 +3,16 @@ package com.blockchain.nabu.datamanagers.repositories.interest
 import com.blockchain.core.common.caching.TimedCacheRequest
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestEligibility
+import com.blockchain.core.interest.domain.model.InterestLimits
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 
 class InterestRepository(
-    private val interestLimitsProvider: InterestLimitsProvider,
-    private val interestService: InterestService,
+    private val interestService: InterestService
 ) {
     private val limitsCache = TimedCacheRequest(
         cacheLifetimeSeconds = SHORT_LIFETIME,
-        refreshFn = { interestLimitsProvider.getLimitsForAllAssets() }
+        refreshFn = { interestService.getLimitsForAssets() }
     )
 
     private val availabilityCache = TimedCacheRequest(
@@ -26,8 +26,8 @@ class InterestRepository(
     )
 
     fun getLimitForAsset(asset: AssetInfo): Single<InterestLimits> =
-        limitsCache.getCachedSingle().map { limitsList ->
-            limitsList.list.find { it.cryptoCurrency == asset }
+        limitsCache.getCachedSingle().map { mapAssettWithLimits ->
+            mapAssettWithLimits[asset]
                 ?: throw NoSuchElementException("Unable to get limits for ${asset.networkTicker}")
         }
 
