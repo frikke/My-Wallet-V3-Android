@@ -123,7 +123,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
 
         disposables += Singles.zip(
             interestService.getBalanceFor(asset).firstOrError(),
-            custodialWalletManager.getInterestLimits(asset),
+            interestService.getLimitsForAsset(asset),
             custodialWalletManager.getInterestAccountRates(asset)
         ).observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(

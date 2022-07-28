@@ -543,9 +543,6 @@ class LiveCustodialWalletManager(
             }
         }
 
-    override fun getInterestLimits(asset: AssetInfo): Single<InterestLimits> =
-        interestService.getLimitsForAsset(asset)
-
     override fun getInterestAvailabilityForAsset(asset: AssetInfo): Single<Boolean> =
         interestService.isAssetAvailableForInterest(asset)
 

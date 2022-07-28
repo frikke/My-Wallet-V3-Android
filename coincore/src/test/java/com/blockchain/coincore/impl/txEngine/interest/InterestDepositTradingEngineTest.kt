@@ -9,6 +9,7 @@ import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
@@ -36,6 +37,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val interestBalanceStore: InterestBalancesStore = mock()
+    private val interestService: InterestService = mock()
     private val tradingDataSource: TradingDataSource = mock()
 
     private lateinit var subject: InterestDepositTradingEngine
@@ -64,6 +66,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
         subject = InterestDepositTradingEngine(
             interestBalanceStore = interestBalanceStore,
+            interestService = interestService,
             tradingDataSource = tradingDataSource,
             walletManager = custodialWalletManager
         )
@@ -126,7 +129,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
 //            on { cryptoCurrency }.thenReturn(ASSET)
         }
 
-        whenever(custodialWalletManager.getInterestLimits(ASSET)).thenReturn(Single.just(limits))
+        whenever(interestService.getLimitsForAsset(ASSET)).thenReturn(Single.just(limits))
 
         // Act
         subject.doInitialiseTx()
@@ -147,7 +150,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
 
-        verify(custodialWalletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
         verify(currencyPrefs).selectedFiatCurrency
         verify(sourceAccount).balance
         verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
@@ -167,7 +170,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        whenever(custodialWalletManager.getInterestLimits(ASSET))
+        whenever(interestService.getLimitsForAsset(ASSET))
             .thenReturn(Single.error(NoSuchElementException()))
 
         // Act
@@ -177,7 +180,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
 
-        verify(custodialWalletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
         verify(sourceAccount).balance
 
         noMoreInteractions(sourceAccount, txTarget)

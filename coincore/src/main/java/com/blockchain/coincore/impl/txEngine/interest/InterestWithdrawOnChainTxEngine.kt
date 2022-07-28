@@ -17,6 +17,7 @@ import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -30,9 +31,10 @@ import io.reactivex.rxjava3.core.Single
 
 class InterestWithdrawOnChainTxEngine(
     private val interestBalanceStore: InterestBalancesStore,
+    private val interestService: InterestService,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
-) : InterestBaseEngine(walletManager) {
+) : InterestBaseEngine(interestService) {
 
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf(interestBalanceStore)
@@ -50,26 +52,25 @@ class InterestWithdrawOnChainTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> =
         Single.zip(
             walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.SAVINGS),
-            walletManager.getInterestLimits(sourceAssetInfo),
-            availableBalance,
-            { minLimits, maxLimits, balance ->
-                PendingTx(
-                    amount = Money.zero(sourceAsset),
-                    limits = TxLimits.fromAmounts(
-                        min = Money.fromMinor(sourceAsset, minLimits.minLimit),
-                        max = (maxLimits.maxWithdrawalFiatValue as FiatValue).toCrypto(
-                            exchangeRates, sourceAsset as AssetInfo
-                        )
-                    ),
-                    feeSelection = FeeSelection(),
-                    selectedFiat = userFiat,
-                    availableBalance = balance,
-                    totalBalance = balance,
-                    feeAmount = Money.fromMinor(sourceAsset, minLimits.fee),
-                    feeForFullAvailable = Money.zero(sourceAsset)
-                )
-            }
-        )
+            interestService.getLimitsForAsset(sourceAssetInfo),
+            availableBalance
+        ) { minLimits, maxLimits, balance ->
+            PendingTx(
+                amount = Money.zero(sourceAsset),
+                limits = TxLimits.fromAmounts(
+                    min = Money.fromMinor(sourceAsset, minLimits.minLimit),
+                    max = (maxLimits.maxWithdrawalFiatValue as FiatValue).toCrypto(
+                        exchangeRates, sourceAsset as AssetInfo
+                    )
+                ),
+                feeSelection = FeeSelection(),
+                selectedFiat = userFiat,
+                availableBalance = balance,
+                totalBalance = balance,
+                feeAmount = Money.fromMinor(sourceAsset, minLimits.fee),
+                feeForFullAvailable = Money.zero(sourceAsset)
+            )
+        }
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> =
         availableBalance.map { balance ->

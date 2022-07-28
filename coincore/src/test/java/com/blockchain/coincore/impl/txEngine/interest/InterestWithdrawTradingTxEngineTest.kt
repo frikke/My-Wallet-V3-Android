@@ -12,6 +12,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
@@ -29,10 +30,10 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.math.BigInteger
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
+import java.math.BigInteger
 
 class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
@@ -42,6 +43,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val interestBalanceStore: InterestBalancesStore = mock()
+    private val interestService: InterestService = mock()
     private val tradingDataSource: TradingDataSource = mock()
 
     private lateinit var subject: InterestWithdrawTradingTxEngine
@@ -69,6 +71,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
             )
         subject = InterestWithdrawTradingTxEngine(
             interestBalanceStore = interestBalanceStore,
+            interestService = interestService,
             tradingDataSource = tradingDataSource,
             walletManager = custodialWalletManager
         )
@@ -135,7 +138,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
             on { fee }.thenReturn(BigInteger.ZERO)
         }
 
-        whenever(custodialWalletManager.getInterestLimits(ASSET)).thenReturn(Single.just(limits))
+        whenever(interestService.getLimitsForAsset(ASSET)).thenReturn(Single.just(limits))
         whenever(custodialWalletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)).thenReturn(
             Single.just(fees)
         )
@@ -161,7 +164,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
 
-        verify(custodialWalletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
         verify(currencyPrefs).selectedFiatCurrency
         verify(sourceAccount).balance
@@ -182,7 +185,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        whenever(custodialWalletManager.getInterestLimits(ASSET))
+        whenever(interestService.getLimitsForAsset(ASSET))
             .thenReturn(Single.error(NoSuchElementException()))
 
         whenever(custodialWalletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)).thenReturn(
@@ -196,7 +199,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
 
-        verify(custodialWalletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
         verify(sourceAccount).balance
 
@@ -215,7 +218,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        whenever(custodialWalletManager.getInterestLimits(ASSET)).thenReturn(
+        whenever(interestService.getLimitsForAsset(ASSET)).thenReturn(
             Single.just(mock())
         )
         whenever(
@@ -233,7 +236,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
 
-        verify(custodialWalletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(
             ASSET, Product.SAVINGS
         )
