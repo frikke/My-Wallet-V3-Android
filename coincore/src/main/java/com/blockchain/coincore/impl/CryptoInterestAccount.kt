@@ -26,8 +26,6 @@ import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
@@ -140,13 +138,6 @@ class CryptoInterestAccount(
 
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.CAN_TRANSACT)
-
-    override val disabledReason: Single<IneligibilityReason>
-        get() = custodialWalletManager.getInterestEligibilityForAsset(currency)
-            .onErrorReturn { Eligibility.notEligible() }
-            .map { (_, reason) ->
-                reason
-            }
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.zip(

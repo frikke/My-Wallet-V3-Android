@@ -1,8 +1,8 @@
 package com.blockchain.core.store
 
 import com.blockchain.api.services.InterestBalanceDetails
+import com.blockchain.core.interest.data.InterestBalancesStore
 import com.blockchain.core.interest.data.InterestRepository
-import com.blockchain.core.interest.data.InterestStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.store.StoreRequest
@@ -25,7 +25,7 @@ import org.junit.Test
 
 class InterestServiceTest {
     private val assetCatalogue = mockk<AssetCatalogue>()
-    private val interestStore = mockk<InterestStore>()
+    private val interestStore = mockk<InterestBalancesStore>()
 
     private val interestService: InterestService = InterestRepository(
         assetCatalogue = assetCatalogue,

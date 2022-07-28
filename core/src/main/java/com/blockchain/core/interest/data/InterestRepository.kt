@@ -1,8 +1,11 @@
 package com.blockchain.core.interest.data
 
 import com.blockchain.api.services.InterestBalanceDetails
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.refreshstrategy.RefreshStrategy
@@ -22,13 +25,14 @@ import kotlinx.coroutines.rx3.asObservable
 
 internal class InterestRepository(
     private val assetCatalogue: AssetCatalogue,
-    private val interestStore: InterestStore,
+    private val interestBalancesStore: InterestBalancesStore,
+    private val interestEligibilityTimedCache: InterestEligibilityTimedCache,
     private val nabuService: NabuService,
-    private val authenticator: Authenticator
+    private val authenticator: Authenticator,
 ) : InterestService {
 
     private fun getBalancesFlow(refreshStrategy: RefreshStrategy): Flow<Map<AssetInfo, InterestAccountBalance>> {
-        return interestStore.stream(refreshStrategy.toStoreRequest())
+        return interestBalancesStore.stream(refreshStrategy.toStoreRequest())
             .mapData { interestBalanceDetailList ->
                 interestBalanceDetailList.mapNotNull { interestBalanceDetails ->
                     (assetCatalogue.fromNetworkTicker(interestBalanceDetails.assetTicker) as? AssetInfo)
@@ -56,14 +60,18 @@ internal class InterestRepository(
             .map { it.keys }
     }
 
-    override fun getEnabledStatusForAllAssets(): Single<List<AssetInfo>> {
+    override fun getAllAvailableAssets(): Single<List<AssetInfo>> {
         return authenticator.authenticate { token ->
-            nabuService.getInterestEnabled(token).map { instrumentsResponse ->
+            nabuService.getAvailableTickersForInterest(token).map { instrumentsResponse ->
                 instrumentsResponse.networkTickers.mapNotNull { networkTicker ->
                     assetCatalogue.assetInfoFromNetworkTicker(networkTicker)
                 }
             }
         }
+    }
+
+    override fun getEligibilityForAssets(): Single<Map<AssetInfo, InterestEligibility>> {
+        return interestEligibilityTimedCache.cached()
     }
 }
 

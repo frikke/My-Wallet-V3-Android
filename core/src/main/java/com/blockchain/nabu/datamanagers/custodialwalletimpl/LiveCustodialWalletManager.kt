@@ -1,6 +1,5 @@
 package com.blockchain.nabu.datamanagers.custodialwalletimpl
 
-import android.icu.number.Precision.currency
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.core.SwapTransactionsCache
@@ -8,6 +7,7 @@ import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
+import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
@@ -42,7 +42,6 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
@@ -553,7 +552,7 @@ class LiveCustodialWalletManager(
     override fun getInterestEnabledAssets(): Single<List<AssetInfo>> =
         interestRepository.getAvailableAssets()
 
-    override fun getInterestEligibilityForAsset(asset: AssetInfo): Single<Eligibility> =
+    override fun getInterestEligibilityForAsset(asset: AssetInfo): Single<InterestEligibility> =
         interestRepository.getEligibilityForAsset(asset)
 
     override fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String) =

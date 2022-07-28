@@ -83,7 +83,7 @@ class AssetInterestRepositoryTest {
             totalInterest = interestAccountBalanceBtc.totalInterest,
             totalBalance = interestAccountBalanceBtc.totalBalance,
             rate = interestRateBtc,
-            eligible = eligibilityBtc.eligible,
+            eligibility = eligibilityBtc.eligible,
             ineligibilityReason = eligibilityBtc.ineligibilityReason,
             totalBalanceFiat = exchangeRateBtc.convert(interestAccountBalanceBtc.totalBalance)
         )
@@ -97,7 +97,7 @@ class AssetInterestRepositoryTest {
             totalInterest = interestAccountBalanceEth.totalInterest,
             totalBalance = interestAccountBalanceEth.totalBalance,
             rate = interestRateEth,
-            eligible = eligibilityEth.eligible,
+            eligibility = eligibilityEth.eligible,
             ineligibilityReason = eligibilityEth.ineligibilityReason,
             totalBalanceFiat = exchangeRateEth.convert(interestAccountBalanceEth.totalBalance)
         )
