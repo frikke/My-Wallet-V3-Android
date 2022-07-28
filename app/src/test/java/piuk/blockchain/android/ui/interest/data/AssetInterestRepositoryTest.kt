@@ -5,11 +5,10 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import com.blockchain.outcome.Outcome
@@ -74,8 +73,8 @@ class AssetInterestRepositoryTest {
     private val interestRateBtc: Double = 1.0
     private val interestRateEth: Double = 1.0
 
-    private val eligibilityBtc = Eligibility(true, IneligibilityReason.KYC_TIER)
-    private val eligibilityEth = Eligibility(false, IneligibilityReason.REGION)
+    private val eligibilityBtc = InterestEligibility.Eligible
+    private val eligibilityEth = InterestEligibility.Ineligible.REGION
 
     private val assetInterestInfoBtc = InterestAsset(
         CryptoCurrency.BTC,
@@ -83,8 +82,7 @@ class AssetInterestRepositoryTest {
             totalInterest = interestAccountBalanceBtc.totalInterest,
             totalBalance = interestAccountBalanceBtc.totalBalance,
             rate = interestRateBtc,
-            eligibility = eligibilityBtc.eligible,
-            ineligibilityReason = eligibilityBtc.ineligibilityReason,
+            eligibility = eligibilityBtc,
             totalBalanceFiat = exchangeRateBtc.convert(interestAccountBalanceBtc.totalBalance)
         )
     )
@@ -97,8 +95,7 @@ class AssetInterestRepositoryTest {
             totalInterest = interestAccountBalanceEth.totalInterest,
             totalBalance = interestAccountBalanceEth.totalBalance,
             rate = interestRateEth,
-            eligibility = eligibilityEth.eligible,
-            ineligibilityReason = eligibilityEth.ineligibilityReason,
+            eligibility = eligibilityEth,
             totalBalanceFiat = exchangeRateEth.convert(interestAccountBalanceEth.totalBalance)
         )
     )
