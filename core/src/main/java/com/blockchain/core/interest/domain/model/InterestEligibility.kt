@@ -1,10 +1,5 @@
 package com.blockchain.core.interest.domain.model
 
-// data class AssetInterestEligibility(
-//    val cryptoCurrency: AssetInfo,
-//    val eligibility: Eligibility
-// )
-
 sealed interface InterestEligibility {
     object Eligible : InterestEligibility
 
@@ -19,19 +14,3 @@ sealed interface InterestEligibility {
         }
     }
 }
-
-// data class Eligibility(
-//    val eligible: Boolean,
-//    val ineligibilityReason: IneligibilityReason
-// ) {
-//    companion object {
-//        fun notEligibleInstance() = Eligibility(false, IneligibilityReason.OTHER)
-//    }
-// }
-//
-// enum class IneligibilityReason {
-//    REGION,
-//    KYC_TIER,
-//    OTHER,
-//    NONE
-// }
