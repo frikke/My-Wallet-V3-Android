@@ -2,6 +2,7 @@ package com.blockchain.core.fiatcurrencies
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.services.FiatCurrenciesApiService
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
 import com.blockchain.nabu.Authenticator
@@ -13,7 +14,6 @@ import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.StoreRequest
 import com.blockchain.store.firstOutcome
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
@@ -37,7 +37,7 @@ internal class FiatCurrenciesRepository(
             ?: throw UninitializedPropertyAccessException("Should have been initialized at app startup")
 
     override suspend fun getTradingCurrencies(fresh: Boolean): Outcome<Exception, TradingCurrencies> =
-        getUserStore.stream(StoreRequest.Cached(forceRefresh = fresh)).firstOutcome()
+        getUserStore.stream(FreshnessStrategy.Cached(forceRefresh = fresh)).firstOutcome()
             .map { user ->
                 TradingCurrencies(
                     selected = assetCatalogue.fiatFromNetworkTicker(user.currencies.preferredFiatTradingCurrency)

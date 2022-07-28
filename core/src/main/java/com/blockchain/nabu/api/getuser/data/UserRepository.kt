@@ -1,12 +1,10 @@
 package com.blockchain.nabu.api.getuser.data
 
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.refreshstrategy.RefreshStrategy
-import com.blockchain.store.StoreRequest
 import com.blockchain.store.asObservable
 import com.blockchain.store.getDataOrThrow
-import com.blockchain.store.toStoreRequest
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +14,7 @@ internal class UserRepository(
 ) : UserService {
 
     private fun getUser(refresh: Boolean): Observable<NabuUser> {
-        return getUserStore.stream(StoreRequest.Cached(forceRefresh = refresh))
+        return getUserStore.stream(FreshnessStrategy.Cached(forceRefresh = refresh))
             .asObservable()
     }
 
@@ -24,11 +22,11 @@ internal class UserRepository(
         getUser(refresh = false).firstElement().toSingle()
 
     // flow
-    private fun getUser(refreshStrategy: RefreshStrategy): Flow<NabuUser> {
-        return getUserStore.stream(refreshStrategy.toStoreRequest())
+    private fun getUser(refreshStrategy: FreshnessStrategy): Flow<NabuUser> {
+        return getUserStore.stream(refreshStrategy)
             .getDataOrThrow()
     }
 
-    override fun getUserFlow(refreshStrategy: RefreshStrategy): Flow<NabuUser> =
+    override fun getUserFlow(refreshStrategy: FreshnessStrategy): Flow<NabuUser> =
         getUser(refreshStrategy)
 }

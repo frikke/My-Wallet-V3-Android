@@ -17,6 +17,7 @@ import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.extensions.exhaustive
@@ -401,35 +402,34 @@ class SimpleBuyActivity :
     override fun showErrorInBottomSheet(
         title: String,
         description: String,
-        serverErrorHandling: List<ServerErrorAction>,
         error: String,
         errorDescription: String?,
         nabuApiException: NabuApiException?,
-        analyticsCategories: List<String>,
-        errorId: String?
+        serverSideUxErrorInfo: ServerSideUxErrorInfo?
     ) {
-        serverErrorHandling.assignErrorActions()
+        serverSideUxErrorInfo?.actions?.assignErrorActions()
 
         showBottomSheet(
             ErrorSlidingBottomDialog.newInstance(
                 ErrorDialogData(
                     title = title,
                     description = description,
-                    errorButtonCopies = if (serverErrorHandling.isEmpty()) {
+                    errorButtonCopies = if (serverSideUxErrorInfo?.actions?.isEmpty() == true) {
                         ErrorButtonCopies(
                             primaryButtonText = getString(R.string.common_ok)
                         )
                     } else {
-                        serverErrorHandling.mapToErrorCopies()
+                        serverSideUxErrorInfo?.actions?.mapToErrorCopies()
                     },
                     error = error,
                     nabuApiException = nabuApiException,
                     errorDescription = description,
                     action = ACTION_BUY,
-                    analyticsCategories = nabuApiException?.getServerSideErrorInfo()?.categories ?: analyticsCategories,
+                    analyticsCategories = nabuApiException?.getServerSideErrorInfo()?.categories
+                        ?: serverSideUxErrorInfo?.categories.orEmpty(),
                     iconUrl = nabuApiException?.getServerSideErrorInfo()?.iconUrl,
                     statusIconUrl = nabuApiException?.getServerSideErrorInfo()?.statusUrl,
-                    errorId = errorId
+                    errorId = nabuApiException?.getServerSideErrorInfo()?.id
                 )
             )
         )
@@ -475,16 +475,22 @@ class SimpleBuyActivity :
                 0 -> primaryErrorCtaAction = {
                     if (info.deeplinkPath.isNotEmpty()) {
                         redirectToDeeplinkProcessor(info.deeplinkPath)
+                    } else {
+                        finish()
                     }
                 }
                 1 -> secondaryErrorCtaAction = {
                     if (info.deeplinkPath.isNotEmpty()) {
                         redirectToDeeplinkProcessor(info.deeplinkPath)
+                    } else {
+                        finish()
                     }
                 }
                 2 -> tertiaryErrorCtaAction = {
                     if (info.deeplinkPath.isNotEmpty()) {
                         redirectToDeeplinkProcessor(info.deeplinkPath)
+                    } else {
+                        finish()
                     }
                 }
                 else -> {

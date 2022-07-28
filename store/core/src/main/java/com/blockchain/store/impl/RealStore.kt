@@ -1,5 +1,6 @@
 package com.blockchain.store.impl
 
+import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.store.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -11,15 +12,15 @@ class RealStore<K : Any,  T : Any>(
     private val cache: Cache<K, T>,
     private val mediator: Mediator<K, T>
 ) : KeyedStore<K, T> {
-    override fun stream(request: KeyedStoreRequest<K>): Flow<StoreResponse< T>> =
+    override fun stream(request: KeyedFreshnessStrategy<K>): Flow<StoreResponse< T>> =
         when (request) {
-            is KeyedStoreRequest.Cached -> buildCachedFlow(request)
-            is KeyedStoreRequest.Fresh -> buildFreshFlow(request)
+            is KeyedFreshnessStrategy.Cached -> buildCachedFlow(request)
+            is KeyedFreshnessStrategy.Fresh -> buildFreshFlow(request)
         }.distinctUntilChanged()
 
     private var previousEmissions: MutableList<Pair<Long, CachedData<K, T>?>> = mutableListOf()
 
-    private fun buildCachedFlow(request: KeyedStoreRequest.Cached<K>) = channelFlow {
+    private fun buildCachedFlow(request: KeyedFreshnessStrategy.Cached<K>) = channelFlow {
 
         val networkLock = CompletableDeferred<Unit>()
         scope.launch {
@@ -72,7 +73,7 @@ class RealStore<K : Any,  T : Any>(
         }
     }
 
-    private fun buildFreshFlow(request: KeyedStoreRequest.Fresh<K>) = channelFlow {
+    private fun buildFreshFlow(request: KeyedFreshnessStrategy.Fresh<K>) = channelFlow {
         send(StoreResponse.Loading)
         val result = fetcher.fetch(request.key)
         when (result) {

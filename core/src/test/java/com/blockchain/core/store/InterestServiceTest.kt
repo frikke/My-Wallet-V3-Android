@@ -5,7 +5,7 @@ import com.blockchain.core.interest.data.InterestBalancesStore
 import com.blockchain.core.interest.data.InterestRepository
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
-import com.blockchain.store.StoreRequest
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.store.StoreResponse
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
@@ -79,7 +79,7 @@ class InterestServiceTest {
             .assertValue {
                 it == data
             }
-        verify(exactly = 1) { interestStore.stream(StoreRequest.Cached(true)) }
+        verify(exactly = 1) { interestStore.stream(FreshnessStrategy.Cached(true)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
@@ -91,7 +91,7 @@ class InterestServiceTest {
             .assertValue {
                 it == interestAccountBalance
             }
-        verify(exactly = 1) { interestStore.stream(StoreRequest.Cached(true)) }
+        verify(exactly = 1) { interestStore.stream(FreshnessStrategy.Cached(true)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 
@@ -101,7 +101,7 @@ class InterestServiceTest {
 
         assertEquals(setOf(cryptoCurrency), result)
 
-        verify(exactly = 1) { interestStore.stream(StoreRequest.Cached(true)) }
+        verify(exactly = 1) { interestStore.stream(FreshnessStrategy.Cached(true)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
 }

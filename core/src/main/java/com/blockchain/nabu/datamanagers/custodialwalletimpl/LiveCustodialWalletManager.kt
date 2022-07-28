@@ -9,6 +9,7 @@ import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
+import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
@@ -75,7 +76,6 @@ import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.KeyedStoreRequest
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
 import com.blockchain.utils.fromIso8601ToUtc
@@ -596,7 +596,7 @@ class LiveCustodialWalletManager(
         eligibleOnly: Boolean,
         shouldFetchSddLimits: Boolean = false,
     ) = paymentMethodsEligibilityStore.stream(
-        KeyedStoreRequest.Cached(
+        KeyedFreshnessStrategy.Cached(
             key = PaymentMethodsEligibilityStore.Key(
                 currency.networkTicker,
                 eligibleOnly,

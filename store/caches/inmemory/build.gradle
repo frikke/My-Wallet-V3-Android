@@ -10,6 +10,7 @@ compileKotlin {
 
 dependencies {
     implementation project(':store:core')
+    implementation project(':common:interface')
     implementation Libraries.kotlinCoroutines
 
     testImplementation Libraries.junit

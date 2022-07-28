@@ -2,7 +2,7 @@ package com.blockchain.core.interest.domain
 
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.domain.model.InterestEligibility
-import com.blockchain.refreshstrategy.RefreshStrategy
+import com.blockchain.data.FreshnessStrategy
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -18,7 +18,7 @@ interface InterestService {
      * Returns a map composed of each [AssetInfo] with its [InterestAccountBalance]
      */
     fun getBalances(
-        refreshStrategy: RefreshStrategy = RefreshStrategy.Cached(refresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Observable<Map<AssetInfo, InterestAccountBalance>>
 
     /**
@@ -26,14 +26,14 @@ interface InterestService {
      */
     fun getBalanceFor(
         asset: AssetInfo,
-        refreshStrategy: RefreshStrategy = RefreshStrategy.Cached(refresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Observable<InterestAccountBalance>
 
     /**
      * Returns a list of all [AssetInfo] that have an interest balance
      */
     fun getActiveAssets(
-        refreshStrategy: RefreshStrategy = RefreshStrategy.Cached(refresh = true)
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<Set<AssetInfo>>
 
     /**

@@ -3,11 +3,11 @@ package com.blockchain.core.price.impl.assetpricestore
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.map
-import com.blockchain.store.KeyedStoreRequest
-import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.store.firstOutcome
 import info.blockchain.balance.Currency
@@ -31,7 +31,7 @@ internal class AssetPriceStore(
         private set
 
     internal suspend fun warmSupportedTickersCache(): Outcome<Exception, Unit> =
-        supportedTickersStore.stream(StoreRequest.Fresh)
+        supportedTickersStore.stream(FreshnessStrategy.Fresh)
             .firstOutcome()
             .doOnSuccess { tickerGroup ->
                 fiatQuoteTickers = tickerGroup.fiatQuoteTickers
@@ -46,7 +46,7 @@ internal class AssetPriceStore(
             flowOf(createEqualityRecordResponse(base.networkTicker, quote.networkTicker))
         } else {
             cache.stream(
-                KeyedStoreRequest.Cached(
+                KeyedFreshnessStrategy.Cached(
                     key = AssetPriceStoreCache.Key.GetAllCurrent(quote.networkTicker),
                     forceRefresh = false
                 )
@@ -63,7 +63,7 @@ internal class AssetPriceStore(
         quote: Currency
     ): Flow<StoreResponse<AssetPriceRecord>> =
         cache.stream(
-            KeyedStoreRequest.Cached(
+            KeyedFreshnessStrategy.Cached(
                 key = AssetPriceStoreCache.Key.GetAllYesterday(quote.networkTicker),
                 forceRefresh = false
             )
@@ -75,7 +75,7 @@ internal class AssetPriceStore(
         quote: Currency,
         timeSpan: HistoricalTimeSpan
     ): Outcome<Exception, List<AssetPriceRecord>> = cache.stream(
-        KeyedStoreRequest.Cached(
+        KeyedFreshnessStrategy.Cached(
             key = AssetPriceStoreCache.Key.GetHistorical(base, quote.networkTicker, timeSpan),
             forceRefresh = false
         )

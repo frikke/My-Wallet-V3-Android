@@ -5,11 +5,11 @@ import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.core.chains.erc20.data.domain.Erc20TokenBalancesStore
 import com.blockchain.core.chains.erc20.data.domain.toDomain
 import com.blockchain.core.chains.erc20.data.domain.toStore
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Mediator
 import com.blockchain.store.Store
-import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.store.mapData
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
@@ -63,7 +63,7 @@ internal class Erc20Store(
     ),
     Erc20DataSource {
 
-    override fun streamData(request: StoreRequest): Flow<StoreResponse<List<Erc20TokenBalance>>> {
+    override fun streamData(request: FreshnessStrategy): Flow<StoreResponse<List<Erc20TokenBalance>>> {
         return stream(request).mapData { it.toDomain() }
     }
 
