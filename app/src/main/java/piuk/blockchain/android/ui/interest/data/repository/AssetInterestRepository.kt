@@ -66,7 +66,7 @@ internal class AssetInterestRepository(
             val deferredInterestRate =
                 async(dispatcher) { custodialWalletManager.getInterestAccountRates(cryptoCurrency).await() }
             val deferredEligibility =
-                async(dispatcher) { custodialWalletManager.getInterestEligibilityForAsset(cryptoCurrency).await() }
+                async(dispatcher) { interestService.getEligibilityForAsset(cryptoCurrency).await() }
 
             val assetInterestDetail: AssetInterestDetail? = try {
                 val balance = deferredBalance.await()

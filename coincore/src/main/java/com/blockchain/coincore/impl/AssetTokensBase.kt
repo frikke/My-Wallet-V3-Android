@@ -218,7 +218,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             }
 
     private fun getInterestTargets(): Maybe<SingleAccountList> =
-        custodialManager.getInterestEligibilityForAsset(currency).flatMapMaybe { eligibility ->
+        interestService.getEligibilityForAsset(currency).flatMapMaybe { eligibility ->
             if (eligibility == InterestEligibility.Eligible) {
                 accounts.flatMapMaybe {
                     Maybe.just(it.filterIsInstance<CryptoInterestAccount>())

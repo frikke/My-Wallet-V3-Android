@@ -8,8 +8,6 @@ import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.interest.domain.model.InterestEligibility
-import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -91,10 +89,10 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.flatMapIterable
-import java.math.BigInteger
-import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import java.math.BigInteger
+import java.util.Date
 
 class LiveCustodialWalletManager(
     private val assetCatalogue: AssetCatalogue,
@@ -545,9 +543,6 @@ class LiveCustodialWalletManager(
 
     override fun getInterestAvailabilityForAsset(asset: AssetInfo): Single<Boolean> =
         interestService.isAssetAvailableForInterest(asset)
-
-    override fun getInterestEligibilityForAsset(asset: AssetInfo): Single<InterestEligibility> =
-        interestService.getEligibilityForAsset(asset)
 
     override fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String) =
         authenticator.authenticateCompletable {
