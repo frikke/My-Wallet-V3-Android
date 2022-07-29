@@ -25,7 +25,6 @@ import kotlinx.serialization.Contextual
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAddNewCardBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.ui.BottomSheetInformation
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
@@ -36,7 +35,7 @@ import piuk.blockchain.android.util.openUrl
 class AddNewCardFragment :
     MviFragment<CardModel, CardIntent, CardState, FragmentAddNewCardBinding>(),
     AddCardFlowFragment,
-    BottomSheetInformation.Host {
+    ErrorSlidingBottomDialog.Host {
 
     override val model: CardModel by scopedInject()
 
@@ -325,7 +324,7 @@ class AddNewCardFragment :
 
     override fun onBackPressed(): Boolean = true
 
-    override fun primaryButtonClicked() {
+    override fun onErrorPrimaryCta() {
         resetCardRejectionState()
         with(binding) {
             cardName.setText("")
@@ -335,7 +334,15 @@ class AddNewCardFragment :
         }
     }
 
-    override fun secondButtonClicked() {
+    override fun onErrorSecondaryCta() {
+        if (secondaryCtaLink.isNotEmpty()) {
+            openUrl(secondaryCtaLink)
+        } else {
+            resetCardRejectionState()
+        }
+    }
+
+    override fun onErrorTertiaryCta() {
         if (secondaryCtaLink.isNotEmpty()) {
             openUrl(secondaryCtaLink)
         } else {

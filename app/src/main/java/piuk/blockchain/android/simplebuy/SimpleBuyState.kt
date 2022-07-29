@@ -240,6 +240,9 @@ sealed class ErrorState : Serializable {
     object InternetConnectionError : ErrorState()
     object BuyPaymentMethodsUnavailable : ErrorState()
     class SettlementRefreshRequired(val accountId: String) : ErrorState()
+    object SettlementInsufficientBalance : ErrorState()
+    object SettlementStaleBalance : ErrorState()
+    object SettlementGenericError : ErrorState()
     class ServerSideUxError(val serverSideUxErrorInfo: ServerSideUxErrorInfo) : ErrorState()
 }
 
