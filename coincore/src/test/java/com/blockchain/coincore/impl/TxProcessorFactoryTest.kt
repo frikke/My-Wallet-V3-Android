@@ -28,8 +28,8 @@ import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.SECONDARY_TEST_ASSET
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.coincore.testutil.EUR
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService

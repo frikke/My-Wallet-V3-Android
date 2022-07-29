@@ -15,8 +15,8 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product

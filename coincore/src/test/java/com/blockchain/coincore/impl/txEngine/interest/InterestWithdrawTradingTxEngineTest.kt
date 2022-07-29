@@ -10,8 +10,8 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit

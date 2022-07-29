@@ -14,8 +14,8 @@ import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.Database
 import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard

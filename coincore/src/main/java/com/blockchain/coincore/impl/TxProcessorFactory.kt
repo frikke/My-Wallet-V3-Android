@@ -36,8 +36,8 @@ import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectSignEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectTransactionEngine
 import com.blockchain.core.SwapTransactionsCache
-import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
