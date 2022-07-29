@@ -31,8 +31,8 @@ import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.utils.extensions.mapList
+import java.util.concurrent.atomic.AtomicBoolean
 
 class CryptoInterestAccount(
     override val currency: AssetInfo,
@@ -49,10 +49,10 @@ class CryptoInterestAccount(
     private val hasFunds = AtomicBoolean(false)
 
     override val receiveAddress: Single<ReceiveAddress>
-        get() = custodialWalletManager.getInterestAccountAddress(currency).map {
+        get() = interestService.getAddress(currency).map { address ->
             makeExternalAssetAddress(
                 asset = currency,
-                address = it,
+                address = address,
                 label = label,
                 postTransactions = onTxCompleted
             )
@@ -91,7 +91,7 @@ class CryptoInterestAccount(
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override val activity: Single<ActivitySummaryList>
-        get() = custodialWalletManager.getInterestActivity(currency)
+        get() = interestService.getActivity(currency)
             .onErrorReturn { emptyList() }
             .mapList { interestActivityToSummary(it) }
             .filterActivityStates()

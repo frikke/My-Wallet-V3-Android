@@ -4,6 +4,7 @@ import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.nabu.datamanagers.InterestActivityItem
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -70,4 +71,19 @@ interface InterestService {
      * Returns [InterestLimits] for [asset]
      */
     fun getLimitsForAsset(asset: AssetInfo): Single<InterestLimits>
+
+    /**
+     * Returns the interest rate for [asset]
+     */
+    fun getInterestRate(asset: AssetInfo): Single<Double>
+
+    /**
+     * Returns the address for [asset]
+     */
+    fun getAddress(asset: AssetInfo): Single<String>
+
+    /**
+     * Returns a list of transactions for [asset]
+     */
+    fun getActivity(asset: AssetInfo): Single<List<InterestActivityItem>>
 }

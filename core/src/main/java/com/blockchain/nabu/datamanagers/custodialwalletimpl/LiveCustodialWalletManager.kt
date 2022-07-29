@@ -7,7 +7,6 @@ import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
-import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -31,7 +30,6 @@ import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.FiatTransaction
-import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentAttributes
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
@@ -49,7 +47,6 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.WithdrawFeeRequest
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
-import com.blockchain.nabu.models.responses.interest.InterestRateResponse
 import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.nabu.State
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
@@ -104,7 +101,6 @@ class LiveCustodialWalletManager(
     private val swapOrdersCache: SwapTransactionsCache,
     private val paymentMethodsEligibilityStore: PaymentMethodsEligibilityStore,
     private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
-    private val interestService: InterestService,
     private val currencyPrefs: CurrencyPrefs,
     private val custodialRepository: CustodialRepository,
     private val transactionErrorMapper: TransactionErrorMapper,
@@ -507,39 +503,6 @@ class LiveCustodialWalletManager(
         ux?.let {
             throw NabuApiExceptionFactory.fromServerSideError(it)
         } ?: toBuySellOrder(assetCatalogue)
-
-    override fun getInterestAccountRates(asset: AssetInfo): Single<Double> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.getInterestRates(sessionToken, asset.networkTicker)
-                .defaultIfEmpty(InterestRateResponse(0.0))
-                .flatMap {
-                    it?.let { Single.just(it.rate) } ?: Single.just(0.0)
-                }
-        }
-
-    override fun getInterestAccountAddress(asset: AssetInfo): Single<String> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.getInterestAddress(sessionToken, asset.networkTicker).map {
-                it.accountRef
-            }
-        }
-
-    override fun getInterestActivity(asset: AssetInfo): Single<List<InterestActivityItem>> =
-        transactionsCache.transactions(
-            TransactionsRequest(
-                product = "savings",
-                type = null
-            )
-        ).map { interestActivityResponse ->
-            interestActivityResponse.items.filter {
-                assetCatalogue.fromNetworkTicker(
-                    it.amount.symbol
-                )?.networkTicker == asset.networkTicker
-            }.map {
-                val ccy = assetCatalogue.fromNetworkTicker(it.amount.symbol) as AssetInfo
-                it.toInterestActivityItem(ccy)
-            }
-        }
 
     override fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String) =
         authenticator.authenticateCompletable {
@@ -989,17 +952,6 @@ fun String.toPaymentMethodType(): PaymentMethodType =
         PaymentMethodResponse.FUNDS -> PaymentMethodType.FUNDS
         else -> PaymentMethodType.UNKNOWN
     }
-
-private fun TransactionResponse.toInterestActivityItem(cryptoCurrency: AssetInfo) =
-    InterestActivityItem(
-        value = CryptoValue.fromMinor(cryptoCurrency, amountMinor.toBigInteger()),
-        cryptoCurrency = cryptoCurrency,
-        id = id,
-        insertedAt = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-        state = InterestActivityItem.toInterestState(state),
-        type = InterestActivityItem.toTransactionType(type),
-        extraAttributes = extraAttributes
-    )
 
 private fun PaymentCardAcquirerResponse.toPaymentCardAcquirer() =
     PaymentCardAcquirer(

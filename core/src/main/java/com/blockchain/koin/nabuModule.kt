@@ -113,7 +113,6 @@ val nabuModule = module {
                     "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd), "ARS" to get(ars)
                 ),
                 transactionsCache = get(),
-                interestService = get(),
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
                 currencyPrefs = get(),

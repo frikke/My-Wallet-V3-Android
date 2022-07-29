@@ -34,11 +34,11 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
-import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
+import java.util.concurrent.atomic.AtomicBoolean
 
 interface AccountRefreshTrigger {
     fun forceAccountsRefresh()
@@ -152,9 +152,9 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
 
     final override fun interestRate(): Single<Double> =
         interestService.isAssetAvailableForInterest(currency)
-            .flatMap {
-                if (it) {
-                    custodialManager.getInterestAccountRates(currency)
+            .flatMap { isAvailable ->
+                if (isAvailable) {
+                    interestService.getInterestRate(currency)
                 } else {
                     Single.just(0.0)
                 }

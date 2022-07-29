@@ -147,12 +147,6 @@ interface CustodialWalletManager {
         isBankPartner: Boolean?
     ): Single<BuySellOrder>
 
-    fun getInterestAccountRates(asset: AssetInfo): Single<Double>
-
-    fun getInterestAccountAddress(asset: AssetInfo): Single<String>
-
-    fun getInterestActivity(asset: AssetInfo): Single<List<InterestActivityItem>>
-
     fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
 
     fun getSupportedFundsFiats(

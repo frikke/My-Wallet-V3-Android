@@ -140,7 +140,7 @@ class AssetInterestRepositoryTest {
             Observable.just(interestAccountBalanceBtc)
         every { exchangeRatesDataManager.exchangeRateToUserFiat(CryptoCurrency.BTC) } returns
             Observable.just(exchangeRateBtc)
-        every { custodialWalletManager.getInterestAccountRates(CryptoCurrency.BTC) } returns
+        every { interestService.getInterestRate(CryptoCurrency.BTC) } returns
             Single.just(interestRateBtc)
         every { interestService.getEligibilityForAsset(CryptoCurrency.BTC) } returns
             Single.just(eligibilityBtc)
@@ -149,7 +149,7 @@ class AssetInterestRepositoryTest {
             Observable.just(interestAccountBalanceEth)
         every { exchangeRatesDataManager.exchangeRateToUserFiat(CryptoCurrency.ETHER) } returns
             Observable.just(exchangeRateEth)
-        every { custodialWalletManager.getInterestAccountRates(CryptoCurrency.ETHER) } returns
+        every { interestService.getInterestRate(CryptoCurrency.ETHER) } returns
             Single.just(interestRateEth)
         every { interestService.getEligibilityForAsset(CryptoCurrency.ETHER) } returns
             Single.just(eligibilityEth)
@@ -163,14 +163,14 @@ class AssetInterestRepositoryTest {
     fun `WHEN services fail for BTC, THEN its detail should be null`() = runTest {
         every { interestService.getBalanceFor(CryptoCurrency.BTC) } throws Throwable("error")
         every { exchangeRatesDataManager.exchangeRateToUserFiat(CryptoCurrency.BTC) } throws Throwable("error")
-        every { custodialWalletManager.getInterestAccountRates(CryptoCurrency.BTC) } throws Throwable("error")
+        every { interestService.getInterestRate(CryptoCurrency.BTC) } throws Throwable("error")
         every { interestService.getEligibilityForAsset(CryptoCurrency.BTC) } throws Throwable("error")
 
         every { interestService.getBalanceFor(CryptoCurrency.ETHER) } returns
             Observable.just(interestAccountBalanceEth)
         every { exchangeRatesDataManager.exchangeRateToUserFiat(CryptoCurrency.ETHER) } returns
             Observable.just(exchangeRateEth)
-        every { custodialWalletManager.getInterestAccountRates(CryptoCurrency.ETHER) } returns
+        every { interestService.getInterestRate(CryptoCurrency.ETHER) } returns
             Single.just(interestRateEth)
         every { interestService.getEligibilityForAsset(CryptoCurrency.ETHER) } returns
             Single.just(eligibilityEth)
