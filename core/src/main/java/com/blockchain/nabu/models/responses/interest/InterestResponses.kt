@@ -4,11 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class InterestRateResponse(
-    val rate: Double
-)
-
-@Serializable
 data class InterestAddressResponse(
     @SerialName("accountRef") val address: String
 )

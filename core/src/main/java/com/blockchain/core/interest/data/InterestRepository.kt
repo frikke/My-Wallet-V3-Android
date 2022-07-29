@@ -1,5 +1,6 @@
 package com.blockchain.core.interest.data
 
+import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
@@ -16,7 +17,6 @@ import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.models.responses.interest.InterestRateResponse
 import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
@@ -47,6 +47,7 @@ internal class InterestRepository(
     private val interestLimitsTimedCache: InterestLimitsTimedCache,
     private val authenticator: Authenticator,
     private val nabuService: NabuService,
+    private val interestApiService: InterestApiService,
     private val transactionsCache: TransactionsCache,
 ) : InterestService {
 
@@ -120,8 +121,8 @@ internal class InterestRepository(
     // rate
     override fun getInterestRate(asset: AssetInfo): Single<Double> {
         return authenticator.authenticate { sessionToken ->
-            nabuService.getInterestRates(sessionToken, asset.networkTicker)
-                .map { interestRateResponse: InterestRateResponse? -> interestRateResponse?.rate ?: 0.0 }
+            interestApiService.getInterestRates(sessionToken.authHeader, asset.networkTicker)
+                .map { interestRateResponse -> interestRateResponse.rate }
                 .defaultIfEmpty(0.0)
         }
     }

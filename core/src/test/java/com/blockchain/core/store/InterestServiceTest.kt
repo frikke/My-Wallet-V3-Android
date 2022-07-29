@@ -1,6 +1,7 @@
 package com.blockchain.core.store
 
-import com.blockchain.api.services.InterestBalanceDetails
+import com.blockchain.api.interest.InterestApiService
+import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.interest.data.InterestRepository
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
@@ -22,12 +23,12 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import kotlin.test.assertEquals
 
 class InterestServiceTest {
     private val assetCatalogue = mockk<AssetCatalogue>()
@@ -37,6 +38,7 @@ class InterestServiceTest {
     private val interestLimitsTimedCache = mockk<InterestLimitsTimedCache>()
     private val authenticator = mockk<Authenticator>()
     private val nabuService = mockk<NabuService>()
+    private val interestApiService = mockk<InterestApiService>()
     private val transactionsCache = mockk<TransactionsCache>()
 
     private val interestService: InterestService = InterestRepository(
@@ -47,6 +49,7 @@ class InterestServiceTest {
         interestLimitsTimedCache = interestLimitsTimedCache,
         authenticator = authenticator,
         nabuService = nabuService,
+        interestApiService = interestApiService,
         transactionsCache = transactionsCache
     )
 
@@ -60,14 +63,13 @@ class InterestServiceTest {
         colour = "#123456"
     ) {}
 
-    private val interestBalanceDetails = InterestBalanceDetails(
-        assetTicker = "CRYPTO1",
-        totalBalance = 1.toBigInteger(),
-        pendingInterest = 2.toBigInteger(),
-        pendingDeposit = 3.toBigInteger(),
-        totalInterest = 4.toBigInteger(),
-        pendingWithdrawal = 5.toBigInteger(),
-        lockedBalance = 6.toBigInteger()
+    private val interestBalanceDetails = InterestAccountBalanceDto(
+        totalBalance = "1",
+        pendingInterest = "2",
+        pendingDeposit = "3",
+        totalInterest = "4",
+        pendingWithdrawal = "5",
+        lockedBalance = "6"
     )
 
     private val interestAccountBalance = InterestAccountBalance(
@@ -83,7 +85,9 @@ class InterestServiceTest {
 
     @Before
     fun setUp() {
-        every { interestBalancesStore.stream(any()) } returns flowOf(StoreResponse.Data(listOf(interestBalanceDetails)))
+        every { interestBalancesStore.stream(any()) } returns flowOf(
+            StoreResponse.Data(mapOf("CRYPTO1" to interestBalanceDetails))
+        )
         every { interestBalancesStore.invalidate() } just Runs
 
         every { assetCatalogue.fromNetworkTicker("CRYPTO1") } returns cryptoCurrency

@@ -3,6 +3,7 @@ package com.blockchain.api.interest
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.api.interest.data.InterestAvailableTickersDto
 import com.blockchain.api.interest.data.InterestEligibilityDto
+import com.blockchain.api.interest.data.InterestRateDto
 import com.blockchain.api.interest.data.InterestTickerLimitsDto
 import io.reactivex.rxjava3.core.Single
 import retrofit2.Response
@@ -13,7 +14,8 @@ import retrofit2.http.Query
 private const val BALANCES = "accounts/savings"
 private const val AVAILABLE_TICKERS = "savings/instruments"
 private const val ELIGIBILITY = "eligible/product/savings"
-internal const val LIMITS = "savings/limits"
+private const val LIMITS = "savings/limits"
+private const val INTEREST_RATES = "savings/rates"
 
 internal interface InterestApiInterface {
     @GET(BALANCES)
@@ -36,4 +38,10 @@ internal interface InterestApiInterface {
         @Header("authorization") authorization: String,
         @Query("currency") fiatCurrencyTicker: String
     ): Single<InterestTickerLimitsDto>
+
+    @GET(INTEREST_RATES)
+    fun getInterestRates(
+        @Header("authorization") authorization: String,
+        @Query("ccy") cryptoCurrencyTicker: String
+    ): Single<Response<InterestRateDto>>
 }

@@ -227,6 +227,7 @@ val coreModule = module {
                 interestLimitsTimedCache = get(),
                 authenticator = get(),
                 nabuService = get(),
+                interestApiService = get(),
                 transactionsCache = get()
             )
         }
