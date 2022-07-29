@@ -1,4 +1,4 @@
-package com.blockchain.core.interest.data
+package com.blockchain.core.interest.data.datasources
 
 import com.blockchain.api.services.InterestApiService
 import com.blockchain.api.services.InterestBalanceDetails
@@ -11,7 +11,7 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.FlushableDataSource
 import kotlinx.serialization.builtins.ListSerializer
 
-class InterestStore(
+class InterestBalancesStore(
     private val interestApiService: InterestApiService,
     private val authenticator: Authenticator
 ) : Store< List<InterestBalanceDetails>> by PersistedJsonSqlDelightStoreBuilder()

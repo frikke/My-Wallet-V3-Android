@@ -38,7 +38,7 @@ import com.blockchain.core.eligibility.EligibilityRepository
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.fiatcurrencies.FiatCurrenciesRepository
 import com.blockchain.core.interest.data.InterestRepository
-import com.blockchain.core.interest.data.InterestStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
@@ -212,7 +212,7 @@ val coreModule = module {
         }.bind(FiatCurrenciesService::class)
 
         scoped {
-            InterestStore(
+            InterestBalancesStore(
                 interestApiService = get(),
                 authenticator = get()
             )
@@ -221,7 +221,10 @@ val coreModule = module {
         scoped<InterestService> {
             InterestRepository(
                 assetCatalogue = get(),
-                interestStore = get()
+                interestBalancesStore = get(),
+                interestEligibilityTimedCache = get(),
+                nabuService = get(),
+                authenticator = get()
             )
         }
 

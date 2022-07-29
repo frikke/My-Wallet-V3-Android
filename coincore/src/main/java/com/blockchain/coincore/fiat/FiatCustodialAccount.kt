@@ -21,7 +21,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
@@ -112,9 +111,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.NOT_SUPPORTED)
-
-    override val disabledReason: Single<IneligibilityReason>
-        get() = Single.just(IneligibilityReason.NONE)
 }
 
 class FiatAccountGroup(
