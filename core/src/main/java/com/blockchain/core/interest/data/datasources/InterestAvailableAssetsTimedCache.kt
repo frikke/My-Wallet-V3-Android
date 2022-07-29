@@ -10,7 +10,7 @@ import io.reactivex.rxjava3.core.Single
 class InterestAvailableAssetsTimedCache(
     private val authenticator: Authenticator,
     private val assetCatalogue: AssetCatalogue,
-    private val interestApiService: InterestApiService,
+    private val interestApiService: InterestApiService
 ) {
 
     private val cache = TimedCacheRequest(

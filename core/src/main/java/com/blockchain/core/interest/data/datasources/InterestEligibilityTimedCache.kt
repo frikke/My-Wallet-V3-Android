@@ -1,6 +1,7 @@
 package com.blockchain.core.interest.data.datasources
 
-import com.blockchain.api.services.NabuUserService
+import com.blockchain.api.interest.InterestApiService
+import com.blockchain.api.interest.data.InterestEligibilityDto
 import com.blockchain.core.common.caching.TimedCacheRequest
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.nabu.Authenticator
@@ -11,7 +12,7 @@ import io.reactivex.rxjava3.core.Single
 class InterestEligibilityTimedCache(
     private val authenticator: Authenticator,
     private val assetCatalogue: AssetCatalogue,
-    private val service: NabuUserService
+    private val interestApiService: InterestApiService
 ) {
 
     private val cache = TimedCacheRequest(
@@ -21,18 +22,18 @@ class InterestEligibilityTimedCache(
 
     private fun refresh(): Single<Map<AssetInfo, InterestEligibility>> =
         authenticator.authenticate { token ->
-            service.getInterestEligibility(token.authHeader)
-                .map { interestEligibility ->
-                    assetCatalogue.supportedCustodialAssets.associateWith { asset ->
-                        interestEligibility.getEligibleFor(asset.networkTicker).let { eligibilityResponse ->
-                            if (eligibilityResponse.isEligible) {
-                                InterestEligibility.Eligible
-                            } else {
-                                eligibilityResponse.reason.toIneligibilityReason()
-                            }
-                        }
+            interestApiService.getInterestEligibility(token.authHeader).map { mapAssetTicketWithEligibility ->
+                assetCatalogue.supportedCustodialAssets.associateWith { asset ->
+                    val eligibilityDto = mapAssetTicketWithEligibility[asset.networkTicker.uppercase()]
+                        ?: InterestEligibilityDto.default()
+
+                    if (eligibilityDto.isEligible) {
+                        InterestEligibility.Eligible
+                    } else {
+                        eligibilityDto.reason.toIneligibilityReason()
                     }
                 }
+            }
         }
 
     fun cached(): Single<Map<AssetInfo, InterestEligibility>> = cache.getCachedSingle()

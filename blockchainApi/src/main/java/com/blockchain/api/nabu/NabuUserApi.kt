@@ -1,7 +1,6 @@
 package com.blockchain.api.nabu
 
 import com.blockchain.api.nabu.data.InitialAddressRequest
-import com.blockchain.api.nabu.data.InterestEligibilityResponse
 import com.blockchain.api.nabu.data.contactpreferences.ContactPreferencesResponse
 import com.blockchain.api.nabu.data.contactpreferences.PreferenceUpdates
 import io.reactivex.rxjava3.core.Completable
@@ -12,12 +11,6 @@ import retrofit2.http.Header
 import retrofit2.http.PUT
 
 interface NabuUserApi {
-
-    @GET("eligible/product/savings")
-    fun getInterestEligibility(
-        @Header("authorization") authorization: String
-    ): Single<Map<String, InterestEligibilityResponse>>
-
     @PUT("users/current/address/initial")
     fun saveUserInitialLocation(
         @Header("authorization") authorization: String,
