@@ -18,6 +18,7 @@ import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.ethereum.evm.EvmApi
 import com.blockchain.api.fiatcurrencies.FiatCurrenciesApi
 import com.blockchain.api.interest.InterestApiInterface
+import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.nfts.api.NftApi
 import com.blockchain.api.nftwaitlist.data.api.NftWaitlistApi
@@ -37,7 +38,6 @@ import com.blockchain.api.services.DataRemediationApiService
 import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.api.services.FiatCurrenciesApiService
-import com.blockchain.api.services.InterestApiService
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.api.services.NftService
 import com.blockchain.api.services.NftWaitlistApiService

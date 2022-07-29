@@ -1,6 +1,6 @@
 package com.blockchain.core.interest.data
 
-import com.blockchain.api.services.InterestBalanceDetails
+import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
@@ -9,8 +9,8 @@ import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCac
 import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
-import com.blockchain.core.interest.domain.model.InterestActivityAttributes
 import com.blockchain.core.interest.domain.model.InterestActivity
+import com.blockchain.core.interest.domain.model.InterestActivityAttributes
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.interest.domain.model.InterestState
@@ -53,10 +53,11 @@ internal class InterestRepository(
     // balances
     private fun getBalancesFlow(refreshStrategy: FreshnessStrategy): Flow<Map<AssetInfo, InterestAccountBalance>> {
         return interestBalancesStore.stream(refreshStrategy)
-            .mapData { interestBalanceDetailList ->
-                interestBalanceDetailList.mapNotNull { interestBalanceDetails ->
-                    (assetCatalogue.fromNetworkTicker(interestBalanceDetails.assetTicker) as? AssetInfo)
-                        ?.let { assetInfo -> assetInfo to interestBalanceDetails.toInterestBalance(assetInfo) }
+            .mapData { mapAssetTickerWithBalance ->
+                mapAssetTickerWithBalance.mapNotNull { (assetTicker, balanceDto) ->
+                    (assetCatalogue.fromNetworkTicker(assetTicker) as? AssetInfo)?.let { asset ->
+                        asset to balanceDto.toInterestBalance(asset)
+                    }
                 }.toMap()
             }
             .getDataOrThrow()
@@ -170,13 +171,13 @@ internal class InterestRepository(
 // EXTENSIONS
 // ///////////////
 
-private fun InterestBalanceDetails.toInterestBalance(asset: AssetInfo) =
+private fun InterestAccountBalanceDto.toInterestBalance(asset: AssetInfo) =
     InterestAccountBalance(
-        totalBalance = CryptoValue.fromMinor(asset, totalBalance),
-        pendingInterest = CryptoValue.fromMinor(asset, pendingInterest),
-        pendingDeposit = CryptoValue.fromMinor(asset, pendingDeposit),
-        totalInterest = CryptoValue.fromMinor(asset, totalInterest),
-        lockedBalance = CryptoValue.fromMinor(asset, lockedBalance),
+        totalBalance = CryptoValue.fromMinor(asset, totalBalance.toBigInteger()),
+        pendingInterest = CryptoValue.fromMinor(asset, pendingInterest.toBigInteger()),
+        pendingDeposit = CryptoValue.fromMinor(asset, pendingDeposit.toBigInteger()),
+        totalInterest = CryptoValue.fromMinor(asset, totalInterest.toBigInteger()),
+        lockedBalance = CryptoValue.fromMinor(asset, lockedBalance.toBigInteger()),
         hasTransactions = true
     )
 

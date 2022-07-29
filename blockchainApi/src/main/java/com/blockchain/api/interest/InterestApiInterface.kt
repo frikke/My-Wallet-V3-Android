@@ -8,7 +8,7 @@ import retrofit2.http.Header
 
 internal interface InterestApiInterface {
     @GET("accounts/savings")
-    fun getAllInterestAccountBalances(
+    fun getAccountBalances(
         @Header("authorization") authorization: String
     ): Single<Response<Map<String, InterestAccountBalanceDto>>>
 }
