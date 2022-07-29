@@ -197,18 +197,6 @@ interface CustodialWalletManager {
     fun cancelRecurringBuy(recurringBuyId: String): Completable
 }
 
-
-
-
-
-data class InterestAccountDetails(
-    val balance: CryptoValue,
-    val pendingInterest: CryptoValue,
-    val pendingDeposit: CryptoValue,
-    val totalInterest: CryptoValue,
-    val lockedBalance: CryptoValue
-)
-
 data class PaymentAttributes(
     val authorisationUrl: String?,
     val cardAttributes: CardAttributes = CardAttributes.Empty

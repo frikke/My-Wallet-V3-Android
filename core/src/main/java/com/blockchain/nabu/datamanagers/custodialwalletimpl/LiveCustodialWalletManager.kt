@@ -47,7 +47,6 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.WithdrawFeeRequest
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
-import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.nabu.State
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuyOrderListResponse
