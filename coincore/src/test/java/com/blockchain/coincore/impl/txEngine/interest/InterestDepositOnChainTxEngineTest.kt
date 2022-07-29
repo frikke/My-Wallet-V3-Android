@@ -203,7 +203,6 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
 
         val limits = mock<InterestLimits> {
             on { minDepositFiatValue }.thenReturn(MIN_DEPOSIT_AMOUNT_FIAT)
-//            on { cryptoCurrency }.thenReturn(ASSET)
         }
 
         whenever(walletManager.getInterestLimits(ASSET)).thenReturn(Single.just(limits))
