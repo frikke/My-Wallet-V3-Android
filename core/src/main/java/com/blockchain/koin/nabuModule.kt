@@ -168,7 +168,7 @@ val nabuModule = module {
             InterestLimitsTimedCache(
                 authenticator = get(),
                 assetCatalogue = get(),
-                nabuService = get(),
+                interestApiService = get(),
                 currencyPrefs = get()
             )
         }

@@ -488,12 +488,6 @@ class NabuService internal constructor(
     ) = nabu.getInterestAddress(authorization = sessionToken.authHeader, currency = currency)
         .wrapErrorMessage()
 
-    fun getInterestLimits(
-        sessionToken: NabuSessionTokenResponse,
-        currency: String
-    ) = nabu.getInterestLimits(authorization = sessionToken.authHeader, currency = currency)
-        .wrapErrorMessage()
-
     fun createInterestWithdrawal(
         sessionToken: NabuSessionTokenResponse,
         body: InterestWithdrawalBody

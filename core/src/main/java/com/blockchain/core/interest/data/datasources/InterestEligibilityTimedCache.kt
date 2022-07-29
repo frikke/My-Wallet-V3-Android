@@ -22,7 +22,7 @@ class InterestEligibilityTimedCache(
 
     private fun refresh(): Single<Map<AssetInfo, InterestEligibility>> =
         authenticator.authenticate { token ->
-            interestApiService.getInterestEligibility(token.authHeader).map { mapAssetTicketWithEligibility ->
+            interestApiService.getTickersEligibility(token.authHeader).map { mapAssetTicketWithEligibility ->
                 assetCatalogue.supportedCustodialAssets.associateWith { asset ->
                     val eligibilityDto = mapAssetTicketWithEligibility[asset.networkTicker.uppercase()]
                         ?: InterestEligibilityDto.default()

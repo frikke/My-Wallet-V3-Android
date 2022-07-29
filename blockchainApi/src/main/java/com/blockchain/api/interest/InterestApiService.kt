@@ -4,6 +4,7 @@ import com.blockchain.api.HttpStatus
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.api.interest.data.InterestAvailableTickersDto
 import com.blockchain.api.interest.data.InterestEligibilityDto
+import com.blockchain.api.interest.data.InterestTickerLimitsDto
 import com.blockchain.api.wrapErrorMessage
 import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
@@ -27,8 +28,13 @@ class InterestApiService internal constructor(
             .wrapErrorMessage()
     }
 
-    fun getInterestEligibility(authHeader: String): Single<Map<String, InterestEligibilityDto>> {
-        return interestApi.getInterestEligibility(authorization = authHeader)
+    fun getTickersEligibility(authHeader: String): Single<Map<String, InterestEligibilityDto>> {
+        return interestApi.getTickersEligibility(authorization = authHeader)
             .onErrorReturn { emptyMap() }
+    }
+
+    fun getTickersLimits(authHeader: String, fiatCurrencyTicker: String): Single<InterestTickerLimitsDto> {
+        return interestApi.getTickersLimits(authorization = authHeader, fiatCurrencyTicker = fiatCurrencyTicker)
+            .wrapErrorMessage()
     }
 }

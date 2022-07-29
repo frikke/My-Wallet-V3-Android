@@ -14,19 +14,6 @@ data class InterestAddressResponse(
 )
 
 @Serializable
-data class InterestLimitsFullResponse(
-    val limits: Map<String, InterestLimitsResponse>
-)
-
-@Serializable
-data class InterestLimitsResponse(
-    val currency: String,
-    val lockUpDuration: Int,
-    val maxWithdrawalAmount: String,
-    val minDepositAmount: String
-)
-
-@Serializable
 data class InterestWithdrawalBody(
     val withdrawalAddress: String,
     val amount: String,

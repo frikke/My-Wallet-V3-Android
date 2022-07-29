@@ -3,7 +3,6 @@ package com.blockchain.nabu.api.nabu
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.models.responses.interest.InterestAddressResponse
-import com.blockchain.nabu.models.responses.interest.InterestLimitsFullResponse
 import com.blockchain.nabu.models.responses.interest.InterestRateResponse
 import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
@@ -325,12 +324,6 @@ internal interface Nabu {
         @Header("authorization") authorization: String,
         @Query("ccy") currency: String
     ): Single<InterestAddressResponse>
-
-    @GET(NABU_INTEREST_LIMITS)
-    fun getInterestLimits(
-        @Header("authorization") authorization: String,
-        @Query("currency") currency: String
-    ): Single<InterestLimitsFullResponse>
 
     @POST(NABU_INTEREST_WITHDRAWAL)
     fun createInterestWithdrawal(

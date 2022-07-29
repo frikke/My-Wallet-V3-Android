@@ -3,14 +3,17 @@ package com.blockchain.api.interest
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.api.interest.data.InterestAvailableTickersDto
 import com.blockchain.api.interest.data.InterestEligibilityDto
+import com.blockchain.api.interest.data.InterestTickerLimitsDto
 import io.reactivex.rxjava3.core.Single
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Query
 
 private const val BALANCES = "accounts/savings"
 private const val AVAILABLE_TICKERS = "savings/instruments"
 private const val ELIGIBILITY = "eligible/product/savings"
+internal const val LIMITS = "savings/limits"
 
 internal interface InterestApiInterface {
     @GET(BALANCES)
@@ -24,7 +27,13 @@ internal interface InterestApiInterface {
     ): Single<InterestAvailableTickersDto>
 
     @GET(ELIGIBILITY)
-    fun getInterestEligibility(
+    fun getTickersEligibility(
         @Header("authorization") authorization: String
     ): Single<Map<String, InterestEligibilityDto>>
+
+    @GET(LIMITS)
+    fun getTickersLimits(
+        @Header("authorization") authorization: String,
+        @Query("currency") fiatCurrencyTicker: String
+    ): Single<InterestTickerLimitsDto>
 }
