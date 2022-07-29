@@ -142,7 +142,7 @@ internal class InterestRepository(
                 .filter { transaction ->
                     assetCatalogue.fromNetworkTicker(transaction.amount.symbol)?.networkTicker == asset.networkTicker
                 }.map { transaction ->
-                    transaction.toInterestActivityItem(asset)
+                    transaction.toInterestActivity(asset)
                 }
         }
     }
@@ -189,10 +189,9 @@ private fun zeroBalance(asset: Currency): InterestAccountBalance =
         lockedBalance = Money.zero(asset)
     )
 
-private fun TransactionResponse.toInterestActivityItem(asset: AssetInfo): InterestActivity =
+private fun TransactionResponse.toInterestActivity(asset: AssetInfo): InterestActivity =
     InterestActivity(
         value = CryptoValue.fromMinor(asset, amountMinor.toBigInteger()),
-        asset = asset,
         id = id,
         insertedAt = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
         state = state.toInterestState(),

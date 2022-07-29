@@ -1,14 +1,12 @@
 package com.blockchain.core.interest.domain.model
 
 import com.blockchain.nabu.models.responses.simplebuy.TransactionBeneficiaryResponse
-import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import java.util.Date
 
 data class InterestActivity(
     val value: CryptoValue,
-    val asset: AssetInfo,
     val id: String,
     val insertedAt: Date,
     val state: InterestState,

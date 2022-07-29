@@ -15,6 +15,8 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.toActionState
 import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestActivity
+import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.Feature
@@ -22,8 +24,6 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.InterestActivityItem
-import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
 import info.blockchain.balance.AssetInfo
@@ -93,28 +93,30 @@ class CryptoInterestAccount(
     override val activity: Single<ActivitySummaryList>
         get() = interestService.getActivity(currency)
             .onErrorReturn { emptyList() }
-            .mapList { interestActivityToSummary(it) }
+            .mapList { interestActivity ->
+                interestActivityToSummary(asset = currency, interestActivity = interestActivity)
+            }
             .filterActivityStates()
             .doOnSuccess {
                 setHasTransactions(it.isNotEmpty())
             }
 
-    private fun interestActivityToSummary(item: InterestActivityItem): ActivitySummaryItem =
+    private fun interestActivityToSummary(asset: AssetInfo, interestActivity: InterestActivity): ActivitySummaryItem =
         CustodialInterestActivitySummaryItem(
             exchangeRates = exchangeRates,
-            asset = item.cryptoCurrency,
-            txId = item.id,
-            timeStampMs = item.insertedAt.time,
-            value = item.value,
+            asset = asset,
+            txId = interestActivity.id,
+            timeStampMs = interestActivity.insertedAt.time,
+            value = interestActivity.value,
             account = this,
-            status = item.state,
-            type = item.type,
-            confirmations = item.extraAttributes?.confirmations ?: 0,
-            accountRef = item.extraAttributes?.address
-                ?: item.extraAttributes?.transferType?.takeIf { it == "INTERNAL" }?.let {
+            status = interestActivity.state,
+            type = interestActivity.type,
+            confirmations = interestActivity.extraAttributes?.confirmations ?: 0,
+            accountRef = interestActivity.extraAttributes?.address
+                ?: interestActivity.extraAttributes?.transferType?.takeIf { it == "INTERNAL" }?.let {
                     internalAccountLabel
                 } ?: "",
-            recipientAddress = item.extraAttributes?.address ?: ""
+            recipientAddress = interestActivity.extraAttributes?.address ?: ""
         )
 
     private fun Single<ActivitySummaryList>.filterActivityStates(): Single<ActivitySummaryList> {

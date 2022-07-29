@@ -1,10 +1,10 @@
 package com.blockchain.core.interest.domain
 
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.core.interest.domain.model.InterestActivity
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.nabu.datamanagers.InterestActivityItem
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -87,7 +87,7 @@ interface InterestService {
     /**
      * Returns a list of transactions for [asset]
      */
-    fun getActivity(asset: AssetInfo): Single<List<InterestActivityItem>>
+    fun getActivity(asset: AssetInfo): Single<List<InterestActivity>>
 
     /**
      * Executes interest withdrawal of [asset]:[amount] to [address]
