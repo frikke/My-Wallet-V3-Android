@@ -15,6 +15,7 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.models.responses.interest.InterestRateResponse
+import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.store.getDataOrThrow
@@ -26,6 +27,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
@@ -138,6 +140,20 @@ internal class InterestRepository(
                 }.map { transaction ->
                     transaction.toInterestActivityItem(asset)
                 }
+        }
+    }
+
+    // withdrawal
+    override fun withdraw(asset: AssetInfo, amount: Money, address: String): Completable {
+        return authenticator.authenticateCompletable { sessionToken ->
+            nabuService.createInterestWithdrawal(
+                sessionToken = sessionToken,
+                body = InterestWithdrawalBody(
+                    withdrawalAddress = address,
+                    amount = amount.toBigInteger().toString(),
+                    currency = asset.networkTicker
+                )
+            )
         }
     }
 

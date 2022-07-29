@@ -156,7 +156,7 @@ class InterestWithdrawOnChainTxEngine(
         amount: Money,
         receiveAddress: String,
         memo: String? = null,
-    ) = walletManager.startInterestWithdrawal(
+    ) = interestService.withdraw(
         asset = sourceAsset,
         amount = amount,
         address = addMemoIfNeeded(receiveAddress, memo)

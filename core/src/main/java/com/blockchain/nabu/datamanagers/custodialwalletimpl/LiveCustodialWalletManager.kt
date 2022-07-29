@@ -504,18 +504,6 @@ class LiveCustodialWalletManager(
             throw NabuApiExceptionFactory.fromServerSideError(it)
         } ?: toBuySellOrder(assetCatalogue)
 
-    override fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String) =
-        authenticator.authenticateCompletable {
-            nabuService.createInterestWithdrawal(
-                it,
-                InterestWithdrawalBody(
-                    withdrawalAddress = address,
-                    amount = amount.toBigInteger().toString(),
-                    currency = asset.networkTicker
-                )
-            )
-        }
-
     override fun getSupportedFundsFiats(fiatCurrency: FiatCurrency): Flow<List<FiatCurrency>> {
         val paymentMethodsFlow = paymentMethods(fiatCurrency, true)
         val fiatCurrenciesFlow = fiatCurrenciesService.getTradingCurrenciesFlow()

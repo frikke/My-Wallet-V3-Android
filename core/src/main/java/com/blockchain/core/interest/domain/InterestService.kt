@@ -6,6 +6,8 @@ import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.datamanagers.InterestActivityItem
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
@@ -86,4 +88,10 @@ interface InterestService {
      * Returns a list of transactions for [asset]
      */
     fun getActivity(asset: AssetInfo): Single<List<InterestActivityItem>>
+
+    /**
+     * Executes interest withdrawal of [asset]:[amount] to [address]
+     * @see [InterestWithdrawOnChainTxEngine]
+     */
+    fun withdraw(asset: AssetInfo, amount: Money, address: String): Completable
 }

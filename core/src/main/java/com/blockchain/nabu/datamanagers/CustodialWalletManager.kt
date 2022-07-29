@@ -147,8 +147,6 @@ interface CustodialWalletManager {
         isBankPartner: Boolean?
     ): Single<BuySellOrder>
 
-    fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
-
     fun getSupportedFundsFiats(
         fiatCurrency: FiatCurrency = selectedFiatcurrency
     ): Flow<List<FiatCurrency>>
