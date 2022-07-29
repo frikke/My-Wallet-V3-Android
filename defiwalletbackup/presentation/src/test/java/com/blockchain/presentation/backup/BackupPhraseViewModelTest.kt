@@ -3,6 +3,7 @@ package com.blockchain.presentation.backup
 import app.cash.turbine.test
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.outcome.Outcome
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.presentation.backup.navigation.BackupPhraseNavigationEvent
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
@@ -20,6 +21,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.EncryptedPrefs
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -30,26 +32,45 @@ class BackupPhraseViewModelTest {
     var coroutineTestRule = CoroutineTestRule()
 
     private val backupPhraseService = mockk<BackupPhraseService>()
+    private val settingsDataManager = mockk<SettingsDataManager>()
     private val backupPrefs = mockk<EncryptedPrefs>()
     private val walletStatusPrefs = mockk<WalletStatusPrefs>()
+    private val authPrefs = mockk<AuthPrefs>()
 
     private lateinit var viewModel: BackupPhraseViewModel
 
     private val args = BackupPhraseArgs(secondPassword = "secondPassword", allowSkipBackup = true)
     private val mnemonic = listOf("A", "B")
 
+    private val walletGuid = "walletGuid"
+    private val sharedKey = "sharedKey"
+
     @Before
     fun setUp() {
         viewModel = BackupPhraseViewModel(
             backupPhraseService = backupPhraseService,
+            settingsDataManager = settingsDataManager,
             backupPrefs = backupPrefs,
-            walletStatusPrefs = walletStatusPrefs
+            walletStatusPrefs = walletStatusPrefs,
+            authPrefs = authPrefs
         )
 
         every { backupPhraseService.isBackedUp() } returns true
         every { backupPhraseService.getMnemonic(any()) } returns Outcome.Success(mnemonic)
 
+        coEvery { settingsDataManager.triggerEmailAlert(any(), any()) } just Runs
+
         every { walletStatusPrefs.isWalletBackUpSkipped = any() } just Runs
+
+        every { authPrefs.walletGuid } returns walletGuid
+        every { authPrefs.sharedKey } returns sharedKey
+    }
+
+    @Test
+    fun `WHEN TriggerEmailAlert is called, THEN triggerEmailAlert should be called`() {
+        viewModel.onIntent(BackupPhraseIntent.TriggerEmailAlert)
+
+        coVerify(exactly = 1) { settingsDataManager.triggerEmailAlert(guid = walletGuid, sharedKey = sharedKey) }
     }
 
     @Test

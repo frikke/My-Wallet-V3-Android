@@ -118,7 +118,6 @@ class SecurityModel(
                     null
                 }
             }
-            SecurityIntent.TriggerEmailAlert -> interactor.triggerSeedPhraseAlert().subscribe()
             is SecurityIntent.ToggleCloudBackup -> {
                 previousState.securityInfo?.isCloudBackupEnabled?.let { isCloudBackupEnabled ->
                     interactor.updateCloudBackup(!isCloudBackupEnabled)

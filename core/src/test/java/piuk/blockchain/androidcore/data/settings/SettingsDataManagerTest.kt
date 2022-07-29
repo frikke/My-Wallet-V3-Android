@@ -403,7 +403,7 @@ class SettingsDataManagerTest : RxTest() {
         val sharedKey = "SHARED_KEY"
         whenever(walletSettingsService.triggerAlert(guid, sharedKey)).thenReturn(Completable.complete())
 
-        val testObserver = subject.triggerEmailAlert(guid, sharedKey).test()
+        val testObserver = subject.triggerEmailAlertLegacy(guid, sharedKey).test()
 
         verifyNoMoreInteractions(settingsService)
         verify(walletSettingsService).triggerAlert(guid, sharedKey)

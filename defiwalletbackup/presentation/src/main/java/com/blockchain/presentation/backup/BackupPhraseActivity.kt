@@ -58,6 +58,7 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
     private fun launchPinVerification() {
         pinService.verifyPin { successful, secondPassword ->
             if (successful) {
+                viewModel.onIntent(BackupPhraseIntent.TriggerEmailAlert)
                 initContent(secondPassword = secondPassword)
             } else {
                 finish(isSuccessful = false)
