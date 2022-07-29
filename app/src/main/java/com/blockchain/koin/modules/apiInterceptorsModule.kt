@@ -1,7 +1,6 @@
 package com.blockchain.koin.modules
 
 import android.os.Build
-import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.network.modules.OkHttpInterceptors
 import com.chuckerteam.chucker.api.ChuckerInterceptor
@@ -29,12 +28,14 @@ val apiInterceptorsModule = module {
                 DeviceIdInterceptor(prefs = lazy { get<SessionPrefs>() }, get()),
                 RequestIdInterceptor { UUID.randomUUID().toString() }
             ).apply {
+                // add for staging and alpha debugs
                 if (env.isRunningInDebugMode()) {
                     add(StethoInterceptor())
                     add(ApiLoggingInterceptor())
-                    if (env.environment != Environment.PRODUCTION) {
-                        add(ChuckerInterceptor.Builder(androidContext()).build())
-                    }
+                    add(ChuckerInterceptor.Builder(androidContext()).build())
+                    // add for alpha prod build
+                } else if (!env.isRunningInDebugMode() && env.isCompanyInternalBuild()) {
+                    add(ChuckerInterceptor.Builder(androidContext()).build())
                 }
             }
         )

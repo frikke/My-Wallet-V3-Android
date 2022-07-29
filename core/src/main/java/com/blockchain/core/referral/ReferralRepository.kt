@@ -1,7 +1,7 @@
 package com.blockchain.core.referral
 
 import com.blockchain.api.NabuErrorStatusCodes
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.services.ReferralApiService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
@@ -62,7 +62,7 @@ class ReferralRepository(
                     Outcome.Success(true)
                 },
                 onFailure = { apiError ->
-                    if (apiError is ApiError.KnownError &&
+                    if (apiError is ApiException.KnownError &&
                         apiError.statusCode == NabuErrorStatusCodes.NotFound
                     ) {
                         Outcome.Success(false)

@@ -16,6 +16,7 @@ import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
+import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
@@ -36,7 +37,6 @@ import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.store.KeyedStoreRequest
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
@@ -59,6 +59,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Optional
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
@@ -104,7 +105,9 @@ class DashboardActionInteractor(
         get() = walletModeService.enabledWalletMode().defaultFilter()
 
     fun fetchActiveAssets(model: DashboardModel): Disposable =
-        walletModeService.walletMode.flatMapLatest {
+        walletModeService.walletMode.onEach {
+            model.process(DashboardIntent.ClearAnnouncement)
+        }.flatMapLatest {
             coincore.activeAssets(it)
         }.distinctUntilChangedBy { c -> c.map { it.currency } }.asObservable().subscribeBy(
             onNext = { activeAssets ->
@@ -193,14 +196,14 @@ class DashboardActionInteractor(
     private fun warmWalletModeBalanceCache(): List<Disposable> {
         return listOf(
             walletModeBalanceCache.stream(
-                request = KeyedStoreRequest.Cached(
+                request = KeyedFreshnessStrategy.Cached(
                     key = WalletMode.NON_CUSTODIAL_ONLY,
                     forceRefresh = false
                 )
             ).asObservable().emptySubscribe(),
 
             walletModeBalanceCache.stream(
-                request = KeyedStoreRequest.Cached(
+                request = KeyedFreshnessStrategy.Cached(
                     key = WalletMode.CUSTODIAL_ONLY,
                     forceRefresh = false
                 )

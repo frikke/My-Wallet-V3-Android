@@ -22,6 +22,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
 import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
+import piuk.blockchain.android.ui.educational.walletmodes.EducationalWalletModeActivity
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
@@ -64,6 +65,10 @@ class LoaderActivity :
             is LoadingStep.RequestPin -> onRequestPin()
             // These below should always come only after a ProgressStep.FINISH has been emitted
             is LoadingStep.EmailVerification -> launchEmailVerification(newState.isUserInCowboysPromo)
+            is LoadingStep.EducationalWalletMode -> launchEducationalWalletMode(
+                data = loaderStep.data,
+                isUserInCowboysPromo = newState.isUserInCowboysPromo
+            )
             is LoadingStep.Main -> onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
             is LoadingStep.CowboysInterstitial -> startCowboysInterstitial()
             null -> {
@@ -144,11 +149,11 @@ class LoaderActivity :
         )
 
     override fun onEmailVerified() {
-        model.process(LoaderIntents.OnEmailVerificationFinished)
+        model.process(LoaderIntents.LaunchDashboard(data = null, shouldLaunchUiTour = true))
     }
 
     override fun onEmailVerificationSkipped() {
-        model.process(LoaderIntents.OnEmailVerificationFinished)
+        model.process(LoaderIntents.LaunchDashboard(data = null, shouldLaunchUiTour = true))
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffSkipped(LaunchOrigin.SIGN_UP))
     }
 
@@ -176,6 +181,17 @@ class LoaderActivity :
                 intentData = mainData,
                 shouldLaunchUiTour = shouldLaunchUiTour,
                 shouldBeNewTask = true
+            )
+        )
+        finish()
+    }
+
+    private fun launchEducationalWalletMode(isUserInCowboysPromo: Boolean, data: String?) {
+        startActivity(
+            EducationalWalletModeActivity.newIntent(
+                context = this,
+                data = data,
+                redirectToCowbowsPromo = isUserInCowboysPromo
             )
         )
         finish()

@@ -7,13 +7,20 @@ sealed class LoaderIntents : MviIntent<LoaderState> {
         val isPinValidated: Boolean,
         val isAfterWalletCreation: Boolean,
         val referralCode: String?
-    ) :
-        LoaderIntents() {
-        override fun reduce(oldState: LoaderState): LoaderState = oldState
+    ) : LoaderIntents() {
+        override fun reduce(oldState: LoaderState): LoaderState =
+            oldState.copy(isAfterWalletCreation = isAfterWalletCreation)
     }
 
     object StartLauncherActivity : LoaderIntents() {
         override fun reduce(oldState: LoaderState): LoaderState = oldState.copy(nextLoadingStep = LoadingStep.Launcher)
+    }
+
+    data class LaunchDashboard(
+        val data: String?,
+        val shouldLaunchUiTour: Boolean
+    ) : LoaderIntents() {
+        override fun reduce(oldState: LoaderState): LoaderState = oldState
     }
 
     data class StartMainActivity(val data: String?, val shouldLaunchUiTour: Boolean) : LoaderIntents() {
@@ -26,8 +33,13 @@ sealed class LoaderIntents : MviIntent<LoaderState> {
             oldState.copy(nextLoadingStep = LoadingStep.CowboysInterstitial)
     }
 
-    object OnEmailVerificationFinished : LoaderIntents() {
-        override fun reduce(oldState: LoaderState): LoaderState = oldState
+    data class StartEducationalWalletModeActivity(val data: String?) : LoaderIntents() {
+        override fun reduce(oldState: LoaderState): LoaderState =
+            oldState.copy(
+                nextLoadingStep = LoadingStep.EducationalWalletMode(
+                    data = data
+                )
+            )
     }
 
     data class DecryptAndSetupMetadata(val secondPassword: String) : LoaderIntents() {

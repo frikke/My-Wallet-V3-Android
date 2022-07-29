@@ -339,8 +339,8 @@ internal interface Nabu {
         @Body body: InterestWithdrawalBody
     ): Completable
 
-    @GET(NABU_INTEREST_ENABLED)
-    fun getInterestEnabled(
+    @GET(NABU_INTEREST_AVAILABLE_TICKERS)
+    fun getAvailableTickersForInterest(
         @Header("authorization") authorization: String
     ): Single<InterestEnabledResponse>
 

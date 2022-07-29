@@ -1,12 +1,12 @@
 package com.blockchain.store.impl
 
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.store.Cache
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
-import com.blockchain.store.KeyedStoreRequest
 import com.blockchain.store.Mediator
 import com.blockchain.store.Store
-import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -17,11 +17,11 @@ class StoreBuilder {
 
     @OptIn(DelicateCoroutinesApi::class)
     fun <E : Any, T : Any> build(
-        fetcher: Fetcher<Unit, E, T>,
+        fetcher: Fetcher<Unit, T>,
         cache: Cache<Unit, T>,
         mediator: Mediator<Unit, T>,
         scope: CoroutineScope = GlobalScope
-    ): Store<E, T> = object : Store<E, T> {
+    ): Store<T> = object : Store<T> {
         private val backingStore = buildKeyed<Unit, E, T>(
             fetcher = fetcher,
             cache = cache,
@@ -29,10 +29,10 @@ class StoreBuilder {
             scope = scope,
         )
 
-        override fun stream(request: StoreRequest): Flow<StoreResponse<E, T>> = backingStore.stream(
+        override fun stream(request: FreshnessStrategy): Flow<StoreResponse<T>> = backingStore.stream(
             when (request) {
-                StoreRequest.Fresh -> KeyedStoreRequest.Fresh(Unit)
-                is StoreRequest.Cached -> KeyedStoreRequest.Cached(Unit, request.forceRefresh)
+                FreshnessStrategy.Fresh -> KeyedFreshnessStrategy.Fresh(Unit)
+                is FreshnessStrategy.Cached -> KeyedFreshnessStrategy.Cached(Unit, request.forceRefresh)
             }
         )
 
@@ -41,11 +41,11 @@ class StoreBuilder {
 
     @OptIn(DelicateCoroutinesApi::class)
     fun <K : Any, E : Any, T : Any> buildKeyed(
-        fetcher: Fetcher<K, E, T>,
+        fetcher: Fetcher<K, T>,
         cache: Cache<K, T>,
         mediator: Mediator<K, T>,
         scope: CoroutineScope = GlobalScope
-    ): KeyedStore<K, E, T> = RealStore<K, E, T>(
+    ): KeyedStore<K, T> = RealStore(
         scope,
         MulticasterFetcher(fetcher, scope),
         cache,

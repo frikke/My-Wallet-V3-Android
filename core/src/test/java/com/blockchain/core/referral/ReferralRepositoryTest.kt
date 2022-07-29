@@ -2,7 +2,7 @@ package com.blockchain.core.referral
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.referral.data.ReferralResponse
 import com.blockchain.api.services.ReferralApiService
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
@@ -101,7 +101,7 @@ class ReferralRepositoryTest {
     @Test
     fun `should fetch referral info other errors`() = runBlocking {
         val expectedThrowable: NabuApiException = mock {}
-        val apiError: ApiError.KnownError = mock {
+        val apiError: ApiException.KnownError = mock {
             on { statusCode } doReturn NabuErrorStatusCodes.InternalServerError
             on { exception } doReturn expectedThrowable
         }
@@ -125,7 +125,7 @@ class ReferralRepositoryTest {
 
     @Test
     fun `should check validity invalid`() = runBlocking {
-        val apiError: ApiError.KnownError = mock {
+        val apiError: ApiException.KnownError = mock {
             on { statusCode } doReturn NabuErrorStatusCodes.NotFound
         }
         whenever(referralApiService.validateReferralCode(REF_CODE))
@@ -139,7 +139,7 @@ class ReferralRepositoryTest {
     @Test
     fun `should check forward other errors`() = runBlocking {
         val expectedThrowable: NabuApiException = mock {}
-        val apiError: ApiError.KnownError = mock {
+        val apiError: ApiException.KnownError = mock {
             on { statusCode } doReturn NabuErrorStatusCodes.InternalServerError
             on { exception } doReturn expectedThrowable
         }

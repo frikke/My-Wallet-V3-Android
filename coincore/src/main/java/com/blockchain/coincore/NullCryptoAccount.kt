@@ -1,6 +1,5 @@
 package com.blockchain.coincore
 
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -49,9 +48,6 @@ class NullCryptoAccount(
 
     override fun matches(other: CryptoAccount): Boolean =
         other is NullCryptoAccount
-
-    override val disabledReason: Single<IneligibilityReason>
-        get() = Single.just(IneligibilityReason.NONE)
 }
 
 object NullFiatAccount : FiatAccount {
@@ -79,9 +75,6 @@ object NullFiatAccount : FiatAccount {
 
     override val isFunded: Boolean = false
     override val hasTransactions: Boolean = false
-
-    override val disabledReason: Single<IneligibilityReason>
-        get() = Single.just(IneligibilityReason.NONE)
 
     override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
 }

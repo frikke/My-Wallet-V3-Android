@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 import androidx.annotation.VisibleForTesting
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -27,6 +28,9 @@ internal class KycMoreInfoAnnouncement(
 
         return didNotStartGoldLevelKyc()
     }
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
 
     private fun didNotStartGoldLevelKyc(): Single<Boolean> =
         tierService.tiers().map {

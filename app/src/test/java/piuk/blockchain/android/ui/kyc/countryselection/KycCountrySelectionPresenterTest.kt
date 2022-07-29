@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.kyc.countryselection
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.domain.eligibility.EligibilityService
-import com.blockchain.domain.eligibility.model.EligibilityError
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.outcome.Outcome
@@ -40,7 +39,9 @@ class KycCountrySelectionPresenterTest {
     fun `onViewReady error loading countries`() = runTest {
         // Arrange
         whenever(view.regionType).thenReturn(RegionType.Country)
-        whenever(eligibilityService.getCountriesList(GetRegionScope.None)).thenReturn(Outcome.Failure(EligibilityError.RequestFailed(null)))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.None)).thenReturn(
+            Outcome.Failure(RuntimeException())
+        )
         // Act
         subject.onViewReady()
         // Assert

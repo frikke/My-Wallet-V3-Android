@@ -29,18 +29,12 @@ abstract class MVIBottomSheet<TViewState : ViewState> : BottomSheetDialogFragmen
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return (super.onCreateDialog(savedInstanceState) as BottomSheetDialog).apply {
             setCanceledOnTouchOutside(false)
-
-            setOnShowListener {
-                behavior.apply {
-                    skipCollapsed = true
-                    state = BottomSheetBehavior.STATE_EXPANDED
-                }
-            }
+            forceExpanded()
         }
     }
 }
 
-fun <TViewState : ViewState> MVIBottomSheet<TViewState>.disableDragging() {
+fun BottomSheetDialogFragment.disableDragging() {
     (dialog as BottomSheetDialog).apply {
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -52,6 +46,15 @@ fun <TViewState : ViewState> MVIBottomSheet<TViewState>.disableDragging() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
             }
         })
+    }
+}
+
+fun BottomSheetDialog.forceExpanded() {
+    setOnShowListener {
+        behavior.apply {
+            skipCollapsed = true
+            state = BottomSheetBehavior.STATE_EXPANDED
+        }
     }
 }
 

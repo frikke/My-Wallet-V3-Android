@@ -6,6 +6,7 @@ import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupOption
 import com.blockchain.presentation.backup.BackupPhraseArgs
@@ -23,7 +24,8 @@ import piuk.blockchain.androidcore.utils.EncryptedPrefs
 
 class BackupPhraseViewModel(
     private val backupPhraseService: BackupPhraseService,
-    private val backupPrefs: EncryptedPrefs
+    private val backupPrefs: EncryptedPrefs,
+    private val walletStatusPrefs: WalletStatusPrefs
 ) : MviViewModel<BackupPhraseIntent,
     BackupPhraseViewState,
     BackupPhraseModelState,
@@ -32,7 +34,12 @@ class BackupPhraseViewModel(
     initialState = BackupPhraseModelState()
 ) {
     override fun viewCreated(args: BackupPhraseArgs) {
-        updateState { it.copy(secondPassword = args.secondPassword) }
+        updateState {
+            it.copy(
+                secondPassword = args.secondPassword,
+                allowSkipBackup = args.allowSkipBackup
+            )
+        }
 
         onIntent(BackupPhraseIntent.LoadData)
     }
@@ -40,6 +47,7 @@ class BackupPhraseViewModel(
     override fun reduce(state: BackupPhraseModelState): BackupPhraseViewState {
         return with(state) {
             BackupPhraseViewState(
+                showSkipBackup = allowSkipBackup,
                 showLoading = isLoading,
                 showError = isError,
                 mnemonic = mnemonic,
@@ -59,6 +67,15 @@ class BackupPhraseViewModel(
 
             BackupPhraseIntent.LoadData -> {
                 loadData()
+            }
+
+            BackupPhraseIntent.GoToSkipBackup -> {
+                navigate(BackupPhraseNavigationEvent.SkipBackup)
+            }
+
+            BackupPhraseIntent.SkipBackup -> {
+                markBackupAsSkipped()
+                onIntent(BackupPhraseIntent.EndFlow(isSuccessful = true))
             }
 
             BackupPhraseIntent.StartBackupProcess -> {
@@ -131,6 +148,10 @@ class BackupPhraseViewModel(
             .doOnFailure {
                 updateState { modelState.copy(isError = true) }
             }
+    }
+
+    private fun markBackupAsSkipped() {
+        walletStatusPrefs.isWalletBackUpSkipped = true
     }
 
     private fun resetCopyState() {

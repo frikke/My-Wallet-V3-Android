@@ -14,6 +14,7 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
@@ -218,7 +219,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
 
     private fun getInterestTargets(): Maybe<SingleAccountList> =
         custodialManager.getInterestEligibilityForAsset(currency).flatMapMaybe { eligibility ->
-            if (eligibility.eligible) {
+            if (eligibility == InterestEligibility.Eligible) {
                 accounts.flatMapMaybe {
                     Maybe.just(it.filterIsInstance<CryptoInterestAccount>())
                 }

@@ -12,6 +12,10 @@
     <string name="backup_phrase_intro_ack_3" />
     <string name="back_up_now" />
 
+    <string name="skip_backup_title" />
+    <string name="skip_backup_description" />
+    <string name="skip_backup_cta" />
+
     <string name="recovery_phrase_title" />
     <string name="recovery_phrase_description" />
     <string name="recovery_phrase_backup_again" />
@@ -27,6 +31,7 @@
     <string name="next" />
     <string name="done" />
     <string name="verify" />
+    <string name="common_skip" />
 
     <string name="verify_phrase_title" />
     <string name="verify_phrase_description" />
@@ -64,6 +69,10 @@
     <!--    <string name="backup_phrase_intro_ack_3">It is my full responsibility to keep my secret phrase secure.</string>-->
     <!--    <string name="back_up_now">Back Up Now</string>-->
 
+    <!--    <string name="skip_backup_title">Are you sure you want to continue?</string>-->
+    <!--    <string name="skip_backup_description">By skipping your DeFi Wallet backup, you risk losing access to your funds.</string>-->
+    <!--    <string name="skip_backup_cta">Yes, skip backup</string>-->
+
     <!--    <string name="recovery_phrase_title">Your Recovery Phrase</string>-->
     <!--    <string name="recovery_phrase_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>-->
     <!--    <string name="recovery_phrase_backup_again">Back Up Again</string>-->
@@ -83,6 +92,7 @@
     <!--    <string name="something_went_wrong_try_again">Something went wrong. Please try again.</string>-->
     <!--    <string name="common_ok">OK</string>-->
     <!--    <string name="common_continue">Continue</string>-->
+    <!--    <string name="common_skip">Skip</string>-->
 
     <!--    <string name="verify_phrase_title">Verify Your Phrase</string>-->
     <!--    <string name="verify_phrase_description">Tap the words to put them in the correct order.\n</string>-->

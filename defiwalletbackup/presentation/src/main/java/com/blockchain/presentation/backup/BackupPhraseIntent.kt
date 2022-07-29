@@ -8,7 +8,11 @@ sealed interface BackupPhraseIntent : Intent<BackupPhraseModelState> {
 
     // intro
     object LoadData : BackupPhraseIntent
+    object GoToSkipBackup : BackupPhraseIntent
     object StartBackupProcess : BackupPhraseIntent
+
+    // skip backup
+    object SkipBackup : BackupPhraseIntent
 
     // recover phrase
     object EnableCloudBackup : BackupPhraseIntent

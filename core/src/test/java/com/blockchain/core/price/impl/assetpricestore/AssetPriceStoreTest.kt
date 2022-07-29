@@ -2,10 +2,10 @@ package com.blockchain.core.price.impl.assetpricestore
 
 import app.cash.turbine.test
 import com.blockchain.core.price.HistoricalTimeSpan
-import com.blockchain.core.price.model.AssetPriceError
+import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
+import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.outcome.Outcome
-import com.blockchain.store.KeyedStoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.testutils.USD
 import info.blockchain.balance.CryptoCurrency
@@ -20,7 +20,7 @@ import org.junit.Test
 
 class AssetPriceStoreTest {
 
-    private val cacheFlow = MutableSharedFlow<StoreResponse<AssetPriceError, List<AssetPriceRecord>>>(replay = 1)
+    private val cacheFlow = MutableSharedFlow<StoreResponse<List<AssetPriceRecord>>>(replay = 1)
     private val cache: AssetPriceStoreCache = mockk {
         every { stream(any()) } returns cacheFlow
     }
@@ -32,20 +32,25 @@ class AssetPriceStoreTest {
     )
 
     @Test
-    fun `warming supported tickers cache should request supported tickers from store and cache them locally`() = runTest {
-        val supportedTickersStoreFlow = MutableSharedFlow<StoreResponse<AssetPriceError, SupportedTickerGroup>>(replay = 1)
-        every { supportedTickersStore.stream(any()) } returns supportedTickersStoreFlow
+    fun `warming supported tickers cache should request supported tickers from store and cache them locally`() =
+        runTest {
+            val supportedTickersStoreFlow = MutableSharedFlow<StoreResponse<SupportedTickerGroup>>(replay = 1)
+            every { supportedTickersStore.stream(any()) } returns supportedTickersStoreFlow
 
-        supportedTickersStoreFlow.emit(StoreResponse.Data(SUPPORTED_TICKERS_GROUP))
-        assertEquals(subject.warmSupportedTickersCache(), Outcome.Success(Unit))
-        assertEquals(subject.fiatQuoteTickers, SUPPORTED_FIAT_QUOTE_TICKERS)
-    }
+            supportedTickersStoreFlow.emit(StoreResponse.Data(SUPPORTED_TICKERS_GROUP))
+            assertEquals(subject.warmSupportedTickersCache(), Outcome.Success(Unit))
+            assertEquals(subject.fiatQuoteTickers, SUPPORTED_FIAT_QUOTE_TICKERS)
+        }
 
     @Test
     fun `getCurrentPriceForAsset should request asset price records from store and cache them locally`() = runTest {
         subject.getCurrentPriceForAsset(BTC, USD).test {
             verify {
-                cache.stream(KeyedStoreRequest.Cached(AssetPriceStoreCache.Key.GetAllCurrent(USD.networkTicker), forceRefresh = false))
+                cache.stream(
+                    KeyedFreshnessStrategy.Cached(
+                        AssetPriceStoreCache.Key.GetAllCurrent(USD.networkTicker), forceRefresh = false
+                    )
+                )
             }
             cacheFlow.emit(StoreResponse.Loading)
             assertEquals(StoreResponse.Loading, awaitItem())
@@ -59,24 +64,26 @@ class AssetPriceStoreTest {
     }
 
     @Test
-    fun `getCurrentPriceForAsset should request cache and filter for the requested asset and emit Data if found`() = runTest {
-        subject.getCurrentPriceForAsset(BTC, USD).test {
-            cacheFlow.emit(StoreResponse.Loading)
-            assertEquals(StoreResponse.Loading, awaitItem())
-            cacheFlow.emit(StoreResponse.Data(RECORDS_LIST))
-            assertEquals(StoreResponse.Data(RECORD_BTC_USD), awaitItem())
-            expectNoEvents()
+    fun `getCurrentPriceForAsset should request cache and filter for the requested asset and emit Data if found`() =
+        runTest {
+            subject.getCurrentPriceForAsset(BTC, USD).test {
+                cacheFlow.emit(StoreResponse.Loading)
+                assertEquals(StoreResponse.Loading, awaitItem())
+                cacheFlow.emit(StoreResponse.Data(RECORDS_LIST))
+                assertEquals(StoreResponse.Data(RECORD_BTC_USD), awaitItem())
+                expectNoEvents()
+            }
         }
-    }
 
     @Test
-    fun `getCurrentPriceForAsset should request cache and filter for the requested asset and emit Error if not found`() = runTest {
-        subject.getCurrentPriceForAsset(BTC, USD).test {
-            cacheFlow.emit(StoreResponse.Data(listOf(RECORD_ETH_USD)))
-            assertEquals(StoreResponse.Error(AssetPriceError.PricePairNotFound(BTC, USD)), awaitItem())
-            expectNoEvents()
+    fun `getCurrentPriceForAsset should request cache and filter for the requested asset and emit Error if not found`() =
+        runTest {
+            subject.getCurrentPriceForAsset(BTC, USD).test {
+                cacheFlow.emit(StoreResponse.Data(listOf(RECORD_ETH_USD)))
+                assertEquals(StoreResponse.Error(AssetPriceNotFoundException(BTC, USD)), awaitItem())
+                expectNoEvents()
+            }
         }
-    }
 
     @Test
     fun `getCurrentPriceForAsset should filter out repeated equal emissions`() = runTest {
@@ -89,27 +96,33 @@ class AssetPriceStoreTest {
     }
 
     @Test
-    fun `getYesterdayPriceForAsset should request cache and filter for the requested asset and emit Data if found`() = runTest {
-        subject.getYesterdayPriceForAsset(BTC, USD).test {
-            verify {
-                cache.stream(KeyedStoreRequest.Cached(AssetPriceStoreCache.Key.GetAllYesterday(USD.networkTicker), forceRefresh = false))
+    fun `getYesterdayPriceForAsset should request cache and filter for the requested asset and emit Data if found`() =
+        runTest {
+            subject.getYesterdayPriceForAsset(BTC, USD).test {
+                verify {
+                    cache.stream(
+                        KeyedFreshnessStrategy.Cached(
+                            AssetPriceStoreCache.Key.GetAllYesterday(USD.networkTicker), forceRefresh = false
+                        )
+                    )
+                }
+                cacheFlow.emit(StoreResponse.Loading)
+                assertEquals(StoreResponse.Loading, awaitItem())
+                cacheFlow.emit(StoreResponse.Data(RECORDS_LIST))
+                assertEquals(StoreResponse.Data(RECORD_BTC_USD), awaitItem())
+                expectNoEvents()
             }
-            cacheFlow.emit(StoreResponse.Loading)
-            assertEquals(StoreResponse.Loading, awaitItem())
-            cacheFlow.emit(StoreResponse.Data(RECORDS_LIST))
-            assertEquals(StoreResponse.Data(RECORD_BTC_USD), awaitItem())
-            expectNoEvents()
         }
-    }
 
     @Test
-    fun `getYesterdayPriceForAsset should request cache and filter for the requested asset and emit Error if not found`() = runTest {
-        subject.getYesterdayPriceForAsset(BTC, USD).test {
-            cacheFlow.emit(StoreResponse.Data(listOf(RECORD_ETH_USD)))
-            assertEquals(StoreResponse.Error(AssetPriceError.PricePairNotFound(BTC, USD)), awaitItem())
-            expectNoEvents()
+    fun `getYesterdayPriceForAsset should request cache and filter for the requested asset and emit Error if not found`() =
+        runTest {
+            subject.getYesterdayPriceForAsset(BTC, USD).test {
+                cacheFlow.emit(StoreResponse.Data(listOf(RECORD_ETH_USD)))
+                assertEquals(StoreResponse.Error(AssetPriceNotFoundException(BTC, USD)), awaitItem())
+                expectNoEvents()
+            }
         }
-    }
 
     @Test
     fun `getYesterdayPriceForAsset should filter out repeated equal emissions`() = runTest {
@@ -133,7 +146,7 @@ class AssetPriceStoreTest {
 
         cacheFlow.resetReplayCache()
         flow { emit(subject.getHistoricalPriceForAsset(BTC, USD, HistoricalTimeSpan.WEEK)) }.test {
-            val error = AssetPriceError.RequestFailed("some message")
+            val error = RuntimeException("some message")
             cacheFlow.emit(StoreResponse.Error(error))
             assertEquals(Outcome.Failure(error), awaitItem())
             awaitComplete()

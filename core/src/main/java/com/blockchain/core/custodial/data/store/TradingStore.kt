@@ -15,7 +15,7 @@ import kotlinx.serialization.builtins.serializer
 class TradingStore(
     private val balanceService: CustodialBalanceService,
     private val authenticator: Authenticator,
-) : Store<Throwable, Map<String, TradingBalanceResponseDto>> by PersistedJsonSqlDelightStoreBuilder()
+) : Store<Map<String, TradingBalanceResponseDto>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.ofSingle(
@@ -23,8 +23,7 @@ class TradingStore(
                 authenticator.authenticate {
                     balanceService.getTradingBalanceForAllAssets(it.authHeader)
                 }
-            },
-            errorMapper = { it }
+            }
         ),
         dataSerializer = MapSerializer(
             keySerializer = String.serializer(),

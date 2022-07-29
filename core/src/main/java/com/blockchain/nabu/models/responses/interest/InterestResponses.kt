@@ -1,5 +1,6 @@
 package com.blockchain.nabu.models.responses.interest
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -27,7 +28,7 @@ data class InterestLimitsResponse(
 
 @Serializable
 data class InterestEnabledResponse(
-    val instruments: List<String>
+    @SerialName("instruments") val networkTickers: List<String>
 )
 
 @Serializable

@@ -1,4 +1,4 @@
-package com.blockchain.core.interest.data
+package com.blockchain.core.interest.data.datasources
 
 import com.blockchain.api.services.InterestApiService
 import com.blockchain.api.services.InterestBalanceDetails
@@ -11,10 +11,10 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.FlushableDataSource
 import kotlinx.serialization.builtins.ListSerializer
 
-class InterestStore(
+class InterestBalancesStore(
     private val interestApiService: InterestApiService,
     private val authenticator: Authenticator
-) : Store<Throwable, List<InterestBalanceDetails>> by PersistedJsonSqlDelightStoreBuilder()
+) : Store< List<InterestBalanceDetails>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.ofSingle(
@@ -22,8 +22,7 @@ class InterestStore(
                 authenticator.authenticate {
                     interestApiService.getAllInterestAccountBalances(it.authHeader)
                 }
-            },
-            errorMapper = { it }
+            }
         ),
         dataSerializer = ListSerializer(InterestBalanceDetails.serializer()),
         mediator = FreshnessMediator(Freshness.DURATION_24_HOURS)

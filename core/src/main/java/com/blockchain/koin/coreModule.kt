@@ -37,7 +37,7 @@ import com.blockchain.core.eligibility.EligibilityRepository
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.fiatcurrencies.FiatCurrenciesRepository
 import com.blockchain.core.interest.data.InterestRepository
-import com.blockchain.core.interest.data.InterestStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
@@ -70,6 +70,7 @@ import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.EducationalScreensPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
@@ -210,7 +211,7 @@ val coreModule = module {
         }.bind(FiatCurrenciesService::class)
 
         scoped {
-            InterestStore(
+            InterestBalancesStore(
                 interestApiService = get(),
                 authenticator = get()
             )
@@ -219,7 +220,10 @@ val coreModule = module {
         scoped<InterestService> {
             InterestRepository(
                 assetCatalogue = get(),
-                interestStore = get()
+                interestBalancesStore = get(),
+                interestEligibilityTimedCache = get(),
+                nabuService = get(),
+                authenticator = get()
             )
         }
 
@@ -570,6 +574,7 @@ val coreModule = module {
         bind(NftAnnouncementPrefs::class)
         bind(ReferralPrefs::class)
         bind(LocalSettingsPrefs::class)
+        bind(EducationalScreensPrefs::class)
     }
 
     factory {

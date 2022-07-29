@@ -8,15 +8,15 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class MulticasterFetcher<K, T, E>(
-    private val fetcher: Fetcher<K, T, E>,
+class MulticasterFetcher<K, T>(
+    private val fetcher: Fetcher<K, T>,
     private val scope: CoroutineScope
-): Fetcher<K, T, E> {
+) : Fetcher<K, T> {
 
     private val mutex = Mutex()
-    private val currentCalls: MutableMap<K, Deferred<FetcherResult<T, E>>> = mutableMapOf()
+    private val currentCalls: MutableMap<K, Deferred<FetcherResult<T>>> = mutableMapOf()
 
-    override suspend fun fetch(key: K): FetcherResult<T, E> {
+    override suspend fun fetch(key: K): FetcherResult<T> {
         val call = mutex.withLock {
             val currentCall = currentCalls[key]
             if (currentCall == null || !currentCall.isActive) {

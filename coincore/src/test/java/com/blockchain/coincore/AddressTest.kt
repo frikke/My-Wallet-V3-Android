@@ -82,7 +82,7 @@ class AddressTest {
 
     @Test
     fun `validate emojis as domains`() {
-        val emojisDomain = "🌊🐙️🌊"
+        val emojisDomain = "\u2620\ud83d\udc19\u2620" // ☠️🐙☠️
         val resolvedAddress = "resolvedAddress"
         val receiveAddress = EthAddress(resolvedAddress)
         every {
@@ -104,8 +104,32 @@ class AddressTest {
     }
 
     @Test
+    fun `validate emojis with variant selector characters as domains`() {
+        val emojisDomainWithSelector = "\u2620\ufe0f\ud83d\udc19\u2620\ufe0f" // ☠️🐙☠️
+        val emojisDomain = "\u2620\ud83d\udc19\u2620" // ☠🐙☠
+        val resolvedAddress = "resolvedAddress"
+        val receiveAddress = EthAddress(resolvedAddress)
+        every {
+            ethAsset.parseAddress(resolvedAddress, emojisDomain, true)
+        } returns Maybe.just(receiveAddress)
+
+        every {
+            addressResolver.resolveAssetAddress(emojisDomain, CryptoCurrency.ETHER.networkTicker)
+        } returns Single.just(resolvedAddress)
+
+        subject.parse(emojisDomainWithSelector, CryptoCurrency.ETHER).test()
+            .assertValue { result ->
+                result == receiveAddress
+            }
+
+        verify { addressResolver.resolveAssetAddress(emojisDomain, CryptoCurrency.ETHER.networkTicker) }
+        verify { coincore[CryptoCurrency.ETHER] }
+        verify { ethAsset.parseAddress(resolvedAddress, emojisDomain, true) }
+    }
+
+    @Test
     fun `fail to resolve mix of emojis and alphanumeric`() {
-        val mix = "abc👾️💻12"
+        val mix = "abc\uD83D\uDC1912"
 
         every { ethAsset.parseAddress(mix) } returns Maybe.empty()
 

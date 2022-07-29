@@ -8,8 +8,7 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore
-import com.blockchain.core.price.model.AssetPriceError
-import com.blockchain.core.price.model.AssetPriceNotCached
+import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.outcome.map
@@ -40,14 +39,14 @@ internal class ExchangeRatesDataManagerImpl(
         get() = currencyPrefs.selectedFiatCurrency
 
     override fun init(): Completable = rxCompletableOutcome {
-        priceStore.warmSupportedTickersCache().mapError(::toRxThrowable)
+        priceStore.warmSupportedTickersCache()
     }
 
     override fun exchangeRate(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate> {
         val shouldInverse = fromAsset.type == CurrencyType.FIAT && toAsset.type == CurrencyType.CRYPTO
         val base = if (shouldInverse) toAsset else fromAsset
         val quote = if (shouldInverse) fromAsset else toAsset
-        return priceStore.getCurrentPriceForAsset(base, quote).asObservable(errorMapper = ::toRxThrowable).map {
+        return priceStore.getCurrentPriceForAsset(base, quote).asObservable().map {
             ExchangeRate(
                 from = base,
                 to = quote,
@@ -62,7 +61,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun exchangeRateToUserFiat(fromAsset: Currency): Observable<ExchangeRate> =
         priceStore.getCurrentPriceForAsset(fromAsset, userFiat)
-            .asObservable(errorMapper = ::toRxThrowable)
+            .asObservable()
             .map {
                 ExchangeRate(
                     from = fromAsset,
@@ -168,8 +167,8 @@ internal class ExchangeRatesDataManagerImpl(
         fiat: Currency,
         isRefreshing: Boolean,
     ): Observable<Prices24HrWithDelta> = Observable.combineLatest(
-        priceStore.getCurrentPriceForAsset(fromAsset, fiat).asObservable(errorMapper = ::toRxThrowable),
-        priceStore.getYesterdayPriceForAsset(fromAsset, fiat).asObservable(errorMapper = ::toRxThrowable)
+        priceStore.getCurrentPriceForAsset(fromAsset, fiat).asObservable(),
+        priceStore.getYesterdayPriceForAsset(fromAsset, fiat).asObservable()
     ) { current, yesterday ->
         Prices24HrWithDelta(
             delta24h = current.getPriceDelta(yesterday),
@@ -196,7 +195,7 @@ internal class ExchangeRatesDataManagerImpl(
         return rxSingleOutcome {
             priceStore.getHistoricalPriceForAsset(asset, userFiat, span)
                 .map { prices -> prices.map { it.toHistoricalRate() } }
-                .mapError(::toRxThrowable)
+                .mapError(transform = { AssetPriceNotFoundException(asset.networkTicker, userFiat.networkTicker) })
         }
     }
 
@@ -206,18 +205,13 @@ internal class ExchangeRatesDataManagerImpl(
         rxSingleOutcome {
             priceStore.getHistoricalPriceForAsset(asset, userFiat, HistoricalTimeSpan.DAY)
                 .map { prices -> prices.map { it.toHistoricalRate() } }
-                .mapError(::toRxThrowable)
+                .mapError(transform = { AssetPriceNotFoundException(asset.networkTicker, userFiat.networkTicker) })
         }
 
     override val fiatAvailableForRates: List<FiatCurrency>
         get() = priceStore.fiatQuoteTickers.mapNotNull {
             assetCatalogue.fiatFromNetworkTicker(it)
         }
-
-    private fun toRxThrowable(error: AssetPriceError): Throwable = when (error) {
-        is AssetPriceError.PricePairNotFound -> AssetPriceNotCached(error.base.networkTicker, error.quote.networkTicker)
-        is AssetPriceError.RequestFailed -> Exception(error.message)
-    }
 
     private fun AssetPriceRecord.getPriceDelta(other: AssetPriceRecord): Double {
         val thisRate = this.rate

@@ -817,7 +817,11 @@ class PinActivity :
     }
 
     private fun finishSignupProcess() {
-        util.loadAppWithVerifiedPin(LoaderActivity::class.java, isAfterCreateWallet, referralCode)
+        util.loadAppWithVerifiedPin(
+            loaderActivity = LoaderActivity::class.java,
+            isAfterWalletCreation = isAfterCreateWallet,
+            referralCode = referralCode
+        )
     }
 
     private fun updateFlexibleNatively(

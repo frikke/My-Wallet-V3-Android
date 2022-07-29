@@ -1,6 +1,6 @@
 package piuk.blockchain.androidcore.data.ethereum
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.EvmNetworksService
@@ -82,7 +82,7 @@ class EthDataManager(
             }
             .subscribeOn(Schedulers.io())
 
-    suspend fun getBalance(nodeUrl: String = EthUrls.ETH_NODES): Outcome<ApiError, BigInteger> {
+    suspend fun getBalance(nodeUrl: String = EthUrls.ETH_NODES): Outcome<ApiException, BigInteger> {
         return ethAccountApi.postEthNodeRequest(
             nodeUrl = nodeUrl,
             requestType = RequestType.GET_BALANCE,

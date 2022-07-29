@@ -13,7 +13,7 @@ sealed class CreateWalletIntent : Intent<CreateWalletModelState> {
     data class ReferralInputChanged(val input: String) : CreateWalletIntent()
     data class TermsOfServiceStateChanged(val isChecked: Boolean) : CreateWalletIntent()
     object NextClicked : CreateWalletIntent() {
-        override fun isValidFor(modelState: CreateWalletModelState): Boolean = !modelState.isCreateWalletLoading
+        override fun isValidFor(modelState: CreateWalletModelState): Boolean = modelState.validateIsNextEnabled()
     }
     object ErrorHandled : CreateWalletIntent()
 }

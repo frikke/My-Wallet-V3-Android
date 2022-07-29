@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
@@ -23,6 +24,9 @@ class AssetRenameAnnouncement(
 
     override val name: String
         get() = "asset_rename"
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = WalletMode.values().toList()
 
     override fun shouldShow(): Single<Boolean> =
         announcementQueries.getRenamedAssetFromCatalogue()

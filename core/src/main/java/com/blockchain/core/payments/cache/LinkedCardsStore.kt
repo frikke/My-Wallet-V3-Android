@@ -1,9 +1,7 @@
 package com.blockchain.core.payments.cache
 
-import com.blockchain.api.NabuApiException
 import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.services.PaymentMethodsService
-import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
 import com.blockchain.nabu.Authenticator
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
@@ -15,17 +13,13 @@ import kotlinx.serialization.builtins.ListSerializer
 class LinkedCardsStore(
     private val paymentMethodsService: PaymentMethodsService,
     private val authenticator: Authenticator
-) : Store<PaymentMethodsError, List<CardResponse>> by PersistedJsonSqlDelightStoreBuilder().build(
+) : Store<List<CardResponse>> by PersistedJsonSqlDelightStoreBuilder().build(
     storeId = STORE_ID,
     fetcher = Fetcher.ofSingle(
         mapper = {
             authenticator.getAuthHeader()
                 .flatMap { paymentMethodsService.getCards(it, true) }
         },
-        errorMapper = {
-            val error = (it as? NabuApiException)?.getErrorDescription().takeIf { !it.isNullOrBlank() } ?: it.message
-            PaymentMethodsError.RequestFailed(error)
-        }
     ),
     dataSerializer = ListSerializer(CardResponse.serializer()),
     mediator = FreshnessMediator(Freshness.ofMinutes(5L))

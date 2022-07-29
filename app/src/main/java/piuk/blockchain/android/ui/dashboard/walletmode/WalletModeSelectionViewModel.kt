@@ -8,8 +8,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.extensions.exhaustive
-import com.blockchain.store.KeyedStoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -78,7 +78,7 @@ class WalletModeSelectionViewModel(
                 }
 
                 val nonCustodialBalance = cache.stream(
-                    KeyedStoreRequest.Cached(
+                    KeyedFreshnessStrategy.Cached(
                         key = WalletMode.NON_CUSTODIAL_ONLY,
                         forceRefresh = false
                     )
@@ -98,7 +98,7 @@ class WalletModeSelectionViewModel(
                 }
 
                 val custodialBalance = cache.stream(
-                    KeyedStoreRequest.Cached(
+                    KeyedFreshnessStrategy.Cached(
                         key = WalletMode.CUSTODIAL_ONLY,
                         forceRefresh = false
                     )

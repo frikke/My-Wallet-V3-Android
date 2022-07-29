@@ -12,6 +12,7 @@ sealed class ClientErrorAnalytics(
 ) : AnalyticsEvent {
 
     class ClientLogError(
+        val errorId: String? = null,
         val nabuApiException: NabuApiException?,
         val errorDescription: String? = null,
         val error: String,
@@ -22,7 +23,7 @@ sealed class ClientErrorAnalytics(
     ) : ClientErrorAnalytics(
         event = AnalyticsNames.CLIENT_ERROR.eventName,
         params = mapOf(
-            "id" to nabuApiException?.getServerSideErrorInfo()?.id,
+            "id" to (errorId ?: nabuApiException?.getServerSideErrorInfo()?.id),
             "error" to error,
             "source" to source.name,
             "title" to title,
@@ -76,5 +77,9 @@ sealed class ClientErrorAnalytics(
         const val INVALID_CRYPTO_CURRENCY = "INVALID_CRYPTO_CURRENCY"
         const val TRADING_DISABLED = "TRADING_DISABLED"
         const val SERVER_SIDE_HANDLED_ERROR = "SERVER_SIDE_HANDLED_ERROR"
+        const val SETTLEMENT_REFRESH_REQUIRED = "SETTLEMENT_REFRESH_REQUIRED"
+        const val SETTLEMENT_INSUFFICIENT_BALANCE = "SETTLEMENT_INSUFFICIENT_BALANCE"
+        const val SETTLEMENT_STALE_BALANCE = "SETTLEMENT_STALE_BALANCE"
+        const val SETTLEMENT_GENERIC_ERROR = "SETTLEMENT_GENERIC_ERROR"
     }
 }

@@ -5,6 +5,9 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.EducationalScreensPrefs
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Scheduler
@@ -24,7 +27,9 @@ class LoaderModel(
     private val payloadDataManager: PayloadDataManager,
     private val prerequisites: Prerequisites,
     private val authPrefs: AuthPrefs,
-    private val interactor: LoaderInteractor
+    private val interactor: LoaderInteractor,
+    private val walletModeService: WalletModeService,
+    private val educationalScreensPrefs: EducationalScreensPrefs
 ) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
         return when (intent) {
@@ -33,12 +38,14 @@ class LoaderModel(
                 intent.isAfterWalletCreation,
                 intent.referralCode
             )
-            is LoaderIntents.OnEmailVerificationFinished -> {
-                if (previousState.isUserInCowboysPromo) {
-                    process(LoaderIntents.StartCowboysInterstitialPromo)
-                } else {
-                    process(LoaderIntents.StartMainActivity(null, true))
-                }
+
+            is LoaderIntents.LaunchDashboard -> {
+                launchDashboard(
+                    isAfterWalletCreation = previousState.isAfterWalletCreation,
+                    data = intent.data,
+                    shouldLaunchUiTour = intent.shouldLaunchUiTour,
+                    isUserInCowboysPromo = previousState.isUserInCowboysPromo
+                )
                 null
             }
             is LoaderIntents.UpdateLoadingStep -> {
@@ -118,6 +125,37 @@ class LoaderModel(
                     }
                 )
         }
+    }
+
+    private fun launchDashboard(
+        isAfterWalletCreation: Boolean,
+        data: String?,
+        shouldLaunchUiTour: Boolean,
+        isUserInCowboysPromo: Boolean
+    ) {
+        process(
+            when {
+
+                // Wallet mode switch enabled
+                // + have not seen educational screen yet
+                // + did not come from signup (already logged in)
+                // -> show educational screen
+                walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL &&
+                    educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
+                    isAfterWalletCreation.not() -> {
+                    LoaderIntents.StartEducationalWalletModeActivity(
+                        data = data
+                    )
+                }
+
+                isUserInCowboysPromo -> {
+                    LoaderIntents.StartCowboysInterstitialPromo
+                }
+                else -> {
+                    LoaderIntents.StartMainActivity(data, shouldLaunchUiTour)
+                }
+            }
+        )
     }
 
     private fun showToast(toastType: ToastType) {

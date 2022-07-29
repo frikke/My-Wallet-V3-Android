@@ -25,7 +25,9 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.Promo
+import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.DIFFERENT_PAYMENT_URL
 import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
@@ -61,6 +63,9 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.NABU_ERR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OVER_MAXIMUM_SOURCE_LIMIT
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.PENDING_ORDERS_LIMIT_REACHED
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SERVER_SIDE_HANDLED_ERROR
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_GENERIC_ERROR
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_INSUFFICIENT_BALANCE
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_STALE_BALANCE
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
@@ -349,12 +354,17 @@ class SimpleBuyCheckoutFragment :
         }
     }
 
-    private fun isBankAccountRefreshRequired(quote: BuyQuote?, selectedPaymentMethod: SelectedPaymentMethod?) =
-        isPlaidEnabled &&
+    private fun getSettlementReason(quote: BuyQuote?, selectedPaymentMethod: SelectedPaymentMethod?): SettlementReason {
+        if (isPlaidEnabled &&
             selectedPaymentMethod?.paymentMethodType == PaymentMethodType.BANK_TRANSFER &&
             selectedPaymentMethod.id.isNotEmpty() &&
             quote?.availability == Availability.UNAVAILABLE &&
-            quote.settlementReason == SettlementReason.REQUIRES_UPDATE
+            quote.settlementReason != null
+        ) {
+            return quote.settlementReason
+        }
+        return SettlementReason.NONE
+    }
 
     private fun renderPrivateKeyLabel(selectedCryptoAsset: AssetInfo) {
         if (selectedCryptoAsset.isCustodialOnly) {
@@ -540,19 +550,28 @@ class SimpleBuyCheckoutFragment :
                 if (!isForPendingPayment && !isOrderAwaitingFunds) {
                     text = getString(R.string.buy_asset_now, state.orderValue?.toStringWithSymbol())
                     setOnClickListener {
-                        if (isBankAccountRefreshRequired(state.quote, state.selectedPaymentMethod)) {
-                            showErrorState(
-                                ErrorState.SettlementRefreshRequired(state.selectedPaymentMethod?.id.orEmpty())
-                            )
-                        } else {
-                            binding.quoteExpiration.invisible()
-                            model.process(SimpleBuyIntent.ConfirmOrder)
-                            analytics.logEvent(
-                                eventWithPaymentMethod(
-                                    SimpleBuyAnalytics.CHECKOUT_SUMMARY_CONFIRMED,
-                                    state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
+                        when (getSettlementReason(state.quote, state.selectedPaymentMethod)) {
+                            SettlementReason.INSUFFICIENT_BALANCE ->
+                                showErrorState(ErrorState.SettlementInsufficientBalance)
+                            SettlementReason.STALE_BALANCE ->
+                                showErrorState(ErrorState.SettlementStaleBalance)
+                            SettlementReason.REQUIRES_UPDATE ->
+                                showErrorState(
+                                    ErrorState.SettlementRefreshRequired(state.selectedPaymentMethod?.id.orEmpty())
                                 )
-                            )
+                            SettlementReason.GENERIC ->
+                                showErrorState(ErrorState.SettlementGenericError)
+                            SettlementReason.UNKNOWN,
+                            SettlementReason.NONE -> {
+                                binding.quoteExpiration.invisible()
+                                model.process(SimpleBuyIntent.ConfirmOrder)
+                                analytics.logEvent(
+                                    eventWithPaymentMethod(
+                                        SimpleBuyAnalytics.CHECKOUT_SUMMARY_CONFIRMED,
+                                        state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
+                                    )
+                                )
+                            }
                         }
                     }
                 } else {
@@ -688,8 +707,18 @@ class SimpleBuyCheckoutFragment :
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardCreateDebitOnly),
                     description = getString(R.string.msg_cardCreateDebitOnly),
-                    serverErrorHandling = listOf(
-                        ServerErrorAction(getString(R.string.sb_checkout_card_debit_only_cta), "")
+                    serverSideUxErrorInfo = ServerSideUxErrorInfo(
+                        id = null,
+                        title = getString(R.string.title_cardCreateDebitOnly),
+                        description = getString(R.string.msg_cardCreateDebitOnly),
+                        iconUrl = getString(R.string.empty),
+                        statusUrl = getString(R.string.empty),
+                        actions = listOf(
+                            ServerErrorAction(
+                                getString(R.string.sb_checkout_card_debit_only_cta), DIFFERENT_PAYMENT_URL
+                            )
+                        ),
+                        categories = emptyList()
                     ),
                     error = errorState.toString()
                 )
@@ -745,9 +774,28 @@ class SimpleBuyCheckoutFragment :
                     title = errorState.serverSideUxErrorInfo.title,
                     description = errorState.serverSideUxErrorInfo.description,
                     error = SERVER_SIDE_HANDLED_ERROR,
-                    serverErrorHandling = errorState.serverSideUxErrorInfo.actions
+                    serverSideUxErrorInfo = errorState.serverSideUxErrorInfo
                 )
-            is ErrorState.SettlementRefreshRequired -> navigator().showBankRefreshError(errorState.accountId)
+            is ErrorState.SettlementInsufficientBalance ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.title_cardInsufficientFunds),
+                    description = getString(R.string.trading_deposit_description_insufficient),
+                    error = SETTLEMENT_INSUFFICIENT_BALANCE
+                )
+            is ErrorState.SettlementStaleBalance ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.trading_deposit_title_stale_balance),
+                    description = getString(R.string.trading_deposit_description_stale),
+                    error = SETTLEMENT_STALE_BALANCE
+                )
+            is ErrorState.SettlementGenericError ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.common_oops_bank),
+                    description = getString(R.string.trading_deposit_description_generic),
+                    error = SETTLEMENT_GENERIC_ERROR
+                )
+            is ErrorState.SettlementRefreshRequired ->
+                navigator().showBankRefreshError(errorState.accountId)
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid,
             ErrorState.ApprovedBankDeclined,
