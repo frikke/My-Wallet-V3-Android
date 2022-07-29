@@ -1,5 +1,6 @@
 package com.blockchain.koin
 
+import com.blockchain.api.nabuApi
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
 import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
@@ -159,7 +160,7 @@ val nabuModule = module {
             InterestAvailableAssetsTimedCache(
                 authenticator = get(),
                 assetCatalogue = get(),
-                nabuService = get()
+                interestApiService = get()
             )
         }
 
@@ -277,7 +278,7 @@ val nabuModule = module {
     }
 
     factory {
-        get<Retrofit>(nabu).create(Nabu::class.java)
+        get<Retrofit>(nabuApi).create(Nabu::class.java)
     }
 
     single {

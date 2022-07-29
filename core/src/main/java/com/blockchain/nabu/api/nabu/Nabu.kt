@@ -3,7 +3,6 @@ package com.blockchain.nabu.api.nabu
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.models.responses.interest.InterestAddressResponse
-import com.blockchain.nabu.models.responses.interest.InterestEnabledResponse
 import com.blockchain.nabu.models.responses.interest.InterestLimitsFullResponse
 import com.blockchain.nabu.models.responses.interest.InterestRateResponse
 import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
@@ -338,11 +337,6 @@ internal interface Nabu {
         @Header("authorization") authorization: String,
         @Body body: InterestWithdrawalBody
     ): Completable
-
-    @GET(NABU_INTEREST_AVAILABLE_TICKERS)
-    fun getAvailableTickersForInterest(
-        @Header("authorization") authorization: String
-    ): Single<InterestEnabledResponse>
 
     @POST(NABU_QUOTES)
     fun fetchQuote(

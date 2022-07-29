@@ -55,6 +55,7 @@ import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
 import com.blockchain.api.watchlist.WatchlistApi
+import com.blockchain.koin.kotlinJsonConverterFactory
 import com.blockchain.koin.kotlinXApiRetrofit
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -86,7 +87,7 @@ val blockchainApiModule = module {
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
-            .addConverterFactory(get())
+            .addConverterFactory(get(kotlinJsonConverterFactory))
             .build()
     }
 
@@ -95,7 +96,7 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("wallet-pubkey-api"))
             .client(get())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
-            .addConverterFactory(get())
+            .addConverterFactory(get(kotlinJsonConverterFactory))
             .build()
     }
 
@@ -104,7 +105,7 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("explorer-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
-            .addConverterFactory(get())
+            .addConverterFactory(get(kotlinJsonConverterFactory))
             .build()
     }
 
@@ -112,9 +113,9 @@ val blockchainApiModule = module {
         Retrofit.Builder()
             .baseUrl(getBaseUrl("nabu-api"))
             .client(get())
+            .addConverterFactory(get(kotlinJsonConverterFactory))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
-            .addConverterFactory(get())
             .build()
     }
 
@@ -275,7 +276,7 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(nabuApi).create(InterestApiInterface::class.java)
         InterestApiService(
-            api = api
+            interestApi = api
         )
     }
 

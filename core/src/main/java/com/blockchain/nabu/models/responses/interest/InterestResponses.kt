@@ -27,11 +27,6 @@ data class InterestLimitsResponse(
 )
 
 @Serializable
-data class InterestEnabledResponse(
-    @SerialName("instruments") val networkTickers: List<String>
-)
-
-@Serializable
 data class InterestWithdrawalBody(
     val withdrawalAddress: String,
     val amount: String,

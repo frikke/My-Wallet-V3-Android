@@ -500,11 +500,6 @@ class NabuService internal constructor(
     ) = nabu.createInterestWithdrawal(authorization = sessionToken.authHeader, body = body)
         .wrapErrorMessage()
 
-    fun getAvailableTickersForInterest(
-        sessionToken: NabuSessionTokenResponse
-    ) = nabu.getAvailableTickersForInterest(authorization = sessionToken.authHeader)
-        .wrapErrorMessage()
-
     fun executeTransfer(
         sessionToken: NabuSessionTokenResponse,
         body: ProductTransferRequestBody
