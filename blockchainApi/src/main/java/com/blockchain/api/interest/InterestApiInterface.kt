@@ -1,6 +1,7 @@
 package com.blockchain.api.interest
 
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
+import com.blockchain.api.interest.data.InterestAddressDto
 import com.blockchain.api.interest.data.InterestAvailableTickersDto
 import com.blockchain.api.interest.data.InterestEligibilityDto
 import com.blockchain.api.interest.data.InterestRateDto
@@ -16,6 +17,7 @@ private const val AVAILABLE_TICKERS = "savings/instruments"
 private const val ELIGIBILITY = "eligible/product/savings"
 private const val LIMITS = "savings/limits"
 private const val INTEREST_RATES = "savings/rates"
+private const val ADDRESS = "payments/accounts/savings"
 
 internal interface InterestApiInterface {
     @GET(BALANCES)
@@ -44,4 +46,10 @@ internal interface InterestApiInterface {
         @Header("authorization") authorization: String,
         @Query("ccy") cryptoCurrencyTicker: String
     ): Single<Response<InterestRateDto>>
+
+    @GET(ADDRESS)
+    fun getAddress(
+        @Header("authorization") authorization: String,
+        @Query("ccy") cryptoCurrencyTicker: String
+    ): Single<InterestAddressDto>
 }

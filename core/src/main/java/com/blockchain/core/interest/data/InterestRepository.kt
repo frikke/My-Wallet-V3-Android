@@ -130,7 +130,7 @@ internal class InterestRepository(
     // address
     override fun getAddress(asset: AssetInfo): Single<String> {
         return authenticator.authenticate { sessionToken ->
-            nabuService.getInterestAddress(sessionToken, asset.networkTicker)
+            interestApiService.getAddress(sessionToken.authHeader, asset.networkTicker)
                 .map { interestAddressResponse -> interestAddressResponse.address }
         }
     }

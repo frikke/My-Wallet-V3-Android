@@ -2,6 +2,7 @@ package com.blockchain.api.interest
 
 import com.blockchain.api.HttpStatus
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
+import com.blockchain.api.interest.data.InterestAddressDto
 import com.blockchain.api.interest.data.InterestAvailableTickersDto
 import com.blockchain.api.interest.data.InterestEligibilityDto
 import com.blockchain.api.interest.data.InterestRateDto
@@ -52,6 +53,11 @@ class InterestApiService internal constructor(
                     else -> Maybe.error(HttpException(it))
                 }
             }
+            .wrapErrorMessage()
+    }
+
+    fun getAddress(authHeader: String, cryptoCurrencyTicker: String): Single<InterestAddressDto> {
+        return interestApi.getAddress(authorization = authHeader, cryptoCurrencyTicker = cryptoCurrencyTicker)
             .wrapErrorMessage()
     }
 }

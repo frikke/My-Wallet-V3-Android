@@ -465,12 +465,6 @@ class NabuService internal constructor(
         sessionToken: NabuSessionTokenResponse
     ) = nabu.getCardAcquirers(sessionToken.authHeader).wrapErrorMessage()
 
-    fun getInterestAddress(
-        sessionToken: NabuSessionTokenResponse,
-        currency: String
-    ) = nabu.getInterestAddress(authorization = sessionToken.authHeader, currency = currency)
-        .wrapErrorMessage()
-
     fun createInterestWithdrawal(
         sessionToken: NabuSessionTokenResponse,
         body: InterestWithdrawalBody
