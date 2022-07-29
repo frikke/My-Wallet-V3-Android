@@ -20,8 +20,8 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.ui.activity.ActivityType
 import java.util.Date
+import piuk.blockchain.android.ui.activity.ActivityType
 
 interface Copyable {
     val filed: String
