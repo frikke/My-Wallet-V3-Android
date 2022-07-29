@@ -7,7 +7,9 @@ import com.blockchain.api.interest.data.InterestAvailableTickersDto
 import com.blockchain.api.interest.data.InterestEligibilityDto
 import com.blockchain.api.interest.data.InterestRateDto
 import com.blockchain.api.interest.data.InterestTickerLimitsDto
+import com.blockchain.api.interest.data.InterestWithdrawalBodyDto
 import com.blockchain.api.wrapErrorMessage
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
@@ -58,6 +60,11 @@ class InterestApiService internal constructor(
 
     fun getAddress(authHeader: String, cryptoCurrencyTicker: String): Single<InterestAddressDto> {
         return interestApi.getAddress(authorization = authHeader, cryptoCurrencyTicker = cryptoCurrencyTicker)
+            .wrapErrorMessage()
+    }
+
+    fun performWithdrawal(authHeader: String, body: InterestWithdrawalBodyDto): Completable {
+        return interestApi.performWithdrawal(authorization = authHeader, body = body)
             .wrapErrorMessage()
     }
 }

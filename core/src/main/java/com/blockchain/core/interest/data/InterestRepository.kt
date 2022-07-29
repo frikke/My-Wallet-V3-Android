@@ -2,6 +2,7 @@ package com.blockchain.core.interest.data
 
 import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
+import com.blockchain.api.interest.data.InterestWithdrawalBodyDto
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
@@ -17,10 +18,8 @@ import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
-import com.blockchain.nabu.service.NabuService
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
 import com.blockchain.utils.fromIso8601ToUtc
@@ -46,7 +45,6 @@ internal class InterestRepository(
     private val interestAvailableAssetsTimedCache: InterestAvailableAssetsTimedCache,
     private val interestLimitsTimedCache: InterestLimitsTimedCache,
     private val authenticator: Authenticator,
-    private val nabuService: NabuService,
     private val interestApiService: InterestApiService,
     private val transactionsCache: TransactionsCache,
 ) : InterestService {
@@ -152,9 +150,9 @@ internal class InterestRepository(
     // withdrawal
     override fun withdraw(asset: AssetInfo, amount: Money, address: String): Completable {
         return authenticator.authenticateCompletable { sessionToken ->
-            nabuService.createInterestWithdrawal(
-                sessionToken = sessionToken,
-                body = InterestWithdrawalBody(
+            interestApiService.performWithdrawal(
+                authHeader = sessionToken.authHeader,
+                body = InterestWithdrawalBodyDto(
                     withdrawalAddress = address,
                     amount = amount.toBigInteger().toString(),
                     currency = asset.networkTicker

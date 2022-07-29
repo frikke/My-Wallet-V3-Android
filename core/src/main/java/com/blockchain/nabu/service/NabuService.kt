@@ -5,7 +5,6 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.TransactionError
-import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.ApplicantIdRequest
@@ -464,12 +463,6 @@ class NabuService internal constructor(
     fun cardAcquirers(
         sessionToken: NabuSessionTokenResponse
     ) = nabu.getCardAcquirers(sessionToken.authHeader).wrapErrorMessage()
-
-    fun createInterestWithdrawal(
-        sessionToken: NabuSessionTokenResponse,
-        body: InterestWithdrawalBody
-    ) = nabu.createInterestWithdrawal(authorization = sessionToken.authHeader, body = body)
-        .wrapErrorMessage()
 
     fun executeTransfer(
         sessionToken: NabuSessionTokenResponse,

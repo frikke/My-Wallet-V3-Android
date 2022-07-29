@@ -1,9 +1,9 @@
-package com.blockchain.nabu.models.responses.interest
+package com.blockchain.api.interest.data
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class InterestWithdrawalBody(
+data class InterestWithdrawalBodyDto(
     val withdrawalAddress: String,
     val amount: String,
     val currency: String

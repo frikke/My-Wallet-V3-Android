@@ -2,7 +2,6 @@ package com.blockchain.nabu.api.nabu
 
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
-import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.ApplicantIdRequest
@@ -309,12 +308,6 @@ internal interface Nabu {
         @Header("authorization") authorization: String,
         @Body request: TransferRequest
     ): Single<TransferFundsResponse>
-
-    @POST(NABU_INTEREST_WITHDRAWAL)
-    fun createInterestWithdrawal(
-        @Header("authorization") authorization: String,
-        @Body body: InterestWithdrawalBody
-    ): Completable
 
     @POST(NABU_QUOTES)
     fun fetchQuote(
