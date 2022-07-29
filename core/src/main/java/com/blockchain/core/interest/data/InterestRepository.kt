@@ -9,13 +9,16 @@ import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCac
 import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.core.interest.domain.model.InterestActivityAttributes
+import com.blockchain.core.interest.domain.model.InterestActivity
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.interest.domain.model.InterestLimits
+import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.models.responses.interest.InterestRateResponse
 import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
+import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.store.getDataOrThrow
@@ -27,6 +30,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -130,7 +134,7 @@ internal class InterestRepository(
     }
 
     // activity
-    override fun getActivity(asset: AssetInfo): Single<List<InterestActivityItem>> {
+    override fun getActivity(asset: AssetInfo): Single<List<InterestActivity>> {
         return transactionsCache.transactions(
             TransactionsRequest(product = PRODUCT_NAME, type = null)
         ).map { interestActivityResponse ->
@@ -162,6 +166,10 @@ internal class InterestRepository(
     }
 }
 
+// ///////////////
+// EXTENSIONS
+// ///////////////
+
 private fun InterestBalanceDetails.toInterestBalance(asset: AssetInfo) =
     InterestAccountBalance(
         totalBalance = CryptoValue.fromMinor(asset, totalBalance),
@@ -181,13 +189,45 @@ private fun zeroBalance(asset: Currency): InterestAccountBalance =
         lockedBalance = Money.zero(asset)
     )
 
-private fun TransactionResponse.toInterestActivityItem(cryptoCurrency: AssetInfo) =
-    InterestActivityItem(
-        value = CryptoValue.fromMinor(cryptoCurrency, amountMinor.toBigInteger()),
-        cryptoCurrency = cryptoCurrency,
+private fun TransactionResponse.toInterestActivityItem(asset: AssetInfo): InterestActivity =
+    InterestActivity(
+        value = CryptoValue.fromMinor(asset, amountMinor.toBigInteger()),
+        asset = asset,
         id = id,
         insertedAt = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-        state = InterestActivityItem.toInterestState(state),
-        type = InterestActivityItem.toTransactionType(type),
-        extraAttributes = extraAttributes
+        state = state.toInterestState(),
+        type = type.toTransactionType(),
+        extraAttributes = extraAttributes?.toDomain()
     )
+
+private fun TransactionAttributesResponse.toDomain() = InterestActivityAttributes(
+    address = address,
+    confirmations = confirmations,
+    hash = hash,
+    id = id,
+    transactionHash = txHash,
+    transferType = transferType,
+    beneficiary = beneficiary
+)
+
+private fun String.toInterestState(): InterestState =
+    when (this) {
+        TransactionResponse.FAILED -> InterestState.FAILED
+        TransactionResponse.REJECTED -> InterestState.REJECTED
+        TransactionResponse.PROCESSING -> InterestState.PROCESSING
+        TransactionResponse.CREATED,
+        TransactionResponse.COMPLETE -> InterestState.COMPLETE
+        TransactionResponse.PENDING -> InterestState.PENDING
+        TransactionResponse.MANUAL_REVIEW -> InterestState.MANUAL_REVIEW
+        TransactionResponse.CLEARED -> InterestState.CLEARED
+        TransactionResponse.REFUNDED -> InterestState.REFUNDED
+        else -> InterestState.UNKNOWN
+    }
+
+fun String.toTransactionType() =
+    when (this) {
+        TransactionResponse.DEPOSIT -> TransactionSummary.TransactionType.DEPOSIT
+        TransactionResponse.WITHDRAWAL -> TransactionSummary.TransactionType.WITHDRAW
+        TransactionResponse.INTEREST_OUTGOING -> TransactionSummary.TransactionType.INTEREST_EARNED
+        else -> TransactionSummary.TransactionType.UNKNOWN
+    }

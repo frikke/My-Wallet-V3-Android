@@ -15,8 +15,6 @@ import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
-import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
-import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -24,7 +22,6 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -200,51 +197,9 @@ interface CustodialWalletManager {
     fun cancelRecurringBuy(recurringBuyId: String): Completable
 }
 
-data class InterestActivityItem(
-    val value: CryptoValue,
-    val cryptoCurrency: AssetInfo,
-    val id: String,
-    val insertedAt: Date,
-    val state: InterestState,
-    val type: TransactionSummary.TransactionType,
-    val extraAttributes: TransactionAttributesResponse?
-) {
-    companion object {
-        fun toInterestState(state: String): InterestState =
-            when (state) {
-                TransactionResponse.FAILED -> InterestState.FAILED
-                TransactionResponse.REJECTED -> InterestState.REJECTED
-                TransactionResponse.PROCESSING -> InterestState.PROCESSING
-                TransactionResponse.CREATED,
-                TransactionResponse.COMPLETE -> InterestState.COMPLETE
-                TransactionResponse.PENDING -> InterestState.PENDING
-                TransactionResponse.MANUAL_REVIEW -> InterestState.MANUAL_REVIEW
-                TransactionResponse.CLEARED -> InterestState.CLEARED
-                TransactionResponse.REFUNDED -> InterestState.REFUNDED
-                else -> InterestState.UNKNOWN
-            }
 
-        fun toTransactionType(type: String) =
-            when (type) {
-                TransactionResponse.DEPOSIT -> TransactionSummary.TransactionType.DEPOSIT
-                TransactionResponse.WITHDRAWAL -> TransactionSummary.TransactionType.WITHDRAW
-                TransactionResponse.INTEREST_OUTGOING -> TransactionSummary.TransactionType.INTEREST_EARNED
-                else -> TransactionSummary.TransactionType.UNKNOWN
-            }
-    }
-}
 
-enum class InterestState {
-    PROCESSING,
-    PENDING,
-    MANUAL_REVIEW,
-    CLEARED,
-    REFUNDED,
-    FAILED,
-    REJECTED,
-    COMPLETE,
-    UNKNOWN
-}
+
 
 data class InterestAccountDetails(
     val balance: CryptoValue,
