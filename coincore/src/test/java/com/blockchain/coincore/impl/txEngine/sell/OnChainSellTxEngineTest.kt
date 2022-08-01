@@ -18,7 +18,7 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.custodial.data.store.TradingDataSource
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -57,7 +57,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val userIdentity: UserIdentity = mock()
-    private val tradingDataSource: TradingDataSource = mock()
+    private val tradingStore: TradingStore = mock()
 
     private val limitsDataManager: LimitsDataManager = mock {
         on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
@@ -77,7 +77,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
     }
 
     private val subject = OnChainSellTxEngine(
-        tradingDataSource = tradingDataSource,
+        tradingStore = tradingStore,
         engine = onChainEngine,
         walletManager = walletManager,
         quotesEngine = quotesEngine,

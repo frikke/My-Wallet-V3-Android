@@ -36,7 +36,7 @@ import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectSignEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectTransactionEngine
 import com.blockchain.core.SwapTransactionsCache
-import com.blockchain.core.custodial.data.store.TradingDataSource
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -58,7 +58,7 @@ class TxProcessorFactory(
     private val bankService: BankService,
     private val limitsDataManager: LimitsDataManager,
     private val interestBalanceStore: InterestBalancesStore,
-    private val tradingDataSource: TradingDataSource,
+    private val tradingStore: TradingStore,
     private val walletPrefs: WalletStatusPrefs,
     private val ethMessageSigner: EthMessageSigner,
     private val ethDataManager: EthDataManager,
@@ -99,7 +99,7 @@ class TxProcessorFactory(
                         txTarget = target,
                         engine = InterestWithdrawTradingTxEngine(
                             interestBalanceStore = interestBalanceStore,
-                            tradingDataSource = tradingDataSource,
+                            tradingStore = tradingStore,
                             walletManager = walletManager
                         )
                     )
@@ -274,7 +274,7 @@ class TxProcessorFactory(
                     sourceAccount = source,
                     txTarget = target,
                     engine = OnChainSellTxEngine(
-                        tradingDataSource = tradingDataSource,
+                        tradingStore = tradingStore,
                         quotesEngine = quotesEngine,
                         walletManager = walletManager,
                         limitsDataManager = limitsDataManager,
@@ -298,7 +298,7 @@ class TxProcessorFactory(
                     sourceAccount = source,
                     txTarget = target,
                     engine = TradingToOnChainTxEngine(
-                        tradingDataSource = tradingDataSource,
+                        tradingStore = tradingStore,
                         walletManager = walletManager,
                         userIdentity = userIdentity,
                         limitsDataManager = limitsDataManager
@@ -313,7 +313,7 @@ class TxProcessorFactory(
                     txTarget = target,
                     engine = InterestDepositTradingEngine(
                         interestBalanceStore = interestBalanceStore,
-                        tradingDataSource = tradingDataSource,
+                        tradingStore = tradingStore,
                         walletManager = walletManager
                     )
                 )
@@ -325,7 +325,7 @@ class TxProcessorFactory(
                     sourceAccount = source,
                     txTarget = target,
                     engine = TradingSellTxEngine(
-                        tradingDataSource = tradingDataSource,
+                        tradingStore = tradingStore,
                         walletManager = walletManager,
                         limitsDataManager = limitsDataManager,
                         quotesEngine = quotesEngine,
@@ -340,7 +340,7 @@ class TxProcessorFactory(
                     sourceAccount = source,
                     txTarget = target,
                     engine = TradingToTradingSwapTxEngine(
-                        tradingDataSource = tradingDataSource,
+                        tradingStore = tradingStore,
                         walletManager = walletManager,
                         limitsDataManager = limitsDataManager,
                         quotesEngine = quotesEngine,
@@ -357,7 +357,7 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = it,
                         engine = TradingToOnChainTxEngine(
-                            tradingDataSource = tradingDataSource,
+                            tradingStore = tradingStore,
                             walletManager = walletManager,
                             limitsDataManager = limitsDataManager,
                             userIdentity = userIdentity

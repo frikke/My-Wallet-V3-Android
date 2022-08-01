@@ -28,7 +28,7 @@ import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.SECONDARY_TEST_ASSET
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.coincore.testutil.EUR
-import com.blockchain.core.custodial.data.store.TradingDataSource
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -50,7 +50,7 @@ class TxProcessorFactoryTest {
     private val exchangeRates: ExchangeRatesDataManager = mock()
     private val walletManager: CustodialWalletManager = mock()
     private val interestBalanceStore: InterestBalancesStore = mock()
-    private val tradingDataSource: TradingDataSource = mock()
+    private val tradingStore: TradingStore = mock()
     private val walletPrefs: WalletStatusPrefs = mock()
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
@@ -70,7 +70,7 @@ class TxProcessorFactoryTest {
             exchangeRates = exchangeRates,
             walletManager = walletManager,
             interestBalanceStore = interestBalanceStore,
-            tradingDataSource = tradingDataSource,
+            tradingStore = tradingStore,
             walletPrefs = walletPrefs,
             limitsDataManager = limitsDataManager,
             bankPartnerCallbackProvider = bankPartnerCallbackProvider,
