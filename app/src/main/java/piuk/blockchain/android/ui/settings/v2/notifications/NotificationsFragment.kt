@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -28,8 +29,6 @@ class NotificationsFragment :
         (activity as? SettingsNavigator) ?: throw IllegalStateException(
             "Parent must implement SettingsNavigator"
         )
-
-    override fun onBackPressed(): Boolean = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

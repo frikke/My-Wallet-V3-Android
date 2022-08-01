@@ -10,6 +10,7 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -48,8 +49,6 @@ class AccountFragment :
         (activity as? SettingsNavigator) ?: throw IllegalStateException(
             "Parent must implement SettingsNavigator"
         )
-
-    override fun onBackPressed(): Boolean = true
 
     override val model: AccountModel by scopedInject()
     private val blockchainCardFF: FeatureFlag by scopedInject(blockchainCardFeatureFlag)

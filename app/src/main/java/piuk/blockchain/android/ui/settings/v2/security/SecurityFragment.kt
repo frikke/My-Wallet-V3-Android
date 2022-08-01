@@ -14,6 +14,7 @@ import com.blockchain.biometrics.BiometricAuthError
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -63,8 +64,6 @@ class SecurityFragment :
         (activity as? SettingsNavigator) ?: throw IllegalStateException(
             "Parent must implement SettingsNavigator"
         )
-
-    override fun onBackPressed(): Boolean = true
 
     override val model: SecurityModel by scopedInject()
 
