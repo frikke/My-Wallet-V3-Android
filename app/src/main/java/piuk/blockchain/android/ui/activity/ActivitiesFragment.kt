@@ -205,8 +205,6 @@ class ActivitiesFragment :
         }
     }
 
-    override fun onBackPressed(): Boolean = false
-
     private val preselectedAccount: BlockchainAccount?
         get() = arguments?.getAccount(PARAM_ACCOUNT)
 

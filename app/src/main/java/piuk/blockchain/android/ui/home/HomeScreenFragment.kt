@@ -17,7 +17,6 @@ import piuk.blockchain.android.ui.sell.BuySellFragment
 
 interface HomeScreenFragment {
     fun navigator(): HomeNavigator
-    fun onBackPressed(): Boolean
 }
 
 interface HomeNavigator {
