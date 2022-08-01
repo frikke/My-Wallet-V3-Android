@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
+import androidx.activity.addCallback
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
@@ -73,6 +74,11 @@ class LoginActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback {
+            model.process(LoginIntents.ResetState)
+            finish()
+        }
 
         setupToolbar()
         recaptchaClient.initReCaptcha()
@@ -153,11 +159,6 @@ class LoginActivity :
         super.onPause()
     }
 
-    override fun onBackPressed() {
-        model.process(LoginIntents.ResetState)
-        super.onBackPressed()
-    }
-
     override fun onDestroy() {
         recaptchaClient.close()
         super.onDestroy()
@@ -181,7 +182,7 @@ class LoginActivity :
     private fun setupToolbar() {
         updateToolbar(
             toolbarTitle = getString(R.string.login_title),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
 
         updateToolbarMenuItems(
