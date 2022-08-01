@@ -110,6 +110,7 @@ class KycNavHostPresenterTest {
             .thenReturn(
                 Single.just(
                     NabuUser(
+                        id = "id",
                         firstName = "FIRST_NAME",
                         lastName = "LAST_NAME",
                         email = "",
@@ -149,6 +150,7 @@ class KycNavHostPresenterTest {
             .thenReturn(
                 Single.just(
                     NabuUser(
+                        id = "id",
                         firstName = "FIRST_NAME",
                         lastName = "LAST_NAME",
                         email = "",
@@ -188,6 +190,7 @@ class KycNavHostPresenterTest {
             .thenReturn(
                 Single.just(
                     NabuUser(
+                        id = "id",
                         firstName = "FIRST_NAME",
                         lastName = "LAST_NAME",
                         email = "",
@@ -225,6 +228,7 @@ class KycNavHostPresenterTest {
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
 
         val nabuUser = NabuUser(
+            id = "id",
             firstName = "firstName",
             lastName = "lastName",
             email = "",
@@ -264,6 +268,7 @@ class KycNavHostPresenterTest {
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
 
         val nabuUser = NabuUser(
+            id = "id",
             firstName = "firstName",
             lastName = "lastName",
             email = "",
@@ -300,6 +305,7 @@ class KycNavHostPresenterTest {
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
 
         val nabuUser = NabuUser(
+            id = "id",
             firstName = "firstName",
             lastName = "lastName",
             email = "",
@@ -336,6 +342,7 @@ class KycNavHostPresenterTest {
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
 
         val nabuUser = NabuUser(
+            id = "id",
             firstName = "firstName",
             lastName = "lastName",
             email = "",
@@ -370,6 +377,7 @@ class KycNavHostPresenterTest {
         // Arrange
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
         val nabuUser = NabuUser(
+            id = "id",
             firstName = "firstName",
             lastName = "lastName",
             email = "",

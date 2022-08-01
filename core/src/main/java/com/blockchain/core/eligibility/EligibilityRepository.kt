@@ -1,6 +1,5 @@
 package com.blockchain.core.eligibility
 
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.eligibility.data.CountryResponse
 import com.blockchain.api.eligibility.data.StateResponse
 import com.blockchain.api.services.EligibilityApiService
@@ -26,14 +25,14 @@ class EligibilityRepository(
 
     override suspend fun getCountriesList(
         scope: GetRegionScope
-    ): Outcome<ApiException, List<Region.Country>> =
+    ): Outcome<Exception, List<Region.Country>> =
         eligibilityApiService.getCountriesList(scope.toNetwork())
             .map { countries -> countries.map(CountryResponse::toDomain) }
 
     override suspend fun getStatesList(
         countryCode: CountryIso,
         scope: GetRegionScope
-    ): Outcome<ApiException, List<Region.State>> =
+    ): Outcome<Exception, List<Region.State>> =
         eligibilityApiService.getStatesList(countryCode, scope.toNetwork())
             .map { states -> states.map(StateResponse::toDomain) }
 

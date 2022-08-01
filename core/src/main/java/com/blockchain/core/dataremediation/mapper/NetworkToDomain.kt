@@ -1,6 +1,6 @@
 package com.blockchain.core.dataremediation.mapper
 
-import com.blockchain.api.adapters.ApiException
+import com.blockchain.api.NabuApiException
 import com.blockchain.api.dataremediation.models.QuestionnaireHeaderResponse
 import com.blockchain.api.dataremediation.models.QuestionnaireNodeResponse
 import com.blockchain.api.dataremediation.models.QuestionnaireResponse
@@ -52,23 +52,24 @@ private fun QuestionnaireHeaderResponse.toDomain(): QuestionnaireHeader = Questi
     description = description
 )
 
-internal fun ApiException.toError(): SubmitQuestionnaireError {
+internal fun Exception.toError(): SubmitQuestionnaireError {
     val nodeId = this.tryParseNodeIdFromApiError()
     return if (nodeId != null) {
         SubmitQuestionnaireError.InvalidNode(nodeId)
     } else {
         SubmitQuestionnaireError.RequestFailed(
-            message = (this as? ApiException.KnownError)?.errorDescription.takeIf { !it.isNullOrBlank() }
-                ?: this.exception.message
+            message = (this as? NabuApiException)?.getErrorDescription().takeIf { !it.isNullOrBlank() }
+                ?: this.message
         )
     }
 }
 
-private fun ApiException.tryParseNodeIdFromApiError(): NodeId? =
-    if (this is ApiException.KnownError && errorDescription.count { it == '#' } == 2) {
-        val indexOfStart = errorDescription.indexOf('#') + 1
-        val indexOfEnd = errorDescription.substring(indexOfStart).indexOf('#')
-        errorDescription.substring(indexOfStart, indexOfStart + indexOfEnd)
-    } else {
-        null
-    }
+private fun Exception.tryParseNodeIdFromApiError(): NodeId? {
+    val errorDescription =
+        (this as? NabuApiException)?.getErrorDescription()?.takeIf { desc -> desc.count { it == '#' } == 2 }
+            ?: return null
+
+    val indexOfStart = errorDescription.indexOf('#') + 1
+    val indexOfEnd = errorDescription.substring(indexOfStart).indexOf('#')
+    return errorDescription.substring(indexOfStart, indexOfStart + indexOfEnd)
+}

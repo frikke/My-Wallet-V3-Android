@@ -1,5 +1,6 @@
 package com.blockchain.store.impl
 
+import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.store.*
 import kotlinx.coroutines.*
@@ -12,7 +13,7 @@ class RealStore<K : Any,  T : Any>(
     private val cache: Cache<K, T>,
     private val mediator: Mediator<K, T>
 ) : KeyedStore<K, T> {
-    override fun stream(request: KeyedFreshnessStrategy<K>): Flow<StoreResponse< T>> =
+    override fun stream(request: KeyedFreshnessStrategy<K>): Flow<DataResource<T>> =
         when (request) {
             is KeyedFreshnessStrategy.Cached -> buildCachedFlow(request)
             is KeyedFreshnessStrategy.Fresh -> buildFreshFlow(request)
@@ -25,13 +26,13 @@ class RealStore<K : Any,  T : Any>(
         val networkLock = CompletableDeferred<Unit>()
         scope.launch {
             networkLock.await()
-            send(StoreResponse.Loading)
+            send(DataResource.Loading)
             when (val result = fetcher.fetch(request.key)) {
                 is FetcherResult.Success -> {
                     // we're relying on the cache to emit the new value
                     cache.write(CachedData(request.key, result.value, System.currentTimeMillis()))
                 }
-                is FetcherResult.Failure -> send(StoreResponse.Error(result.error))
+                is FetcherResult.Failure -> send(DataResource.Error(result.error))
             }
         }
 
@@ -62,7 +63,7 @@ class RealStore<K : Any,  T : Any>(
                         """.trimMargin()
                     )
             }
-            if (shouldEmit) send(StoreResponse.Data(cachedData!!.data))
+            if (shouldEmit) send(DataResource.Data(cachedData!!.data))
 
             if (networkLock.isActive) {
                 when (shouldFetch) {
@@ -74,14 +75,14 @@ class RealStore<K : Any,  T : Any>(
     }
 
     private fun buildFreshFlow(request: KeyedFreshnessStrategy.Fresh<K>) = channelFlow {
-        send(StoreResponse.Loading)
+        send(DataResource.Loading)
         val result = fetcher.fetch(request.key)
         when (result) {
             is FetcherResult.Success -> {
                 cache.write(CachedData(request.key, result.value, System.currentTimeMillis()))
-                send(StoreResponse.Data(result.value))
+                send(DataResource.Data(result.value))
             }
-            is FetcherResult.Failure -> send(StoreResponse.Error(result.error))
+            is FetcherResult.Failure -> send(DataResource.Error(result.error))
         }
 
         cache.read(request.key)
@@ -90,7 +91,7 @@ class RealStore<K : Any,  T : Any>(
             // we're relying on the cache to emit the new value and we're dropping it so we don't emit
             // duplicated Data events and we don't emit the currently cached value when it's an Error
             .drop(1)
-            .map { StoreResponse.Data(it.data) }
+            .map { DataResource.Data(it.data) }
             .collect { send(it) }
     }
 

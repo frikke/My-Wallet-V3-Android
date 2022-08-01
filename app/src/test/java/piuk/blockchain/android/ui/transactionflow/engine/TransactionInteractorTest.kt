@@ -5,6 +5,7 @@ import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
@@ -49,6 +50,7 @@ class TransactionInteractorTest {
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
     private val dismissRecorder: DismissRecorder = mock()
     private val showSendToDomainAnnouncementFeatureFlag: IntegratedFeatureFlag = mock()
+    private val fiatCurrenciesService: FiatCurrenciesService = mock()
 
     private lateinit var subject: TransactionInteractor
 
@@ -67,7 +69,8 @@ class TransactionInteractorTest {
             linkedBanksFactory,
             bankLinkingPrefs,
             dismissRecorder,
-            showSendToDomainAnnouncementFeatureFlag
+            showSendToDomainAnnouncementFeatureFlag,
+            fiatCurrenciesService
         )
     }
 

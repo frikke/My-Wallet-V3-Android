@@ -5,7 +5,6 @@ import app.cash.turbine.test
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuUxErrorResponse
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.paymentmethods.models.ActivateCardResponse
 import com.blockchain.api.paymentmethods.models.AddNewCardResponse
 import com.blockchain.api.paymentmethods.models.AliasInfoResponse
@@ -42,6 +41,7 @@ import com.blockchain.api.services.PaymentsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
@@ -66,7 +66,6 @@ import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PartnerCredentials
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
-import com.blockchain.domain.paymentmethods.model.PaymentMethodDetailsError
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
@@ -83,7 +82,6 @@ import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.store.StoreResponse
 import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.testutils.GBP
 import com.blockchain.testutils.MockKRule
@@ -800,7 +798,7 @@ class PaymentsRepositoryTest {
     fun `getLinkedCards() should return cached data from LinkedCardsStore`() = runTest {
         // ARRANGE
         val freshness: FreshnessStrategy = mockk()
-        val linkedCardsStoreFlow = MutableSharedFlow<StoreResponse<List<CardResponse>>>(replay = 1)
+        val linkedCardsStoreFlow = MutableSharedFlow<DataResource<List<CardResponse>>>(replay = 1)
         val cardResponse = CardResponse(
             id = "id",
             partner = "CARDPROVIDER",
@@ -810,14 +808,14 @@ class PaymentsRepositoryTest {
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
         every { linkedCardsStore.stream(freshness) } returns linkedCardsStoreFlow
-        linkedCardsStoreFlow.emit(StoreResponse.Data(listOf(cardResponse)))
+        linkedCardsStoreFlow.emit(DataResource.Data(listOf(cardResponse)))
 
         // ACT
         val result = subject.getLinkedCards(freshness, CardStatus.ACTIVE)
 
         // ASSERT
         result.test {
-            val cardResult = (expectMostRecentItem() as StoreResponse.Data<List<LinkedPaymentMethod.Card>>).data.first()
+            val cardResult = (expectMostRecentItem() as DataResource.Data<List<LinkedPaymentMethod.Card>>).data.first()
             assertTrue(
                 cardResult.cardId == "id" &&
                     cardResult.partner == Partner.CARDPROVIDER &&
@@ -830,7 +828,7 @@ class PaymentsRepositoryTest {
     fun `getLinkedCards() with invalid state should return empty list`() = runTest {
         // ARRANGE
         val freshness: FreshnessStrategy = mockk()
-        val linkedCardsStoreFlow = MutableSharedFlow<StoreResponse<List<CardResponse>>>(replay = 1)
+        val linkedCardsStoreFlow = MutableSharedFlow<DataResource<List<CardResponse>>>(replay = 1)
         val cardResponse = CardResponse(
             id = "id",
             partner = "CARDPROVIDER",
@@ -840,14 +838,14 @@ class PaymentsRepositoryTest {
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
         every { linkedCardsStore.stream(freshness) } returns linkedCardsStoreFlow
-        linkedCardsStoreFlow.emit(StoreResponse.Data(listOf(cardResponse)))
+        linkedCardsStoreFlow.emit(DataResource.Data(listOf(cardResponse)))
 
         // ACT
         val result = subject.getLinkedCards(freshness, CardStatus.ACTIVE)
 
         // ASSERT
         result.test {
-            val cardResult = (expectMostRecentItem() as StoreResponse.Data<List<LinkedPaymentMethod.Card>>).data
+            val cardResult = (expectMostRecentItem() as DataResource.Data<List<LinkedPaymentMethod.Card>>).data
             assertTrue(cardResult.isEmpty())
         }
     }
@@ -1014,66 +1012,6 @@ class PaymentsRepositoryTest {
         // ASSERT
         result.doOnSuccess {
             assertEquals(paymentMethodDetails, it)
-        }
-    }
-
-    @Test
-    fun `getPaymentMethodForId() - HttpError`() = runTest {
-        // ARRANGE
-        coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiException.HttpError(Exception()))
-
-        // ACT
-        val result = subject.getPaymentMethodDetailsForId(ID)
-
-        // ASSERT
-        result.doOnFailure {
-            assertEquals(PaymentMethodDetailsError.REQUEST_FAILED, it)
-        }
-    }
-
-    @Test
-    fun `getPaymentMethodForId() - NetworkError`() = runTest {
-        // ARRANGE
-        coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiException.NetworkError(Exception()))
-
-        // ACT
-        val result = subject.getPaymentMethodDetailsForId(ID)
-
-        // ASSERT
-        result.doOnFailure {
-            assertEquals(PaymentMethodDetailsError.SERVICE_UNAVAILABLE, it)
-        }
-    }
-
-    @Test
-    fun `getPaymentMethodForId() - UnknownApiError`() = runTest {
-        // ARRANGE
-        coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiException.UnknownApiError(Exception()))
-
-        // ACT
-        val result = subject.getPaymentMethodDetailsForId(ID)
-
-        // ASSERT
-        result.doOnFailure {
-            assertEquals(PaymentMethodDetailsError.UNKNOWN, it)
-        }
-    }
-
-    @Test
-    fun `getPaymentMethodForId() - KnownError`() = runTest {
-        // ARRANGE
-        coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiException.KnownError(mockk(relaxed = true)))
-
-        // ACT
-        val result = subject.getPaymentMethodDetailsForId(ID)
-
-        // ASSERT
-        result.doOnFailure {
-            assertEquals(PaymentMethodDetailsError.REQUEST_FAILED, it)
         }
     }
 }

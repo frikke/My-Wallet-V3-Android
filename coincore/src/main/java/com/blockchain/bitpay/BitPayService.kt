@@ -7,14 +7,12 @@ import com.blockchain.bitpay.models.exceptions.wrapErrorMessage
 import com.blockchain.enviroment.EnvironmentConfig
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import retrofit2.Retrofit
 
 class BitPayService constructor(
     environmentConfig: EnvironmentConfig,
-    retrofit: Retrofit
+    private val service: BitPay,
 ) {
 
-    private val service: BitPay = retrofit.create(BitPay::class.java)
     private val baseUrl: String = environmentConfig.bitpayUrl
 
     internal fun getRawPaymentRequest(

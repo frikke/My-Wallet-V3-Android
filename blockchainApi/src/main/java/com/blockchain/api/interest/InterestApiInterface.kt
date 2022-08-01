@@ -9,6 +9,6 @@ import retrofit2.http.Header
 internal interface InterestApiInterface {
     @GET("accounts/savings")
     fun getAllInterestAccountBalances(
-        @Header("authorization") authorization: String
+        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Single<Response<Map<String, InterestAccountBalanceDto>>>
 }

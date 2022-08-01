@@ -1,11 +1,9 @@
 package com.blockchain.store
 
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
-import com.blockchain.store.StoreResponse.Data
-import com.blockchain.store.StoreResponse.Error
-import com.blockchain.store.StoreResponse.Loading
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
 
 internal typealias Millis = Long
 typealias StoreId = String
@@ -68,7 +66,7 @@ typealias StoreId = String
  * ```
  */
 interface Store<T : Any> {
-    fun stream(request: FreshnessStrategy): Flow<StoreResponse<T>>
+    fun stream(request: FreshnessStrategy): Flow<DataResource<T>>
     fun markAsStale()
 }
 
@@ -79,30 +77,7 @@ interface Store<T : Any> {
  * See [Store] for more documentation and [PaymentMethodsEligibilityStore] for a working example.
  */
 interface KeyedStore<K : Any, T : Any> {
-    fun stream(request: KeyedFreshnessStrategy<K>): Flow<StoreResponse<T>>
+    fun stream(request: KeyedFreshnessStrategy<K>): Flow<DataResource<T>>
     fun markAsStale(key: K)
     fun markStoreAsStale()
-}
-
-
-/**
- * [Loading] : emitted exclusively when fetching from network, the next emitted Data or Error will be related to the network fetch and mean that Store is no longer Loading
- * [Data] : emitted when the fetcher completes successfully or when we get a Cached value
- * [Error] : emitted exclusively when fetching from network, when a Fetcher error has occurred
- */
-sealed class StoreResponse<out T> {
-    object Loading : StoreResponse<Nothing>()
-    data class Data<out T>(val data: T) : StoreResponse<T>() {
-
-        // This is used internally to make StoreResponse.firstOutcome() work as expected,
-        // allowing it to ignore the first cachedData when it's stale or it's doing a force refresh
-        internal var isStale: Boolean = false
-            private set
-
-        internal constructor(data: T, isStale: Boolean) : this(data) {
-            this.isStale = isStale
-        }
-    }
-
-    data class Error(val error: Exception) : StoreResponse<Nothing>()
 }

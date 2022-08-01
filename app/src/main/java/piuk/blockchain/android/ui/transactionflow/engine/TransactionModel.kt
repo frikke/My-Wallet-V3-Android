@@ -387,13 +387,24 @@ class TransactionModel(
 
     private fun processAccountsListUpdate(
         previousState: TransactionState,
-        fromAccount: BlockchainAccount,
+        fromAccount: SingleAccount,
         action: AssetAction
     ): Disposable? =
         if (previousState.selectedTarget is NullAddress) {
             interactor.getTargetAccounts(fromAccount, action).subscribeBy(
                 onSuccess = {
-                    process(TransactionIntent.AvailableAccountsListUpdated(it))
+                    if (action == AssetAction.Sell && it.size == 1) {
+                        process(
+                            TransactionIntent.InitialiseWithSourceAndTargetAccount(
+                                action = action,
+                                fromAccount = fromAccount,
+                                target = it.first(),
+                                passwordRequired = previousState.passwordRequired
+                            )
+                        )
+                    } else {
+                        process(TransactionIntent.AvailableAccountsListUpdated(it))
+                    }
                 },
                 onError = {
                     process(TransactionIntent.FatalTransactionError(it))

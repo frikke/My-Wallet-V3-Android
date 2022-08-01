@@ -25,7 +25,7 @@ class OutcomeCallAdapterFactory : CallAdapter.Factory() {
         val rawOutcomeType = getRawType(outcomeType)
         if (rawOutcomeType != Outcome::class.java) return null
 
-        // Call<Outcome<ApiError, returnType>>
+        // Call<Outcome<Exception, returnType>>
         val returnType = extractReturnType(outcomeType) ?: return null
         return OutcomeCallAdapter<Any>(returnType)
     }
@@ -33,7 +33,7 @@ class OutcomeCallAdapterFactory : CallAdapter.Factory() {
     private fun extractReturnType(responseType: ParameterizedType): Type? {
         // We only support ApiErrors for now on Outcome
         return when (getParameterUpperBound(0, responseType)) {
-            ApiException::class.java -> {
+            Exception::class.java -> {
                 return getParameterUpperBound(1, responseType)
             }
             else -> null

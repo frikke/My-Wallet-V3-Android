@@ -21,6 +21,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
@@ -72,6 +73,7 @@ class TransactionInteractor(
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val dismissRecorder: DismissRecorder,
     private val showSendToDomainsAnnouncementFeatureFlag: IntegratedFeatureFlag,
+    private val fiatCurrenciesService: FiatCurrenciesService,
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
@@ -146,10 +148,16 @@ class TransactionInteractor(
             coincore.getTransactionTargets(sourceAccount, AssetAction.Sell),
             apiPairs
         ).map { (accountList, pairs) ->
-            accountList.filterIsInstance(FiatAccount::class.java)
+            val fiatAccounts = accountList.filterIsInstance(FiatAccount::class.java)
                 .filter { account ->
                     pairs.any { it.source == sourceAccount.currency && account.currency == it.destination }
                 }
+            val selectedTradingCurrency = fiatCurrenciesService.selectedTradingCurrency
+            val selectedTradingAccount =
+                fiatAccounts.find { it.currency == selectedTradingCurrency }
+
+            if (selectedTradingAccount != null) listOf(selectedTradingAccount)
+            else fiatAccounts
         }
     }
 
