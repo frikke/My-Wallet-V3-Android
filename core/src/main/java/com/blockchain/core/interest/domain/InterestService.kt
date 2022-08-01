@@ -2,6 +2,7 @@ package com.blockchain.core.interest.domain
 
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.domain.model.InterestEligibility
+import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.data.FreshnessStrategy
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Observable
@@ -37,12 +38,36 @@ interface InterestService {
     ): Flow<Set<AssetInfo>>
 
     /**
-     * Returns all assets eligible for interest
+     * Returns all assets that can earn rewards
+     * This list doesn't mean that all assets are eligible, some can be [InterestEligibility.Ineligible]
+     *
+     * @see [getEligibilityForAssets]
      */
-    fun getAllAvailableAssets(): Single<List<AssetInfo>>
+    fun getAvailableAssetsForInterest(): Single<List<AssetInfo>>
 
     /**
-     * returns a map composed of each [AssetInfo] with its [InterestEligibility]
+     * Returns if an [asset] can earn rewards
+     * True doesn't mean the asset is eligible, it can be [InterestEligibility.Ineligible]
+     */
+    fun isAssetAvailableForInterest(asset: AssetInfo): Single<Boolean>
+
+    /**
+     * Returns a map composed of each [AssetInfo] with its [InterestEligibility]
      */
     fun getEligibilityForAssets(): Single<Map<AssetInfo, InterestEligibility>>
+
+    /**
+     * Returns [InterestEligibility] for [asset]
+     */
+    fun getEligibilityForAsset(asset: AssetInfo): Single<InterestEligibility>
+
+    /**
+     * Returns a map composed of each [AssetInfo] with its [InterestLimits]
+     */
+    fun getLimitsForAssets(): Single<Map<AssetInfo, InterestLimits>>
+
+    /**
+     * Returns [InterestLimits] for [asset]
+     */
+    fun getLimitsForAsset(asset: AssetInfo): Single<InterestLimits>
 }

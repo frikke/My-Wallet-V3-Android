@@ -2,14 +2,14 @@ package com.blockchain.core.store
 
 import com.blockchain.api.services.InterestBalanceDetails
 import com.blockchain.core.interest.data.InterestRepository
+import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
+import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.service.NabuService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
@@ -30,15 +30,15 @@ class InterestServiceTest {
     private val assetCatalogue = mockk<AssetCatalogue>()
     private val interestBalancesStore = mockk<InterestBalancesStore>()
     private val interestEligibilityTimedCache = mockk<InterestEligibilityTimedCache>()
-    private val nabuService = mockk<NabuService>()
-    private val authenticator = mockk<Authenticator>()
+    private val interestAvailableAssetsTimedCache = mockk<InterestAvailableAssetsTimedCache>()
+    private val interestLimitsTimedCache = mockk<InterestLimitsTimedCache>()
 
     private val interestService: InterestService = InterestRepository(
         assetCatalogue = assetCatalogue,
         interestBalancesStore = interestBalancesStore,
         interestEligibilityTimedCache = interestEligibilityTimedCache,
-        nabuService = nabuService,
-        authenticator = authenticator,
+        interestAvailableAssetsTimedCache = interestAvailableAssetsTimedCache,
+        interestLimitsTimedCache = interestLimitsTimedCache,
     )
 
     private val cryptoCurrency = object : CryptoCurrency(
@@ -114,4 +114,6 @@ class InterestServiceTest {
         verify(exactly = 1) { interestBalancesStore.stream(FreshnessStrategy.Cached(true)) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
     }
+
+    // todo (othman) more unit tests
 }

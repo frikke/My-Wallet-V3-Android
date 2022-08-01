@@ -38,7 +38,7 @@ class InterestEligibilityTimedCache(
     fun cached(): Single<Map<AssetInfo, InterestEligibility>> = cache.getCachedSingle()
 
     companion object {
-        private const val CACHE_LIFETIME = 20L
+        private const val CACHE_LIFETIME = 3600L // todo(othman) verify 20L vs 3600L
 
         private const val UNSUPPORTED_REGION = "UNSUPPORTED_REGION"
         private const val TIER_TOO_LOW = "TIER_TOO_LOW"

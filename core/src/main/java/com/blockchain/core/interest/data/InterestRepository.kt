@@ -1,14 +1,15 @@
 package com.blockchain.core.interest.data
 
 import com.blockchain.api.services.InterestBalanceDetails
+import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
+import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.domain.model.InterestEligibility
+import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.service.NabuService
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
@@ -26,10 +27,11 @@ internal class InterestRepository(
     private val assetCatalogue: AssetCatalogue,
     private val interestBalancesStore: InterestBalancesStore,
     private val interestEligibilityTimedCache: InterestEligibilityTimedCache,
-    private val nabuService: NabuService,
-    private val authenticator: Authenticator,
+    private val interestAvailableAssetsTimedCache: InterestAvailableAssetsTimedCache,
+    private val interestLimitsTimedCache: InterestLimitsTimedCache,
 ) : InterestService {
 
+    // balances
     private fun getBalancesFlow(refreshStrategy: FreshnessStrategy): Flow<Map<AssetInfo, InterestAccountBalance>> {
         return interestBalancesStore.stream(refreshStrategy)
             .mapData { interestBalanceDetailList ->
@@ -62,18 +64,37 @@ internal class InterestRepository(
             .map { it.keys }
     }
 
-    override fun getAllAvailableAssets(): Single<List<AssetInfo>> {
-        return authenticator.authenticate { token ->
-            nabuService.getAvailableTickersForInterest(token).map { instrumentsResponse ->
-                instrumentsResponse.networkTickers.mapNotNull { networkTicker ->
-                    assetCatalogue.assetInfoFromNetworkTicker(networkTicker)
-                }
-            }
+    // availability
+    override fun getAvailableAssetsForInterest(): Single<List<AssetInfo>> {
+        return interestAvailableAssetsTimedCache.cached()
+    }
+
+    override fun isAssetAvailableForInterest(asset: AssetInfo): Single<Boolean> {
+        return getAvailableAssetsForInterest()
+            .map { assets -> assets.contains(asset) }
+            .onErrorResumeNext { Single.just(false) }
+    }
+
+    // eligibility
+    override fun getEligibilityForAssets(): Single<Map<AssetInfo, InterestEligibility>> {
+        return interestEligibilityTimedCache.cached()
+    }
+
+    override fun getEligibilityForAsset(asset: AssetInfo): Single<InterestEligibility> {
+        return getEligibilityForAssets().map { mapAssetWithEligibility ->
+            mapAssetWithEligibility[asset] ?: InterestEligibility.Ineligible.default()
         }
     }
 
-    override fun getEligibilityForAssets(): Single<Map<AssetInfo, InterestEligibility>> {
-        return interestEligibilityTimedCache.cached()
+    // limits
+    override fun getLimitsForAssets(): Single<Map<AssetInfo, InterestLimits>> {
+        return interestLimitsTimedCache.cached()
+    }
+
+    override fun getLimitsForAsset(asset: AssetInfo): Single<InterestLimits> {
+        return getLimitsForAssets().map { mapAssetWithLimits ->
+            mapAssetWithLimits[asset] ?: throw NoSuchElementException("Unable to get limits for ${asset.networkTicker}")
+        }
     }
 }
 
