@@ -1,6 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,7 +14,6 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.paymentmethods.model.BankPartner
@@ -34,7 +34,6 @@ import com.stripe.android.PaymentConfiguration
 import com.stripe.android.model.ConfirmPaymentIntentParams
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
-import java.util.Locale
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -58,7 +57,9 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.disableBackPress
 import timber.log.Timber
+import java.util.Locale
 
 class SimpleBuyPaymentFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyPaymentBinding>(),
@@ -67,7 +68,6 @@ class SimpleBuyPaymentFragment :
 
     override val model: SimpleBuyModel by scopedInject()
     private val stripeFactory: StripeFactory by inject()
-    private val deeplinkRedirector: DeeplinkRedirector by scopedInject()
     private val environmentConfig: EnvironmentConfig by inject()
     private var isFirstLoad = false
     private lateinit var previousSelectedPaymentMethodId: String
@@ -75,6 +75,11 @@ class SimpleBuyPaymentFragment :
 
     private val isPaymentAuthorised: Boolean by lazy {
         arguments?.getBoolean(IS_PAYMENT_AUTHORISED, false) ?: false
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        activity.disableBackPress(owner = this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -791,12 +796,6 @@ class SimpleBuyPaymentFragment :
         (activity as? SimpleBuyNavigator) ?: throw IllegalStateException(
             "Parent must implement SimpleBuyNavigator"
         )
-
-    override fun onBackPressed(): Boolean = true
-
-    override fun backPressedHandled(): Boolean {
-        return true
-    }
 
     private fun PaymentForm.initCheckoutPaymentForm() {
         if (environmentConfig.environment == com.blockchain.enviroment.Environment.PRODUCTION) {

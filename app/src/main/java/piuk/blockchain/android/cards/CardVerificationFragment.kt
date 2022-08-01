@@ -7,8 +7,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
 import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
@@ -29,6 +27,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentCardVerificationBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.customviews.TransactionProgressView
+import piuk.blockchain.android.util.disableBackPress
 import timber.log.Timber
 
 class CardVerificationFragment :
@@ -48,10 +47,9 @@ class CardVerificationFragment :
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        requireActivity().onBackPressedDispatcher.addCallback {
-            // this screen ui is mostly for loading so
-            // disable back press by leaving this empty
-        }
+        // this screen ui is mostly for loading so
+        // disable back press by leaving this empty
+        requireActivity().disableBackPress(owner = this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

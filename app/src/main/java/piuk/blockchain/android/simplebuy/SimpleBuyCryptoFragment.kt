@@ -58,10 +58,6 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import java.math.BigDecimal
-import java.time.ZonedDateTime
-import java.time.format.TextStyle
-import java.util.Locale
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -105,6 +101,10 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.Transactio
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
 import piuk.blockchain.android.util.StringLocalizationUtil
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
+import java.math.BigDecimal
+import java.time.ZonedDateTime
+import java.time.format.TextStyle
+import java.util.Locale
 
 class SimpleBuyCryptoFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyBuyCryptoBinding>(),
@@ -154,8 +154,6 @@ class SimpleBuyCryptoFragment :
         (activity as? SimpleBuyNavigator)
             ?: throw IllegalStateException("Parent must implement SimpleBuyNavigator")
 
-    override fun onBackPressed(): Boolean = true
-
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimpleBuyBuyCryptoBinding =
         FragmentSimpleBuyBuyCryptoBinding.inflate(inflater, container, false)
 
@@ -172,7 +170,7 @@ class SimpleBuyCryptoFragment :
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         activity.updateToolbar(
             toolbarTitle = getString(R.string.tx_title_buy, asset.displayTicker),
-            backAction = { activity.onBackPressed() }
+            backAction = { activity.onBackPressedDispatcher.onBackPressed() }
         )
         model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, fiatCurrency))
         model.process(

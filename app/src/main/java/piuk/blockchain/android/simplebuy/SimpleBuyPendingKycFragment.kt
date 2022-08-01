@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -199,6 +200,4 @@ class SimpleBuyPendingKycFragment :
 
     override fun navigator(): SimpleBuyNavigator =
         (activity as? SimpleBuyNavigator) ?: throw IllegalStateException("Parent must implement SimpleBuyNavigator")
-
-    override fun onBackPressed(): Boolean = true
 }

@@ -6,7 +6,7 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import info.blockchain.balance.AssetInfo
 
-interface SimpleBuyScreen : SlidingModalBottomDialog.Host, FlowFragment {
+interface SimpleBuyScreen : SlidingModalBottomDialog.Host {
     fun navigator(): SimpleBuyNavigator
 
     override fun onSheetClosed() {}
