@@ -159,6 +159,7 @@ class NabuUserKycStateTests {
 
 private fun emptyNabuUser() =
     NabuUser(
+        id = "id",
         firstName = null,
         lastName = null,
         email = "",

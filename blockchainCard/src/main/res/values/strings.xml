@@ -124,4 +124,6 @@
     <string name="ssn_hint"></string>
     <string name="common_error"></string>
     <string name="bc_card_locked"></string>
+    <string name="bc_card_transactions_title"></string>
+    <string name="bc_card_see_all"></string>
 </resources>

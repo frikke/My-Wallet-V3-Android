@@ -7,7 +7,7 @@ import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.Mediator
 import com.blockchain.store.Store
-import com.blockchain.store.StoreResponse
+import com.blockchain.data.DataResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -29,7 +29,7 @@ class StoreBuilder {
             scope = scope,
         )
 
-        override fun stream(request: FreshnessStrategy): Flow<StoreResponse<T>> = backingStore.stream(
+        override fun stream(request: FreshnessStrategy): Flow<DataResource<T>> = backingStore.stream(
             when (request) {
                 FreshnessStrategy.Fresh -> KeyedFreshnessStrategy.Fresh(Unit)
                 is FreshnessStrategy.Cached -> KeyedFreshnessStrategy.Cached(Unit, request.forceRefresh)

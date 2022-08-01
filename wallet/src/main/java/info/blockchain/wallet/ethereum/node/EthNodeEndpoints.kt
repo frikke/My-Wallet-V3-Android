@@ -1,6 +1,5 @@
 package info.blockchain.wallet.ethereum.node
 
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.outcome.Outcome
 import info.blockchain.wallet.ethereum.EthUrls
 import retrofit2.http.Body
@@ -15,5 +14,5 @@ internal interface EthNodeEndpoints {
     suspend fun processRequest(
         @Url nodeUrl: String = EthUrls.ETH_NODES,
         @Body request: EthJsonRpcRequest
-    ): Outcome<ApiException, EthJsonRpcResponse>
+    ): Outcome<Exception, EthJsonRpcResponse>
 }

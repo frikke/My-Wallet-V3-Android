@@ -15,23 +15,23 @@ interface NabuUserApi {
 
     @GET("eligible/product/savings")
     fun getInterestEligibility(
-        @Header("authorization") authorization: String
+        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Single<Map<String, InterestEligibilityResponse>>
 
     @PUT("users/current/address/initial")
     fun saveUserInitialLocation(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body initialAddressRequest: InitialAddressRequest
     ): Completable
 
     @GET("users/contact-preferences")
     fun getContactPreferences(
-        @Header("authorization") authorization: String
+        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Single<ContactPreferencesResponse>
 
     @PUT("users/contact-preferences")
     fun updateContactPreference(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body preferences: PreferenceUpdates
     ): Completable
 }

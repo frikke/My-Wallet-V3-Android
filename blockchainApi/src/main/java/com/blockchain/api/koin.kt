@@ -55,6 +55,7 @@ import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
 import com.blockchain.api.watchlist.WatchlistApi
+import com.blockchain.koin.authOkHttpClient
 import com.blockchain.koin.kotlinXApiRetrofit
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -111,7 +112,7 @@ val blockchainApiModule = module {
     single(nabuApi) {
         Retrofit.Builder()
             .baseUrl(getBaseUrl("nabu-api"))
-            .client(get())
+            .client(get(authOkHttpClient))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
             .addConverterFactory(get())

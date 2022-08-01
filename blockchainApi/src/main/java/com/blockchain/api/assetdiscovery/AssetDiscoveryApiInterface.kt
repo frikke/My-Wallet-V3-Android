@@ -1,6 +1,5 @@
 package com.blockchain.api.assetdiscovery
 
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.assetdiscovery.data.AssetInformationResponse
 import com.blockchain.api.assetdiscovery.data.DynamicCurrencyList
 import com.blockchain.network.interceptor.Cacheable
@@ -32,10 +31,10 @@ internal interface AssetDiscoveryApiInterface {
     @GET("assets/currencies/{assetTicker}")
     suspend fun getL2CurrenciesForL1(
         @Path("assetTicker") ticker: String
-    ): Outcome<ApiException, DynamicCurrencyList>
+    ): Outcome<Exception, DynamicCurrencyList>
 
     @GET("assets/info/{assetTicker}")
     suspend fun getAssetInfo(
         @Path("assetTicker") ticker: String
-    ): Outcome<ApiException, AssetInformationResponse>
+    ): Outcome<Exception, AssetInformationResponse>
 }

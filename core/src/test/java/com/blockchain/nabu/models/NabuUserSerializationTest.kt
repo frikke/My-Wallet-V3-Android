@@ -24,6 +24,7 @@ class NabuUserSerializationTest {
     @Test
     fun `nabuUser - happy`() {
         val user = NabuUser(
+            id = "id",
             firstName = "firstName",
             lastName = "lastName",
             email = "email",
@@ -67,6 +68,7 @@ class NabuUserSerializationTest {
     @Test
     fun `nabuUser - missing fields`() {
         val user = NabuUser(
+            id = "id",
             firstName = null,
             lastName = null,
             email = "email",
@@ -97,6 +99,7 @@ class NabuUserSerializationTest {
         val testObject = jsonBuilder.decodeFromString<NabuUser>(
             """
             {
+                "id": "id",
                 "email":"email",
                 "emailVerified":true,
                 "mobileVerified":true,

@@ -1,6 +1,5 @@
 package com.blockchain.api.services
 
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.watchlist.WatchlistApi
 import com.blockchain.api.watchlist.data.WatchlistBody
 import com.blockchain.api.watchlist.data.WatchlistListResponse
@@ -10,7 +9,7 @@ class WatchlistService internal constructor(
     private val api: WatchlistApi
 ) {
 
-    suspend fun getWatchlist(authHeader: String): Outcome<ApiException, WatchlistListResponse> =
+    suspend fun getWatchlist(authHeader: String): Outcome<Exception, WatchlistListResponse> =
         api.getWatchlist(authHeader)
 
     suspend fun addToWatchlist(authHeader: String, assetTicker: String, tags: List<AssetTag>) =

@@ -1,6 +1,5 @@
 package com.blockchain.api.services
 
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
@@ -20,7 +19,7 @@ class PaymentsService internal constructor(
     suspend fun getPaymentMethodDetailsForId(
         authHeader: String,
         paymentId: String
-    ): Outcome<ApiException, PaymentMethodDetails> =
+    ): Outcome<Exception, PaymentMethodDetails> =
         api.getPaymentMethodDetailsForId(authHeader, paymentId)
             .map { it.toPaymentDetails() }
 

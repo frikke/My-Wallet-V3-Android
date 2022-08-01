@@ -1,5 +1,6 @@
 package com.blockchain.nabu.api.kyc.data
 
+import com.blockchain.data.DataResource
 import com.blockchain.nabu.USD
 import com.blockchain.nabu.api.kyc.data.store.KycDataSource
 import com.blockchain.nabu.api.kyc.domain.KycStoreService
@@ -12,7 +13,6 @@ import com.blockchain.nabu.models.responses.nabu.Tier
 import com.blockchain.nabu.models.responses.nabu.TierResponse
 import com.blockchain.nabu.models.responses.nabu.Tiers
 import com.blockchain.nabu.models.responses.nabu.TiersResponse
-import com.blockchain.store.StoreResponse
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Money
 import io.mockk.every
@@ -88,7 +88,7 @@ class KycStoreRepositoryTest {
     @Before
     fun setUp() {
         every { kycDataSource.stream(any()) } returns
-            flowOf(StoreResponse.Data(tiersResponse))
+            flowOf(DataResource.Data(tiersResponse))
 
         every { assetCatalogue.fromNetworkTicker("USD") } returns USD
     }

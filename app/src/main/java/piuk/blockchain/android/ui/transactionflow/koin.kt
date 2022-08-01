@@ -200,7 +200,8 @@ val transactionModule = module {
                 linkedBanksFactory = payloadScope.get(),
                 bankLinkingPrefs = payloadScope.get(),
                 dismissRecorder = payloadScope.get(),
-                showSendToDomainsAnnouncementFeatureFlag = get(sendToDomainsAnnouncementFeatureFlag)
+                showSendToDomainsAnnouncementFeatureFlag = get(sendToDomainsAnnouncementFeatureFlag),
+                fiatCurrenciesService = payloadScope.get(),
             )
         }
 

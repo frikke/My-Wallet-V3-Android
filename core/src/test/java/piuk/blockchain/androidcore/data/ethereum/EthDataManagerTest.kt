@@ -1,7 +1,6 @@
 package piuk.blockchain.androidcore.data.ethereum
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.logging.LastTxUpdater
@@ -132,7 +131,7 @@ class EthDataManagerTest {
             // Arrange
             val ethAddress = "ADDRESS"
             val requestType = RequestType.GET_BALANCE
-            val errorResponse = Outcome.Failure(ApiException.UnknownApiError(Exception()))
+            val errorResponse = Outcome.Failure(Exception())
             whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
             coEvery {
                 ethAccountApi.postEthNodeRequest(any(), requestType, ethAddress, EthJsonRpcRequest.defaultBlock)

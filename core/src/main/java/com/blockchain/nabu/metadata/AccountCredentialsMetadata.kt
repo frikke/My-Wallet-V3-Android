@@ -21,6 +21,7 @@ class AccountCredentialsMetadata(
 ) {
     private var loadMetadataMaybe: Maybe<CredentialMetadata>? = null
 
+    @Synchronized
     fun load(): Maybe<CredentialMetadata> {
         loadMetadataMaybe?.let {
             Timber.d("Metadata loading already")

@@ -2,6 +2,7 @@ package com.blockchain.network.modules
 
 import com.blockchain.enviroment.EnvironmentUrls
 import com.blockchain.koin.apiRetrofit
+import com.blockchain.koin.authOkHttpClient
 import com.blockchain.koin.everypayRetrofit
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.kotlinApiRetrofit
@@ -19,6 +20,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 
 class OkHttpInterceptors(val list: List<Interceptor>) : List<Interceptor> by list
+class OkHttpAuthInterceptor(val interceptor: Interceptor) : Interceptor by interceptor
 
 val apiModule = module {
 
@@ -59,7 +61,7 @@ val apiModule = module {
     single(nabu) {
         Retrofit.Builder()
             .baseUrl(get<EnvironmentUrls>().nabuApi)
-            .client(get())
+            .client(get(authOkHttpClient))
             .addConverterFactory(get(kotlinJsonConverterFactory))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()
