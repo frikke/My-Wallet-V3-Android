@@ -7,6 +7,7 @@ import com.blockchain.nabu.models.responses.nabu.UserState
 
 object FakeNabuUserFactory {
     val satoshi = NabuUser(
+        id = "id",
         firstName = "Satoshi",
         lastName = "Nakamoto",
         email = "satoshi@btc.com",

@@ -164,7 +164,7 @@ class NabuService internal constructor(
     internal fun submitVeriffVerification(
         sessionToken: NabuSessionTokenResponse
     ): Completable = nabu.submitVerification(
-        ApplicantIdRequest(sessionToken.userId),
+        ApplicantIdRequest(sessionToken.userId), // FLAG_AUTH_REMOVAL
         sessionToken.authHeader
     ).wrapErrorMessage()
 
@@ -184,7 +184,7 @@ class NabuService internal constructor(
         offlineToken: NabuOfflineToken,
         jwt: String
     ): Completable = nabu.recoverUser(
-        offlineToken.userId,
+        offlineToken.userId, // FLAG_AUTH_REMOVAL
         NabuJwt(jwt),
         authorization = "Bearer ${offlineToken.token}"
     ).wrapErrorMessage()
@@ -193,7 +193,7 @@ class NabuService internal constructor(
         offlineToken: NabuOfflineToken,
         jwt: String
     ): Completable = nabu.resetUserKyc(
-        offlineToken.userId,
+        offlineToken.userId, // FLAG_AUTH_REMOVAL
         NabuJwt(jwt),
         authorization = "Bearer ${offlineToken.token}"
     ).wrapErrorMessage()

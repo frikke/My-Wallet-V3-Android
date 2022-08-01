@@ -1,6 +1,7 @@
 package com.blockchain.network.modules
 
 import com.blockchain.appinfo.AppInfo
+import com.blockchain.koin.authOkHttpClient
 import com.blockchain.network.TLSSocketFactory
 import com.blockchain.network.interceptor.RequestCacheInterceptor
 import com.blockchain.network.interceptor.ResponseCacheInterceptor
@@ -45,6 +46,18 @@ val okHttpModule = module {
         TLSSocketFactory().also {
             builder.sslSocketFactory(it, it.systemDefaultTrustManager())
         }
+
+        builder
+    }
+
+    single(authOkHttpClient) {
+        val builder: OkHttpClient.Builder = get()
+        builder.addInterceptor(get<OkHttpAuthInterceptor>())
+        builder.build()
+    }
+
+    single {
+        val builder: OkHttpClient.Builder = get()
         builder.build()
     }
 }

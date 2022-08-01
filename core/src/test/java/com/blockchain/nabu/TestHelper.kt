@@ -7,6 +7,7 @@ import com.blockchain.nabu.models.responses.nabu.UserState
 import info.blockchain.balance.FiatCurrency
 
 fun getBlankNabuUser(kycState: KycState = KycState.None): NabuUser = NabuUser(
+    id = "id",
     firstName = "",
     lastName = "",
     email = "",

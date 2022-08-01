@@ -11,7 +11,7 @@ interface FiatCurrenciesApi {
 
     @PUT("users/current/currency")
     suspend fun setSelectedTradingCurrency(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body request: SetSelectedTradingCurrencyRequest
     ): Outcome<ApiException, Unit>
 }

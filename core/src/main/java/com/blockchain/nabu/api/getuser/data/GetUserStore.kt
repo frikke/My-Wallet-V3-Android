@@ -32,10 +32,10 @@ class GetUserStore(
             mapper = {
                 authenticator.authenticate { tokenResponse ->
                     nabuService.getUser(tokenResponse)
-                        .doOnSuccess {
-                            userReporter.reportUserId(tokenResponse.userId)
-                            userReporter.reportUser(it)
-                            trust.setUserId(tokenResponse.userId)
+                        .doOnSuccess { user ->
+                            userReporter.reportUserId(user.id)
+                            userReporter.reportUser(user)
+                            trust.setUserId(user.id)
                             walletReporter.reportWalletGuid(payloadDataManager.guid)
                         }
                 }

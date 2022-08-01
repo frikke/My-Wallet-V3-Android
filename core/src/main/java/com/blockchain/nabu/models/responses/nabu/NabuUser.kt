@@ -15,6 +15,7 @@ import kotlinx.serialization.encoding.Encoder
 
 @Serializable
 data class NabuUser(
+    val id: String,
     val firstName: String? = null,
     val lastName: String? = null,
     val email: String = "",

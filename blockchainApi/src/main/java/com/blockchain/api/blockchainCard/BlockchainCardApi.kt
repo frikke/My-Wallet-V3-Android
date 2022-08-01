@@ -26,77 +26,77 @@ internal interface BlockchainCardApi {
 
     @GET("card-issuing/products")
     suspend fun getProducts(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
     ): Outcome<ApiException, List<ProductDto>>
 
     @GET("card-issuing/cards")
     suspend fun getCards(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
     ): Outcome<ApiException, List<CardDto>>
 
     @POST("card-issuing/cards")
     suspend fun createCard(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body cardCreationRequest: CardCreationRequestBodyDto
     ): Outcome<ApiException, CardDto>
 
     @DELETE("card-issuing/cards/{cardId}")
     suspend fun deleteCard(
         @Path("cardId") cardId: String,
-        @Header("authorization") authorization: String
+        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Outcome<ApiException, CardDto>
 
     @POST("card-issuing/cards/{cardId}/marqeta-card-widget-token")
     suspend fun getCardWidgetToken(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("cardId") cardId: String,
     ): Outcome<ApiException, CardWidgetTokenDto>
 
     @GET("card-issuing/cards/{cardId}/eligible-accounts")
     suspend fun getEligibleAccounts(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("cardId") cardId: String,
     ): Outcome<ApiException, List<CardAccountDto>>
 
     @PUT("card-issuing/cards/{cardId}/account")
     suspend fun linkCardAccount(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("cardId") cardId: String,
         @Body cardAccountLinkDto: CardAccountLinkDto
     ): Outcome<ApiException, CardAccountLinkDto>
 
     @GET("card-issuing/cards/{cardId}/account")
     suspend fun getCardLinkedAccount(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("cardId") cardId: String,
     ): Outcome<ApiException, CardAccountLinkDto>
 
     @PUT("card-issuing/cards/{cardId}/lock")
     suspend fun lockCard(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("cardId") cardId: String,
     ): Outcome<ApiException, CardDto>
 
     @PUT("card-issuing/cards/{cardId}/unlock")
     suspend fun unlockCard(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("cardId") cardId: String,
     ): Outcome<ApiException, CardDto>
 
     @GET("card-issuing/residential-address")
     suspend fun getResidentialAddress(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
     ): Outcome<ApiException, ResidentialAddressRequestDto>
 
     @PUT("card-issuing/residential-address")
     suspend fun updateResidentialAddress(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body residentialAddress: ResidentialAddressUpdateDto
     ): Outcome<ApiException, ResidentialAddressRequestDto>
 
     @GET("card-issuing/transactions")
     suspend fun getTransactions(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("cardId") cardId: String?,
         @Query("types") types: List<String>?,
         @Query("from") from: String?,
@@ -108,12 +108,12 @@ internal interface BlockchainCardApi {
 
     @GET("card-issuing/legal")
     suspend fun getLegalDocuments(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
     ): Outcome<ApiException, BlockchainCardLegalDocumentsDto>
 
     @PUT("card-issuing/legal/{documentName}")
     suspend fun acceptLegalDocument(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("documentName") documentName: String,
         @Body acceptedDocumentForm: AcceptedDocumentFormDto
     ): Outcome<ApiException, BlockchainCardLegalDocumentsDto>

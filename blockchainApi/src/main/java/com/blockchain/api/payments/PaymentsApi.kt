@@ -14,13 +14,13 @@ interface PaymentsApi {
 
     @GET("payments/beneficiaries/{paymentId}")
     suspend fun getPaymentMethodDetailsForId(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("paymentId") id: String
     ): Outcome<ApiException, PaymentMethodDetailsResponse>
 
     @GET("payments/withdrawals/locks")
     fun getWithdrawalLocks(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("currency") currency: String
     ): Single<WithdrawalLocksResponse>
 }

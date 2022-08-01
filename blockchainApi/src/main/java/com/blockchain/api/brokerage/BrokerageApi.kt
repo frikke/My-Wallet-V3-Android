@@ -11,7 +11,7 @@ internal interface BrokerageApi {
 
     @POST("brokerage/quote")
     fun fetchQuote(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body quoteRequestBody: QuoteRequestBody
     ): Single<BrokerageQuoteResponse>
 }

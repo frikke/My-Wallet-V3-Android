@@ -13,13 +13,13 @@ interface DataRemediationApi {
 
     @GET("kyc/extra-questions")
     suspend fun getQuestionnaire(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("context") questionnaireContext: String
     ): Outcome<ApiException, QuestionnaireResponse?>
 
     @PUT("kyc/extra-questions")
     suspend fun submitQuestionnaire(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body nodes: QuestionnaireResponse
     ): Outcome<ApiException, Unit>
 }
