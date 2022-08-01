@@ -1,11 +1,10 @@
 package com.blockchain.core.custodial.data
 
-import app.cash.turbine.test
 import com.blockchain.api.services.TradingBalance
 import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
-import com.blockchain.store.StoreResponse
+import com.blockchain.data.DataResource
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
@@ -69,7 +68,7 @@ class TradingStoreRepositoryTest {
             cryptoAsset2
 
         every { tradingDataSource.streamData(any()) } returns
-            flowOf(StoreResponse.Data(cacheResult))
+            flowOf(DataResource.Data(cacheResult))
     }
 
     @Test

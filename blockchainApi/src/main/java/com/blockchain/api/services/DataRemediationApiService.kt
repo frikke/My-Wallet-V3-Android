@@ -1,6 +1,5 @@
 package com.blockchain.api.services
 
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.dataremediation.DataRemediationApi
 import com.blockchain.api.dataremediation.models.QuestionnaireResponse
 import com.blockchain.outcome.Outcome
@@ -12,12 +11,12 @@ class DataRemediationApiService(
     suspend fun getQuestionnaire(
         authorization: String,
         questionnaireContext: String
-    ): Outcome<ApiException, QuestionnaireResponse?> =
+    ): Outcome<Exception, QuestionnaireResponse?> =
         api.getQuestionnaire(authorization, questionnaireContext)
 
     suspend fun submitQuestionnaire(
         authorization: String,
         nodes: QuestionnaireResponse
-    ): Outcome<ApiException, Unit> =
+    ): Outcome<Exception, Unit> =
         api.submitQuestionnaire(authorization, nodes)
 }

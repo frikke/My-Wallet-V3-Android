@@ -1,6 +1,5 @@
 package com.blockchain.api.payments
 
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
 import com.blockchain.api.payments.data.WithdrawalLocksResponse
 import com.blockchain.outcome.Outcome
@@ -16,7 +15,7 @@ interface PaymentsApi {
     suspend fun getPaymentMethodDetailsForId(
         @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("paymentId") id: String
-    ): Outcome<ApiException, PaymentMethodDetailsResponse>
+    ): Outcome<Exception, PaymentMethodDetailsResponse>
 
     @GET("payments/withdrawals/locks")
     fun getWithdrawalLocks(

@@ -1,8 +1,8 @@
 package com.blockchain.nabu.api.getuser.data
 
+import com.blockchain.data.DataResource
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.store.StoreResponse
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -24,7 +24,7 @@ class GetUserStoreRepositoryTest {
     @Before
     fun setUp() {
         every { getUserStore.stream(any()) } returns
-            flowOf(StoreResponse.Data(nabuUser))
+            flowOf(DataResource.Data(nabuUser))
 
         every { getUserStore.invalidate() } just Runs
     }

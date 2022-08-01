@@ -8,9 +8,9 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.extensions.exhaustive
-import com.blockchain.store.StoreResponse
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Money
@@ -84,13 +84,13 @@ class WalletModeSelectionViewModel(
                     )
                 ).map { response ->
                     when (response) {
-                        is StoreResponse.Data -> updateState {
+                        is DataResource.Data -> updateState {
                             it.copy(
                                 defiBalance = response.data.total
                             )
                         }
-                        is StoreResponse.Error,
-                        StoreResponse.Loading,
+                        is DataResource.Error,
+                        DataResource.Loading,
                         -> {
                             // Do nothing
                         }
@@ -104,13 +104,13 @@ class WalletModeSelectionViewModel(
                     )
                 ).map { response ->
                     when (response) {
-                        is StoreResponse.Data -> updateState {
+                        is DataResource.Data -> updateState {
                             it.copy(
                                 brokerageBalance = response.data.total
                             )
                         }
-                        is StoreResponse.Error,
-                        StoreResponse.Loading,
+                        is DataResource.Error,
+                        DataResource.Loading,
                         -> {
                             // Do nothing
                         }

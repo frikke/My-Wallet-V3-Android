@@ -77,7 +77,7 @@ internal class FiatCurrenciesRepository(
         authenticator.getAuthHeader().awaitOutcome()
             .flatMap { authHeader ->
                 api.setSelectedTradingCurrency(authHeader, currency.networkTicker)
-                    .mapError { it.exception }
+                    .mapError { it }
                     .doOnSuccess {
                         @Suppress("DEPRECATION_ERROR")
                         currencyPrefs.tradingCurrency = currency

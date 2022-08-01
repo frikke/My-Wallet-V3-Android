@@ -21,6 +21,8 @@ private val json = Json {
         contextual(KZonedDateTimeSerializer)
     }
 }
+
+@OptIn(ExperimentalSerializationApi::class)
 val jsonSerializers = module {
     single { json }
 

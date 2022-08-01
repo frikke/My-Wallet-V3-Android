@@ -99,7 +99,6 @@ class NabuAnalytics(
             // Whats happening here is that we split the retrieved items into sublists of size = BATCH_SIZE
             // and then each one of these sublists is converted to the corresponding completable that actually is the
             // api request.
-
             val listOfSublists = mutableListOf<List<NabuAnalyticsEvent>>()
             for (i in events.indices step BATCH_SIZE) {
                 listOfSublists.add(

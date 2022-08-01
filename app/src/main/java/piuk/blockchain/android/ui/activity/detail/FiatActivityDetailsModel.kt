@@ -49,7 +49,7 @@ class FiatActivityDetailsModel(
             withContext(dispatcher) {
                 paymentMethodService.getPaymentMethodDetailsForId(activityItem.paymentMethodId.orEmpty())
                     .doOnFailure { error ->
-                        Timber.e("Failed to get PaymentMethodDetails: ${error.name}")
+                        Timber.e("Failed to get PaymentMethodDetails: ${error.message}")
                         // TODO Map error types to error messages
                         internalState.value = internalState.value.copy(
                             errorMessage = "Error: Something went wrong."

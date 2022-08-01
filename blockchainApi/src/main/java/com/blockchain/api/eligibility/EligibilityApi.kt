@@ -1,6 +1,5 @@
 package com.blockchain.api.eligibility
 
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.eligibility.data.CountryResponse
 import com.blockchain.api.eligibility.data.ProductEligibilityResponse
 import com.blockchain.api.eligibility.data.StateResponse
@@ -18,13 +17,13 @@ interface EligibilityApi {
     suspend fun getProductEligibility(
         @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("product") productType: String = "SIMPLEBUY"
-    ): Outcome<ApiException, ProductEligibilityResponse>
+    ): Outcome<Exception, ProductEligibilityResponse>
 
     @AuthenticationNotRequired
     @GET("countries")
     suspend fun getCountriesList(
         @Query("scope") scope: String?
-    ): Outcome<ApiException, List<CountryResponse>>
+    ): Outcome<Exception, List<CountryResponse>>
 
     @AuthenticationNotRequired
     @Cacheable(maxAge = Cacheable.MAX_AGE_1_DAY)
@@ -32,5 +31,5 @@ interface EligibilityApi {
     suspend fun getStatesList(
         @Path("countryCode") countryCode: String,
         @Query("scope") scope: String?
-    ): Outcome<ApiException, List<StateResponse>>
+    ): Outcome<Exception, List<StateResponse>>
 }
