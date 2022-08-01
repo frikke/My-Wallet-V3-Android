@@ -8,10 +8,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -129,6 +127,7 @@ fun ManageCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = AppTheme.dimensions.paddingSmall)
+            .verticalScroll(rememberScrollState())
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -161,7 +160,8 @@ fun ManageCard(
                     modifier = Modifier
                         .wrapContentWidth()
                         .weight(1.4f),
-                    minHeight = 16.dp
+                    minHeight = 16.dp,
+                    shape = AppTheme.shapes.extraLarge
                 )
             }
 
@@ -202,40 +202,9 @@ fun ManageCard(
                         )
                     else if (isBalanceLoading)
                         ShimmerLoadingTableRow()
-
-                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(IntrinsicSize.Min)
-                            .padding(AppTheme.dimensions.paddingMedium),
-                    ) {
-
-                        PrimaryButton(
-                            text = stringResource(R.string.add_funds),
-                            state = if (isBalanceLoading) ButtonState.Disabled else ButtonState.Enabled,
-                            onClick = onTopUp,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                        )
-
-                        Spacer(modifier = Modifier.padding(4.dp))
-
-                        MinimalButton(
-                            text = stringResource(R.string.change_source),
-                            onClick = onChoosePaymentMethod,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                        )
-                    }
                 }
             }
         }
-
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
 
         Column(
             modifier = Modifier
@@ -245,12 +214,35 @@ fun ManageCard(
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            SimpleText(
-                text = stringResource(R.string.recent_transactions),
-                style = ComposeTypographies.Body2,
-                color = ComposeColors.Body,
-                gravity = ComposeGravities.Start
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = AppTheme.dimensions.paddingMedium),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                SimpleText(
+                    text = stringResource(R.string.bc_card_transactions_title),
+                    style = ComposeTypographies.Body2,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Centre,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                MinimalButton(
+                    text = stringResource(R.string.bc_card_see_all),
+                    onClick = onManageCardDetails,
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .weight(1f),
+                    minHeight = 16.dp,
+                    shape = AppTheme.shapes.extraLarge
+                )
+            }
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             when {
                 transactionList == null -> ShimmerLoadingTableRow()
@@ -377,6 +369,7 @@ fun CardTransactionList(
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(300.dp)
         ) {
             itemsIndexed(items = transactionList) { index, transaction ->
                 CardTransactionItem(

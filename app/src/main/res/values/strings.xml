@@ -3107,6 +3107,8 @@
     <string name="ssn_title">SSN or Individual Tax ID #</string>
     <string name="ssn_hint">XXXXXXXXX</string>
     <string name="bc_card_locked">Locked</string>
+    <string name="bc_card_transactions_title">Transactions</string>
+    <string name="bc_card_see_all">See All</string>
 
     <!--  Sanctions  -->
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>
