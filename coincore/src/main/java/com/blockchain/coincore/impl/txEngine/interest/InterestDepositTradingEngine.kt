@@ -50,12 +50,11 @@ class InterestDepositTradingEngine(
         return Single.zip(
             getLimits(),
             availableBalance
-        ) { limits, balance ->
-            val cryptoAsset = limits.cryptoCurrency
+        ) { (asset, interestLimits), balance ->
             PendingTx(
                 amount = Money.zero(sourceAsset),
                 limits = TxLimits.withMinAndUnlimitedMax(
-                    limits.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset)
+                    interestLimits.minDepositFiatValue.toCrypto(exchangeRates, asset)
                 ),
                 feeSelection = FeeSelection(),
                 selectedFiat = userFiat,

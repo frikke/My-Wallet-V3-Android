@@ -60,11 +60,10 @@ class InterestDepositOnChainTxEngine(
         onChainEngine.doInitialiseTx()
             .flatMap { pendingTx ->
                 getLimits()
-                    .map {
-                        val cryptoAsset = it.cryptoCurrency
+                    .map { (asset, interestLimits) ->
                         pendingTx.copy(
                             limits = TxLimits.withMinAndUnlimitedMax(
-                                it.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset)
+                                interestLimits.minDepositFiatValue.toCrypto(exchangeRates, asset)
                             ),
                             feeSelection = pendingTx.feeSelection.copy(
                                 selectedLevel = FeeLevel.Regular,
