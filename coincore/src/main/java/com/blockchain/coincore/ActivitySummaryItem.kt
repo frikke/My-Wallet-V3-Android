@@ -20,9 +20,9 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlin.math.sign
 import piuk.blockchain.androidcore.utils.helperfunctions.JavaHashCode
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import kotlin.math.sign
 
 abstract class CryptoActivitySummaryItem : ActivitySummaryItem() {
     abstract val asset: AssetInfo

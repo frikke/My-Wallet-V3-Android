@@ -31,8 +31,8 @@ import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.extensions.mapList
 import java.util.concurrent.atomic.AtomicBoolean
+import piuk.blockchain.androidcore.utils.extensions.mapList
 
 class CryptoInterestAccount(
     override val currency: AssetInfo,

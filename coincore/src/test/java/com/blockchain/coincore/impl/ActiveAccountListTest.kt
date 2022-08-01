@@ -5,7 +5,6 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify

@@ -30,10 +30,10 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Test
-import java.math.BigInteger
 
 class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 

@@ -6,7 +6,6 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestLimits
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow

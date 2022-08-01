@@ -15,6 +15,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import java.util.Date
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogActivitiesTxItemBinding
 import piuk.blockchain.android.ui.activity.ActivityType
@@ -23,7 +24,6 @@ import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import piuk.blockchain.android.util.setTransactionHasFailed
-import java.util.Date
 
 class CustodialInterestActivityItemDelegate<in T>(
     private val currencyPrefs: CurrencyPrefs,

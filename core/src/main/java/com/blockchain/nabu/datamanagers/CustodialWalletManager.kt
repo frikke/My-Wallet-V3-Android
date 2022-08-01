@@ -25,9 +25,9 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.flow.Flow
 import java.math.BigInteger
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
 
 enum class OrderState {
     UNKNOWN,
