@@ -322,8 +322,6 @@ class AddNewCardFragment :
         requireContext().openUrl(url)
     }
 
-    override fun onBackPressed(): Boolean = true
-
     override fun onErrorPrimaryCta() {
         resetCardRejectionState()
         with(binding) {

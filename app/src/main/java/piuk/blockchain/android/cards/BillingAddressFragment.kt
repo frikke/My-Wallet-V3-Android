@@ -5,6 +5,7 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -165,8 +166,6 @@ class BillingAddressFragment :
     override val navigator: AddCardNavigator
         get() = (activity as? AddCardNavigator)
             ?: throw IllegalStateException("Parent must implement AddCardNavigator")
-
-    override fun onBackPressed(): Boolean = true
 
     override fun render(newState: CardState) {
         if (newState.addCard) {

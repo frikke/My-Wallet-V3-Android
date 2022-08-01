@@ -1,8 +1,6 @@
 package piuk.blockchain.android.cards
 
-import com.blockchain.commonarch.presentation.base.FlowFragment
-
-interface AddCardFlowFragment : FlowFragment {
+interface AddCardFlowFragment {
     val navigator: AddCardNavigator
     val cardDetailsPersistence: CardDetailsPersistence
 }

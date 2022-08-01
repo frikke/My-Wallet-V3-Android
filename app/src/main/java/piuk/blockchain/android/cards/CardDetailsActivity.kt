@@ -48,7 +48,7 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
     }
 
     override fun onSupportNavigateUp(): Boolean = consume {
-        onBackPressed()
+        onBackPressedDispatcher.onBackPressed()
     }
 
     override fun navigateToCardDetails() {
