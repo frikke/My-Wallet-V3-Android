@@ -1,13 +1,12 @@
 package com.blockchain.core.chains.erc20.data.store
 
-import app.cash.turbine.test
 import com.blockchain.api.ethereum.evm.BalancesResponse
 import com.blockchain.api.ethereum.evm.EvmAddressResponse
 import com.blockchain.api.ethereum.evm.EvmBalanceResponse
 import com.blockchain.core.chains.erc20.data.Erc20L2StoreRepository
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
-import com.blockchain.store.StoreResponse
+import com.blockchain.data.DataResource
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
@@ -91,7 +90,7 @@ class Erc20L2StoreRepositoryTest {
 
     @Before
     fun setUp() {
-        every { erc20L2DataSource.streamData(any()) } returns flowOf(StoreResponse.Data(balancesResponse))
+        every { erc20L2DataSource.streamData(any()) } returns flowOf(DataResource.Data(balancesResponse))
         every { erc20L2DataSource.invalidate(any()) } just Runs
         every { assetCatalogue.assetFromL1ChainByContractAddress(l1chain = "CRYPTO2", any()) } returns cryptoCurrency
         every { assetCatalogue.assetInfoFromNetworkTicker(symbol = "CRYPTO_NATIVE") } returns cryptoCurrencyNative

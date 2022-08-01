@@ -1,9 +1,9 @@
 package com.blockchain.api.eligibility
 
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.eligibility.data.CountryResponse
 import com.blockchain.api.eligibility.data.ProductEligibilityResponse
 import com.blockchain.api.eligibility.data.StateResponse
+import com.blockchain.network.interceptor.AuthenticationNotRequired
 import com.blockchain.network.interceptor.Cacheable
 import com.blockchain.outcome.Outcome
 import retrofit2.http.GET
@@ -15,19 +15,21 @@ interface EligibilityApi {
 
     @GET("products")
     suspend fun getProductEligibility(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("product") productType: String = "SIMPLEBUY"
-    ): Outcome<ApiException, ProductEligibilityResponse>
+    ): Outcome<Exception, ProductEligibilityResponse>
 
+    @AuthenticationNotRequired
     @GET("countries")
     suspend fun getCountriesList(
         @Query("scope") scope: String?
-    ): Outcome<ApiException, List<CountryResponse>>
+    ): Outcome<Exception, List<CountryResponse>>
 
+    @AuthenticationNotRequired
     @Cacheable(maxAge = Cacheable.MAX_AGE_1_DAY)
     @GET("countries/{countryCode}/states")
     suspend fun getStatesList(
         @Path("countryCode") countryCode: String,
         @Query("scope") scope: String?
-    ): Outcome<ApiException, List<StateResponse>>
+    ): Outcome<Exception, List<StateResponse>>
 }

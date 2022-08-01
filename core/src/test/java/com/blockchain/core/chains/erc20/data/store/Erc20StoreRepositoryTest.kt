@@ -4,7 +4,7 @@ import com.blockchain.api.services.Erc20TokenBalance
 import com.blockchain.core.chains.erc20.data.Erc20StoreRepository
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
-import com.blockchain.store.StoreResponse
+import com.blockchain.data.DataResource
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
@@ -57,7 +57,7 @@ class Erc20StoreRepositoryTest {
 
     @Before
     fun setUp() {
-        every { erc20DataSource.streamData(any()) } returns flowOf(StoreResponse.Data(listOf(erc20TokenBalance)))
+        every { erc20DataSource.streamData(any()) } returns flowOf(DataResource.Data(listOf(erc20TokenBalance)))
         every { erc20DataSource.invalidate() } just Runs
         every { assetCatalogue.assetFromL1ChainByContractAddress(any(), any()) } returns cryptoCurrency
     }

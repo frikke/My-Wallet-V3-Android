@@ -7,7 +7,7 @@ import com.blockchain.store.KeyedStore
 import com.blockchain.store.Mediator
 import com.blockchain.store.Store
 import com.blockchain.store.StoreId
-import com.blockchain.store.StoreResponse
+import com.blockchain.data.DataResource
 import com.blockchain.store.impl.MulticasterFetcher
 import com.blockchain.store.impl.RealStore
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +30,7 @@ class InMemoryCacheStoreBuilder {
             scope = scope,
         )
 
-        override fun stream(request: FreshnessStrategy): Flow<StoreResponse<T>> = backingStore.stream(
+        override fun stream(request: FreshnessStrategy): Flow<DataResource<T>> = backingStore.stream(
             when (request) {
                 FreshnessStrategy.Fresh -> KeyedFreshnessStrategy.Fresh(Unit)
                 is FreshnessStrategy.Cached -> KeyedFreshnessStrategy.Cached(Unit, request.forceRefresh)

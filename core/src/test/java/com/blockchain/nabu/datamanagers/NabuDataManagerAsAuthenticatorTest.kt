@@ -1,6 +1,7 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
@@ -28,7 +29,8 @@ class NabuDataManagerAsAuthenticatorTest {
         val token = givenToken("User", "ABC")
 
         val nabuDataManager = mock<NabuDataManager>()
-        val sut = NabuAuthenticator(token, nabuDataManager, mock()) as Authenticator
+        val authInterceptorFF = mock<FeatureFlag> { on { enabled }.thenReturn(Single.just(false)) }
+        val sut = NabuAuthenticator(token, nabuDataManager, mock(), authInterceptorFF) as Authenticator
 
         val theFunction = mock<(NabuSessionTokenResponse) -> Single<Int>>()
         sut.authenticate(theFunction)
@@ -53,7 +55,8 @@ class NabuDataManagerAsAuthenticatorTest {
                 )
             )
         }
-        val sut = NabuAuthenticator(token, nabuDataManager, mock()) as Authenticator
+        val authInterceptorFF = mock<FeatureFlag> { on { enabled }.thenReturn(Single.just(false)) }
+        val sut = NabuAuthenticator(token, nabuDataManager, mock(), authInterceptorFF) as Authenticator
 
         sut.authenticate()
             .test()

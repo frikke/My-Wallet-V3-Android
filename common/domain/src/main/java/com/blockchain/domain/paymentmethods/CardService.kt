@@ -1,5 +1,6 @@
 package com.blockchain.domain.paymentmethods
 
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardRejectionCheckError
@@ -11,7 +12,6 @@ import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PartnerCredentials
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.outcome.Outcome
-import com.blockchain.store.StoreResponse
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -22,7 +22,7 @@ interface CardService {
     fun getLinkedCards(
         request: FreshnessStrategy,
         vararg states: CardStatus
-    ): Flow<StoreResponse<List<LinkedPaymentMethod.Card>>>
+    ): Flow<DataResource<List<LinkedPaymentMethod.Card>>>
 
     fun getLinkedCards(vararg states: CardStatus): Single<List<LinkedPaymentMethod.Card>>
 

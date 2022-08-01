@@ -223,6 +223,7 @@ class KycProfilePresenterTest {
     fun `onViewReady restores data to the UI`() {
         // Arrange
         val nabuUser = NabuUser(
+            id = "id",
             firstName = "FIRST_NAME",
             lastName = "LAST_NAME",
             email = "",

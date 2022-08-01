@@ -83,6 +83,8 @@ interface NabuDataManager {
 
     fun getAuthToken(jwt: String): Single<NabuOfflineTokenResponse>
 
+    fun getSessionToken(offlineTokenResponse: NabuOfflineToken): Single<NabuSessionTokenResponse>
+
     fun <T> authenticate(
         offlineToken: NabuOfflineToken,
         singleFunction: (NabuSessionTokenResponse) -> Single<T>
@@ -96,6 +98,8 @@ interface NabuDataManager {
     fun clearAccessToken()
 
     fun invalidateToken()
+
+    fun refreshToken(offlineToken: NabuOfflineToken): Single<NabuSessionTokenResponse>
 
     fun currentToken(offlineToken: NabuOfflineToken): Single<NabuSessionTokenResponse>
 
@@ -152,7 +156,8 @@ internal class NabuDataManagerImpl(
     private var sessionToken: Single<NabuSessionTokenResponse>? = null
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    internal fun getSessionToken(
+    @Synchronized
+    override fun getSessionToken(
         offlineTokenResponse: NabuOfflineToken
     ): Single<NabuSessionTokenResponse> {
         sessionToken?.let {
@@ -173,7 +178,7 @@ internal class NabuDataManagerImpl(
     ): Single<NabuSessionTokenResponse> {
         return emailSingle.flatMap {
             nabuService.getSessionToken(
-                userId = offlineTokenResponse.userId,
+                userId = offlineTokenResponse.userId, // FLAG_AUTH_REMOVAL
                 offlineToken = offlineTokenResponse.token,
                 guid = guid,
                 email = it,
@@ -409,7 +414,7 @@ internal class NabuDataManagerImpl(
             .flatMapCompletable { nabuService.recoverUser(offlineToken, it) }
             .andThen(refreshToken(offlineToken))
 
-    private fun refreshToken(
+    override fun refreshToken(
         offlineToken: NabuOfflineToken
     ): Single<NabuSessionTokenResponse> =
         getSessionToken(offlineToken)

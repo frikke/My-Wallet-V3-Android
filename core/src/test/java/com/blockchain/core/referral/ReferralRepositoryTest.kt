@@ -2,7 +2,6 @@ package com.blockchain.core.referral
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.referral.data.ReferralResponse
 import com.blockchain.api.services.ReferralApiService
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
@@ -100,10 +99,8 @@ class ReferralRepositoryTest {
 
     @Test
     fun `should fetch referral info other errors`() = runBlocking {
-        val expectedThrowable: NabuApiException = mock {}
-        val apiError: ApiException.KnownError = mock {
-            on { statusCode } doReturn NabuErrorStatusCodes.InternalServerError
-            on { exception } doReturn expectedThrowable
+        val apiError: NabuApiException = mock {
+            on { getErrorStatusCode() } doReturn NabuErrorStatusCodes.InternalServerError
         }
 
         whenever(referralApiService.getReferralCode(AUTH, FIAT))
@@ -111,7 +108,7 @@ class ReferralRepositoryTest {
 
         val result = referralRepository.fetchReferralData()
 
-        assertEquals(Outcome.Failure(expectedThrowable), result)
+        assertEquals(Outcome.Failure(apiError), result)
     }
 
     @Test
@@ -125,8 +122,8 @@ class ReferralRepositoryTest {
 
     @Test
     fun `should check validity invalid`() = runBlocking {
-        val apiError: ApiException.KnownError = mock {
-            on { statusCode } doReturn NabuErrorStatusCodes.NotFound
+        val apiError: NabuApiException = mock {
+            on { getErrorStatusCode() } doReturn NabuErrorStatusCodes.NotFound
         }
         whenever(referralApiService.validateReferralCode(REF_CODE))
             .doReturn(Outcome.Failure(apiError))
@@ -138,17 +135,15 @@ class ReferralRepositoryTest {
 
     @Test
     fun `should check forward other errors`() = runBlocking {
-        val expectedThrowable: NabuApiException = mock {}
-        val apiError: ApiException.KnownError = mock {
-            on { statusCode } doReturn NabuErrorStatusCodes.InternalServerError
-            on { exception } doReturn expectedThrowable
+        val apiError: NabuApiException = mock {
+            on { getErrorStatusCode() } doReturn NabuErrorStatusCodes.InternalServerError
         }
         whenever(referralApiService.validateReferralCode(REF_CODE))
             .doReturn(Outcome.Failure(apiError))
 
         val result = referralRepository.isReferralCodeValid(REF_CODE)
 
-        assertEquals(Outcome.Failure(expectedThrowable), result)
+        assertEquals(Outcome.Failure(apiError), result)
     }
 
     @Test

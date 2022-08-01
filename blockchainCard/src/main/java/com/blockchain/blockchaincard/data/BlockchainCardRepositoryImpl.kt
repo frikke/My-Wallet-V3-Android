@@ -1,7 +1,6 @@
 package com.blockchain.blockchaincard.data
 
 import com.blockchain.api.NabuApiException
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.blockchainCard.data.AcceptedDocumentFormDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentsDto
@@ -45,6 +44,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import java.math.BigDecimal
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
+
 internal class BlockchainCardRepositoryImpl(
     private val blockchainCardService: BlockchainCardService,
     private val eligibilityApiService: EligibilityApiService,
@@ -301,6 +301,7 @@ internal class BlockchainCardRepositoryImpl(
             }.map { response ->
                 response.toDomainModel()
             }.wrapBlockchainCardError()
+
     //
     // Domain Model Conversion
     //
@@ -405,7 +406,7 @@ internal class BlockchainCardRepositoryImpl(
 
     private fun <Exception, R> Outcome<Exception, R>.wrapBlockchainCardError(): Outcome<BlockchainCardError, R> =
         mapError {
-            if (it is ApiException.KnownError) it.exception.toBlockchainCardError()
+            if (it is NabuApiException) it.toBlockchainCardError()
             else BlockchainCardError.LocalCopyBlockchainCardError
         }
 }
