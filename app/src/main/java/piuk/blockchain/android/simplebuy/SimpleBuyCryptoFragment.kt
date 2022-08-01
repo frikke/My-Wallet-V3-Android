@@ -75,6 +75,9 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INTERNET
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.NABU_ERROR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OVER_MAXIMUM_SOURCE_LIMIT
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.PENDING_ORDERS_LIMIT_REACHED
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_GENERIC_ERROR
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_INSUFFICIENT_BALANCE
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_STALE_BALANCE
 import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
 import piuk.blockchain.android.ui.BottomSheetInformation
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
@@ -1010,7 +1013,26 @@ class SimpleBuyCryptoFragment :
                     error = ClientErrorAnalytics.SERVER_SIDE_HANDLED_ERROR,
                     serverSideUxErrorInfo = errorState.serverSideUxErrorInfo
                 )
-            is ErrorState.SettlementRefreshRequired -> navigator().showBankRefreshError(errorState.accountId)
+            ErrorState.SettlementInsufficientBalance ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.title_cardInsufficientFunds),
+                    description = getString(R.string.trading_deposit_description_insufficient),
+                    error = SETTLEMENT_INSUFFICIENT_BALANCE
+                )
+            ErrorState.SettlementStaleBalance ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.trading_deposit_title_stale_balance),
+                    description = getString(R.string.trading_deposit_description_stale),
+                    error = SETTLEMENT_STALE_BALANCE
+                )
+            ErrorState.SettlementGenericError ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.common_oops_bank),
+                    description = getString(R.string.trading_deposit_description_generic),
+                    error = SETTLEMENT_GENERIC_ERROR
+                )
+            is ErrorState.SettlementRefreshRequired ->
+                navigator().showBankRefreshError(errorState.accountId)
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid,
             ErrorState.ApprovedBankDeclined,

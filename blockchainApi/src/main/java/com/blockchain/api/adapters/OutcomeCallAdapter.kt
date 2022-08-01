@@ -7,10 +7,10 @@ import retrofit2.CallAdapter
 
 class OutcomeCallAdapter<R>(
     private val successType: Type
-) : CallAdapter<R, Call<Outcome<ApiException, R>>> {
+) : CallAdapter<R, Call<Outcome<Exception, R>>> {
 
     // Wrap the original Call into an OutcomeCall
-    override fun adapt(call: Call<R>): Call<Outcome<ApiException, R>> = OutcomeCall(call, successType)
+    override fun adapt(call: Call<R>): Call<Outcome<Exception, R>> = OutcomeCall(call, successType)
 
     override fun responseType(): Type = successType
 }

@@ -2010,10 +2010,11 @@
     <string name="trading_ineligible_for_swap">Oops! This service isn’t currently available. Please contact support.</string>
     <string name="trading_invalid_destination_amount">Oops! Looks like that isn’t a valid amount, please try again.</string>
     <string name="trading_confirm_deposit">Confirm Deposit</string>
-    <string name="trading_deposit_description_generic">We encountered a potential issue with this deposit. It may be subject to further review.</string>
-    <string name="trading_deposit_description_insufficient">The latest balance we fetched indicates you do not have enough funds in your bank account. You can still proceed with the deposit if you believe you have received this message in error.</string>
+    <string name="trading_deposit_title_stale_balance">Stale Balance</string>
+    <string name="trading_deposit_description_generic">We could not complete your transaction. Please try again or choose a different payment method.</string>
+    <string name="trading_deposit_description_insufficient">The latest balance we fetched indicates you do not have enough funds in your bank account to make this transaction. Please check and try again.</string>
     <string name="trading_deposit_description_requires_update">Please relink your bank account to ensure faster settlement.</string>
-    <string name="trading_deposit_description_stale">We could not obtain an updated balance for your bank account. You can still proceed with the deposit if you believe you have sufficient funds.</string>
+    <string name="trading_deposit_description_stale">We could not obtain an updated balance for your bank account. Please try again.</string>
     <string name="trading_deposit_relink_bank_account">Relink Bank Account</string>
     <string name="add_credit_or_debit_card_1">Credit or Debit Card</string>
     <string name="add_debit_card">Debit Card</string>
@@ -3106,6 +3107,8 @@
     <string name="ssn_title">SSN or Individual Tax ID #</string>
     <string name="ssn_hint">XXXXXXXXX</string>
     <string name="bc_card_locked">Locked</string>
+    <string name="bc_card_transactions_title">Transactions</string>
+    <string name="bc_card_see_all">See All</string>
 
     <!--  Sanctions  -->
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>

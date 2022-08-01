@@ -1,6 +1,7 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.auth.AuthHeaderProvider
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.NabuToken
@@ -8,45 +9,92 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenRespon
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.lang.IllegalStateException
 
 internal class NabuAuthenticator(
     private val nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
-    private val remoteLogger: RemoteLogger
+    private val remoteLogger: RemoteLogger,
+    private val authInterceptorFeatureFlag: FeatureFlag,
 ) : Authenticator, AuthHeaderProvider {
 
     override fun <T> authenticateSingle(singleFunction: (Single<NabuSessionTokenResponse>) -> Single<T>): Single<T> =
-        nabuToken.fetchNabuToken()
-            .map { nabuDataManager.currentToken(it) }
-            .flatMap { singleFunction(it) }
-            .doOnError {
-                it.message?.let { msg ->
-                    logMessageIfNeeded(msg)
-                }
+        authInterceptorFeatureFlag.enabled.flatMap { enabled ->
+            if (enabled) {
+                singleFunction(
+                    Single.just(
+                        NabuSessionTokenResponse(
+                            id = "",
+                            userId = "",
+                            token = "FLAG_AUTH_REMOVAL",
+                            isActive = false,
+                            expiresAt = "",
+                            insertedAt = ""
+                        )
+                    )
+                )
+            } else {
+                nabuToken.fetchNabuToken()
+                    .map { nabuDataManager.currentToken(it) }
+                    .flatMap { singleFunction(it) }
+                    .doOnError {
+                        it.message?.let { msg ->
+                            logMessageIfNeeded(msg)
+                        }
+                    }
             }
+        }
 
     override fun <T> authenticateMaybe(maybeFunction: (NabuSessionTokenResponse) -> Maybe<T>): Maybe<T> =
-        nabuToken.fetchNabuToken()
-            .flatMapMaybe { tokenResponse ->
-                nabuDataManager.authenticateMaybe(tokenResponse, maybeFunction)
-                    .subscribeOn(Schedulers.io())
-            }.doOnError {
-                it.message?.let { msg ->
-                    logMessageIfNeeded(msg)
-                }
+        authInterceptorFeatureFlag.enabled.flatMapMaybe { enabled ->
+            if (enabled) {
+                maybeFunction(
+                    NabuSessionTokenResponse(
+                        id = "",
+                        userId = "",
+                        token = "FLAG_AUTH_REMOVAL",
+                        isActive = false,
+                        expiresAt = "",
+                        insertedAt = ""
+                    )
+                )
+            } else {
+                nabuToken.fetchNabuToken()
+                    .flatMapMaybe { tokenResponse ->
+                        nabuDataManager.authenticateMaybe(tokenResponse, maybeFunction)
+                            .subscribeOn(Schedulers.io())
+                    }.doOnError {
+                        it.message?.let { msg ->
+                            logMessageIfNeeded(msg)
+                        }
+                    }
             }
+        }
 
     override fun <T> authenticate(singleFunction: (NabuSessionTokenResponse) -> Single<T>): Single<T> =
-        nabuToken.fetchNabuToken()
-            .flatMap { tokenResponse ->
-                nabuDataManager.authenticate(tokenResponse, singleFunction)
-                    .subscribeOn(Schedulers.io())
-            }.doOnError {
-                it.message?.let { msg ->
-                    logMessageIfNeeded(msg)
-                }
+        authInterceptorFeatureFlag.enabled.flatMap { enabled ->
+            if (enabled) {
+                singleFunction(
+                    NabuSessionTokenResponse(
+                        id = "",
+                        userId = "",
+                        token = "FLAG_AUTH_REMOVAL",
+                        isActive = false,
+                        expiresAt = "",
+                        insertedAt = ""
+                    )
+                )
+            } else {
+                nabuToken.fetchNabuToken()
+                    .flatMap { tokenResponse ->
+                        nabuDataManager.authenticate(tokenResponse, singleFunction)
+                            .subscribeOn(Schedulers.io())
+                    }.doOnError {
+                        it.message?.let { msg ->
+                            logMessageIfNeeded(msg)
+                        }
+                    }
             }
+        }
 
     override fun invalidateToken() {
         nabuDataManager.invalidateToken()
@@ -57,9 +105,14 @@ internal class NabuAuthenticator(
             remoteLogger.logException(BlockedIpException(message))
     }
 
-    override fun getAuthHeader(): Single<String> {
-        return authenticate().map { it.authHeader }
-    }
+    override fun getAuthHeader(): Single<String> =
+        authInterceptorFeatureFlag.enabled.flatMap { enabled ->
+            if (enabled) {
+                Single.just("")
+            } else {
+                authenticate().map { it.authHeader }
+            }
+        }
 }
 
 class BlockedIpException(message: String) : IllegalStateException(message)

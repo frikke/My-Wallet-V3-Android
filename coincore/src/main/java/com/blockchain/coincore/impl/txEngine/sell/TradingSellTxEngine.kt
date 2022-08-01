@@ -8,7 +8,7 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
-import com.blockchain.core.custodial.data.store.TradingDataSource
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -20,7 +20,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 
 class TradingSellTxEngine(
-    private val tradingDataSource: TradingDataSource,
+    private val tradingStore: TradingStore,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
@@ -30,7 +30,7 @@ class TradingSellTxEngine(
 ) : SellTxEngineBase(walletManager, limitsDataManager, userIdentity, quotesEngine) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(tradingDataSource)
+        get() = listOf(tradingStore)
 
     override val direction: TransferDirection
         get() = TransferDirection.INTERNAL

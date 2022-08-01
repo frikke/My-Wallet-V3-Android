@@ -1,7 +1,7 @@
 package com.blockchain.core.custodial.data
 
-import com.blockchain.api.services.TradingBalance
-import com.blockchain.core.custodial.data.store.TradingDataSource
+import com.blockchain.api.custodial.data.TradingBalanceResponseDto
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.data.FreshnessStrategy
@@ -17,15 +17,15 @@ import kotlinx.coroutines.rx3.asObservable
 
 internal class TradingRepository(
     private val assetCatalogue: AssetCatalogue,
-    private val tradingDataSource: TradingDataSource
+    private val tradingStore: TradingStore
 ) : TradingService {
 
     private fun getBalancesFlow(refreshStrategy: FreshnessStrategy): Flow<Map<Currency, TradingAccountBalance>> {
-        return tradingDataSource.streamData(refreshStrategy)
-            .mapData { details ->
-                details.mapNotNull { balance ->
-                    assetCatalogue.fromNetworkTicker(balance.assetTicker)?.let { currency ->
-                        currency to balance.toTradingAccountBalance(currency)
+        return tradingStore.stream(refreshStrategy)
+            .mapData { tradingBalancesWithAssets: Map<String, TradingBalanceResponseDto> ->
+                tradingBalancesWithAssets.mapNotNull { (assetTicker, tradingBalanceResponse) ->
+                    assetCatalogue.fromNetworkTicker(assetTicker)?.let { currency ->
+                        currency to tradingBalanceResponse.toTradingAccountBalance(currency)
                     }
                 }.toMap()
             }
@@ -51,11 +51,11 @@ internal class TradingRepository(
     }
 }
 
-private fun TradingBalance.toTradingAccountBalance(currency: Currency) =
+private fun TradingBalanceResponseDto.toTradingAccountBalance(currency: Currency) =
     TradingAccountBalance(
-        total = Money.fromMinor(currency, total),
-        withdrawable = Money.fromMinor(currency, withdrawable),
-        pending = Money.fromMinor(currency, pending),
+        total = Money.fromMinor(currency, total.toBigInteger()),
+        withdrawable = Money.fromMinor(currency, withdrawable.toBigInteger()),
+        pending = Money.fromMinor(currency, pending.toBigInteger()),
         hasTransactions = true
     )
 

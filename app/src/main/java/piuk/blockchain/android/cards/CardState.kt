@@ -63,7 +63,7 @@ sealed class CardError {
     object CreationFailed : CardError()
     object ActivationFailed : CardError()
     object PendingAfterPoll : CardError()
-    object LinkedFailed : CardError()
+    object LinkFailed : CardError()
     object InsufficientCardBalance : CardError()
     object CardBankDeclined : CardError()
     object CardDuplicated : CardError()

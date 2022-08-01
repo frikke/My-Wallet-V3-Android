@@ -28,7 +28,6 @@ import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.data.TradingRepository
-import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.dataremediation.DataRemediationRepository
@@ -155,7 +154,7 @@ val coreModule = module {
             )
         }
 
-        scoped<TradingDataSource> {
+        scoped {
             TradingStore(
                 balanceService = get(),
                 authenticator = get()
@@ -165,7 +164,7 @@ val coreModule = module {
         scoped<TradingService> {
             TradingRepository(
                 assetCatalogue = get(),
-                tradingDataSource = get()
+                tradingStore = get()
             )
         }
 

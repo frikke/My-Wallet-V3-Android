@@ -41,6 +41,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_REFRESH_REQUIRED
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
@@ -451,6 +452,7 @@ class SimpleBuyActivity :
                         primaryButtonText = getString(R.string.trading_deposit_relink_bank_account),
                         secondaryButtonText = getString(R.string.common_ok),
                     ),
+                    error = SETTLEMENT_REFRESH_REQUIRED,
                     action = ACTION_BUY,
                     analyticsCategories = emptyList()
                 )

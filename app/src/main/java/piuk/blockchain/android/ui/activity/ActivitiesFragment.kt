@@ -149,18 +149,13 @@ class ActivitiesFragment :
         }
     }
 
-    /**
-     * TODO(Lucia): Do we need this?
-     */
-    private fun sendAnalyticsOnItemClickEvent(type: ActivityType, assetInfo: AssetInfo) {
-        if (type == ActivityType.RECURRING_BUY) {
-            analytics.logEvent(
-                RecurringBuyAnalytics.RecurringBuyDetailsClicked(
-                    LaunchOrigin.TRANSACTION_LIST,
-                    assetInfo.networkTicker
-                )
+    private fun sendAnalyticsOnItemClickEvent(assetInfo: AssetInfo) {
+        analytics.logEvent(
+            RecurringBuyAnalytics.RecurringBuyDetailsClicked(
+                LaunchOrigin.TRANSACTION_LIST,
+                assetInfo.networkTicker
             )
-        }
+        )
     }
 
     private fun renderAccountDetails(newState: ActivitiesState) {
@@ -267,6 +262,9 @@ class ActivitiesFragment :
         txHash: String,
         type: ActivityType,
     ) {
+        if (type == ActivityType.RECURRING_BUY) {
+            sendAnalyticsOnItemClickEvent(currency as AssetInfo)
+        }
         model.process(ShowActivityDetailsIntent(currency, txHash, type))
     }
 

@@ -1,6 +1,7 @@
 package com.blockchain.store
 
 import app.cash.turbine.test
+import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.store.impl.RealStore
 import io.mockk.Called
@@ -41,12 +42,12 @@ class StoreTest {
         cacheReadState.emit(CachedData(KEY, Item(1), 1))
 
         store.stream(KeyedFreshnessStrategy.Fresh(KEY)).test {
-            assertEquals(StoreResponse.Loading, awaitItem())
-            assertEquals(StoreResponse.Error(error), awaitItem())
+            assertEquals(DataResource.Loading, awaitItem())
+            assertEquals(DataResource.Error(error), awaitItem())
             expectNoEvents()
             val dataFetchedInTheFuture = Item(123)
             cacheReadState.emit(CachedData(KEY, dataFetchedInTheFuture, 123))
-            assertEquals(StoreResponse.Data(dataFetchedInTheFuture), awaitItem())
+            assertEquals(DataResource.Data(dataFetchedInTheFuture), awaitItem())
         }
     }
 
@@ -57,11 +58,11 @@ class StoreTest {
         cacheReadState.emit(CachedData(KEY, Item(1), 1))
 
         store.stream(KeyedFreshnessStrategy.Fresh(KEY)).test {
-            assertEquals(StoreResponse.Loading, awaitItem())
-            assertEquals(StoreResponse.Data(resultData), awaitItem())
+            assertEquals(DataResource.Loading, awaitItem())
+            assertEquals(DataResource.Data(resultData), awaitItem())
             val dataFetchedInTheFuture = Item(3)
             cacheReadState.emit(CachedData(KEY, dataFetchedInTheFuture, 3))
-            assertEquals(StoreResponse.Data(dataFetchedInTheFuture), awaitItem())
+            assertEquals(DataResource.Data(dataFetchedInTheFuture), awaitItem())
         }
 
         coVerify { cache.write(match { it.data == resultData }) }
@@ -77,13 +78,13 @@ class StoreTest {
         coEvery { mediator.shouldFetch(any()) } returns false
 
         store.stream(KeyedFreshnessStrategy.Cached(KEY, true)).test {
-            assertEquals(StoreResponse.Data(cachedItem), awaitItem())
-            assertEquals(StoreResponse.Loading, awaitItem())
+            assertEquals(DataResource.Data(cachedItem), awaitItem())
+            assertEquals(DataResource.Loading, awaitItem())
             // the store should not proactively emit after fetch success, it should rely on the cache to emit a new cached item
             expectNoEvents()
 
             cacheReadState.emit(CachedData(KEY, resultData, 2))
-            assertEquals(StoreResponse.Data(resultData), awaitItem())
+            assertEquals(DataResource.Data(resultData), awaitItem())
         }
 
         coVerify { fetcher.fetch(KEY) }
@@ -99,13 +100,13 @@ class StoreTest {
         coEvery { mediator.shouldFetch(any()) } returns false
 
         store.stream(KeyedFreshnessStrategy.Cached(KEY, true)).test {
-            assertEquals(StoreResponse.Data(cachedItem), awaitItem())
-            assertEquals(StoreResponse.Loading, awaitItem())
-            assertEquals(StoreResponse.Error(error), awaitItem())
+            assertEquals(DataResource.Data(cachedItem), awaitItem())
+            assertEquals(DataResource.Loading, awaitItem())
+            assertEquals(DataResource.Error(error), awaitItem())
 
             val futureItem = Item(2)
             cacheReadState.emit(CachedData(KEY, futureItem, 2))
-            assertEquals(StoreResponse.Data(futureItem), awaitItem())
+            assertEquals(DataResource.Data(futureItem), awaitItem())
             expectNoEvents()
         }
 
@@ -122,7 +123,7 @@ class StoreTest {
         cacheReadState.emit(cachedData)
 
         store.stream(KeyedFreshnessStrategy.Cached(KEY, false)).test {
-            assertEquals(StoreResponse.Loading, awaitItem())
+            assertEquals(DataResource.Loading, awaitItem())
             // the store should not proactively emit after fetch success, it should rely on the cache to emit a new cached item
             expectNoEvents()
 
@@ -130,8 +131,8 @@ class StoreTest {
             coEvery { mediator.shouldFetch(cachedResultData) } returns true
             cacheReadState.emit(cachedResultData)
             val secondItem = awaitItem()
-            assertEquals(StoreResponse.Data(resultData), secondItem)
-            assertTrue(secondItem is StoreResponse.Data)
+            assertEquals(DataResource.Data(resultData), secondItem)
+            assertTrue(secondItem is DataResource.Data)
             expectNoEvents()
         }
 
@@ -150,7 +151,7 @@ class StoreTest {
         cacheReadState.emit(cachedData)
 
         store.stream(KeyedFreshnessStrategy.Cached(KEY, false)).test {
-            assertEquals(StoreResponse.Loading, awaitItem())
+            assertEquals(DataResource.Loading, awaitItem())
             // the store should not proactively emit after fetch success, it should rely on the cache to emit a new cached item
             expectNoEvents()
 
@@ -158,8 +159,8 @@ class StoreTest {
             coEvery { mediator.shouldFetch(resultCachedData) } returns true
             cacheReadState.emit(resultCachedData)
             val secondItem = awaitItem()
-            assertEquals(StoreResponse.Data(resultData), secondItem)
-            assertTrue(secondItem is StoreResponse.Data)
+            assertEquals(DataResource.Data(resultData), secondItem)
+            assertTrue(secondItem is DataResource.Data)
             expectNoEvents()
         }
 
@@ -178,16 +179,16 @@ class StoreTest {
         cacheReadState.emit(cachedData)
 
         store.stream(KeyedFreshnessStrategy.Cached(KEY, false)).test {
-            assertEquals(StoreResponse.Loading, awaitItem())
-            assertEquals(StoreResponse.Error(error), awaitItem())
+            assertEquals(DataResource.Loading, awaitItem())
+            assertEquals(DataResource.Error(error), awaitItem())
 
             val futureItem = Item(2)
             val cachedFutureItem = CachedData(KEY, futureItem, 2)
             coEvery { mediator.shouldFetch(cachedFutureItem) } returns true
             cacheReadState.emit(cachedFutureItem)
             val secondItem = awaitItem()
-            assertEquals(StoreResponse.Data(futureItem), secondItem)
-            assertTrue(secondItem is StoreResponse.Data)
+            assertEquals(DataResource.Data(futureItem), secondItem)
+            assertTrue(secondItem is DataResource.Data)
             expectNoEvents()
         }
 
@@ -202,11 +203,11 @@ class StoreTest {
         every { mediator.shouldFetch(any()) } returns false
 
         store.stream(KeyedFreshnessStrategy.Cached(KEY, false)).test {
-            assertEquals(StoreResponse.Data(cachedItem), awaitItem())
+            assertEquals(DataResource.Data(cachedItem), awaitItem())
 
             val futureItem = Item(2)
             cacheReadState.emit(CachedData(KEY, futureItem, 2))
-            assertEquals(StoreResponse.Data(futureItem), awaitItem())
+            assertEquals(DataResource.Data(futureItem), awaitItem())
             expectNoEvents()
         }
 
@@ -222,7 +223,7 @@ class StoreTest {
 
         store.stream(KeyedFreshnessStrategy.Cached(KEY, false)).test {
             cacheReadState.emit(cachedData)
-            assertEquals(StoreResponse.Data(cachedItem), awaitItem())
+            assertEquals(DataResource.Data(cachedItem), awaitItem())
             cacheReadState.emit(cachedData)
             expectNoEvents()
         }

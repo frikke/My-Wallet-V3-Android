@@ -1,7 +1,7 @@
 package com.blockchain.core.payments
 
 import com.blockchain.api.NabuApiExceptionFactory
-import com.blockchain.api.adapters.ApiException
+import com.blockchain.api.mapActions
 import com.blockchain.api.nabu.data.AddressRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.AliasInfoResponse
@@ -38,8 +38,10 @@ import com.blockchain.api.services.toMobilePaymentType
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
@@ -73,7 +75,6 @@ import com.blockchain.domain.paymentmethods.model.PartnerCredentials
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
-import com.blockchain.domain.paymentmethods.model.PaymentMethodDetailsError
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibility
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
@@ -98,7 +99,6 @@ import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
 import com.blockchain.payments.googlepay.manager.request.allowedCardNetworks
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.store.StoreResponse
 import com.blockchain.store.firstOutcome
 import com.blockchain.store.mapData
 import com.blockchain.utils.toZonedDateTime
@@ -145,17 +145,10 @@ class PaymentsRepository(
 
     override suspend fun getPaymentMethodDetailsForId(
         paymentId: String,
-    ): Outcome<PaymentMethodDetailsError, PaymentMethodDetails> {
+    ): Outcome<Exception, PaymentMethodDetails> {
         // TODO Turn getAuthHeader() into a suspension function
         val auth = authenticator.getAuthHeader().await()
-        return paymentsService.getPaymentMethodDetailsForId(auth, paymentId).mapError { apiError: ApiException ->
-            when (apiError) {
-                is ApiException.HttpError -> PaymentMethodDetailsError.REQUEST_FAILED
-                is ApiException.NetworkError -> PaymentMethodDetailsError.SERVICE_UNAVAILABLE
-                is ApiException.UnknownApiError -> PaymentMethodDetailsError.UNKNOWN
-                is ApiException.KnownError -> PaymentMethodDetailsError.REQUEST_FAILED
-            }
-        }
+        return paymentsService.getPaymentMethodDetailsForId(auth, paymentId)
     }
 
     override fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks> =
@@ -281,7 +274,7 @@ class PaymentsRepository(
     override fun getLinkedCards(
         request: FreshnessStrategy,
         vararg states: CardStatus,
-    ): Flow<StoreResponse<List<LinkedPaymentMethod.Card>>> =
+    ): Flow<DataResource<List<LinkedPaymentMethod.Card>>> =
         linkedCardsStore.stream(request)
             .mapData {
                 it.filter { states.contains(it.state.toCardStatus()) || states.isEmpty() }
@@ -638,7 +631,7 @@ class PaymentsRepository(
                         } ?: Outcome.Success(it.toAliasInfo())
                     },
                     onFailure = {
-                        Outcome.Failure(it.exception)
+                        Outcome.Failure(it)
                     }
                 )
             }
@@ -649,9 +642,7 @@ class PaymentsRepository(
                 paymentMethodsService.activateBeneficiary(
                     authorization = authToken,
                     beneficiaryId = beneficiaryId
-                ).mapError {
-                    it.exception
-                }
+                )
             }
 
     override suspend fun checkNewCardRejectionState(binNumber: String):
@@ -707,8 +698,8 @@ class PaymentsRepository(
             }
         }
 
-    private fun CardResponse.toPaymentMethod(): LinkedPaymentMethod.Card {
-        return LinkedPaymentMethod.Card(
+    private fun CardResponse.toPaymentMethod(): LinkedPaymentMethod.Card =
+        LinkedPaymentMethod.Card(
             cardId = id,
             label = card?.label.orEmpty(),
             endDigits = card?.number.orEmpty(),
@@ -727,9 +718,19 @@ class PaymentsRepository(
             currency = assetCatalogue.fiatFromNetworkTicker(currency)
                 ?: throw IllegalStateException("Unknown currency $currency"),
             mobilePaymentType = mobilePaymentType?.toMobilePaymentType(),
-            cardRejectionState = CardRejectionStateResponse(block, ux).toDomain()
+            cardRejectionState = CardRejectionStateResponse(block, ux).toDomain(),
+            serverSideUxErrorInfo = ux?.let {
+                ServerSideUxErrorInfo(
+                    id = it.id,
+                    title = it.title,
+                    description = it.message,
+                    iconUrl = it.icon?.url.orEmpty(),
+                    statusUrl = it.icon?.status?.url.orEmpty(),
+                    actions = it.mapActions(),
+                    categories = it.categories ?: emptyList()
+                )
+            }
         )
-    }
 
     private fun LinkedPaymentMethod.Card.toCardPaymentMethod(cardLimits: PaymentLimits) =
         PaymentMethod.Card(
@@ -742,7 +743,8 @@ class PaymentsRepository(
             cardType = cardType,
             status = status,
             isEligible = true,
-            mobilePaymentType = mobilePaymentType
+            mobilePaymentType = mobilePaymentType,
+            serverSideUxErrorInfo = serverSideUxErrorInfo
         )
 
     private fun BankInfoResponse.toPaymentMethod(): LinkedPaymentMethod.Bank? {

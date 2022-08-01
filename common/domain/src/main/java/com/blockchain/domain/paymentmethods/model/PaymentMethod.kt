@@ -1,5 +1,6 @@
 package com.blockchain.domain.paymentmethods.model
 
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import java.io.Serializable
@@ -141,7 +142,8 @@ sealed class PaymentMethod(
         val status: CardStatus,
         val mobilePaymentType: MobilePaymentType? = null,
         override val isEligible: Boolean,
-        val cardRejectionState: CardRejectionState? = null
+        val cardRejectionState: CardRejectionState? = null,
+        val serverSideUxErrorInfo: ServerSideUxErrorInfo? = null
     ) : PaymentMethod(cardId, PaymentMethodType.PAYMENT_CARD, limits, CARD_PAYMENT_METHOD_ORDER, isEligible),
         Serializable,
         RecurringBuyPaymentDetails {
