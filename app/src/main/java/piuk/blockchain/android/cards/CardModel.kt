@@ -191,8 +191,20 @@ class CardModel(
                     process(
                         CardIntent.UpdateRequestState(
                             CardRequestStatus.Error(
-                                if (it.cardDetails.status == CardStatus.PENDING) CardError.PendingAfterPoll
-                                else CardError.LinkedFailed
+                                if (it.cardDetails.status == CardStatus.PENDING) {
+                                    CardError.PendingAfterPoll
+                                } else {
+                                    it.cardDetails.serverSideUxErrorInfo?.let { error ->
+                                        CardError.ServerSideCardError(
+                                            title = error.title,
+                                            message = error.description,
+                                            iconUrl = error.iconUrl,
+                                            statusIconUrl = error.statusUrl,
+                                            actions = error.actions,
+                                            categories = error.categories
+                                        )
+                                    } ?: CardError.LinkFailed
+                                }
                             )
                         )
                     )

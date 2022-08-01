@@ -388,7 +388,7 @@ class CardModelTest {
             it.cardStatus == card.status
         }.assertValueAt(3) {
             it.cardRequestStatus is CardRequestStatus.Error &&
-                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.LinkedFailed
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.LinkFailed
         }
     }
 

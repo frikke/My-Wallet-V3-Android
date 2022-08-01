@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -188,83 +189,96 @@ class CardVerificationFragment :
                         }
                     )
                 }
-                CardError.ActivationFailed -> showTxError(
-                    title = getString(R.string.title_cardInsufficientFunds),
-                    subtitle = getString(R.string.could_not_activate_card)
+                CardError.ActivationFailed -> renderLegacyError(
+                    title = R.string.title_cardInsufficientFunds,
+                    subtitle = R.string.could_not_activate_card
                 )
-                CardError.CardAcquirerDeclined -> showTxError(
-                    title = getString(R.string.title_cardCreateBankDeclined),
-                    subtitle = getString(R.string.msg_cardAcquirerDecline)
+                CardError.CardAcquirerDeclined -> renderLegacyError(
+                    title = R.string.title_cardCreateBankDeclined,
+                    subtitle = R.string.msg_cardAcquirerDecline
                 )
-                CardError.CardBankDeclined -> showTxError(
-                    title = getString(R.string.title_cardBankDecline),
-                    subtitle = getString(R.string.msg_cardBankDecline)
+                CardError.CardBankDeclined -> renderLegacyError(
+                    title = R.string.title_cardBankDecline,
+                    subtitle = R.string.msg_cardBankDecline
                 )
-                CardError.CardBlockchainDeclined -> showTxError(
-                    title = getString(R.string.title_cardBlockchainDecline),
-                    subtitle = getString(R.string.msg_cardBlockchainDecline)
+                CardError.CardBlockchainDeclined -> renderLegacyError(
+                    title = R.string.title_cardBlockchainDecline,
+                    subtitle = R.string.msg_cardBlockchainDecline
                 )
-                CardError.CardCreateBankDeclined -> showTxError(
-                    title = getString(R.string.title_cardCreateBankDeclined),
-                    subtitle = getString(R.string.msg_cardCreateBankDeclined)
+                CardError.CardCreateBankDeclined -> renderLegacyError(
+                    title = R.string.title_cardCreateBankDeclined,
+                    subtitle = R.string.msg_cardCreateBankDeclined
                 )
-                CardError.CardCreateDebitOnly -> showTxError(
-                    title = getString(R.string.title_cardCreateDebitOnly),
-                    subtitle = getString(R.string.msg_cardCreateDebitOnly)
+                CardError.CardCreateDebitOnly -> renderLegacyError(
+                    title = R.string.title_cardCreateDebitOnly,
+                    subtitle = R.string.msg_cardCreateDebitOnly
                 )
-                CardError.CardCreateNoToken -> showTxError(
-                    title = getString(R.string.title_cardCreateNoToken),
-                    subtitle = getString(R.string.msg_cardCreateNoToken)
+                CardError.CardCreateNoToken -> renderLegacyError(
+                    title = R.string.title_cardCreateNoToken,
+                    subtitle = R.string.msg_cardCreateNoToken
                 )
-                CardError.CardCreatedAbandoned -> showTxError(
-                    title = getString(R.string.title_cardCreateAbandoned),
-                    subtitle = getString(R.string.msg_cardCreateAbandoned)
+                CardError.CardCreatedAbandoned -> renderLegacyError(
+                    title = R.string.title_cardCreateAbandoned,
+                    subtitle = R.string.msg_cardCreateAbandoned
                 )
-                CardError.CardCreatedExpired -> showTxError(
-                    title = getString(R.string.title_cardCreateExpired),
-                    subtitle = getString(R.string.msg_cardCreateExpired)
+                CardError.CardCreatedExpired -> renderLegacyError(
+                    title = R.string.title_cardCreateExpired,
+                    subtitle = R.string.msg_cardCreateExpired
                 )
-                CardError.CardCreatedFailed -> showTxError(
-                    title = getString(R.string.title_cardCreateFailed),
-                    subtitle = getString(R.string.msg_cardCreateFailed)
+                CardError.CardCreatedFailed -> renderLegacyError(
+                    title = R.string.title_cardCreateFailed,
+                    subtitle = R.string.msg_cardCreateFailed
                 )
-                CardError.CardDuplicated -> showTxError(
-                    title = getString(R.string.title_cardDuplicate),
-                    subtitle = getString(R.string.msg_cardDuplicate)
+                CardError.CardDuplicated -> renderLegacyError(
+                    title = R.string.title_cardDuplicate,
+                    subtitle = R.string.msg_cardDuplicate
                 )
-                CardError.CardLimitReach -> showTxError(
-                    title = getString(R.string.card_limit_reached_title),
-                    subtitle = getString(R.string.card_limit_reached_desc)
+                CardError.CardLimitReach -> renderLegacyError(
+                    title = R.string.card_limit_reached_title,
+                    subtitle = R.string.card_limit_reached_desc
                 )
-                CardError.CardPaymentDebitOnly -> showTxError(
-                    title = getString(R.string.title_cardPaymentDebitOnly),
-                    subtitle = getString(R.string.msg_cardPaymentDebitOnly)
+                CardError.CardPaymentDebitOnly -> renderLegacyError(
+                    title = R.string.title_cardPaymentDebitOnly,
+                    subtitle = R.string.msg_cardPaymentDebitOnly
                 )
-                CardError.CardPaymentFailed -> showTxError(
-                    title = getString(R.string.title_cardPaymentFailed),
-                    subtitle = getString(R.string.msg_cardPaymentFailed)
+                CardError.CardPaymentFailed -> renderLegacyError(
+                    title = R.string.title_cardPaymentFailed,
+                    subtitle = R.string.msg_cardPaymentFailed
                 )
-                CardError.CardPaymentNotSupportedDeclined -> showTxError(
-                    title = getString(R.string.title_cardPaymentNotSupported),
-                    subtitle = getString(R.string.msg_cardPaymentNotSupported)
+                CardError.CardPaymentNotSupportedDeclined -> renderLegacyError(
+                    title = R.string.title_cardPaymentNotSupported,
+                    subtitle = R.string.msg_cardPaymentNotSupported
                 )
-                CardError.CreationFailed -> showTxError(
-                    title = getString(R.string.linking_card_error_title),
-                    subtitle = getString(R.string.could_not_save_card)
+                CardError.CreationFailed -> renderLegacyError(
+                    title = R.string.linking_card_error_title,
+                    subtitle = R.string.could_not_save_card
                 )
-                CardError.InsufficientCardBalance -> showTxError(
-                    title = getString(R.string.title_cardInsufficientFunds),
-                    subtitle = getString(R.string.msg_cardInsufficientFunds)
+                CardError.InsufficientCardBalance -> renderLegacyError(
+                    title = R.string.title_cardInsufficientFunds,
+                    subtitle = R.string.msg_cardInsufficientFunds
                 )
-                CardError.LinkedFailed -> showTxError(
-                    title = getString(R.string.linking_card_error_title),
-                    subtitle = getString(R.string.card_link_failed)
+                CardError.LinkFailed -> renderLegacyError(
+                    title = R.string.linking_card_error_title,
+                    subtitle = R.string.card_link_failed
                 )
-                CardError.PendingAfterPoll -> showTxError(
-                    title = getString(R.string.card_still_pending),
-                    subtitle = getString(R.string.card_link_failed)
+                CardError.PendingAfterPoll -> renderLegacyError(
+                    title = R.string.card_still_pending,
+                    subtitle = R.string.card_link_failed
                 )
             }
+        }
+    }
+
+    private fun renderLegacyError(@StringRes title: Int, @StringRes subtitle: Int) {
+        with(binding.transactionProgressView) {
+            setupPrimaryCta(
+                text = getString(R.string.common_ok),
+                onClick = { requireActivity().finish() }
+            )
+            showTxError(
+                title = getString(title),
+                subtitle = getString(subtitle)
+            )
         }
     }
 

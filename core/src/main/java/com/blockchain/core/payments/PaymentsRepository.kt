@@ -1,6 +1,7 @@
 package com.blockchain.core.payments
 
 import com.blockchain.api.NabuApiExceptionFactory
+import com.blockchain.api.mapActions
 import com.blockchain.api.nabu.data.AddressRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.AliasInfoResponse
@@ -40,6 +41,7 @@ import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
@@ -696,8 +698,8 @@ class PaymentsRepository(
             }
         }
 
-    private fun CardResponse.toPaymentMethod(): LinkedPaymentMethod.Card {
-        return LinkedPaymentMethod.Card(
+    private fun CardResponse.toPaymentMethod(): LinkedPaymentMethod.Card =
+        LinkedPaymentMethod.Card(
             cardId = id,
             label = card?.label.orEmpty(),
             endDigits = card?.number.orEmpty(),
@@ -716,9 +718,19 @@ class PaymentsRepository(
             currency = assetCatalogue.fiatFromNetworkTicker(currency)
                 ?: throw IllegalStateException("Unknown currency $currency"),
             mobilePaymentType = mobilePaymentType?.toMobilePaymentType(),
-            cardRejectionState = CardRejectionStateResponse(block, ux).toDomain()
+            cardRejectionState = CardRejectionStateResponse(block, ux).toDomain(),
+            serverSideUxErrorInfo = ux?.let {
+                ServerSideUxErrorInfo(
+                    id = it.id,
+                    title = it.title,
+                    description = it.message,
+                    iconUrl = it.icon?.url.orEmpty(),
+                    statusUrl = it.icon?.status?.url.orEmpty(),
+                    actions = it.mapActions(),
+                    categories = it.categories ?: emptyList()
+                )
+            }
         )
-    }
 
     private fun LinkedPaymentMethod.Card.toCardPaymentMethod(cardLimits: PaymentLimits) =
         PaymentMethod.Card(
@@ -731,7 +743,8 @@ class PaymentsRepository(
             cardType = cardType,
             status = status,
             isEligible = true,
-            mobilePaymentType = mobilePaymentType
+            mobilePaymentType = mobilePaymentType,
+            serverSideUxErrorInfo = serverSideUxErrorInfo
         )
 
     private fun BankInfoResponse.toPaymentMethod(): LinkedPaymentMethod.Bank? {

@@ -77,7 +77,7 @@ data class ActionData(
     val url: String?
 )
 
-private fun NabuUxErrorResponse.mapActions(): List<ServerErrorAction> =
+fun NabuUxErrorResponse.mapActions(): List<ServerErrorAction> =
     this.actions?.map {
         ServerErrorAction(
             title = it.title,
