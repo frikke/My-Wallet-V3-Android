@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
@@ -20,6 +21,8 @@ class GooglePayAnnouncement(
     override val dismissKey = DISMISS_KEY
 
     override val name = "google_pay_available"
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
 
     override fun shouldShow(): Single<Boolean> =
         if (dismissEntry.isDismissed) {

@@ -101,7 +101,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/confirm_password"
-                    android:imeOptions="actionGo"
+                    android:imeOptions="actionNext"
                     android:inputType="textPassword"
                     android:maxLines="1" />
 

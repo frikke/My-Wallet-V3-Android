@@ -1,6 +1,6 @@
 package com.blockchain.core.nftwaitlist.data
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.nftwaitlist.data.model.NftWaitlistDto
 import com.blockchain.api.services.NftWaitlistApiService
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
@@ -12,7 +12,7 @@ class NftWailslitRepository(
     private val nftWaitlistApiService: NftWaitlistApiService,
     private val userIdentity: UserIdentity,
 ) : NftWaitlistService {
-    override suspend fun joinWaitlist(): Outcome<ApiError, Unit> {
+    override suspend fun joinWaitlist(): Outcome<ApiException, Unit> {
         val body = NftWaitlistDto.build(
             email = userIdentity.getBasicProfileInformation().await().email
         )

@@ -1,25 +1,27 @@
 package com.blockchain.store.impl
 
+import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.store.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class RealStore<K : Any, E : Any, T : Any>(
+class RealStore<K : Any,  T : Any>(
     private val scope: CoroutineScope,
-    private val fetcher: Fetcher<K, E, T>,
+    private val fetcher: Fetcher<K, T>,
     private val cache: Cache<K, T>,
     private val mediator: Mediator<K, T>
-) : KeyedStore<K, E, T> {
-    override fun stream(request: KeyedStoreRequest<K>): Flow<StoreResponse<E, T>> =
+) : KeyedStore<K, T> {
+    override fun stream(request: KeyedFreshnessStrategy<K>): Flow<StoreResponse< T>> =
         when (request) {
-            is KeyedStoreRequest.Cached -> buildCachedFlow(request)
-            is KeyedStoreRequest.Fresh -> buildFreshFlow(request)
+            is KeyedFreshnessStrategy.Cached -> buildCachedFlow(request)
+            is KeyedFreshnessStrategy.Fresh -> buildFreshFlow(request)
         }.distinctUntilChanged()
 
     private var previousEmissions: MutableList<Pair<Long, CachedData<K, T>?>> = mutableListOf()
 
-    private fun buildCachedFlow(request: KeyedStoreRequest.Cached<K>) = channelFlow<StoreResponse<E, T>> {
+    private fun buildCachedFlow(request: KeyedFreshnessStrategy.Cached<K>) = channelFlow {
+
         val networkLock = CompletableDeferred<Unit>()
         scope.launch {
             networkLock.await()
@@ -71,7 +73,7 @@ class RealStore<K : Any, E : Any, T : Any>(
         }
     }
 
-    private fun buildFreshFlow(request: KeyedStoreRequest.Fresh<K>) = channelFlow {
+    private fun buildFreshFlow(request: KeyedFreshnessStrategy.Fresh<K>) = channelFlow {
         send(StoreResponse.Loading)
         val result = fetcher.fetch(request.key)
         when (result) {

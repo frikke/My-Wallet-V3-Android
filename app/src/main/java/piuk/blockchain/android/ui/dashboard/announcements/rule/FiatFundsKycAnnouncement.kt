@@ -4,6 +4,7 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.R
@@ -20,7 +21,8 @@ class FiatFundsKycAnnouncement(
 ) : AnnouncementRule(dismissRecorder) {
 
     override val dismissKey = DISMISS_KEY
-
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
     override fun shouldShow(): Single<Boolean> {
         if (dismissEntry.isDismissed) {
             return Single.just(false)

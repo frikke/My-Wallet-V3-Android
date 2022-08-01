@@ -12,7 +12,6 @@ import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -69,8 +68,6 @@ class LinkedBankAccount(
 
     override val hasTransactions: Boolean
         get() = false
-    override val disabledReason: Single<IneligibilityReason>
-        get() = Single.just(IneligibilityReason.NONE)
 
     override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
     fun isOpenBankingCurrency(): Boolean = listOf("GBP", "EUR").contains(currency.networkTicker)

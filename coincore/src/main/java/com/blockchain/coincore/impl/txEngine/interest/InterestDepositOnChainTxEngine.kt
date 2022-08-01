@@ -13,7 +13,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
-import com.blockchain.core.interest.data.InterestStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -23,7 +23,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestDepositOnChainTxEngine(
-    private val interestStore: InterestStore,
+    private val interestBalanceStore: InterestBalancesStore,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val onChainEngine: OnChainTxEngineBase,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -31,7 +31,7 @@ class InterestDepositOnChainTxEngine(
 ) : InterestBaseEngine(walletManager) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(interestStore)
+        get() = listOf(interestBalanceStore)
 
     override fun assertInputsValid() {
         check(sourceAccount is CryptoNonCustodialAccount)
@@ -137,7 +137,7 @@ class InterestDepositOnChainTxEngine(
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
         onChainEngine.doExecute(pendingTx, secondPassword)
-            .doOnSuccess { interestStore.invalidate() }
+            .doOnSuccess { interestBalanceStore.invalidate() }
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
         onChainEngine.doPostExecute(pendingTx, txResult)

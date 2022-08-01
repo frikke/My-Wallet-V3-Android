@@ -1,6 +1,6 @@
 package com.blockchain.api.fiatcurrencies
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.fiatcurrencies.data.SetSelectedTradingCurrencyRequest
 import com.blockchain.outcome.Outcome
 import retrofit2.http.Body
@@ -13,5 +13,5 @@ interface FiatCurrenciesApi {
     suspend fun setSelectedTradingCurrency(
         @Header("authorization") authorization: String,
         @Body request: SetSelectedTradingCurrencyRequest
-    ): Outcome<ApiError, Unit>
+    ): Outcome<ApiException, Unit>
 }

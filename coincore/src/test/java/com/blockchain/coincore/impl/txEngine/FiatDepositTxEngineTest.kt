@@ -25,6 +25,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementInfo
 import com.blockchain.domain.paymentmethods.model.SettlementReason
+import com.blockchain.domain.paymentmethods.model.SettlementType
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
@@ -545,6 +546,64 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
     }
 
     @Test
+    fun `doExecute() check Settlement for Plaid accounts with settlementType REGULAR should start bank transfer`() {
+        val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
+        val sourceAccount: LinkedBankAccount = mock {
+            on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
+            on { accountId }.thenReturn(ACCOUNT_ID)
+        }
+        val txTarget: FiatAccount = mock {
+            on { currency }.thenReturn(TGT_ASSET)
+        }
+        val settlement: SettlementInfo = mock {
+            on { settlementType }.thenReturn(SettlementType.REGULAR)
+        }
+
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+
+        val amount = FiatValue.fromMinor(TGT_ASSET, 3000L.toBigInteger())
+        val minLimit = FiatValue.fromMinor(TGT_ASSET, 2000L.toBigInteger())
+        val maxLimit = FiatValue.fromMinor(TGT_ASSET, 10000L.toBigInteger())
+
+        val zeroFiat = FiatValue.zero(TGT_ASSET)
+        val pendingTx = PendingTx(
+            amount = amount,
+            totalBalance = zeroFiat,
+            availableBalance = zeroFiat,
+            feeForFullAvailable = zeroFiat,
+            feeAmount = zeroFiat,
+            selectedFiat = TGT_ASSET,
+            feeSelection = FeeSelection(),
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
+        )
+
+        val txId = "12234"
+        whenever(
+            bankService.startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
+        ).thenReturn(
+            Single.just(txId)
+        )
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
+        whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
+
+        subject.doExecute(
+            pendingTx, ""
+        ).test()
+            .assertComplete()
+            .assertNoErrors()
+            .assertValue {
+                it is TxResult.HashedTxResult &&
+                    it.txId == txId
+            }
+
+        verify(bankService).startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
+    }
+
+    @Test
     fun `doExecute() check Settlement for Plaid accounts with settlementReason NONE should start bank transfer`() {
         val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
         val sourceAccount: LinkedBankAccount = mock {
@@ -554,10 +613,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         val txTarget: FiatAccount = mock {
             on { currency }.thenReturn(TGT_ASSET)
         }
-        val linkedBank: LinkedBank = mock {
-            on { partner }.thenReturn(BankPartner.PLAID)
-        }
         val settlement: SettlementInfo = mock {
+            on { settlementType }.thenReturn(SettlementType.UNAVAILABLE)
             on { settlementReason }.thenReturn(SettlementReason.NONE)
         }
 
@@ -589,7 +646,6 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         ).thenReturn(
             Single.just(txId)
         )
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
 
@@ -616,10 +672,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         val txTarget: FiatAccount = mock {
             on { currency }.thenReturn(TGT_ASSET)
         }
-        val linkedBank: LinkedBank = mock {
-            on { partner }.thenReturn(BankPartner.PLAID)
-        }
         val settlement: SettlementInfo = mock {
+            on { settlementType }.thenReturn(SettlementType.UNAVAILABLE)
             on { settlementReason }.thenReturn(SettlementReason.GENERIC)
         }
 
@@ -645,7 +699,6 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
         )
 
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
 
@@ -668,10 +721,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         val txTarget: FiatAccount = mock {
             on { currency }.thenReturn(TGT_ASSET)
         }
-        val linkedBank: LinkedBank = mock {
-            on { partner }.thenReturn(BankPartner.PLAID)
-        }
         val settlement: SettlementInfo = mock {
+            on { settlementType }.thenReturn(SettlementType.UNAVAILABLE)
             on { settlementReason }.thenReturn(SettlementReason.INSUFFICIENT_BALANCE)
         }
 
@@ -697,7 +748,6 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
         )
 
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
 
@@ -720,10 +770,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         val txTarget: FiatAccount = mock {
             on { currency }.thenReturn(TGT_ASSET)
         }
-        val linkedBank: LinkedBank = mock {
-            on { partner }.thenReturn(BankPartner.PLAID)
-        }
         val settlement: SettlementInfo = mock {
+            on { settlementType }.thenReturn(SettlementType.UNAVAILABLE)
             on { settlementReason }.thenReturn(SettlementReason.STALE_BALANCE)
         }
 
@@ -749,7 +797,6 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
         )
 
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
 
@@ -772,10 +819,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         val txTarget: FiatAccount = mock {
             on { currency }.thenReturn(TGT_ASSET)
         }
-        val linkedBank: LinkedBank = mock {
-            on { partner }.thenReturn(BankPartner.PLAID)
-        }
         val settlement: SettlementInfo = mock {
+            on { settlementType }.thenReturn(SettlementType.UNAVAILABLE)
             on { settlementReason }.thenReturn(SettlementReason.REQUIRES_UPDATE)
         }
 
@@ -801,7 +846,6 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
         )
 
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
 
@@ -951,15 +995,11 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         val txResult: TxResult.HashedTxResult = mock {
             on { txId }.thenReturn(TX_ID)
         }
-        val linkedBank: LinkedBank = mock {
-            on { partner }.thenReturn(BankPartner.PLAID)
-        }
         val bankTransferDetails: BankTransferDetails = mock {
             on { status }.thenReturn(BankTransferStatus.Complete)
         }
 
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
 
         // Act
@@ -986,15 +1026,11 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         val txResult: TxResult.HashedTxResult = mock {
             on { txId }.thenReturn(TX_ID)
         }
-        val linkedBank: LinkedBank = mock {
-            on { partner }.thenReturn(BankPartner.PLAID)
-        }
         val bankTransferDetails: BankTransferDetails = mock {
             on { status }.thenReturn(BankTransferStatus.Unknown)
         }
 
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
 
         // Act
@@ -1021,15 +1057,11 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         val txResult: TxResult.HashedTxResult = mock {
             on { txId }.thenReturn(TX_ID)
         }
-        val linkedBank: LinkedBank = mock {
-            on { partner }.thenReturn(BankPartner.PLAID)
-        }
         val bankTransferDetails: BankTransferDetails = mock {
             on { status }.thenReturn(BankTransferStatus.Error(ERROR))
         }
 
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
 
         // Act
@@ -1058,15 +1090,11 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         val txResult: TxResult.HashedTxResult = mock {
             on { txId }.thenReturn(TX_ID)
         }
-        val linkedBank: LinkedBank = mock {
-            on { partner }.thenReturn(BankPartner.PLAID)
-        }
         val bankTransferDetails: BankTransferDetails = mock {
             on { status }.thenReturn(BankTransferStatus.Error(null))
         }
 
         whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
-        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
         whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
 
         // Act

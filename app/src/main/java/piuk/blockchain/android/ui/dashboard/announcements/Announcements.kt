@@ -53,7 +53,7 @@ abstract class AnnouncementRule(private val dismissRecorder: DismissRecorder) {
 
     abstract val dismissKey: String
     abstract val name: String
-
+    abstract val associatedWalletModes: List<WalletMode>
     abstract fun shouldShow(): Single<Boolean>
     abstract fun show(host: AnnouncementHost)
     fun isDismissed(): Boolean = dismissEntry.isDismissed
@@ -88,13 +88,13 @@ class AnnouncementList(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun nextAnnouncement(): Maybe<AnnouncementRule> {
-        if (walletModeService.enabledWalletMode() == WalletMode.NON_CUSTODIAL_ONLY)
-            return Maybe.empty()
+        val walletMode = walletModeService.enabledWalletMode()
 
         return orderAdapter.announcementConfig
             .doOnSuccess { dismissRecorder.setPeriod(it.interval) }
             .map { buildAnnouncementList(it.order) }
             .flattenAsObservable { it }
+            .filter { walletMode in it.associatedWalletModes || walletMode == WalletMode.UNIVERSAL }
             .concatMap { a ->
                 Observable.defer {
                     a.shouldShow()

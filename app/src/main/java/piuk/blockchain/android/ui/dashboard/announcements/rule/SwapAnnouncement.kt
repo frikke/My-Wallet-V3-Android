@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -25,6 +26,9 @@ class SwapAnnouncement(
 
     override val name: String
         get() = "swap_v2"
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
 
     override fun shouldShow(): Single<Boolean> =
         queries.isTier1Or2Verified().flatMap {

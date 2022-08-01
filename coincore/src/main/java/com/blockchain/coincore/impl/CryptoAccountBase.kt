@@ -27,7 +27,6 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -65,9 +64,6 @@ abstract class CryptoAccountBase : CryptoAccount {
 
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.NOT_SUPPORTED)
-
-    override val disabledReason: Single<IneligibilityReason>
-        get() = Single.just(IneligibilityReason.NONE)
 
     private fun normaliseTxId(txId: String): String =
         txId.replace("-", "")

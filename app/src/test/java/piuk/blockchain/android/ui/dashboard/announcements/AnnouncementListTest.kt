@@ -174,28 +174,10 @@ class AnnouncementListTest {
             .assertNoErrors()
     }
 
-    @Test
-    fun `does not check announcements when walletmode is NON_CUSTODIAL only`() {
-        whenever(walletModeService.enabledWalletMode()).thenReturn(WalletMode.NON_CUSTODIAL_ONLY)
-
-        val available = listOf(
-            announcement("one"),
-            dontCheckAnnouncement("two"),
-            dontCheckAnnouncement("three"),
-            dontCheckAnnouncement("four")
-        )
-
-        createAnnouncementList(available)
-            .nextAnnouncement()
-            .test()
-            .assertNoValues()
-            .assertComplete()
-            .assertNoErrors()
-    }
-
     private fun announcement(announcementName: String): AnnouncementRule =
         mock {
             on { shouldShow() }.thenReturn(Single.just(true))
+            on { associatedWalletModes }.thenReturn(WalletMode.values().toList())
             on { name }.thenReturn(announcementName)
         }
 
@@ -203,6 +185,7 @@ class AnnouncementListTest {
         mock {
             on { shouldShow() }.thenReturn(Single.just(false))
             on { show(host) }.thenThrow(RuntimeException("Not expected"))
+            on { associatedWalletModes }.thenReturn(WalletMode.values().toList())
             on { name }.thenReturn(announcementName)
         }
 
@@ -210,6 +193,7 @@ class AnnouncementListTest {
         mock {
             on { shouldShow() }.thenThrow(RuntimeException("Not expected"))
             on { show(host) }.thenThrow(RuntimeException("Not expected"))
+            on { associatedWalletModes }.thenReturn(WalletMode.values().toList())
             on { name }.thenReturn(announcementName)
         }
 

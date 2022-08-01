@@ -1,6 +1,6 @@
 package com.blockchain.api.referral
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.referral.data.ReferralCode
 import com.blockchain.api.referral.data.ReferralResponse
 import com.blockchain.outcome.Outcome
@@ -18,16 +18,16 @@ interface ReferralApi {
         @Header("authorization") authorization: String,
         @Query("platform") platform: String,
         @Query("currency") currency: String
-    ): Outcome<ApiError, ReferralResponse?>
+    ): Outcome<ApiException, ReferralResponse?>
 
     @GET("referral/{code}")
     suspend fun validateReferralCode(
         @Path("code") code: String
-    ): Outcome<ApiError, Unit>
+    ): Outcome<ApiException, Unit>
 
     @POST("referral")
     suspend fun associateReferral(
         @Header("authorization") authorization: String,
         @Body referralCode: ReferralCode
-    ): Outcome<ApiError, Unit>
+    ): Outcome<ApiException, Unit>
 }

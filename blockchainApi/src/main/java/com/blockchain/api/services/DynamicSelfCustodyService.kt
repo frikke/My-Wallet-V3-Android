@@ -1,6 +1,6 @@
 package com.blockchain.api.services
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.selfcustody.AccountInfo
 import com.blockchain.api.selfcustody.AddSubscriptionRequest
 import com.blockchain.api.selfcustody.AddressesRequest
@@ -69,7 +69,10 @@ class DynamicSelfCustodyService(
             )
         )
 
-    suspend fun getSubscriptions(guidHash: String, sharedKeyHash: String): Outcome<ApiError, GetSubscriptionsResponse> =
+    suspend fun getSubscriptions(
+        guidHash: String,
+        sharedKeyHash: String
+    ): Outcome<ApiException, GetSubscriptionsResponse> =
         selfCustodyApi.getSubscriptions(
             request = GetSubscriptionsRequest(
                 auth = AuthInfo(

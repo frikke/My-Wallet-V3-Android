@@ -1,5 +1,6 @@
 package com.blockchain.domain.paymentmethods
 
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardRejectionCheckError
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
@@ -9,9 +10,7 @@ import com.blockchain.domain.paymentmethods.model.GooglePayInfo
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PartnerCredentials
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
-import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
 import com.blockchain.outcome.Outcome
-import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
@@ -21,9 +20,9 @@ import kotlinx.coroutines.flow.Flow
 interface CardService {
 
     fun getLinkedCards(
-        request: StoreRequest,
+        request: FreshnessStrategy,
         vararg states: CardStatus
-    ): Flow<StoreResponse<PaymentMethodsError, List<LinkedPaymentMethod.Card>>>
+    ): Flow<StoreResponse<List<LinkedPaymentMethod.Card>>>
 
     fun getLinkedCards(vararg states: CardStatus): Single<List<LinkedPaymentMethod.Card>>
 

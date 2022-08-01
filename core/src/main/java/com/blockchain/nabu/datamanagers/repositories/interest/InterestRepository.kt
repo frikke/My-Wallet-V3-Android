@@ -1,13 +1,14 @@
 package com.blockchain.nabu.datamanagers.repositories.interest
 
 import com.blockchain.core.common.caching.TimedCacheRequest
+import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestEligibility
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 
 class InterestRepository(
     private val interestLimitsProvider: InterestLimitsProvider,
-    private val interestAvailabilityProvider: InterestAvailabilityProvider,
-    private val interestEligibilityProvider: InterestEligibilityProvider
+    private val interestService: InterestService,
 ) {
     private val limitsCache = TimedCacheRequest(
         cacheLifetimeSeconds = SHORT_LIFETIME,
@@ -16,12 +17,12 @@ class InterestRepository(
 
     private val availabilityCache = TimedCacheRequest(
         cacheLifetimeSeconds = LONG_LIFETIME,
-        refreshFn = { interestAvailabilityProvider.getEnabledStatusForAllAssets() }
+        refreshFn = { interestService.getAllAvailableAssets() }
     )
 
     private val eligibilityCache = TimedCacheRequest(
         cacheLifetimeSeconds = LONG_LIFETIME,
-        refreshFn = { interestEligibilityProvider.getEligibilityForCustodialAssets() }
+        refreshFn = { interestService.getEligibilityForAssets() }
     )
 
     fun getLimitForAsset(asset: AssetInfo): Single<InterestLimits> =
@@ -38,10 +39,9 @@ class InterestRepository(
     fun getAvailableAssets(): Single<List<AssetInfo>> =
         availabilityCache.getCachedSingle()
 
-    fun getEligibilityForAsset(ccy: AssetInfo): Single<Eligibility> =
-        eligibilityCache.getCachedSingle().map { eligibilityList ->
-            eligibilityList.find { it.cryptoCurrency == ccy }?.eligibility
-                ?: Eligibility.notEligible()
+    fun getEligibilityForAsset(assetInfo: AssetInfo): Single<InterestEligibility> =
+        eligibilityCache.getCachedSingle().map { mapAssetWithEligibility ->
+            mapAssetWithEligibility[assetInfo] ?: InterestEligibility.Ineligible.default()
         }
 
     companion object {

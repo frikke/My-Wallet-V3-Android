@@ -60,6 +60,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -1012,7 +1013,7 @@ class CoinViewActivity :
     private fun onCopyAddressClicked(
         cryptoAccount: CryptoAccount,
     ) {
-        cryptoAccount.receiveAddress.subscribe { receiveAddress ->
+        cryptoAccount.receiveAddress.observeOn(AndroidSchedulers.mainThread()).subscribe { receiveAddress ->
             analytics.logEvent(
                 TransferAnalyticsEvent.ReceiveDetailsCopied(
                     accountType = TxFlowAnalyticsAccountType.fromAccount(cryptoAccount),

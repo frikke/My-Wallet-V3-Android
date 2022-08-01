@@ -4,7 +4,6 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
@@ -76,8 +75,6 @@ interface BlockchainAccount {
 
     val hasTransactions: Boolean
 
-    val disabledReason: Single<IneligibilityReason>
-
     val receiveAddress: Single<ReceiveAddress>
 
     fun requireSecondPassword(): Single<Boolean> = Single.just(false)
@@ -137,9 +134,6 @@ interface FiatAccount : SingleAccount {
 
 interface AccountGroup : BlockchainAccount {
     val accounts: SingleAccountList
-
-    override val disabledReason: Single<IneligibilityReason>
-        get() = Single.just(IneligibilityReason.NONE)
 
     override val activity: Single<ActivitySummaryList>
         get() = allActivities()

@@ -5,10 +5,11 @@ import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2Store
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
-import com.blockchain.refreshstrategy.RefreshStrategy
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
-import com.blockchain.store.toKeyedStoreRequest
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -27,10 +28,10 @@ internal class Erc20L2StoreRepository(
 
     private fun getBalancesFlow(
         networkTicker: String,
-        refreshStrategy: RefreshStrategy
+        refreshStrategy: KeyedFreshnessStrategy<Erc20L2Store.Key>
     ): Flow<Map<AssetInfo, Erc20Balance>> {
         return erc20L2DataSource
-            .streamData(refreshStrategy.toKeyedStoreRequest(Erc20L2Store.Key(networkTicker = networkTicker)))
+            .streamData(refreshStrategy)
             .mapData {
                 it.addresses.firstOrNull { it.address == ethDataManager.accountAddress }
                     ?.balances?.mapNotNull { balance ->
@@ -56,9 +57,9 @@ internal class Erc20L2StoreRepository(
 
     override fun getBalances(
         networkTicker: String,
-        refreshStrategy: RefreshStrategy
+        refreshStrategy: FreshnessStrategy
     ): Observable<Map<AssetInfo, Erc20Balance>> {
-        return getBalancesFlow(networkTicker, refreshStrategy)
+        return getBalancesFlow(networkTicker, refreshStrategy.withKey(Erc20L2Store.Key(networkTicker)))
             .asObservable()
             .onErrorReturn { emptyMap() }
     }
@@ -66,9 +67,9 @@ internal class Erc20L2StoreRepository(
     override fun getBalanceFor(
         networkTicker: String,
         asset: AssetInfo,
-        refreshStrategy: RefreshStrategy
+        refreshStrategy: FreshnessStrategy
     ): Observable<Erc20Balance> {
-        return getBalancesFlow(networkTicker, refreshStrategy)
+        return getBalancesFlow(networkTicker, refreshStrategy.withKey(Erc20L2Store.Key(networkTicker)))
             .asObservable()
             .onErrorReturn { emptyMap() }
             .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
@@ -76,9 +77,9 @@ internal class Erc20L2StoreRepository(
 
     override fun getActiveAssets(
         networkTicker: String,
-        refreshStrategy: RefreshStrategy
+        refreshStrategy: FreshnessStrategy
     ): Flow<Set<AssetInfo>> {
-        return getBalancesFlow(networkTicker, refreshStrategy)
+        return getBalancesFlow(networkTicker, refreshStrategy.withKey(Erc20L2Store.Key(networkTicker)))
             .map { it.keys }
     }
 }

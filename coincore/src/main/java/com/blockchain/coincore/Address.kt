@@ -77,7 +77,13 @@ class AddressFactoryImpl(
         isDomainAddress(address)
             .flatMapMaybe { isDomain ->
                 if (isDomain) {
-                    resolveDomainAddress(address, ccy)
+                    // Have to exclude the variant selector unicodes as they mess up the json in the request.
+                    // For example \ufe0f unicode removes the " of the strings in the json (you can try it by
+                    // copy-pasting this unicode into any text editor and inserting into a string)
+                    resolveDomainAddress(
+                        address = address.filterNot { variantSelectorRange.contains(it) },
+                        asset = ccy
+                    )
                 } else {
                     coincore[ccy].parseAddress(address)
                 }
@@ -118,5 +124,8 @@ class AddressFactoryImpl(
         // the symbols of the payment protocols like '&'). If the input can't be matched against this formula,
         // we should try to resolve it as a domain given that it can't be an address.
         private val alphaNumericAndAscii = Regex("^[\\p{Alnum}\\p{ASCII}]+")
+        // The variant selector range as per:
+        // https://en.wikipedia.org/wiki/Variation_Selectors_(Unicode_block)
+        private val variantSelectorRange = CharRange('\ufe00', '\ufe0f')
     }
 }

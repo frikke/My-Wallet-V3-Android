@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
@@ -16,6 +17,8 @@ class BackupPhraseAnnouncement(
 ) : AnnouncementRule(dismissRecorder) {
 
     override val dismissKey = DISMISS_KEY
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.NON_CUSTODIAL_ONLY)
 
     override fun shouldShow(): Single<Boolean> {
         if (dismissEntry.isDismissed) {

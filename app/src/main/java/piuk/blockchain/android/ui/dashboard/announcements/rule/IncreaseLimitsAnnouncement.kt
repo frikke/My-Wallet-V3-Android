@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -20,6 +21,9 @@ class IncreaseLimitsAnnouncement(
     override val dismissKey = DISMISS_KEY
     override val name: String
         get() = "increase_limits"
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
 
     override fun shouldShow(): Single<Boolean> {
         if (dismissEntry.isDismissed)

@@ -30,7 +30,7 @@ internal class KycStoreRepository(
                     constructTierMap(tiersResponse.tiers)
                 )
             }
-            .asObservable { it }
+            .asObservable()
             .wrapErrorMessage()
     }
 

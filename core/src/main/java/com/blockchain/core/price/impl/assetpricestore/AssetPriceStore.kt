@@ -1,14 +1,13 @@
 package com.blockchain.core.price.impl.assetpricestore
 
 import com.blockchain.core.price.HistoricalTimeSpan
-import com.blockchain.core.price.model.AssetPriceError
-import com.blockchain.core.price.model.AssetPriceNotCached
+import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.map
-import com.blockchain.store.KeyedStoreRequest
-import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.store.firstOutcome
 import info.blockchain.balance.Currency
@@ -31,8 +30,8 @@ internal class AssetPriceStore(
     lateinit var fiatQuoteTickers: SupportedTickerList
         private set
 
-    internal suspend fun warmSupportedTickersCache(): Outcome<AssetPriceError, Unit> =
-        supportedTickersStore.stream(StoreRequest.Fresh)
+    internal suspend fun warmSupportedTickersCache(): Outcome<Exception, Unit> =
+        supportedTickersStore.stream(FreshnessStrategy.Fresh)
             .firstOutcome()
             .doOnSuccess { tickerGroup ->
                 fiatQuoteTickers = tickerGroup.fiatQuoteTickers
@@ -42,12 +41,12 @@ internal class AssetPriceStore(
     internal fun getCurrentPriceForAsset(
         base: Currency,
         quote: Currency
-    ): Flow<StoreResponse<AssetPriceError, AssetPriceRecord>> =
+    ): Flow<StoreResponse<AssetPriceRecord>> =
         if (base.networkTicker == quote.networkTicker) {
             flowOf(createEqualityRecordResponse(base.networkTicker, quote.networkTicker))
         } else {
             cache.stream(
-                KeyedStoreRequest.Cached(
+                KeyedFreshnessStrategy.Cached(
                     key = AssetPriceStoreCache.Key.GetAllCurrent(quote.networkTicker),
                     forceRefresh = false
                 )
@@ -62,9 +61,9 @@ internal class AssetPriceStore(
     internal fun getYesterdayPriceForAsset(
         base: Currency,
         quote: Currency
-    ): Flow<StoreResponse<AssetPriceError, AssetPriceRecord>> =
+    ): Flow<StoreResponse<AssetPriceRecord>> =
         cache.stream(
-            KeyedStoreRequest.Cached(
+            KeyedFreshnessStrategy.Cached(
                 key = AssetPriceStoreCache.Key.GetAllYesterday(quote.networkTicker),
                 forceRefresh = false
             )
@@ -75,8 +74,8 @@ internal class AssetPriceStore(
         base: Currency,
         quote: Currency,
         timeSpan: HistoricalTimeSpan
-    ): Outcome<AssetPriceError, List<AssetPriceRecord>> = cache.stream(
-        KeyedStoreRequest.Cached(
+    ): Outcome<Exception, List<AssetPriceRecord>> = cache.stream(
+        KeyedFreshnessStrategy.Cached(
             key = AssetPriceStoreCache.Key.GetHistorical(base, quote.networkTicker, timeSpan),
             forceRefresh = false
         )
@@ -85,17 +84,17 @@ internal class AssetPriceStore(
     fun getCachedAssetPrice(fromAsset: Currency, toFiat: Currency): AssetPriceRecord =
         quoteTickerToCurrentPrices[toFiat.networkTicker]
             ?.find { it.base == fromAsset.networkTicker }
-            ?: throw AssetPriceNotCached(fromAsset.networkTicker, toFiat.networkTicker)
+            ?: throw AssetPriceNotFoundException(fromAsset.networkTicker, toFiat.networkTicker)
 
     fun getCachedFiatPrice(fromFiat: Currency, toFiat: Currency): AssetPriceRecord =
         quoteTickerToCurrentPrices[toFiat.networkTicker]
             ?.find { it.base == fromFiat.networkTicker }
-            ?: throw AssetPriceNotCached(fromFiat.networkTicker, toFiat.networkTicker)
+            ?: throw AssetPriceNotFoundException(fromFiat.networkTicker, toFiat.networkTicker)
 
-    private fun Flow<StoreResponse<AssetPriceError, List<AssetPriceRecord>>>.findAssetOrError(
+    private fun Flow<StoreResponse<List<AssetPriceRecord>>>.findAssetOrError(
         base: Currency,
         quote: Currency
-    ): Flow<StoreResponse<AssetPriceError, AssetPriceRecord>> =
+    ): Flow<StoreResponse<AssetPriceRecord>> =
         map { response ->
             when (response) {
                 is StoreResponse.Data -> {
@@ -103,7 +102,7 @@ internal class AssetPriceStore(
                         it.base == base.networkTicker && it.quote == quote.networkTicker
                     }
                     if (assetPrice != null) StoreResponse.Data(assetPrice)
-                    else StoreResponse.Error(AssetPriceError.PricePairNotFound(base, quote))
+                    else StoreResponse.Error(AssetPriceNotFoundException(base, quote))
                 }
                 is StoreResponse.Error -> response
                 is StoreResponse.Loading -> response
@@ -113,7 +112,7 @@ internal class AssetPriceStore(
     private fun createEqualityRecordResponse(
         base: String,
         quote: String
-    ): StoreResponse<AssetPriceError, AssetPriceRecord> = StoreResponse.Data(
+    ): StoreResponse<AssetPriceRecord> = StoreResponse.Data(
         AssetPriceRecord(
             base = base,
             quote = quote,

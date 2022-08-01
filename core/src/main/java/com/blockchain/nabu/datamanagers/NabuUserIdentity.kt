@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
@@ -14,7 +15,6 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import io.reactivex.rxjava3.core.Completable
@@ -27,7 +27,7 @@ import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 class NabuUserIdentity(
     private val custodialWalletManager: CustodialWalletManager,
-    private val interestEligibilityProvider: InterestEligibilityProvider,
+    private val interestService: InterestService,
     private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider,
     private val nabuUserDataManager: NabuUserDataManager,
     private val userService: UserService,
@@ -39,8 +39,8 @@ class NabuUserIdentity(
             is Feature.TierLevel -> nabuUserDataManager.tiers().map {
                 it.isNotInitialisedFor(feature.tier.toKycTierLevel())
             }
-            is Feature.Interest -> interestEligibilityProvider.getEligibilityForCustodialAssets()
-                .map { assets -> assets.map { it.cryptoCurrency }.contains(feature.currency) }
+            is Feature.Interest -> interestService.getEligibilityForAssets()
+                .map { mapAssetWithEligibility -> mapAssetWithEligibility.containsKey(feature.currency) }
             is Feature.SimplifiedDueDiligence -> custodialWalletManager.isSimplifiedDueDiligenceEligible()
             Feature.Buy,
             Feature.Swap,

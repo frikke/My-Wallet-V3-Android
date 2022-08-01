@@ -8,7 +8,7 @@ import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.data.store.TradingDataSource
-import com.blockchain.core.interest.data.InterestStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -35,7 +35,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
     }
 
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val interestStore: InterestStore = mock()
+    private val interestBalanceStore: InterestBalancesStore = mock()
     private val tradingDataSource: TradingDataSource = mock()
 
     private lateinit var subject: InterestDepositTradingEngine
@@ -63,7 +63,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
             )
 
         subject = InterestDepositTradingEngine(
-            interestStore = interestStore,
+            interestBalanceStore = interestBalanceStore,
             tradingDataSource = tradingDataSource,
             walletManager = custodialWalletManager
         )

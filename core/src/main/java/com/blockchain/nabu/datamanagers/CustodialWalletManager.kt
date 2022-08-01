@@ -2,6 +2,7 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
@@ -9,7 +10,6 @@ import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
-import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.nabu.models.data.RecurringBuy
@@ -161,7 +161,7 @@ interface CustodialWalletManager {
 
     fun getInterestEnabledAssets(): Single<List<AssetInfo>>
 
-    fun getInterestEligibilityForAsset(asset: AssetInfo): Single<Eligibility>
+    fun getInterestEligibilityForAsset(asset: AssetInfo): Single<InterestEligibility>
 
     fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
 

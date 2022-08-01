@@ -5,6 +5,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -12,8 +13,6 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
@@ -68,7 +67,6 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
 
         configureActionTest(
             tier = Tier.GOLD,
-            isInterestEnabled = false,
             userAccessForFeature = FeatureAccess.Blocked(BlockedReason.NotEligible),
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN)
         )
@@ -92,7 +90,6 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
 
         configureActionTest(
             tier = Tier.GOLD,
-            isInterestEnabled = true,
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
             userAccessForFeature = FeatureAccess.Blocked(BlockedReason.NotEligible)
         )
@@ -116,7 +113,6 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
 
         configureActionTest(
             tier = Tier.GOLD,
-            isInterestEnabled = true,
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
             userAccessForFeature = FeatureAccess.Granted()
         )
@@ -140,7 +136,6 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
 
         configureActionTest(
             tier = Tier.GOLD,
-            isInterestEnabled = true,
             accountBalance = CryptoValue.Companion.fromMinor(TEST_ASSET, BigInteger.TEN),
             userAccessForFeature = FeatureAccess.Granted()
         )
@@ -172,9 +167,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
     private fun configureActionTest(
         tier: Tier,
         userAccessForFeature: FeatureAccess = FeatureAccess.Granted(),
-        accountBalance: CryptoValue = CryptoValue.zero(TEST_ASSET),
-        isInterestEnabled: Boolean = true,
-        ineligibilityReason: IneligibilityReason = IneligibilityReason.NONE,
+        accountBalance: CryptoValue = CryptoValue.zero(TEST_ASSET)
     ) {
 
         whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(tier))
@@ -192,7 +185,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
         )
 
         whenever(custodialManager.getInterestEligibilityForAsset(TEST_ASSET)).thenReturn(
-            Single.just(Eligibility(isInterestEnabled, ineligibilityReason))
+            Single.just(InterestEligibility.Eligible)
         )
         whenever(interestService.getBalanceFor(TEST_ASSET))
             .thenReturn(Observable.just(balance))

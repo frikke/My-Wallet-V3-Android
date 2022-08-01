@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicReference
 import piuk.blockchain.android.R
@@ -31,6 +32,9 @@ class MajorProductBlockedAnnouncement(
             true
         }
     }
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
 
     override fun show(host: AnnouncementHost) {
         val reason = reason.get()

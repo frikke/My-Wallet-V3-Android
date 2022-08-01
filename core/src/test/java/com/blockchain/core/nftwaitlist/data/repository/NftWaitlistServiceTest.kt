@@ -1,6 +1,6 @@
 package com.blockchain.core.nftwaitlist.data.repository
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.services.NftWaitlistApiService
 import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
@@ -28,7 +28,7 @@ class NftWaitlistServiceTest {
     )
 
     private val basicProfileInfo = mockk<BasicProfileInfo>()
-    private val apiError = mockk<ApiError>()
+    private val apiError = mockk<ApiException>()
 
     @Before
     fun setUp() {

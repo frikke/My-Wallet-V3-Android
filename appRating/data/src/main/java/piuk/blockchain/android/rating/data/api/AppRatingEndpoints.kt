@@ -1,6 +1,6 @@
 package piuk.blockchain.android.rating.data.api
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.outcome.Outcome
 import piuk.blockchain.android.rating.data.model.RespondentResponse
 import piuk.blockchain.android.rating.data.model.SurveyBody
@@ -23,5 +23,5 @@ internal interface AppRatingEndpoints {
         @Path(RESPONDENT_VAR_SURVEY_ID) surveyId: String,
 
         @Body surveyBody: SurveyBody
-    ): Outcome<ApiError, RespondentResponse>
+    ): Outcome<ApiException, RespondentResponse>
 }

@@ -5,11 +5,11 @@ import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.erc20.data.domain.Erc20L2BalancesStore
 import com.blockchain.core.chains.erc20.data.domain.toDomain
 import com.blockchain.core.chains.erc20.data.domain.toStore
+import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.outcome.map
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
-import com.blockchain.store.KeyedStoreRequest
 import com.blockchain.store.Mediator
 import com.blockchain.store.StoreResponse
 import com.blockchain.store.mapData
@@ -24,7 +24,7 @@ import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 class Erc20L2Store(
     private val evmService: NonCustodialEvmService,
     private val ethDataManager: EthDataManager,
-) : KeyedStore<Erc20L2Store.Key, Throwable, Erc20L2BalancesStore> by PersistedJsonSqlDelightStoreBuilder()
+) : KeyedStore<Erc20L2Store.Key, Erc20L2BalancesStore> by PersistedJsonSqlDelightStoreBuilder()
     .buildKeyed(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(
@@ -33,9 +33,6 @@ class Erc20L2Store(
                     evmService.getBalances(ethDataManager.accountAddress, key.networkTicker)
                         .map { it.toStore(ethDataManager.accountAddress) }
                 }
-            },
-            errorMapper = {
-                it
             }
         ),
         keySerializer = Key.serializer(),
@@ -75,8 +72,8 @@ class Erc20L2Store(
     )
 
     override fun streamData(
-        request: KeyedStoreRequest<Key>
-    ): Flow<StoreResponse<Throwable, BalancesResponse>> {
+        request: KeyedFreshnessStrategy<Key>
+    ): Flow<StoreResponse<BalancesResponse>> {
         return stream(request).mapData { it.toDomain() }
     }
 

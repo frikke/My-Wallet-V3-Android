@@ -78,8 +78,7 @@ internal class AssetInterestRepository(
                     totalInterest = balance.totalInterest,
                     totalBalance = balance.totalBalance,
                     rate = interestRate,
-                    eligible = eligibility.eligible,
-                    ineligibilityReason = eligibility.ineligibilityReason,
+                    eligibility = eligibility,
                     totalBalanceFiat = exchangeRate.convert(balance.totalBalance)
                 )
             } catch (e: Throwable) {

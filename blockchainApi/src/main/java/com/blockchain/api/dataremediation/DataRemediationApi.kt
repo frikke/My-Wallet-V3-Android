@@ -1,6 +1,6 @@
 package com.blockchain.api.dataremediation
 
-import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.dataremediation.models.QuestionnaireResponse
 import com.blockchain.outcome.Outcome
 import retrofit2.http.Body
@@ -15,11 +15,11 @@ interface DataRemediationApi {
     suspend fun getQuestionnaire(
         @Header("authorization") authorization: String,
         @Query("context") questionnaireContext: String
-    ): Outcome<ApiError, QuestionnaireResponse?>
+    ): Outcome<ApiException, QuestionnaireResponse?>
 
     @PUT("kyc/extra-questions")
     suspend fun submitQuestionnaire(
         @Header("authorization") authorization: String,
         @Body nodes: QuestionnaireResponse
-    ): Outcome<ApiError, Unit>
+    ): Outcome<ApiException, Unit>
 }

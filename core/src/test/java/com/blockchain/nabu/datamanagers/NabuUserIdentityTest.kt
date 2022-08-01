@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
@@ -12,7 +13,6 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
@@ -32,7 +32,7 @@ import org.junit.Test
 class NabuUserIdentityTest {
 
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val interestEligibilityProvider: InterestEligibilityProvider = mock()
+    private val interestService: InterestService = mock()
     private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider = mock()
     private val nabuUserDataManager: NabuUserDataManager = mock()
     private val eligibilityService: EligibilityService = mock()
@@ -41,7 +41,7 @@ class NabuUserIdentityTest {
 
     private val subject = NabuUserIdentity(
         custodialWalletManager = custodialWalletManager,
-        interestEligibilityProvider = interestEligibilityProvider,
+        interestService = interestService,
         simpleBuyEligibilityProvider = simpleBuyEligibilityProvider,
         nabuUserDataManager = nabuUserDataManager,
         eligibilityService = eligibilityService,

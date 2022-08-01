@@ -17,6 +17,7 @@ import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.extensions.exhaustive
@@ -40,6 +41,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_REFRESH_REQUIRED
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
@@ -401,32 +403,34 @@ class SimpleBuyActivity :
     override fun showErrorInBottomSheet(
         title: String,
         description: String,
-        serverErrorHandling: List<ServerErrorAction>,
         error: String,
         errorDescription: String?,
         nabuApiException: NabuApiException?,
+        serverSideUxErrorInfo: ServerSideUxErrorInfo?
     ) {
-        serverErrorHandling.assignErrorActions()
+        serverSideUxErrorInfo?.actions?.assignErrorActions()
 
         showBottomSheet(
             ErrorSlidingBottomDialog.newInstance(
                 ErrorDialogData(
                     title = title,
                     description = description,
-                    errorButtonCopies = if (serverErrorHandling.isEmpty()) {
+                    errorButtonCopies = if (serverSideUxErrorInfo?.actions?.isEmpty() == true) {
                         ErrorButtonCopies(
                             primaryButtonText = getString(R.string.common_ok)
                         )
                     } else {
-                        serverErrorHandling.mapToErrorCopies()
+                        serverSideUxErrorInfo?.actions?.mapToErrorCopies()
                     },
                     error = error,
                     nabuApiException = nabuApiException,
                     errorDescription = description,
                     action = ACTION_BUY,
-                    analyticsCategories = nabuApiException?.getServerSideErrorInfo()?.categories ?: emptyList(),
+                    analyticsCategories = nabuApiException?.getServerSideErrorInfo()?.categories
+                        ?: serverSideUxErrorInfo?.categories.orEmpty(),
                     iconUrl = nabuApiException?.getServerSideErrorInfo()?.iconUrl,
-                    statusIconUrl = nabuApiException?.getServerSideErrorInfo()?.statusUrl
+                    statusIconUrl = nabuApiException?.getServerSideErrorInfo()?.statusUrl,
+                    errorId = nabuApiException?.getServerSideErrorInfo()?.id
                 )
             )
         )
@@ -448,6 +452,7 @@ class SimpleBuyActivity :
                         primaryButtonText = getString(R.string.trading_deposit_relink_bank_account),
                         secondaryButtonText = getString(R.string.common_ok),
                     ),
+                    error = SETTLEMENT_REFRESH_REQUIRED,
                     action = ACTION_BUY,
                     analyticsCategories = emptyList()
                 )
@@ -472,16 +477,22 @@ class SimpleBuyActivity :
                 0 -> primaryErrorCtaAction = {
                     if (info.deeplinkPath.isNotEmpty()) {
                         redirectToDeeplinkProcessor(info.deeplinkPath)
+                    } else {
+                        finish()
                     }
                 }
                 1 -> secondaryErrorCtaAction = {
                     if (info.deeplinkPath.isNotEmpty()) {
                         redirectToDeeplinkProcessor(info.deeplinkPath)
+                    } else {
+                        finish()
                     }
                 }
                 2 -> tertiaryErrorCtaAction = {
                     if (info.deeplinkPath.isNotEmpty()) {
                         redirectToDeeplinkProcessor(info.deeplinkPath)
+                    } else {
+                        finish()
                     }
                 }
                 else -> {

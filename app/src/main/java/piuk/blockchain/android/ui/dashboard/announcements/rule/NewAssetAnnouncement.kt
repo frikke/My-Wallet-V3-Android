@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 import kotlin.math.absoluteValue
@@ -29,6 +30,9 @@ class NewAssetAnnouncement(
 
     override val name: String
         get() = "new_asset"
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.NON_CUSTODIAL_ONLY)
 
     override fun shouldShow(): Single<Boolean> =
         announcementQueries.getAssetFromCatalogue()
