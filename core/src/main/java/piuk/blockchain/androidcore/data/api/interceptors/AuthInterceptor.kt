@@ -8,6 +8,7 @@ import com.blockchain.network.interceptor.AuthenticateWithOfflineToken
 import com.blockchain.network.interceptor.AuthenticationNotRequired
 import okhttp3.Interceptor
 import okhttp3.Response
+import okhttp3.internal.closeQuietly
 import retrofit2.Invocation
 import timber.log.Timber
 
@@ -66,6 +67,7 @@ class AuthInterceptor(
 
         val response = chain.proceed(request)
         return if (response.code == NabuErrorStatusCodes.TokenExpired.code) {
+            response.body?.closeQuietly()
             nabuDataManager.clearAccessToken()
 
             val sessionToken = nabuDataManager.refreshToken(offlineToken).blockingGet()
