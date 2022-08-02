@@ -27,9 +27,11 @@ class AssetMap(private val map: Map<Currency, DashboardAsset>) :
 
     override operator fun get(key: Currency): DashboardAsset {
         return map.getOrElse(key) {
-            throw IllegalArgumentException("${key.networkTicker} is not a known CryptoCurrency")
+            throw IllegalArgumentException("${key.networkTicker} is not a known Currency")
         }
     }
+
+    fun getOrNull(key: Currency): DashboardAsset? = map[key]
 
     fun copy(patchBalance: AccountBalance): AssetMap {
         val assets = toMutableMap()
