@@ -10,7 +10,7 @@ data class InterestRateResponse(
 
 @Serializable
 data class InterestAddressResponse(
-    val accountRef: String
+    @SerialName("accountRef") val address: String
 )
 
 @Serializable

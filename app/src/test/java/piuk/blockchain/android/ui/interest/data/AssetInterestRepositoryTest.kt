@@ -105,7 +105,7 @@ class AssetInterestRepositoryTest {
     @Test
     fun `WHEN kycTierService OK, custodialWalletManager OK, THEN Success should be returned`() = runTest {
         every { kycTierService.tiers() } returns Single.just(kycTiers)
-        every { custodialWalletManager.getInterestEnabledAssets() } returns Single.just(enabledAssets)
+        every { interestService.getAvailableAssetsForInterest() } returns Single.just(enabledAssets)
 
         val expected = InterestDashboard(kycTiers, enabledAssets)
         val result = service.getInterestDashboard()
@@ -119,7 +119,7 @@ class AssetInterestRepositoryTest {
     @Test
     fun `WHEN kycTierService OK, custodialWalletManager throws, THEN Failure should be returned`() = runTest {
         every { kycTierService.tiers() } returns Single.just(kycTiers)
-        every { custodialWalletManager.getInterestEnabledAssets() } throws Throwable("error")
+        every { interestService.getAvailableAssetsForInterest() } throws Throwable("error")
 
         val result = service.getInterestDashboard()
         assertTrue { result is Outcome.Failure }
@@ -128,7 +128,7 @@ class AssetInterestRepositoryTest {
     @Test
     fun `WHEN kycTierService throws, custodialWalletManager OK, THEN Failure should be returned`() = runTest {
         every { kycTierService.tiers() } throws Throwable("error")
-        every { custodialWalletManager.getInterestEnabledAssets() } returns Single.just(enabledAssets)
+        every { interestService.getAvailableAssetsForInterest() } returns Single.just(enabledAssets)
 
         val result = service.getInterestDashboard()
         assertTrue { result is Outcome.Failure }
@@ -140,18 +140,18 @@ class AssetInterestRepositoryTest {
             Observable.just(interestAccountBalanceBtc)
         every { exchangeRatesDataManager.exchangeRateToUserFiat(CryptoCurrency.BTC) } returns
             Observable.just(exchangeRateBtc)
-        every { custodialWalletManager.getInterestAccountRates(CryptoCurrency.BTC) } returns
+        every { interestService.getInterestRate(CryptoCurrency.BTC) } returns
             Single.just(interestRateBtc)
-        every { custodialWalletManager.getInterestEligibilityForAsset(CryptoCurrency.BTC) } returns
+        every { interestService.getEligibilityForAsset(CryptoCurrency.BTC) } returns
             Single.just(eligibilityBtc)
 
         every { interestService.getBalanceFor(CryptoCurrency.ETHER) } returns
             Observable.just(interestAccountBalanceEth)
         every { exchangeRatesDataManager.exchangeRateToUserFiat(CryptoCurrency.ETHER) } returns
             Observable.just(exchangeRateEth)
-        every { custodialWalletManager.getInterestAccountRates(CryptoCurrency.ETHER) } returns
+        every { interestService.getInterestRate(CryptoCurrency.ETHER) } returns
             Single.just(interestRateEth)
-        every { custodialWalletManager.getInterestEligibilityForAsset(CryptoCurrency.ETHER) } returns
+        every { interestService.getEligibilityForAsset(CryptoCurrency.ETHER) } returns
             Single.just(eligibilityEth)
 
         val expected = Outcome.Success(listOf(assetInterestInfoBtc, assetInterestInfoEth))
@@ -163,16 +163,16 @@ class AssetInterestRepositoryTest {
     fun `WHEN services fail for BTC, THEN its detail should be null`() = runTest {
         every { interestService.getBalanceFor(CryptoCurrency.BTC) } throws Throwable("error")
         every { exchangeRatesDataManager.exchangeRateToUserFiat(CryptoCurrency.BTC) } throws Throwable("error")
-        every { custodialWalletManager.getInterestAccountRates(CryptoCurrency.BTC) } throws Throwable("error")
-        every { custodialWalletManager.getInterestEligibilityForAsset(CryptoCurrency.BTC) } throws Throwable("error")
+        every { interestService.getInterestRate(CryptoCurrency.BTC) } throws Throwable("error")
+        every { interestService.getEligibilityForAsset(CryptoCurrency.BTC) } throws Throwable("error")
 
         every { interestService.getBalanceFor(CryptoCurrency.ETHER) } returns
             Observable.just(interestAccountBalanceEth)
         every { exchangeRatesDataManager.exchangeRateToUserFiat(CryptoCurrency.ETHER) } returns
             Observable.just(exchangeRateEth)
-        every { custodialWalletManager.getInterestAccountRates(CryptoCurrency.ETHER) } returns
+        every { interestService.getInterestRate(CryptoCurrency.ETHER) } returns
             Single.just(interestRateEth)
-        every { custodialWalletManager.getInterestEligibilityForAsset(CryptoCurrency.ETHER) } returns
+        every { interestService.getEligibilityForAsset(CryptoCurrency.ETHER) } returns
             Single.just(eligibilityEth)
 
         val expected = Outcome.Success(listOf(assetInterestInfoBtcNull, assetInterestInfoEth))

@@ -4,15 +4,15 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestLimits
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Single
 
 abstract class InterestBaseEngine(
-    private val walletManager: CustodialWalletManager,
+    private val interestService: InterestService
 ) : TxEngine() {
 
     protected val sourceAssetInfo: AssetInfo
@@ -39,7 +39,7 @@ abstract class InterestBaseEngine(
             )
 
     protected fun getLimits(): Single<Pair<AssetInfo, InterestLimits>> =
-        walletManager.getInterestLimits(sourceAssetInfo).map { interestLimits ->
+        interestService.getLimitsForAsset(sourceAssetInfo).map { interestLimits ->
             Pair(sourceAssetInfo, interestLimits)
         }
 

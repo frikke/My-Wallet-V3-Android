@@ -1,6 +1,7 @@
 package com.blockchain.core.store
 
 import com.blockchain.api.services.InterestBalanceDetails
+import com.blockchain.core.TransactionsCache
 import com.blockchain.core.interest.data.InterestRepository
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
@@ -10,6 +11,8 @@ import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.nabu.Authenticator
+import com.blockchain.nabu.service.NabuService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
@@ -32,6 +35,9 @@ class InterestServiceTest {
     private val interestEligibilityTimedCache = mockk<InterestEligibilityTimedCache>()
     private val interestAvailableAssetsTimedCache = mockk<InterestAvailableAssetsTimedCache>()
     private val interestLimitsTimedCache = mockk<InterestLimitsTimedCache>()
+    private val authenticator = mockk<Authenticator>()
+    private val nabuService = mockk<NabuService>()
+    private val transactionsCache = mockk<TransactionsCache>()
 
     private val interestService: InterestService = InterestRepository(
         assetCatalogue = assetCatalogue,
@@ -39,6 +45,9 @@ class InterestServiceTest {
         interestEligibilityTimedCache = interestEligibilityTimedCache,
         interestAvailableAssetsTimedCache = interestAvailableAssetsTimedCache,
         interestLimitsTimedCache = interestLimitsTimedCache,
+        authenticator = authenticator,
+        nabuService = nabuService,
+        transactionsCache = transactionsCache
     )
 
     private val cryptoCurrency = object : CryptoCurrency(

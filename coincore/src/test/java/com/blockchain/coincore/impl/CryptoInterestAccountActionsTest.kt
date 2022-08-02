@@ -184,7 +184,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
             hasTransactions = true
         )
 
-        whenever(custodialManager.getInterestEligibilityForAsset(TEST_ASSET)).thenReturn(
+        whenever(interestService.getEligibilityForAsset(TEST_ASSET)).thenReturn(
             Single.just(InterestEligibility.Eligible)
         )
         whenever(interestService.getBalanceFor(TEST_ASSET))
