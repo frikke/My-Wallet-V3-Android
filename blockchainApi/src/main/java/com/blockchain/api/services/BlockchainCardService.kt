@@ -2,8 +2,8 @@ package com.blockchain.api.services
 
 import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.blockchainCard.WalletHelperUrl
-import com.blockchain.api.blockchainCard.data.AcceptedDocumentFormDto
-import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentsDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocsFormDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardAccountDto
 import com.blockchain.api.blockchainCard.data.CardAccountLinkDto
@@ -146,17 +146,15 @@ class BlockchainCardService internal constructor(
 
     suspend fun getLegalDocuments(
         authHeader: String
-    ): Outcome<Exception, BlockchainCardLegalDocumentsDto> = api.getLegalDocuments(
+    ): Outcome<Exception, List<BlockchainCardLegalDocumentDto>> = api.getLegalDocuments(
         authorization = authHeader
     )
 
-    suspend fun acceptLegalDocument(
+    suspend fun acceptLegalDocuments(
         authHeader: String,
-        documentName: String,
-        acceptedDocumentForm: AcceptedDocumentFormDto
-    ): Outcome<Exception, BlockchainCardLegalDocumentsDto> = api.acceptLegalDocument(
+        acceptedDocumentsForm: BlockchainCardAcceptedDocsFormDto
+    ): Outcome<Exception, List<BlockchainCardLegalDocumentDto>> = api.acceptLegalDocuments(
         authorization = authHeader,
-        documentName = documentName,
-        acceptedDocumentForm = acceptedDocumentForm
+        acceptedDocumentsForm = acceptedDocumentsForm
     )
 }

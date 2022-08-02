@@ -63,7 +63,7 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.CreateCardFailed -> {
-                navController.popBackStack(BlockchainCardDestination.OrderCardDestination.route, true)
+                navController.popBackStack(BlockchainCardDestination.OrderCardDestination.route, false)
                 destination = BlockchainCardDestination.CreateCardFailedDestination
             }
 
@@ -145,12 +145,16 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                 destination = BlockchainCardDestination.TransactionDetailsDestination
             }
 
-            is BlockchainCardNavigationEvent.SeeTermsAndConditions -> {
-                destination = BlockchainCardDestination.TermsAndConditionsDestination
+            is BlockchainCardNavigationEvent.SeeSingleLegalDocument -> {
+                destination = BlockchainCardDestination.SingleLegalDocumentDestination
             }
 
-            is BlockchainCardNavigationEvent.SeeShortFormDisclosure -> {
-                destination = BlockchainCardDestination.ShortFormDisclosureDestination
+            is BlockchainCardNavigationEvent.SeeLegalDocuments -> {
+                destination = BlockchainCardDestination.LegalDocumentsDestination
+            }
+
+            is BlockchainCardNavigationEvent.FinishLegalDocReview -> {
+                navController.popBackStack(BlockchainCardDestination.OrderCardConfirmDestination.route, false)
             }
 
             // For now, all support pages go to the same place
@@ -194,6 +198,8 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     object SeeProductLegalInfo : BlockchainCardNavigationEvent()
 
+    object FinishLegalDocReview : BlockchainCardNavigationEvent()
+
     // Manage Card
     data class ManageCard(val card: BlockchainCard) : BlockchainCardNavigationEvent()
 
@@ -223,9 +229,9 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     object SeeTransactionDetails : BlockchainCardNavigationEvent()
 
-    object SeeTermsAndConditions : BlockchainCardNavigationEvent()
+    object SeeSingleLegalDocument : BlockchainCardNavigationEvent()
 
-    object SeeShortFormDisclosure : BlockchainCardNavigationEvent()
+    object SeeLegalDocuments : BlockchainCardNavigationEvent()
 
     object SeeCardLostPage : BlockchainCardNavigationEvent()
 
@@ -252,6 +258,7 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
 
     object CreateCardFailedDestination : BlockchainCardDestination(route = "create_card_failed")
 
+    // TODO(labreu): these should just be named "ProductDetailsDestination" and "ProductLegalInfoDestination"
     object SeeProductDetailsDestination : BlockchainCardDestination(route = "product_details")
 
     object SeeProductLegalInfoDestination : BlockchainCardDestination(route = "product_legal_info")
@@ -280,9 +287,9 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
 
     object TransactionDetailsDestination : BlockchainCardDestination(route = "transaction_details")
 
-    object TermsAndConditionsDestination : BlockchainCardDestination(route = "terms_and_conditions")
+    object SingleLegalDocumentDestination : BlockchainCardDestination(route = "single_legal_document")
 
-    object ShortFormDisclosureDestination : BlockchainCardDestination(route = "short_form_disclosure")
+    object LegalDocumentsDestination : BlockchainCardDestination(route = "legal_documents")
 
     object CardLostPageDestination : BlockchainCardDestination(route = "card_lost_page")
 

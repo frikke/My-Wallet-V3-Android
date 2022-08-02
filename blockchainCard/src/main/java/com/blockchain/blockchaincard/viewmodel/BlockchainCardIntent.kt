@@ -1,6 +1,7 @@
 package com.blockchain.blockchaincard.viewmodel
 
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.TradingAccount
@@ -26,9 +27,10 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object ManageCard : BlockchainCardIntent()
     object OrderCardKYCAddress : BlockchainCardIntent()
     object OrderCardSSNAddress : BlockchainCardIntent()
-    object OnSeeTermsAndConditions : BlockchainCardIntent()
-    object TermsAndConditionsAccepted : BlockchainCardIntent()
-    object OnSeeShortFormDisclosure : BlockchainCardIntent()
+    data class OnSeeSingleLegalDocument(val legalDocument: BlockchainCardLegalDocument) : BlockchainCardIntent()
+    object OnSeeLegalDocuments : BlockchainCardIntent()
+    data class OnLegalDocSeen(val name: String) : BlockchainCardIntent()
+    object OnFinishLegalDocReview : BlockchainCardIntent()
 
     // ManageCard
     object LockCard : BlockchainCardIntent()

@@ -37,6 +37,8 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
         ssn = state.ssn,
         countryStateList = state.countryStateList,
         legalDocuments = state.legalDocuments,
+        isLegalDocReviewComplete = state.isLegalDocReviewComplete,
+        singleLegalDocumentToSee = state.singleLegalDocumentToSee,
     )
 
     override suspend fun handleIntent(
@@ -122,9 +124,8 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                     modelState.ssn?.let { ssn ->
                         modelState.legalDocuments?.let { documents ->
                             navigate(BlockchainCardNavigationEvent.CreateCardInProgress)
-                            blockchainCardRepository.acceptLegalDocument(
-                                documentName = "terms-and-conditions",
-                                acceptedVersion = documents.termsAndConditions.version
+                            blockchainCardRepository.acceptLegalDocuments(
+                                documents
                             ).flatMap {
                                 blockchainCardRepository.createCard(productCode = product.productCode, ssn = ssn)
                                     .doOnFailure { error ->
@@ -141,6 +142,12 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                                     }
                             }.doOnFailure { error ->
                                 Timber.e("Unable to update legal documents: $error")
+                                updateState {
+                                    it.copy(
+                                        errorState = BlockchainCardErrorState.ScreenErrorState(error)
+                                    )
+                                }
+                                navigate(BlockchainCardNavigationEvent.CreateCardFailed)
                             }
                         }
                     }
@@ -169,44 +176,32 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                     }
                     .doOnFailure { error ->
                         Timber.e("Unable to get legal documents: $error")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                     }
             }
 
-            is BlockchainCardIntent.OnSeeTermsAndConditions -> {
-                modelState.legalDocuments?.let { documents ->
-                    val documentsUpdated = documents.copy(
-                        termsAndConditions = documents.termsAndConditions.copy(seen = true)
-                    )
-                    updateState { it.copy(legalDocuments = documentsUpdated) }
-
-                    navigate(BlockchainCardNavigationEvent.SeeTermsAndConditions)
-                }
+            is BlockchainCardIntent.OnSeeSingleLegalDocument -> {
+                updateState { it.copy(singleLegalDocumentToSee = intent.legalDocument) }
+                navigate(BlockchainCardNavigationEvent.SeeSingleLegalDocument)
             }
 
-            is BlockchainCardIntent.TermsAndConditionsAccepted -> {
+            is BlockchainCardIntent.OnSeeLegalDocuments -> {
+                navigate(BlockchainCardNavigationEvent.SeeLegalDocuments)
+            }
+
+            is BlockchainCardIntent.OnLegalDocSeen -> {
                 modelState.legalDocuments?.let { documents ->
-                    blockchainCardRepository.acceptLegalDocument(
-                        documentName = "terms-and-conditions",
-                        acceptedVersion = documents.termsAndConditions.version
-                    ).doOnSuccess { documentsUpdated ->
-                        Timber.d("Legal documents updated: $documentsUpdated")
-                        updateState { it.copy(legalDocuments = documents) }
-                        navigate(BlockchainCardNavigationEvent.OrderCardConfirm)
-                    }.doOnFailure { error ->
-                        Timber.e("Unable to update legal documents: $error")
+                    documents.find {
+                        it.name == intent.name
+                    }?.let { legalDoc ->
+                        legalDoc.seen = true
                     }
                 }
             }
 
-            is BlockchainCardIntent.OnSeeShortFormDisclosure -> {
-                modelState.legalDocuments?.let { documents ->
-                    val documentsUpdated = documents.copy(
-                        shortFormDisclosure = documents.shortFormDisclosure.copy(seen = true)
-                    )
-                    updateState { it.copy(legalDocuments = documentsUpdated) }
-
-                    navigate(BlockchainCardNavigationEvent.SeeShortFormDisclosure)
-                }
+            is BlockchainCardIntent.OnFinishLegalDocReview -> {
+                updateState { it.copy(isLegalDocReviewComplete = true) }
+                navigate(BlockchainCardNavigationEvent.FinishLegalDocReview)
             }
         }
     }

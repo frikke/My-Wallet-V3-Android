@@ -925,7 +925,7 @@ fun CloseCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBottom
             shouldShowDivider = false
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xxxPaddingLarge))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingLarge))
 
         Image(
             painter = painterResource(id = R.drawable.credit_card_failed),
@@ -985,7 +985,7 @@ fun CloseCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBottom
             )
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xxxPaddingLarge))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingLarge))
 
         // Close card
         DestructivePrimaryButton(

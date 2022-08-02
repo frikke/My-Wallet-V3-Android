@@ -70,17 +70,13 @@ data class BlockchainCardTransaction(
 ) : Parcelable
 
 @Parcelize
-data class BlockchainCardLegalDocuments(
-    val shortFormDisclosure: BlockchainCardLegalDocument,
-    val termsAndConditions: BlockchainCardLegalDocument
-) : Parcelable
-
-@Parcelize
 data class BlockchainCardLegalDocument(
+    val name: String,
+    val displayName: String,
     val url: String,
     val version: String,
     val acceptedVersion: String?,
-    val seen: Boolean
+    var seen: Boolean = false
 ) : Parcelable
 
 enum class BlockchainCardBrand {
