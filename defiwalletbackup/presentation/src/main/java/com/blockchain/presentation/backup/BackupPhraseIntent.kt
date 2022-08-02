@@ -3,6 +3,9 @@ package com.blockchain.presentation.backup
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 
 sealed interface BackupPhraseIntent : Intent<BackupPhraseModelState> {
+    // Trigger email
+    object TriggerEmailAlert : BackupPhraseIntent
+
     // Backed up
     object StartBackup : BackupPhraseIntent
 

@@ -6,6 +6,7 @@ import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupOption
@@ -20,12 +21,15 @@ import com.blockchain.presentation.backup.navigation.BackupPhraseNavigationEvent
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.EncryptedPrefs
 
 class BackupPhraseViewModel(
     private val backupPhraseService: BackupPhraseService,
+    private val settingsDataManager: SettingsDataManager,
     private val backupPrefs: EncryptedPrefs,
-    private val walletStatusPrefs: WalletStatusPrefs
+    private val walletStatusPrefs: WalletStatusPrefs,
+    private val authPrefs: AuthPrefs
 ) : MviViewModel<BackupPhraseIntent,
     BackupPhraseViewState,
     BackupPhraseModelState,
@@ -61,6 +65,10 @@ class BackupPhraseViewModel(
 
     override suspend fun handleIntent(modelState: BackupPhraseModelState, intent: BackupPhraseIntent) {
         when (intent) {
+            BackupPhraseIntent.TriggerEmailAlert -> {
+                triggerEmailAlert()
+            }
+
             BackupPhraseIntent.StartBackup -> {
                 navigate(BackupPhraseNavigationEvent.BackupPhraseIntro)
             }
@@ -123,6 +131,15 @@ class BackupPhraseViewModel(
                 updateState { it.copy(flowState = FlowState.Ended(intent.isSuccessful)) }
             }
         }.exhaustive
+    }
+
+    private fun triggerEmailAlert() {
+        viewModelScope.launch {
+            settingsDataManager.triggerEmailAlert(
+                guid = authPrefs.walletGuid,
+                sharedKey = authPrefs.sharedKey
+            )
+        }
     }
 
     fun isBackedUp() = backupPhraseService.isBackedUp()

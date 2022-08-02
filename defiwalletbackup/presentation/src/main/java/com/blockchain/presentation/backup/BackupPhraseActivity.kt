@@ -11,6 +11,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
+import com.blockchain.presentation.BackupPhrasePinService
 import com.blockchain.presentation.backup.navigation.BackupPhraseNavHost
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import com.blockchain.presentation.extensions.copyToClipboard
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
+import org.koin.core.component.inject
 import org.koin.core.scope.Scope
 
 class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
@@ -25,19 +27,42 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
     override val alwaysDisableScreenshots: Boolean = true
 
     override val scope: Scope = payloadScope
-    val viewModel: BackupPhraseViewModel by viewModel()
+    private val viewModel: BackupPhraseViewModel by viewModel()
+
+    private val pinService: BackupPhrasePinService by inject()
+
+    private val args: BackupPhraseArgs by lazy {
+        intent.getParcelableExtra(BackupPhraseArgs.ARGS_KEY)
+            ?: BackupPhraseArgs(secondPassword = null, allowSkipBackup = false)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        pinService.init(this)
+
+        lifecycleScope.launchWhenStarted { launchPinVerification() }
+    }
+
+    private fun initContent(secondPassword: String?) {
         collectViewState()
 
         setContent {
             BackupPhraseNavHost(
                 viewModel = viewModel,
-                backupPhraseArgs = intent.getParcelableExtra(BackupPhraseArgs.ARGS_KEY)
-                    ?: error("missing DefaultPhraseArgs")
+                backupPhraseArgs = args.copy(secondPassword = secondPassword)
             )
+        }
+    }
+
+    private fun launchPinVerification() {
+        pinService.verifyPin { successful, secondPassword ->
+            if (successful) {
+                viewModel.onIntent(BackupPhraseIntent.TriggerEmailAlert)
+                initContent(secondPassword = secondPassword)
+            } else {
+                finish(isSuccessful = false)
+            }
         }
     }
 
@@ -84,12 +109,12 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
     }
 
     companion object {
-        fun newIntent(context: Context, secondPassword: String?, allowSkipBackup: Boolean = false): Intent =
+        fun newIntent(context: Context, allowSkipBackup: Boolean = false): Intent =
             Intent(context, BackupPhraseActivity::class.java).apply {
                 putExtra(
                     BackupPhraseArgs.ARGS_KEY,
                     BackupPhraseArgs(
-                        secondPassword = secondPassword,
+                        secondPassword = null,
                         allowSkipBackup = allowSkipBackup
                     )
                 )

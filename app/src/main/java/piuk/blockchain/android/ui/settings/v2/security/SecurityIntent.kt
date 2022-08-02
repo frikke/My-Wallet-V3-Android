@@ -100,10 +100,6 @@ sealed class SecurityIntent : MviIntent<SecurityState> {
         override fun reduce(oldState: SecurityState): SecurityState = oldState
     }
 
-    object TriggerEmailAlert : SecurityIntent() {
-        override fun reduce(oldState: SecurityState): SecurityState = oldState
-    }
-
     object ToggleCloudBackup : SecurityIntent() {
         override fun reduce(oldState: SecurityState): SecurityState = oldState
     }

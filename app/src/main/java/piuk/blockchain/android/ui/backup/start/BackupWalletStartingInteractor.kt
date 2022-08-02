@@ -8,7 +8,7 @@ class BackupWalletStartingInteractor(
     private val settingsDataManager: SettingsDataManager
 ) {
     fun triggerSeedPhraseAlert() =
-        settingsDataManager.triggerEmailAlert(
+        settingsDataManager.triggerEmailAlertLegacy(
             guid = authPrefs.walletGuid,
             sharedKey = authPrefs.sharedKey
         )

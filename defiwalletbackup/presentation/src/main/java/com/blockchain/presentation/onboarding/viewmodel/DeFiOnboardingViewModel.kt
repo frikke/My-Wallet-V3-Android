@@ -22,7 +22,7 @@ class DeFiOnboardingViewModel : MviViewModel<DeFiOnboardingIntent,
         return with(state) {
             DeFiOnboardingViewState(
                 flowState = flowState,
-                shouldLaunchPinVerification = requiresPinVerification
+                shouldLaunchPhraseBackup = phraseBackupRequired
             )
         }
     }
@@ -30,11 +30,11 @@ class DeFiOnboardingViewModel : MviViewModel<DeFiOnboardingIntent,
     override suspend fun handleIntent(modelState: DeFiOnboardingModelState, intent: DeFiOnboardingIntent) {
         when (intent) {
             DeFiOnboardingIntent.EnableDeFiWallet -> {
-                updateState { it.copy(requiresPinVerification = true) }
+                updateState { it.copy(phraseBackupRequired = true) }
             }
 
-            DeFiOnboardingIntent.PinVerificationRequested -> {
-                updateState { it.copy(requiresPinVerification = false) }
+            DeFiOnboardingIntent.PhraseBackupRequested -> {
+                updateState { it.copy(phraseBackupRequired = false) }
             }
 
             DeFiOnboardingIntent.BackupPhraseComplete -> {
