@@ -49,8 +49,6 @@ class BlockchainCardFragment : BlockchainCardHostFragment() {
         }
     }
 
-    override fun onBackPressed(): Boolean = false
-
     companion object {
         fun newInstance(blockchainCard: BlockchainCard): BlockchainCardHostFragment =
             (BlockchainCardFragment() as BlockchainCardHostFragment).newInstance(blockchainCard)

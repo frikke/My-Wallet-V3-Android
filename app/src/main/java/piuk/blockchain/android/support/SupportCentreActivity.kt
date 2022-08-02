@@ -134,7 +134,7 @@ class SupportCentreActivity :
         setContentView(binding.root)
         updateToolbar(
             toolbarTitle = getString(R.string.contact_support),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
 
         Chat.INSTANCE.init(applicationContext, BuildConfig.ZENDESK_API_KEY)
@@ -197,7 +197,7 @@ class SupportCentreActivity :
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
             return true
         }
         return super.onOptionsItemSelected(item)

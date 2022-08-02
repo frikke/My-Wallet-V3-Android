@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.blockchain.analytics.Analytics
@@ -41,6 +42,8 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         showFullScreen()
         setContentView(binding.root)
+
+        setupBackPress()
 
         val recurringBuyOnBoardingPagerAdapter =
             RecurringBuyOnBoardingPagerAdapter(this, createListOfRecurringBuyInfo())
@@ -128,14 +131,20 @@ class RecurringBuyOnboardingActivity : AppCompatActivity() {
         )
     )
 
-    override fun onBackPressed() {
-        with(binding) {
-            if (viewpager.currentItem == 0) {
-                super.onBackPressed()
-            } else {
-                viewpager.currentItem = viewpager.currentItem - 1
-            }
+    private fun setupBackPress() {
+        val backPressCallback = onBackPressedDispatcher.addCallback {
+            binding.viewpager.currentItem = binding.viewpager.currentItem - 1
         }
+
+        binding.viewpager.registerOnPageChangeCallback(object : OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+
+                // when viewpager is not on the first page
+                // enable custom backpress handling to return to previous page
+                backPressCallback.isEnabled = position > 0
+            }
+        })
     }
 
     companion object {

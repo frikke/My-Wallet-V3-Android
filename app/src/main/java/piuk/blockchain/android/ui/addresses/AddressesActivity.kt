@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.MotionEvent
+import androidx.activity.addCallback
 import androidx.annotation.StringRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.coincore.AssetAction
@@ -62,9 +63,12 @@ class AddressesActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        setupBackPress()
+
         updateToolbar(
             toolbarTitle = getString(R.string.drawer_addresses),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         with(binding.currencyHeader) {
             setCurrentlySelectedCurrency(CryptoCurrency.BTC)
@@ -83,15 +87,18 @@ class AddressesActivity :
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> consume { onBackPressed() }
+        android.R.id.home -> consume { onBackPressedDispatcher.onBackPressed() }
         else -> super.onOptionsItemSelected(item)
     }
 
-    override fun onBackPressed() {
-        if (binding.currencyHeader.isOpen()) {
-            binding.currencyHeader.close()
-        } else {
-            super.onBackPressed()
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(owner = this) {
+            if (binding.currencyHeader.isOpen()) {
+                binding.currencyHeader.close()
+            } else {
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+            }
         }
     }
 

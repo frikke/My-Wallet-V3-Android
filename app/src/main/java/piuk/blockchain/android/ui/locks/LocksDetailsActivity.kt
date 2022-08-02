@@ -37,7 +37,7 @@ class LocksDetailsActivity : BlockchainActivity() {
         setContentView(binding.root)
         updateToolbar(
             toolbarTitle = getString(R.string.funds_locked_details_toolbar),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         setUpRecyclerView()
         setUpTextInfo()

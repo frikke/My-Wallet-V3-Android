@@ -15,7 +15,7 @@ import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.scope.Scope
 
-abstract class BlockchainCardHostFragment : Fragment(), FlowFragment, AndroidScopeComponent {
+abstract class BlockchainCardHostFragment : Fragment(), AndroidScopeComponent {
 
     override val scope: Scope = payloadScope
 
