@@ -553,22 +553,32 @@ class SimpleBuyInteractor(
         onboardingPrefs.isLandingCtaDismissed = true
     }
 
+    // TODO (lmiguelez) https://blockchain.atlassian.net/browse/AND-6420
     fun getPrefillAndQuickFillAmounts(
         buyMaxAmount: FiatValue,
+        buyMinAmount: FiatValue,
         assetCode: String,
         fiatCurrency: FiatCurrency
     ): Single<Pair<FiatValue, QuickFillButtonData?>> =
         quickFillButtonsFeatureFlag.enabled.map { enabled ->
-            var prefilledAmount = FiatValue.zero(fiatCurrency)
+            val amountString = simpleBuyPrefs.getLastAmount("$assetCode-${fiatCurrency.networkTicker}")
+
+            var prefilledAmount = when {
+                enabled && amountString.isEmpty() -> {
+                    FiatValue.fromMajor(fiatCurrency, BigDecimal(DEFAULT_MIN_PREFILL_AMOUNT))
+                }
+                enabled && amountString.isNotEmpty() -> FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
+                else -> FiatValue.fromMajor(fiatCurrency, BigDecimal.ZERO)
+            }
 
             val quickFillButtonData = if (enabled) {
-                val amountString = simpleBuyPrefs.getLastAmount("$assetCode-${fiatCurrency.networkTicker}")
-                    .ifEmpty {
-                        DEFAULT_MIN_PREFILL_AMOUNT
-                    }
                 val listOfAmounts = mutableListOf<FiatValue>()
 
-                prefilledAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
+                prefilledAmount = when {
+                    prefilledAmount < buyMinAmount -> buyMinAmount
+                    prefilledAmount > buyMaxAmount -> buyMaxAmount
+                    else -> prefilledAmount
+                }
 
                 val lowestPrefillAmount = roundToNearest(
                     2 * prefilledAmount.toFloat(),

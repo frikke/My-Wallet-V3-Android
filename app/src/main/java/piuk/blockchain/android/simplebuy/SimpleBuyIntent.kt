@@ -57,6 +57,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         val assetCode: String,
         val fiatCurrency: FiatCurrency,
         val maxAmount: FiatValue,
+        val minAmount: FiatValue,
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
 
