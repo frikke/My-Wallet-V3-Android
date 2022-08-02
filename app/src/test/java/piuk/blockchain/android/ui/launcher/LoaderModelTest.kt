@@ -127,7 +127,7 @@ class LoaderModelTest {
         val testState = model.state.test()
         whenever(walletModeService.enabledWalletMode()).thenReturn(WalletMode.UNIVERSAL)
         whenever(educationalScreensPrefs.hasSeenEducationalWalletMode).thenReturn(true)
-        model.process(LoaderIntents.CheckIsLoggedIn(false, LoginMethod.NEW_WALLET_CREATION, null))
+        model.process(LoaderIntents.CheckIsLoggedIn(false, LoginMethod.WALLET_CREATION, null))
 
         model.process(LoaderIntents.LaunchDashboard(data = "data", shouldLaunchUiTour = false))
 
@@ -135,7 +135,7 @@ class LoaderModelTest {
         testState
             .assertValueAt(testState.values().size - 1) {
                 it == LoaderState(
-                    loginMethod = LoginMethod.NEW_WALLET_CREATION,
+                    loginMethod = LoginMethod.WALLET_CREATION,
                     nextLoadingStep = LoadingStep.Main("data", false)
                 )
             }

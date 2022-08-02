@@ -21,7 +21,7 @@ enum class ToastType {
 }
 
 enum class LoginMethod {
-    NEW_WALLET_CREATION, EMAIL_PASSWORD, PIN, UNDEFINED
+    WALLET_CREATION, CREDENTIALS, PIN, UNDEFINED
 }
 
 data class LoaderState(

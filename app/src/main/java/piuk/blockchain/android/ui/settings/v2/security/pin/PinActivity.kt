@@ -817,9 +817,9 @@ class PinActivity :
         util.loadAppWithVerifiedPin(
             loaderActivity = LoaderActivity::class.java,
             loginMethod = when (originScreen) {
-                OriginScreenToPin.CREATE_WALLET -> LoginMethod.NEW_WALLET_CREATION
+                OriginScreenToPin.CREATE_WALLET -> LoginMethod.WALLET_CREATION
                 OriginScreenToPin.LAUNCHER_SCREEN -> LoginMethod.PIN
-                OriginScreenToPin.LOGIN_AUTH_SCREEN -> LoginMethod.EMAIL_PASSWORD
+                OriginScreenToPin.LOGIN_AUTH_SCREEN -> LoginMethod.CREDENTIALS
                 else -> LoginMethod.UNDEFINED
             },
             referralCode = referralCode

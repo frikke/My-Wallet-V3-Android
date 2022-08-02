@@ -74,7 +74,7 @@ class LoaderModel(
                     process(it)
                 }
                 interactor.initSettings(
-                    isAfterWalletCreation = loginMethod == LoginMethod.NEW_WALLET_CREATION,
+                    isAfterWalletCreation = loginMethod == LoginMethod.WALLET_CREATION,
                     referralCode = referralCode
                 )
             }
