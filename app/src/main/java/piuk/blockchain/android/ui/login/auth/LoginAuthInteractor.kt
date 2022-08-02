@@ -40,6 +40,10 @@ class LoginAuthInteractor(
 
     fun clearSessionId() = authPrefs.clearSessionId()
 
+    fun authorizeApproval(authToken: String, sessionId: String): Single<JsonObject> {
+        return authDataManager.authorizeSessionObject(authToken, sessionId)
+    }
+
     fun getPayload(guid: String, sessionId: String): Single<JsonObject> =
         authDataManager.getEncryptedPayloadObject(guid, sessionId, resend2FASms = false)
 

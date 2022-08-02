@@ -23,7 +23,12 @@ class LoginAuthModel(
         return when (intent) {
             is LoginAuthIntents.InitLoginAuthInfo -> initLoginAuthInfo(intent.json)
             is LoginAuthIntents.GetSessionId -> getSessionId()
-            is LoginAuthIntents.GetPayload -> getPayload(guid = previousState.guid, sessionId = intent.sessionId)
+            is LoginAuthIntents.AuthorizeApproval ->
+                authorizeApproval(
+                    authToken = previousState.authToken,
+                    sessionId = intent.sessionId
+                )
+            is LoginAuthIntents.GetPayload -> getPayload(guid = previousState.guid, sessionId = previousState.sessionId)
             is LoginAuthIntents.VerifyPassword ->
                 verifyPassword(
                     payload = if (intent.payloadJson.isNotEmpty()) {
@@ -87,13 +92,23 @@ class LoginAuthModel(
             )
 
     private fun getSessionId(): Disposable? {
-        process(LoginAuthIntents.GetPayload(interactor.getSessionId()))
+        process(LoginAuthIntents.AuthorizeApproval(interactor.getSessionId()))
         return null
     }
 
     private fun clearSessionId(): Disposable? {
         interactor.clearSessionId()
         return null
+    }
+
+    private fun authorizeApproval(authToken: String, sessionId: String): Disposable {
+        return interactor.authorizeApproval(authToken, sessionId)
+            .subscribeBy(
+                onSuccess = { process(LoginAuthIntents.GetPayload) },
+                onError = { throwable ->
+                    process(LoginAuthIntents.ShowError(throwable))
+                }
+            )
     }
 
     private fun getPayload(guid: String, sessionId: String): Disposable {

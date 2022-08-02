@@ -54,7 +54,9 @@ class LoginAuthModelTest {
             Single.just(testAuthInfo)
         )
         whenever(interactor.getSessionId()).thenReturn(sessionId)
-
+        whenever(interactor.authorizeApproval(AUTH_TOKEN, sessionId)).thenReturn(
+            Single.just(mock())
+        )
         val payload: kotlinx.serialization.json.JsonObject = mock()
         whenever(interactor.getPayload(GUID, sessionId)).thenReturn(
             Single.just(payload)
@@ -88,6 +90,19 @@ class LoginAuthModelTest {
                 recoveryToken = RECOVERY_TOKEN,
                 sessionId = sessionId,
                 authToken = AUTH_TOKEN,
+                authStatus = AuthStatus.AuthorizeApproval,
+                authInfoForAnalytics = testAuthInfo
+            )
+        )
+        testState.assertValueAt(
+            4,
+            LoginAuthState(
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
+                sessionId = sessionId,
+                authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.GetPayload,
                 authInfoForAnalytics = testAuthInfo
             )
@@ -104,6 +119,9 @@ class LoginAuthModelTest {
             Single.just(testAuthInfo)
         )
         whenever(interactor.getSessionId()).thenReturn(sessionId)
+        whenever(interactor.authorizeApproval(AUTH_TOKEN, sessionId)).thenReturn(
+            Single.just(mock())
+        )
         whenever(interactor.getPayload(GUID, sessionId)).thenReturn(Single.error(AuthRequiredException()))
         whenever(interactor.reset2FaRetries()).thenReturn(Completable.complete())
         whenever(interactor.getRemaining2FaRetries()).thenReturn(3)
@@ -122,6 +140,16 @@ class LoginAuthModelTest {
                 recoveryToken = RECOVERY_TOKEN,
                 authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.GetSessionId,
+                authInfoForAnalytics = testAuthInfo
+            ),
+            LoginAuthState(
+                guid = GUID,
+                userId = USER_ID,
+                email = EMAIL,
+                recoveryToken = RECOVERY_TOKEN,
+                sessionId = sessionId,
+                authToken = AUTH_TOKEN,
+                authStatus = AuthStatus.AuthorizeApproval,
                 authInfoForAnalytics = testAuthInfo
             ),
             LoginAuthState(
