@@ -460,7 +460,7 @@ class PortfolioFragment :
 
         newState.activeAssets.forEach { (asset, state) ->
             val newBalance = state.accountBalance?.total
-            if (newBalance != null && newBalance != oldState?.activeAssets?.get(asset)?.accountBalance?.total) {
+            if (newBalance != null && newBalance != oldState?.activeAssets?.getOrNull(asset)?.accountBalance?.total) {
                 // If we have the full set, this will fire
                 (asset as? AssetInfo)?.let {
                     analyticsReporter.gotAssetBalance(asset, newBalance, newState.activeAssets.size)

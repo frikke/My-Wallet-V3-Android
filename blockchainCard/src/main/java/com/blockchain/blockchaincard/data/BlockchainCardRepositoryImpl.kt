@@ -1,10 +1,9 @@
 package com.blockchain.blockchaincard.data
 
 import com.blockchain.api.NabuApiException
-import com.blockchain.api.adapters.ApiException
-import com.blockchain.api.blockchainCard.data.AcceptedDocumentFormDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocsFormDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
-import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentsDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardDto
 import com.blockchain.api.blockchainCard.data.ProductDto
@@ -18,7 +17,6 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
-import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocuments
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
@@ -45,6 +43,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import java.math.BigDecimal
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
+
 internal class BlockchainCardRepositoryImpl(
     private val blockchainCardService: BlockchainCardService,
     private val eligibilityApiService: EligibilityApiService,
@@ -277,30 +276,29 @@ internal class BlockchainCardRepositoryImpl(
             .map { states -> states.map(StateResponse::toDomain) }
             .wrapBlockchainCardError()
 
-    override suspend fun getLegalDocuments(): Outcome<BlockchainCardError, BlockchainCardLegalDocuments> =
+    override suspend fun getLegalDocuments(): Outcome<BlockchainCardError, List<BlockchainCardLegalDocument>> =
         authenticator.getAuthHeader().awaitOutcome()
             .flatMap { tokenResponse ->
                 blockchainCardService.getLegalDocuments(
                     authHeader = tokenResponse
                 )
             }.map { response ->
-                response.toDomainModel()
+                response.map { it.toDomainModel() }
             }.wrapBlockchainCardError()
 
-    override suspend fun acceptLegalDocument(
-        documentName: String,
-        acceptedVersion: String
-    ): Outcome<BlockchainCardError, BlockchainCardLegalDocuments> =
+    override suspend fun acceptLegalDocuments(
+        acceptedLegalDocuments: List<BlockchainCardLegalDocument>
+    ): Outcome<BlockchainCardError, List<BlockchainCardLegalDocument>> =
         authenticator.getAuthHeader().awaitOutcome()
             .flatMap { tokenResponse ->
-                blockchainCardService.acceptLegalDocument(
+                blockchainCardService.acceptLegalDocuments(
                     authHeader = tokenResponse,
-                    documentName = documentName,
-                    acceptedDocumentForm = AcceptedDocumentFormDto(acceptedVersion.toInt())
+                    acceptedDocumentsForm = acceptedLegalDocuments.toAcceptedLegalDocForm()
                 )
             }.map { response ->
-                response.toDomainModel()
+                response.map { it.toDomainModel() }
             }.wrapBlockchainCardError()
+
     //
     // Domain Model Conversion
     //
@@ -384,18 +382,20 @@ internal class BlockchainCardRepositoryImpl(
             ),
         )
 
-    private fun BlockchainCardLegalDocumentsDto.toDomainModel(): BlockchainCardLegalDocuments =
-        BlockchainCardLegalDocuments(
-            shortFormDisclosure = shortFormDisclosure.toDomainModel(),
-            termsAndConditions = termsAndConditions.toDomainModel()
-        )
-
     private fun BlockchainCardLegalDocumentDto.toDomainModel(): BlockchainCardLegalDocument =
         BlockchainCardLegalDocument(
+            name = name,
+            displayName = displayName,
             url = url,
             version = version,
             acceptedVersion = acceptedVersion,
             seen = false
+
+        )
+
+    private fun List<BlockchainCardLegalDocument>.toAcceptedLegalDocForm(): BlockchainCardAcceptedDocsFormDto =
+        BlockchainCardAcceptedDocsFormDto(
+            legalPolicies = this.map { BlockchainCardAcceptedDocumentDto(it.name, it.version) }
         )
 
     private fun NabuApiException.toBlockchainCardError(): BlockchainCardError =
@@ -405,7 +405,7 @@ internal class BlockchainCardRepositoryImpl(
 
     private fun <Exception, R> Outcome<Exception, R>.wrapBlockchainCardError(): Outcome<BlockchainCardError, R> =
         mapError {
-            if (it is ApiException.KnownError) it.exception.toBlockchainCardError()
+            if (it is NabuApiException) it.toBlockchainCardError()
             else BlockchainCardError.LocalCopyBlockchainCardError
         }
 }

@@ -15,7 +15,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.custodial.data.store.TradingDataSource
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.TxLimits
@@ -32,13 +32,13 @@ import io.reactivex.rxjava3.kotlin.Singles
 class InterestWithdrawTradingTxEngine(
     private val interestBalanceStore: InterestBalancesStore,
     private val interestService: InterestService,
-    private val tradingDataSource: TradingDataSource,
+    private val tradingStore: TradingStore,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
 ) : InterestBaseEngine(interestService) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(interestBalanceStore, tradingDataSource)
+        get() = listOf(interestBalanceStore, tradingStore)
 
     private val availableBalance: Single<Money>
         get() = sourceAccount.balance.firstOrError().map { it.withdrawable }

@@ -1,5 +1,6 @@
 package com.blockchain.domain.paymentmethods.model
 
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import java.io.Serializable
@@ -26,7 +27,8 @@ sealed class LinkedPaymentMethod(
         val mobilePaymentType: MobilePaymentType? = null,
         @SerialName("fiatCurrency")
         override val currency: FiatCurrency,
-        val cardRejectionState: @Contextual CardRejectionState? = null
+        val cardRejectionState: @Contextual CardRejectionState? = null,
+        val serverSideUxErrorInfo: ServerSideUxErrorInfo? = null
     ) : LinkedPaymentMethod(PaymentMethodType.PAYMENT_CARD, currency)
 
     data class Funds(

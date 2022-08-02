@@ -3,7 +3,7 @@ package com.blockchain.blockchaincard.domain
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
-import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocuments
+import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.coincore.AccountBalance
@@ -79,10 +79,9 @@ interface BlockchainCardRepository {
 
     suspend fun getStatesList(countryCode: String): Outcome<BlockchainCardError, List<Region.State>>
 
-    suspend fun getLegalDocuments(): Outcome<BlockchainCardError, BlockchainCardLegalDocuments>
+    suspend fun getLegalDocuments(): Outcome<BlockchainCardError, List<BlockchainCardLegalDocument>>
 
-    suspend fun acceptLegalDocument(
-        documentName: String,
-        acceptedVersion: String
-    ): Outcome<BlockchainCardError, BlockchainCardLegalDocuments>
+    suspend fun acceptLegalDocuments(
+        acceptedLegalDocuments: List<BlockchainCardLegalDocument>
+    ): Outcome<BlockchainCardError, List<BlockchainCardLegalDocument>>
 }

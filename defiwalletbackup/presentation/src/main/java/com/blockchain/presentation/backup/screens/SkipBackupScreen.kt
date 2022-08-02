@@ -28,13 +28,15 @@ import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 @Composable
 fun SkipBackup(viewModel: BackupPhraseViewModel) {
     SkipBackupScreen(
+        backOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = false)) },
         skipOnClick = { viewModel.onIntent(BackupPhraseIntent.SkipBackup) },
-        backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackupProcess) }
+        backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) }
     )
 }
 
 @Composable
 fun SkipBackupScreen(
+    backOnClick: () -> Unit,
     skipOnClick: () -> Unit,
     backUpNowOnClick: () -> Unit,
 ) {
@@ -43,7 +45,10 @@ fun SkipBackupScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(R.string.backup_phrase_title_secure_wallet), onBackButtonClick = null)
+        NavigationBar(
+            title = stringResource(R.string.backup_phrase_title_secure_wallet),
+            onBackButtonClick = backOnClick
+        )
 
         Column(
             modifier = Modifier
@@ -78,7 +83,7 @@ fun SkipBackupScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.skip_backup_cta),
+                text = stringResource(id = R.string.skip_backup_cta_skip),
                 onClick = skipOnClick
             )
 
@@ -86,7 +91,7 @@ fun SkipBackupScreen(
 
             MinimalButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.back_up_now),
+                text = stringResource(id = R.string.skip_backup_cta_backup),
                 onClick = backUpNowOnClick
             )
         }
@@ -100,5 +105,5 @@ fun SkipBackupScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewSkipBackupScreen() {
-    SkipBackupScreen(skipOnClick = {}, backUpNowOnClick = {})
+    SkipBackupScreen(backOnClick = {}, skipOnClick = {}, backUpNowOnClick = {})
 }

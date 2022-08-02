@@ -1,7 +1,7 @@
 package com.blockchain.core.referral
 
+import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.services.ReferralApiService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
@@ -10,7 +10,6 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.fold
-import com.blockchain.outcome.mapError
 import com.blockchain.preferences.CurrencyPrefs
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
@@ -47,7 +46,7 @@ class ReferralRepository(
                                 }
                             },
                             onFailure = { apiError ->
-                                Outcome.Failure(apiError.exception)
+                                Outcome.Failure(apiError)
                             }
                         )
                 }
@@ -62,12 +61,11 @@ class ReferralRepository(
                     Outcome.Success(true)
                 },
                 onFailure = { apiError ->
-                    if (apiError is ApiException.KnownError &&
-                        apiError.statusCode == NabuErrorStatusCodes.NotFound
+                    if ((apiError as? NabuApiException)?.getErrorStatusCode() == NabuErrorStatusCodes.NotFound
                     ) {
                         Outcome.Success(false)
                     } else {
-                        Outcome.Failure(apiError.exception)
+                        Outcome.Failure(apiError)
                     }
                 }
             )
@@ -80,7 +78,6 @@ class ReferralRepository(
                 .awaitOutcome()
                 .flatMap { authToken ->
                     referralApi.associateReferralCode(authToken, validatedCode)
-                        .mapError { it.exception }
                 }
         }
     }

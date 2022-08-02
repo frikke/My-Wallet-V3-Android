@@ -1005,9 +1005,13 @@ class TransactionFlowCustomiserImpl(
             )
             TransactionError.TransactionDenied -> resources.getString(R.string.transaction_denied)
             is TransactionError.FiatDepositError -> getFiatDepositError(error.errorCode).title
-            TransactionError.SettlementInsufficientBalance,
-            TransactionError.SettlementStaleBalance,
-            TransactionError.SettlementGenericError,
+            TransactionError.SettlementStaleBalance -> resources.getString(R.string.trading_deposit_title_stale_balance)
+            TransactionError.SettlementInsufficientBalance -> resources.getString(
+                R.string.bank_transfer_payment_insufficient_funds_title
+            )
+            TransactionError.SettlementGenericError -> resources.getString(
+                R.string.common_oops_bank
+            )
             is TransactionError.SettlementRefreshRequired -> resources.getString(R.string.trading_confirm_deposit)
         }
     }

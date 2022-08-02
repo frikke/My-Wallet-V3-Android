@@ -3,7 +3,7 @@ package com.blockchain.blockchaincard.viewmodel
 import androidx.compose.runtime.mutableStateListOf
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
-import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocuments
+import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.coincore.AccountBalance
@@ -25,5 +25,7 @@ data class BlockchainCardViewState(
     val ssn: String? = null,
     val countryStateList: List<Region.State>? = null,
     val errorState: BlockchainCardErrorState? = null,
-    val legalDocuments: BlockchainCardLegalDocuments? = null,
+    val legalDocuments: List<BlockchainCardLegalDocument>? = null,
+    val isLegalDocReviewComplete: Boolean = false,
+    val singleLegalDocumentToSee: BlockchainCardLegalDocument? = null,
 ) : ViewState

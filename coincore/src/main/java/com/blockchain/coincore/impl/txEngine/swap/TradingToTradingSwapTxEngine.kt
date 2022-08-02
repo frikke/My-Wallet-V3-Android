@@ -8,7 +8,7 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.core.SwapTransactionsCache
-import com.blockchain.core.custodial.data.store.TradingDataSource
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -19,7 +19,7 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 
 class TradingToTradingSwapTxEngine(
-    private val tradingDataSource: TradingDataSource,
+    private val tradingStore: TradingStore,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
@@ -30,7 +30,7 @@ class TradingToTradingSwapTxEngine(
 ) : SwapTxEngineBase(quotesEngine, userIdentity, walletManager, limitsDataManager, swapTransactionsCache) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(tradingDataSource)
+        get() = listOf(tradingStore)
 
     override val availableBalance: Single<Money>
         get() = sourceAccount.balance.firstOrError().map {

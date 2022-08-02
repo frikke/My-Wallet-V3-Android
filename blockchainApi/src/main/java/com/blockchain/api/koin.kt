@@ -55,6 +55,7 @@ import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
 import com.blockchain.api.watchlist.WatchlistApi
+import com.blockchain.koin.authOkHttpClient
 import com.blockchain.koin.kotlinJsonConverterFactory
 import com.blockchain.koin.kotlinXApiRetrofit
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -112,10 +113,10 @@ val blockchainApiModule = module {
     single(nabuApi) {
         Retrofit.Builder()
             .baseUrl(getBaseUrl("nabu-api"))
-            .client(get())
-            .addConverterFactory(get(kotlinJsonConverterFactory))
+            .client(get(authOkHttpClient))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
+            .addConverterFactory(get(kotlinJsonConverterFactory))
             .build()
     }
 
@@ -262,7 +263,7 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(nabuApi).create(CustodialBalanceApi::class.java)
         CustodialBalanceService(
-            api = api
+            custodialBalanceApi = api
         )
     }
 

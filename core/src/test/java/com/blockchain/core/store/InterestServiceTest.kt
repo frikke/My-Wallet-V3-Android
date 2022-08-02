@@ -10,9 +10,9 @@ import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCac
 import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.Authenticator
-import com.blockchain.store.StoreResponse
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
@@ -83,7 +83,7 @@ class InterestServiceTest {
     @Before
     fun setUp() {
         every { interestBalancesStore.stream(any()) } returns flowOf(
-            StoreResponse.Data(mapOf("CRYPTO1" to interestBalanceDetails))
+            DataResource.Data(mapOf("CRYPTO1" to interestBalanceDetails))
         )
         every { interestBalancesStore.invalidate() } just Runs
 

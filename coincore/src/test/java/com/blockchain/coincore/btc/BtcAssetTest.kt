@@ -3,6 +3,7 @@ package com.blockchain.coincore.btc
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
@@ -310,6 +311,10 @@ private val mockAssetDependenciesModule = module {
 
     factory {
         mock<TradingService>()
+    }
+
+    factory {
+        mock<InterestService>()
     }
 
     factory {

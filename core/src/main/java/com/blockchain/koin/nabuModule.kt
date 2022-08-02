@@ -296,7 +296,8 @@ val authenticationModule = module {
             NabuAuthenticator(
                 nabuToken = get(),
                 nabuDataManager = get(),
-                remoteLogger = get()
+                remoteLogger = get(),
+                authInterceptorFeatureFlag = get(authInterceptorFeatureFlag),
             )
         }.bind(Authenticator::class).bind(AuthHeaderProvider::class)
     }

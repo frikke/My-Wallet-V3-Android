@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
@@ -229,6 +230,14 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
                     subtitle = description,
                     icon = drawable
                 )
+
+                ContextCompat.getDrawable(context, defaultStatusIcon)?.let { icon ->
+                    updateStatusIcon(
+                        title = title,
+                        subtitle = description,
+                        statusIcon = icon
+                    )
+                }
             },
             onIconLoadError = {
                 showTxError(

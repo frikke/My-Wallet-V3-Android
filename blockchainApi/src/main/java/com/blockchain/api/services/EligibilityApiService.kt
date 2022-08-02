@@ -1,6 +1,5 @@
 package com.blockchain.api.services
 
-import com.blockchain.api.adapters.ApiException
 import com.blockchain.api.eligibility.EligibilityApi
 import com.blockchain.api.eligibility.data.CountryResponse
 import com.blockchain.api.eligibility.data.ProductEligibilityResponse
@@ -11,12 +10,12 @@ class EligibilityApiService(
     private val api: EligibilityApi
 ) {
 
-    suspend fun getProductEligibility(authHeader: String): Outcome<ApiException, ProductEligibilityResponse> =
+    suspend fun getProductEligibility(authHeader: String): Outcome<Exception, ProductEligibilityResponse> =
         api.getProductEligibility(authHeader)
 
-    suspend fun getCountriesList(scope: String?): Outcome<ApiException, List<CountryResponse>> =
+    suspend fun getCountriesList(scope: String?): Outcome<Exception, List<CountryResponse>> =
         api.getCountriesList(scope)
 
-    suspend fun getStatesList(countryCode: String, scope: String? = null): Outcome<ApiException, List<StateResponse>> =
+    suspend fun getStatesList(countryCode: String, scope: String? = null): Outcome<Exception, List<StateResponse>> =
         api.getStatesList(countryCode, scope)
 }

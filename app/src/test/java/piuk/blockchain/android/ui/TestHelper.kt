@@ -17,6 +17,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 
 fun getBlankNabuUser(kycState: KycState = KycState.None): NabuUser = NabuUser(
+    id = "",
     firstName = "",
     lastName = "",
     email = "",

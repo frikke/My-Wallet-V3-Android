@@ -7,7 +7,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.custodial.data.store.TradingDataSource
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestLimits
@@ -38,7 +38,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val interestBalanceStore: InterestBalancesStore = mock()
     private val interestService: InterestService = mock()
-    private val tradingDataSource: TradingDataSource = mock()
+    private val tradingStore: TradingStore = mock()
 
     private lateinit var subject: InterestDepositTradingEngine
 
@@ -67,7 +67,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
         subject = InterestDepositTradingEngine(
             interestBalanceStore = interestBalanceStore,
             interestService = interestService,
-            tradingDataSource = tradingDataSource,
+            tradingStore = tradingStore,
             walletManager = custodialWalletManager
         )
     }
@@ -126,7 +126,6 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
         val limits = mock<InterestLimits> {
             on { minDepositFiatValue }.thenReturn(MIN_DEPOSIT_AMOUNT_FIAT)
-//            on { cryptoCurrency }.thenReturn(ASSET)
         }
 
         whenever(interestService.getLimitsForAsset(ASSET)).thenReturn(Single.just(limits))

@@ -27,40 +27,40 @@ private const val WITHDRAWAL = "savings/withdrawals"
 internal interface InterestApiInterface {
     @GET(BALANCES)
     fun getAccountBalances(
-        @Header("authorization") authorization: String
+        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Single<Response<Map<String, InterestAccountBalanceDto>>>
 
     @GET(AVAILABLE_TICKERS)
     fun getAvailableTickersForInterest(
-        @Header("authorization") authorization: String
+        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Single<InterestAvailableTickersDto>
 
     @GET(ELIGIBILITY)
     fun getTickersEligibility(
-        @Header("authorization") authorization: String
+        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Single<Map<String, InterestEligibilityDto>>
 
     @GET(LIMITS)
     fun getTickersLimits(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("currency") fiatCurrencyTicker: String
     ): Single<InterestTickerLimitsDto>
 
     @GET(INTEREST_RATES)
     fun getInterestRates(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("ccy") cryptoCurrencyTicker: String
     ): Single<Response<InterestRateDto>>
 
     @GET(ADDRESS)
     fun getAddress(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("ccy") cryptoCurrencyTicker: String
     ): Single<InterestAddressDto>
 
     @POST(WITHDRAWAL)
     fun performWithdrawal(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body body: InterestWithdrawalBodyDto
     ): Completable
 }

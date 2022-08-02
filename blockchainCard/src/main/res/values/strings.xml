@@ -44,7 +44,6 @@
     <string name="no_fees_description"></string>
     <string name="processing"></string>
     <string name="spend_from"></string>
-    <string name="terms_and_conditions_label"></string>
     <string name="crypto_rewards"></string>
     <string name="crypto_rewards_description"></string>
     <string name="legal_info_title"></string>
@@ -124,4 +123,8 @@
     <string name="ssn_hint"></string>
     <string name="common_error"></string>
     <string name="bc_card_locked"></string>
+    <string name="bc_card_transactions_title"></string>
+    <string name="bc_card_see_all"></string>
+    <string name="done"></string>
+    <string name="bc_card_terms_and_conditions_label"></string>
 </resources>

@@ -3,12 +3,12 @@ package com.blockchain.core.price.impl.assetpricestore
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.map
-import com.blockchain.store.StoreResponse
 import com.blockchain.store.firstOutcome
 import info.blockchain.balance.Currency
 import java.util.Calendar
@@ -41,7 +41,7 @@ internal class AssetPriceStore(
     internal fun getCurrentPriceForAsset(
         base: Currency,
         quote: Currency
-    ): Flow<StoreResponse<AssetPriceRecord>> =
+    ): Flow<DataResource<AssetPriceRecord>> =
         if (base.networkTicker == quote.networkTicker) {
             flowOf(createEqualityRecordResponse(base.networkTicker, quote.networkTicker))
         } else {
@@ -51,7 +51,7 @@ internal class AssetPriceStore(
                     forceRefresh = false
                 )
             ).onEach { response ->
-                if (response is StoreResponse.Data) {
+                if (response is DataResource.Data) {
                     quoteTickerToCurrentPrices.putAll(response.data.groupBy { it.quote })
                 }
             }.findAssetOrError(base, quote)
@@ -61,7 +61,7 @@ internal class AssetPriceStore(
     internal fun getYesterdayPriceForAsset(
         base: Currency,
         quote: Currency
-    ): Flow<StoreResponse<AssetPriceRecord>> =
+    ): Flow<DataResource<AssetPriceRecord>> =
         cache.stream(
             KeyedFreshnessStrategy.Cached(
                 key = AssetPriceStoreCache.Key.GetAllYesterday(quote.networkTicker),
@@ -91,28 +91,28 @@ internal class AssetPriceStore(
             ?.find { it.base == fromFiat.networkTicker }
             ?: throw AssetPriceNotFoundException(fromFiat.networkTicker, toFiat.networkTicker)
 
-    private fun Flow<StoreResponse<List<AssetPriceRecord>>>.findAssetOrError(
+    private fun Flow<DataResource<List<AssetPriceRecord>>>.findAssetOrError(
         base: Currency,
         quote: Currency
-    ): Flow<StoreResponse<AssetPriceRecord>> =
+    ): Flow<DataResource<AssetPriceRecord>> =
         map { response ->
             when (response) {
-                is StoreResponse.Data -> {
+                is DataResource.Data -> {
                     val assetPrice = response.data.find {
                         it.base == base.networkTicker && it.quote == quote.networkTicker
                     }
-                    if (assetPrice != null) StoreResponse.Data(assetPrice)
-                    else StoreResponse.Error(AssetPriceNotFoundException(base, quote))
+                    if (assetPrice != null) DataResource.Data(assetPrice)
+                    else DataResource.Error(AssetPriceNotFoundException(base, quote))
                 }
-                is StoreResponse.Error -> response
-                is StoreResponse.Loading -> response
+                is DataResource.Error -> response
+                is DataResource.Loading -> response
             }
         }
 
     private fun createEqualityRecordResponse(
         base: String,
         quote: String
-    ): StoreResponse<AssetPriceRecord> = StoreResponse.Data(
+    ): DataResource<AssetPriceRecord> = DataResource.Data(
         AssetPriceRecord(
             base = base,
             quote = quote,

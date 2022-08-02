@@ -12,17 +12,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
-import com.blockchain.presentation.BackupPhrasePinService
 import com.blockchain.presentation.backup.BackupPhraseActivity
 import com.blockchain.presentation.onboarding.navigation.DeFiOnboardingNavHost
 import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
-import org.koin.core.component.inject
 import org.koin.core.scope.Scope
 
 class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
@@ -31,8 +28,6 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
 
     override val scope: Scope = payloadScope
     val viewModel: DeFiOnboardingViewModel by viewModel()
-
-    val pinService: BackupPhrasePinService by inject()
 
     // backup phrase
     private val onBackupPhraseResult = registerForActivityResult(
@@ -45,25 +40,15 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
              * mandatory Dispatchers.IO otherwise the nav event is not caught as we're coming back from another activity
              * has to do with running things serially in main thread where [Lifecycle.repeatOnLifecycle]
              * is supposed to start collecting
-             *
-             * With the navigation flow being lifecycle aware and tied to [Lifecycle.State.STARTED],
-             * [Lifecycle.repeatOnLifecycle] with [Lifecycle.State.RESUMED] ↓ should've been enough
-             * so not sure if it's a lifecycle edge case
              */
-            var job: Job? = null
-            job = lifecycleScope.launch(Dispatchers.IO) {
-                lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                    backupPhraseComplete()
-                    job?.cancel()
-                }
+            lifecycleScope.launch(Dispatchers.IO) {
+                lifecycleScope.launchWhenStarted { backupPhraseComplete() }
             }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        pinService.init(this)
 
         collectViewState()
 
@@ -78,9 +63,9 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
                 viewModel.viewState.collect { viewState ->
                     with(viewState) {
                         when {
-                            shouldLaunchPinVerification -> {
-                                launchPinVerification()
-                                viewModel.onIntent(DeFiOnboardingIntent.PinVerificationRequested)
+                            shouldLaunchPhraseBackup -> {
+                                launchPhraseBackup()
+                                viewModel.onIntent(DeFiOnboardingIntent.PhraseBackupRequested)
                             }
 
                             flowState is FlowState.Ended -> finish(flowState.isSuccessful)
@@ -95,22 +80,11 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
         }
     }
 
-    // pin verification
-    private fun launchPinVerification() {
-        pinService.verifyPin { successful, secondPassword ->
-            if (successful) {
-                launchPhraseBackup(secondPassword)
-            }
-        }
-    }
-
-    // phrase backup
-    private fun launchPhraseBackup(secondPassword: String? = null) {
+    private fun launchPhraseBackup() {
         onBackupPhraseResult.launch(
             BackupPhraseActivity
                 .newIntent(
                     context = this,
-                    secondPassword = secondPassword,
                     allowSkipBackup = true
                 )
                 .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)

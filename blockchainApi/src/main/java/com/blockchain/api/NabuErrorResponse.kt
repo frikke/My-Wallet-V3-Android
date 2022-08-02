@@ -77,7 +77,7 @@ data class ActionData(
     val url: String?
 )
 
-private fun NabuUxErrorResponse.mapActions(): List<ServerErrorAction> =
+fun NabuUxErrorResponse.mapActions(): List<ServerErrorAction> =
     this.actions?.map {
         ServerErrorAction(
             title = it.title,
@@ -94,7 +94,7 @@ class NabuApiException constructor(
     private val path: String?,
     private val id: String?,
     private val serverSideUxError: ServerSideUxErrorInfo?
-) : Exception(message) {
+) : RuntimeException(message) {
 
     private constructor(message: String, code: Int) : this(
         message = message,

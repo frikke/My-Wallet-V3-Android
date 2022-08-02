@@ -101,7 +101,7 @@ class DynamicNonCustodialAccount(
             )
         }
             .doOnFailure {
-                Timber.e(it.exception)
+                Timber.e(it)
             }
 
     private suspend fun getBalance() = nonCustodialService.getBalances(listOf(currency.networkTicker))

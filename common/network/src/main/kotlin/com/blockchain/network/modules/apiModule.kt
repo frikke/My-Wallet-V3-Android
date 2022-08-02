@@ -18,6 +18,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 
 class OkHttpInterceptors(val list: List<Interceptor>) : List<Interceptor> by list
+class OkHttpAuthInterceptor(val interceptor: Interceptor) : Interceptor by interceptor
 
 val apiModule = module {
 

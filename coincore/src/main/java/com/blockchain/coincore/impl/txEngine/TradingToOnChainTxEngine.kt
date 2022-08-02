@@ -20,7 +20,7 @@ import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.coincore.xlm.STATE_MEMO
-import com.blockchain.core.custodial.data.store.TradingDataSource
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.nabu.Feature
@@ -54,7 +54,7 @@ private val PendingTx.memo: String?
 
 // Transfer from a custodial trading account to an onChain non-custodial account
 class TradingToOnChainTxEngine(
-    private val tradingDataSource: TradingDataSource,
+    private val tradingStore: TradingStore,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val isNoteSupported: Boolean = false,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -64,7 +64,7 @@ class TradingToOnChainTxEngine(
 ) : TxEngine() {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf(tradingDataSource)
+        get() = listOf(tradingStore)
 
     override fun assertInputsValid() {
         check(txTarget is CryptoAddress)

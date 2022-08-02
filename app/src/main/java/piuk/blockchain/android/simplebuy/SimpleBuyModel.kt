@@ -398,6 +398,7 @@ class SimpleBuyModel(
                     } else {
                         FiatValue.zero(intent.fiatCurrency)
                     },
+                    buyMinAmount = intent.minAmount,
                     assetCode = intent.assetCode,
                     fiatCurrency = intent.fiatCurrency,
                 ).subscribeBy(
@@ -587,7 +588,8 @@ class SimpleBuyModel(
                                     limits.max.amount as? FiatValue ?: FiatValue.zero(fiatCurrency)
                                 } else {
                                     FiatValue.zero(fiatCurrency)
-                                }
+                                },
+                                minAmount = limits.min.amount as? FiatValue ?: FiatValue.zero(fiatCurrency)
                             )
                         )
                     }

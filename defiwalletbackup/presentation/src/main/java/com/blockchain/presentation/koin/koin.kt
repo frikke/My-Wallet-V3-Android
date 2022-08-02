@@ -17,8 +17,10 @@ val backupPhrasePresentationModule = module {
         viewModel {
             BackupPhraseViewModel(
                 backupPhraseService = get(),
+                settingsDataManager = get(),
                 backupPrefs = get(),
-                walletStatusPrefs = get()
+                walletStatusPrefs = get(),
+                authPrefs = get()
             )
         }
     }

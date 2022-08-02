@@ -75,7 +75,8 @@ val mainModule = module {
             WalletModeSelectionViewModel(
                 walletModeService = get(),
                 cache = get(),
-                payloadManager = get()
+                payloadManager = get(),
+                walletStatusPrefs = get()
             )
         }
     }

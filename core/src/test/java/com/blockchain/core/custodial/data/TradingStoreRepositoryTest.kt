@@ -1,11 +1,10 @@
 package com.blockchain.core.custodial.data
 
-import app.cash.turbine.test
-import com.blockchain.api.services.TradingBalance
-import com.blockchain.core.custodial.data.store.TradingDataSource
+import com.blockchain.api.custodial.data.TradingBalanceResponseDto
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
-import com.blockchain.store.StoreResponse
+import com.blockchain.data.DataResource
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
@@ -23,11 +22,11 @@ import org.junit.Test
 class TradingStoreRepositoryTest {
 
     private val assetCatalogue = mockk<AssetCatalogue>()
-    private val tradingDataSource = mockk<TradingDataSource>()
+    private val tradingStore = mockk<TradingStore>()
 
     private val tradingService: TradingService = TradingRepository(
         assetCatalogue = assetCatalogue,
-        tradingDataSource = tradingDataSource
+        tradingStore = tradingStore
     )
 
     private val cryptoAsset1 = object : CryptoCurrency(
@@ -52,12 +51,12 @@ class TradingStoreRepositoryTest {
 
     private val data = listOf(cryptoAsset1, cryptoAsset2).associateWith { anyBalanceForAsset(it) }
 
-    private val cacheResult = listOf(cryptoAsset1, cryptoAsset2).map {
-        TradingBalance(
-            assetTicker = it.displayTicker,
-            pending = 3.toBigInteger(),
-            total = 1.toBigInteger(),
-            withdrawable = 2.toBigInteger()
+    private val cacheResult: Map<String, TradingBalanceResponseDto> = listOf(cryptoAsset1, cryptoAsset2).associate {
+        Pair(
+            it.displayTicker,
+            TradingBalanceResponseDto(
+                pending = "3", total = "1", withdrawable = "2"
+            )
         )
     }
 
@@ -68,8 +67,8 @@ class TradingStoreRepositoryTest {
         every { assetCatalogue.fromNetworkTicker(cryptoAsset2.displayTicker) } returns
             cryptoAsset2
 
-        every { tradingDataSource.streamData(any()) } returns
-            flowOf(StoreResponse.Data(cacheResult))
+        every { tradingStore.stream(any()) } returns
+            flowOf(DataResource.Data(cacheResult))
     }
 
     @Test
