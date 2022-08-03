@@ -11,9 +11,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class WalletModeRepository(
     private val sharedPreferences: SharedPreferences,
     private val featureFlag: IntegratedFeatureFlag,
-) :
-    WalletModeService {
+) : WalletModeService {
+
     override fun enabledWalletMode(): WalletMode {
+        if (!featureFlag.isEnabled)
+            return WalletMode.UNIVERSAL
+
         val walletModeString = sharedPreferences.getString(
             WALLET_MODE,
             ""
@@ -22,7 +25,7 @@ class WalletModeRepository(
     }
 
     private fun defaultMode(): WalletMode =
-        if (featureFlag.isEnabled) WalletMode.CUSTODIAL_ONLY else WalletMode.UNIVERSAL
+        WalletMode.CUSTODIAL_ONLY
 
     private val _walletMode = MutableStateFlow(enabledWalletMode())
 
