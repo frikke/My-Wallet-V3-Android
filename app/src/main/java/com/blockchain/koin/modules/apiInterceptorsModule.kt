@@ -3,9 +3,6 @@ package com.blockchain.koin.modules
 import android.os.Build
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.authInterceptorFeatureFlag
-import com.blockchain.koin.payloadScope
-import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.network.modules.OkHttpAuthInterceptor
 import com.blockchain.network.modules.OkHttpInterceptors
 import com.chuckerteam.chucker.api.ChuckerInterceptor
@@ -50,8 +47,6 @@ val apiInterceptorsModule = module {
     single {
         OkHttpAuthInterceptor(
             AuthInterceptor(
-                nabuToken = lazy { payloadScope.get<NabuToken>() },
-                nabuDataManager = lazy { payloadScope.get<NabuDataManager>() },
                 authInterceptorFeatureFlag = get(authInterceptorFeatureFlag),
             )
         )

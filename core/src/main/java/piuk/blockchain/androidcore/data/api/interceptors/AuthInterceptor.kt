@@ -2,6 +2,7 @@ package piuk.blockchain.androidcore.data.api.interceptors
 
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.network.interceptor.AuthenticateWithOfflineToken
@@ -9,23 +10,24 @@ import com.blockchain.network.interceptor.AuthenticationNotRequired
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
+import org.koin.core.component.KoinComponent
 import retrofit2.Invocation
 import timber.log.Timber
 
 class AuthInterceptor(
-    private val nabuToken: Lazy<NabuToken>,
-    private val nabuDataManager: Lazy<NabuDataManager>,
     private val authInterceptorFeatureFlag: FeatureFlag,
-) : Interceptor {
+) : Interceptor, KoinComponent {
+
+    private val nabuToken: NabuToken
+        get() = payloadScope.get()
+    private val nabuDataManager: NabuDataManager
+        get() = payloadScope.get()
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
         if (!authInterceptorFeatureFlag.enabled.blockingGet()) {
             return chain.proceed(originalRequest)
         }
-
-        val nabuToken = nabuToken.value
-        val nabuDataManager = nabuDataManager.value
 
         val requestAnnotations = originalRequest.tag(Invocation::class.java)?.method()?.annotations.orEmpty()
 
