@@ -29,6 +29,7 @@ import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.util.Locale
 import kotlinx.coroutines.rx3.asObservable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -37,7 +38,6 @@ import piuk.blockchain.android.databinding.ViewExpandingCurrencyHeaderBinding
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.setAnimationListener
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.util.Locale
 
 class ExpandableCurrencyHeader @JvmOverloads constructor(
     context: Context,
