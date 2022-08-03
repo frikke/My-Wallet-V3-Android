@@ -802,7 +802,16 @@ class MainActivity :
                         )
                     )
                 } ?: run {
-                    Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
+                    destinationArgs.getFiatAssetInfo(destination.networkTicker)?.let { _ ->
+                        startActivity(
+                            SettingsActivity.newIntent(
+                                context = this,
+                                startForCardLinking = true
+                            )
+                        )
+                    } ?: Timber.e(
+                        "Unable to start CardLinking from deeplink. Ticker not found ${destination.networkTicker}"
+                    )
                 }
             }
             is Destination.AssetEnterAmountNewMethodDestination -> {
@@ -815,7 +824,9 @@ class MainActivity :
                         )
                     )
                 } ?: run {
-                    Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
+                    Timber.e(
+                        "Unable to start SimpleBuyActivity from deeplink. Ticker not found ${destination.networkTicker}"
+                    )
                 }
             }
             Destination.CustomerSupportDestination ->

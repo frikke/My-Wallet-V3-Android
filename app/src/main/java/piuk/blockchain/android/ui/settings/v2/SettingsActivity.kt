@@ -26,6 +26,7 @@ import com.blockchain.nabu.Tier
 import com.blockchain.walletconnect.ui.dapps.DappsListFragment
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
+import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.databinding.ActivitySettingsBinding
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.addresses.AddressesActivity
@@ -66,6 +67,10 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         intent.getBooleanExtra(START_FOR_2FA, false)
     }
 
+    private val startForCardLinking by lazy {
+        intent.getBooleanExtra(START_FOR_CARD_LINKING, false)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -80,6 +85,10 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
 
         if (startFor2Fa) {
             goToSecurity()
+        }
+
+        if (startForCardLinking) {
+            startActivity(CardDetailsActivity.newIntent(this))
         }
     }
 
@@ -216,6 +225,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         const val BASIC_INFO = "basic_info_user"
         const val USER_TIER = "user_tier"
         private const val START_FOR_2FA = "START_FOR_2FA"
+        private const val START_FOR_CARD_LINKING = "START_FOR_CARD_LINKING"
 
         const val SETTINGS_RESULT_DATA = "SETTINGS_RESULT_DATA"
 
@@ -226,9 +236,14 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
             Logout
         }
 
-        fun newIntent(context: Context, startFor2Fa: Boolean = false): Intent =
+        fun newIntent(
+            context: Context,
+            startFor2Fa: Boolean = false,
+            startForCardLinking: Boolean = false
+        ): Intent =
             Intent(context, SettingsActivity::class.java).apply {
                 putExtra(START_FOR_2FA, startFor2Fa)
+                putExtra(START_FOR_CARD_LINKING, startForCardLinking)
             }
     }
 }
