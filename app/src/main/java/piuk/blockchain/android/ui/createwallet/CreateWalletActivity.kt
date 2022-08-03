@@ -25,6 +25,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.referralsFeatureFlag
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
@@ -109,6 +110,16 @@ class CreateWalletActivity :
 
             updatePasswordDisclaimer()
 
+            walletPass.setOnEditorActionListener { _, i, _ ->
+                if (i == EditorInfo.IME_ACTION_NEXT) {
+                    // This is needed because TextInputLayout must be overriding nextFocusDown/Right to be
+                    // the password icon instead
+                    walletPassConfirm.requestFocus()
+                    true
+                } else {
+                    false
+                }
+            }
             walletPassConfirm.setOnEditorActionListener { _, i, _ ->
                 consume {
                     if (i != EditorInfo.IME_ACTION_NEXT) return@consume
@@ -278,8 +289,15 @@ class CreateWalletActivity :
     }
 
     override fun onSheetClosed() {
-        // no op
-        hideKeyboard()
+        // no-op
+    }
+
+    override fun onSheetClosed(sheet: BottomSheetDialogFragment) {
+        super.onSheetClosed(sheet)
+        if (sheet is SearchPickerItemBottomSheet) {
+            binding.referralCode.requestFocus()
+            binding.referralCode.post { hideKeyboard() }
+        }
     }
 
     private fun CreateWalletError.errorMessage(): String = when (this) {
