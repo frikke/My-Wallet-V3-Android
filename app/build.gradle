@@ -41,7 +41,6 @@ android {
     }
     compileSdkVersion Versions.compileSdk
     buildToolsVersion Versions.buildTools
-    dexOptions.javaMaxHeapSize "3g"
 
     defaultConfig {
         applicationId "piuk.blockchain.android"

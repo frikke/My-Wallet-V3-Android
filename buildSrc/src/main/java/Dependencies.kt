@@ -10,11 +10,11 @@ object Versions {
     const val versionCode = 21422
     const val versionName = "202208.2.0"
 
-    const val buildTools = "30.0.2"
+    const val buildTools = "30.0.3"
 
     // Build tools and languages
     const val androidPlugin = "7.2.1"
-    const val kotlin = "1.6.10"
+    const val kotlin = "1.7.0"
 
     // Coroutines
     const val coroutines = "1.5.2"
@@ -100,21 +100,21 @@ object Versions {
     const val countryPicker = "2.0.4"
 
     // Compose
-    const val compose = "1.1.1"
+    const val compose = "1.2.0"
+    const val composeShowkase = "1.1.1"
     const val coil = "1.4.0"
-    const val composeActivity = "1.3.1"
+    const val composeActivity = "1.5.0"
     const val constraintLayoutCompose = "1.0.1"
-    const val composeRx = "1.1.1"
-    const val composeKotlinCompile = "1.5.3"
-    const val composeNavigation = "2.4.1"
-    const val composeFlowLayout = "0.23.1"
+    const val composeRx = "1.2.0"
+    const val composeNavigation = "2.5.1"
+    const val composeFlowLayout = "0.25.0"
 
     // Accompanist
-    const val systemUi = "0.24.3-alpha"
-    const val navigationMaterial = "0.23.1"
-    const val swipeRefresh = "0.23.1"
-    const val pager = "0.23.1"
-    const val pagerIndicators = "0.23.1"
+    const val systemUi = "0.25.0"
+    const val navigationMaterial = "0.25.0"
+    const val swipeRefresh = "0.25.0"
+    const val pager = "0.25.0"
+    const val pagerIndicators = "0.25.0"
 
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
@@ -285,7 +285,16 @@ object Libraries {
     const val materialDatePicker = "com.wdullaer:materialdatetimepicker:${Versions.materialDatePicker}"
     const val sparkline = "com.robinhood.spark:spark:${Versions.sparkline}"
 
+    // Compose versions for Showkase app
+    const val composeFoundationShowkase = "androidx.compose.foundation:foundation:${Versions.composeShowkase}"
+    const val composeUiShowkase = "androidx.compose.ui:ui:${Versions.composeShowkase}"
+    const val composeMaterialShowkase = "androidx.compose.material:material:${Versions.composeShowkase}"
+    const val composePreviewShowkase = "androidx.compose.ui:ui-tooling-preview:${Versions.composeShowkase}"
+    const val composeUiToolingShowkase = "androidx.compose.ui:ui-tooling:${Versions.composeShowkase}"
+    const val composeUiTestShowkase = "androidx.compose.ui:ui-test-junit4:${Versions.composeShowkase}"
+
     // Compose
+    const val composeFoundation = "androidx.compose.foundation:foundation:${Versions.compose}"
     const val composeUi = "androidx.compose.ui:ui:${Versions.compose}"
     const val composeMaterial = "androidx.compose.material:material:${Versions.compose}"
     const val composePreview = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"

@@ -37,6 +37,7 @@ private class DebugLogWebSocket<OUTGOING, INCOMING>(
                     is ConnectionEvent.Connected -> logger.d("WebSocket $label Connected")
                     is ConnectionEvent.Failure -> logger.e("WebSocket $label Failed with ${it.throwable}")
                     is ConnectionEvent.ClientDisconnect -> logger.e("WebSocket $label Client Disconnected")
+                    ConnectionEvent.Authenticated -> logger.d("WebSocket $label Authenticated")
                 }
             }
 

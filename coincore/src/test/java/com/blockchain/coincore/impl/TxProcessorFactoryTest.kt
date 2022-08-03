@@ -15,6 +15,7 @@ import com.blockchain.coincore.btc.BtcOnChainTxEngine
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.FiatDepositTxEngine
 import com.blockchain.coincore.impl.txEngine.FiatWithdrawalTxEngine
+import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TradingToOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestDepositOnChainTxEngine
@@ -249,10 +250,14 @@ class TxProcessorFactoryTest {
 
     @Test
     fun onChainToUnknownProcessor() {
-        val source: CryptoNonCustodialAccount = mock()
+        val mockBaseEngine: OnChainTxEngineBase = mock()
+        val action = AssetAction.Send
         val target: LinkedBankAccount.BankAccountAddress = mock()
+        val source: CryptoNonCustodialAccount = mock {
+            on { createTxEngine(target, action) }.thenReturn(mockBaseEngine)
+        }
 
-        subject.createProcessor(source, target, AssetAction.Send)
+        subject.createProcessor(source, target, action)
             .test()
             .assertError {
                 it is TransferError

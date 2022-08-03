@@ -506,7 +506,11 @@ class SimpleBuyPaymentFragment :
                 errorState.serverSideUxErrorInfo,
                 currencyCode = currencyCode
             )
-            ErrorState.BuyPaymentMethodsUnavailable -> {
+            ErrorState.BuyPaymentMethodsUnavailable,
+            ErrorState.SettlementGenericError,
+            ErrorState.SettlementInsufficientBalance,
+            is ErrorState.SettlementRefreshRequired,
+            ErrorState.SettlementStaleBalance -> {
                 // no-op this is not handled here
             }
         }

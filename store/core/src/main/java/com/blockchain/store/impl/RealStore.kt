@@ -2,12 +2,27 @@ package com.blockchain.store.impl
 
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
-import com.blockchain.store.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import com.blockchain.store.Cache
+import com.blockchain.store.CachedData
+import com.blockchain.store.Fetcher
+import com.blockchain.store.FetcherResult
+import com.blockchain.store.KeyedStore
+import com.blockchain.store.Mediator
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class RealStore<K : Any,  T : Any>(
+class RealStore<K : Any, T : Any>(
     private val scope: CoroutineScope,
     private val fetcher: Fetcher<K, T>,
     private val cache: Cache<K, T>,
@@ -21,7 +36,7 @@ class RealStore<K : Any,  T : Any>(
 
     private var previousEmissions: MutableList<Pair<Long, CachedData<K, T>?>> = mutableListOf()
 
-    private fun buildCachedFlow(request: KeyedFreshnessStrategy.Cached<K>) = channelFlow {
+    private fun buildCachedFlow(request: KeyedFreshnessStrategy.Cached<K>) = channelFlow<DataResource<T>> {
 
         val networkLock = CompletableDeferred<Unit>()
         scope.launch {

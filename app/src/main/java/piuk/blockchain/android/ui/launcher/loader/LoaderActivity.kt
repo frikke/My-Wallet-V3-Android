@@ -71,7 +71,7 @@ class LoaderActivity :
             )
             is LoadingStep.Main -> onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
             is LoadingStep.CowboysInterstitial -> startCowboysInterstitial()
-            null -> {
+            else -> {
                 // do nothing
             }
         }
@@ -108,6 +108,7 @@ class LoaderActivity :
             ProgressStep.FINISH -> {
                 updateProgressVisibility(false)
             }
+            else -> {}
         }
 
         if (newState.shouldShowSecondPasswordDialog) {

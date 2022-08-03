@@ -104,6 +104,9 @@ fun NavigationBar(
                     is NavigationBarButton.DropdownIndicator -> {
                         DropDown(button)
                     }
+                    is NavigationBarButton.Text,
+                    is NavigationBarButton.TextWithColorInt -> {
+                    }
                 }
             }
             Text(
@@ -146,6 +149,7 @@ fun NavigationBar(
                                 style = AppTheme.typography.body2
                             )
                         }
+                        is NavigationBarButton.DropdownIndicator -> {}
                     }
                 }
             }

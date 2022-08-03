@@ -98,6 +98,11 @@ class VeriffSplashPresenter(
             // For anything else, just show the 'failed' toast as before:
             NabuErrorStatusCodes.TokenExpired,
             NabuErrorStatusCodes.Unknown -> view.showError(R.string.kyc_veriff_splash_verification_error)
+            NabuErrorStatusCodes.InternalServerError,
+            NabuErrorStatusCodes.BadRequest,
+            NabuErrorStatusCodes.Forbidden,
+            NabuErrorStatusCodes.NotFound -> {
+            }
         }
     }
 

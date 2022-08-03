@@ -1,5 +1,6 @@
 package com.blockchain.store.impl
 
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.store.Cache
@@ -7,7 +8,6 @@ import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.Mediator
 import com.blockchain.store.Store
-import com.blockchain.data.DataResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope

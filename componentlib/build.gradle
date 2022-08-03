@@ -13,9 +13,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    kotlinOptions {
-        useIR = true
-    }
     buildFeatures {
         viewBinding = true
         compose = true

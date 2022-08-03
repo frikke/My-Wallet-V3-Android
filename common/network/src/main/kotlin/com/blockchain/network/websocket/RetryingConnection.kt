@@ -39,6 +39,7 @@ private class RetryingConnection(
                     }
                     ConnectionEvent.ClientDisconnect -> inner.open()
                     ConnectionEvent.Connected -> resetEvents(0)
+                    ConnectionEvent.Authenticated -> {}
                 }
             }
 

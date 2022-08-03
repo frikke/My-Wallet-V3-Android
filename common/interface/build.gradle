@@ -1,6 +1,10 @@
 apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature.gradle')
 
+java {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}
 dependencies {
     implementation project(':balance')
     implementation project(':logging:domain')

@@ -26,6 +26,10 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
             is BlockchainCardArgs.ProductArgs -> {
                 updateState { it.copy(selectedCardProduct = args.product) }
             }
+
+            else -> {
+                throw IllegalStateException("OrderCardViewModel the provided arguments are not valid")
+            }
         }
     }
 
@@ -202,6 +206,9 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
             is BlockchainCardIntent.OnFinishLegalDocReview -> {
                 updateState { it.copy(isLegalDocReviewComplete = true) }
                 navigate(BlockchainCardNavigationEvent.FinishLegalDocReview)
+            }
+            else -> {
+                Timber.e("Unknown intent: $intent")
             }
         }
     }

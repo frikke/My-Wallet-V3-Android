@@ -61,15 +61,15 @@ fun <T, R> Flow<DataResource<List<T>>>.mapListData(mapper: (T) -> R): Flow<DataR
         }
     }
 
-
 fun <T> Flow<DataResource< T>>.getDataOrThrow(): Flow<T> =
     filterNot { it is DataResource.Loading }
         .map {
             when (it) {
                 is DataResource.Data -> it.data
-                is DataResource.Error -> throw it.error as? Exception
-                    ?: it.error as? Throwable
-                    ?: Throwable(it.error.toString())
+                is DataResource.Error ->
+                    throw it.error as? Exception
+                        ?: it.error as? Throwable
+                        ?: Throwable(it.error.toString())
                 is DataResource.Loading -> throw IllegalStateException()
             }
         }

@@ -71,9 +71,11 @@ internal class MetadataManager(
 
     override fun decryptAndSetupMetadata(): Completable {
         return generateNodes()
-            .andThen(Completable.defer {
-                initMetadataNodes()
-            })
+            .andThen(
+                Completable.defer {
+                    initMetadataNodes()
+                }
+            )
     }
 
     internal fun fetchMetadata(metadataType: Int): Maybe<String> =
@@ -168,5 +170,4 @@ internal class MetadataManager(
 }
 
 private class MetadataBadPaddingTracker(metadataType: Int, throwable: Throwable) :
-    Exception("metadataType == $metadataType (${metadataType} -- ${throwable.message}", throwable) {
-}
+    Exception("metadataType == $metadataType ($metadataType -- ${throwable.message}", throwable)

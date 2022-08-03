@@ -43,6 +43,7 @@ private class BufferUntilAuthenticated<OUTGOING, INCOMING>(
                     is ConnectionEvent.Failure, ConnectionEvent.ClientDisconnect -> {
                         startQueuing()
                     }
+                    ConnectionEvent.Connected -> {}
                 }
             }
 

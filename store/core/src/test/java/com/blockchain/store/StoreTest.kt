@@ -12,20 +12,20 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class StoreTest {
 
     val testScope = TestScope()
 
-    val fetcher: Fetcher<Key,  Item> = mockk()
+    val fetcher: Fetcher<Key, Item> = mockk()
 
     val cacheReadState = MutableSharedFlow<CachedData<Key, Item>?>(replay = 1)
     val cache: Cache<Key, Item> = mockk {
