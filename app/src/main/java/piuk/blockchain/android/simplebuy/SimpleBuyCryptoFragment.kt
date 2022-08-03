@@ -301,6 +301,16 @@ class SimpleBuyCryptoFragment :
         }
     }
 
+    private fun sendAnalyticsQuickFillButtonTapped(buttonTapped: FiatValue, position: Int) {
+        analytics.logEvent(
+            QuickFillButtonTapped(
+                amount = buttonTapped.toBigDecimal().toString(),
+                amountType = AmountType.values()[position],
+                currency = buttonTapped.currencyCode
+            )
+        )
+    }
+
     private fun loadQuickFillButtons(
         quickFillButtonData: QuickFillButtonData
     ) {
@@ -315,7 +325,13 @@ class SimpleBuyCryptoFragment :
                                 itemContent = { item ->
                                     SmallMinimalButton(
                                         text = item.toStringWithSymbol(includeDecimalsWhenWhole = false),
-                                        onClick = { model.process(SimpleBuyIntent.PrefillEnterAmount(item)) },
+                                        onClick = {
+                                            model.process(SimpleBuyIntent.PrefillEnterAmount(item))
+                                            sendAnalyticsQuickFillButtonTapped(
+                                                item,
+                                                quickFillButtonData.quickFillButtons.indexOf(item)
+                                            )
+                                        },
                                         modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_margin))
                                     )
                                 }

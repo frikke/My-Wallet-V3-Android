@@ -97,6 +97,7 @@ enum class AnalyticsNames(val eventName: String) {
     APP_BACKGROUNDED("Application Backgrounded"),
     BUY_AMOUNT_ENTERED("Buy Amount Entered"),
     BUY_FREQUENCY_SELECTED("Buy Frequency Selected"),
+    BUY_QUICK_FILL_BUTTON_TAPPED("Quick Fill Tapped"),
     BUY_PAYMENT_METHOD_CHANGED("Buy Payment Method Selected"),
     BUY_SELL_CLICKED("Buy Sell Clicked"),
     BUY_SELL_VIEWED("Buy Sell Viewed"),
