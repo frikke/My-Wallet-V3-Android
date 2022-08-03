@@ -511,7 +511,8 @@ val coreModule = module {
                 dynamicSelfCustodyService = get(),
                 payloadDataManager = get(),
                 currencyPrefs = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                remoteConfig = get()
             )
         }
 

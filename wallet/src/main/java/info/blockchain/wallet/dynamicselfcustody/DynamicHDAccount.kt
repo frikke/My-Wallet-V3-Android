@@ -2,17 +2,11 @@ package info.blockchain.wallet.dynamicselfcustody
 
 import info.blockchain.wallet.bip44.HDAddress
 import info.blockchain.wallet.keys.SigningKey
-import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.util.PrivateKeyFactory
 import org.bitcoinj.core.NetworkParameters
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
 import org.bitcoinj.crypto.HDKeyDerivation
-
-data class CoinConfiguration(
-    val coinType: Int,
-    val purpose: Int = Derivation.LEGACY_PURPOSE
-)
 
 class DynamicHDAccount(
     params: NetworkParameters,

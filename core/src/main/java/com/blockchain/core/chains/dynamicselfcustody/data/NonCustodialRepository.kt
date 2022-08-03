@@ -12,15 +12,22 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialAc
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialDerivedAddress
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTxHistoryItem
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.getDataOrThrow
-import com.blockchain.store.mapData
+import com.blockchain.remoteconfig.RemoteConfig
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
+import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
+import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx3.await
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
@@ -31,8 +38,23 @@ internal class NonCustodialRepository(
     private val dynamicSelfCustodyService: DynamicSelfCustodyService,
     private val payloadDataManager: PayloadDataManager,
     private val currencyPrefs: CurrencyPrefs,
-    private val assetCatalogue: AssetCatalogue
+    private val assetCatalogue: AssetCatalogue,
+    private val remoteConfig: RemoteConfig
 ) : NonCustodialService {
+
+    private val supportedCoins: Single<Map<String, CoinConfiguration>> by lazy {
+        getAllSupportedCoins()
+    }
+
+    private fun getAllSupportedCoins(): Single<Map<String, CoinConfiguration>> {
+        return remoteConfig.getRawJson(COIN_CONFIGURATIONS).map { json ->
+            jsonBuilder.decodeFromString<Map<String, CoinConfiguration>>(json)
+        }
+    }
+
+    override suspend fun getCoinConfigurationFor(currency: Currency): CoinConfiguration? {
+        return supportedCoins.await()[currency.networkTicker]
+    }
 
     override suspend fun authenticate(): Outcome<Exception, Boolean> =
         dynamicSelfCustodyService.authenticate(
@@ -63,12 +85,15 @@ internal class NonCustodialRepository(
         )
             .map { it.success }
 
-    override fun getSubscriptions(refreshStrategy: FreshnessStrategy): Flow<List<String>> {
+    override fun getSubscriptions(refreshStrategy: FreshnessStrategy): Flow<Outcome<Exception, List<String>>> {
         return subscriptionsStore.stream(refreshStrategy)
-            .mapData { subscriptionsResponse ->
-                subscriptionsResponse.currencies.map { it.ticker }
+            .map { response ->
+                when (response) {
+                    is DataResource.Data -> Outcome.Success(response.data.currencies.map { it.ticker })
+                    is DataResource.Loading -> Outcome.Failure(IllegalStateException("Subscriptions not loaded"))
+                    is DataResource.Error -> Outcome.Failure(response.error)
+                }
             }
-            .getDataOrThrow()
     }
 
     override suspend fun getBalances(currencies: List<String>):
@@ -173,6 +198,13 @@ internal class NonCustodialRepository(
         )
 
     private fun getHashedString(input: String): String = String(Hex.encode(Sha256Hash.hash(input.toByteArray())))
+
+    companion object {
+        private val jsonBuilder = Json {
+            ignoreUnknownKeys = true
+        }
+        const val COIN_CONFIGURATIONS = "android_ff_coin_configurations"
+    }
 }
 
 private fun TransactionResponse.toHistoryEvent(): NonCustodialTxHistoryItem {

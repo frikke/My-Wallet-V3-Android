@@ -9,10 +9,14 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSig
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
+import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.JsonObject
 
 interface NonCustodialService {
+
+    suspend fun getCoinConfigurationFor(currency: Currency): CoinConfiguration?
 
     suspend fun authenticate(): Outcome<Exception, Boolean>
 
@@ -22,7 +26,7 @@ interface NonCustodialService {
 
     fun getSubscriptions(
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
-    ): Flow<List<String>>
+    ): Flow<Outcome<Exception, List<String>>>
 
     suspend fun getBalances(currencies: List<String>): Outcome<Exception, List<NonCustodialAccountBalance>>
 
