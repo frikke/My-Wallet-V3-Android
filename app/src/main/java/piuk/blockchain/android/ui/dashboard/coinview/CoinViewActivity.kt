@@ -879,6 +879,17 @@ class CoinViewActivity :
                 logReceiveEvent()
                 startReceive(highestBalanceWallet)
             }
+            QuickActionCta.Swap -> QuickAction(
+                getString(R.string.common_swap),
+                ImageResource.Local(
+                    R.drawable.ic_swap,
+                    colorFilter = ColorFilter.tint(
+                        Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
+                    )
+                )
+            ) {
+                startSwap(highestBalanceWallet)
+            }
             QuickActionCta.None -> {
                 // do nothing
                 QuickAction(getString(R.string.empty), ImageResource.None, {})

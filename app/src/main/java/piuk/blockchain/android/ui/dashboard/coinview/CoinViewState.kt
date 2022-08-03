@@ -22,7 +22,7 @@ data class CoinViewState(
 ) : MviState
 
 enum class QuickActionCta {
-    Buy, Sell, Send, Receive, None
+    Buy, Sell, Send, Receive, Swap, None
 }
 
 data class QuickActionData(
