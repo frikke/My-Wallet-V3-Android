@@ -22,7 +22,6 @@ import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AppInfoPrefs.Companion.DEFAULT_APP_VERSION_CODE
-import com.blockchain.store.StoreConfig
 import com.facebook.stetho.Stetho
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.google.android.gms.common.ConnectionResult
@@ -134,8 +133,6 @@ open class BlockchainApplication : Application() {
             },
             onAppAppUpdated = { appUpdated -> onAppUpdated(appUpdated) }
         ).checkForPotentialNewInstallOrUpdate()
-
-        StoreConfig.DEBUG = BuildConfig.DEBUG
     }
 
     private fun onAppUpdated(updateInfo: AppUpdateInfo) {
