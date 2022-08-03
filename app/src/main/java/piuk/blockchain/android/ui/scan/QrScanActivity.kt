@@ -64,12 +64,6 @@ import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import kotlinx.parcelize.Parcelize
-import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ActivityScanBinding
-import piuk.blockchain.androidcore.utils.helperfunctions.consume
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import timber.log.Timber
 import java.util.EnumMap
 import java.util.EnumSet
 import java.util.concurrent.ExecutorService
@@ -77,6 +71,12 @@ import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlinx.parcelize.Parcelize
+import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.ActivityScanBinding
+import piuk.blockchain.androidcore.utils.helperfunctions.consume
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import timber.log.Timber
 
 /**
  * This activity opens the camera and does the actual scanning on a background thread. It draws a viewfinder to help the

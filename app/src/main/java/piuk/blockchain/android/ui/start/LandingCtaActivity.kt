@@ -62,7 +62,7 @@ class LandingCtaActivity : BlockchainActivity() {
 
     override fun onPause() {
         super.onPause()
-        if(isFinishing) overridePendingTransition(0, R.anim.slide_down_to_bottom)
+        if (isFinishing) overridePendingTransition(0, R.anim.slide_down_to_bottom)
     }
 
     companion object {

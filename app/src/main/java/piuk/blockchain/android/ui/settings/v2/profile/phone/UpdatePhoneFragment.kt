@@ -17,12 +17,12 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.mukesh.countrypicker.CountryPicker
 import info.blockchain.wallet.api.data.Settings
+import java.util.Locale
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentUpdatePhoneBinding
 import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSPhoneVerificationBottomSheet
 import piuk.blockchain.android.util.FormatChecker
-import java.util.Locale
 
 class UpdatePhoneFragment :
     MviFragment<PhoneModel, PhoneIntent, PhoneState, FragmentUpdatePhoneBinding>(),
