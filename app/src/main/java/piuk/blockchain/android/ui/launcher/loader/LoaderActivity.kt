@@ -55,8 +55,9 @@ class LoaderActivity :
 
         val extras = intent?.extras
         val isPinValidated = extras?.getBoolean(INTENT_EXTRA_VERIFIED, false) ?: false
-        val isAfterWalletCreation = extras?.getBoolean(AppUtil.INTENT_EXTRA_IS_AFTER_WALLET_CREATION, false) == true
-        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation, referralCode))
+        val loginMethod = (extras?.getSerializable(AppUtil.LOGIN_METHOD) as? LoginMethod)
+            ?: LoginMethod.UNDEFINED
+        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, loginMethod, referralCode))
     }
 
     override fun render(newState: LoaderState) {

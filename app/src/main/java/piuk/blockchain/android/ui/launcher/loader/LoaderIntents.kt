@@ -5,11 +5,11 @@ import com.blockchain.commonarch.presentation.mvi.MviIntent
 sealed class LoaderIntents : MviIntent<LoaderState> {
     data class CheckIsLoggedIn(
         val isPinValidated: Boolean,
-        val isAfterWalletCreation: Boolean,
+        val loginMethod: LoginMethod,
         val referralCode: String?
     ) : LoaderIntents() {
         override fun reduce(oldState: LoaderState): LoaderState =
-            oldState.copy(isAfterWalletCreation = isAfterWalletCreation)
+            oldState.copy(loginMethod = loginMethod)
     }
 
     object StartLauncherActivity : LoaderIntents() {
