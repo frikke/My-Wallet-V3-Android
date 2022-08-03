@@ -11,7 +11,7 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.AppCompatButton
 import com.blockchain.banking.BankPaymentApproval
@@ -90,6 +90,11 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
     private var hasChosenExternalApp: Boolean = false
     private var hasExternalLinkingLaunched: Boolean = false
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        setupBackPress()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity.updateToolbar(
@@ -98,15 +103,6 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             } else {
                 getString(R.string.link_a_bank)
             },
-        )
-
-        activity.onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    navigator().bankAuthCancelled()
-                }
-            }
         )
 
         if (savedInstanceState == null) {
@@ -140,6 +136,12 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 secondaryCta.gone()
                 startBankAuthentication()
             }
+        }
+    }
+
+    private fun setupBackPress() {
+        activity.onBackPressedDispatcher.addCallback(owner = this) {
+            navigator().bankAuthCancelled()
         }
     }
 
