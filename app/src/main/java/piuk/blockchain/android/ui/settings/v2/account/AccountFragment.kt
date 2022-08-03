@@ -10,7 +10,6 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.blockchain.analytics.events.LaunchOrigin
-import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar

@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency

@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.start
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
+import androidx.activity.addCallback
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -56,6 +57,8 @@ class PasswordRequiredActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        setupBackPress()
 
         momentLogger.endEvent(
             event = MomentEvent.SPLASH_TO_FIRST_SCREEN,
@@ -152,9 +155,11 @@ class PasswordRequiredActivity :
         )
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        presenter.cancelPollAuthStatus()
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(owner = this) {
+            presenter.cancelPollAuthStatus()
+            finish()
+        }
     }
 
     override fun showTwoFactorCodeNeededDialog(
@@ -178,15 +183,15 @@ class PasswordRequiredActivity :
                     it
                 )
             }, resendAction = { limitReached ->
-            if (!limitReached) {
-                presenter.requestNew2FaCode(password, guid)
-            } else {
-                showSnackbar(R.string.two_factor_retries_exceeded, SnackbarType.Error)
-                if (!isTwoFATimerRunning) {
-                    twoFATimer.start()
+                if (!limitReached) {
+                    presenter.requestNew2FaCode(password, guid)
+                } else {
+                    showSnackbar(R.string.two_factor_retries_exceeded, SnackbarType.Error)
+                    if (!isTwoFATimerRunning) {
+                        twoFATimer.start()
+                    }
                 }
             }
-        }
         )
 
         showAlert(dialog)

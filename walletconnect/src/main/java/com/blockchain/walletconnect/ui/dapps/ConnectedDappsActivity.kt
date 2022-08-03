@@ -21,7 +21,7 @@ class ConnectedDappsActivity : BlockchainActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        updateToolbar { super.onBackPressed() }
+        updateToolbar { onBackPressedDispatcher.onBackPressed() }
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(

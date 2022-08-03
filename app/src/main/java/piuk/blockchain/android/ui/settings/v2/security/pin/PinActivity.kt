@@ -11,6 +11,7 @@ import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import androidx.activity.addCallback
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
@@ -123,6 +124,8 @@ class PinActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        setupBackPress()
 
         momentLogger.endEvent(
             event = MomentEvent.SPLASH_TO_FIRST_SCREEN,
@@ -292,7 +295,7 @@ class PinActivity :
             OriginScreenToPin.CHANGE_PIN_SECURITY -> {
                 updateToolbar(
                     toolbarTitle = getString(R.string.pin_toolbar_change),
-                    backAction = { handleBackButton() }
+                    backAction = { onBackPressedDispatcher.onBackPressed() }
                 )
             }
             OriginScreenToPin.CREATE_WALLET,
@@ -789,15 +792,20 @@ class PinActivity :
         finish()
     }
 
-    private fun handleBackButton() =
-        when {
-            isForValidatingPinForResult -> finishWithResultCanceled()
-            originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> super.onBackPressed()
-            else -> appUtil.logout()
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(owner = this) {
+            when {
+                isForValidatingPinForResult -> {
+                    finishWithResultCanceled()
+                }
+                originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> {
+                    finish()
+                }
+                else -> {
+                    appUtil.logout()
+                }
+            }
         }
-
-    override fun onBackPressed() {
-        handleBackButton()
     }
 
     private fun showDebugEnv() {

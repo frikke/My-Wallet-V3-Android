@@ -250,31 +250,6 @@ abstract class BlockchainActivity : ToolBarActivity() {
         showBottomSheet(bottomSheet)
     }
 
-    override fun onBackPressed() {
-        val fragments = supportFragmentManager.fragments
-        for (fragment in fragments) {
-            if (fragment is FlowFragment && backActionShouldBeHandledByFragment(fragment)) {
-                return
-            }
-        }
-        super.onBackPressed()
-    }
-
-    private fun backActionShouldBeHandledByFragment(flowFragment: FlowFragment): Boolean =
-        flowFragment.onBackPressed() && handleByScreenOrPop(flowFragment)
-
-    private fun handleByScreenOrPop(flowFragment: FlowFragment): Boolean =
-        flowFragment.backPressedHandled() || pop()
-
-    private fun pop(): Boolean {
-        val backStackEntryCount = supportFragmentManager.backStackEntryCount
-        if (backStackEntryCount > 1) {
-            supportFragmentManager.popBackStack()
-            return true
-        }
-        return false
-    }
-
     companion object {
         private const val BOTTOM_DIALOG = "BOTTOM_DIALOG"
         const val LOGOUT_ACTION = "info.blockchain.wallet.LOGOUT"

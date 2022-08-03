@@ -73,6 +73,7 @@ import kotlin.math.min
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityScanBinding
+import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
@@ -188,9 +189,8 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             else -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
         }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
+    override fun onSupportNavigateUp(): Boolean = consume {
+        onBackPressedDispatcher.onBackPressed()
     }
 
     override fun onResume() {

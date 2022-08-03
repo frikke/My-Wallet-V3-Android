@@ -89,7 +89,7 @@ class QuestionnaireSheet() : MVIBottomSheet<QuestionnaireState>(), AndroidScopeC
                     },
                     onBackClicked = {
                         if (showsDialog) dismiss()
-                        else requireActivity().onBackPressed()
+                        else requireActivity().onBackPressedDispatcher.onBackPressed()
                     }
                 )
             }

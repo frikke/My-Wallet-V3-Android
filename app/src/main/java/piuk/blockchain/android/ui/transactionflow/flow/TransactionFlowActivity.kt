@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -116,6 +117,9 @@ class TransactionFlowActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        setupBackPress()
+
         updateToolbar(
             menuItems = listOf(
                 NavigationBarButton.Icon(
@@ -123,7 +127,7 @@ class TransactionFlowActivity :
                     contentDescription = R.string.accessibility_close
                 ) { finish() }
             ),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         binding.txProgress.visible()
         startModel()
@@ -201,7 +205,7 @@ class TransactionFlowActivity :
         if (!state.canGoBack) {
             updateToolbarBackAction(null)
         } else {
-            updateToolbarBackAction { onBackPressed() }
+            updateToolbarBackAction { onBackPressedDispatcher.onBackPressed() }
         }
     }
 
@@ -221,8 +225,10 @@ class TransactionFlowActivity :
         }
     }
 
-    override fun onBackPressed() {
-        navigateOnBackPressed { finish() }
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(owner = this) {
+            navigateOnBackPressed { finish() }
+        }
     }
 
     private fun navigateOnBackPressed(finalAction: () -> Unit) {

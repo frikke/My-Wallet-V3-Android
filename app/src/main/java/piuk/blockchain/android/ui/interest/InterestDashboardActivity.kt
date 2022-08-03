@@ -63,7 +63,7 @@ class InterestDashboardActivity :
     }
 
     override fun onSupportNavigateUp(): Boolean = consume {
-        onBackPressed()
+        onBackPressedDispatcher.onBackPressed()
     }
 
     override fun route(navigationEvent: InterestDashboardNavigationEvent) {

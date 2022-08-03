@@ -9,6 +9,7 @@ import android.text.Editable
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.addCallback
 import androidx.annotation.StringRes
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
@@ -68,9 +69,12 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        setupBackPress()
+
         updateToolbar(
             toolbarTitle = getString(R.string.manual_pairing),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         with(binding) {
             binding.walletId.disableInputForDemoAccount()
@@ -165,9 +169,11 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         super.onDestroy()
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        presenter.cancelPollAuthStatus()
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(owner = this) {
+            presenter.cancelPollAuthStatus()
+            finish()
+        }
     }
 
     private fun TextInputEditText.disableInputForDemoAccount() {

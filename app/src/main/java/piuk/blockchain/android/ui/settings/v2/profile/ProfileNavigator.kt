@@ -1,8 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2.profile
 
-import com.blockchain.commonarch.presentation.base.FlowFragment
-
-interface ProfileNavigatorScreen : FlowFragment {
+interface ProfileNavigatorScreen {
     fun navigator(): ProfileNavigator
 }
 

@@ -1,7 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.api.NabuApiException
-import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import info.blockchain.balance.AssetInfo

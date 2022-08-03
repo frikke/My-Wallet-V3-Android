@@ -19,7 +19,7 @@ import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 
-//todo(othman) setup BackupPhraseActivity in portfolio announcement card
+// todo(othman) setup BackupPhraseActivity in portfolio announcement card
 @Deprecated("this is a legacy class, replaced by BackupPhraseActivity")
 class BackupWalletActivity : BlockchainActivity() {
 

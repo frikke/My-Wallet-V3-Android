@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.api.services.WalletSettingsService
-import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateTitleToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.basic.ImageResource
@@ -30,8 +29,7 @@ import piuk.blockchain.android.util.StringUtils
 
 class ProfileFragment :
     MviFragment<ProfileModel, ProfileIntent, ProfileState, FragmentProfileBinding>(),
-    ProfileNavigatorScreen,
-    FlowFragment {
+    ProfileNavigatorScreen {
 
     override val model: ProfileModel by scopedInject()
 
@@ -46,8 +44,6 @@ class ProfileFragment :
     private val basicProfileInfo by lazy {
         arguments?.getSerializable(SettingsActivity.BASIC_INFO) as BasicProfileInfo
     }
-
-    override fun onBackPressed(): Boolean = true
 
     private val userTier by lazy {
         arguments?.getSerializable(SettingsActivity.USER_TIER) as Tier

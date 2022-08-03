@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContract
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -68,7 +69,7 @@ class BankAuthActivity :
                 } ?: launchPlaidLinking(linkBankTransfer.id, it)
             }
             is LinkExit -> {
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
             }
         }
     }
@@ -85,6 +86,9 @@ class BankAuthActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        setupBackPress()
+
         var title = ""
         if (savedInstanceState == null) {
             when {
@@ -232,12 +236,11 @@ class BankAuthActivity :
             supportFragmentManager.popBackStack()
         }
 
-    override fun onBackPressed() =
-        if (approvalDetails != null) {
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(owner = this, enabled = approvalDetails != null) {
             resetLocalState()
-        } else {
-            super.onBackPressed()
         }
+    }
 
     private fun resetLocalState() {
         bankLinkingPrefs.setBankLinkingState(BankAuthDeepLinkState().toPreferencesValue())
@@ -303,7 +306,7 @@ class BankAuthActivity :
             approvalDetails != null -> approvalDetails?.let {
                 yapilyApprovalAccepted(it)
             }
-            else -> onBackPressed()
+            else -> onBackPressedDispatcher.onBackPressed()
         }
     }
 
@@ -321,7 +324,7 @@ class BankAuthActivity :
     }
 
     override fun onSupportNavigateUp(): Boolean = consume {
-        onBackPressed()
+        onBackPressedDispatcher.onBackPressed()
     }
 
     override fun onSheetClosed() {

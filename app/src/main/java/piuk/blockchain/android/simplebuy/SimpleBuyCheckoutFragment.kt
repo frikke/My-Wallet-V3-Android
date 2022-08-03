@@ -51,6 +51,9 @@ import info.blockchain.balance.Money
 import info.blockchain.balance.isCustodialOnly
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import java.time.ZonedDateTime
+import kotlin.math.floor
+import kotlin.math.max
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimplebuyCheckoutBinding
@@ -78,9 +81,6 @@ import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.animateChange
 import piuk.blockchain.android.util.disableBackPress
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.time.ZonedDateTime
-import kotlin.math.floor
-import kotlin.math.max
 
 class SimpleBuyCheckoutFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimplebuyCheckoutBinding>(),
