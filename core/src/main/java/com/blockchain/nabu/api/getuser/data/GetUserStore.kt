@@ -25,7 +25,7 @@ class GetUserStore(
     private val trust: DigitalTrust,
     private val walletReporter: WalletReporter,
     private val payloadDataManager: PayloadDataManager
-) : Store< NabuUser> by PersistedJsonSqlDelightStoreBuilder()
+) : Store<NabuUser> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(

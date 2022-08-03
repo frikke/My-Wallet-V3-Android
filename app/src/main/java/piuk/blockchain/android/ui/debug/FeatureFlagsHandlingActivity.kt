@@ -13,6 +13,8 @@ import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.nabu.api.getuser.data.GetUserStore
+import com.blockchain.nabu.api.kyc.data.store.KycDataSource
 import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
@@ -51,6 +53,8 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
     private val appRatingPrefs: AppRatingPrefs by inject()
     private val walletModeService: WalletModeService by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
+    private val getUserStore: GetUserStore by scopedInject()
+    private val kycStore: KycDataSource by scopedInject()
 
     private val featuresAdapter: FeatureFlagAdapter = FeatureFlagAdapter()
 
@@ -82,6 +86,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             }
             val parent = nestedParent
 
+            btnResetUserCache.setOnClickListener { onResetUserCache() }
             btnShowReferralSheet.setOnClickListener { showInviteNow() }
             resetAppRating.setOnClickListener { resetAppRating() }
             btnRndDeviceId.setOnClickListener { onRndDeviceId() }
@@ -177,6 +182,11 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             text,
             duration = Snackbar.LENGTH_SHORT,
         ).show()
+    }
+
+    private fun onResetUserCache() {
+        getUserStore.markAsStale()
+        kycStore.invalidate()
     }
 
     private fun showInviteNow() {

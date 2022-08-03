@@ -4,7 +4,6 @@ import com.blockchain.api.services.ContactPreference
 import com.blockchain.api.services.ContactPreferenceUpdate
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.core.common.caching.TimedCacheRequest
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import io.reactivex.rxjava3.core.Completable
@@ -27,16 +26,7 @@ class NabuUserDataManagerImpl(
     private val tierService: TierService,
 ) : NabuUserDataManager {
 
-    private val refresh: () -> Single<KycTiers> = {
-        tierService.tiers()
-    }
-
-    private val cacheRequest: TimedCacheRequest<KycTiers> = TimedCacheRequest(
-        cacheLifetimeSeconds = TIERS_CACHING_LIFETIME_SECS,
-        refreshFn = refresh
-    )
-
-    override fun tiers(): Single<KycTiers> = cacheRequest.getCachedSingle()
+    override fun tiers(): Single<KycTiers> = tierService.tiers()
 
     override fun saveUserInitialLocation(countryIsoCode: String, stateIsoCode: String?): Completable =
         authenticator.getAuthHeader().map {
@@ -57,5 +47,3 @@ class NabuUserDataManagerImpl(
             nabuUserService.updateContactPreferences(it, updates)
         }
 }
-
-private const val TIERS_CACHING_LIFETIME_SECS = 100L
