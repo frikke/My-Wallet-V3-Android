@@ -14,7 +14,6 @@
             android:name=".ui.debug.FeatureFlagsHandlingActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="fullSensor"
-            android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity"
-            android:exported="false"/>
+            android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity" />
     </application>
 </manifest>
