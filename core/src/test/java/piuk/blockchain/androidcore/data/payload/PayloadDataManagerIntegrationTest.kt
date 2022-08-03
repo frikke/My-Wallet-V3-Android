@@ -131,8 +131,8 @@ class PayloadDataManagerIntegrationTest {
                     xpriv = "xprv9y8noc7G5TnerpABXnnX5rUvKaEG1bUsAGnK8tHGZM33tF4x2CpZe69FH8aXoAEBRf5yDELSxhz6C76XB49BNrfoujBE91dtfk3rxhgJa7j",
                     xpub = "xpub6C89D7e9uqLx5JEedpKXSzResc4kR4CiXVhuwGgt7ga2m3Q6Zk8pBtTj8PHhTwezeptj6TpwL8i72FgMHrwoSmynfnEaoeGxHZq5DyFK6Lo",
                     cache = AddressCache(
-                        receiveAccount = "xpub6EUSVd5FeWUdoFatehs8x1Rc5WsgMHhkUGNEs9RDWYQzQPQBgsFXjHPBKPQ3AsZKsocW6cNrM2mKKrgbZvsadUQAaXXfWi96t4j71hLLpCq",
-                        changeAccount = "xpub6EUSVd5FeWUdsDshHMcMWwhGVVugfYviocSmB6VsjuFVRCaJruhAWZBVaFaZurpc1R87oVPSPMUqoScAmCJjuHEBZQ2ZUW4u2GwXDwyfr1B"
+                        _receiveAccount = "xpub6EUSVd5FeWUdoFatehs8x1Rc5WsgMHhkUGNEs9RDWYQzQPQBgsFXjHPBKPQ3AsZKsocW6cNrM2mKKrgbZvsadUQAaXXfWi96t4j71hLLpCq",
+                        _changeAccount = "xpub6EUSVd5FeWUdsDshHMcMWwhGVVugfYviocSmB6VsjuFVRCaJruhAWZBVaFaZurpc1R87oVPSPMUqoScAmCJjuHEBZQ2ZUW4u2GwXDwyfr1B"
                     ),
                     _addressLabels = null
                 ),
@@ -141,8 +141,8 @@ class PayloadDataManagerIntegrationTest {
                     xpriv = "xprv9yCt31fSgZ2LUZ36xEwqryrjqGn19naBDe8wXh3Cg93sjPsT8zMcRbb42imnGL86FhjNkDD3ACmf6a2wFSqtJQqf5Ncjfj9k7oNGcUXrxH3",
                     xpub = "xpub6CCESXCLWvadh37a4GUrE7oUPJcVZFJ2as4YL5SpEUarcCCbgXfryPuXszwJRd3Mo7hsZgeMAtVKybeJwFmVkdTzdLv9cAintb8ymK38j1U",
                     cache = AddressCache(
-                        receiveAccount = "xpub6DqLELQ9ASryfCVyaV9hQFrhGKkJgWQvvudkFTz4pcz6QsQqH8CbGreCsJLvb9QSzvK9Hg662ugjNxCUrfqEe3aVZNnRNAMWYPp83uWJnxj",
-                        changeAccount = "xpub6DqLELQ9ASryi41aFb2YKfZ2zW2TB4YB5bHmRGD87FnwSj3JiUXXZr1TiPPvYyhWoiMR5KiQUUSHgkiSSGm4UnQFb7BtmJ4b8guokqyV1Jz"
+                        _receiveAccount = "xpub6DqLELQ9ASryfCVyaV9hQFrhGKkJgWQvvudkFTz4pcz6QsQqH8CbGreCsJLvb9QSzvK9Hg662ugjNxCUrfqEe3aVZNnRNAMWYPp83uWJnxj",
+                        _changeAccount = "xpub6DqLELQ9ASryi41aFb2YKfZ2zW2TB4YB5bHmRGD87FnwSj3JiUXXZr1TiPPvYyhWoiMR5KiQUUSHgkiSSGm4UnQFb7BtmJ4b8guokqyV1Jz"
                     ),
                     _addressLabels = null
                 )
