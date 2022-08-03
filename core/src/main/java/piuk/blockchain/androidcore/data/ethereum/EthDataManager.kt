@@ -154,10 +154,15 @@ class EthDataManager(
 
     fun isContractAddress(address: String, nodeUrl: String = EthUrls.ETH_NODES): Single<Boolean> =
         rxSingleOutcome {
+            val addressWithPrefix = if (address.startsWith(EthUtils.PREFIX)) {
+                address
+            } else {
+                "${EthUtils.PREFIX}$address"
+            }
             ethAccountApi.postEthNodeRequest(
                 nodeUrl = nodeUrl,
                 requestType = RequestType.IS_CONTRACT,
-                address,
+                addressWithPrefix,
                 EthJsonRpcRequest.defaultBlock
             ).map { response ->
                 // In order to distinguish between these two addresses we need to call eth_getCode,
