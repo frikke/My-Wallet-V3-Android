@@ -5,7 +5,6 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.TransactionError
-import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.ApplicantIdRequest
@@ -47,7 +46,6 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenRespon
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.veriff.VeriffApplicantAndToken
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
 
@@ -465,45 +463,6 @@ class NabuService internal constructor(
     fun cardAcquirers(
         sessionToken: NabuSessionTokenResponse
     ) = nabu.getCardAcquirers(sessionToken.authHeader).wrapErrorMessage()
-
-    /**
-     * If there is no rate for a given asset, this endpoint returns a 204, which must be parsed
-     */
-    fun getInterestRates(
-        sessionToken: NabuSessionTokenResponse,
-        currency: String
-    ) = nabu.getInterestRates(authorization = sessionToken.authHeader, currency = currency)
-        .flatMapMaybe {
-            when (it.code()) {
-                200 -> Maybe.just(it.body())
-                204 -> Maybe.empty()
-                else -> Maybe.error(HttpException(it))
-            }
-        }
-        .wrapErrorMessage()
-
-    fun getInterestAddress(
-        sessionToken: NabuSessionTokenResponse,
-        currency: String
-    ) = nabu.getInterestAddress(authorization = sessionToken.authHeader, currency = currency)
-        .wrapErrorMessage()
-
-    fun getInterestLimits(
-        sessionToken: NabuSessionTokenResponse,
-        currency: String
-    ) = nabu.getInterestLimits(authorization = sessionToken.authHeader, currency = currency)
-        .wrapErrorMessage()
-
-    fun createInterestWithdrawal(
-        sessionToken: NabuSessionTokenResponse,
-        body: InterestWithdrawalBody
-    ) = nabu.createInterestWithdrawal(authorization = sessionToken.authHeader, body = body)
-        .wrapErrorMessage()
-
-    fun getAvailableTickersForInterest(
-        sessionToken: NabuSessionTokenResponse
-    ) = nabu.getAvailableTickersForInterest(authorization = sessionToken.authHeader)
-        .wrapErrorMessage()
 
     fun executeTransfer(
         sessionToken: NabuSessionTokenResponse,

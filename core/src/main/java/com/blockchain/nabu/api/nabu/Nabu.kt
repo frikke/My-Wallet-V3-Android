@@ -2,11 +2,6 @@ package com.blockchain.nabu.api.nabu
 
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
-import com.blockchain.nabu.models.responses.interest.InterestAddressResponse
-import com.blockchain.nabu.models.responses.interest.InterestEnabledResponse
-import com.blockchain.nabu.models.responses.interest.InterestLimitsFullResponse
-import com.blockchain.nabu.models.responses.interest.InterestRateResponse
-import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.ApplicantIdRequest
@@ -57,7 +52,6 @@ import com.blockchain.network.interceptor.AuthenticateWithOfflineToken
 import com.blockchain.network.interceptor.AuthenticationNotRequired
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -329,35 +323,6 @@ internal interface Nabu {
         @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body request: TransferRequest
     ): Single<TransferFundsResponse>
-
-    @GET(NABU_INTEREST_RATES)
-    fun getInterestRates(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
-        @Query("ccy") currency: String
-    ): Single<Response<InterestRateResponse>>
-
-    @GET(NABU_INTEREST_ADDRESS)
-    fun getInterestAddress(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
-        @Query("ccy") currency: String
-    ): Single<InterestAddressResponse>
-
-    @GET(NABU_INTEREST_LIMITS)
-    fun getInterestLimits(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
-        @Query("currency") currency: String
-    ): Single<InterestLimitsFullResponse>
-
-    @POST(NABU_INTEREST_WITHDRAWAL)
-    fun createInterestWithdrawal(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
-        @Body body: InterestWithdrawalBody
-    ): Completable
-
-    @GET(NABU_INTEREST_AVAILABLE_TICKERS)
-    fun getAvailableTickersForInterest(
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Single<InterestEnabledResponse>
 
     @POST(NABU_QUOTES)
     fun fetchQuote(

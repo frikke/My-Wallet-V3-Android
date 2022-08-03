@@ -1,10 +1,10 @@
-package com.blockchain.api.nabu.data
+package com.blockchain.api.interest.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class InterestEligibilityResponse(
+data class InterestEligibilityDto(
     @SerialName("eligible")
     val isEligible: Boolean = false,
     @SerialName("ineligibilityReason")
@@ -12,6 +12,11 @@ data class InterestEligibilityResponse(
 ) {
     companion object {
         internal const val DEFAULT_REASON_NONE = "NONE"
-        internal const val DEFAULT_FAILURE_REASON = "OTHER"
+        private const val DEFAULT_FAILURE_REASON = "OTHER"
+
+        fun default() = InterestEligibilityDto(
+            isEligible = false,
+            reason = DEFAULT_FAILURE_REASON
+        )
     }
 }
