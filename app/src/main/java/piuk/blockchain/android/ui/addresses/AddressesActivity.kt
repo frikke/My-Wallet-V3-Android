@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.MotionEvent
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.annotation.StringRes
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -57,6 +58,8 @@ class AddressesActivity :
         AccountAdapter(this)
     }
 
+    private lateinit var onBackPressCloseHeaderCallback: OnBackPressedCallback
+
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
@@ -73,6 +76,11 @@ class AddressesActivity :
         with(binding.currencyHeader) {
             setCurrentlySelectedCurrency(CryptoCurrency.BTC)
             setSelectionListener { presenter.refresh(it) }
+            setAnimationListener { isOpen ->
+                // enable the callback only when the header is open so it can be closed on back press
+                // otherwise disable it so system can handle back press
+                onBackPressCloseHeaderCallback.isEnabled = isOpen
+            }
         }
 
         with(binding.recyclerviewAccounts) {
@@ -92,13 +100,8 @@ class AddressesActivity :
     }
 
     private fun setupBackPress() {
-        onBackPressedDispatcher.addCallback(owner = this) {
-            if (binding.currencyHeader.isOpen()) {
-                binding.currencyHeader.close()
-            } else {
-                isEnabled = false
-                onBackPressedDispatcher.onBackPressed()
-            }
+        onBackPressCloseHeaderCallback = onBackPressedDispatcher.addCallback(owner = this) {
+            binding.currencyHeader.close()
         }
     }
 
