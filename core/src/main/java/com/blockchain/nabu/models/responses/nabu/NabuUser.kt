@@ -90,8 +90,12 @@ data class NabuUser(
     val exchangeEnabled: Boolean
         get() = productsUsed?.exchange ?: settings?.MERCURY_EMAIL_VERIFIED ?: false
 
+    val isCowboysUser: Boolean
+        get() = tags?.containsKey(COWBOYS_TAG) ?: false
+
     companion object {
-        const val POWER_PAX_TAG = "POWER_PAX"
+        private const val POWER_PAX_TAG = "POWER_PAX"
+        private const val COWBOYS_TAG = "COWBOYS_TAG"
     }
 }
 

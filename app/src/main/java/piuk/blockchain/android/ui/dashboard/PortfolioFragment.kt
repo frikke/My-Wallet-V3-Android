@@ -62,6 +62,7 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.fiatAssetAction
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.model.BrokearageFiatAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardAsset
+import piuk.blockchain.android.ui.dashboard.model.DashboardCowboysState
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardOnboardingState
@@ -195,8 +196,7 @@ class PortfolioFragment :
         if (flowToLaunch != null && flowCurrency != null) {
             when (flowToLaunch) {
                 AssetAction.FiatDeposit,
-                AssetAction.FiatWithdraw,
-                -> model.process(
+                AssetAction.FiatWithdraw -> model.process(
                     DashboardIntent.StartBankTransferFlow(
                         action = AssetAction.FiatWithdraw
                     )
@@ -235,11 +235,12 @@ class PortfolioFragment :
             showReferralSuccess(it)
         }
 
+        renderCowboysFlow(newState.dashboardCowboysState)
+
         this.state = newState
     }
 
     private fun updateDisplayList(newState: DashboardState) {
-
         val items = listOfNotNull(
             newState.dashboardBalance,
             newState.locks.fundsLocks?.let {
@@ -487,6 +488,26 @@ class PortfolioFragment :
         }
     }
 
+    private fun renderCowboysFlow(cowboysState: DashboardCowboysState) {
+        with(binding.cardCowboys) {
+            when (cowboysState) {
+                DashboardCowboysState.CompleteEmailVerification -> {
+                    visible()
+                    title = "Complete email verification"
+                }
+                DashboardCowboysState.CompleteGoldVerification -> {
+                    visible()
+                    title = "Complete gold verification"
+                }
+                DashboardCowboysState.CompleteSDDVerification -> {
+                    visible()
+                    title = "Complete sdd verification"
+                }
+                DashboardCowboysState.Hidden -> gone()
+            }
+        }
+    }
+
     private fun setupCtaButtons(state: DashboardState) {
         with(binding) {
             buyCryptoButton.setOnClickListener { navigator().launchBuySell() }
@@ -542,6 +563,7 @@ class PortfolioFragment :
 
         announcements.checkLatest(announcementHost, compositeDisposable)
         model.process(DashboardIntent.FetchOnboardingSteps)
+        model.process(DashboardIntent.CheckCowboysFlow)
         model.process(DashboardIntent.GetActiveAssets(loadSilently = true))
         model.process(DashboardIntent.FetchReferralSuccess)
     }

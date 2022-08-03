@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard
 
+import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
@@ -55,7 +56,9 @@ val dashboardModule = module {
                 getDashboardOnboardingStepsUseCase = get(),
                 nftWaitlistService = get(),
                 nftAnnouncementPrefs = get(),
-                referralPrefs = get()
+                referralPrefs = get(),
+                cowboysFeatureFlag = get(cowboysPromoFeatureFlag),
+                settingsDataManager = get()
             )
         }
 

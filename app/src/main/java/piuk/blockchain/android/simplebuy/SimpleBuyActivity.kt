@@ -168,8 +168,7 @@ class SimpleBuyActivity :
         super<SimpleBuyNavigator>.onSheetClosed(sheet)
         when (sheet) {
             is KycUpgradeNowSheet,
-            is BlockedDueToSanctionsSheet,
-            -> exitSimpleBuyFlow()
+            is BlockedDueToSanctionsSheet -> exitSimpleBuyFlow()
             is ErrorSlidingBottomDialog -> {
                 // do nothing for now
                 Timber.e("----- ErrorSlidingBottomDialog sheet closed")
@@ -235,6 +234,8 @@ class SimpleBuyActivity :
     }
 
     override fun exitSimpleBuyFlow() {
+        setResult(RESULT_OK)
+
         if (!startedFromDashboard) {
             startActivity(MainActivity.newIntentAsNewTask(this))
         } else {

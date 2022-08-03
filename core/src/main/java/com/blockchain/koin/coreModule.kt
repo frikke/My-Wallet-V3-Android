@@ -68,6 +68,7 @@ import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.EducationalScreensPrefs
@@ -578,6 +579,7 @@ val coreModule = module {
         bind(ReferralPrefs::class)
         bind(LocalSettingsPrefs::class)
         bind(EducationalScreensPrefs::class)
+        bind(CowboysPrefs::class)
     }
 
     factory {

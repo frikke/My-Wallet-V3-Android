@@ -26,6 +26,7 @@ interface UserIdentity {
     fun userAccessForFeatures(features: List<Feature>): Single<Map<Feature, FeatureAccess>>
     fun majorProductsNotEligibleReasons(): Single<List<ProductNotEligibleReason>>
     fun isArgentinian(): Single<Boolean>
+    fun isCowboysUser(): Single<Boolean>
 }
 
 sealed class Feature {

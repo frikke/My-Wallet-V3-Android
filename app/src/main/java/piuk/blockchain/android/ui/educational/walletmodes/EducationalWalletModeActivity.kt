@@ -30,7 +30,7 @@ class EducationalWalletModeActivity : BlockchainActivity() {
 
     private fun gotoNextStep() {
         when {
-            intent.getBooleanExtra(REDIRECT_TO_COWBOWS_PROMO, false) -> startCowboysInterstitial()
+            intent.getBooleanExtra(REDIRECT_TO_COWBOYS_PROMO, false) -> startCowboysInterstitial()
             else -> launchMainActivity()
         }
     }
@@ -58,7 +58,7 @@ class EducationalWalletModeActivity : BlockchainActivity() {
 
     companion object {
         private const val MAIN_ACTIVITY_DATA = "MAIN_ACTIVITY_DATA"
-        private const val REDIRECT_TO_COWBOWS_PROMO = "REDIRECT_TO_COWBOWS_PROMO"
+        private const val REDIRECT_TO_COWBOYS_PROMO = "REDIRECT_TO_COWBOYS_PROMO"
 
         fun newIntent(
             context: Context,
@@ -66,7 +66,7 @@ class EducationalWalletModeActivity : BlockchainActivity() {
             redirectToCowbowsPromo: Boolean
         ): Intent = Intent(context, EducationalWalletModeActivity::class.java).apply {
             putExtra(MAIN_ACTIVITY_DATA, data)
-            putExtra(REDIRECT_TO_COWBOWS_PROMO, redirectToCowbowsPromo)
+            putExtra(REDIRECT_TO_COWBOYS_PROMO, redirectToCowbowsPromo)
         }
     }
 }

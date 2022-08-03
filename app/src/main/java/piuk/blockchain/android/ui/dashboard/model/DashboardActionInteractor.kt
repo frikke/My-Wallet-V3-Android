@@ -24,6 +24,7 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -72,6 +73,7 @@ import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
 import timber.log.Timber
@@ -98,7 +100,9 @@ class DashboardActionInteractor(
     private val walletModeService: WalletModeService,
     private val analytics: Analytics,
     private val remoteLogger: RemoteLogger,
-    private val referralPrefs: ReferralPrefs
+    private val referralPrefs: ReferralPrefs,
+    private val cowboysFeatureFlag: FeatureFlag,
+    private val settingsDataManager: SettingsDataManager
 ) {
 
     private val defFilter: AssetFilter
@@ -734,6 +738,38 @@ class DashboardActionInteractor(
             },
             onError = {
                 Timber.e(it)
+            }
+        )
+
+    fun checkCowboysFlowSteps(model: DashboardModel): Disposable =
+        Singles.zip(
+            userIdentity.isCowboysUser(),
+            cowboysFeatureFlag.enabled,
+        ).flatMap { (isCowboysUser, cowboysFlagEnabled) ->
+            if (cowboysFlagEnabled && isCowboysUser) {
+                settingsDataManager.getSettings().firstOrError().flatMap { userSettings ->
+                    if (!userSettings.isEmailVerified) {
+                        Single.just(DashboardCowboysState.CompleteEmailVerification)
+                    } else {
+                        userIdentity.getHighestApprovedKycTier().flatMap { highestApprovedKycTier ->
+                            when (highestApprovedKycTier) {
+                                Tier.BRONZE -> Single.just(DashboardCowboysState.CompleteSDDVerification)
+                                Tier.SILVER -> Single.just(DashboardCowboysState.CompleteGoldVerification)
+                                else -> Single.just(DashboardCowboysState.Hidden)
+                            }
+                        }
+                    }
+                }
+            } else {
+                Single.just(DashboardCowboysState.Hidden)
+            }
+        }.subscribeBy(
+            onSuccess = { state ->
+                model.process(DashboardIntent.UpdateCowboysViewState(state))
+            },
+            onError = {
+                Timber.e("Error in cowboys state ${it.message}")
+                model.process(DashboardIntent.UpdateCowboysViewState(DashboardCowboysState.Hidden))
             }
         )
 

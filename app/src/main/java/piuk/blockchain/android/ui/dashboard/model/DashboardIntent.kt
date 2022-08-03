@@ -435,6 +435,15 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             )
     }
 
+    object CheckCowboysFlow : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState
+    }
+
+    class UpdateCowboysViewState(val cowboysState: DashboardCowboysState) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState =
+            oldState.copy(dashboardCowboysState = cowboysState)
+    }
+
     object FetchOnboardingSteps : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }

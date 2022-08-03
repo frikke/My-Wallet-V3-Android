@@ -40,7 +40,9 @@ val loaderModule = module {
                 deepLinkPersistence = get(),
                 referralService = get(),
                 fiatCurrenciesService = get(),
-                cowboysPromoFeatureFlag = get(cowboysPromoFeatureFlag)
+                cowboysPromoFeatureFlag = get(cowboysPromoFeatureFlag),
+                cowboysPrefs = get(),
+                userIdentity = get()
             )
         }
     }

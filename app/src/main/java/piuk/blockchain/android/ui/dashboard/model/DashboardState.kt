@@ -99,6 +99,13 @@ sealed class DashboardOnboardingState {
     data class Visible(val steps: List<CompletableDashboardOnboardingStep>) : DashboardOnboardingState()
 }
 
+sealed class DashboardCowboysState {
+    object CompleteEmailVerification : DashboardCowboysState()
+    object CompleteSDDVerification : DashboardCowboysState()
+    object CompleteGoldVerification : DashboardCowboysState()
+    object Hidden : DashboardCowboysState()
+}
+
 interface DashboardBalanceStateHost {
     val dashboardBalance: DashboardBalance?
 }
@@ -120,7 +127,8 @@ data class DashboardState(
     val onboardingState: DashboardOnboardingState = DashboardOnboardingState.Hidden,
     val canPotentiallyTransactWithBanks: Boolean = true,
     val showedAppRating: Boolean = false,
-    val referralSuccessData: Pair<String, String>? = null
+    val referralSuccessData: Pair<String, String>? = null,
+    val dashboardCowboysState: DashboardCowboysState = DashboardCowboysState.Hidden
 ) : MviState, DashboardBalanceStateHost {
 
     override val dashboardBalance: DashboardBalance?

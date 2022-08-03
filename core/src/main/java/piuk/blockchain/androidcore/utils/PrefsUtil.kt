@@ -15,6 +15,7 @@ import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
+import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.EducationalScreensPrefs
@@ -71,7 +72,8 @@ class PrefsUtil(
     NftAnnouncementPrefs,
     ReferralPrefs,
     LocalSettingsPrefs,
-    EducationalScreensPrefs {
+    EducationalScreensPrefs,
+    CowboysPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -720,6 +722,10 @@ class PrefsUtil(
         get() = getValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, false)
         set(value) = setValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, value)
 
+    override var hasSeenCowboysFlow: Boolean
+        get() = getValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, false)
+        set(value) = setValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, value)
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -848,6 +854,9 @@ class PrefsUtil(
 
         // Educational Screens
         private const val HAS_SEEN_EDUCATIONAL_WALLET_MODE = "has_seen_educational_wallet_mode"
+
+        // Cowboys promo
+        private const val HAS_SEEN_COWBOYS_FLOW = "has_seen_cowboys_flow"
     }
 }
 

@@ -204,6 +204,11 @@ class NabuUserIdentity(
             Single.just(user.address?.countryCode == COUNTRY_CODE_ARGENTINA && isBindEnabled)
         }
 
+    override fun isCowboysUser(): Single<Boolean> =
+        userService.getUser().map { user ->
+            user.isCowboysUser
+        }
+
     private fun Tier.toKycTierLevel(): KycTierLevel =
         when (this) {
             Tier.BRONZE -> KycTierLevel.BRONZE
