@@ -60,7 +60,6 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -83,12 +82,9 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.android.util.copyToClipboardWithConfirmationDialog
 import piuk.blockchain.android.util.putAccount
 
 class CoinViewActivity :
@@ -140,7 +136,6 @@ class CoinViewActivity :
     private val adapterDelegate by lazy {
         AccountsAdapterDelegate(
             onAccountSelected = ::onAccountSelected,
-            onCopyAddressClicked = ::onCopyAddressClicked,
             onReceiveClicked = ::onReceiveClicked,
             onLockedAccountSelected = ::showUpgradeKycSheet,
             labels = labels,
@@ -1019,26 +1014,6 @@ class CoinViewActivity :
             )
         )
         model.process(CoinViewIntent.CheckScreenToOpen(accountDetails))
-    }
-
-    private fun onCopyAddressClicked(
-        cryptoAccount: CryptoAccount,
-    ) {
-        cryptoAccount.receiveAddress.observeOn(AndroidSchedulers.mainThread()).subscribe { receiveAddress ->
-            analytics.logEvent(
-                TransferAnalyticsEvent.ReceiveDetailsCopied(
-                    accountType = TxFlowAnalyticsAccountType.fromAccount(cryptoAccount),
-                    asset = cryptoAccount.currency
-                )
-            )
-
-            copyToClipboardWithConfirmationDialog(
-                confirmationAnchorView = binding.root,
-                confirmationMessage = R.string.receive_address_to_clipboard,
-                label = "Send address",
-                text = receiveAddress.address
-            )
-        }
     }
 
     private fun onReceiveClicked(
