@@ -40,7 +40,8 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
             object : AppVersion {
                 override val appVersion: String
                     get() = "8.18"
-            }
+            },
+            mock(),
         )
     }
 

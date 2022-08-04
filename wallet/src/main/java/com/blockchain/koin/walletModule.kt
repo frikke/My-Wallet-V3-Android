@@ -28,7 +28,7 @@ val walletModule = module {
     scope(payloadScopeQualifier) {
 
         scoped {
-            PayloadManager(get(), get(), get(), get(), get(), get(), get())
+            PayloadManager(get(), get(), get(), get(), get(), get(), get(), get())
         }
 
         factory { MultiAddressFactoryBtc(bitcoinApi = get()) }.bind(MultiAddressFactory::class)

@@ -137,7 +137,9 @@ class PayloadDataManager internal constructor(
      * @return A [Completable] object
      */
     fun initializeFromPayload(payload: String, password: String): Completable =
-        payloadService.initializeFromPayload(payload, password).applySchedulers()
+        payloadService.initializeFromPayload(payload, password).doOnError {
+            remoteLogger.logException(it)
+        }.applySchedulers()
 
     /**
      * Restores a HD wallet from a 12 word mnemonic and initializes the [PayloadDataManager].
@@ -216,6 +218,8 @@ class PayloadDataManager internal constructor(
             }
             .doOnComplete {
                 logWalletStats(hasRecoveredDerivations = true)
+            }.doOnError {
+                remoteLogger.logException(it)
             }
             .applySchedulers()
 
@@ -274,6 +278,7 @@ class PayloadDataManager internal constructor(
                 try {
                     payloadManager.upgradeV2PayloadToV3(secondPassword, defaultAccountName)
                 } catch (t: Throwable) {
+                    remoteLogger.logException(t)
                     throw WalletUpgradeFailure("v2 -> v3 failed", t)
                 }
             }
@@ -281,6 +286,7 @@ class PayloadDataManager internal constructor(
                 try {
                     payloadManager.upgradeV3PayloadToV4(secondPassword)
                 } catch (t: Throwable) {
+                    remoteLogger.logException(t)
                     throw WalletUpgradeFailure("v3 -> v4 failed", t)
                 }
             }

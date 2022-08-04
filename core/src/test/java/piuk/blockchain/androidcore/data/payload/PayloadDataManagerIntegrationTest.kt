@@ -46,7 +46,8 @@ class PayloadDataManagerIntegrationTest {
             object : AppVersion {
                 override val appVersion: String
                     get() = "23"
-            }
+            },
+            mock(),
         )
     )
     private val payloadService: PayloadService = PayloadService(payloadManager)
