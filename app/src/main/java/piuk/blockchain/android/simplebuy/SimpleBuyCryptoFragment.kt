@@ -860,11 +860,9 @@ class SimpleBuyCryptoFragment :
             if (isVisible) {
                 paymentMethodDetailsRoot.gone()
                 shimmer.visible()
-                progressBar.visible()
             } else {
                 shimmer.gone()
                 paymentMethodDetailsRoot.visible()
-                progressBar.gone()
             }
         }
     }
