@@ -228,6 +228,10 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
                 }
             )
         }
+
+        override fun isValidFor(oldState: DashboardState): Boolean {
+            return asset in oldState.activeAssets
+        }
     }
 
     class RefreshPrices(

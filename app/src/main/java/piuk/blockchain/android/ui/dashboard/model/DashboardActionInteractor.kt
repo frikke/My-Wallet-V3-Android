@@ -265,7 +265,7 @@ class DashboardActionInteractor(
                 Timber.d("Got balance for ${currency.displayTicker}")
                 model.process(DashboardIntent.BalanceUpdate(currency, accountBalance))
             }
-            .doFinally { model.process(DashboardIntent.BalanceFetching(currency, false)) }
+            .doOnComplete { model.process(DashboardIntent.BalanceFetching(currency, false)) }
             .firstOrError()
             .map {
                 it.total
