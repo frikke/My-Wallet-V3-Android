@@ -85,19 +85,22 @@ private class DefiWalletViewHolder(
                 }
 
                 if (isOnlyItemOfCategory) {
-                    ctaContainer.visible()
+                    copyAddressButton.visible()
                     copyAddressButton.apply {
                         text = context.getString(R.string.copy_address)
                         icon = ImageResource.Local(R.drawable.ic_copy)
                         onClick = { onCopyAddressClicked(account) }
                     }
+
+                    receiveButton.visible()
                     receiveButton.apply {
                         text = context.getString(R.string.common_receive)
                         icon = ImageResource.Local(R.drawable.ic_qr_scan)
                         onClick = { onReceiveClicked(item.account) }
                     }
                 } else {
-                    ctaContainer.gone()
+                    copyAddressButton.gone()
+                    receiveButton.gone()
                 }
             } else {
                 assetDetailsAvailable.gone()
@@ -111,7 +114,8 @@ private class DefiWalletViewHolder(
                     )
                 }
 
-                ctaContainer.gone()
+                copyAddressButton.gone()
+                receiveButton.gone()
             }
         }
     }
