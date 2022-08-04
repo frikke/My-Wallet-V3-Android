@@ -5,8 +5,8 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.network.interceptor.AuthenticateWithOfflineToken
 import com.blockchain.network.interceptor.AuthenticationNotRequired
+import com.blockchain.network.interceptor.CustomAuthentication
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
@@ -31,7 +31,9 @@ class AuthInterceptor(
 
         val requestAnnotations = originalRequest.tag(Invocation::class.java)?.method()?.annotations.orEmpty()
 
-        if (requestAnnotations.any { it is AuthenticationNotRequired }) {
+        if (requestAnnotations.any { it is CustomAuthentication }) {
+            return chain.proceed(originalRequest)
+        } else if (requestAnnotations.any { it is AuthenticationNotRequired }) {
             if (originalRequest.header("authorization") != null) {
                 val url = originalRequest.url
                 Timber.w("authorization header stripped on AuthenticationNotRequired call url: $url")
@@ -39,12 +41,6 @@ class AuthInterceptor(
 
             val request = originalRequest.newBuilder()
                 .removeHeader("authorization")
-                .build()
-            return chain.proceed(request)
-        } else if (requestAnnotations.any { it is AuthenticateWithOfflineToken }) {
-            val offlineToken = nabuToken.fetchNabuToken().blockingGet()
-            val request = originalRequest.newBuilder()
-                .header("authorization", "Bearer ${offlineToken.token}")
                 .build()
             return chain.proceed(request)
         }

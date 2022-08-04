@@ -48,8 +48,8 @@ import com.blockchain.nabu.models.responses.swap.UpdateSwapOrderBody
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenRequest
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
-import com.blockchain.network.interceptor.AuthenticateWithOfflineToken
 import com.blockchain.network.interceptor.AuthenticationNotRequired
+import com.blockchain.network.interceptor.CustomAuthentication
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Body
@@ -72,11 +72,11 @@ internal interface Nabu {
         @Query("action") action: String? = null
     ): Single<NabuOfflineTokenResponse>
 
-    @AuthenticateWithOfflineToken
+    @CustomAuthentication
     @POST(NABU_SESSION_TOKEN)
     fun getSessionToken(
         @Query("userId") userId: String,
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
+        @Header("authorization") authorization: String,
         @Header("X-WALLET-GUID") guid: String,
         @Header("X-WALLET-EMAIL") email: String,
         @Header("X-APP-VERSION") appVersion: String,
@@ -147,20 +147,20 @@ internal interface Nabu {
         @Body recoverAccountRequest: NabuRecoverAccountRequest
     ): Single<NabuRecoverAccountResponse>
 
-    @AuthenticateWithOfflineToken
+    @CustomAuthentication
     @POST("$NABU_RECOVER_USER/{userId}")
     fun recoverUser(
         @Path("userId") userId: String,
         @Body jwt: NabuJwt,
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
+        @Header("authorization") authorization: String
     ): Completable
 
-    @AuthenticateWithOfflineToken
+    @CustomAuthentication
     @POST("$NABU_RESET_USER/{userId}")
     fun resetUserKyc(
         @Path("userId") userId: String,
         @Body jwt: NabuJwt,
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
+        @Header("authorization") authorization: String
     ): Completable
 
     @PUT(NABU_REGISTER_CAMPAIGN)
