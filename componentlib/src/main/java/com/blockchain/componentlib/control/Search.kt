@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.controls.TextInput
+import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -48,6 +49,7 @@ fun Search(
             onValueChange.invoke(it)
             value = it
         },
+        state = TextInputState.Default(defaultMessage = null),
         label = label,
         placeholder = placeholder,
         singleLine = true,

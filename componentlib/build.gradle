@@ -50,6 +50,7 @@ dependencies {
 
     androidTestImplementation Libraries.composeUiTest
     debugImplementation Libraries.composeUiTooling
+    debugImplementation Libraries.composeUiPoolingContainer
 
     // Unit Tests
     testImplementation Libraries.junit
