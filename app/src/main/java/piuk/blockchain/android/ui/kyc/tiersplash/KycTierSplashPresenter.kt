@@ -22,7 +22,7 @@ class KycTierSplashPresenter(
     override fun onViewResumed() {
         super.onViewResumed()
         compositeDisposable +=
-            kycService.getKycTiersLegacy()
+            kycService.getTiersLegacy()
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnError(Timber::e)
                 .subscribeBy(

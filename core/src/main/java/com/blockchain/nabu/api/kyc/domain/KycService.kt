@@ -6,10 +6,10 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 
 interface KycService {
-    @Deprecated("use flow function")
-    fun getKycTiersLegacy(
+    @Deprecated("prefer reactive so try to use flow function")
+    fun getTiersLegacy(
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = false)
     ): Single<KycTiers>
 
-    fun getKycTiers(refreshStrategy: FreshnessStrategy): Flow<KycTiers>
+    fun getTiers(refreshStrategy: FreshnessStrategy): Flow<KycTiers>
 }

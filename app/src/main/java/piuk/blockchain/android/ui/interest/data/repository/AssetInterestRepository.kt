@@ -33,7 +33,7 @@ internal class AssetInterestRepository(
 
     override suspend fun getInterestDashboard(): Outcome<Throwable, InterestDashboard> {
         return supervisorScope {
-            val deferredTiers = async(dispatcher) { kycService.getKycTiersLegacy().await() }
+            val deferredTiers = async(dispatcher) { kycService.getTiersLegacy().await() }
             val deferredEnabledAssets = async(dispatcher) { interestService.getAvailableAssetsForInterest().await() }
 
             try {

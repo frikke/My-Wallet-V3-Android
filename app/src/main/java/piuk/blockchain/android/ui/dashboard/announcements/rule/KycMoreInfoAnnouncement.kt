@@ -33,7 +33,7 @@ internal class KycMoreInfoAnnouncement(
         get() = listOf(WalletMode.CUSTODIAL_ONLY)
 
     private fun didNotStartGoldLevelKyc(): Single<Boolean> =
-        kycService.getKycTiersLegacy().map {
+        kycService.getTiersLegacy().map {
             it.isNotInitialisedFor(KycTierLevel.GOLD)
         }
 

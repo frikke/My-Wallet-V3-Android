@@ -51,7 +51,7 @@ class KycStatusHelper(
             .onErrorReturn { KycState.None }
 
     fun getKycTierStatus(): Single<KycTiers> =
-        kycService.getKycTiersLegacy()
+        kycService.getTiersLegacy()
             .onErrorReturn { KycTiers.default() }
             .doOnError { Timber.e(it) }
 

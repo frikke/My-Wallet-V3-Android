@@ -26,7 +26,7 @@ class NabuUserDataManagerImpl(
     private val kycService: KycService,
 ) : NabuUserDataManager {
 
-    override fun tiers(): Single<KycTiers> = kycService.getKycTiersLegacy()
+    override fun tiers(): Single<KycTiers> = kycService.getTiersLegacy()
 
     override fun saveUserInitialLocation(countryIsoCode: String, stateIsoCode: String?): Completable =
         authenticator.getAuthHeader().map {

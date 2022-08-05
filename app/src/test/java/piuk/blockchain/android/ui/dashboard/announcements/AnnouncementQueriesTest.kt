@@ -118,7 +118,7 @@ class AnnouncementQueriesTest {
     @Test
     fun `isTier1Or2Verified returns true for tier1 verified`() {
 
-        whenever(kycService.getKycTiersLegacy()).thenReturn(
+        whenever(kycService.getTiersLegacy()).thenReturn(
             Single.just(
                 KycTiers(
                     TiersMap(
@@ -153,7 +153,7 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `isTier1Or2Verified returns true for tier2 verified`() {
-        whenever(kycService.getKycTiersLegacy()).thenReturn(
+        whenever(kycService.getTiersLegacy()).thenReturn(
             Single.just(
                 KycTiers(
                     TiersMap(
@@ -188,7 +188,7 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `isTier1Or2Verified returns false if not verified`() {
-        whenever(kycService.getKycTiersLegacy()).thenReturn(
+        whenever(kycService.getTiersLegacy()).thenReturn(
             Single.just(
                 KycTiers(
                     TiersMap(
@@ -237,7 +237,7 @@ class AnnouncementQueriesTest {
     fun `isSimpleBuyKycInProgress - local simple buy state exists but has finished kyc, return false`() {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(false)
-        whenever(kycService.getKycTiersLegacy()).thenReturn(
+        whenever(kycService.getTiersLegacy()).thenReturn(
             Single.just(tiers(KycTierState.Verified, KycTierState.Verified))
         )
         whenever(sbSync.currentState()).thenReturn(state)
@@ -255,7 +255,7 @@ class AnnouncementQueriesTest {
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
         whenever(state.kycVerificationState).thenReturn(null)
 
-        whenever(kycService.getKycTiersLegacy()).thenReturn(
+        whenever(kycService.getTiersLegacy()).thenReturn(
             Single.just(tiers(KycTierState.Verified, KycTierState.None))
         )
         whenever(sbSync.currentState()).thenReturn(state)
@@ -271,9 +271,9 @@ class AnnouncementQueriesTest {
     fun `isSimpleBuyKycInProgress - simple buy state is not finished, and kyc state is pending - as expected`() {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
-        whenever(kycService.getKycTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
+        whenever(kycService.getTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
         whenever(sbSync.currentState()).thenReturn(state)
-        whenever(kycService.getKycTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
+        whenever(kycService.getTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
 
         subject.isSimpleBuyKycInProgress()
             .test()
@@ -291,7 +291,7 @@ class AnnouncementQueriesTest {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
 
-        whenever(kycService.getKycTiersLegacy()).thenReturn(
+        whenever(kycService.getTiersLegacy()).thenReturn(
             Single.just(tiers(KycTierState.Pending, KycTierState.UnderReview))
         )
         whenever(sbSync.currentState()).thenReturn(state)
@@ -307,7 +307,7 @@ class AnnouncementQueriesTest {
     fun `isSimpleBuyKycInProgress - SB state reports unfinished, but kyc docs are submitted - belt & braces case 2`() {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
-        whenever(kycService.getKycTiersLegacy()).thenReturn(
+        whenever(kycService.getTiersLegacy()).thenReturn(
             Single.just(tiers(KycTierState.Pending, KycTierState.Verified))
         )
         whenever(sbSync.currentState()).thenReturn(state)

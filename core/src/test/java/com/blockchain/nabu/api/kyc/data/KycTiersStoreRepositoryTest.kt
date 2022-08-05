@@ -95,7 +95,7 @@ class KycTiersStoreRepositoryTest {
 
     @Test
     fun `WHEN getKycTiers is called, THEN kycTiers should be returned`() {
-        kycService.getKycTiersLegacy()
+        kycService.getTiersLegacy()
             .test()
             .await()
             .assertValue {

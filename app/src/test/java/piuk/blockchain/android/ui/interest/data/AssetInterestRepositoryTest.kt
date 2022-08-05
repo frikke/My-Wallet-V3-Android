@@ -104,7 +104,7 @@ class AssetInterestRepositoryTest {
 
     @Test
     fun `WHEN kycTierService OK, custodialWalletManager OK, THEN Success should be returned`() = runTest {
-        every { kycService.getKycTiersLegacy() } returns Single.just(kycTiers)
+        every { kycService.getTiersLegacy() } returns Single.just(kycTiers)
         every { interestService.getAvailableAssetsForInterest() } returns Single.just(enabledAssets)
 
         val expected = InterestDashboard(kycTiers, enabledAssets)
@@ -118,7 +118,7 @@ class AssetInterestRepositoryTest {
 
     @Test
     fun `WHEN kycTierService OK, custodialWalletManager throws, THEN Failure should be returned`() = runTest {
-        every { kycService.getKycTiersLegacy() } returns Single.just(kycTiers)
+        every { kycService.getTiersLegacy() } returns Single.just(kycTiers)
         every { interestService.getAvailableAssetsForInterest() } throws Throwable("error")
 
         val result = service.getInterestDashboard()
@@ -127,7 +127,7 @@ class AssetInterestRepositoryTest {
 
     @Test
     fun `WHEN kycTierService throws, custodialWalletManager OK, THEN Failure should be returned`() = runTest {
-        every { kycService.getKycTiersLegacy() } throws Throwable("error")
+        every { kycService.getTiersLegacy() } throws Throwable("error")
         every { interestService.getAvailableAssetsForInterest() } returns Single.just(enabledAssets)
 
         val result = service.getInterestDashboard()

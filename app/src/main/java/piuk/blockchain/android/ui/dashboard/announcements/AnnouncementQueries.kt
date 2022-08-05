@@ -69,11 +69,11 @@ class AnnouncementQueries(
 
     // Have we been through the Gold KYC process? ie are we Tier2InReview, Tier2Approved or Tier2Failed (cf TierJson)
     fun isGoldComplete(): Single<Boolean> =
-        kycService.getKycTiersLegacy()
+        kycService.getTiersLegacy()
             .map { it.tierCompletedForLevel(KycTierLevel.GOLD) }
 
     fun isTier1Or2Verified(): Single<Boolean> =
-        kycService.getKycTiersLegacy().map { it.isVerified() }
+        kycService.getTiersLegacy().map { it.isVerified() }
 
     fun isSimplifiedDueDiligenceEligibleAndNotVerified(): Single<Boolean> =
         userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence).flatMap {
@@ -91,7 +91,7 @@ class AnnouncementQueries(
         return Single.defer {
             sbStateFactory.currentState()?.let {
                 Single.just(it.kycStartedButNotCompleted)
-                    .zipWith(kycService.getKycTiersLegacy()) { kycStarted, tier ->
+                    .zipWith(kycService.getTiersLegacy()) { kycStarted, tier ->
                         kycStarted && !tier.docsSubmittedForGoldTier()
                     }
             } ?: Single.just(false)
@@ -106,7 +106,7 @@ class AnnouncementQueries(
         }
 
     fun isKycGoldVerifiedAndHasPendingCardToAdd(): Single<Boolean> =
-        kycService.getKycTiersLegacy().map {
+        kycService.getTiersLegacy().map {
             it.isApprovedFor(KycTierLevel.GOLD)
         }.zipWith(
             hasSelectedToAddNewCard()

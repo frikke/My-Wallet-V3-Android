@@ -205,7 +205,7 @@ class SimpleBuyInteractor(
             }
 
     fun pollForKycState(): Single<SimpleBuyIntent.KycStateUpdated> =
-        kycService.getKycTiersLegacy()
+        kycService.getTiersLegacy()
             .flatMap {
                 when {
                     it.isApprovedFor(KycTierLevel.GOLD) ->
@@ -300,7 +300,7 @@ class SimpleBuyInteractor(
     }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT)
 
     fun checkTierLevel(): Single<SimpleBuyIntent.KycStateUpdated> {
-        return kycService.getKycTiersLegacy().flatMap {
+        return kycService.getTiersLegacy().flatMap {
             when {
                 it.isApprovedFor(KycTierLevel.GOLD) -> eligibilityProvider.isEligibleForSimpleBuy(
                     forceRefresh = true
@@ -342,7 +342,7 @@ class SimpleBuyInteractor(
             }
 
     fun paymentMethods(fiatCurrency: FiatCurrency): Single<PaymentMethods> =
-        kycService.getKycTiersLegacy()
+        kycService.getTiersLegacy()
             .zipWith(
                 custodialWalletManager.isSimplifiedDueDiligenceEligible().onErrorReturn { false }
                     .doOnSuccess {

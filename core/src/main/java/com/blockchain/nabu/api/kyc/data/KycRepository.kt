@@ -39,7 +39,7 @@ class KycRepository(
     }
 
     // rx
-    override fun getKycTiersLegacy(freshnessStrategy: FreshnessStrategy): Single<KycTiers> {
+    override fun getTiersLegacy(freshnessStrategy: FreshnessStrategy): Single<KycTiers> {
         return getKycTiersLegacyFlow(freshnessStrategy)
             .asObservable()
             .firstElement()
@@ -48,7 +48,7 @@ class KycRepository(
     }
 
     // flow
-    override fun getKycTiers(refreshStrategy: FreshnessStrategy): Flow<KycTiers> {
+    override fun getTiers(refreshStrategy: FreshnessStrategy): Flow<KycTiers> {
         return getKycTiersLegacyFlow(refreshStrategy)
     }
 

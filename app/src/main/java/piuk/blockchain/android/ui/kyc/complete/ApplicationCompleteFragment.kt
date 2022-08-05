@@ -64,7 +64,7 @@ class ApplicationCompleteFragment : Fragment() {
                     if (progressListener.campaignType == CampaignType.Swap ||
                         progressListener.campaignType == CampaignType.None
                     ) {
-                        kycService.getKycTiersLegacy().toObservable()
+                        kycService.getTiersLegacy().toObservable()
                             .map { it.isApprovedFor(KycTierLevel.SILVER) || it.isApprovedFor(KycTierLevel.GOLD) }
                             .onErrorReturn { false }
                     } else {

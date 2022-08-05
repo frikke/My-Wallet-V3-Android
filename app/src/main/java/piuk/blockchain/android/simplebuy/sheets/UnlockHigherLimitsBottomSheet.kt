@@ -36,7 +36,7 @@ class UnlockHigherLimitsBottomSheet : SlidingModalBottomDialog<UnlockHigherLimit
         UnlockHigherLimitsLayoutBinding.inflate(inflater, container, false)
 
     override fun initControls(binding: UnlockHigherLimitsLayoutBinding) {
-        compositeDisposable += kycService.getKycTiersLegacy().map {
+        compositeDisposable += kycService.getTiersLegacy().map {
             it.tierForLevel(KycTierLevel.GOLD).kycLimits?.dailyLimit?.let { dailyLimit ->
                 dailyLimit.toStringWithSymbol()
             } ?: getString(R.string.empty)

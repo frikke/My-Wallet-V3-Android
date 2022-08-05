@@ -173,7 +173,7 @@ class SwapFragment :
     private fun loadSwapOrKyc(showLoading: Boolean) {
         compositeDisposable +=
             Single.zip(
-                kycService.getKycTiersLegacy(),
+                kycService.getTiersLegacy(),
                 trendingPairsProvider.getTrendingPairs(),
                 walletManager.getProductTransferLimits(currencyPrefs.selectedFiatCurrency, Product.TRADE),
                 walletManager.getSwapTrades().onErrorReturn { emptyList() },

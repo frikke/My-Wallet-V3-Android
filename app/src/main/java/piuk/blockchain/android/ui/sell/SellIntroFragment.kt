@@ -31,7 +31,6 @@ import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
-import info.blockchain.wallet.util.MetadataUtil.message
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -171,7 +170,7 @@ class SellIntroFragment : ViewPagerFragment() {
     private fun loadSellDetails(showLoader: Boolean) {
         binding.accountsList.activityIndicator = if (showLoader) activityIndicator else null
 
-        compositeDisposable += kycService.getKycTiersLegacy()
+        compositeDisposable += kycService.getTiersLegacy()
             .zipWith(eligibilityProvider.isEligibleForSimpleBuy(forceRefresh = true))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
