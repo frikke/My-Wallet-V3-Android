@@ -1,4 +1,4 @@
-package com.blockchain.nabu.api.kyc.data.store
+package com.blockchain.nabu.api.kyc.data.datasources
 
 import com.blockchain.api.kyc.KycApiService
 import com.blockchain.api.kyc.model.KycTierDto

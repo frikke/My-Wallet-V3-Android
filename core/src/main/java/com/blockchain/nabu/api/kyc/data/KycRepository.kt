@@ -3,7 +3,7 @@ package com.blockchain.nabu.api.kyc.data
 import com.blockchain.api.kyc.model.KycLimitsDto
 import com.blockchain.api.kyc.model.KycTierDto
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.nabu.api.kyc.data.store.KycTiersStore
+import com.blockchain.nabu.api.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.api.kyc.domain.KycService
 import com.blockchain.nabu.api.kyc.domain.model.KycLimits
 import com.blockchain.nabu.api.kyc.domain.model.KycTierDetail

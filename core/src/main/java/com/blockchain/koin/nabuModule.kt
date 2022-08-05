@@ -14,7 +14,7 @@ import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.data.UserRepository
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.api.kyc.data.KycRepository
-import com.blockchain.nabu.api.kyc.data.store.KycTiersStore
+import com.blockchain.nabu.api.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.api.kyc.domain.KycService
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.datamanagers.AnalyticsNabuUserReporterImpl

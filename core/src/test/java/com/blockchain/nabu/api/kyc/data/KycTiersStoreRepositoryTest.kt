@@ -5,7 +5,7 @@ import com.blockchain.api.kyc.model.KycTierDto
 import com.blockchain.api.kyc.model.KycTiersDto
 import com.blockchain.data.DataResource
 import com.blockchain.nabu.USD
-import com.blockchain.nabu.api.kyc.data.store.KycTiersStore
+import com.blockchain.nabu.api.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.api.kyc.domain.KycService
 import com.blockchain.nabu.api.kyc.domain.model.KycLimits
 import com.blockchain.nabu.api.kyc.domain.model.KycTierDetail

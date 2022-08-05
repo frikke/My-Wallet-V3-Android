@@ -14,7 +14,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.api.getuser.data.GetUserStore
-import com.blockchain.nabu.api.kyc.data.store.KycTiersStore
+import com.blockchain.nabu.api.kyc.data.datasources.KycTiersStore
 import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs

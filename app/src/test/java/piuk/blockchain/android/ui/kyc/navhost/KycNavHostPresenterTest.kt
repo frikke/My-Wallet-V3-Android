@@ -5,7 +5,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.api.kyc.data.store.KycTiersStore
+import com.blockchain.nabu.api.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
