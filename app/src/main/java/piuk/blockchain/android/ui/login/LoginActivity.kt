@@ -242,6 +242,10 @@ class LoginActivity :
                 model.process(LoginIntents.CheckShouldNavigateToOtherScreen)
                 showSnackbar(SnackbarType.Error, R.string.common_error)
             }
+            LoginStep.MANUAL_PAIRING -> {
+                startActivity(ManualPairingActivity.newInstance(this, newState.guid))
+                finish()
+            }
             LoginStep.POLLING_PAYLOAD_ERROR -> handlePollingError(newState.pollingState)
             LoginStep.ENTER_EMAIL -> returnToEmailInput()
             // TODO AND-5317 this should display a bottom sheet with info about what device we're authorising

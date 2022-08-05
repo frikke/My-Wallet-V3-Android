@@ -21,6 +21,15 @@ sealed class LoginIntents : MviIntent<LoginState> {
         }
     }
 
+    class ShowManualPairing(private val guid: String) : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState {
+            return oldState.copy(
+                currentStep = LoginStep.MANUAL_PAIRING,
+                guid = guid
+            )
+        }
+    }
+
     data class UpdateEmail(private val email: String) : LoginIntents() {
         override fun reduce(oldState: LoginState): LoginState =
             oldState.copy(

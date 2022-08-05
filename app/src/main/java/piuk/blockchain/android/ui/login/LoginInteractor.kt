@@ -16,6 +16,7 @@ import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
 
 class LoginInteractor(
@@ -76,6 +77,7 @@ class LoginInteractor(
         try {
             PayloadHandler.getDataFromUri(uri)?.let { data ->
                 val sessionId = authPrefs.sessionId
+                if (data.isValidGuid()) return@let LoginIntents.ShowManualPairing(data)
                 val decodedJson = PayloadHandler.decodeToJsonString(data)
                 val accountInfo = builder.decodeFromString<LoginAuthInfo.ExtendedAccountInfo>(decodedJson)
                 if (sessionId.isEmpty() || accountInfo.accountWallet.sessionId != sessionId) {
