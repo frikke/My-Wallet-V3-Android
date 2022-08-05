@@ -26,6 +26,7 @@ import com.blockchain.core.chains.erc20.data.store.Erc20L2Store
 import com.blockchain.core.chains.erc20.data.store.Erc20Store
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
+import com.blockchain.core.common.caching.StoreWiperImpl
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.data.TradingRepository
 import com.blockchain.core.custodial.data.store.TradingStore
@@ -82,6 +83,7 @@ import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.storedatasource.StoreWiper
 import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
 import com.blockchain.wallet.SeedAccess
@@ -90,6 +92,7 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
 import java.util.UUID
+import org.koin.core.scope.get
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -608,6 +611,13 @@ val coreModule = module {
 
     single {
         Database(driver = get())
+    }
+
+    single<StoreWiper> {
+        StoreWiperImpl(
+            inMemoryCacheWiper = get(),
+            persistedJsonSqlDelightCacheWiper = get()
+        )
     }
 }
 

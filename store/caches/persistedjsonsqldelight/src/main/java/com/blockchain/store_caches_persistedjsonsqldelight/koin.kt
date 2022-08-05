@@ -14,4 +14,8 @@ val storeCachesPersistedJsonSqlDelightModule = module {
     single<StorePersisterDataQueries> {
         get<Database>().storePersisterDataQueries
     }
+
+    single {
+        PersistedJsonSqlDelightCacheWiper(get())
+    }
 }

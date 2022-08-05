@@ -49,7 +49,7 @@ class InMemoryCacheStoreBuilder {
     ): KeyedStore<K, T> = RealStore(
         scope,
         MulticasterFetcher(fetcher, scope),
-        InMemoryCache.Builder(storeId).build(),
+        InMemoryCacheProvider.provide(storeId),
         mediator
     )
 }

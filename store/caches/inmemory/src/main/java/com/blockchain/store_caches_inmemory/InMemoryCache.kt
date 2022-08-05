@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class InMemoryCache<K, T> private constructor() : Cache<K, T> {
+class InMemoryCache<K, T> internal constructor() : Cache<K, T> {
 
     private val mutex = Mutex()
 
@@ -53,23 +53,6 @@ class InMemoryCache<K, T> private constructor() : Cache<K, T> {
                 }
             }
             cache.emit(newCache)
-        }
-    }
-
-    class Builder(private val storeId: StoreId) {
-        private val caches: MutableMap<StoreId, InMemoryCache<*, *>> = mutableMapOf()
-
-        @Synchronized
-        fun <K, T> build(): InMemoryCache<K, T> {
-            val cache = caches[storeId]
-            return if (cache != null) {
-                @Suppress("UNCHECKED_CAST")
-                cache as InMemoryCache<K, T>
-            } else {
-                InMemoryCache<K, T>().also {
-                    caches[storeId] = it
-                }
-            }
         }
     }
 }
