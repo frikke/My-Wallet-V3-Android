@@ -2846,11 +2846,6 @@
     <string name="kyc_upgrade_now_sheet_title">Verify to get full access</string>
     <string name="kyc_upgrade_now_sheet_subtitle">Unlock buying, selling, swapping, and more by confirming your identity.</string>
 
-    <!-- Entity Switch Silver Dialog -->
-    <string name="entity_switch_silver_dialog_verify_now">Verify Now</string>
-    <string name="entity_switch_silver_dialog_title">We are updating our account verification requirements</string>
-    <string name="entity_switch_silver_dialog_subtitle">To buy, sell, and swap, you will need to verify your identity.</string>
-
     <!-- Kyc Questionnaire -->
     <string name="kyc_additional_info_toolbar">Use of Account Information</string>
     <string name="kyc_additional_info_invalid_node_error">Form contains errors or incomplete fields</string>

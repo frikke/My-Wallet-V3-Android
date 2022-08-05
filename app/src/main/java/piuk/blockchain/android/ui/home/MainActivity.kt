@@ -49,7 +49,6 @@ import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomShe
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -60,7 +59,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityMainBinding
-import piuk.blockchain.android.databinding.DialogEntitySwitchSilverBinding
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
@@ -82,9 +80,6 @@ import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionBottomSheet
 import piuk.blockchain.android.ui.dashboard.walletmode.icon
 import piuk.blockchain.android.ui.dashboard.walletmode.title
-import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellCtaClicked
-import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellDismissed
-import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellViewed
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
@@ -235,9 +230,12 @@ class MainActivity :
         }
 
         if (savedInstanceState == null) {
-            model.process(MainIntent.CheckForInitialDialogs(startUiTour))
             model.process(MainIntent.PerformInitialChecks(intent))
             model.process(MainIntent.CheckReferralCode)
+            if (startUiTour) {
+                binding.uiTour.host = this
+                showUiTour()
+            }
         }
         model.process(MainIntent.NavigationTabs)
     }
@@ -658,35 +656,6 @@ class MainActivity :
             is ViewToLaunch.LaunchWalletConnectSessionRejected -> launchWalletConnectSessionRejected(
                 view.walletConnectSession
             )
-            ViewToLaunch.ShowEntitySwitchSilverKycUpsell -> {
-                var ctaClicked = false
-                var alertDialog: AlertDialog? = null
-                val dialog = MaterialAlertDialogBuilder(this, R.style.RoundedCornersDialog)
-                val contentViewBinding = DialogEntitySwitchSilverBinding.inflate(layoutInflater).apply {
-                    closeButton.setOnClickListener {
-                        alertDialog?.dismiss()
-                        alertDialog = null
-                    }
-                    verifyNowButton.text = getString(R.string.entity_switch_silver_dialog_verify_now)
-                    verifyNowButton.setOnClickListener {
-                        analytics.logEvent(EntitySwitchSilverKycUpsellCtaClicked)
-                        ctaClicked = true
-                        alertDialog?.dismiss()
-                        showBottomSheet(KycUpgradeNowSheet.newInstance())
-                    }
-                }
-                dialog.setView(contentViewBinding.root)
-                dialog.setOnDismissListener {
-                    alertDialog = null
-                    if (!ctaClicked) analytics.logEvent(EntitySwitchSilverKycUpsellDismissed)
-                }
-                analytics.logEvent(EntitySwitchSilverKycUpsellViewed)
-                alertDialog = dialog.show()
-            }
-            ViewToLaunch.ShowUiTour -> {
-                binding.uiTour.host = this
-                showUiTour()
-            }
             is ViewToLaunch.ShowReferralSheet -> {
                 analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Origin.Deeplink))
                 showReferralBottomSheet(newState.referral.referralInfo)
