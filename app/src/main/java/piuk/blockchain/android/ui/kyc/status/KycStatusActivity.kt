@@ -17,7 +17,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.px
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.models.responses.nabu.KycTierState
+import com.blockchain.nabu.api.kyc.domain.model.KycTierState
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType

@@ -2,9 +2,9 @@ package piuk.blockchain.android.ui.kyc.tiersplash
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AnalyticsEvents
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.models.responses.nabu.KycTierState
-import com.blockchain.nabu.service.TierService
+import com.blockchain.nabu.api.kyc.domain.KycService
+import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
+import com.blockchain.nabu.api.kyc.domain.model.KycTierState
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -13,7 +13,7 @@ import piuk.blockchain.android.ui.base.BasePresenter
 import timber.log.Timber
 
 class KycTierSplashPresenter(
-    private val tierService: TierService,
+    private val kycService: KycService,
     private val analytics: Analytics
 ) : BasePresenter<KycTierSplashView>() {
 
@@ -22,7 +22,7 @@ class KycTierSplashPresenter(
     override fun onViewResumed() {
         super.onViewResumed()
         compositeDisposable +=
-            tierService.tiers()
+            kycService.getKycTiersLegacy()
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnError(Timber::e)
                 .subscribeBy(

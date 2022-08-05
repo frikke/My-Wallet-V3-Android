@@ -15,8 +15,6 @@ import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocumentsResponse
-import com.blockchain.nabu.models.responses.nabu.TierUpdateJson
-import com.blockchain.nabu.models.responses.nabu.TiersResponse
 import com.blockchain.nabu.models.responses.nabu.VeriffToken
 import com.blockchain.nabu.models.responses.sdd.SDDEligibilityResponse
 import com.blockchain.nabu.models.responses.sdd.SDDStatusResponse
@@ -167,17 +165,6 @@ internal interface Nabu {
     fun registerCampaign(
         @Body campaignRequest: RegisterCampaignRequest,
         @Header("X-CAMPAIGN") campaignHeader: String,
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Completable
-
-    @GET(NABU_KYC_TIERS)
-    fun getTiers(
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Single<TiersResponse>
-
-    @POST(NABU_KYC_TIERS)
-    fun setTier(
-        @Body tierUpdateJson: TierUpdateJson,
         @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Completable
 

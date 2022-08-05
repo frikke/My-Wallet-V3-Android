@@ -5,8 +5,8 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.nabu.api.kyc.domain.KycService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.service.TierService
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,7 +23,7 @@ import piuk.blockchain.android.ui.interest.domain.repository.AssetInterestServic
 import timber.log.Timber
 
 internal class AssetInterestRepository(
-    private val kycTierService: TierService,
+    private val kycService: KycService,
     private val interestService: InterestService,
     private val custodialWalletManager: CustodialWalletManager,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
@@ -33,7 +33,7 @@ internal class AssetInterestRepository(
 
     override suspend fun getInterestDashboard(): Outcome<Throwable, InterestDashboard> {
         return supervisorScope {
-            val deferredTiers = async(dispatcher) { kycTierService.tiers().await() }
+            val deferredTiers = async(dispatcher) { kycService.getKycTiersLegacy().await() }
             val deferredEnabledAssets = async(dispatcher) { interestService.getAvailableAssetsForInterest().await() }
 
             try {

@@ -13,9 +13,9 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.service.TierService
+import com.blockchain.nabu.api.kyc.domain.KycService
+import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
+import com.blockchain.nabu.api.kyc.domain.model.KycTiers
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
@@ -42,7 +42,7 @@ data class RenamedAsset(
 
 class AnnouncementQueries(
     private val userService: UserService,
-    private val tierService: TierService,
+    private val kycService: KycService,
     private val sbStateFactory: SimpleBuySyncFactory,
     private val userIdentity: UserIdentity,
     private val coincore: Coincore,
@@ -69,11 +69,11 @@ class AnnouncementQueries(
 
     // Have we been through the Gold KYC process? ie are we Tier2InReview, Tier2Approved or Tier2Failed (cf TierJson)
     fun isGoldComplete(): Single<Boolean> =
-        tierService.tiers()
+        kycService.getKycTiersLegacy()
             .map { it.tierCompletedForLevel(KycTierLevel.GOLD) }
 
     fun isTier1Or2Verified(): Single<Boolean> =
-        tierService.tiers().map { it.isVerified() }
+        kycService.getKycTiersLegacy().map { it.isVerified() }
 
     fun isSimplifiedDueDiligenceEligibleAndNotVerified(): Single<Boolean> =
         userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence).flatMap {
@@ -91,7 +91,7 @@ class AnnouncementQueries(
         return Single.defer {
             sbStateFactory.currentState()?.let {
                 Single.just(it.kycStartedButNotCompleted)
-                    .zipWith(tierService.tiers()) { kycStarted, tier ->
+                    .zipWith(kycService.getKycTiersLegacy()) { kycStarted, tier ->
                         kycStarted && !tier.docsSubmittedForGoldTier()
                     }
             } ?: Single.just(false)
@@ -106,7 +106,7 @@ class AnnouncementQueries(
         }
 
     fun isKycGoldVerifiedAndHasPendingCardToAdd(): Single<Boolean> =
-        tierService.tiers().map {
+        kycService.getKycTiersLegacy().map {
             it.isApprovedFor(KycTierLevel.GOLD)
         }.zipWith(
             hasSelectedToAddNewCard()

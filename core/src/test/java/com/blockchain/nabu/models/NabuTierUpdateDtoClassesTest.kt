@@ -5,7 +5,7 @@ import com.blockchain.serialization.JsonSerializable
 import com.blockchain.testutils.`should be assignable from`
 import org.junit.Test
 
-class NabuTierUpdateJsonClassesTest {
+class NabuTierUpdateDtoClassesTest {
 
     @Test
     fun `ensure TierUpdateJson is JsonSerializable for proguard`() {

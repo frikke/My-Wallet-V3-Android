@@ -6,7 +6,7 @@ import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.extensions.exhaustive
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
+import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import info.blockchain.balance.AssetInfo

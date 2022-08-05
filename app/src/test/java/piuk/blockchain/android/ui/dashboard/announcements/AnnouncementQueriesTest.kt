@@ -12,13 +12,13 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.models.responses.nabu.KycTierState
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.Limits
-import com.blockchain.nabu.models.responses.nabu.Tier
-import com.blockchain.nabu.models.responses.nabu.Tiers
-import com.blockchain.nabu.service.TierService
+import com.blockchain.nabu.api.kyc.domain.KycService
+import com.blockchain.nabu.api.kyc.domain.model.KycLimits
+import com.blockchain.nabu.api.kyc.domain.model.KycTierDetail
+import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
+import com.blockchain.nabu.api.kyc.domain.model.KycTierState
+import com.blockchain.nabu.api.kyc.domain.model.KycTiers
+import com.blockchain.nabu.api.kyc.domain.model.TiersMap
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.RemoteConfig
@@ -41,7 +41,7 @@ import piuk.blockchain.android.ui.tiers
 class AnnouncementQueriesTest {
 
     private val userService: UserService = mock()
-    private val tierService: TierService = mock()
+    private val kycService: KycService = mock()
     private val userIdentity: UserIdentity = mock()
     private val coincore: Coincore = mock()
     private val assetCatalogue: AssetCatalogue = mock()
@@ -63,7 +63,7 @@ class AnnouncementQueriesTest {
         subject = spy(
             AnnouncementQueries(
                 userService = userService,
-                tierService = tierService,
+                kycService = kycService,
                 sbStateFactory = sbSync,
                 userIdentity = userIdentity,
                 coincore = coincore,
@@ -118,26 +118,14 @@ class AnnouncementQueriesTest {
     @Test
     fun `isTier1Or2Verified returns true for tier1 verified`() {
 
-        whenever(tierService.tiers()).thenReturn(
+        whenever(kycService.getKycTiersLegacy()).thenReturn(
             Single.just(
                 KycTiers(
-                    Tiers(
+                    TiersMap(
                         mapOf(
-                            KycTierLevel.BRONZE to
-                                Tier(
-                                    KycTierState.None,
-                                    Limits(null, null)
-                                ),
-                            KycTierLevel.SILVER to
-                                Tier(
-                                    KycTierState.Verified,
-                                    Limits(null, null)
-                                ),
-                            KycTierLevel.GOLD to
-                                Tier(
-                                    KycTierState.None,
-                                    Limits(null, null)
-                                )
+                            KycTierLevel.BRONZE to KycTierDetail(KycTierState.None, KycLimits(null, null)),
+                            KycTierLevel.SILVER to KycTierDetail(KycTierState.Verified, KycLimits(null, null)),
+                            KycTierLevel.GOLD to KycTierDetail(KycTierState.None, KycLimits(null, null))
                         )
                     )
                 )
@@ -153,26 +141,14 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `isTier1Or2Verified returns true for tier2 verified`() {
-        whenever(tierService.tiers()).thenReturn(
+        whenever(kycService.getKycTiersLegacy()).thenReturn(
             Single.just(
                 KycTiers(
-                    Tiers(
+                    TiersMap(
                         mapOf(
-                            KycTierLevel.BRONZE to
-                                Tier(
-                                    KycTierState.None,
-                                    Limits(null, null)
-                                ),
-                            KycTierLevel.SILVER to
-                                Tier(
-                                    KycTierState.Verified,
-                                    Limits(null, null)
-                                ),
-                            KycTierLevel.GOLD to
-                                Tier(
-                                    KycTierState.Verified,
-                                    Limits(null, null)
-                                )
+                            KycTierLevel.BRONZE to KycTierDetail(KycTierState.None, KycLimits(null, null)),
+                            KycTierLevel.SILVER to KycTierDetail(KycTierState.Verified, KycLimits(null, null)),
+                            KycTierLevel.GOLD to KycTierDetail(KycTierState.Verified, KycLimits(null, null))
                         )
                     )
                 )
@@ -188,26 +164,14 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `isTier1Or2Verified returns false if not verified`() {
-        whenever(tierService.tiers()).thenReturn(
+        whenever(kycService.getKycTiersLegacy()).thenReturn(
             Single.just(
                 KycTiers(
-                    Tiers(
+                    TiersMap(
                         mapOf(
-                            KycTierLevel.BRONZE to
-                                Tier(
-                                    KycTierState.None,
-                                    Limits(null, null)
-                                ),
-                            KycTierLevel.SILVER to
-                                Tier(
-                                    KycTierState.None,
-                                    Limits(null, null)
-                                ),
-                            KycTierLevel.GOLD to
-                                Tier(
-                                    KycTierState.None,
-                                    Limits(null, null)
-                                )
+                            KycTierLevel.BRONZE to KycTierDetail(KycTierState.None, KycLimits(null, null)),
+                            KycTierLevel.SILVER to KycTierDetail(KycTierState.None, KycLimits(null, null)),
+                            KycTierLevel.GOLD to KycTierDetail(KycTierState.None, KycLimits(null, null))
                         )
 
                     )
@@ -237,7 +201,7 @@ class AnnouncementQueriesTest {
     fun `isSimpleBuyKycInProgress - local simple buy state exists but has finished kyc, return false`() {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(false)
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Verified)))
+        whenever(kycService.getKycTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Verified)))
         whenever(sbSync.currentState()).thenReturn(state)
 
         subject.isSimpleBuyKycInProgress()
@@ -253,7 +217,7 @@ class AnnouncementQueriesTest {
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
         whenever(state.kycVerificationState).thenReturn(null)
 
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.None)))
+        whenever(kycService.getKycTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.None)))
         whenever(sbSync.currentState()).thenReturn(state)
 
         subject.isSimpleBuyKycInProgress()
@@ -267,9 +231,9 @@ class AnnouncementQueriesTest {
     fun `isSimpleBuyKycInProgress - simple buy state is not finished, and kyc state is pending - as expected`() {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
+        whenever(kycService.getKycTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
         whenever(sbSync.currentState()).thenReturn(state)
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
+        whenever(kycService.getKycTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
 
         subject.isSimpleBuyKycInProgress()
             .test()
@@ -287,7 +251,7 @@ class AnnouncementQueriesTest {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
 
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.UnderReview)))
+        whenever(kycService.getKycTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.UnderReview)))
         whenever(sbSync.currentState()).thenReturn(state)
 
         subject.isSimpleBuyKycInProgress()
@@ -301,7 +265,7 @@ class AnnouncementQueriesTest {
     fun `isSimpleBuyKycInProgress - SB state reports unfinished, but kyc docs are submitted - belt & braces case 2`() {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.Verified)))
+        whenever(kycService.getKycTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.Verified)))
         whenever(sbSync.currentState()).thenReturn(state)
 
         subject.isSimpleBuyKycInProgress()

@@ -24,13 +24,14 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.api.kyc.domain.KycService
+import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
+import info.blockchain.wallet.util.MetadataUtil.message
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -83,7 +84,7 @@ class SellIntroFragment : ViewPagerFragment() {
     private val binding: SellIntroFragmentBinding
         get() = _binding!!
 
-    private val tierService: TierService by scopedInject()
+    private val kycService: KycService by scopedInject()
     private val coincore: Coincore by scopedInject()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val eligibilityProvider: SimpleBuyEligibilityProvider by scopedInject()
@@ -170,7 +171,7 @@ class SellIntroFragment : ViewPagerFragment() {
     private fun loadSellDetails(showLoader: Boolean) {
         binding.accountsList.activityIndicator = if (showLoader) activityIndicator else null
 
-        compositeDisposable += tierService.tiers()
+        compositeDisposable += kycService.getKycTiersLegacy()
             .zipWith(eligibilityProvider.isEligibleForSimpleBuy(forceRefresh = true))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

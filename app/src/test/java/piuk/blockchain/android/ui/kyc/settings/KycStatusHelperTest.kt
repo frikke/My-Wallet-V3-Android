@@ -6,12 +6,12 @@ import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.api.getuser.domain.UserService
+import com.blockchain.nabu.api.kyc.domain.KycService
+import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
+import com.blockchain.nabu.api.kyc.domain.model.KycTierState
+import com.blockchain.nabu.api.kyc.domain.model.KycTiers
 import com.blockchain.nabu.models.responses.nabu.KycState
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.models.responses.nabu.KycTierState
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.UserState
-import com.blockchain.nabu.service.TierService
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -34,7 +34,7 @@ class KycStatusHelperTest {
     private val userService: UserService = mock()
     private val nabuToken: NabuToken = mock()
     private val settingsDataManager: SettingsDataManager = mock()
-    private val tierService: TierService = mock()
+    private val kycService: KycService = mock()
 
     @Suppress("unused")
     @get:Rule
@@ -50,7 +50,7 @@ class KycStatusHelperTest {
             userService,
             nabuToken,
             settingsDataManager,
-            tierService
+            kycService
         )
     }
 
@@ -249,7 +249,7 @@ class KycStatusHelperTest {
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
-        whenever(tierService.tiers())
+        whenever(kycService.getKycTiersLegacy())
             .thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.Pending)))
         // Act
         val testObserver = subject.getSettingsKycStateTier().test()
@@ -275,7 +275,7 @@ class KycStatusHelperTest {
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
-        whenever(tierService.tiers())
+        whenever(kycService.getKycTiersLegacy())
             .thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Verified)))
         // Act
         val testObserver = subject.getSettingsKycStateTier().test()
@@ -301,7 +301,7 @@ class KycStatusHelperTest {
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
-        whenever(tierService.tiers())
+        whenever(kycService.getKycTiersLegacy())
             .thenReturn(Single.just(tiers(KycTierState.Rejected, KycTierState.Rejected)))
         // Act
         val testObserver = subject.getKycTierStatus().test()
@@ -328,7 +328,7 @@ class KycStatusHelperTest {
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
-        whenever(tierService.tiers())
+        whenever(kycService.getKycTiersLegacy())
             .thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
         // Act
         val testObserver = subject.getSettingsKycStateTier().test()
@@ -354,7 +354,7 @@ class KycStatusHelperTest {
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
-        whenever(tierService.tiers())
+        whenever(kycService.getKycTiersLegacy())
             .thenReturn(Single.just(tiers(KycTierState.UnderReview, KycTierState.None)))
         // Act
         val testObserver = subject.getSettingsKycStateTier().test()
@@ -369,7 +369,7 @@ class KycStatusHelperTest {
     @Test
     fun `get settings kyc state should return state from tiers service`() = runTest {
         // Arrange
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Verified)))
+        whenever(kycService.getKycTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Verified)))
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))

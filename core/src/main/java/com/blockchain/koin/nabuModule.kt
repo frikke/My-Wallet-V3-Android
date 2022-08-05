@@ -13,10 +13,9 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.data.UserRepository
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.api.kyc.data.KycStoreRepository
-import com.blockchain.nabu.api.kyc.data.store.KycDataSource
-import com.blockchain.nabu.api.kyc.data.store.KycStore
-import com.blockchain.nabu.api.kyc.domain.KycStoreService
+import com.blockchain.nabu.api.kyc.data.KycRepository
+import com.blockchain.nabu.api.kyc.data.store.KycTiersStore
+import com.blockchain.nabu.api.kyc.domain.KycService
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.datamanagers.AnalyticsNabuUserReporterImpl
 import com.blockchain.nabu.datamanagers.AnalyticsWalletReporter
@@ -45,10 +44,7 @@ import com.blockchain.nabu.datamanagers.repositories.swap.TradingPairsProviderIm
 import com.blockchain.nabu.metadata.AccountCredentialsMetadata
 import com.blockchain.nabu.metadata.MetadataRepositoryNabuTokenAdapter
 import com.blockchain.nabu.service.NabuService
-import com.blockchain.nabu.service.NabuTierService
 import com.blockchain.nabu.service.RetailWalletTokenService
-import com.blockchain.nabu.service.TierService
-import com.blockchain.nabu.service.TierUpdater
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -210,29 +206,18 @@ val nabuModule = module {
             AnalyticsWalletReporter(userAnalytics = get())
         }.bind(WalletReporter::class)
 
-        scoped<KycStoreService> {
-            KycStoreRepository(
-                kycDataSource = get(),
+        scoped<KycService> {
+            KycRepository(
+                kycTiersStore = get(),
                 assetCatalogue = get()
             )
         }
 
-        scoped<KycDataSource> {
-            KycStore(
-                endpoint = get(),
+        scoped {
+            KycTiersStore(
+                kycApiService = get(),
                 authenticator = get()
             )
-        }
-
-        factory {
-            NabuTierService(
-                authenticator = get(),
-                kycStoreService = get(),
-                endpoint = get()
-            )
-        }.apply {
-            bind(TierService::class)
-            bind(TierUpdater::class)
         }
 
         factory {

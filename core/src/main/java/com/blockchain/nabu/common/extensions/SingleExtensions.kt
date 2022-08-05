@@ -6,8 +6,20 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import retrofit2.HttpException
 import timber.log.Timber
+
+internal inline fun <reified T> Flow<T>.wrapErrorMessage(): Flow<T> = this.catch {
+    if (BuildConfig.DEBUG) {
+        Timber.e("RX Wrapped Error: {${it.message} --- ${T::class.simpleName}")
+    }
+    when (it) {
+        is HttpException -> throw NabuApiExceptionFactory.fromResponseBody(it)
+        else -> throw it
+    }
+}
 
 internal inline fun <reified T> Observable<T>.wrapErrorMessage(): Observable<T> = this.onErrorResumeNext {
     if (BuildConfig.DEBUG) {

@@ -15,7 +15,7 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
+import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe

@@ -2,8 +2,8 @@ package com.blockchain.nabu.api.kyc.data
 
 import com.blockchain.data.DataResource
 import com.blockchain.nabu.USD
-import com.blockchain.nabu.api.kyc.data.store.KycDataSource
-import com.blockchain.nabu.api.kyc.domain.KycStoreService
+import com.blockchain.nabu.api.kyc.data.store.KycTiersStore
+import com.blockchain.nabu.api.kyc.domain.KycService
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
@@ -21,12 +21,12 @@ import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
 
-class KycStoreRepositoryTest {
-    private val kycDataSource = mockk<KycDataSource>()
+class KycTiersStoreRepositoryTest {
+    private val kycTiersStore = mockk<KycTiersStore>()
     private val assetCatalogue = mockk<AssetCatalogue>()
 
-    private val kycStoreService: KycStoreService = KycStoreRepository(
-        kycDataSource = kycDataSource,
+    private val kycService: KycService = KycRepository(
+        kycTiersStore = kycTiersStore,
         assetCatalogue = assetCatalogue
     )
 
@@ -87,7 +87,7 @@ class KycStoreRepositoryTest {
 
     @Before
     fun setUp() {
-        every { kycDataSource.stream(any()) } returns
+        every { kycTiersStore.stream(any()) } returns
             flowOf(DataResource.Data(tiersResponse))
 
         every { assetCatalogue.fromNetworkTicker("USD") } returns USD
@@ -95,7 +95,7 @@ class KycStoreRepositoryTest {
 
     @Test
     fun `WHEN getKycTiers is called, THEN kycTiers should be returned`() {
-        kycStoreService.getKycTiers()
+        kycService.getKycTiersLegacy()
             .test()
             .await()
             .assertValue {

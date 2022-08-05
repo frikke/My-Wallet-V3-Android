@@ -48,7 +48,7 @@ val kycUiModule = module {
 
         factory {
             KycTierSplashPresenter(
-                tierService = get(),
+                kycService = get(),
                 analytics = get()
             )
         }
@@ -119,7 +119,7 @@ val kycUiModule = module {
                 userService = get(),
                 reentryDecision = get(),
                 kycNavigator = get(),
-                kycDataSource = get(),
+                kycTiersStore = get(),
                 getUserStore = get(),
                 analytics = get()
             )
