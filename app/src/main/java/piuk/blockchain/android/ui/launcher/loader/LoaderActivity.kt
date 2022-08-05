@@ -65,7 +65,7 @@ class LoaderActivity :
             is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
             is LoadingStep.RequestPin -> onRequestPin()
             // These below should always come only after a ProgressStep.FINISH has been emitted
-            is LoadingStep.EmailVerification -> launchEmailVerification(newState.isUserInCowboysPromo)
+            is LoadingStep.EmailVerification -> launchEmailVerification()
             is LoadingStep.EducationalWalletMode -> launchEducationalWalletMode(
                 data = loaderStep.data,
                 isUserInCowboysPromo = newState.isUserInCowboysPromo
@@ -199,14 +199,14 @@ class LoaderActivity :
         finish()
     }
 
-    private fun launchEmailVerification(isUserInCowboysPromo: Boolean) {
+    private fun launchEmailVerification() {
         binding.progress.gone()
         binding.contentFrame.visible()
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.content_frame,
-                KycEmailEntryFragment.newInstance(isSkippable = !isUserInCowboysPromo),
+                KycEmailEntryFragment.newInstance(canBeSkipped = true),
                 KycEmailEntryFragment::class.simpleName
             )
             .commitAllowingStateLoss()

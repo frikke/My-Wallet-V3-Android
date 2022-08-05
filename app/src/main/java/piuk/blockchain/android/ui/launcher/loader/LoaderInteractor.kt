@@ -7,6 +7,7 @@ import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.preferences.CowboysPrefs
@@ -100,16 +101,7 @@ class LoaderInteractor(
                     referralService.associateReferralCodeIfPresent(referralCode)
                 }
             }.then {
-                Single.zip(
-                    userIdentity.isCowboysUser(),
-                    cowboysPromoFeatureFlag.enabled,
-                ) { isCowboysUser, isCowboysFlagEnabled ->
-                    emitter.onNext(
-                        LoaderIntents.UpdateCowboysPromo(
-                            isCowboysUser && isCowboysFlagEnabled && !cowboysPrefs.hasSeenCowboysFlow
-                        )
-                    )
-                }.ignoreElement()
+                checkForCowboysUser()
             }
             .doOnSubscribe {
                 emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))
@@ -122,6 +114,21 @@ class LoaderInteractor(
                 }
             )
     }
+
+    private fun checkForCowboysUser() = Single.zip(
+        userIdentity.isCowboysUser(),
+        userIdentity.getHighestApprovedKycTier(),
+        cowboysPromoFeatureFlag.enabled,
+    ) { isCowboysUser, highestTier, isCowboysFlagEnabled ->
+        if (isCowboysFlagEnabled && isCowboysUser && highestTier == Tier.BRONZE) {
+            if (!cowboysPrefs.hasSeenCowboysFlow) {
+                cowboysPrefs.hasSeenCowboysFlow = true
+                emitter.onNext(
+                    LoaderIntents.UpdateCowboysPromo(isCowboysPromoUser = true)
+                )
+            }
+        }
+    }.ignoreElement()
 
     private fun syncFiatCurrencies(settings: Settings): Completable {
         val syncDisplayCurrency = when {

@@ -11,6 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.UiThread
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.analytics.events.AnalyticsEvents
@@ -20,6 +22,11 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.card.CustomBackgroundCard
+import com.blockchain.componentlib.card.CustomBackgroundCardView
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -48,6 +55,9 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
+import piuk.blockchain.android.ui.cowboys.CowboysAnnouncementInfo
+import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
+import piuk.blockchain.android.ui.cowboys.FlowStep
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
@@ -491,21 +501,46 @@ class PortfolioFragment :
     private fun renderCowboysFlow(cowboysState: DashboardCowboysState) {
         with(binding.cardCowboys) {
             when (cowboysState) {
-                DashboardCowboysState.CompleteEmailVerification -> {
-                    visible()
-                    title = "Complete email verification"
-                }
-                DashboardCowboysState.CompleteGoldVerification -> {
-                    visible()
-                    title = "Complete gold verification"
-                }
-                DashboardCowboysState.CompleteSDDVerification -> {
-                    visible()
-                    title = "Complete sdd verification"
-                }
-                DashboardCowboysState.Hidden -> gone()
+                is DashboardCowboysState.CowboyWelcomeCard ->
+                    showCowboysCard(
+                        cardInfo = cowboysState.cardInfo,
+                        onClick = {
+                            startActivity(
+                                CowboysFlowActivity.newIntent(requireContext(), FlowStep.Welcome)
+                            )
+                        }
+                    )
+                is DashboardCowboysState.CowboyIdentityCard ->
+                    showCowboysCard(
+                        cardInfo = cowboysState.cardInfo,
+                        onClick = {
+                            startActivity(
+                                CowboysFlowActivity.newIntent(requireContext(), FlowStep.Verify)
+                            )
+                        }
+                    )
+                is DashboardCowboysState.CowboyRaffleCard ->
+                    showCowboysCard(
+                        cardInfo = cowboysState.cardInfo,
+                        onClick = {
+                            startActivity(
+                                CowboysFlowActivity.newIntent(requireContext(), FlowStep.Raffle)
+                            )
+                        }
+                    )
+                is DashboardCowboysState.Hidden -> gone()
             }
         }
+    }
+
+    private fun CustomBackgroundCardView.showCowboysCard(cardInfo: CowboysAnnouncementInfo, onClick: () -> Unit) {
+        visible()
+        title = cardInfo.title
+        subtitle = cardInfo.message
+        backgroundResource = ImageResource.Local(R.drawable.ic_temp_cowboys_header)
+        iconResource = ImageResource.Local(R.drawable.ic_temp_cowboys_icon)
+        isCloseable = false
+        this.onClick = onClick
     }
 
     private fun setupCtaButtons(state: DashboardState) {
@@ -873,4 +908,20 @@ class PortfolioFragment :
 
 internal class SafeLayoutManager(context: Context) : LinearLayoutManager(context) {
     override fun supportsPredictiveItemAnimations() = false
+}
+
+@Preview
+@Composable
+fun CustomBackgroundCard_Basic() {
+    AppTheme {
+        AppSurface {
+            CustomBackgroundCard(
+                title = "Title",
+                subtitle = "Subtitle",
+                iconResource = ImageResource.Local(R.drawable.ic_temp_cowboys_icon),
+                backgroundResource = ImageResource.Local(R.drawable.ic_temp_cowboys_header),
+                isCloseable = false
+            )
+        }
+    }
 }

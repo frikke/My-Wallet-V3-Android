@@ -93,11 +93,14 @@ class KycNavHostActivity :
     }
 
     override fun showErrorSnackbarAndFinish(@StringRes message: Int) {
+        setResult(RESULT_CANCELED)
+
         BlockchainSnackbar.make(
             binding.root,
             getString(message),
             type = SnackbarType.Error
         ).show()
+
         finish()
     }
 
@@ -175,17 +178,34 @@ class KycNavHostActivity :
 
     override fun onSupportNavigateUp(): Boolean = consume {
         if (flowShouldBeClosedAfterBackAction() || !navController.navigateUp()) {
+            if (flowShouldBeClosedAfterBackAction()) {
+                setResultFromApplicationStatus()
+            }
+            if (!navController.navigateUp()) {
+                setResultFromApplicationStatus()
+            }
             finish()
         }
     }
 
     override fun onBackPressed() {
         if (flowShouldBeClosedAfterBackAction()) {
+            setResultFromApplicationStatus()
             finish()
         } else {
             super.onBackPressed()
         }
     }
+
+    private fun setResultFromApplicationStatus() =
+        if (hasCompletedApplication()) {
+            setResult(RESULT_OK)
+        } else {
+            setResult(RESULT_CANCELED)
+        }
+
+    private fun hasCompletedApplication() =
+        currentFragment is ApplicationCompleteFragment
 
     private fun flowShouldBeClosedAfterBackAction() =
         // If on final page, close host Activity on navigate up

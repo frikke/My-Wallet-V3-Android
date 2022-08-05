@@ -168,11 +168,13 @@ internal class DynamicAssetLoader(
                 when (result) {
                     is Outcome.Success ->
                         flow {
-                            result.value.mapNotNull {
-                                assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
-                                    loadSelfCustodialAsset(asset)
+                            emit(
+                                result.value.mapNotNull {
+                                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
+                                        loadSelfCustodialAsset(asset)
+                                    }
                                 }
-                            }
+                            )
                         }
                     is Outcome.Failure -> {
                         // getSubscriptions might fail because the wallet has never called auth before

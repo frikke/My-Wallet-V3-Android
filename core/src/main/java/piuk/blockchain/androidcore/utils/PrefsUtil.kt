@@ -719,8 +719,8 @@ class PrefsUtil(
         set(value) = setValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, value)
 
     override var hasSeenCowboysFlow: Boolean
-        get() = getValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, false)
-        set(value) = setValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, value)
+        get() = getValue(HAS_SEEN_COWBOYS_FLOW, false)
+        set(value) = setValue(HAS_SEEN_COWBOYS_FLOW, value)
 
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
