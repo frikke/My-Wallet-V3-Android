@@ -24,6 +24,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
 import kotlinx.serialization.decodeFromString
@@ -87,10 +88,11 @@ internal class NonCustodialRepository(
 
     override fun getSubscriptions(refreshStrategy: FreshnessStrategy): Flow<Outcome<Exception, List<String>>> {
         return subscriptionsStore.stream(refreshStrategy)
+            .filter { it !is DataResource.Loading }
             .map { response ->
                 when (response) {
                     is DataResource.Data -> Outcome.Success(response.data.currencies.map { it.ticker })
-                    is DataResource.Loading -> Outcome.Failure(IllegalStateException("Subscriptions not loaded"))
+                    is DataResource.Loading -> throw IllegalStateException("Subscriptions not loaded")
                     is DataResource.Error -> Outcome.Failure(response.error)
                 }
             }
