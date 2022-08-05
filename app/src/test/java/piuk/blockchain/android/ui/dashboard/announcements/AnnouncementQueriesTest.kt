@@ -123,9 +123,21 @@ class AnnouncementQueriesTest {
                 KycTiers(
                     TiersMap(
                         mapOf(
-                            KycTierLevel.BRONZE to KycTierDetail(KycTierState.None, KycLimits(null, null)),
-                            KycTierLevel.SILVER to KycTierDetail(KycTierState.Verified, KycLimits(null, null)),
-                            KycTierLevel.GOLD to KycTierDetail(KycTierState.None, KycLimits(null, null))
+                            KycTierLevel.BRONZE to
+                                KycTierDetail(
+                                    KycTierState.None,
+                                    KycLimits(null, null)
+                                ),
+                            KycTierLevel.SILVER to
+                                KycTierDetail(
+                                    KycTierState.Verified,
+                                    KycLimits(null, null)
+                                ),
+                            KycTierLevel.GOLD to
+                                KycTierDetail(
+                                    KycTierState.None,
+                                    KycLimits(null, null)
+                                )
                         )
                     )
                 )
@@ -146,9 +158,21 @@ class AnnouncementQueriesTest {
                 KycTiers(
                     TiersMap(
                         mapOf(
-                            KycTierLevel.BRONZE to KycTierDetail(KycTierState.None, KycLimits(null, null)),
-                            KycTierLevel.SILVER to KycTierDetail(KycTierState.Verified, KycLimits(null, null)),
-                            KycTierLevel.GOLD to KycTierDetail(KycTierState.Verified, KycLimits(null, null))
+                            KycTierLevel.BRONZE to
+                                KycTierDetail(
+                                    KycTierState.None,
+                                    KycLimits(null, null)
+                                ),
+                            KycTierLevel.SILVER to
+                                KycTierDetail(
+                                    KycTierState.Verified,
+                                    KycLimits(null, null)
+                                ),
+                            KycTierLevel.GOLD to
+                                KycTierDetail(
+                                    KycTierState.Verified,
+                                    KycLimits(null, null)
+                                )
                         )
                     )
                 )
@@ -169,9 +193,21 @@ class AnnouncementQueriesTest {
                 KycTiers(
                     TiersMap(
                         mapOf(
-                            KycTierLevel.BRONZE to KycTierDetail(KycTierState.None, KycLimits(null, null)),
-                            KycTierLevel.SILVER to KycTierDetail(KycTierState.None, KycLimits(null, null)),
-                            KycTierLevel.GOLD to KycTierDetail(KycTierState.None, KycLimits(null, null))
+                            KycTierLevel.BRONZE to
+                                KycTierDetail(
+                                    KycTierState.None,
+                                    KycLimits(null, null)
+                                ),
+                            KycTierLevel.SILVER to
+                                KycTierDetail(
+                                    KycTierState.None,
+                                    KycLimits(null, null)
+                                ),
+                            KycTierLevel.GOLD to
+                                KycTierDetail(
+                                    KycTierState.None,
+                                    KycLimits(null, null)
+                                )
                         )
 
                     )
@@ -201,7 +237,9 @@ class AnnouncementQueriesTest {
     fun `isSimpleBuyKycInProgress - local simple buy state exists but has finished kyc, return false`() {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(false)
-        whenever(kycService.getKycTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Verified)))
+        whenever(kycService.getKycTiersLegacy()).thenReturn(
+            Single.just(tiers(KycTierState.Verified, KycTierState.Verified))
+        )
         whenever(sbSync.currentState()).thenReturn(state)
 
         subject.isSimpleBuyKycInProgress()
@@ -217,7 +255,9 @@ class AnnouncementQueriesTest {
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
         whenever(state.kycVerificationState).thenReturn(null)
 
-        whenever(kycService.getKycTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.None)))
+        whenever(kycService.getKycTiersLegacy()).thenReturn(
+            Single.just(tiers(KycTierState.Verified, KycTierState.None))
+        )
         whenever(sbSync.currentState()).thenReturn(state)
 
         subject.isSimpleBuyKycInProgress()
@@ -251,7 +291,9 @@ class AnnouncementQueriesTest {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
 
-        whenever(kycService.getKycTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.UnderReview)))
+        whenever(kycService.getKycTiersLegacy()).thenReturn(
+            Single.just(tiers(KycTierState.Pending, KycTierState.UnderReview))
+        )
         whenever(sbSync.currentState()).thenReturn(state)
 
         subject.isSimpleBuyKycInProgress()
@@ -265,7 +307,9 @@ class AnnouncementQueriesTest {
     fun `isSimpleBuyKycInProgress - SB state reports unfinished, but kyc docs are submitted - belt & braces case 2`() {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
-        whenever(kycService.getKycTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.Verified)))
+        whenever(kycService.getKycTiersLegacy()).thenReturn(
+            Single.just(tiers(KycTierState.Pending, KycTierState.Verified))
+        )
         whenever(sbSync.currentState()).thenReturn(state)
 
         subject.isSimpleBuyKycInProgress()

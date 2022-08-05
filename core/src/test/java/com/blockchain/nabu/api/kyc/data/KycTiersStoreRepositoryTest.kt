@@ -1,18 +1,18 @@
 package com.blockchain.nabu.api.kyc.data
 
+import com.blockchain.api.kyc.model.KycLimitsDto
+import com.blockchain.api.kyc.model.KycTierDto
+import com.blockchain.api.kyc.model.KycTiersDto
 import com.blockchain.data.DataResource
 import com.blockchain.nabu.USD
 import com.blockchain.nabu.api.kyc.data.store.KycTiersStore
 import com.blockchain.nabu.api.kyc.domain.KycService
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.models.responses.nabu.KycTierState
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.Limits
-import com.blockchain.nabu.models.responses.nabu.LimitsJson
-import com.blockchain.nabu.models.responses.nabu.Tier
-import com.blockchain.nabu.models.responses.nabu.TierResponse
-import com.blockchain.nabu.models.responses.nabu.Tiers
-import com.blockchain.nabu.models.responses.nabu.TiersResponse
+import com.blockchain.nabu.api.kyc.domain.model.KycLimits
+import com.blockchain.nabu.api.kyc.domain.model.KycTierDetail
+import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
+import com.blockchain.nabu.api.kyc.domain.model.KycTierState
+import com.blockchain.nabu.api.kyc.domain.model.KycTiers
+import com.blockchain.nabu.api.kyc.domain.model.TiersMap
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Money
 import io.mockk.every
@@ -30,29 +30,29 @@ class KycTiersStoreRepositoryTest {
         assetCatalogue = assetCatalogue
     )
 
-    private val tiersResponse = TiersResponse(
+    private val tiersResponse = KycTiersDto(
         listOf(
-            TierResponse(
+            KycTierDto(
                 index = 0,
                 name = "name",
-                state = KycTierState.Verified,
+                state = "VERIFIED",
                 limits = null
             ),
-            TierResponse(
+            KycTierDto(
                 index = 1,
                 name = "name",
-                state = KycTierState.Pending,
-                limits = LimitsJson(
+                state = "PENDING",
+                limits = KycLimitsDto(
                     currency = "USD",
                     daily = null,
                     annual = 1000.0.toBigDecimal()
                 )
             ),
-            TierResponse(
+            KycTierDto(
                 index = 2,
                 name = "name",
-                state = KycTierState.None,
-                limits = LimitsJson(
+                state = "NONE",
+                limits = KycLimitsDto(
                     currency = "USD",
                     daily = 25000.0.toBigDecimal(),
                     annual = null
@@ -62,22 +62,22 @@ class KycTiersStoreRepositoryTest {
     )
 
     private val kycTiers = KycTiers(
-        Tiers(
+        TiersMap(
             mapOf(
                 KycTierLevel.BRONZE to
-                    Tier(
+                    KycTierDetail(
                         KycTierState.Verified,
-                        Limits(null, null)
+                        KycLimits(null, null)
                     ),
                 KycTierLevel.SILVER to
-                    Tier(
+                    KycTierDetail(
                         KycTierState.Pending,
-                        Limits(null, Money.fromMajor(USD, 1000.0.toBigDecimal()))
+                        KycLimits(null, Money.fromMajor(USD, 1000.0.toBigDecimal()))
                     ),
                 KycTierLevel.GOLD to
-                    Tier(
+                    KycTierDetail(
                         KycTierState.None,
-                        Limits(
+                        KycLimits(
                             Money.fromMajor(USD, 25000.0.toBigDecimal()), null
                         )
                     )

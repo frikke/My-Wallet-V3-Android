@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.interest.presentation
 import app.cash.turbine.test
 import com.blockchain.coincore.impl.CryptoAccountTradingGroup
 import com.blockchain.coincore.impl.CryptoInterestAccount
-import com.blockchain.nabu.models.responses.nabu.KycTiers
+import com.blockchain.nabu.api.kyc.domain.model.KycTiers
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.CryptoCurrency
 import io.mockk.coEvery

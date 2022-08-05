@@ -1,14 +1,14 @@
 package piuk.blockchain.android.ui
 
+import com.blockchain.nabu.api.kyc.domain.model.KycLimits
+import com.blockchain.nabu.api.kyc.domain.model.KycTierDetail
+import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
+import com.blockchain.nabu.api.kyc.domain.model.KycTierState
+import com.blockchain.nabu.api.kyc.domain.model.KycTiers
+import com.blockchain.nabu.api.kyc.domain.model.TiersMap
 import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.models.responses.nabu.KycTierState
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.Limits
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.nabu.models.responses.nabu.Tier
-import com.blockchain.nabu.models.responses.nabu.Tiers
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.testutils.USD
@@ -46,22 +46,22 @@ val validOfflineToken
 
 fun tiers(tier1State: KycTierState, tier2State: KycTierState): KycTiers {
     return KycTiers(
-        Tiers(
+        TiersMap(
             mapOf(
                 KycTierLevel.BRONZE to
-                    Tier(
+                    KycTierDetail(
                         KycTierState.Verified,
-                        Limits(null, null)
+                        KycLimits(null, null)
                     ),
                 KycTierLevel.SILVER to
-                    Tier(
+                    KycTierDetail(
                         tier1State,
-                        Limits(null, getLimit(USD, 1000))
+                        KycLimits(null, getLimit(USD, 1000))
                     ),
                 KycTierLevel.GOLD to
-                    Tier(
+                    KycTierDetail(
                         tier2State,
-                        Limits(getLimit(USD, 25000), null)
+                        KycLimits(getLimit(USD, 25000), null)
                     )
             )
         )
