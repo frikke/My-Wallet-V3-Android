@@ -73,6 +73,19 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp" />
 
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="16dp"
+            android:text="CustomBackground Card"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.card.CustomBackgroundCardView
+            android:id="@+id/cta_custom_bckg_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" />
+
     </androidx.appcompat.widget.LinearLayoutCompat>
 
 </ScrollView>

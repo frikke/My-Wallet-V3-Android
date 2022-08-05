@@ -42,6 +42,8 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.ui.cowboys.CowboysAnnouncementInfo
+import piuk.blockchain.android.ui.cowboys.CowboysDataProvider
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
@@ -64,6 +66,7 @@ class DashboardActionInteractorTest {
     private val referralPrefs: ReferralPrefs = mock()
     private val cowboysFeatureFlag: FeatureFlag = mock()
     private val settingsDataManager: SettingsDataManager = mock()
+    private val cowboysDataProvider: CowboysDataProvider = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -97,7 +100,8 @@ class DashboardActionInteractorTest {
             bankService = bankService,
             referralPrefs = referralPrefs,
             cowboysFeatureFlag = cowboysFeatureFlag,
-            settingsDataManager = settingsDataManager
+            settingsDataManager = settingsDataManager,
+            cowboysDataProvider = cowboysDataProvider
         )
     }
 
@@ -501,9 +505,12 @@ class DashboardActionInteractorTest {
         whenever(userIdentity.isCowboysUser()).thenReturn(Single.just(true))
 
         val settings: Settings = mock()
-
         whenever(settings.isEmailVerified).thenReturn(false)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
+        val data = CowboysAnnouncementInfo(
+            "title", "message", "", emptyList()
+        )
+        whenever(cowboysDataProvider.getWelcomeAnnouncement()).thenReturn(Single.just(data))
 
         actionInteractor.checkCowboysFlowSteps(model)
 
@@ -512,7 +519,8 @@ class DashboardActionInteractorTest {
         assert(
             captor.allValues.any {
                 val intent = it as? DashboardIntent.UpdateCowboysViewState
-                intent?.cowboysState is DashboardCowboysState.CompleteEmailVerification
+                intent?.cowboysState is DashboardCowboysState.CowboyWelcomeCard &&
+                    (intent.cowboysState as DashboardCowboysState.CowboyWelcomeCard).cardInfo == data
             }
         )
 
@@ -527,6 +535,10 @@ class DashboardActionInteractorTest {
     fun `given cowboys check when flag is on, user is tagged, email verified but bronze kyc then view state is verify SDD`() {
         whenever(cowboysFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(userIdentity.isCowboysUser()).thenReturn(Single.just(true))
+        val data = CowboysAnnouncementInfo(
+            "title", "message", "", emptyList()
+        )
+        whenever(cowboysDataProvider.getRaffleAnnouncement()).thenReturn(Single.just(data))
 
         val settings: Settings = mock()
 
@@ -542,7 +554,8 @@ class DashboardActionInteractorTest {
         assert(
             captor.allValues.any {
                 val intent = it as? DashboardIntent.UpdateCowboysViewState
-                intent?.cowboysState is DashboardCowboysState.CompleteSDDVerification
+                intent?.cowboysState is DashboardCowboysState.CowboyRaffleCard &&
+                    (intent.cowboysState as DashboardCowboysState.CowboyRaffleCard).cardInfo == data
             }
         )
 
@@ -559,8 +572,11 @@ class DashboardActionInteractorTest {
         whenever(cowboysFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(userIdentity.isCowboysUser()).thenReturn(Single.just(true))
         val settings: Settings = mock()
-
         whenever(settings.isEmailVerified).thenReturn(true)
+        val data = CowboysAnnouncementInfo(
+            "title", "message", "", emptyList()
+        )
+        whenever(cowboysDataProvider.getIdentityAnnouncement()).thenReturn(Single.just(data))
 
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
         whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.SILVER))
@@ -572,7 +588,8 @@ class DashboardActionInteractorTest {
         assert(
             captor.allValues.any {
                 val intent = it as? DashboardIntent.UpdateCowboysViewState
-                intent?.cowboysState is DashboardCowboysState.CompleteGoldVerification
+                intent?.cowboysState is DashboardCowboysState.CowboyIdentityCard &&
+                    (intent.cowboysState as DashboardCowboysState.CowboyIdentityCard).cardInfo == data
             }
         )
 

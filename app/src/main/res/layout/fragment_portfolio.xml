@@ -145,7 +145,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <piuk.blockchain.android.ui.referral.presentation.ReferralSuccessCardView
+        <com.blockchain.componentlib.card.CustomBackgroundCardView
             android:id="@+id/card_cowboys"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
