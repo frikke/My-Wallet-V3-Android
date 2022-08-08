@@ -8,8 +8,10 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -55,6 +57,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
+import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionType
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -202,6 +205,35 @@ fun ManageCard(
                         )
                     else if (isBalanceLoading)
                         ShimmerLoadingTableRow()
+
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Min)
+                            .padding(AppTheme.dimensions.paddingMedium),
+                    ) {
+
+                        PrimaryButton(
+                            text = stringResource(R.string.add_funds),
+                            state = if (isBalanceLoading) ButtonState.Disabled else ButtonState.Enabled,
+                            onClick = onTopUp,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                        )
+
+                        Spacer(modifier = Modifier.padding(4.dp))
+
+                        MinimalButton(
+                            text = stringResource(R.string.change_source),
+                            onClick = onChoosePaymentMethod,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                        )
+                    }
                 }
             }
         }
@@ -210,7 +242,7 @@ fun ManageCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = AppTheme.dimensions.paddingMedium
+                    AppTheme.dimensions.paddingMedium
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -225,21 +257,22 @@ fun ManageCard(
                     text = stringResource(R.string.bc_card_transactions_title),
                     style = ComposeTypographies.Body2,
                     color = ComposeColors.Body,
-                    gravity = ComposeGravities.Centre,
+                    gravity = ComposeGravities.Start,
                     modifier = Modifier.weight(1f)
                 )
 
-                Spacer(modifier = Modifier.weight(1f))
+                // TODO (labreu): disabled for MVP
+                /*Spacer(modifier = Modifier.weight(1f))
 
                 MinimalButton(
                     text = stringResource(R.string.bc_card_see_all),
-                    onClick = onManageCardDetails,
+                    onClick = {},
                     modifier = Modifier
                         .wrapContentWidth()
                         .weight(1f),
                     minHeight = 16.dp,
                     shape = AppTheme.shapes.extraLarge
-                )
+                )*/
             }
 
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
@@ -377,6 +410,7 @@ fun CardTransactionList(
                     timestamp = transaction.userTransactionTime,
                     amount = transaction.originalAmount.toStringWithSymbol(),
                     state = transaction.state,
+                    isRefund = transaction.type == BlockchainCardTransactionType.REFUND,
                     onClick = { onSeeTransactionDetails(transaction) }
                 )
                 if (index < transactionList.lastIndex)
@@ -890,7 +924,7 @@ fun Support(
 
         // Close card
         DestructivePrimaryButton(
-            text = stringResource(id = R.string.close_card),
+            text = stringResource(id = R.string.terminate_card),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -911,7 +945,7 @@ private fun PreviewSupport() {
 }
 
 @Composable
-fun CloseCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBottomSheet: () -> Unit) {
+fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBottomSheet: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -921,7 +955,7 @@ fun CloseCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBottom
         // Header
         SheetHeader(
             onClosePress = onCloseBottomSheet,
-            title = stringResource(id = R.string.close_card),
+            title = stringResource(id = R.string.terminate_card),
             shouldShowDivider = false
         )
 
@@ -957,7 +991,7 @@ fun CloseCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBottom
             modifier = Modifier.fillMaxWidth(),
             label = {
                 SimpleText(
-                    text = stringResource(R.string.close_card_confirm_description),
+                    text = stringResource(R.string.terminate_card_confirm_description),
                     style = ComposeTypographies.Caption1,
                     color = ComposeColors.Body,
                     gravity = ComposeGravities.Start
@@ -989,7 +1023,7 @@ fun CloseCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBottom
 
         // Close card
         DestructivePrimaryButton(
-            text = stringResource(id = R.string.close_card),
+            text = stringResource(id = R.string.terminate_card),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -999,7 +1033,7 @@ fun CloseCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBottom
                     bottom = dimensionResource(id = R.dimen.standard_margin)
                 ),
             onClick = onConfirmCloseCard,
-            state = if (closeCardConfirmationText == stringResource(R.string.delete_card_confirmation_text))
+            state = if (closeCardConfirmationText == stringResource(R.string.terminate_card_confirmation_text))
                 ButtonState.Enabled
             else
                 ButtonState.Disabled
@@ -1010,7 +1044,7 @@ fun CloseCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBottom
 @Composable
 @Preview(showBackground = true)
 private fun PreviewCloseCard() {
-    CloseCard("1234", {}, {})
+    TerminateCard("1234", {}, {})
 }
 
 @Composable
@@ -1072,7 +1106,7 @@ private fun PreviewCardDetailsBottomSheetElement() {
 
 @Composable
 fun AccountPicker(
-    eligibleTradingAccountBalances: MutableList<AccountBalance>,
+    eligibleTradingAccountBalances: List<AccountBalance>,
     onAccountSelected: (String) -> Unit,
     onCloseBottomSheet: () -> Unit,
 ) {
@@ -1088,18 +1122,21 @@ fun AccountPicker(
             .fillMaxWidth()
             .background(backgroundColor)
     ) {
-        SheetHeader(
-            onClosePress = onCloseBottomSheet,
-            title = stringResource(R.string.spend_from),
-            shouldShowDivider = false
+        SimpleText(
+            text = stringResource(R.string.spend_from),
+            style = ComposeTypographies.Title2,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Start,
+            modifier = Modifier.padding(AppTheme.dimensions.paddingLarge)
         )
+
         AccountsContent(eligibleTradingAccountBalances, onAccountSelected)
     }
 }
 
 @Composable
 fun AccountsContent(
-    eligibleTradingAccountBalances: MutableList<AccountBalance>,
+    eligibleTradingAccountBalances: List<AccountBalance>,
     onAccountSelected: (String) -> Unit,
 ) {
     if (eligibleTradingAccountBalances.isNotEmpty()) {
@@ -1201,6 +1238,7 @@ fun CardTransactionItem(
     timestamp: String,
     amount: String,
     state: BlockchainCardTransactionState,
+    isRefund: Boolean,
     onClick: () -> Unit,
 ) {
     val tagType = when (state) {
@@ -1210,11 +1248,14 @@ fun CardTransactionItem(
         BlockchainCardTransactionState.PENDING -> TagType.InfoAlt()
     }
 
+    val transactionTitle = if (isRefund) "[REFUND] $merchantName" else merchantName
+    val transactionAmount = if (isRefund) "+$amount" else "-$amount"
+
     DefaultTableRow(
         startImageResource = ImageResource.Local(R.drawable.credit_card),
-        primaryText = merchantName,
+        primaryText = transactionTitle,
         secondaryText = timestamp.fromIso8601ToUtc()?.toLocalTime()?.toFormattedDate(),
-        endText = amount,
+        endText = transactionAmount,
         endTag = TagViewState(stringResource(id = state.getStringResource()), tagType),
         onClick = onClick,
     )
@@ -1228,7 +1269,8 @@ fun PreviewCardTransactionItem() {
         timestamp = "2020-01-01T00:00:00.000Z",
         amount = "-$1.00",
         state = BlockchainCardTransactionState.COMPLETED,
-        onClick = { /*TODO*/ }
+        isRefund = false,
+        onClick = { }
     )
 }
 
@@ -1238,14 +1280,24 @@ fun CardTransactionDetails(cardTransaction: BlockchainCardTransaction, onCloseBo
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+
+        val isRefund = cardTransaction.type == BlockchainCardTransactionType.REFUND
+        val transactionAmount =
+            if (isRefund)
+                "+${cardTransaction.originalAmount.toStringWithSymbol()}"
+            else
+                "-${cardTransaction.originalAmount.toStringWithSymbol()}"
+
         SheetHeader(
             onClosePress = onCloseBottomSheet,
             title = stringResource(R.string.transaction_details),
             shouldShowDivider = true
         )
 
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.paddingLarge))
+
         SimpleText(
-            text = cardTransaction.originalAmount.toStringWithSymbol(),
+            text = transactionAmount,
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Start,
@@ -1266,13 +1318,13 @@ fun CardTransactionDetails(cardTransaction: BlockchainCardTransaction, onCloseBo
         )
         DefaultTableRow(
             primaryText = stringResource(R.string.type),
-            secondaryText = cardTransaction.type,
+            secondaryText = stringResource(cardTransaction.type.getStringResource()),
             endImageResource = ImageResource.None,
             onClick = {},
         )
         DefaultTableRow(
             primaryText = stringResource(R.string.state),
-            secondaryText = cardTransaction.state.toString(),
+            secondaryText = stringResource(cardTransaction.state.getStringResource()),
             endImageResource = ImageResource.None,
             onClick = {},
         )
@@ -1287,7 +1339,7 @@ fun PreviewCardTransactionDetails() {
             merchantName = "Coffee Beans Inc.",
             originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(-100.00)),
             userTransactionTime = "2020-06-21T12:00:00.000Z",
-            type = "Purchase",
+            type = BlockchainCardTransactionType.PAYMENT,
             state = BlockchainCardTransactionState.COMPLETED,
             id = "123456789",
             cardId = "123456789",

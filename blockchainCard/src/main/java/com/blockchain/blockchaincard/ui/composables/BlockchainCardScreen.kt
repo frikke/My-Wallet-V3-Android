@@ -21,12 +21,12 @@ import com.blockchain.blockchaincard.ui.composables.managecard.AccountPicker
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddress
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddressUpdated
 import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionDetails
-import com.blockchain.blockchaincard.ui.composables.managecard.CloseCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCardDetails
 import com.blockchain.blockchaincard.ui.composables.managecard.PersonalDetails
 import com.blockchain.blockchaincard.ui.composables.managecard.Support
 import com.blockchain.blockchaincard.ui.composables.managecard.SupportPage
+import com.blockchain.blockchaincard.ui.composables.managecard.TerminateCard
 import com.blockchain.blockchaincard.ui.composables.managecard.TransactionControls
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationFailed
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationInProgress
@@ -256,7 +256,7 @@ fun BlockchainCardNavHost(
                 }
             }
 
-            bottomSheet(BlockchainCardDestination.ChoosePaymentMethodDestination) {
+            composable(BlockchainCardDestination.ChoosePaymentMethodDestination) {
                 state?.let {
                     AccountPicker(
                         eligibleTradingAccountBalances = it.eligibleTradingAccountBalances,
@@ -356,7 +356,7 @@ fun BlockchainCardNavHost(
 
             bottomSheet(BlockchainCardDestination.CloseCardDestination) {
                 state?.card?.last4?.let { last4 ->
-                    CloseCard(
+                    TerminateCard(
                         last4digits = last4,
                         onConfirmCloseCard = {
                             viewModel.onIntent(BlockchainCardIntent.ConfirmCloseCard)

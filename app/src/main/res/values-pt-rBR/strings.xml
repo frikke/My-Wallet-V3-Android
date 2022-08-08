@@ -2597,13 +2597,13 @@ Verifique sua conexão com a Internet e tente novamente ou entre em contato com 
     <string name="visit_faq">Visite nossas perguntas frequentes</string>
     <string name="visit_faq_description">Veja as dúvidas mais frequentes</string>
     <string name="contact_support_description">Entre em contato conosco para quaisquer outras questões</string>
-    <string name="close_card">Encerrar cartão</string>
+    <string name="terminate_card">Encerrar cartão</string>
     <string name="close_card_number">Encerrar %1s?</string>
     <string name="close_card_warning">\"Uma vez confirmada, esta ação não pode ser desfeita.\"</string>
-    <string name="close_card_confirm_description">Digite \"EXCLUIR\" para encerrar permanentemente seu cartão</string>
+    <string name="terminate_card_confirm_description">Digite \"EXCLUIR\" para encerrar permanentemente seu cartão</string>
     <string name="delete">EXCLUIR</string>
     <string name="no_accounts_eligible_for_linking">Nenhuma conta qualificada para vincular</string>
-    <string name="delete_card_confirmation_text">EXCLUIR</string>
+    <string name="terminate_card_confirmation_text">EXCLUIR</string>
     <string name="address_updated">Endereço de cobrança atualizado</string>
     <string name="address_update_success">Endereço atualizado com sucesso</string>
     <string name="address_update_success_description">Seu endereço de cobrança foi alterado com sucesso e entrará em vigor imediatamente.</string>

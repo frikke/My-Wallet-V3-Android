@@ -190,7 +190,9 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
             }
 
             is BlockchainCardIntent.OnSeeLegalDocuments -> {
-                navigate(BlockchainCardNavigationEvent.SeeLegalDocuments)
+                modelState.legalDocuments?.let {
+                    navigate(BlockchainCardNavigationEvent.SeeLegalDocuments)
+                }
             }
 
             is BlockchainCardIntent.OnLegalDocSeen -> {
