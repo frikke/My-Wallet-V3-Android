@@ -78,7 +78,7 @@ val kycUiModule = module {
                 custodialWalletManager = get(),
                 kycNextStepDecision = get(),
                 analytics = get(),
-                kycStoreService = get(),
+                kycTiersStore = get(),
             )
         }
 

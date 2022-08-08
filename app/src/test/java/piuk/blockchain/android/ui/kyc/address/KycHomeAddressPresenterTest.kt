@@ -7,7 +7,7 @@ import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.api.kyc.domain.KycStoreService
+import com.blockchain.nabu.api.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
@@ -41,7 +41,7 @@ class KycHomeAddressPresenterTest {
     private val nabuUserSync: NabuUserSync = mock()
     private val nabuToken: NabuToken = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val kycStoreService: KycStoreService = mock()
+    private val kycTiersStore: KycTiersStore = mock()
 
     private val kycNextStepDecision: KycHomeAddressNextStepDecision = mock {
         on { nextStep() }.thenReturn(Single.just(KycNextStepDecision.NextStep.Veriff))
@@ -65,7 +65,7 @@ class KycHomeAddressPresenterTest {
             kycNextStepDecision,
             custodialWalletManager,
             mock(),
-            kycStoreService
+            kycTiersStore
         )
         subject.initView(view)
     }
@@ -455,7 +455,7 @@ class KycHomeAddressPresenterTest {
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
         verify(view).onSddVerified()
-        verify(kycStoreService).markAsStale()
+        verify(kycTiersStore).markAsStale()
         verify(nabuUserSync).syncUser()
     }
 
