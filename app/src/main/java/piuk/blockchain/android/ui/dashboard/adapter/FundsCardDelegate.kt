@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visibleIf
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
@@ -29,7 +28,7 @@ class FundsCardDelegate(
         val binding = ItemDashboardFundsParentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return FundsCardViewHolder(
             binding,
-            ItemDashboardFundsBinding.inflate(LayoutInflater.from(parent.context), binding.root, true),
+            binding.itemDashboardFunds,
             onFundsItemClicked,
             selectedFiat
         )
@@ -54,11 +53,26 @@ private class FundsCardViewHolder(
     }
 
     fun bind(fiats: FiatBalanceInfo) {
+        binding.fundsSingleItem.visibleIf { fiats.isSingleCurrency }
+        binding.fundsList.visibleIf { !fiats.isSingleCurrency }
+
         if (fiats.isSingleCurrency) {
-            showSingleAsset(fiats.funds[0])
+            val item = fiats.funds[0]
+            singleLayoutBinding.apply {
+                fundsUserFiatBalance.visibleIf { selectedFiat != item.currency }
+                fundsUserFiatBalance.text = item.fiatBalance?.toStringWithSymbol()
+                binding.fundsSingleItem.setOnClickListener {
+                    onFundsItemClicked(item.fiatAccount)
+                }
+                fundsTitle.text = item.currency.name
+                fundsFiatTicker.text = item.currency.displayTicker
+                fundsBalance.text =
+                    item.accountBalance?.total?.toStringWithSymbol()
+
+                fundsIcon.setIcon(item.currency as FiatCurrency)
+            }
         } else {
             with(binding) {
-                fundsSingleItem.gone()
                 fundsList.apply {
                     layoutManager =
                         LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
@@ -66,23 +80,6 @@ private class FundsCardViewHolder(
                 }
                 multipleFundsAdapter.items = fiats.funds
             }
-        }
-    }
-
-    private fun showSingleAsset(item: BrokearageFiatAsset) {
-        singleLayoutBinding.apply {
-            fundsUserFiatBalance.visibleIf { selectedFiat != item.currency }
-            fundsUserFiatBalance.text = item.fiatBalance?.toStringWithSymbol()
-            binding.fundsList.gone()
-            binding.fundsSingleItem.setOnClickListener {
-                onFundsItemClicked(item.fiatAccount)
-            }
-            fundsTitle.text = item.currency.name
-            fundsFiatTicker.text = item.currency.displayTicker
-            fundsBalance.text =
-                item.accountBalance?.total?.toStringWithSymbol()
-
-            fundsIcon.setIcon(item.currency as FiatCurrency)
         }
     }
 }
