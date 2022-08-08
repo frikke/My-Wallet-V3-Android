@@ -102,7 +102,7 @@ object Versions {
     // Compose
     const val compose = "1.2.0"
     const val composeShowkase = "1.1.1"
-    const val coil = "1.4.0"
+    const val coil = "2.1.0"
     const val composeActivity = "1.5.0"
     const val constraintLayoutCompose = "1.0.1"
     const val composeRx = "1.2.0"
@@ -129,13 +129,14 @@ object Versions {
     const val sift = "0.11.1"
     const val cardForm = "4.2.0"
     const val xlmSunriver = "0.21.1"
-    const val lottieVersion = "3.5.0"
+    const val lottieVersion = "5.2.0"
     const val zendeskChatVersion = "3.3.4"
     const val zendeskMessagingVersion = "5.2.3"
     const val checkoutComVersion = "3.0.1"
     const val stripeVersion = "20.3.0"
     const val intercomVersion = "10.6.0"
     const val plaidLinkVersion = "3.9.0"
+    const val exoplayerVersion = "2.18.1"
 
     // Logging
     const val timber = "4.7.1"
@@ -305,6 +306,8 @@ object Libraries {
     const val composeUiTest = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
     const val composeCoil = "io.coil-kt:coil-compose:${Versions.coil}"
     const val composeCoilSvg = "io.coil-kt:coil-svg:${Versions.coil}"
+    const val composeCoilGif = "io.coil-kt:coil-gif:${Versions.coil}"
+    const val composeLottie = "com.airbnb.android:lottie-compose:${Versions.lottieVersion}"
     const val constraintLayoutCompose =
         "androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayoutCompose}"
     const val composeRx = "androidx.compose.runtime:runtime-rxjava3:${Versions.composeRx}"
@@ -317,7 +320,8 @@ object Libraries {
     const val accompanistFlowLayout = "com.google.accompanist:accompanist-flowlayout:${Versions.composeFlowLayout}"
     const val accompanistSwipeRefresh = "com.google.accompanist:accompanist-swiperefresh:${Versions.swipeRefresh}"
     const val accompanistPager = "com.google.accompanist:accompanist-pager:${Versions.pager}"
-    const val accompanistPagerIndicators = "com.google.accompanist:accompanist-pager-indicators:${Versions.pagerIndicators}"
+    const val accompanistPagerIndicators =
+        "com.google.accompanist:accompanist-pager-indicators:${Versions.pagerIndicators}"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"
@@ -331,6 +335,7 @@ object Libraries {
     const val stripe = "com.stripe:stripe-android:${Versions.stripeVersion}"
     const val intercom = "io.intercom.android:intercom-sdk-base:${Versions.intercomVersion}"
     const val plaidLink = "com.plaid.link:sdk-core:${Versions.plaidLinkVersion}"
+    const val exoPlayer = "com.google.android.exoplayer:exoplayer:${Versions.exoplayerVersion}"
 
     // Logging
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"

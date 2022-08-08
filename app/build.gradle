@@ -480,7 +480,9 @@ dependencies {
     implementation Libraries.composeActivity
     implementation Libraries.composeCoil
     implementation Libraries.composeCoilSvg
+    implementation Libraries.composeLottie
     implementation Libraries.constraintLayoutCompose
+    implementation Libraries.exoPlayer
     implementation Libraries.accompanistNavigationMaterial
     implementation Libraries.accompanistPager
     implementation Libraries.accompanistPagerIndicators

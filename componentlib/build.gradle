@@ -42,6 +42,9 @@ dependencies {
     implementation Libraries.composeActivity
     implementation Libraries.composeCoil
     implementation Libraries.composeCoilSvg
+    implementation Libraries.composeCoilGif
+    implementation Libraries.composeLottie
+    implementation Libraries.exoPlayer
     implementation Libraries.accompanistSystemUi
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.koin

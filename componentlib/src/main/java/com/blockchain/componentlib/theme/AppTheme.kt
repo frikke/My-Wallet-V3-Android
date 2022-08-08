@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.theme
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
@@ -20,6 +21,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import coil.ImageLoader
 import coil.compose.LocalImageLoader
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
 import coil.decode.SvgDecoder
 import com.blockchain.componentlib.BuildConfig
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -118,8 +121,14 @@ fun AppTheme(
 ) {
     val imageLoader = runCatching {
         ImageLoader.Builder(LocalContext.current)
-            .componentRegistry { add(SvgDecoder(LocalContext.current)) }
-            .crossfade(true)
+            .components {
+                add(SvgDecoder.Factory())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    add(ImageDecoderDecoder.Factory())
+                } else {
+                    add(GifDecoder.Factory())
+                }
+            }
             .build()
     }.getOrElse { throwable ->
 
@@ -135,7 +144,7 @@ fun AppTheme(
          * here.
          * */
         ImageLoader.Builder(LocalContext.current)
-            .componentRegistry { }
+            .components { }
             .crossfade(true)
             .build()
     }

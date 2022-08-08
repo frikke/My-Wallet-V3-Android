@@ -66,10 +66,10 @@ fun Image(
             )
         is ImageResource.Remote ->
             androidx.compose.foundation.Image(
-                painter = rememberImagePainter(
-                    data = imageResource.url,
-                    builder = coilImageBuilderScope ?: defaultBuilderScope
-                ),
+                painter = rememberImagePainter {
+                    imageResource.url
+                    coilImageBuilderScope ?: defaultBuilderScope
+                },
                 contentDescription = imageResource.contentDescription,
                 modifier = imageResource.shape?.let {
                     Modifier
@@ -126,7 +126,7 @@ fun Image(
                         .size(dimensionResource(R.dimen.large_margin)),
                 )
                 androidx.compose.foundation.Image(
-                    painter = painterResource(id = imageResource.id),
+                    painter = painterResource(imageResource.id),
                     contentDescription = imageResource.contentDescription,
                     modifier = modifier,
                     colorFilter = ColorFilter.tint(filterColor),
