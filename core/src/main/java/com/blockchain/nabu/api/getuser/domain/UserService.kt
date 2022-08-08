@@ -12,4 +12,6 @@ interface UserService {
     fun getUserFlow(
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<NabuUser>
+
+    fun markAsStale()
 }

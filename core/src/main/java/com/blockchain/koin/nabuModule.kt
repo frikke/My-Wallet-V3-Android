@@ -14,7 +14,6 @@ import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.data.UserRepository
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.api.kyc.data.KycStoreRepository
-import com.blockchain.nabu.api.kyc.data.store.KycDataSource
 import com.blockchain.nabu.api.kyc.data.store.KycStore
 import com.blockchain.nabu.api.kyc.domain.KycStoreService
 import com.blockchain.nabu.api.nabu.Nabu
@@ -212,12 +211,12 @@ val nabuModule = module {
 
         scoped<KycStoreService> {
             KycStoreRepository(
-                kycDataSource = get(),
+                kycStore = get(),
                 assetCatalogue = get()
             )
         }
 
-        scoped<KycDataSource> {
+        scoped {
             KycStore(
                 endpoint = get(),
                 authenticator = get()

@@ -6,7 +6,7 @@ import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.api.kyc.data.store.KycDataSource
+import com.blockchain.nabu.api.kyc.data.store.KycStore
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
@@ -27,13 +27,13 @@ class KycNavHostPresenter(
     private val userService: UserService,
     private val reentryDecision: ReentryDecision,
     private val kycNavigator: KycNavigator,
-    private val kycDataSource: KycDataSource,
+    private val kycStore: KycStore,
     private val getUserStore: GetUserStore,
     private val analytics: Analytics,
 ) : BaseKycPresenter<KycNavHostView>(nabuToken) {
 
     override fun onViewReady() {
-        kycDataSource.invalidate()
+        kycStore.invalidate()
         getUserStore.invalidate()
 
         compositeDisposable +=

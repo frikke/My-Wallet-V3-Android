@@ -1,7 +1,5 @@
 package com.blockchain.nabu.api.kyc.data.store
 
-import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
@@ -13,11 +11,11 @@ import com.blockchain.store.Fetcher
 import com.blockchain.store.Mediator
 import com.blockchain.store.Store
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
+import com.blockchain.storedatasource.FlushableDataSource
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.flow.Flow
 
-internal class KycStore(
+class KycStore internal constructor(
     private val endpoint: Nabu,
     private val authenticator: Authenticator,
 ) : Store<TiersResponse> by PersistedJsonSqlDelightStoreBuilder()
@@ -65,10 +63,7 @@ internal class KycStore(
             }
         }
     ),
-    KycDataSource {
-
-    override fun stream(refresh: Boolean): Flow<DataResource<TiersResponse>> =
-        stream(FreshnessStrategy.Cached(forceRefresh = refresh))
+    FlushableDataSource {
 
     override fun invalidate() {
         markAsStale()

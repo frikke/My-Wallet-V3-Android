@@ -163,6 +163,7 @@ class KycProfilePresenterTest {
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
         verify(view).continueSignUp(any())
+        verify(userService).markAsStale()
     }
 
     @Test

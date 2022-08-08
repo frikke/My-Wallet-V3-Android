@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.kyc.email.entry
 
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.network.PollService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -8,7 +9,8 @@ import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 class EmailVerificationInteractor(
-    private val emailUpdater: EmailSyncUpdater
+    private val emailUpdater: EmailSyncUpdater,
+    private val getUserStore: GetUserStore
 ) {
 
     private val pollEmail = PollService(
@@ -24,6 +26,8 @@ class EmailVerificationInteractor(
         return cancelPolling().thenSingle {
             pollEmail.start(timerInSec = 1, retries = Integer.MAX_VALUE).map {
                 it.value
+            }.doOnSuccess {
+                getUserStore.invalidate()
             }
         }
     }
