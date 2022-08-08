@@ -77,7 +77,8 @@ val kycUiModule = module {
                 nabuUserSync = get(),
                 custodialWalletManager = get(),
                 kycNextStepDecision = get(),
-                analytics = get()
+                analytics = get(),
+                kycStoreService = get(),
             )
         }
 

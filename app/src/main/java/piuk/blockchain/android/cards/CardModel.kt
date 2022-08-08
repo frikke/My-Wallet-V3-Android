@@ -142,7 +142,8 @@ class CardModel(
                     iconUrl = info.iconUrl,
                     statusIconUrl = info.statusUrl,
                     actions = info.actions,
-                    categories = info.categories
+                    categories = info.categories,
+                    errorId = info.id
                 )
             } else {
                 when (this.getErrorCode()) {
@@ -201,7 +202,8 @@ class CardModel(
                                             iconUrl = error.iconUrl,
                                             statusIconUrl = error.statusUrl,
                                             actions = error.actions,
-                                            categories = error.categories
+                                            categories = error.categories,
+                                            errorId = error.id
                                         )
                                     } ?: CardError.LinkFailed
                                 }

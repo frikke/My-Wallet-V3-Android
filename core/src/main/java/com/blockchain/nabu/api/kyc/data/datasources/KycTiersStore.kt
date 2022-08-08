@@ -15,7 +15,7 @@ import com.blockchain.storedatasource.FlushableDataSource
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
-class KycTiersStore(
+class KycTiersStore internal constructor(
     private val kycApiService: KycApiService,
     private val authenticator: Authenticator,
 ) : Store<KycTiersDto> by PersistedJsonSqlDelightStoreBuilder()
@@ -71,6 +71,6 @@ class KycTiersStore(
     }
 
     companion object {
-        private const val STORE_ID = "GetKycTiersStore"
+        private const val STORE_ID = "KycTiersStore"
     }
 }

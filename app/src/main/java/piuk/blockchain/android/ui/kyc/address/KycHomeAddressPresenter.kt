@@ -9,6 +9,7 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.api.getuser.domain.UserService
+import com.blockchain.nabu.api.kyc.domain.KycStoreService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.network.PollService
@@ -57,6 +58,7 @@ class KycHomeAddressPresenter(
     private val kycNextStepDecision: KycHomeAddressNextStepDecision,
     private val custodialWalletManager: CustodialWalletManager,
     private val analytics: Analytics,
+    private val kycStoreService: KycStoreService,
 ) : BaseKycPresenter<KycHomeAddressView>(nabuToken) {
 
     val countryCodeSingle: Single<SortedMap<String, String>> by unsafeLazy {
@@ -139,7 +141,8 @@ class KycHomeAddressPresenter(
                 addAddress(address).toSingle { address.country }
             }
             .flatMap { countryCode ->
-                updateNabuData().thenSingle { Single.just(countryCode) }
+                kycStoreService.markAsStale()
+                nabuUserSync.syncUser().thenSingle { Single.just(countryCode) }
             }
             .map { countryCode ->
                 State(
@@ -225,8 +228,6 @@ class KycHomeAddressPresenter(
             address.country
         ).subscribeOn(Schedulers.io())
     }
-
-    private fun updateNabuData(): Completable = nabuUserSync.syncUser()
 
     private fun getCountryName(countryCode: String): Maybe<String> = countryCodeSingle
         .map { it.entries.first { (_, value) -> value == countryCode }.key }

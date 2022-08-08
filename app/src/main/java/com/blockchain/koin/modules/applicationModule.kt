@@ -714,7 +714,8 @@ val applicationModule = module {
 
         factory {
             EmailVerificationInteractor(
-                emailUpdater = get()
+                emailUpdater = get(),
+                getUserStore = get(),
             )
         }
 

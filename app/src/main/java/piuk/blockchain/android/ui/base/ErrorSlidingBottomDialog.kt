@@ -98,6 +98,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
             } ?: tertiaryCtaButton.gone()
         }
         logClientError(
+            errorId = errorDialogData.errorId,
             title = errorDialogData.title,
             error = errorDialogData.error.orEmpty(),
             nabuApiException = errorDialogData.nabuApiException,
@@ -256,6 +257,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
     }
 
     private fun logClientError(
+        errorId: String?,
         title: String,
         error: String,
         nabuApiException: NabuApiException?,
@@ -265,6 +267,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
     ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
+                errorId = errorId?.ifEmpty { nabuApiException?.getServerSideErrorInfo()?.id },
                 nabuApiException = nabuApiException,
                 errorDescription = description,
                 error = error,

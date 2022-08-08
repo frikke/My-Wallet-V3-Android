@@ -116,6 +116,9 @@ class KycProfilePresenter(
                 ?: throw IllegalStateException("DoB has not been set"),
             offlineToken
         ).subscribeOn(Schedulers.io())
+            .doOnComplete {
+                userService.markAsStale()
+            }
 
     private fun enableButtonIfComplete() {
         view.setButtonEnabled(firstNameSet && lastNameSet && dateSet)

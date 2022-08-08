@@ -2573,13 +2573,13 @@ Verifique su conexión a Internet y vuelva a intentarlo o póngase en contacto c
     <string name="visit_faq">Visite nuestras preguntas frecuentes</string>
     <string name="visit_faq_description">Consulte nuestras preguntas frecuentes</string>
     <string name="contact_support_description">Póngase en contacto con nosotros para cualquier otra cuestión</string>
-    <string name="close_card">Cancelar tarjeta</string>
+    <string name="terminate_card">Cancelar tarjeta</string>
     <string name="close_card_number">¿Cerrar %1s ?</string>
     <string name="close_card_warning">\"Una vez confirmada, esta acción no se puede deshacer.\"</string>
-    <string name="close_card_confirm_description">Escriba \"ELIMINAR\" para cancelar su tarjeta de forma permanente</string>
+    <string name="terminate_card_confirm_description">Escriba \"ELIMINAR\" para cancelar su tarjeta de forma permanente</string>
     <string name="delete">ELIMINAR</string>
     <string name="no_accounts_eligible_for_linking">No hay cuentas elegibles para vincular</string>
-    <string name="delete_card_confirmation_text">ELIMINAR</string>
+    <string name="terminate_card_confirmation_text">ELIMINAR</string>
     <string name="address_updated">Dirección de facturación actualizada</string>
     <string name="address_update_success">Dirección actualizada correctamente</string>
     <string name="address_update_success_description">Su dirección de facturación se ha cambiado correctamente y entrará en vigor de inmediato.</string>

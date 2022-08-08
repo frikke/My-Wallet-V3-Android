@@ -85,6 +85,7 @@ sealed class CardError {
         val iconUrl: String,
         val statusIconUrl: String,
         val actions: List<ServerErrorAction>,
-        val categories: List<String>
+        val categories: List<String>,
+        val errorId: String?
     ) : CardError()
 }

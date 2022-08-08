@@ -78,5 +78,7 @@ private fun Context.getErrorIconRequest(
 
 private fun Context.getSvgImageLoader(): ImageLoader =
     ImageLoader.Builder(this)
-        .componentRegistry { add(SvgDecoder(this@getSvgImageLoader)) }
+        .components {
+            add(SvgDecoder.Factory())
+        }
         .build()

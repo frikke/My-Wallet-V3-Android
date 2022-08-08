@@ -431,7 +431,7 @@ class SimpleBuyActivity :
                         ?: serverSideUxErrorInfo?.categories.orEmpty(),
                     iconUrl = nabuApiException?.getServerSideErrorInfo()?.iconUrl,
                     statusIconUrl = nabuApiException?.getServerSideErrorInfo()?.statusUrl,
-                    errorId = nabuApiException?.getServerSideErrorInfo()?.id
+                    errorId = nabuApiException?.getServerSideErrorInfo()?.id ?: serverSideUxErrorInfo?.id
                 )
             )
         )
