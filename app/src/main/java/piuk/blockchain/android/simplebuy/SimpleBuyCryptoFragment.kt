@@ -312,7 +312,8 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun loadQuickFillButtons(
-        quickFillButtonData: QuickFillButtonData
+        quickFillButtonData: QuickFillButtonData,
+        buyMaxButton: FiatValue,
     ) {
         with(binding.quickFillButtons) {
             visible()
@@ -337,12 +338,12 @@ class SimpleBuyCryptoFragment :
                                 }
                             )
                         }
-                        if (quickFillButtonData.buyMaxAmount.isPositive) {
+                        if (buyMaxButton.isPositive) {
                             SmallMinimalButton(
                                 text = getString(R.string.buy_max),
                                 onClick = {
                                     model.process(
-                                        SimpleBuyIntent.PrefillEnterAmount(quickFillButtonData.buyMaxAmount)
+                                        SimpleBuyIntent.PrefillEnterAmount(buyMaxButton as FiatValue)
                                     )
                                 },
                                 state = ButtonState.Enabled,
@@ -360,7 +361,12 @@ class SimpleBuyCryptoFragment :
         lastState = newState
 
         newState.quickFillButtonData?.let { data ->
-            loadQuickFillButtons(data)
+            loadQuickFillButtons(
+                data,
+                (newState.limits.max as? TxLimit.Limited)?.let {
+                    it.amount as FiatValue
+                } ?: data.buyMaxAmount
+            )
         }
 
         if (newState.buyErrorState != null) {
