@@ -5,7 +5,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.api.kyc.data.store.KycStore
+import com.blockchain.nabu.api.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
@@ -38,7 +38,7 @@ class KycNavHostPresenterTest {
     private val nabuToken: NabuToken = mock()
     private val analytics: Analytics = mock()
     private val reentryDecision: ReentryDecision = mock()
-    private val kycStore: KycStore = mock()
+    private val kycTiersStore: KycTiersStore = mock()
     private val getUserStore: GetUserStore = mock()
 
     @Suppress("unused")
@@ -57,7 +57,7 @@ class KycNavHostPresenterTest {
             kycNavigator = ReentryDecisionKycNavigator(
                 userService, reentryDecision, analytics
             ),
-            kycStore = kycStore,
+            kycTiersStore = kycTiersStore,
             getUserStore = getUserStore,
             analytics = mock(),
         )
@@ -73,7 +73,7 @@ class KycNavHostPresenterTest {
         // Act
         subject.onViewReady()
         // Assert
-        verify(kycStore).invalidate()
+        verify(kycTiersStore).invalidate()
         verify(getUserStore).invalidate()
     }
 

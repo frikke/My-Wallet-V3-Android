@@ -11,7 +11,7 @@ val interestDashboardDataModule = module {
     scope(payloadScopeQualifier) {
         scoped<AssetInterestService> {
             AssetInterestRepository(
-                kycTierService = payloadScope.get(),
+                kycService = payloadScope.get(),
                 interestService = payloadScope.get(),
                 custodialWalletManager = payloadScope.get(),
                 exchangeRatesDataManager = get(),

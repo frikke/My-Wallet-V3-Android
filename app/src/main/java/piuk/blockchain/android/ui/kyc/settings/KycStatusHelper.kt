@@ -5,10 +5,10 @@ import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.api.getuser.domain.UserService
+import com.blockchain.nabu.api.kyc.domain.KycService
+import com.blockchain.nabu.api.kyc.domain.model.KycTiers
 import com.blockchain.nabu.models.responses.nabu.KycState
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.UserState
-import com.blockchain.nabu.service.TierService
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -22,7 +22,7 @@ class KycStatusHelper(
     private val userService: UserService,
     private val nabuToken: NabuToken,
     private val settingsDataManager: SettingsDataManager,
-    private val tierService: TierService
+    private val kycService: KycService
 ) {
 
     private val fetchOfflineToken
@@ -51,7 +51,7 @@ class KycStatusHelper(
             .onErrorReturn { KycState.None }
 
     fun getKycTierStatus(): Single<KycTiers> =
-        tierService.tiers()
+        kycService.getTiersLegacy()
             .onErrorReturn { KycTiers.default() }
             .doOnError { Timber.e(it) }
 

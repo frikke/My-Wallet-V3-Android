@@ -92,7 +92,6 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
 import java.util.UUID
-import org.koin.core.scope.get
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -436,7 +435,7 @@ val coreModule = module {
             NabuUserDataManagerImpl(
                 nabuUserService = get(),
                 authenticator = get(),
-                tierService = get()
+                kycService = get()
             )
         }.bind(NabuUserDataManager::class)
 

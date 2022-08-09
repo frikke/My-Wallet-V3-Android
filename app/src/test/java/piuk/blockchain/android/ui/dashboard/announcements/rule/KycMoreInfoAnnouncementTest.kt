@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.blockchain.nabu.service.TierService
+import com.blockchain.nabu.api.kyc.domain.KycService
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Before
@@ -11,7 +11,7 @@ class KycMoreInfoAnnouncementTest {
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
 
-    private val tierService: TierService = mock()
+    private val kycService: KycService = mock()
 
     private lateinit var subject: KycMoreInfoAnnouncement
 
@@ -23,7 +23,7 @@ class KycMoreInfoAnnouncementTest {
             .thenReturn(KycMoreInfoAnnouncement.DISMISS_KEY)
 
         subject = KycMoreInfoAnnouncement(
-            tierService = tierService,
+            kycService = kycService,
             dismissRecorder = dismissRecorder
         )
     }

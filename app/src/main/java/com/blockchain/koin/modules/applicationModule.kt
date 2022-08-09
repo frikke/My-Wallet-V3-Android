@@ -241,7 +241,7 @@ val applicationModule = module {
                 userService = get(),
                 nabuToken = get(),
                 settingsDataManager = get(),
-                tierService = get()
+                kycService = get()
             )
         }
 
@@ -424,7 +424,7 @@ val applicationModule = module {
         factory {
             SimpleBuyInteractor(
                 withdrawLocksRepository = get(),
-                tierService = get(),
+                kycService = get(),
                 custodialWalletManager = get(),
                 limitsDataManager = get(),
                 coincore = get(),

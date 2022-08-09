@@ -4,8 +4,8 @@ import com.blockchain.api.services.ContactPreference
 import com.blockchain.api.services.ContactPreferenceUpdate
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.service.TierService
+import com.blockchain.nabu.api.kyc.domain.KycService
+import com.blockchain.nabu.api.kyc.domain.model.KycTiers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
@@ -23,10 +23,10 @@ interface NabuUserDataManager {
 class NabuUserDataManagerImpl(
     private val nabuUserService: NabuUserService,
     private val authenticator: AuthHeaderProvider,
-    private val tierService: TierService,
+    private val kycService: KycService,
 ) : NabuUserDataManager {
 
-    override fun tiers(): Single<KycTiers> = tierService.tiers()
+    override fun tiers(): Single<KycTiers> = kycService.getTiersLegacy()
 
     override fun saveUserInitialLocation(countryIsoCode: String, stateIsoCode: String?): Completable =
         authenticator.getAuthHeader().map {

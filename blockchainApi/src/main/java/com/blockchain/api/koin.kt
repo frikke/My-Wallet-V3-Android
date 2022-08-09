@@ -19,6 +19,8 @@ import com.blockchain.api.ethereum.evm.EvmApi
 import com.blockchain.api.fiatcurrencies.FiatCurrenciesApi
 import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.interest.InterestApiService
+import com.blockchain.api.kyc.KycApiInterface
+import com.blockchain.api.kyc.KycApiService
 import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.nfts.api.NftApi
 import com.blockchain.api.nftwaitlist.data.api.NftWaitlistApi
@@ -229,6 +231,13 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(nabuApi).create(NabuUserApi::class.java)
         NabuUserService(
             api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(KycApiInterface::class.java)
+        KycApiService(
+            kycApi = api
         )
     }
 

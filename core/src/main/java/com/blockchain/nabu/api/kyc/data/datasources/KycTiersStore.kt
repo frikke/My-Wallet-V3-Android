@@ -1,11 +1,11 @@
-package com.blockchain.nabu.api.kyc.data.store
+package com.blockchain.nabu.api.kyc.data.datasources
 
+import com.blockchain.api.kyc.KycApiService
+import com.blockchain.api.kyc.model.KycTierDto
+import com.blockchain.api.kyc.model.KycTiersDto
 import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.api.nabu.Nabu
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.models.responses.nabu.KycTierState
-import com.blockchain.nabu.models.responses.nabu.TierResponse
-import com.blockchain.nabu.models.responses.nabu.TiersResponse
+import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
+import com.blockchain.nabu.api.kyc.domain.model.KycTierState
 import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Mediator
@@ -15,35 +15,36 @@ import com.blockchain.storedatasource.FlushableDataSource
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
-class KycStore internal constructor(
-    private val endpoint: Nabu,
+class KycTiersStore internal constructor(
+    private val kycApiService: KycApiService,
     private val authenticator: Authenticator,
-) : Store<TiersResponse> by PersistedJsonSqlDelightStoreBuilder()
+) : Store<KycTiersDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(
             mapper = {
                 authenticator.authenticate {
-                    endpoint.getTiers(it.authHeader)
+                    kycApiService.getTiers(it.authHeader)
                 }
             }
         ),
-        dataSerializer = TiersResponse.serializer(),
-        mediator = object : Mediator<Unit, TiersResponse> {
+        dataSerializer = KycTiersDto.serializer(),
+        mediator = object : Mediator<Unit, KycTiersDto> {
             /**
              * 30 seconds for Pending, UnderReview
              * 1 hour for Verified
              * 1 hour else
              */
-            fun shouldFetch(tiersResponse: List<TierResponse>, dataAgeMillis: Long): Boolean {
+            fun shouldFetch(tiersResponse: List<KycTierDto>, dataAgeMillis: Long): Boolean {
                 return when {
                     tiersResponse.any {
-                        it.state == KycTierState.Pending || it.state == KycTierState.UnderReview
+                        KycTierState.fromValue(it.state) == KycTierState.Pending ||
+                            KycTierState.fromValue(it.state) == KycTierState.UnderReview
                     } -> {
                         dataAgeMillis > TimeUnit.SECONDS.toMillis(30L)
                     }
 
-                    tiersResponse[KycTierLevel.GOLD.ordinal].state == KycTierState.Verified -> {
+                    KycTierState.fromValue(tiersResponse[KycTierLevel.GOLD.ordinal].state) == KycTierState.Verified -> {
                         dataAgeMillis > TimeUnit.HOURS.toMillis(1L)
                     }
 
@@ -53,7 +54,7 @@ class KycStore internal constructor(
                 }
             }
 
-            override fun shouldFetch(cachedData: CachedData<Unit, TiersResponse>?): Boolean {
+            override fun shouldFetch(cachedData: CachedData<Unit, KycTiersDto>?): Boolean {
                 cachedData ?: return true
 
                 return shouldFetch(
@@ -70,6 +71,6 @@ class KycStore internal constructor(
     }
 
     companion object {
-        private const val STORE_ID = "KycStore"
+        private const val STORE_ID = "KycTiersStore"
     }
 }

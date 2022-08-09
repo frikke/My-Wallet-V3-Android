@@ -13,13 +13,14 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.api.getuser.domain.UserService
+import com.blockchain.nabu.api.kyc.domain.model.KycLimits
+import com.blockchain.nabu.api.kyc.domain.model.KycTierDetail
+import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
+import com.blockchain.nabu.api.kyc.domain.model.KycTierState
+import com.blockchain.nabu.api.kyc.domain.model.KycTiers
+import com.blockchain.nabu.api.kyc.domain.model.TiersMap
 import com.blockchain.nabu.models.responses.nabu.Address
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.models.responses.nabu.KycTierState
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.Limits
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.nabu.models.responses.nabu.Tiers
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.mock
@@ -285,22 +286,22 @@ class NabuUserIdentityTest {
     companion object {
         fun createMockTiers(tier1: KycTierState, tier2: KycTierState): KycTiers {
             return KycTiers(
-                Tiers(
+                TiersMap(
                     mapOf(
                         KycTierLevel.BRONZE to
-                            com.blockchain.nabu.models.responses.nabu.Tier(
+                            KycTierDetail(
                                 KycTierState.Verified,
-                                Limits(null, null)
+                                KycLimits(null, null)
                             ),
                         KycTierLevel.SILVER to
-                            com.blockchain.nabu.models.responses.nabu.Tier(
+                            KycTierDetail(
                                 tier1,
-                                Limits(null, null)
+                                KycLimits(null, null)
                             ),
                         KycTierLevel.GOLD to
-                            com.blockchain.nabu.models.responses.nabu.Tier(
+                            KycTierDetail(
                                 tier2,
-                                Limits(null, null)
+                                KycLimits(null, null)
                             )
                     )
                 )

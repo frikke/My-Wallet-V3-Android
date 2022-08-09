@@ -14,7 +14,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.api.getuser.data.GetUserStore
-import com.blockchain.nabu.api.kyc.data.store.KycStore
+import com.blockchain.nabu.api.kyc.data.datasources.KycTiersStore
 import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
@@ -54,7 +54,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
     private val walletModeService: WalletModeService by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
     private val getUserStore: GetUserStore by scopedInject()
-    private val kycStore: KycStore by scopedInject()
+    private val kycTiersStore: KycTiersStore by scopedInject()
 
     private val featuresAdapter: FeatureFlagAdapter = FeatureFlagAdapter()
 
@@ -186,7 +186,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
 
     private fun onResetUserCache() {
         getUserStore.markAsStale()
-        kycStore.invalidate()
+        kycTiersStore.invalidate()
     }
 
     private fun showInviteNow() {

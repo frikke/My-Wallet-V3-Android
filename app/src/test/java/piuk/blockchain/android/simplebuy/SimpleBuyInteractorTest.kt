@@ -13,10 +13,10 @@ import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.api.kyc.domain.KycService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
-import com.blockchain.nabu.service.TierService
 import com.blockchain.outcome.Outcome
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.payments.core.CardProcessor
@@ -38,7 +38,7 @@ import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUs
 class SimpleBuyInteractorTest {
 
     private lateinit var subject: SimpleBuyInteractor
-    private val tierService: TierService = mock()
+    private val kycService: KycService = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val limitsDataManager: LimitsDataManager = mock()
     private val withdrawLocksRepository: WithdrawLocksRepository = mock()
@@ -75,7 +75,7 @@ class SimpleBuyInteractorTest {
     @Before
     fun setup() {
         subject = SimpleBuyInteractor(
-            tierService = tierService,
+            kycService = kycService,
             custodialWalletManager = custodialWalletManager,
             limitsDataManager = limitsDataManager,
             withdrawLocksRepository = withdrawLocksRepository,

@@ -29,13 +29,13 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.api.kyc.domain.KycService
+import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
+import com.blockchain.nabu.api.kyc.domain.model.KycTiers
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -93,7 +93,7 @@ class SwapFragment :
         return binding.root
     }
 
-    private val kycTierService: TierService by scopedInject()
+    private val kycService: KycService by scopedInject()
     private val coincore: Coincore by scopedInject()
     private val exchangeRateDataManager: ExchangeRatesDataManager by scopedInject()
     private val trendingPairsProvider: TrendingPairsProvider by scopedInject()
@@ -173,7 +173,7 @@ class SwapFragment :
     private fun loadSwapOrKyc(showLoading: Boolean) {
         compositeDisposable +=
             Single.zip(
-                kycTierService.tiers(),
+                kycService.getTiersLegacy(),
                 trendingPairsProvider.getTrendingPairs(),
                 walletManager.getProductTransferLimits(currencyPrefs.selectedFiatCurrency, Product.TRADE),
                 walletManager.getSwapTrades().onErrorReturn { emptyList() },

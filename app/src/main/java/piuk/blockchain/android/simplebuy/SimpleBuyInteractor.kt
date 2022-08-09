@@ -32,6 +32,9 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.api.kyc.domain.KycService
+import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
+import com.blockchain.nabu.api.kyc.domain.model.KycTiers
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -41,10 +44,7 @@ import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
-import com.blockchain.nabu.service.TierService
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.outcome.doOnFailure
@@ -96,7 +96,7 @@ import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
 
 class SimpleBuyInteractor(
-    private val tierService: TierService,
+    private val kycService: KycService,
     private val custodialWalletManager: CustodialWalletManager,
     private val limitsDataManager: LimitsDataManager,
     private val withdrawLocksRepository: WithdrawLocksRepository,
@@ -208,7 +208,7 @@ class SimpleBuyInteractor(
             }
 
     fun pollForKycState(): Single<SimpleBuyIntent.KycStateUpdated> =
-        tierService.tiers()
+        kycService.getTiersLegacy()
             .flatMap {
                 when {
                     it.isApprovedFor(KycTierLevel.GOLD) ->
@@ -303,7 +303,7 @@ class SimpleBuyInteractor(
     }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT)
 
     fun checkTierLevel(): Single<SimpleBuyIntent.KycStateUpdated> {
-        return tierService.tiers().flatMap {
+        return kycService.getTiersLegacy().flatMap {
             when {
                 it.isApprovedFor(KycTierLevel.GOLD) -> eligibilityProvider.isEligibleForSimpleBuy(
                     forceRefresh = true
@@ -345,7 +345,7 @@ class SimpleBuyInteractor(
             }
 
     fun paymentMethods(fiatCurrency: FiatCurrency): Single<PaymentMethods> =
-        tierService.tiers()
+        kycService.getTiersLegacy()
             .zipWith(
                 custodialWalletManager.isSimplifiedDueDiligenceEligible().onErrorReturn { false }
                     .doOnSuccess {

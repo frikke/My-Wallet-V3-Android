@@ -59,7 +59,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             AnnouncementQueries(
                 userService = get(),
-                tierService = get(),
+                kycService = get(),
                 sbStateFactory = get(),
                 userIdentity = get(),
                 coincore = get(),
@@ -98,7 +98,7 @@ val dashboardAnnouncementsModule = module {
 
         factory {
             KycMoreInfoAnnouncement(
-                tierService = get(),
+                kycService = get(),
                 dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)
