@@ -1,6 +1,5 @@
 package com.blockchain.componentlib.media
 
-import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,10 +24,8 @@ fun VideoPlayerItem(
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
             setMediaItem(MediaItem.fromUri(sourceUrl))
-            // repeatMode = ExoPlayer.REPEAT_MODE_ONE
             playWhenReady = true
             prepare()
-            // play()
         }
     }
     DisposableEffect(
@@ -39,13 +36,6 @@ fun VideoPlayerItem(
             factory = {
                 StyledPlayerView(context).apply {
                     player = exoPlayer
-                    setControllerVisibilityListener(
-                        StyledPlayerView.ControllerVisibilityListener { visibility ->
-                            if (visibility == View.VISIBLE) {
-                                // useController = false
-                            }
-                        }
-                    )
                     FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT
