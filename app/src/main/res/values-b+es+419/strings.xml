@@ -1985,7 +1985,6 @@ Compra criptomonedas hoy.</string>
     <string name="about_app_privacy_policy">Política de privacidad</string>
     <string name="swap_empty_state_sheet_title">Necesitará tener algunas criptomonedas primero.</string>
     <string name="swap_empty_state_sheet_subtitle">Vincula un banco o tarjeta, y compra ahora o recibe de un amigo. Una vez que tengas un saldo, podrás intercambiar criptomonedas en cualquier momento.</string>
-    <string name="settings_initials">%1$s %2$s</string>
     <string name="settings_bank_transfer_blurb">Envía fondos directamente desde tu banco a Wallet de Blockchain.com. Una vez que recibamos la transferencia bancaria, completaremos tu compra.</string>
     <string name="settings_logout_error">Se produjo un problema al cerrar tu sesión. Intenta otra vez.</string>
     <string name="select_a_display_currency">Selecciona una moneda para mostrar.</string>

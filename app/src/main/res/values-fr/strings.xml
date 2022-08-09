@@ -119,7 +119,6 @@ Tous droits réservés.</string>
     </string>
     <string name="profile_label_name">Nom</string>
     <string name="content_desc_edit_account_label">Modifier l\'étiquette du compte</string>
-    <string name="common_next">Suivant</string>
     <string name="received_ethereum">%1$s reçus</string>
     <string name="received_usd_pax_1">USD Digital reçus</string>
     <string name="received_bitcoin_cash">Bitcoin Cash reçus</string>
@@ -2053,7 +2052,6 @@ Achetez de la Crypto aujourd\'hui.</string>
     <string name="about_app_privacy_policy">Politique de confidentialité</string>
     <string name="swap_empty_state_sheet_title">Vous aurez d\'abord besoin de crypto !</string>
     <string name="swap_empty_state_sheet_subtitle">Liez une banque ou une carte et achetez maintenant ou recevez d\'un ami. Une fois que vous détenez un solde, vous pouvez échanger des cryptos à tout moment.</string>
-    <string name="settings_initials">%1$s %2$s</string>
     <string name="settings_bank_transfer_blurb">Envoyez des fonds directement de votre banque vers votre Blockchain Wallet. Une fois que nous aurons reçu le virement, nous finaliserons votre achat.</string>
     <string name="settings_logout_error">Un problème est survenu lors de votre déconnexion, veuillez réessayer !</string>
     <string name="select_a_display_currency">Sélectionnez une devise d\'affichage.</string>
@@ -2609,13 +2607,10 @@ Veuillez vérifier votre connexion Internet et réessayer ou contactez l\'assist
     <string name="visit_faq">Visitez notre FAQ</string>
     <string name="visit_faq_description">Voir nos questions les plus fréquentes</string>
     <string name="contact_support_description">Contactez-nous pour toute demande</string>
-    <string name="terminate_card">Clôturer la carte</string>
     <string name="close_card_number">Clôturer %1s ?</string>
     <string name="close_card_warning">\"Une fois confirmée, cette action est irréversible. \"</string>
-    <string name="terminate_card_confirm_description">Veuillez saisir « SUPPRIMER » pour clôturer définitivement votre carte</string>
     <string name="delete">EFFACER</string>
     <string name="no_accounts_eligible_for_linking">Aucun compte éligible pour la liaison</string>
-    <string name="terminate_card_confirmation_text">EFFACER</string>
     <string name="address_updated">Adresse de facturation mise à jour</string>
     <string name="address_update_success">Adresse mise à jour avec succès</string>
     <string name="address_update_success_description">Votre adresse de facturation a été modifiée avec succès et prendra effet immédiatement.</string>
@@ -2694,4 +2689,59 @@ Vous trouverez l\'appli ici : https://blockchainwallet.page.link/join</string>
     <string name="verify_your_identity_description">Veuillez confirmer votre numéro de sécurité sociale ou votre numéro d\'identification fiscale ci-dessous pour empêcher les autres de créer des comptes frauduleux à votre nom.</string>
     <string name="ssn_title">SSN ou numéro d\'identification fiscale individuel</string>
     <string name="ssn_hint">XXXXXXXXX</string>
+    <string name="common_next">Suivant</string>
+    <string name="card_issuer_always_rejects_title">Achat de crypto non pris en charge</string>
+    <string name="card_issuer_always_rejects_desc">Cette carte n\'autorise pas les transactions de crypto. Essayez une autre carte à la place.</string>
+    <string name="card_issuer_sometimes_rejects_title">L\'achat de crypto est souvent refusé</string>
+    <string name="recovery_phrase_backup_cloud">Sauvegarder sur le cloud</string>
+    <string name="add_new_bank_account">+ Ajouter un nouveau compte bancaire</string>
+    <string name="bank_alias_info">Veuillez entrer votre alias bancaire/CBU/CVU pour lier un nouveau compte bancaire à votre nom.
+        Si vous saisissez un alias :
+– Il doit comporter entre 6 et 20 caractères (lettres, chiffres, tiret et point)
+– N\'incluez pas la lettre « ñ », les accents, les espaces et d\'autres caractères spéciaux.</string>
+    <string name="bank_alias_search_account">Rechercher un compte</string>
+    <string name="trading_currency_selection_header">Il s\'agit de la devise que vous utilisez pour acheter et vendre des cryptos.</string>
+    <string name="display_currency_selection_header">Il s\'agit de la devise dans laquelle votre solde sera affiché.</string>
+    <string name="account_trading_currency_title">Devise de trading</string>
+    <string name="card_limit_reached_title">Trop de cartes</string>
+    <string name="card_limit_reached_desc">Vous avez atteint le nombre maximum de cartes autorisées. Veuillez en supprimer une avant d\'en ajouter d\'autres ou choisir un autre mode de paiement.</string>
+    <string name="address_update_failed_description">Votre adresse de facturation n\'a pas pu être mise à jour. Veuillez réessayer.</string>
+    <string name="unable_to_load_list_of_states">Impossible de charger la liste des États américains</string>
+    <string name="payment_wire_transfer_subtitle_ars">Devrait arriver dans 1 à 3 jours ouvrables</string>
+    <string name="payment_wire_transfer_subtitle_default">Le temps de traitement varie selon la région</string>
+    <string name="payment_deposit_subtitle_default">Contactez directement votre banque pour obtenir de l\'aide pour des transferts plus rapides.</string>
+    <string name="bank_transfer_blurb_ars">Transférez des fonds directement depuis votre compte bancaire. Des frais bancaires peuvent s\'appliquer.</string>
+    <string name="bank_transfer_blurb_default">Contactez directement votre banque pour obtenir des informations sur les délais de règlement et les frais bancaires.</string>
+    <string name="my_card">Ma carte</string>
+    <string name="bc_card_locked">Verrouillée</string>
+    <string name="new_asset_card_header">1 %1$s = %2$s</string>
+    <string name="new_asset_card_subheader">%1$s (%2$s)</string>
+    <string name="new_asset_card_subheader_suffix">Aujourd\'hui</string>
+    <string name="card_issuer_sometimes_rejects_desc">Cette carte refuse souvent les transactions de crypto. Essayez une autre carte à la place.</string>
+    <string name="educational_wallet_mode_intro_title">Votre portefeuille vient de s\'améliorer</string>
+    <string name="educational_wallet_mode_intro_description">Nous avons apporté des améliorations majeures à l\'application Blockchain.com.</string>
+    <string name="educational_wallet_mode_menu_title">Une nouvelle façon de naviguer</string>
+    <string name="educational_wallet_mode_menu_description">Déplacez-vous facilement entre le compte de trading et le portefeuille DeFi.</string>
+    <string name="educational_wallet_mode_defi_title">Votre nouvel accueil pour DeFi</string>
+    <string name="educational_wallet_mode_defi_description">Accédez à vos portefeuilles de clés privées et engagez-vous avec le web3 et la finance décentralisée.</string>
+    <string name="educational_wallet_mode_defi_secure_tag">Sécurisé par vous</string>
+    <string name="educational_wallet_mode_trading_title">Votre compte de trading</string>
+    <string name="educational_wallet_mode_trading_description">Accédez à vos comptes de trading et de récompenses, et achetez et vendez des cryptos.</string>
+    <string name="educational_wallet_mode_trading_secure_tag">Sécurisé par Blockchain.com</string>
+    <string name="educational_wallet_mode_cta">Mise en route</string>
+    <string name="skip_backup_title">Êtes-vous sûr(e) de vouloir poursuivre ?</string>
+    <string name="skip_backup_description">En ignorant la sauvegarde votre portefeuille DeFi, vous risquez de perdre l\'accès à vos fonds.</string>
+    <string name="linking_card_success_title">Votre carte a été associée avec succès !</string>
+    <string name="linking_card_success_subtitle">Vous pouvez désormais l\'utiliser pour acheter des cryptos facilement et en toute sécurité.</string>
+    <string name="trading_deposit_title_stale_balance">Solde expiré</string>
+    <string name="bc_card_transactions_title">Transactions</string>
+    <string name="bc_card_see_all">Voir tout</string>
+    <string name="bc_card_terms_and_conditions_label">Je comprends et j\'accepte les conditions générales du programme de carte Visa de Blockchain.com, l\'accord de titulaire de carte de Pathward Bank, l\'accord de signature électronique de Pathward Bank et la politique de confidentialité de Pathward Bank. Je comprends et j\'accepte également que ces conditions s\'appliquent en plus des conditions d\'utilisation de Blockchain.com et de la politique de confidentialité de Blockchain.com.</string>
+    <string name="skip_backup_cta_skip">Oui, ignorer la sauvegarde</string>
+    <string name="skip_backup_cta_backup">Sauvegarder (recommandé)</string>
+    <string name="terminate_card">Résilier la carte</string>
+    <string name="terminate_card_confirm_description">Veuillez taper \'TERMINATE\' pour résilier définitivement votre carte</string>
+    <string name="terminate_card_confirmation_text">METTRE FIN</string>
+    <string name="bc_card_transaction_payment">Paiement</string>
+    <string name="bc_card_transaction_refund">Remboursement</string>
 </resources>
