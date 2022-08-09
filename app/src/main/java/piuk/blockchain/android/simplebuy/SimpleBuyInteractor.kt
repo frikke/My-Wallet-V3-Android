@@ -55,6 +55,9 @@ import com.blockchain.payments.core.CardBillingAddress
 import com.blockchain.payments.core.CardDetails
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.core.PaymentToken
+import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
+import com.blockchain.payments.googlepay.manager.request.defaultAllowedAuthMethods
+import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetworks
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -497,7 +500,15 @@ class SimpleBuyInteractor(
                 beneficiaryId = it.beneficiaryID,
                 merchantBankCountryCode = it.merchantBankCountryCode,
                 allowPrepaidCards = it.allowPrepaidCards ?: true,
-                allowCreditCards = it.allowCreditCards ?: true
+                allowCreditCards = it.allowCreditCards ?: true,
+                allowedAuthMethods = it.allowedAuthMethods ?: defaultAllowedAuthMethods,
+                allowedCardNetworks = it.allowedCardNetworks ?: defaultAllowedCardNetworks,
+                billingAddressRequired = it.billingAddressRequired ?: true,
+                billingAddressParameters = BillingAddressParameters(
+                    format = it.billingAddressParameters.format ?: BillingAddressParameters().format,
+                    phoneNumberRequired = it.billingAddressParameters.phoneNumberRequired
+                        ?: BillingAddressParameters().phoneNumberRequired
+                )
             )
         }
 

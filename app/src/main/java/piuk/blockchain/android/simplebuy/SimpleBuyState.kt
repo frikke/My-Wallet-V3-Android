@@ -22,6 +22,7 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
+import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -65,11 +66,7 @@ data class SimpleBuyState constructor(
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
     val showRecurringBuyFirstTimeFlow: Boolean = false,
     val eligibleAndNextPaymentRecurringBuy: List<EligibleAndNextPaymentRecurringBuy> = emptyList(),
-    val googlePayTokenizationInfo: Map<String, String>? = null,
-    val googlePayBeneficiaryId: String? = null,
-    val googlePayMerchantBankCountryCode: String? = null,
-    val googlePayAllowPrepaidCards: Boolean = true,
-    val googlePayAllowCreditCards: Boolean = false,
+    val googlePayDetails: GooglePayDetails? = null,
     @Transient val quickFillButtonData: QuickFillButtonData? = null,
     @Transient val safeConnectTosLink: String? = null,
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
@@ -342,4 +339,17 @@ data class SelectedPaymentMethod(
 data class QuickFillButtonData(
     val quickFillButtons: List<FiatValue>,
     val buyMaxAmount: FiatValue
+)
+
+@kotlinx.serialization.Serializable
+data class GooglePayDetails(
+    val tokenizationInfo: Map<String, String>? = null,
+    val beneficiaryId: String? = null,
+    val merchantBankCountryCode: String? = null,
+    val allowPrepaidCards: Boolean = true,
+    val allowCreditCards: Boolean = false,
+    val allowedAuthMethods: List<String>?,
+    val allowedCardNetworks: List<String>?,
+    val billingAddressRequired: Boolean? = false,
+    val billingAddressParameters: BillingAddressParameters? = null
 )

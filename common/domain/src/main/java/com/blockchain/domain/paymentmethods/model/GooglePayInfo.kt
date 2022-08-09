@@ -6,5 +6,14 @@ data class GooglePayInfo(
     val googlePayParameters: String,
     val publishableApiKey: String,
     val allowPrepaidCards: Boolean?,
-    val allowCreditCards: Boolean?
-)
+    val allowCreditCards: Boolean?,
+    val allowedAuthMethods: List<String>?,
+    val allowedCardNetworks: List<String>?,
+    val billingAddressRequired: Boolean?,
+    val billingAddressParameters: BillingAddressParameters
+) {
+    data class BillingAddressParameters(
+        val format: String?,
+        val phoneNumberRequired: Boolean?
+    )
+}

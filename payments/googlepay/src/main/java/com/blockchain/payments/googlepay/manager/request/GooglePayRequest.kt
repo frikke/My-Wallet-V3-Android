@@ -44,13 +44,7 @@ data class CardPaymentMethod(
         val allowPrepaidCards: Boolean,
         @SerialName("allowCreditCards")
         val allowCreditCards: Boolean
-    ) {
-        @Serializable
-        data class BillingAddressParameters(
-            @SerialName("format")
-            val format: String = "FULL"
-        )
-    }
+    )
 
     @Serializable
     data class TokenizationSpecification(
@@ -85,4 +79,12 @@ data class ShippingAddressParameters(
     val phoneNumberRequired: Boolean,
     @SerialName("allowedCountryCodes")
     val allowedCountryCodes: List<String>
+)
+
+@Serializable
+data class BillingAddressParameters(
+    @SerialName("format")
+    val format: String = "FULL",
+    @SerialName("phoneNumberRequired")
+    val phoneNumberRequired: Boolean = false
 )

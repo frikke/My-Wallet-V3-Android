@@ -96,8 +96,6 @@ import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
-import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
-import com.blockchain.payments.googlepay.manager.request.allowedCardNetworks
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.store.firstOutcome
 import com.blockchain.store.mapData
@@ -179,9 +177,7 @@ class PaymentsRepository(
             ),
             googlePayEnabled,
             rxSingle {
-                googlePayManager.checkIfGooglePayIsAvailable(
-                    GooglePayRequestBuilder.buildForPaymentStatus(allowedAuthMethods, allowedCardNetworks)
-                )
+                googlePayManager.checkIfGooglePayIsAvailable(GooglePayRequestBuilder.buildForPaymentStatus())
             }
         ) { methods, isGooglePayFeatureFlagEnabled, isGooglePayAvailableOnDevice ->
             if (isGooglePayFeatureFlagEnabled && isGooglePayAvailableOnDevice) {
@@ -371,7 +367,14 @@ class PaymentsRepository(
                     googlePayParameters = it.googlePayParameters,
                     publishableApiKey = it.publishableApiKey,
                     allowPrepaidCards = it.allowPrepaidCards,
-                    allowCreditCards = it.allowCreditCards
+                    allowCreditCards = it.allowCreditCards,
+                    allowedAuthMethods = it.allowedAuthMethods,
+                    allowedCardNetworks = it.allowedCardNetworks,
+                    billingAddressRequired = it.billingAddressRequired,
+                    billingAddressParameters = GooglePayInfo.BillingAddressParameters(
+                        format = it.billingAddressParameters?.format,
+                        phoneNumberRequired = it.billingAddressParameters?.phoneNumberRequired
+                    )
                 )
             }
         }

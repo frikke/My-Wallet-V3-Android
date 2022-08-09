@@ -64,7 +64,8 @@ class GooglePayResponseInterceptorImpl constructor(
 
             withContext(Dispatchers.Main) {
                 onPaymentDataReceived?.onGooglePayTokenReceived(
-                    response.paymentMethodData.tokenizationData.token
+                    response.paymentMethodData.tokenizationData.token,
+                    response.paymentMethodData.info.billingAddress
                 )
             }
         }

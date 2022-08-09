@@ -81,6 +81,8 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.googlepay.manager.GooglePayManager
+import com.blockchain.payments.googlepay.manager.request.defaultAllowedAuthMethods
+import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetworks
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.testutils.GBP
@@ -977,7 +979,12 @@ class PaymentsRepositoryTest {
             merchantBankCountryCode = "GB",
             googlePayParameters = "params",
             publishableApiKey = "apiKey",
-            allowPrepaidCards = false
+            allowPrepaidCards = false,
+            allowCreditCards = false,
+            allowedAuthMethods = defaultAllowedAuthMethods,
+            allowedCardNetworks = defaultAllowedCardNetworks,
+            billingAddressRequired = true,
+            billingAddressParameters = GooglePayResponse.BillingAddressParameters()
         )
         every { paymentMethodsService.getGooglePayInfo(AUTH, NETWORK_TICKER) } returns Single.just(response)
 
@@ -990,7 +997,14 @@ class PaymentsRepositoryTest {
                     googlePayParameters = response.googlePayParameters,
                     publishableApiKey = response.publishableApiKey,
                     allowPrepaidCards = response.allowPrepaidCards,
-                    allowCreditCards = response.allowCreditCards
+                    allowCreditCards = response.allowCreditCards,
+                    allowedAuthMethods = response.allowedAuthMethods,
+                    allowedCardNetworks = response.allowedCardNetworks,
+                    billingAddressRequired = response.billingAddressRequired,
+                    billingAddressParameters = GooglePayInfo.BillingAddressParameters(
+                        format = response.billingAddressParameters?.format,
+                        phoneNumberRequired = response.billingAddressParameters?.phoneNumberRequired
+                    )
                 )
             )
     }

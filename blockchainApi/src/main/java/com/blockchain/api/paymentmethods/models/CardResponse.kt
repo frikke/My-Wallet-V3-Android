@@ -40,7 +40,32 @@ data class SimpleBuyConfirmationAttributes(
     @SerialName("googlePayPayload")
     private val googlePayPayload: String? = null,
     @SerialName("cvv")
-    private val cvv: String? = null
+    private val cvv: String? = null,
+    @SerialName("paymentContact")
+    private val paymentContact: PaymentContact? = null
+)
+
+@Serializable
+data class PaymentContact(
+    @SerialName("line1")
+    private val line1: String? = "",
+    @SerialName("line2")
+    private val line2: String? = "",
+    @SerialName("city")
+    private val city: String? = "",
+    @SerialName("state")
+    private val state: String? = "",
+    @SerialName("country")
+    private val country: String? = "",
+    @SerialName("postCode")
+    private val postCode: String? = "",
+    @SerialName("firstname")
+    private val firstname: String? = "",
+    @SerialName("lastname")
+    private val lastname: String? = "",
+    @SerialName("phone")
+    private val phone: String? = ""
+
 )
 
 @Serializable
@@ -48,6 +73,7 @@ data class EveryPayAttrs(
     @SerialName("customerUrl")
     private val customerUrl: String
 )
+
 @Serializable
 data class ActivateCardResponse(
     @SerialName("everypay")
