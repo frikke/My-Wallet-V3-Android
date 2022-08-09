@@ -1,5 +1,6 @@
 package com.blockchain.core.price
 
+import com.blockchain.data.DataResource
 import com.blockchain.domain.common.model.Seconds
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -7,6 +8,7 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
 
 enum class HistoricalTimeSpan(val value: Int) {
@@ -70,12 +72,12 @@ interface ExchangeRatesDataManager : ExchangeRates {
         asset: Currency,
         span: HistoricalTimeSpan,
         now: Calendar = Calendar.getInstance(),
-    ): Single<HistoricalRateList>
+    ): Flow<DataResource<HistoricalRateList>>
 
     // Specialised call to historic rates for sparkline caching
     fun get24hPriceSeries(
         asset: Currency,
-    ): Single<HistoricalRateList>
+    ): Flow<DataResource<HistoricalRateList>>
 
     val fiatAvailableForRates: List<FiatCurrency>
 }

@@ -16,6 +16,7 @@ import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
+import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
@@ -57,7 +58,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.Optional
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onEach
@@ -78,6 +78,7 @@ import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
 import timber.log.Timber
+import java.util.Optional
 
 class DashboardGroupLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
 class DashboardBalanceLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
@@ -308,15 +309,24 @@ class DashboardActionInteractor(
 
     fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable =
         if (asset.startDate != null) {
-            coincore[asset].lastDayTrend()
+            coincore[asset].lastDayTrend().asObservable()
         } else {
-            Single.just(FLATLINE_CHART)
-        }.map { lastDayTrend ->
-            DashboardIntent.PriceHistoryUpdate(asset, lastDayTrend)
+            Observable.just(DataResource.Data(FLATLINE_CHART))
         }
             .subscribeBy(
-                onSuccess = { model.process(it) },
-                onError = { Timber.e(it) }
+                onNext = { dataResource ->
+                    when(dataResource){
+                        is DataResource.Data -> {
+                            model.process(DashboardIntent.PriceHistoryUpdate(asset, dataResource.data))
+                        }
+                        is DataResource.Error -> {
+                            Timber.e(dataResource.error)
+                        }
+                        DataResource.Loading -> {
+
+                        }
+                    }
+                }
             )
 
     fun hasUserBackedUp(): Single<Boolean> = Single.just(payloadManager.isBackedUp)
@@ -712,8 +722,8 @@ class DashboardActionInteractor(
             onSuccess = {
                 model.process(DashboardIntent.FundsLocksLoaded(it))
             }, onComplete = {
-            model.process(DashboardIntent.FundsLocksLoaded(null))
-        },
+                model.process(DashboardIntent.FundsLocksLoaded(null))
+            },
             onError = {
                 Timber.e(it)
             }

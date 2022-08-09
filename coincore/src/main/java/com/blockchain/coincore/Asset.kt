@@ -5,6 +5,7 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.data.DataResource
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.walletmode.WalletMode
@@ -12,7 +13,9 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 import kotlinx.parcelize.Parcelize
 
 enum class AssetFilter {
@@ -129,7 +132,7 @@ interface Asset {
     fun transactionTargets(account: SingleAccount): Single<SingleAccountList>
     fun parseAddress(address: String, label: String? = null, isDomainAddress: Boolean = false): Maybe<ReceiveAddress>
     fun isValidAddress(address: String): Boolean = false
-    fun lastDayTrend(): Single<HistoricalRateList>
+    fun lastDayTrend(): Flow<DataResource<HistoricalRateList>>
 
     // Fetch exchange rate to user's selected/display fiat
     @Deprecated("Use getPricesWith24hDelta() instead")
@@ -137,7 +140,7 @@ interface Asset {
     fun getPricesWith24hDelta(): Single<Prices24HrWithDelta>
     fun historicRate(epochWhen: Long): Single<ExchangeRate>
 
-    fun historicRateSeries(period: HistoricalTimeSpan): Single<HistoricalRateList>
+    fun historicRateSeries(period: HistoricalTimeSpan): Flow<DataResource<HistoricalRateList>>
 }
 
 interface CryptoAsset : Asset {
