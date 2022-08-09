@@ -8,6 +8,16 @@ data class GooglePayResponse(
     val merchantBankCountryCode: String,
     val googlePayParameters: String,
     val publishableApiKey: String,
-    val allowPrepaidCards: Boolean? = true,
-    val allowCreditCards: Boolean? = true
-)
+    val allowPrepaidCards: Boolean? = false,
+    val allowCreditCards: Boolean? = false,
+    val allowedAuthMethods: List<String>?,
+    val billingAddressRequired: Boolean? = true,
+    val billingAddressParameters: BillingAddressParameters?,
+    val allowedCardNetworks: List<String>?
+) {
+    @Serializable
+    data class BillingAddressParameters(
+        val format: String = "FULL",
+        val phoneNumberRequired: Boolean = false
+    )
+}

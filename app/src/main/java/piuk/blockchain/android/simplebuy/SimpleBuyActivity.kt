@@ -43,6 +43,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_REFRESH_REQUIRED
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
+import piuk.blockchain.android.ui.backup.BackupWalletActivity.Companion.startForResult
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
@@ -168,8 +169,7 @@ class SimpleBuyActivity :
         super<SimpleBuyNavigator>.onSheetClosed(sheet)
         when (sheet) {
             is KycUpgradeNowSheet,
-            is BlockedDueToSanctionsSheet,
-            -> exitSimpleBuyFlow()
+            is BlockedDueToSanctionsSheet -> exitSimpleBuyFlow()
             is ErrorSlidingBottomDialog -> {
                 // do nothing for now
                 Timber.e("----- ErrorSlidingBottomDialog sheet closed")
@@ -235,6 +235,8 @@ class SimpleBuyActivity :
     }
 
     override fun exitSimpleBuyFlow() {
+        setResult(RESULT_OK)
+
         if (!startedFromDashboard) {
             startActivity(MainActivity.newIntentAsNewTask(this))
         } else {
@@ -430,7 +432,7 @@ class SimpleBuyActivity :
                         ?: serverSideUxErrorInfo?.categories.orEmpty(),
                     iconUrl = nabuApiException?.getServerSideErrorInfo()?.iconUrl,
                     statusIconUrl = nabuApiException?.getServerSideErrorInfo()?.statusUrl,
-                    errorId = nabuApiException?.getServerSideErrorInfo()?.id
+                    errorId = nabuApiException?.getServerSideErrorInfo()?.id ?: serverSideUxErrorInfo?.id
                 )
             )
         )

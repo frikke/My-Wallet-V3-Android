@@ -35,13 +35,13 @@ class LoaderModel(
         return when (intent) {
             is LoaderIntents.CheckIsLoggedIn -> checkIsLoggedIn(
                 intent.isPinValidated,
-                intent.isAfterWalletCreation,
+                intent.loginMethod,
                 intent.referralCode
             )
 
             is LoaderIntents.LaunchDashboard -> {
                 launchDashboard(
-                    isAfterWalletCreation = previousState.isAfterWalletCreation,
+                    loginMethod = previousState.loginMethod,
                     data = intent.data,
                     shouldLaunchUiTour = intent.shouldLaunchUiTour,
                     isUserInCowboysPromo = previousState.isUserInCowboysPromo
@@ -61,7 +61,7 @@ class LoaderModel(
 
     private fun checkIsLoggedIn(
         isPinValidated: Boolean,
-        isAfterWalletCreation: Boolean,
+        loginMethod: LoginMethod,
         referralCode: String?
     ): Disposable? {
 
@@ -73,7 +73,10 @@ class LoaderModel(
                 interactor.loaderIntents.subscribe {
                     process(it)
                 }
-                interactor.initSettings(isAfterWalletCreation, referralCode)
+                interactor.initSettings(
+                    isAfterWalletCreation = loginMethod == LoginMethod.WALLET_CREATION,
+                    referralCode = referralCode
+                )
             }
             else -> {
                 process(LoaderIntents.StartLauncherActivity)
@@ -128,7 +131,7 @@ class LoaderModel(
     }
 
     private fun launchDashboard(
-        isAfterWalletCreation: Boolean,
+        loginMethod: LoginMethod,
         data: String?,
         shouldLaunchUiTour: Boolean,
         isUserInCowboysPromo: Boolean
@@ -142,7 +145,7 @@ class LoaderModel(
                 // -> show educational screen
                 walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL &&
                     educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
-                    isAfterWalletCreation.not() -> {
+                    loginMethod == LoginMethod.PIN -> {
                     LoaderIntents.StartEducationalWalletModeActivity(
                         data = data
                     )

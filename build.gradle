@@ -25,7 +25,6 @@ buildscript {
         classpath Libraries.kotlin
         classpath Libraries.detekt
         classpath Libraries.kotlinGradlePlugin
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30'
     }
 }
 
@@ -35,7 +34,8 @@ allprojects {
         mavenCentral()
         maven { url "https://jitpack.io" }
         maven { url 'https://zendesk.jfrog.io/zendesk/repo' }
-        maven { url "https://cdn.veriff.me/android/" } // veriff
+        maven { url "https://cdn.veriff.me/android/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
     configurations.all {
         resolutionStrategy.force Libraries.findbugs

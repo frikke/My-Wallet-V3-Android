@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".abstract_compose_view.SimpleTextViewActivity">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:orientation="vertical">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/very_small_margin"
+            android:text="Video mp4"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
+
+        <com.blockchain.componentlib.media.AsyncMediaView
+            android:id="@+id/video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/very_small_margin"
+            android:text="GIF"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
+
+        <com.blockchain.componentlib.media.AsyncMediaView
+            android:id="@+id/gif"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/very_small_margin"
+            android:text="PNG"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
+
+        <com.blockchain.componentlib.media.AsyncMediaView
+            android:id="@+id/png"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/very_small_margin"
+            android:text="JPG"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
+
+        <com.blockchain.componentlib.media.AsyncMediaView
+            android:id="@+id/jpg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/very_small_margin"
+            android:text="LOTTIE"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
+
+        <com.blockchain.componentlib.media.AsyncMediaView
+            android:id="@+id/lottie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/very_small_margin"
+            android:text="SVG"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
+
+        <com.blockchain.componentlib.media.AsyncMediaView
+            android:id="@+id/svg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</ScrollView>

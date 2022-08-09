@@ -12,8 +12,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
@@ -88,7 +89,7 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
                 horizontal = dimensionResource(R.dimen.small_margin),
                 vertical = dimensionResource(R.dimen.small_margin)
             ),
-            cells = GridCells.Fixed(count = COLUMN_COUNT),
+            columns = GridCells.Fixed(count = COLUMN_COUNT),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.standard_margin)),
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.smallest_margin))
         ) {

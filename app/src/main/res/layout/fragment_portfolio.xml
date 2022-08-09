@@ -36,6 +36,8 @@
         <androidx.constraintlayout.widget.Group
             android:id="@+id/empty_portfolio_group"
             android:layout_width="wrap_content"
+            android:visibility="gone"
+            tools:visibility="visible"
             android:layout_height="wrap_content"
             app:constraint_referenced_ids="empty_portfolio_title, portfolio_description, buy_crypto_button, receive_deposit_button, bottom_background, receive_button" />
 
@@ -128,6 +130,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/standard_margin"
             android:elevation="5dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -137,6 +140,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/standard_margin"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.blockchain.componentlib.card.CustomBackgroundCardView
+            android:id="@+id/card_cowboys"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/standard_margin"
+            android:elevation="5dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -2,12 +2,27 @@ package com.blockchain.store.impl
 
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
-import com.blockchain.store.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import com.blockchain.store.Cache
+import com.blockchain.store.CachedData
+import com.blockchain.store.Fetcher
+import com.blockchain.store.FetcherResult
+import com.blockchain.store.KeyedStore
+import com.blockchain.store.Mediator
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class RealStore<K : Any,  T : Any>(
+class RealStore<K : Any, T : Any>(
     private val scope: CoroutineScope,
     private val fetcher: Fetcher<K, T>,
     private val cache: Cache<K, T>,
@@ -21,7 +36,7 @@ class RealStore<K : Any,  T : Any>(
 
     private var previousEmissions: MutableList<Pair<Long, CachedData<K, T>?>> = mutableListOf()
 
-    private fun buildCachedFlow(request: KeyedFreshnessStrategy.Cached<K>) = channelFlow {
+    private fun buildCachedFlow(request: KeyedFreshnessStrategy.Cached<K>) = channelFlow<DataResource<T>> {
 
         val networkLock = CompletableDeferred<Unit>()
         scope.launch {
@@ -36,36 +51,21 @@ class RealStore<K : Any,  T : Any>(
             }
         }
 
-        cache.read(request.key).distinctUntilChanged().collect { cachedData ->
+        cache.read(request.key).distinctUntilChanged().collectIndexed { index, cachedData ->
             previousEmissions += System.currentTimeMillis() to cachedData
+            val isFirstEmission = index == 0
 
-            val isStale = isStale(cachedData)
-            val shouldFetch = networkLock.isActive && (request.forceRefresh || isStale)
-            // We should only emit non stale data, however we put in this (networkLock.isCompleted || ...) in as a
-            // safeguard, if we've already fetched we ignore the staleness and emit either way, just in case the fetch
-            // result emission is considered stale by the mediator
-            val shouldEmit = cachedData != null && (networkLock.isCompleted || !isStale)
+            // We only want to filter out stale emissions on the first cache emission, which contains the cached value,
+            // the following emissions are always caused by `cache.write` which is only called on successful network
+            // calls, in these cases we don't want to check for staleness and always emit.
+            // This is done so even if the mediator considers a network response stale we don't skip that emission
+            val isStale = isFirstEmission && isStale(cachedData)
+            val shouldFetch = isFirstEmission && (request.forceRefresh || isStale)
+            val shouldEmit = cachedData != null && !isStale
 
-            if (StoreConfig.DEBUG) {
-                val wasMarkedAsStale = networkLock.isCompleted && cachedData?.lastFetched == 0L
-                if (networkLock.isCompleted && isStale && !wasMarkedAsStale)
-                    throw StoreException(
-                        """New data was emitted from the cache that is stale after network had already completed, this 
-                            |shouldn't happen, if it does it generally means that we've just fetched from the network 
-                            |and the response was considered to be stale by the mediator.
-                            |Currently stale cached data is not being emitted downstream.
-                            |PS: Remember that after a FetchResult.Success the data is emitted via the cache as it is
-                            |saved, it is not emitted directly from the RealStore.kt, so if you're seeing this crash it 
-                            |most likely means that the data from FetchResult is considered stale by the mediator.
-                            |networkLock.isCompleted: ${networkLock.isCompleted}, isStale: $isStale, 
-                            |wasMarkedAsStale: $wasMarkedAsStale, cachedData: $cachedData, 
-                            |currentTime: ${System.currentTimeMillis()}, previousEmissions: $previousEmissions
-                        """.trimMargin()
-                    )
-            }
             if (shouldEmit) send(DataResource.Data(cachedData!!.data))
 
-            if (networkLock.isActive) {
+            if (isFirstEmission) {
                 when (shouldFetch) {
                     true -> networkLock.complete(Unit)
                     false -> networkLock.cancel()
@@ -108,6 +108,4 @@ class RealStore<K : Any,  T : Any>(
     }
 
     private fun isStale(cachedData: CachedData<K, T>?) = mediator.shouldFetch(cachedData)
-
-    private class StoreException(override val message: String) : Exception()
 }

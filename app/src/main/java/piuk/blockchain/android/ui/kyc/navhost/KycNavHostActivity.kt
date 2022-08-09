@@ -105,11 +105,14 @@ class KycNavHostActivity :
     }
 
     override fun showErrorSnackbarAndFinish(@StringRes message: Int) {
+        setResult(RESULT_CANCELED)
+
         BlockchainSnackbar.make(
             binding.root,
             getString(message),
             type = SnackbarType.Error
         ).show()
+
         finish()
     }
 
@@ -191,6 +194,8 @@ class KycNavHostActivity :
 
     private fun setupBackPress() {
         backPressCallback = onBackPressedDispatcher.addCallback(owner = this) {
+            // see ApplicationCompleteFragment for success result
+            setResult(RESULT_CANCELED)
             finish()
         }
     }

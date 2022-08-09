@@ -12,11 +12,11 @@ class FreshnessMediator<K, T>(
         val now = CurrentTimeProvider.currentTimeMillis()
         val lastFetchedTimestamp = cachedData?.lastFetched ?: 0L
 
-        return cachedData == null
-            || (cachedData is Collection<*> && cachedData.isEmpty())
+        return cachedData == null ||
+            (cachedData is Collection<*> && cachedData.isEmpty()) ||
             // The phone clock was changed
-            || now < lastFetchedTimestamp
-            || now > lastFetchedTimestamp + freshness.toMillis()
+            now < lastFetchedTimestamp ||
+            now > lastFetchedTimestamp + freshness.toMillis()
     }
 }
 

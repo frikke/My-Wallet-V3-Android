@@ -4,6 +4,7 @@ import com.blockchain.AppVersion;
 import com.blockchain.api.ApiException;
 import com.blockchain.api.bitcoin.data.BalanceDto;
 import com.blockchain.api.services.NonCustodialBitcoinService;
+import com.blockchain.logging.RemoteLogger;
 import com.blockchain.serialization.JsonSerializableAccount;
 
 import org.apache.commons.codec.DecoderException;
@@ -85,6 +86,7 @@ public class PayloadManager {
     private final BalanceManagerBch balanceManagerBch;
 
     private final Device device;
+    private final RemoteLogger remoteLogger;
     private final AppVersion appVersion;
 
     public PayloadManager(
@@ -94,7 +96,8 @@ public class PayloadManager {
         BalanceManagerBtc balanceManagerBtc,
         BalanceManagerBch balanceManagerBch,
         Device device,
-        AppVersion appVersion
+        AppVersion appVersion,
+        RemoteLogger remoteLogger
     ) {
         this.walletApi  = walletApi;
         this.bitcoinApi = bitcoinApi;
@@ -104,8 +107,9 @@ public class PayloadManager {
         // Bitcoin Cash
         this.balanceManagerBch = balanceManagerBch;
 
-        this.device     = device;
-        this.appVersion = appVersion;
+        this.device       = device;
+        this.appVersion   = appVersion;
+        this.remoteLogger = remoteLogger;
     }
 
     @Nullable
@@ -410,9 +414,11 @@ public class PayloadManager {
             setTempPassword(password);
         } catch (DecryptionException decryptionException) {
             log.warn("", decryptionException);
+            remoteLogger.logException(decryptionException, "");
             throw decryptionException;
         } catch (Exception e) {
             log.error("", e);
+            remoteLogger.logException(e, "");
             throw new HDWalletException(e);
         }
     }

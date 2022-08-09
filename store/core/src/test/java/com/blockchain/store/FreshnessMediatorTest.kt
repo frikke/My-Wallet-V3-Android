@@ -52,5 +52,4 @@ class FreshnessMediatorTest {
         val shouldFetch = mediator.shouldFetch(cachedData)
         shouldFetch `should be equal to` true
     }
-
 }

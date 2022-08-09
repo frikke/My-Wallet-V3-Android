@@ -13,6 +13,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.control.Search
+import com.blockchain.componentlib.theme.AppTheme
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.prices.presentation.composables.PriceListItem
@@ -34,8 +35,10 @@ fun PricesScreen(
                 Column {
                     Box(
                         modifier = Modifier.padding(
-                            start = dimensionResource(R.dimen.standard_margin),
-                            end = dimensionResource(R.dimen.standard_margin)
+                            start = AppTheme.dimensions.paddingLarge,
+                            top = AppTheme.dimensions.paddingSmall,
+                            end = AppTheme.dimensions.paddingLarge,
+                            bottom = AppTheme.dimensions.paddingMedium
                         )
                     ) {
                         Search(

@@ -13,9 +13,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    kotlinOptions {
-        useIR = true
-    }
     buildFeatures {
         viewBinding = true
         compose = true
@@ -45,6 +42,9 @@ dependencies {
     implementation Libraries.composeActivity
     implementation Libraries.composeCoil
     implementation Libraries.composeCoilSvg
+    implementation Libraries.composeCoilGif
+    implementation Libraries.composeLottie
+    implementation Libraries.exoPlayer
     implementation Libraries.accompanistSystemUi
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.koin
@@ -53,6 +53,7 @@ dependencies {
 
     androidTestImplementation Libraries.composeUiTest
     debugImplementation Libraries.composeUiTooling
+    debugImplementation Libraries.composeUiPoolingContainer
 
     // Unit Tests
     testImplementation Libraries.junit

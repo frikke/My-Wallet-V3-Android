@@ -2,12 +2,10 @@ package com.blockchain.network.modules
 
 import com.blockchain.enviroment.EnvironmentUrls
 import com.blockchain.koin.apiRetrofit
-import com.blockchain.koin.authOkHttpClient
 import com.blockchain.koin.everypayRetrofit
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.kotlinApiRetrofit
 import com.blockchain.koin.kotlinJsonConverterFactory
-import com.blockchain.koin.nabu
 import com.blockchain.koin.serializerExplorerRetrofit
 import com.blockchain.koin.status
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -53,15 +51,6 @@ val apiModule = module {
         Retrofit.Builder()
             .baseUrl(get<EnvironmentUrls>().apiUrl)
             .client(get())
-            .addConverterFactory(get(kotlinJsonConverterFactory))
-            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
-            .build()
-    }
-
-    single(nabu) {
-        Retrofit.Builder()
-            .baseUrl(get<EnvironmentUrls>().nabuApi)
-            .client(get(authOkHttpClient))
             .addConverterFactory(get(kotlinJsonConverterFactory))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()

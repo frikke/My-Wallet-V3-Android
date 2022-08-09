@@ -11,6 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.UiThread
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.analytics.events.AnalyticsEvents
@@ -20,6 +22,11 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.card.CustomBackgroundCard
+import com.blockchain.componentlib.card.CustomBackgroundCardView
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -48,6 +55,9 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
+import piuk.blockchain.android.ui.cowboys.CowboysAnnouncementInfo
+import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
+import piuk.blockchain.android.ui.cowboys.FlowStep
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
@@ -62,6 +72,7 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.fiatAssetAction
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.model.BrokearageFiatAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardAsset
+import piuk.blockchain.android.ui.dashboard.model.DashboardCowboysState
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardOnboardingState
@@ -193,8 +204,7 @@ class PortfolioFragment :
         if (flowToLaunch != null && flowCurrency != null) {
             when (flowToLaunch) {
                 AssetAction.FiatDeposit,
-                AssetAction.FiatWithdraw,
-                -> model.process(
+                AssetAction.FiatWithdraw -> model.process(
                     DashboardIntent.StartBankTransferFlow(
                         action = AssetAction.FiatWithdraw
                     )
@@ -233,11 +243,12 @@ class PortfolioFragment :
             showReferralSuccess(it)
         }
 
+        renderCowboysFlow(newState.dashboardCowboysState)
+
         this.state = newState
     }
 
     private fun updateDisplayList(newState: DashboardState) {
-
         val items = listOfNotNull(
             newState.dashboardBalance,
             newState.locks.fundsLocks?.let {
@@ -458,7 +469,7 @@ class PortfolioFragment :
 
         newState.activeAssets.forEach { (asset, state) ->
             val newBalance = state.accountBalance?.total
-            if (newBalance != null && newBalance != oldState?.activeAssets?.get(asset)?.accountBalance?.total) {
+            if (newBalance != null && newBalance != oldState?.activeAssets?.getOrNull(asset)?.accountBalance?.total) {
                 // If we have the full set, this will fire
                 (asset as? AssetInfo)?.let {
                     analyticsReporter.gotAssetBalance(asset, newBalance, newState.activeAssets.size)
@@ -483,6 +494,51 @@ class PortfolioFragment :
                 }
             }
         }
+    }
+
+    private fun renderCowboysFlow(cowboysState: DashboardCowboysState) {
+        with(binding.cardCowboys) {
+            when (cowboysState) {
+                is DashboardCowboysState.CowboyWelcomeCard ->
+                    showCowboysCard(
+                        cardInfo = cowboysState.cardInfo,
+                        onClick = {
+                            startActivity(
+                                CowboysFlowActivity.newIntent(requireContext(), FlowStep.Welcome)
+                            )
+                        }
+                    )
+                is DashboardCowboysState.CowboyIdentityCard ->
+                    showCowboysCard(
+                        cardInfo = cowboysState.cardInfo,
+                        onClick = {
+                            startActivity(
+                                CowboysFlowActivity.newIntent(requireContext(), FlowStep.Verify)
+                            )
+                        }
+                    )
+                is DashboardCowboysState.CowboyRaffleCard ->
+                    showCowboysCard(
+                        cardInfo = cowboysState.cardInfo,
+                        onClick = {
+                            startActivity(
+                                CowboysFlowActivity.newIntent(requireContext(), FlowStep.Raffle)
+                            )
+                        }
+                    )
+                is DashboardCowboysState.Hidden -> gone()
+            }
+        }
+    }
+
+    private fun CustomBackgroundCardView.showCowboysCard(cardInfo: CowboysAnnouncementInfo, onClick: () -> Unit) {
+        visible()
+        title = cardInfo.title
+        subtitle = cardInfo.message
+        backgroundResource = ImageResource.Local(R.drawable.ic_temp_cowboys_header)
+        iconResource = ImageResource.Local(R.drawable.ic_temp_cowboys_icon)
+        isCloseable = false
+        this.onClick = onClick
     }
 
     private fun setupCtaButtons(state: DashboardState) {
@@ -540,6 +596,7 @@ class PortfolioFragment :
 
         announcements.checkLatest(announcementHost, compositeDisposable)
         model.process(DashboardIntent.FetchOnboardingSteps)
+        model.process(DashboardIntent.CheckCowboysFlow)
         model.process(DashboardIntent.GetActiveAssets(loadSilently = true))
         model.process(DashboardIntent.FetchReferralSuccess)
     }
@@ -849,4 +906,20 @@ class PortfolioFragment :
 
 internal class SafeLayoutManager(context: Context) : LinearLayoutManager(context) {
     override fun supportsPredictiveItemAnimations() = false
+}
+
+@Preview
+@Composable
+fun CustomBackgroundCard_Basic() {
+    AppTheme {
+        AppSurface {
+            CustomBackgroundCard(
+                title = "Title",
+                subtitle = "Subtitle",
+                iconResource = ImageResource.Local(R.drawable.ic_temp_cowboys_icon),
+                backgroundResource = ImageResource.Local(R.drawable.ic_temp_cowboys_header),
+                isCloseable = false
+            )
+        }
+    }
 }

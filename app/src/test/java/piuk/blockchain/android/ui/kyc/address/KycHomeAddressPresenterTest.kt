@@ -7,6 +7,7 @@ import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.api.getuser.domain.UserService
+import com.blockchain.nabu.api.kyc.domain.KycStoreService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
@@ -40,6 +41,7 @@ class KycHomeAddressPresenterTest {
     private val nabuUserSync: NabuUserSync = mock()
     private val nabuToken: NabuToken = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
+    private val kycStoreService: KycStoreService = mock()
 
     private val kycNextStepDecision: KycHomeAddressNextStepDecision = mock {
         on { nextStep() }.thenReturn(Single.just(KycNextStepDecision.NextStep.Veriff))
@@ -62,7 +64,8 @@ class KycHomeAddressPresenterTest {
             nabuUserSync,
             kycNextStepDecision,
             custodialWalletManager,
-            mock()
+            mock(),
+            kycStoreService
         )
         subject.initView(view)
     }
@@ -435,6 +438,25 @@ class KycHomeAddressPresenterTest {
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
         verify(view).onSddVerified()
+    }
+
+    @Test
+    fun `on continue clicked all data correct, invalidate kyc and user caches`() {
+        // Arrange
+        givenAddressCompletes()
+        givenRequestJwtAndUpdateWalletInfoSucceds()
+        whenever(custodialWalletManager.isSimplifiedDueDiligenceEligible()).thenReturn(Single.just(true))
+        whenever(custodialWalletManager.fetchSimplifiedDueDiligenceUserState()).thenReturn(
+            Single.just(SimplifiedDueDiligenceUserState(isVerified = true, stateFinalised = true))
+        )
+        // Act
+        subject.onContinueClicked(CampaignType.SimpleBuy)
+        // Assert
+        verify(view).showProgressDialog()
+        verify(view).dismissProgressDialog()
+        verify(view).onSddVerified()
+        verify(kycStoreService).markAsStale()
+        verify(nabuUserSync).syncUser()
     }
 
     @Test

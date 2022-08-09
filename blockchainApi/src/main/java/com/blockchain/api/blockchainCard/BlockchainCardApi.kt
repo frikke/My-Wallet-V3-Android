@@ -1,7 +1,7 @@
 package com.blockchain.api.blockchainCard
 
-import com.blockchain.api.blockchainCard.data.AcceptedDocumentFormDto
-import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentsDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocsFormDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardAccountDto
 import com.blockchain.api.blockchainCard.data.CardAccountLinkDto
@@ -108,12 +108,11 @@ internal interface BlockchainCardApi {
     @GET("card-issuing/legal")
     suspend fun getLegalDocuments(
         @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
-    ): Outcome<Exception, BlockchainCardLegalDocumentsDto>
+    ): Outcome<Exception, List<BlockchainCardLegalDocumentDto>>
 
-    @PUT("card-issuing/legal/{documentName}")
-    suspend fun acceptLegalDocument(
+    @PUT("card-issuing/legal")
+    suspend fun acceptLegalDocuments(
         @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
-        @Path("documentName") documentName: String,
-        @Body acceptedDocumentForm: AcceptedDocumentFormDto
-    ): Outcome<Exception, BlockchainCardLegalDocumentsDto>
+        @Body acceptedDocumentsForm: BlockchainCardAcceptedDocsFormDto
+    ): Outcome<Exception, List<BlockchainCardLegalDocumentDto>>
 }

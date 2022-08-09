@@ -120,7 +120,7 @@ internal class NabuDataManagerImpl(
     private val walletReporter: WalletReporter,
     private val trust: DigitalTrust,
     private val payloadDataManager: PayloadDataManager,
-    private val prefs: SessionPrefs,
+    private val prefs: SessionPrefs
 ) : NabuDataManager {
 
     private val guid

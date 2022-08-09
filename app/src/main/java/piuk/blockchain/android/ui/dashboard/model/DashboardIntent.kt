@@ -228,6 +228,10 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
                 }
             )
         }
+
+        override fun isValidFor(oldState: DashboardState): Boolean {
+            return asset in oldState.activeAssets
+        }
     }
 
     class RefreshPrices(
@@ -433,6 +437,15 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             oldState.copy(
                 locks = Locks(fundsLocks)
             )
+    }
+
+    object CheckCowboysFlow : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState
+    }
+
+    class UpdateCowboysViewState(val cowboysState: DashboardCowboysState) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState =
+            oldState.copy(dashboardCowboysState = cowboysState)
     }
 
     object FetchOnboardingSteps : DashboardIntent() {

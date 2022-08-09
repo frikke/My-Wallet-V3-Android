@@ -9,7 +9,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
-import io.mockk.mockk
 import io.reactivex.rxjava3.core.Observable
 import org.junit.Assert
 import org.junit.Before
@@ -282,19 +281,5 @@ class SecurityInteractorTest {
 
         verify(encryptedPrefs).backupEnabled = false
         verifyNoMoreInteractions(encryptedPrefs)
-    }
-
-    @Test
-    fun `WHEN triggerSeedPhraseAlert is called, THEN triggerEmailAlert should be called`() {
-        val walletGuid = "walletGuid"
-        val sharedKey = "sharedKey"
-
-        whenever(authPrefs.walletGuid).thenReturn(walletGuid)
-        whenever(authPrefs.sharedKey).thenReturn(sharedKey)
-        whenever(settingsDataManager.triggerEmailAlert(any(), any())).thenReturn(mockk())
-
-        interactor.triggerSeedPhraseAlert()
-
-        verify(settingsDataManager).triggerEmailAlert(guid = walletGuid, sharedKey = sharedKey)
     }
 }

@@ -157,20 +157,6 @@ class MainModel(
                     )
                 }
             }
-            is MainIntent.CheckForInitialDialogs -> {
-                if (intent.shouldStartUiTour) {
-                    process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowUiTour))
-                    null
-                } else {
-                    interactor.shouldShowEntitySwitchSilverKycUpsell()
-                        .onErrorReturnItem(false)
-                        .subscribeBy { show ->
-                            if (show) {
-                                process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowEntitySwitchSilverKycUpsell))
-                            }
-                        }
-                }
-            }
             is MainIntent.CheckReferralCode -> {
                 interactor.checkReferral()
                     .onErrorReturn { ReferralState(ReferralInfo.NotAvailable) }

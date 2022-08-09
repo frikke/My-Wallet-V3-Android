@@ -18,6 +18,7 @@ import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.ethereum.evm.EvmApi
 import com.blockchain.api.fiatcurrencies.FiatCurrenciesApi
 import com.blockchain.api.interest.InterestApiInterface
+import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.nfts.api.NftApi
 import com.blockchain.api.nftwaitlist.data.api.NftWaitlistApi
@@ -37,7 +38,6 @@ import com.blockchain.api.services.DataRemediationApiService
 import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.api.services.FiatCurrenciesApiService
-import com.blockchain.api.services.InterestApiService
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.api.services.NftService
 import com.blockchain.api.services.NftWaitlistApiService
@@ -56,6 +56,7 @@ import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
 import com.blockchain.api.watchlist.WatchlistApi
 import com.blockchain.koin.authOkHttpClient
+import com.blockchain.koin.kotlinJsonConverterFactory
 import com.blockchain.koin.kotlinXApiRetrofit
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -87,7 +88,7 @@ val blockchainApiModule = module {
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
-            .addConverterFactory(get())
+            .addConverterFactory(get(kotlinJsonConverterFactory))
             .build()
     }
 
@@ -96,7 +97,7 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("wallet-pubkey-api"))
             .client(get())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
-            .addConverterFactory(get())
+            .addConverterFactory(get(kotlinJsonConverterFactory))
             .build()
     }
 
@@ -105,7 +106,7 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("explorer-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
-            .addConverterFactory(get())
+            .addConverterFactory(get(kotlinJsonConverterFactory))
             .build()
     }
 
@@ -115,7 +116,7 @@ val blockchainApiModule = module {
             .client(get(authOkHttpClient))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
-            .addConverterFactory(get())
+            .addConverterFactory(get(kotlinJsonConverterFactory))
             .build()
     }
 
@@ -276,7 +277,7 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(nabuApi).create(InterestApiInterface::class.java)
         InterestApiService(
-            api = api
+            interestApi = api
         )
     }
 

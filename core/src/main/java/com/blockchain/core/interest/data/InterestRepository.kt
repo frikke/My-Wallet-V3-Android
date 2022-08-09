@@ -1,24 +1,39 @@
 package com.blockchain.core.interest.data
 
-import com.blockchain.api.services.InterestBalanceDetails
+import com.blockchain.api.interest.InterestApiService
+import com.blockchain.api.interest.data.InterestAccountBalanceDto
+import com.blockchain.api.interest.data.InterestWithdrawalBodyDto
+import com.blockchain.core.TransactionsCache
+import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
 import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.core.interest.domain.model.InterestActivity
+import com.blockchain.core.interest.domain.model.InterestActivityAttributes
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.interest.domain.model.InterestLimits
+import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.nabu.Authenticator
+import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
+import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
+import com.blockchain.utils.fromIso8601ToUtc
+import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
+import info.blockchain.wallet.multiaddress.TransactionSummary
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asObservable
@@ -29,15 +44,19 @@ internal class InterestRepository(
     private val interestEligibilityTimedCache: InterestEligibilityTimedCache,
     private val interestAvailableAssetsTimedCache: InterestAvailableAssetsTimedCache,
     private val interestLimitsTimedCache: InterestLimitsTimedCache,
+    private val authenticator: Authenticator,
+    private val interestApiService: InterestApiService,
+    private val transactionsCache: TransactionsCache,
 ) : InterestService {
 
     // balances
     private fun getBalancesFlow(refreshStrategy: FreshnessStrategy): Flow<Map<AssetInfo, InterestAccountBalance>> {
         return interestBalancesStore.stream(refreshStrategy)
-            .mapData { interestBalanceDetailList ->
-                interestBalanceDetailList.mapNotNull { interestBalanceDetails ->
-                    (assetCatalogue.fromNetworkTicker(interestBalanceDetails.assetTicker) as? AssetInfo)
-                        ?.let { assetInfo -> assetInfo to interestBalanceDetails.toInterestBalance(assetInfo) }
+            .mapData { mapAssetTickerWithBalance ->
+                mapAssetTickerWithBalance.mapNotNull { (assetTicker, balanceDto) ->
+                    (assetCatalogue.fromNetworkTicker(assetTicker) as? AssetInfo)?.let { asset ->
+                        asset to balanceDto.toInterestBalance(asset)
+                    }
                 }.toMap()
             }
             .getDataOrThrow()
@@ -96,15 +115,68 @@ internal class InterestRepository(
             mapAssetWithLimits[asset] ?: throw NoSuchElementException("Unable to get limits for ${asset.networkTicker}")
         }
     }
+
+    // rate
+    override fun getInterestRate(asset: AssetInfo): Single<Double> {
+        return authenticator.authenticate { sessionToken ->
+            interestApiService.getInterestRates(sessionToken.authHeader, asset.networkTicker)
+                .map { interestRateResponse -> interestRateResponse.rate }
+                .defaultIfEmpty(0.0)
+        }
+    }
+
+    // address
+    override fun getAddress(asset: AssetInfo): Single<String> {
+        return authenticator.authenticate { sessionToken ->
+            interestApiService.getAddress(sessionToken.authHeader, asset.networkTicker)
+                .map { interestAddressResponse -> interestAddressResponse.address }
+        }
+    }
+
+    // activity
+    override fun getActivity(asset: AssetInfo): Single<List<InterestActivity>> {
+        return transactionsCache.transactions(
+            TransactionsRequest(product = PRODUCT_NAME, type = null)
+        ).map { interestActivityResponse ->
+            interestActivityResponse.items
+                .filter { transaction ->
+                    assetCatalogue.fromNetworkTicker(transaction.amount.symbol)?.networkTicker == asset.networkTicker
+                }.map { transaction ->
+                    transaction.toInterestActivity(asset)
+                }
+        }
+    }
+
+    // withdrawal
+    override fun withdraw(asset: AssetInfo, amount: Money, address: String): Completable {
+        return authenticator.authenticateCompletable { sessionToken ->
+            interestApiService.performWithdrawal(
+                authHeader = sessionToken.authHeader,
+                body = InterestWithdrawalBodyDto(
+                    withdrawalAddress = address,
+                    amount = amount.toBigInteger().toString(),
+                    currency = asset.networkTicker
+                )
+            )
+        }
+    }
+
+    companion object {
+        const val PRODUCT_NAME = "savings"
+    }
 }
 
-private fun InterestBalanceDetails.toInterestBalance(asset: AssetInfo) =
+// ///////////////
+// EXTENSIONS
+// ///////////////
+
+private fun InterestAccountBalanceDto.toInterestBalance(asset: AssetInfo) =
     InterestAccountBalance(
-        totalBalance = CryptoValue.fromMinor(asset, totalBalance),
-        pendingInterest = CryptoValue.fromMinor(asset, pendingInterest),
-        pendingDeposit = CryptoValue.fromMinor(asset, pendingDeposit),
-        totalInterest = CryptoValue.fromMinor(asset, totalInterest),
-        lockedBalance = CryptoValue.fromMinor(asset, lockedBalance),
+        totalBalance = CryptoValue.fromMinor(asset, totalBalance.toBigInteger()),
+        pendingInterest = CryptoValue.fromMinor(asset, pendingInterest.toBigInteger()),
+        pendingDeposit = CryptoValue.fromMinor(asset, pendingDeposit.toBigInteger()),
+        totalInterest = CryptoValue.fromMinor(asset, totalInterest.toBigInteger()),
+        lockedBalance = CryptoValue.fromMinor(asset, lockedBalance.toBigInteger()),
         hasTransactions = true
     )
 
@@ -116,3 +188,45 @@ private fun zeroBalance(asset: Currency): InterestAccountBalance =
         totalInterest = Money.zero(asset),
         lockedBalance = Money.zero(asset)
     )
+
+private fun TransactionResponse.toInterestActivity(asset: AssetInfo): InterestActivity =
+    InterestActivity(
+        value = CryptoValue.fromMinor(asset, amountMinor.toBigInteger()),
+        id = id,
+        insertedAt = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
+        state = state.toInterestState(),
+        type = type.toTransactionType(),
+        extraAttributes = extraAttributes?.toDomain()
+    )
+
+private fun TransactionAttributesResponse.toDomain() = InterestActivityAttributes(
+    address = address,
+    confirmations = confirmations,
+    hash = hash,
+    id = id,
+    transactionHash = txHash,
+    transferType = transferType,
+    beneficiary = beneficiary
+)
+
+private fun String.toInterestState(): InterestState =
+    when (this) {
+        TransactionResponse.FAILED -> InterestState.FAILED
+        TransactionResponse.REJECTED -> InterestState.REJECTED
+        TransactionResponse.PROCESSING -> InterestState.PROCESSING
+        TransactionResponse.CREATED,
+        TransactionResponse.COMPLETE -> InterestState.COMPLETE
+        TransactionResponse.PENDING -> InterestState.PENDING
+        TransactionResponse.MANUAL_REVIEW -> InterestState.MANUAL_REVIEW
+        TransactionResponse.CLEARED -> InterestState.CLEARED
+        TransactionResponse.REFUNDED -> InterestState.REFUNDED
+        else -> InterestState.UNKNOWN
+    }
+
+fun String.toTransactionType() =
+    when (this) {
+        TransactionResponse.DEPOSIT -> TransactionSummary.TransactionType.DEPOSIT
+        TransactionResponse.WITHDRAWAL -> TransactionSummary.TransactionType.WITHDRAW
+        TransactionResponse.INTEREST_OUTGOING -> TransactionSummary.TransactionType.INTEREST_EARNED
+        else -> TransactionSummary.TransactionType.UNKNOWN
+    }

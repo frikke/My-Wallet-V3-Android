@@ -14,6 +14,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -24,11 +25,12 @@ import io.reactivex.rxjava3.core.Single
 
 class InterestDepositOnChainTxEngine(
     private val interestBalanceStore: InterestBalancesStore,
+    interestService: InterestService,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val onChainEngine: OnChainTxEngineBase,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager
-) : InterestBaseEngine(walletManager) {
+) : InterestBaseEngine(interestService) {
 
     override val flushableDataSources: List<FlushableDataSource>
         get() = listOf(interestBalanceStore)

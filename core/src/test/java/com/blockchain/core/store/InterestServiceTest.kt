@@ -1,6 +1,8 @@
 package com.blockchain.core.store
 
-import com.blockchain.api.services.InterestBalanceDetails
+import com.blockchain.api.interest.InterestApiService
+import com.blockchain.api.interest.data.InterestAccountBalanceDto
+import com.blockchain.core.TransactionsCache
 import com.blockchain.core.interest.data.InterestRepository
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
@@ -10,6 +12,7 @@ import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.nabu.Authenticator
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
@@ -32,6 +35,9 @@ class InterestServiceTest {
     private val interestEligibilityTimedCache = mockk<InterestEligibilityTimedCache>()
     private val interestAvailableAssetsTimedCache = mockk<InterestAvailableAssetsTimedCache>()
     private val interestLimitsTimedCache = mockk<InterestLimitsTimedCache>()
+    private val authenticator = mockk<Authenticator>()
+    private val interestApiService = mockk<InterestApiService>()
+    private val transactionsCache = mockk<TransactionsCache>()
 
     private val interestService: InterestService = InterestRepository(
         assetCatalogue = assetCatalogue,
@@ -39,6 +45,9 @@ class InterestServiceTest {
         interestEligibilityTimedCache = interestEligibilityTimedCache,
         interestAvailableAssetsTimedCache = interestAvailableAssetsTimedCache,
         interestLimitsTimedCache = interestLimitsTimedCache,
+        authenticator = authenticator,
+        interestApiService = interestApiService,
+        transactionsCache = transactionsCache
     )
 
     private val cryptoCurrency = object : CryptoCurrency(
@@ -51,14 +60,13 @@ class InterestServiceTest {
         colour = "#123456"
     ) {}
 
-    private val interestBalanceDetails = InterestBalanceDetails(
-        assetTicker = "CRYPTO1",
-        totalBalance = 1.toBigInteger(),
-        pendingInterest = 2.toBigInteger(),
-        pendingDeposit = 3.toBigInteger(),
-        totalInterest = 4.toBigInteger(),
-        pendingWithdrawal = 5.toBigInteger(),
-        lockedBalance = 6.toBigInteger()
+    private val interestBalanceDetails = InterestAccountBalanceDto(
+        totalBalance = "1",
+        pendingInterest = "2",
+        pendingDeposit = "3",
+        totalInterest = "4",
+        pendingWithdrawal = "5",
+        lockedBalance = "6"
     )
 
     private val interestAccountBalance = InterestAccountBalance(
@@ -74,8 +82,9 @@ class InterestServiceTest {
 
     @Before
     fun setUp() {
-
-        every { interestBalancesStore.stream(any()) } returns flowOf(DataResource.Data(listOf(interestBalanceDetails)))
+        every { interestBalancesStore.stream(any()) } returns flowOf(
+            DataResource.Data(mapOf("CRYPTO1" to interestBalanceDetails))
+        )
         every { interestBalancesStore.invalidate() } just Runs
 
         every { assetCatalogue.fromNetworkTicker("CRYPTO1") } returns cryptoCurrency

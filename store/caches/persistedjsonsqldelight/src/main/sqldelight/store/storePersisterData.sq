@@ -27,3 +27,6 @@ AND key = ?;
 markStoreAsStale:
 UPDATE storePersisterData SET last_fetched = 0
 WHERE store_id = ?;
+
+deleteAll:
+DELETE FROM storePersisterData;

@@ -4,10 +4,10 @@ import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletModeService
 import com.nhaarman.mockitokotlin2.mock
@@ -61,8 +61,8 @@ class CryptoAssetBaseTest : KoinTest {
                     }
                 }
                 factory {
-                    mock<CustodialWalletManager> {
-                        on { getInterestAvailabilityForAsset(TEST_ASSET) }.thenReturn(Single.just(true))
+                    mock<InterestService> {
+                        on { isAssetAvailableForInterest(TEST_ASSET) }.thenReturn(Single.just(true))
                     }
                 }
             }

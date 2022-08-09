@@ -186,6 +186,7 @@ class BankAuthModel(
                     BankPartner.YAPILY -> process(
                         BankAuthIntent.UpdateLinkingUrl(pollResult.value.authorisationUrl)
                     )
+                    else -> {}
                 }
             }
             LinkedBankState.UNKNOWN -> process(

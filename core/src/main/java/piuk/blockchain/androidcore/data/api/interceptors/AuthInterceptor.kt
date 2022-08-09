@@ -2,20 +2,26 @@ package piuk.blockchain.androidcore.data.api.interceptors
 
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.network.interceptor.AuthenticateWithOfflineToken
 import com.blockchain.network.interceptor.AuthenticationNotRequired
+import com.blockchain.network.interceptor.CustomAuthentication
 import okhttp3.Interceptor
 import okhttp3.Response
+import okhttp3.internal.closeQuietly
+import org.koin.core.component.KoinComponent
 import retrofit2.Invocation
 import timber.log.Timber
 
 class AuthInterceptor(
-    private val nabuToken: Lazy<NabuToken>,
-    private val nabuDataManager: Lazy<NabuDataManager>,
     private val authInterceptorFeatureFlag: FeatureFlag,
-) : Interceptor {
+) : Interceptor, KoinComponent {
+
+    private val nabuToken: NabuToken
+        get() = payloadScope.get()
+    private val nabuDataManager: NabuDataManager
+        get() = payloadScope.get()
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
@@ -23,12 +29,11 @@ class AuthInterceptor(
             return chain.proceed(originalRequest)
         }
 
-        val nabuToken = nabuToken.value
-        val nabuDataManager = nabuDataManager.value
-
         val requestAnnotations = originalRequest.tag(Invocation::class.java)?.method()?.annotations.orEmpty()
 
-        if (requestAnnotations.any { it is AuthenticationNotRequired }) {
+        if (requestAnnotations.any { it is CustomAuthentication }) {
+            return chain.proceed(originalRequest)
+        } else if (requestAnnotations.any { it is AuthenticationNotRequired }) {
             if (originalRequest.header("authorization") != null) {
                 val url = originalRequest.url
                 Timber.w("authorization header stripped on AuthenticationNotRequired call url: $url")
@@ -36,12 +41,6 @@ class AuthInterceptor(
 
             val request = originalRequest.newBuilder()
                 .removeHeader("authorization")
-                .build()
-            return chain.proceed(request)
-        } else if (requestAnnotations.any { it is AuthenticateWithOfflineToken }) {
-            val offlineToken = nabuToken.fetchNabuToken().blockingGet()
-            val request = originalRequest.newBuilder()
-                .header("authorization", "Bearer ${offlineToken.token}")
                 .build()
             return chain.proceed(request)
         }
@@ -66,6 +65,7 @@ class AuthInterceptor(
 
         val response = chain.proceed(request)
         return if (response.code == NabuErrorStatusCodes.TokenExpired.code) {
+            response.body?.closeQuietly()
             nabuDataManager.clearAccessToken()
 
             val sessionToken = nabuDataManager.refreshToken(offlineToken).blockingGet()

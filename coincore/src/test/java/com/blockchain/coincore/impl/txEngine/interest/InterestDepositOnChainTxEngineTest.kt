@@ -14,6 +14,7 @@ import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
@@ -41,11 +42,13 @@ import org.junit.Test
 class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
+    private val interestService: InterestService = mock()
     private val onChainEngine: OnChainTxEngineBase = mock()
     private val interestBalanceStore: InterestBalancesStore = mock()
 
     private val subject = InterestDepositOnChainTxEngine(
         interestBalanceStore = interestBalanceStore,
+        interestService = interestService,
         walletManager = walletManager,
         onChainEngine = onChainEngine
     )
@@ -205,7 +208,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
             on { minDepositFiatValue }.thenReturn(MIN_DEPOSIT_AMOUNT_FIAT)
         }
 
-        whenever(walletManager.getInterestLimits(ASSET)).thenReturn(Single.just(limits))
+        whenever(interestService.getLimitsForAsset(ASSET)).thenReturn(Single.just(limits))
 
         // Act
         subject.doInitialiseTx()
@@ -229,7 +232,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
         verifyOnChainEngineStarted(sourceAccount)
 
         verify(onChainEngine).doInitialiseTx()
-        verify(walletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
         verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -262,7 +265,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
         )
 
         whenever(onChainEngine.doInitialiseTx()).thenReturn(Single.just(pendingTx))
-        whenever(walletManager.getInterestLimits(ASSET))
+        whenever(interestService.getLimitsForAsset(ASSET))
             .thenReturn(Single.error(NoSuchElementException()))
 
         // Act
@@ -274,7 +277,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
         verifyOnChainEngineStarted(sourceAccount)
 
         verify(onChainEngine).doInitialiseTx()
-        verify(walletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
 
         noMoreInteractions(sourceAccount, txTarget)
     }

@@ -103,7 +103,7 @@ class CoinViewInteractor(
         ) { tier, sddEligible, buyAccess,
             sellAccess, depositCryptoAccess, isSupportedPair ->
             val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
-            val ncAccount = accountList.firstOrNull { it is NonCustodialAccount }
+            val nonCustodialAccount = accountList.firstOrNull { it is NonCustodialAccount }
 
             val isTradable = custodialAccount != null
             val canBuy = buyAccess is FeatureAccess.Granted
@@ -114,45 +114,77 @@ class CoinViewInteractor(
                     if (isSupportedPair) {
                         if (tier == Tier.GOLD || sddEligible) {
                             if (totalCryptoBalance[AssetFilter.Trading]?.isPositive == true) {
-                                QuickActionData(QuickActionCta.Sell, QuickActionCta.Buy, custodialAccount)
+                                QuickActionData(
+                                    startAction = QuickActionCta.Sell,
+                                    endAction = QuickActionCta.Buy,
+                                    actionableAccount = custodialAccount
+                                )
                             } else {
-                                QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
+                                QuickActionData(
+                                    startAction = QuickActionCta.Receive,
+                                    endAction = QuickActionCta.Buy,
+                                    actionableAccount = custodialAccount
+                                )
                             }
                         } else {
-                            QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
+                            QuickActionData(
+                                startAction = QuickActionCta.Receive,
+                                endAction = QuickActionCta.Buy,
+                                actionableAccount = custodialAccount
+                            )
                         }
                     } else {
                         if (totalCryptoBalance[AssetFilter.Trading]?.isPositive == true) {
-                            QuickActionData(QuickActionCta.Receive, QuickActionCta.Send, custodialAccount)
+                            QuickActionData(
+                                startAction = QuickActionCta.Receive,
+                                endAction = QuickActionCta.Send,
+                                actionableAccount = custodialAccount
+                            )
                         } else {
-                            QuickActionData(QuickActionCta.Receive, QuickActionCta.None, custodialAccount)
+                            QuickActionData(
+                                startAction = QuickActionCta.Receive,
+                                endAction = QuickActionCta.None,
+                                actionableAccount = custodialAccount
+                            )
                         }
                     }
                 }
                 isTradable && !canBuy -> {
                     require(custodialAccount != null)
                     if (isSupportedPair) {
-                        QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
+                        QuickActionData(
+                            startAction = QuickActionCta.Receive,
+                            endAction = QuickActionCta.Buy,
+                            actionableAccount = custodialAccount
+                        )
                     } else {
-                        QuickActionData(QuickActionCta.Receive, QuickActionCta.None, custodialAccount)
+                        QuickActionData(
+                            startAction = QuickActionCta.Receive,
+                            endAction = QuickActionCta.None,
+                            actionableAccount = custodialAccount
+                        )
                     }
                 }
-                ncAccount != null -> {
+                nonCustodialAccount != null -> {
                     QuickActionData(
-                        QuickActionCta.Receive,
-                        if (totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true) {
+                        startAction = if (walletMode == WalletMode.UNIVERSAL) {
+                            QuickActionCta.Receive
+                        } else {
+                            QuickActionCta.Swap
+                        },
+                        endAction = if (totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true) {
                             QuickActionCta.Send
                         } else {
                             QuickActionCta.None
                         },
-                        ncAccount
+                        actionableAccount = nonCustodialAccount
                     )
                 }
                 else -> {
                     QuickActionData(
-                        QuickActionCta.None,
-                        QuickActionCta.None,
-                        NullCryptoAccount()
+                        startAction = QuickActionCta.None,
+                        endAction = QuickActionCta.None,
+                        actionableAccount = NullCryptoAccount()
                     )
                 }
             }

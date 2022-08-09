@@ -4,6 +4,7 @@ import com.blockchain.AppVersion
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.wallet.Device
 import info.blockchain.wallet.ImportedAddressHelper.getImportedAddress
 import info.blockchain.wallet.WalletApiMockedResponseTest
@@ -47,7 +48,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
             object : AppVersion {
                 override val appVersion: String
                     get() = "8.18"
-            }
+            },
+            mock()
         )
     }
 

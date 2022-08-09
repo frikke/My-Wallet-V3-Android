@@ -259,7 +259,7 @@ class EthDataManagerTest {
     @Test
     fun getIfContract() {
         // Arrange
-        val address = "ADDRESS"
+        val address = "0xThisIsAValidEthAddress"
         val requestType = RequestType.IS_CONTRACT
         val response: EthJsonRpcResponse = mockk {
             coEvery { result } returns "contract"

@@ -21,7 +21,7 @@ sealed class DashboardNavigationAction {
     object SimpleBuyCancelOrder : DashboardNavigationAction(), BottomSheet
     data class FiatFundsDetails(val fiatAccount: FiatAccount) : DashboardNavigationAction(), BottomSheet
     data class LinkOrDeposit(val fiatAccount: FiatAccount? = null) : DashboardNavigationAction(), BottomSheet
-    data class LinkWithAlias(val fiatAccount: FiatAccount? = null) : DashboardNavigationAction(), FullScreenFlow
+    data class LinkWithAlias(val fiatAccount: FiatAccount? = null) : DashboardNavigationAction()
     object FiatFundsNoKyc : DashboardNavigationAction(), BottomSheet
     data class FiatDepositOrWithdrawalBlockedDueToSanctions(
         val reason: BlockedReason.Sanctions
@@ -52,10 +52,9 @@ sealed class DashboardNavigationAction {
         val sourceAccount: BlockchainAccount = NullCryptoAccount(),
         val target: TransactionTarget = NullCryptoAccount(),
         val action: AssetAction
-    ) : DashboardNavigationAction(), FullScreenFlow
+    ) : DashboardNavigationAction()
 
-    class Coinview(val asset: AssetInfo) : DashboardNavigationAction(), FullScreenFlow
+    class Coinview(val asset: AssetInfo) : DashboardNavigationAction()
 
     interface BottomSheet
-    interface FullScreenFlow
 }

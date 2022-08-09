@@ -6,6 +6,7 @@ import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.domain.paymentmethods.model.GooglePayAddress
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.Partner
@@ -16,6 +17,7 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
+import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
@@ -57,6 +59,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         val assetCode: String,
         val fiatCurrency: FiatCurrency,
         val maxAmount: FiatValue,
+        val minAmount: FiatValue,
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
 
@@ -148,25 +151,39 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         private val merchantBankCountryCode: String,
         private val allowPrepaidCards: Boolean,
         private val allowCreditCards: Boolean,
+        private val allowedAuthMethods: List<String>,
+        private val allowedCardNetworks: List<String>,
+        private val billingAddressRequired: Boolean,
+        private val billingAddressParameters: BillingAddressParameters,
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
             return oldState.copy(
                 isLoading = false,
-                googlePayTokenizationInfo = tokenizationData,
-                googlePayBeneficiaryId = beneficiaryId,
-                googlePayMerchantBankCountryCode = merchantBankCountryCode,
-                googlePayAllowPrepaidCards = allowPrepaidCards,
-                googlePayAllowCreditCards = allowCreditCards
+                googlePayDetails = GooglePayDetails(
+                    tokenizationInfo = tokenizationData,
+                    beneficiaryId = beneficiaryId,
+                    merchantBankCountryCode = merchantBankCountryCode,
+                    allowPrepaidCards = allowPrepaidCards,
+                    allowCreditCards = allowCreditCards,
+                    allowedAuthMethods = allowedAuthMethods,
+                    allowedCardNetworks = allowedCardNetworks,
+                    billingAddressRequired = billingAddressRequired,
+                    billingAddressParameters = billingAddressParameters
+                )
             )
         }
     }
 
-    object ClearGooglePayInfo : SimpleBuyIntent() {
+    object ClearGooglePayTokenizationInfo : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(googlePayTokenizationInfo = null)
+            oldState.copy(
+                googlePayDetails = oldState.googlePayDetails?.copy(
+                    tokenizationInfo = null
+                )
+            )
 
         override fun isValidFor(oldState: SimpleBuyState): Boolean {
-            return oldState.googlePayTokenizationInfo != null
+            return oldState.googlePayDetails?.tokenizationInfo != null
         }
     }
 
@@ -304,7 +321,10 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
-    data class ConfirmGooglePayOrder(val googlePayPayload: String) : SimpleBuyIntent() {
+    data class ConfirmGooglePayOrder(
+        val googlePayPayload: String,
+        val googlePayAddress: GooglePayAddress?
+    ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
                 confirmationActionRequested = true,

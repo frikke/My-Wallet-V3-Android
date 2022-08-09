@@ -7,12 +7,13 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.core.view.isVisible
-import com.blockchain.componentlib.card.CardButton
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.card.AnnouncementCardView
 import com.blockchain.componentlib.card.CallOutCardView
+import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.card.CtaAnnouncementCardView
+import com.blockchain.componentlib.card.CustomBackgroundCardView
 import com.blockchain.componentlib.card.DefaultCardView
-import com.blockchain.componentlib.basic.ImageResource
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class CardActivity : AppCompatActivity() {
@@ -78,5 +79,13 @@ class CardActivity : AppCompatActivity() {
             }
         }
 
+        findViewById<CustomBackgroundCardView>(R.id.cta_custom_bckg_card).apply {
+            title = "Complete the promo"
+            subtitle = "Verify your ID and refer some friends"
+            iconResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_star)
+            backgroundResource =
+                ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_blockchain_logo_with_text)
+            isCloseable = true
+        }
     }
 }

@@ -29,6 +29,7 @@ import com.blockchain.core.custodial.models.Promo
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.DIFFERENT_PAYMENT_URL
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
+import com.blockchain.domain.paymentmethods.model.GooglePayAddress
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
@@ -40,10 +41,12 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
+import com.blockchain.payments.googlepay.interceptor.response.PaymentDataResponse
 import com.blockchain.payments.googlepay.manager.GooglePayManager
+import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
-import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
-import com.blockchain.payments.googlepay.manager.request.allowedCardNetworks
+import com.blockchain.payments.googlepay.manager.request.defaultAllowedAuthMethods
+import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetworks
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
@@ -338,23 +341,28 @@ class SimpleBuyCheckoutFragment :
             }
         }
 
-        newState.googlePayTokenizationInfo?.let { tokenizationMap ->
-            if (tokenizationMap.isNotEmpty()) {
-                googlePayManager.requestPayment(
-                    GooglePayRequestBuilder.buildForPaymentRequest(
-                        allowedAuthMethods = allowedAuthMethods,
-                        allowedCardNetworks = allowedCardNetworks,
-                        gatewayTokenizationParameters = tokenizationMap,
-                        totalPrice = newState.amount.toNetworkString(),
-                        countryCode = newState.googlePayMerchantBankCountryCode.orEmpty(),
-                        currencyCode = newState.fiatCurrency.networkTicker,
-                        allowPrepaidCards = newState.googlePayAllowPrepaidCards,
-                        allowCreditCards = newState.googlePayAllowCreditCards
-                    ),
-                    requireActivity()
-                )
+        newState.googlePayDetails?.let { googlePayInfo ->
+            googlePayInfo.tokenizationInfo?.let { tokenizationMap ->
+                if (tokenizationMap.isNotEmpty()) {
+                    googlePayManager.requestPayment(
+                        GooglePayRequestBuilder.buildForPaymentRequest(
+                            allowedAuthMethods = googlePayInfo.allowedAuthMethods ?: defaultAllowedAuthMethods,
+                            allowedCardNetworks = googlePayInfo.allowedCardNetworks ?: defaultAllowedCardNetworks,
+                            gatewayTokenizationParameters = tokenizationMap,
+                            totalPrice = newState.amount.toNetworkString(),
+                            countryCode = googlePayInfo.merchantBankCountryCode.orEmpty(),
+                            currencyCode = newState.fiatCurrency.networkTicker,
+                            allowPrepaidCards = googlePayInfo.allowPrepaidCards,
+                            allowCreditCards = googlePayInfo.allowCreditCards,
+                            billingAddressRequired = googlePayInfo.billingAddressRequired ?: true,
+                            billingAddressParameters = googlePayInfo.billingAddressParameters
+                                ?: BillingAddressParameters()
+                        ),
+                        requireActivity()
+                    )
 
-                model.process(SimpleBuyIntent.ClearGooglePayInfo)
+                    model.process(SimpleBuyIntent.ClearGooglePayTokenizationInfo)
+                }
             }
         }
     }
@@ -857,8 +865,25 @@ class SimpleBuyCheckoutFragment :
         binding.buttonGooglePay.hideLoading()
     }
 
-    override fun onGooglePayTokenReceived(token: String) {
-        model.process(SimpleBuyIntent.ConfirmGooglePayOrder(googlePayPayload = token))
+    override fun onGooglePayTokenReceived(token: String, address: PaymentDataResponse.Address?) {
+        model.process(
+            SimpleBuyIntent.ConfirmGooglePayOrder(
+                googlePayPayload = token,
+                googlePayAddress = address?.let {
+                    GooglePayAddress(
+                        address1 = it.address1,
+                        address2 = it.address2,
+                        address3 = it.address3,
+                        administrativeArea = it.administrativeArea,
+                        countryCode = it.countryCode,
+                        locality = it.locality,
+                        name = it.name,
+                        postalCode = it.postalCode,
+                        sortingCode = it.sortingCode
+                    )
+                }
+            )
+        )
         binding.buttonGooglePay.showLoading()
     }
 

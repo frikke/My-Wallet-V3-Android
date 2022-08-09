@@ -1,5 +1,6 @@
 package com.blockchain.koin
 
+import com.blockchain.api.nabuApi
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
 import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
@@ -13,7 +14,6 @@ import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.data.UserRepository
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.api.kyc.data.KycStoreRepository
-import com.blockchain.nabu.api.kyc.data.store.KycDataSource
 import com.blockchain.nabu.api.kyc.data.store.KycStore
 import com.blockchain.nabu.api.kyc.domain.KycStoreService
 import com.blockchain.nabu.api.nabu.Nabu
@@ -113,7 +113,6 @@ val nabuModule = module {
                     "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd), "ARS" to get(ars)
                 ),
                 transactionsCache = get(),
-                interestService = get(),
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
                 currencyPrefs = get(),
@@ -152,7 +151,7 @@ val nabuModule = module {
             InterestEligibilityTimedCache(
                 authenticator = get(),
                 assetCatalogue = get(),
-                service = get()
+                interestApiService = get()
             )
         }
 
@@ -160,7 +159,7 @@ val nabuModule = module {
             InterestAvailableAssetsTimedCache(
                 authenticator = get(),
                 assetCatalogue = get(),
-                nabuService = get()
+                interestApiService = get()
             )
         }
 
@@ -168,7 +167,7 @@ val nabuModule = module {
             InterestLimitsTimedCache(
                 authenticator = get(),
                 assetCatalogue = get(),
-                nabuService = get(),
+                interestApiService = get(),
                 currencyPrefs = get()
             )
         }
@@ -212,12 +211,12 @@ val nabuModule = module {
 
         scoped<KycStoreService> {
             KycStoreRepository(
-                kycDataSource = get(),
+                kycStore = get(),
                 assetCatalogue = get()
             )
         }
 
-        scoped<KycDataSource> {
+        scoped {
             KycStore(
                 endpoint = get(),
                 authenticator = get()
@@ -278,7 +277,7 @@ val nabuModule = module {
     }
 
     factory {
-        get<Retrofit>(nabu).create(Nabu::class.java)
+        get<Retrofit>(nabuApi).create(Nabu::class.java)
     }
 
     single {

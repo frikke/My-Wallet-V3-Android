@@ -130,6 +130,9 @@
             android:name=".abstract_compose_view.SimpleImageViewActivity"
             android:exported="false" />
         <activity
+            android:name=".abstract_compose_view.AsyncMediaActivity"
+            android:exported="false" />
+        <activity
             android:name=".abstract_compose_view.SnackbarsActivity"
             android:exported="false" />
         <activity

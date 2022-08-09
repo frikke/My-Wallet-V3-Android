@@ -1,13 +1,11 @@
 package com.blockchain.metadata
 
 import com.blockchain.serialization.JsonSerializable
-import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
-import org.bitcoinj.crypto.DeterministicKey
 
 interface MetadataRepository {
 

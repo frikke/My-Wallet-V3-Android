@@ -20,8 +20,12 @@ enum class ToastType {
     INVALID_PASSWORD, UNEXPECTED_ERROR
 }
 
+enum class LoginMethod {
+    WALLET_CREATION, CREDENTIALS, PIN, UNDEFINED
+}
+
 data class LoaderState(
-    val isAfterWalletCreation: Boolean = false,
+    val loginMethod: LoginMethod = LoginMethod.UNDEFINED,
     val nextProgressStep: ProgressStep? = null,
     val nextLoadingStep: LoadingStep? = null,
     val toastType: ToastType? = null,

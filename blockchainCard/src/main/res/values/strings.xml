@@ -44,7 +44,6 @@
     <string name="no_fees_description"></string>
     <string name="processing"></string>
     <string name="spend_from"></string>
-    <string name="terms_and_conditions_label"></string>
     <string name="crypto_rewards"></string>
     <string name="crypto_rewards_description"></string>
     <string name="legal_info_title"></string>
@@ -92,13 +91,13 @@
     <string name="visit_faq_description"></string>
     <string name="contact_support"></string>
     <string name="contact_support_description"></string>
-    <string name="close_card"></string>
+    <string name="terminate_card"></string>
     <string name="close_card_number"></string>
     <string name="close_card_warning"></string>
-    <string name="close_card_confirm_description"></string>
+    <string name="terminate_card_confirm_description"></string>
     <string name="delete"></string>
     <string name="no_accounts_eligible_for_linking"></string>
-    <string name="delete_card_confirmation_text"></string>
+    <string name="terminate_card_confirmation_text"></string>
     <string name="address_updated"></string>
     <string name="address_update_success"></string>
     <string name="address_update_success_description"></string>
@@ -126,4 +125,8 @@
     <string name="bc_card_locked"></string>
     <string name="bc_card_transactions_title"></string>
     <string name="bc_card_see_all"></string>
+    <string name="done"></string>
+    <string name="bc_card_terms_and_conditions_label"></string>
+    <string name="bc_card_transaction_payment"></string>
+    <string name="bc_card_transaction_refund"></string>
 </resources>

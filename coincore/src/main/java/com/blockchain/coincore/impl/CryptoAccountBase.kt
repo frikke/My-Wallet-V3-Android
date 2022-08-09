@@ -190,7 +190,7 @@ abstract class CryptoNonCustodialAccount(
 
     final override val baseActions: Set<AssetAction>
         get() = when (walletModeService.enabledWalletMode()) {
-            WalletMode.CUSTODIAL_ONLY -> emptySet()
+            WalletMode.CUSTODIAL_ONLY -> defaultCustodialActions
             WalletMode.NON_CUSTODIAL_ONLY -> defaultNonCustodialActions
             WalletMode.UNIVERSAL -> defaultActions
         }

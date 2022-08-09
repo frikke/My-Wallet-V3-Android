@@ -84,7 +84,7 @@ class GooglePayResponseInterceptorImplTest {
 
         // Assert
         coVerify {
-            onPaymentDataReceivedListener.onGooglePayTokenReceived(PAYMENT_DATA_TOKEN)
+            onPaymentDataReceivedListener.onGooglePayTokenReceived(PAYMENT_DATA_TOKEN, any())
         }
         verify {
             onPaymentDataReceivedListener.onGooglePaySheetClosed()

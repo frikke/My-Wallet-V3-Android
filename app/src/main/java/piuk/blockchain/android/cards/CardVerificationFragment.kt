@@ -25,6 +25,7 @@ import com.stripe.android.model.ConfirmPaymentIntentParams
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentCardVerificationBinding
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.customviews.TransactionProgressView
 import piuk.blockchain.android.util.disableBackPress
@@ -167,6 +168,19 @@ class CardVerificationFragment :
         with(binding.transactionProgressView) {
             when (error) {
                 is CardError.ServerSideCardError -> {
+                    analytics.logEvent(
+                        ClientErrorAnalytics.ClientLogError(
+                            errorId = error.errorId,
+                            errorDescription = error.message,
+                            title = error.title,
+                            source = ClientErrorAnalytics.Companion.Source.NABU,
+                            error = "ServerSideCardError",
+                            nabuApiException = null,
+                            categories = error.categories,
+                            action = "ADD_CARD"
+                        )
+                    )
+
                     showServerSideError(
                         iconUrl = error.iconUrl,
                         statusIconUrl = error.statusIconUrl,

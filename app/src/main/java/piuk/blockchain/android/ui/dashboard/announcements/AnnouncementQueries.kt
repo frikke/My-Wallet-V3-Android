@@ -18,8 +18,6 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
-import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
-import com.blockchain.payments.googlepay.manager.request.allowedCardNetworks
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.RemoteConfig
 import info.blockchain.balance.AssetCatalogue
@@ -163,9 +161,7 @@ class AnnouncementQueries(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun checkGooglePayAvailability(): Single<Boolean> =
         rxSingle {
-            googlePayManager.checkIfGooglePayIsAvailable(
-                GooglePayRequestBuilder.buildForPaymentStatus(allowedAuthMethods, allowedCardNetworks)
-            )
+            googlePayManager.checkIfGooglePayIsAvailable(GooglePayRequestBuilder.buildForPaymentStatus())
         }
 
     fun getAssetPrice(asset: Currency) =

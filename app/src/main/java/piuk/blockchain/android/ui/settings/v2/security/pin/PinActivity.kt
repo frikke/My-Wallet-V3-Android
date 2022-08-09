@@ -59,6 +59,7 @@ import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
+import piuk.blockchain.android.ui.launcher.loader.LoginMethod
 import piuk.blockchain.android.urllinks.APP_STORE_URI
 import piuk.blockchain.android.urllinks.APP_STORE_URL
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
@@ -99,10 +100,6 @@ class PinActivity :
 
     private val originScreen by lazy {
         intent?.getSerializableExtra(ORIGIN_SCREEN) as OriginScreenToPin
-    }
-
-    private val isAfterCreateWallet: Boolean by lazy {
-        originScreen == OriginScreenToPin.CREATE_WALLET
     }
 
     private val referralCode: String? by lazy {
@@ -827,7 +824,12 @@ class PinActivity :
     private fun finishSignupProcess() {
         util.loadAppWithVerifiedPin(
             loaderActivity = LoaderActivity::class.java,
-            isAfterWalletCreation = isAfterCreateWallet,
+            loginMethod = when (originScreen) {
+                OriginScreenToPin.CREATE_WALLET -> LoginMethod.WALLET_CREATION
+                OriginScreenToPin.LAUNCHER_SCREEN -> LoginMethod.PIN
+                OriginScreenToPin.LOGIN_AUTH_SCREEN -> LoginMethod.CREDENTIALS
+                else -> LoginMethod.UNDEFINED
+            },
             referralCode = referralCode
         )
     }

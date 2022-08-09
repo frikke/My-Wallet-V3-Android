@@ -15,6 +15,7 @@ import info.blockchain.balance.percentageDelta
 import info.blockchain.balance.total
 import java.io.Serializable
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
+import piuk.blockchain.android.ui.cowboys.CowboysAnnouncementInfo
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.DASHBOARD_FIAT_ASSETS
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.LOCKS_INDEX
@@ -27,9 +28,11 @@ class AssetMap(private val map: Map<Currency, DashboardAsset>) :
 
     override operator fun get(key: Currency): DashboardAsset {
         return map.getOrElse(key) {
-            throw IllegalArgumentException("${key.networkTicker} is not a known CryptoCurrency")
+            throw IllegalArgumentException("${key.networkTicker} is not a known Currency")
         }
     }
+
+    fun getOrNull(key: Currency): DashboardAsset? = map[key]
 
     fun copy(patchBalance: AccountBalance): AssetMap {
         val assets = toMutableMap()
@@ -97,6 +100,13 @@ sealed class DashboardOnboardingState {
     data class Visible(val steps: List<CompletableDashboardOnboardingStep>) : DashboardOnboardingState()
 }
 
+sealed class DashboardCowboysState {
+    class CowboyWelcomeCard(val cardInfo: CowboysAnnouncementInfo) : DashboardCowboysState()
+    class CowboyRaffleCard(val cardInfo: CowboysAnnouncementInfo) : DashboardCowboysState()
+    class CowboyIdentityCard(val cardInfo: CowboysAnnouncementInfo) : DashboardCowboysState()
+    object Hidden : DashboardCowboysState()
+}
+
 interface DashboardBalanceStateHost {
     val dashboardBalance: DashboardBalance?
 }
@@ -118,7 +128,8 @@ data class DashboardState(
     val onboardingState: DashboardOnboardingState = DashboardOnboardingState.Hidden,
     val canPotentiallyTransactWithBanks: Boolean = true,
     val showedAppRating: Boolean = false,
-    val referralSuccessData: Pair<String, String>? = null
+    val referralSuccessData: Pair<String, String>? = null,
+    val dashboardCowboysState: DashboardCowboysState = DashboardCowboysState.Hidden
 ) : MviState, DashboardBalanceStateHost {
 
     override val dashboardBalance: DashboardBalance?

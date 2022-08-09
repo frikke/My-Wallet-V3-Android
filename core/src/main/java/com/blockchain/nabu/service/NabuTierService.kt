@@ -1,5 +1,6 @@
 package com.blockchain.nabu.service
 
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.api.kyc.domain.KycStoreService
 import com.blockchain.nabu.api.nabu.Nabu
@@ -16,7 +17,7 @@ internal class NabuTierService(
 ) : TierService, TierUpdater {
 
     override fun tiers(): Single<KycTiers> =
-        kycStoreService.getKycTiers()
+        kycStoreService.getKycTiers(FreshnessStrategy.Cached(false))
             .subscribeOn(Schedulers.io())
 
     override fun setUserTier(tier: Int): Completable =

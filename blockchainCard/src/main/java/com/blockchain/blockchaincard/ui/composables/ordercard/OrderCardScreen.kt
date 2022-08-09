@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -28,7 +31,6 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -44,14 +46,15 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.InfoButton
+import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.Checkbox
 import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.controls.TextInput
 import com.blockchain.componentlib.divider.HorizontalDivider
-import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.CircularProgressBar
+import com.blockchain.componentlib.system.LinearProgressBar
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.system.Webview
 import com.blockchain.componentlib.tablerow.DefaultTableRow
@@ -74,42 +77,50 @@ fun OrderCard(
 
 @Composable
 fun OrderCardIntro(onOrderCard: () -> Unit) {
-    Column(
-        horizontalAlignment = CenterHorizontally,
-        modifier = Modifier.padding(AppTheme.dimensions.xPaddingLarge)
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.card_intro),
-            contentDescription = stringResource(id = R.string.blockchain_card),
-            modifier = Modifier.fillMaxWidth(),
-            contentScale = ContentScale.FillWidth
-        )
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            horizontalAlignment = CenterHorizontally,
+            modifier = Modifier.padding(AppTheme.dimensions.xPaddingLarge)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.card_intro),
+                contentDescription = stringResource(id = R.string.blockchain_card),
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.FillWidth
+            )
 
-        Spacer(Modifier.size(AppTheme.dimensions.paddingLarge))
+            Spacer(Modifier.size(AppTheme.dimensions.paddingLarge))
 
-        SimpleText(
-            text = stringResource(R.string.card_intro_title),
-            style = ComposeTypographies.Title2,
-            color = ComposeColors.Title,
-            gravity = ComposeGravities.Centre
-        )
+            SimpleText(
+                text = stringResource(R.string.card_intro_title),
+                style = ComposeTypographies.Title2,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
+            )
 
-        Spacer(Modifier.size(AppTheme.dimensions.paddingSmall))
+            Spacer(Modifier.size(AppTheme.dimensions.paddingSmall))
 
-        SimpleText(
-            text = stringResource(id = R.string.order_card_intro),
-            style = ComposeTypographies.Body1,
-            color = ComposeColors.Muted,
-            gravity = ComposeGravities.Centre
-        )
+            SimpleText(
+                text = stringResource(id = R.string.order_card_intro),
+                style = ComposeTypographies.Body1,
+                color = ComposeColors.Muted,
+                gravity = ComposeGravities.Centre
+            )
+        }
 
-        Spacer(Modifier.size(AppTheme.dimensions.xxxPaddingLarge))
-
-        PrimaryButton(
-            text = stringResource(id = R.string.order_my_card),
-            onClick = onOrderCard,
-            modifier = Modifier.fillMaxWidth()
-        )
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.paddingLarge)
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = CenterHorizontally
+        ) {
+            PrimaryButton(
+                text = stringResource(id = R.string.order_my_card),
+                onClick = onOrderCard,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
@@ -255,10 +266,10 @@ private fun OrderCardSsnKYCPreview() {
 
 @Composable
 fun OrderCardContent(
-    termsAndConditionsSeen: Boolean = false,
+    isLegalDocReviewComplete: Boolean = false,
     onCreateCard: () -> Unit,
     onSeeProductDetails: () -> Unit,
-    onSeeTermsAndConditions: () -> Unit,
+    onSeeLegalDocuments: () -> Unit,
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -294,22 +305,22 @@ fun OrderCardContent(
                 .wrapContentWidth()
         )
 
-        Spacer(Modifier.size(dimensionResource(id = R.dimen.epic_margin)))
-
         val termsAndConditionsCheckboxState = remember { mutableStateOf(CheckboxState.Unchecked) }
 
         Row(
-            modifier = Modifier.padding(bottom = AppTheme.dimensions.paddingMedium),
+            modifier = Modifier
+                .wrapContentHeight()
+                .padding(bottom = AppTheme.dimensions.xPaddingLarge),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
                 state = termsAndConditionsCheckboxState.value,
                 onCheckChanged = { checked ->
                     if (checked) {
-                        if (termsAndConditionsSeen) {
+                        if (isLegalDocReviewComplete) {
                             termsAndConditionsCheckboxState.value = CheckboxState.Checked
                         } else {
-                            onSeeTermsAndConditions()
+                            onSeeLegalDocuments()
                         }
                     } else {
                         termsAndConditionsCheckboxState.value = CheckboxState.Unchecked
@@ -317,13 +328,11 @@ fun OrderCardContent(
                 },
             )
             SimpleText(
-                text = stringResource(id = R.string.terms_and_conditions_label),
+                text = stringResource(id = R.string.bc_card_terms_and_conditions_label),
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Muted,
                 gravity = ComposeGravities.Start,
-                modifier = Modifier.clickable {
-                    onSeeTermsAndConditions()
-                }
+                modifier = Modifier.clickable { onSeeLegalDocuments() }
             )
         }
 
@@ -427,9 +436,9 @@ fun PreviewProductDetails() {
 
 @Composable
 fun ProductLegalInfo(
+    legalDocuments: List<BlockchainCardLegalDocument>,
     onCloseProductLegalInfoBottomSheet: () -> Unit,
-    onClickShortFormDisclosure: () -> Unit,
-    onClickTermsAndConditions: () -> Unit,
+    onSeeLegalDocument: (BlockchainCardLegalDocument) -> Unit
 ) {
     val backgroundColor = if (!isSystemInDarkTheme()) {
         Color.White
@@ -441,7 +450,6 @@ fun ProductLegalInfo(
         horizontalAlignment = CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
             .background(backgroundColor)
     ) {
         SheetHeader(
@@ -453,25 +461,22 @@ fun ProductLegalInfo(
             onClosePress = onCloseProductLegalInfoBottomSheet
         )
 
-        SmallSectionHeader(
-            text = stringResource(R.string.consumer_financial_protection_bureau),
-            modifier = Modifier.fillMaxWidth()
-        )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
-        DefaultTableRow(
-            primaryText = stringResource(R.string.short_form_disclosure),
-            onClick = onClickShortFormDisclosure
-        )
 
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
-        SmallSectionHeader(
-            text = stringResource(R.string.blockchain_terms_and_conditions),
-            modifier = Modifier.fillMaxWidth()
-        )
-        DefaultTableRow(
-            primaryText = stringResource(R.string.terms_and_conditions),
-            onClick = onClickTermsAndConditions
-        )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            itemsIndexed(items = legalDocuments) { index, legalDocument ->
+                DefaultTableRow(
+                    primaryText = legalDocument.displayName,
+                    onClick = { onSeeLegalDocument(legalDocument) },
+                )
+
+                if (index < legalDocuments.lastIndex)
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            }
+        }
     }
 }
 
@@ -480,7 +485,7 @@ fun ProductLegalInfo(
 fun PreviewProductLegalInfo() {
     AppTheme(darkTheme = false) {
         AppSurface {
-            ProductLegalInfo({}, {}, {})
+            ProductLegalInfo(emptyList(), {}, {})
         }
     }
 }
@@ -630,28 +635,64 @@ private fun PreviewCardCreationFailed() {
 }
 
 @Composable
-fun LegalDocument(legalDocument: BlockchainCardLegalDocument, onContinue: () -> Unit) {
+fun LegalDocumentsViewer(
+    legalDocuments: List<BlockchainCardLegalDocument>,
+    onLegalDocSeen: (documentName: String) -> Unit,
+    onFinish: () -> Unit,
+) {
     Column(
         horizontalAlignment = CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = AppTheme.dimensions.paddingSmall)
     ) {
+
+        var currentDocumentIndex by remember { mutableStateOf(0) }
+
+        val currentDocument = legalDocuments[currentDocumentIndex]
+
         Webview(
-            url = legalDocument.url,
+            url = currentDocument.url,
             modifier = Modifier
-                .padding(top = AppTheme.dimensions.paddingMedium)
-                .weight(0.9f)
+                .padding(AppTheme.dimensions.paddingMedium)
+                .weight(0.9f),
+            onPageLoaded = { onLegalDocSeen(currentDocument.name) }
         )
 
-        PrimaryButton(
-            text = stringResource(id = R.string.common_ok),
-            state = ButtonState.Enabled,
-            onClick = onContinue,
-            modifier = Modifier
-                .padding(AppTheme.dimensions.paddingLarge)
-                .fillMaxWidth()
-                .weight(0.1f)
+        if (currentDocumentIndex < legalDocuments.size - 1) {
+            MinimalButton(
+                text = stringResource(id = R.string.common_next) +
+                    " (${currentDocumentIndex + 1}/${legalDocuments.size})",
+                state = ButtonState.Enabled,
+                onClick = { currentDocumentIndex++ },
+                modifier = Modifier
+                    .padding(AppTheme.dimensions.paddingLarge)
+                    .fillMaxWidth()
+                    .weight(0.1f)
+            )
+        } else {
+            PrimaryButton(
+                text = stringResource(id = R.string.done),
+                state = ButtonState.Enabled,
+                onClick = onFinish,
+                modifier = Modifier
+                    .padding(AppTheme.dimensions.paddingLarge)
+                    .fillMaxWidth()
+                    .weight(0.1f)
+            )
+        }
+
+        LinearProgressBar(
+            progress = (currentDocumentIndex + 1) / legalDocuments.size.toFloat(),
         )
     }
+}
+
+@Composable
+fun LegalDocument(legalDocument: BlockchainCardLegalDocument) {
+    Webview(
+        url = legalDocument.url,
+        modifier = Modifier
+            .padding(top = AppTheme.dimensions.paddingMedium)
+    )
 }

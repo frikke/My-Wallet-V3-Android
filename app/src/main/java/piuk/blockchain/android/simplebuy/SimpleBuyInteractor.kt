@@ -55,6 +55,9 @@ import com.blockchain.payments.core.CardBillingAddress
 import com.blockchain.payments.core.CardDetails
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.core.PaymentToken
+import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
+import com.blockchain.payments.googlepay.manager.request.defaultAllowedAuthMethods
+import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetworks
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -497,7 +500,15 @@ class SimpleBuyInteractor(
                 beneficiaryId = it.beneficiaryID,
                 merchantBankCountryCode = it.merchantBankCountryCode,
                 allowPrepaidCards = it.allowPrepaidCards ?: true,
-                allowCreditCards = it.allowCreditCards ?: true
+                allowCreditCards = it.allowCreditCards ?: true,
+                allowedAuthMethods = it.allowedAuthMethods ?: defaultAllowedAuthMethods,
+                allowedCardNetworks = it.allowedCardNetworks ?: defaultAllowedCardNetworks,
+                billingAddressRequired = it.billingAddressRequired ?: true,
+                billingAddressParameters = BillingAddressParameters(
+                    format = it.billingAddressParameters.format ?: BillingAddressParameters().format,
+                    phoneNumberRequired = it.billingAddressParameters.phoneNumberRequired
+                        ?: BillingAddressParameters().phoneNumberRequired
+                )
             )
         }
 
@@ -553,22 +564,32 @@ class SimpleBuyInteractor(
         onboardingPrefs.isLandingCtaDismissed = true
     }
 
+    // TODO (lmiguelez) https://blockchain.atlassian.net/browse/AND-6420
     fun getPrefillAndQuickFillAmounts(
         buyMaxAmount: FiatValue,
+        buyMinAmount: FiatValue,
         assetCode: String,
         fiatCurrency: FiatCurrency
     ): Single<Pair<FiatValue, QuickFillButtonData?>> =
         quickFillButtonsFeatureFlag.enabled.map { enabled ->
-            var prefilledAmount = FiatValue.zero(fiatCurrency)
+            val amountString = simpleBuyPrefs.getLastAmount("$assetCode-${fiatCurrency.networkTicker}")
+
+            var prefilledAmount = when {
+                enabled && amountString.isEmpty() -> {
+                    FiatValue.fromMajor(fiatCurrency, BigDecimal(DEFAULT_MIN_PREFILL_AMOUNT))
+                }
+                enabled && amountString.isNotEmpty() -> FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
+                else -> FiatValue.fromMajor(fiatCurrency, BigDecimal.ZERO)
+            }
 
             val quickFillButtonData = if (enabled) {
-                val amountString = simpleBuyPrefs.getLastAmount("$assetCode-${fiatCurrency.networkTicker}")
-                    .ifEmpty {
-                        DEFAULT_MIN_PREFILL_AMOUNT
-                    }
                 val listOfAmounts = mutableListOf<FiatValue>()
 
-                prefilledAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
+                prefilledAmount = when {
+                    prefilledAmount < buyMinAmount -> buyMinAmount
+                    prefilledAmount > buyMaxAmount -> buyMaxAmount
+                    else -> prefilledAmount
+                }
 
                 val lowestPrefillAmount = roundToNearest(
                     2 * prefilledAmount.toFloat(),

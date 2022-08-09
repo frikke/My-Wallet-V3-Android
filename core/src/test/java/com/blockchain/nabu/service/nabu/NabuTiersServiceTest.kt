@@ -16,6 +16,7 @@ import com.blockchain.nabu.service.NabuTierService
 import com.blockchain.nabu.util.fakefactory.nabu.FakeKycTiersFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.testutils.waitForCompletionWithoutErrors
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.Money
@@ -68,7 +69,7 @@ class NabuTiersServiceTest {
 
     @Test
     fun `get tiers`() {
-        whenever(kycStoreService.getKycTiers())
+        whenever(kycStoreService.getKycTiers(any()))
             .thenReturn(Single.just(kycTiers))
         Single.just(FakeKycTiersFactory.any)
 

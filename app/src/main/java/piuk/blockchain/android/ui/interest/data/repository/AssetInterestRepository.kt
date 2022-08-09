@@ -34,7 +34,7 @@ internal class AssetInterestRepository(
     override suspend fun getInterestDashboard(): Outcome<Throwable, InterestDashboard> {
         return supervisorScope {
             val deferredTiers = async(dispatcher) { kycTierService.tiers().await() }
-            val deferredEnabledAssets = async(dispatcher) { custodialWalletManager.getInterestEnabledAssets().await() }
+            val deferredEnabledAssets = async(dispatcher) { interestService.getAvailableAssetsForInterest().await() }
 
             try {
                 val tiers = deferredTiers.await()
@@ -64,9 +64,9 @@ internal class AssetInterestRepository(
             val deferredExchangeRate =
                 async(dispatcher) { exchangeRatesDataManager.exchangeRateToUserFiat(cryptoCurrency).awaitFirst() }
             val deferredInterestRate =
-                async(dispatcher) { custodialWalletManager.getInterestAccountRates(cryptoCurrency).await() }
+                async(dispatcher) { interestService.getInterestRate(cryptoCurrency).await() }
             val deferredEligibility =
-                async(dispatcher) { custodialWalletManager.getInterestEligibilityForAsset(cryptoCurrency).await() }
+                async(dispatcher) { interestService.getEligibilityForAsset(cryptoCurrency).await() }
 
             val assetInterestDetail: AssetInterestDetail? = try {
                 val balance = deferredBalance.await()

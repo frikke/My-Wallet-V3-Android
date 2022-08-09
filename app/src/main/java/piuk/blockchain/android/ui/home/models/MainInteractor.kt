@@ -12,7 +12,6 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.referral.model.ReferralInfo
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
@@ -142,14 +141,6 @@ class MainInteractor internal constructor(
 
     fun cancelOrder(orderId: String): Completable =
         cancelOrderUseCase.invoke(orderId)
-
-    fun shouldShowEntitySwitchSilverKycUpsell(): Single<Boolean> =
-        userIdentity.getHighestApprovedKycTier().map { tier ->
-            val showUpsell =
-                tier != Tier.GOLD && !onboardingPrefs.isEntitySwitchSilverKycUpsellDismissed
-            if (showUpsell) onboardingPrefs.isEntitySwitchSilverKycUpsellDismissed = true
-            showUpsell
-        }
 
     fun processDeepLinkV2(url: Uri): Completable =
         deeplinkRedirector.processDeeplinkURL(url)

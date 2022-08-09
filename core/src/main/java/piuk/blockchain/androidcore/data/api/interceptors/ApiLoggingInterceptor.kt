@@ -50,7 +50,7 @@ class ApiLoggingInterceptor : Interceptor {
 
         val bodyString = response.body!!.string()
         val logBody = if (shouldLogResponseBody) bodyString else "** Call Response Log Disabled**"
-        if (response.code == 200 || response.code == 201 || response.code == 101) {
+        if (response.code == 200 || response.code == 201 || response.code == 204 || response.code == 101) {
             Timber.v("Response: %s  %s %s", response.code, responseLog, logBody)
         } else {
             Timber.e("Response: %s %s %s", response.code, responseLog, logBody)

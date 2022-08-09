@@ -51,8 +51,8 @@ class WalletTest2 {
         assert(wallet.walletBodies!!.isEmpty())
     }
 
-    @Test(expected = kotlinx.serialization.SerializationException::class)
-    fun `if receiveAccount and changeAccount from cache missing payload serialisation should fail`() {
+    @Test
+    fun `if receiveAccount and changeAccount from cache missing payload serialisation should NOT fail`() {
         val wallet = Wallet.fromJson(
             defPayload.replace("changeAccount", "1231")
                 .replace("receiveAccount", "wddas"),

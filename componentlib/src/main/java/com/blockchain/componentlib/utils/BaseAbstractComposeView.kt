@@ -1,6 +1,7 @@
 package com.blockchain.componentlib.utils
 
 import android.content.Context
+import android.os.Bundle
 import android.util.AttributeSet
 import android.view.View
 import androidx.compose.ui.platform.AbstractComposeView
@@ -8,7 +9,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.savedstate.SavedStateRegistry
-import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import com.blockchain.componentlib.R
 
@@ -25,20 +25,16 @@ abstract class BaseAbstractComposeView @JvmOverloads constructor(
 ) : AbstractComposeView(context, attrs, defStyleAttr), LifecycleOwner, SavedStateRegistryOwner {
 
     private lateinit var lifecycleRegistry: LifecycleRegistry
-    private lateinit var savedStateRegistry: SavedStateRegistryController
+    override lateinit var savedStateRegistry: SavedStateRegistry
 
     init {
         if (isInEditMode) {
             lifecycleRegistry = LifecycleRegistry(this as LifecycleOwner)
-            savedStateRegistry = SavedStateRegistryController.create(this as SavedStateRegistryOwner)
         }
     }
 
     @Deprecated(message = "Do not use, these are needed for Compose XML preview", level = DeprecationLevel.ERROR)
     override fun getLifecycle(): Lifecycle = lifecycleRegistry
-
-    @Deprecated(message = "Do not use, these are needed for Compose XML preview", level = DeprecationLevel.ERROR)
-    override fun getSavedStateRegistry(): SavedStateRegistry = savedStateRegistry.savedStateRegistry
 
     private var ownerView: View? = null
     private fun getLastParent(): View {
@@ -73,7 +69,7 @@ abstract class BaseAbstractComposeView @JvmOverloads constructor(
             addViewTreeLifecycleOwner()
             addSavedStateRegistryOwner()
             lifecycleRegistry.currentState = Lifecycle.State.INITIALIZED
-            savedStateRegistry.performRestore(null)
+            savedStateRegistry.performSave(Bundle())
             lifecycleRegistry.currentState = Lifecycle.State.CREATED
         }
         super.onAttachedToWindow()

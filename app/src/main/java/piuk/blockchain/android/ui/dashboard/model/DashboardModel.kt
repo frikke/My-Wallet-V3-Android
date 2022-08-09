@@ -74,6 +74,7 @@ class DashboardModel(
             is DashboardIntent.UpdateDepositButton -> userCanDeposit()
             is DashboardIntent.LoadFundsLocked -> interactor.loadWithdrawalLocks(this)
             is DashboardIntent.FetchOnboardingSteps -> interactor.getOnboardingSteps(this)
+            is DashboardIntent.CheckCowboysFlow -> interactor.checkCowboysFlowSteps(this)
             is DashboardIntent.FetchReferralSuccess -> interactor.checkReferralSuccess(this)
             is DashboardIntent.DismissReferralSuccess -> {
                 interactor.dismissReferralSuccess()
@@ -108,7 +109,8 @@ class DashboardModel(
             DashboardIntent.ResetDashboardAssets,
             DashboardIntent.NoActiveAssets,
             is DashboardIntent.BalanceFetching,
-            is DashboardIntent.UpdateNavigationAction -> null
+            is DashboardIntent.UpdateNavigationAction,
+            is DashboardIntent.UpdateCowboysViewState -> null
         }.exhaustive
     }
 

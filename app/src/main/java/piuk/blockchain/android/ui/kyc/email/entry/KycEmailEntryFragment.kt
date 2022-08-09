@@ -171,10 +171,10 @@ class KycEmailEntryFragment :
         const val BOTTOM_SHEET = "BOTTOM_SHEET"
         private const val CAN_SKIP = "CAN_SKIP"
 
-        fun newInstance(isSkippable: Boolean): KycEmailEntryFragment =
+        fun newInstance(canBeSkipped: Boolean): KycEmailEntryFragment =
             KycEmailEntryFragment().apply {
                 arguments = Bundle().apply {
-                    putBoolean(CAN_SKIP, isSkippable)
+                    putBoolean(CAN_SKIP, canBeSkipped)
                 }
             }
     }

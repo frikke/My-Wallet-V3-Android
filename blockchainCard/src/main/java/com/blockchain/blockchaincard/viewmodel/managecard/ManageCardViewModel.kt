@@ -33,6 +33,10 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             is BlockchainCardArgs.ProductArgs -> {
                 updateState { it.copy(selectedCardProduct = args.product) }
             }
+
+            else -> {
+                throw IllegalStateException("ManageCardViewModel the provided arguments are not valid")
+            }
         }
     }
 
@@ -368,6 +372,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
 
             is BlockchainCardIntent.SeeContactSupportPage -> {
                 navigate(BlockchainCardNavigationEvent.SeeContactSupportPage)
+            }
+            else -> {
+                Timber.e("Unknown intent: $intent")
             }
         }
     }

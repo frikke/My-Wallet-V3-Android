@@ -55,8 +55,9 @@ class LoaderActivity :
 
         val extras = intent?.extras
         val isPinValidated = extras?.getBoolean(INTENT_EXTRA_VERIFIED, false) ?: false
-        val isAfterWalletCreation = extras?.getBoolean(AppUtil.INTENT_EXTRA_IS_AFTER_WALLET_CREATION, false) == true
-        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation, referralCode))
+        val loginMethod = (extras?.getSerializable(AppUtil.LOGIN_METHOD) as? LoginMethod)
+            ?: LoginMethod.UNDEFINED
+        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, loginMethod, referralCode))
     }
 
     override fun render(newState: LoaderState) {
@@ -64,14 +65,14 @@ class LoaderActivity :
             is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
             is LoadingStep.RequestPin -> onRequestPin()
             // These below should always come only after a ProgressStep.FINISH has been emitted
-            is LoadingStep.EmailVerification -> launchEmailVerification(newState.isUserInCowboysPromo)
+            is LoadingStep.EmailVerification -> launchEmailVerification()
             is LoadingStep.EducationalWalletMode -> launchEducationalWalletMode(
                 data = loaderStep.data,
                 isUserInCowboysPromo = newState.isUserInCowboysPromo
             )
             is LoadingStep.Main -> onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
             is LoadingStep.CowboysInterstitial -> startCowboysInterstitial()
-            null -> {
+            else -> {
                 // do nothing
             }
         }
@@ -108,6 +109,7 @@ class LoaderActivity :
             ProgressStep.FINISH -> {
                 updateProgressVisibility(false)
             }
+            else -> {}
         }
 
         if (newState.shouldShowSecondPasswordDialog) {
@@ -197,14 +199,14 @@ class LoaderActivity :
         finish()
     }
 
-    private fun launchEmailVerification(isUserInCowboysPromo: Boolean) {
+    private fun launchEmailVerification() {
         binding.progress.gone()
         binding.contentFrame.visible()
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.content_frame,
-                KycEmailEntryFragment.newInstance(isSkippable = !isUserInCowboysPromo),
+                KycEmailEntryFragment.newInstance(canBeSkipped = true),
                 KycEmailEntryFragment::class.simpleName
             )
             .commitAllowingStateLoss()

@@ -10,11 +10,11 @@ object Versions {
     const val versionCode = 21422
     const val versionName = "202208.2.0"
 
-    const val buildTools = "30.0.2"
+    const val buildTools = "30.0.3"
 
     // Build tools and languages
     const val androidPlugin = "7.2.1"
-    const val kotlin = "1.6.10"
+    const val kotlin = "1.7.0"
 
     // Coroutines
     const val coroutines = "1.5.2"
@@ -100,21 +100,22 @@ object Versions {
     const val countryPicker = "2.0.4"
 
     // Compose
-    const val compose = "1.1.1"
-    const val coil = "1.4.0"
-    const val composeActivity = "1.3.1"
+    const val compose = "1.2.0"
+    const val composeShowkase = "1.1.1"
+    const val coil = "2.1.0"
+    const val composeActivity = "1.5.0"
     const val constraintLayoutCompose = "1.0.1"
-    const val composeRx = "1.1.1"
-    const val composeKotlinCompile = "1.5.3"
-    const val composeNavigation = "2.4.1"
-    const val composeFlowLayout = "0.23.1"
+    const val composeRx = "1.2.0"
+    const val composeNavigation = "2.5.1"
+    const val composeFlowLayout = "0.25.0"
+    const val composePoolingContainer = "1.0.0"
 
     // Accompanist
-    const val systemUi = "0.24.3-alpha"
-    const val navigationMaterial = "0.23.1"
-    const val swipeRefresh = "0.23.1"
-    const val pager = "0.24.13-rc"
-    const val pagerIndicators = "0.24.13-rc"
+    const val systemUi = "0.25.0"
+    const val navigationMaterial = "0.25.0"
+    const val swipeRefresh = "0.25.0"
+    const val pager = "0.25.0"
+    const val pagerIndicators = "0.25.0"
 
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
@@ -128,13 +129,14 @@ object Versions {
     const val sift = "0.11.1"
     const val cardForm = "4.2.0"
     const val xlmSunriver = "0.21.1"
-    const val lottieVersion = "3.5.0"
+    const val lottieVersion = "5.2.0"
     const val zendeskChatVersion = "3.3.4"
     const val zendeskMessagingVersion = "5.2.3"
     const val checkoutComVersion = "3.0.1"
     const val stripeVersion = "20.3.0"
     const val intercomVersion = "10.6.0"
     const val plaidLinkVersion = "3.9.0"
+    const val exoplayerVersion = "2.18.1"
 
     // Logging
     const val timber = "4.7.1"
@@ -285,15 +287,28 @@ object Libraries {
     const val materialDatePicker = "com.wdullaer:materialdatetimepicker:${Versions.materialDatePicker}"
     const val sparkline = "com.robinhood.spark:spark:${Versions.sparkline}"
 
+    // Compose versions for Showkase app
+    const val composeFoundationShowkase = "androidx.compose.foundation:foundation:${Versions.composeShowkase}"
+    const val composeUiShowkase = "androidx.compose.ui:ui:${Versions.composeShowkase}"
+    const val composeMaterialShowkase = "androidx.compose.material:material:${Versions.composeShowkase}"
+    const val composePreviewShowkase = "androidx.compose.ui:ui-tooling-preview:${Versions.composeShowkase}"
+    const val composeUiToolingShowkase = "androidx.compose.ui:ui-tooling:${Versions.composeShowkase}"
+    const val composeUiTestShowkase = "androidx.compose.ui:ui-test-junit4:${Versions.composeShowkase}"
+
     // Compose
+    const val composeFoundation = "androidx.compose.foundation:foundation:${Versions.compose}"
     const val composeUi = "androidx.compose.ui:ui:${Versions.compose}"
+    const val composeUiUtil = "androidx.compose.ui:ui-util:${Versions.compose}"
     const val composeMaterial = "androidx.compose.material:material:${Versions.compose}"
     const val composePreview = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
     const val composeUiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
+    const val composeUiPoolingContainer = "androidx.customview:customview-poolingcontainer:${Versions.composePoolingContainer}"
     const val composeActivity = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeUiTest = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
     const val composeCoil = "io.coil-kt:coil-compose:${Versions.coil}"
     const val composeCoilSvg = "io.coil-kt:coil-svg:${Versions.coil}"
+    const val composeCoilGif = "io.coil-kt:coil-gif:${Versions.coil}"
+    const val composeLottie = "com.airbnb.android:lottie-compose:${Versions.lottieVersion}"
     const val constraintLayoutCompose =
         "androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayoutCompose}"
     const val composeRx = "androidx.compose.runtime:runtime-rxjava3:${Versions.composeRx}"
@@ -306,7 +321,8 @@ object Libraries {
     const val accompanistFlowLayout = "com.google.accompanist:accompanist-flowlayout:${Versions.composeFlowLayout}"
     const val accompanistSwipeRefresh = "com.google.accompanist:accompanist-swiperefresh:${Versions.swipeRefresh}"
     const val accompanistPager = "com.google.accompanist:accompanist-pager:${Versions.pager}"
-    const val accompanistPagerIndicators = "com.google.accompanist:accompanist-pager-indicators:${Versions.pagerIndicators}"
+    const val accompanistPagerIndicators =
+        "com.google.accompanist:accompanist-pager-indicators:${Versions.pagerIndicators}"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"
@@ -320,6 +336,7 @@ object Libraries {
     const val stripe = "com.stripe:stripe-android:${Versions.stripeVersion}"
     const val intercom = "io.intercom.android:intercom-sdk-base:${Versions.intercomVersion}"
     const val plaidLink = "com.plaid.link:sdk-core:${Versions.plaidLinkVersion}"
+    const val exoPlayer = "com.google.android.exoplayer:exoplayer:${Versions.exoplayerVersion}"
 
     // Logging
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"

@@ -17,10 +17,10 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewWalletsDefiBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItem
+import piuk.blockchain.android.util.context
 
 class DefiAccountDetailsDelegate(
     private val onAccountSelected: (AssetDetailsItem.CryptoDetailsInfo) -> Unit,
-    private val onCopyAddressClicked: (CryptoAccount) -> Unit,
     private val onReceiveClicked: (BlockchainAccount) -> Unit,
     private val onLockedAccountSelected: () -> Unit,
 ) : AdapterDelegate<AssetDetailsItem> {
@@ -31,7 +31,6 @@ class DefiAccountDetailsDelegate(
         DefiWalletViewHolder(
             ViewCoinviewWalletsDefiBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             onAccountSelected = onAccountSelected,
-            onCopyAddressClicked = onCopyAddressClicked,
             onReceiveClicked = onReceiveClicked,
             onLockedAccountSelected = onLockedAccountSelected
         )
@@ -49,7 +48,6 @@ class DefiAccountDetailsDelegate(
 private class DefiWalletViewHolder(
     private val binding: ViewCoinviewWalletsDefiBinding,
     private val onAccountSelected: (AssetDetailsItem.CryptoDetailsInfo) -> Unit,
-    private val onCopyAddressClicked: (CryptoAccount) -> Unit,
     private val onReceiveClicked: (BlockchainAccount) -> Unit,
     private val onLockedAccountSelected: () -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
@@ -85,19 +83,14 @@ private class DefiWalletViewHolder(
                 }
 
                 if (isOnlyItemOfCategory) {
-                    ctaContainer.visible()
-                    copyAddressButton.apply {
-                        text = context.getString(R.string.copy_address)
-                        icon = ImageResource.Local(R.drawable.ic_copy)
-                        onClick = { onCopyAddressClicked(account) }
-                    }
+                    receiveButton.visible()
                     receiveButton.apply {
                         text = context.getString(R.string.common_receive)
                         icon = ImageResource.Local(R.drawable.ic_qr_scan)
                         onClick = { onReceiveClicked(item.account) }
                     }
                 } else {
-                    ctaContainer.gone()
+                    receiveButton.gone()
                 }
             } else {
                 assetDetailsAvailable.gone()
@@ -110,8 +103,7 @@ private class DefiWalletViewHolder(
                         R.drawable.ic_lock, R.color.grey_400, R.color.white, 1F
                     )
                 }
-
-                ctaContainer.gone()
+                receiveButton.gone()
             }
         }
     }

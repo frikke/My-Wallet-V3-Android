@@ -12,7 +12,9 @@ data class PaymentDataResponse(
     @SerialName("paymentMethodData")
     val paymentMethodData: PaymentMethodData,
     @SerialName("shippingAddress")
-    val shippingAddress: Address? = null
+    val shippingAddress: Address? = null,
+    @SerialName("billingAddress")
+    val billingAddress: Address? = null
 ) {
     @Serializable
     data class PaymentMethodData(

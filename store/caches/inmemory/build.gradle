@@ -12,6 +12,7 @@ dependencies {
     implementation project(':store:core')
     implementation project(':common:interface')
     implementation Libraries.kotlinCoroutines
+    implementation Libraries.koin
 
     testImplementation Libraries.junit
     testImplementation Libraries.turbine

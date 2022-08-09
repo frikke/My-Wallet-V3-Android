@@ -2609,13 +2609,13 @@ Veuillez vérifier votre connexion Internet et réessayer ou contactez l\'assist
     <string name="visit_faq">Visitez notre FAQ</string>
     <string name="visit_faq_description">Voir nos questions les plus fréquentes</string>
     <string name="contact_support_description">Contactez-nous pour toute demande</string>
-    <string name="close_card">Clôturer la carte</string>
+    <string name="terminate_card">Clôturer la carte</string>
     <string name="close_card_number">Clôturer %1s ?</string>
     <string name="close_card_warning">\"Une fois confirmée, cette action est irréversible. \"</string>
-    <string name="close_card_confirm_description">Veuillez saisir « SUPPRIMER » pour clôturer définitivement votre carte</string>
+    <string name="terminate_card_confirm_description">Veuillez saisir « SUPPRIMER » pour clôturer définitivement votre carte</string>
     <string name="delete">EFFACER</string>
     <string name="no_accounts_eligible_for_linking">Aucun compte éligible pour la liaison</string>
-    <string name="delete_card_confirmation_text">EFFACER</string>
+    <string name="terminate_card_confirmation_text">EFFACER</string>
     <string name="address_updated">Adresse de facturation mise à jour</string>
     <string name="address_update_success">Adresse mise à jour avec succès</string>
     <string name="address_update_success_description">Votre adresse de facturation a été modifiée avec succès et prendra effet immédiatement.</string>

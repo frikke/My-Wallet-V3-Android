@@ -9,6 +9,7 @@ import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.rx3.await
 import piuk.blockchain.androidcore.data.settings.datastore.SettingsDataStore
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 
@@ -247,11 +248,17 @@ class SettingsDataManager(
             .doFinally { currencyPrefs.selectedFiatCurrency = userFiat }
     }
 
-    fun triggerEmailAlert(guid: String, sharedKey: String) =
+    fun triggerEmailAlertLegacy(guid: String, sharedKey: String) =
         walletSettingsService.triggerAlert(
             guid = guid,
             sharedKey = sharedKey
         )
+
+    suspend fun triggerEmailAlert(guid: String, sharedKey: String) =
+        walletSettingsService.triggerAlert(
+            guid = guid,
+            sharedKey = sharedKey
+        ).await()
 
     fun fetchWalletSettings(guid: String, sharedKey: String) =
         walletSettingsService.fetchWalletSettings(

@@ -2628,13 +2628,13 @@ PLEASE NOTE: Key should be used without \'blockchain.nabu.error.\' prefix and \'
     <string name="visit_faq">Посмотрите часто задаваемые вопросы</string>
     <string name="visit_faq_description">Посмотрите наши самые популярные вопросы</string>
     <string name="contact_support_description">Свяжитесь с нами, если у вас есть другие вопросы</string>
-    <string name="close_card">Закрыть карту</string>
+    <string name="terminate_card">Закрыть карту</string>
     <string name="close_card_number">Закрыть %1s ?</string>
     <string name="close_card_warning">\"После подтверждения это действие нельзя будет отменить.\"</string>
-    <string name="close_card_confirm_description">Введите «УДАЛИТЬ», чтобы навсегда закрыть карту</string>
+    <string name="terminate_card_confirm_description">Введите «УДАЛИТЬ», чтобы навсегда закрыть карту</string>
     <string name="delete">УДАЛИТЬ</string>
     <string name="no_accounts_eligible_for_linking">Нет аккаунтов, подходящих для связывания</string>
-    <string name="delete_card_confirmation_text">УДАЛИТЬ</string>
+    <string name="terminate_card_confirmation_text">УДАЛИТЬ</string>
     <string name="address_updated">Платежный адрес обновлен</string>
     <string name="address_update_success">Адрес успешно обновлен</string>
     <string name="address_update_success_description">Ваш платежный адрес был успешно изменен и вступит в силу немедленно.</string>

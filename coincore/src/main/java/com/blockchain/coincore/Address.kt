@@ -70,7 +70,7 @@ class AddressFactoryImpl(
             }.onErrorReturn {
                 emptySet()
             }.map {
-                it.filter { address -> address == NullAddress }.toSet()
+                it.filter { address -> address != NullAddress }.toSet()
             }
 
     override fun parse(address: String, ccy: AssetInfo): Maybe<ReceiveAddress> =

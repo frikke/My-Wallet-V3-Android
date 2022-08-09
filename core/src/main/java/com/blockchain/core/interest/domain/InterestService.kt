@@ -1,10 +1,13 @@
 package com.blockchain.core.interest.domain
 
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.core.interest.domain.model.InterestActivity
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.data.FreshnessStrategy
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
@@ -70,4 +73,25 @@ interface InterestService {
      * Returns [InterestLimits] for [asset]
      */
     fun getLimitsForAsset(asset: AssetInfo): Single<InterestLimits>
+
+    /**
+     * Returns the interest rate for [asset]
+     */
+    fun getInterestRate(asset: AssetInfo): Single<Double>
+
+    /**
+     * Returns the address for [asset]
+     */
+    fun getAddress(asset: AssetInfo): Single<String>
+
+    /**
+     * Returns a list of transactions for [asset]
+     */
+    fun getActivity(asset: AssetInfo): Single<List<InterestActivity>>
+
+    /**
+     * Executes interest withdrawal of [asset]:[amount] to [address]
+     * @see [InterestWithdrawOnChainTxEngine]
+     */
+    fun withdraw(asset: AssetInfo, amount: Money, address: String): Completable
 }

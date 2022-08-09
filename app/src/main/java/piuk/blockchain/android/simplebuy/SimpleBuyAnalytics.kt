@@ -145,6 +145,24 @@ fun withdrawEventWithCurrency(analytics: SimpleBuyAnalytics, currency: String, a
         }.toMap()
     }
 
+class QuickFillButtonTapped(
+    amount: String,
+    amountType: AmountType,
+    currency: String
+) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_QUICK_FILL_BUTTON_TAPPED.eventName
+    override val params: Map<String, String> = mapOf(
+        "action" to "BUY",
+        "amount" to amount,
+        "amount_type" to amountType.name,
+        "currency" to currency
+    )
+}
+
+enum class AmountType {
+    SMALL, MEDIUM, LARGE
+}
+
 class BuyFrequencySelected(frequency: String) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BUY_FREQUENCY_SELECTED.name
     override val params: Map<String, String> = mapOf(

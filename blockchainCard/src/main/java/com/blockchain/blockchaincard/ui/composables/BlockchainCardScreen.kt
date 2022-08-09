@@ -21,17 +21,18 @@ import com.blockchain.blockchaincard.ui.composables.managecard.AccountPicker
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddress
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddressUpdated
 import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionDetails
-import com.blockchain.blockchaincard.ui.composables.managecard.CloseCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCardDetails
 import com.blockchain.blockchaincard.ui.composables.managecard.PersonalDetails
 import com.blockchain.blockchaincard.ui.composables.managecard.Support
 import com.blockchain.blockchaincard.ui.composables.managecard.SupportPage
+import com.blockchain.blockchaincard.ui.composables.managecard.TerminateCard
 import com.blockchain.blockchaincard.ui.composables.managecard.TransactionControls
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationFailed
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationInProgress
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationSuccess
 import com.blockchain.blockchaincard.ui.composables.ordercard.LegalDocument
+import com.blockchain.blockchaincard.ui.composables.ordercard.LegalDocumentsViewer
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCard
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardAddressKYC
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardContent
@@ -104,12 +105,18 @@ fun BlockchainCardNavHost(
             }
 
             composable(BlockchainCardDestination.OrderCardConfirmDestination) {
-                state?.legalDocuments?.let { legalDocuments ->
+                state?.let { state ->
                     OrderCardContent(
-                        termsAndConditionsSeen = legalDocuments.termsAndConditions.seen,
-                        onCreateCard = { viewModel.onIntent(BlockchainCardIntent.CreateCard) },
-                        onSeeProductDetails = { viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails) },
-                        onSeeTermsAndConditions = { viewModel.onIntent(BlockchainCardIntent.OnSeeTermsAndConditions) }
+                        isLegalDocReviewComplete = state.isLegalDocReviewComplete,
+                        onCreateCard = {
+                            viewModel.onIntent(BlockchainCardIntent.CreateCard)
+                        },
+                        onSeeProductDetails = {
+                            viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails)
+                        },
+                        onSeeLegalDocuments = {
+                            viewModel.onIntent(BlockchainCardIntent.OnSeeLegalDocuments)
+                        }
                     )
                 }
             }
@@ -165,28 +172,36 @@ fun BlockchainCardNavHost(
             }
 
             bottomSheet(BlockchainCardDestination.SeeProductLegalInfoDestination) {
-                ProductLegalInfo(
-                    onCloseProductLegalInfoBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) },
-                    onClickShortFormDisclosure = { viewModel.onIntent(BlockchainCardIntent.OnSeeShortFormDisclosure) },
-                    onClickTermsAndConditions = { viewModel.onIntent(BlockchainCardIntent.OnSeeTermsAndConditions) }
-                )
-            }
-
-            composable(BlockchainCardDestination.TermsAndConditionsDestination) {
                 state?.legalDocuments?.let { legalDocuments ->
-                    LegalDocument(
-                        legalDocument = legalDocuments.termsAndConditions,
-                        onContinue = { viewModel.onIntent(BlockchainCardIntent.TermsAndConditionsAccepted) }
+                    ProductLegalInfo(
+                        legalDocuments = legalDocuments,
+                        onCloseProductLegalInfoBottomSheet = {
+                            viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
+                        },
+                        onSeeLegalDocument = { legalDocument ->
+                            viewModel.onIntent(BlockchainCardIntent.OnSeeSingleLegalDocument(legalDocument))
+                        }
                     )
                 }
             }
 
-            composable(BlockchainCardDestination.ShortFormDisclosureDestination) {
+            composable(BlockchainCardDestination.LegalDocumentsDestination) {
                 state?.legalDocuments?.let { legalDocuments ->
-                    LegalDocument(
-                        legalDocument = legalDocuments.shortFormDisclosure,
-                        onContinue = { viewModel.onIntent(BlockchainCardIntent.TermsAndConditionsAccepted) }
+                    LegalDocumentsViewer(
+                        legalDocuments = legalDocuments,
+                        onLegalDocSeen = { documentName ->
+                            viewModel.onIntent(BlockchainCardIntent.OnLegalDocSeen(documentName))
+                        },
+                        onFinish = {
+                            viewModel.onIntent(BlockchainCardIntent.OnFinishLegalDocReview)
+                        }
                     )
+                }
+            }
+
+            composable(BlockchainCardDestination.SingleLegalDocumentDestination) {
+                state?.singleLegalDocumentToSee?.let { legalDocument ->
+                    LegalDocument(legalDocument = legalDocument)
                 }
             }
 
@@ -241,7 +256,7 @@ fun BlockchainCardNavHost(
                 }
             }
 
-            bottomSheet(BlockchainCardDestination.ChoosePaymentMethodDestination) {
+            composable(BlockchainCardDestination.ChoosePaymentMethodDestination) {
                 state?.let {
                     AccountPicker(
                         eligibleTradingAccountBalances = it.eligibleTradingAccountBalances,
@@ -341,7 +356,7 @@ fun BlockchainCardNavHost(
 
             bottomSheet(BlockchainCardDestination.CloseCardDestination) {
                 state?.card?.last4?.let { last4 ->
-                    CloseCard(
+                    TerminateCard(
                         last4digits = last4,
                         onConfirmCloseCard = {
                             viewModel.onIntent(BlockchainCardIntent.ConfirmCloseCard)

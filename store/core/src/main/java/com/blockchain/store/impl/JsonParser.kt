@@ -1,9 +1,9 @@
 package com.blockchain.store.impl
 
 import com.blockchain.store.Parser
+import java.lang.Exception
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
-import java.lang.Exception
 
 class JsonParser<T>(
     private val json: Json,

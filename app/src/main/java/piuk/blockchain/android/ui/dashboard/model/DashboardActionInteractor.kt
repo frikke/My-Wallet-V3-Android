@@ -24,6 +24,7 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -68,10 +69,12 @@ import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCas
 import piuk.blockchain.android.simplebuy.DepositMethodOptionsViewed
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.WithdrawMethodOptionsViewed
+import piuk.blockchain.android.ui.cowboys.CowboysDataProvider
 import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
 import timber.log.Timber
@@ -98,7 +101,10 @@ class DashboardActionInteractor(
     private val walletModeService: WalletModeService,
     private val analytics: Analytics,
     private val remoteLogger: RemoteLogger,
-    private val referralPrefs: ReferralPrefs
+    private val referralPrefs: ReferralPrefs,
+    private val cowboysFeatureFlag: FeatureFlag,
+    private val settingsDataManager: SettingsDataManager,
+    private val cowboysDataProvider: CowboysDataProvider
 ) {
 
     private val defFilter: AssetFilter
@@ -261,7 +267,7 @@ class DashboardActionInteractor(
                 Timber.d("Got balance for ${currency.displayTicker}")
                 model.process(DashboardIntent.BalanceUpdate(currency, accountBalance))
             }
-            .doFinally { model.process(DashboardIntent.BalanceFetching(currency, false)) }
+            .doOnComplete { model.process(DashboardIntent.BalanceFetching(currency, false)) }
             .firstOrError()
             .map {
                 it.total
@@ -715,25 +721,73 @@ class DashboardActionInteractor(
 
     fun getOnboardingSteps(model: DashboardModel): Disposable =
         walletModeService.walletMode.asObservable().flatMapSingle { walletMode ->
-            if (!walletMode.custodialEnabled) {
-                Single.just(DashboardOnboardingState.Hidden)
-            } else
-                getDashboardOnboardingStepsUseCase(Unit).doOnSuccess { steps ->
-                    val hasBoughtCrypto = steps.find { it.step == DashboardOnboardingStep.BUY }?.isCompleted == true
-                    if (hasBoughtCrypto) onboardingPrefs.isLandingCtaDismissed = true
-                }.map { steps ->
-                    if (steps.any { !it.isCompleted }) {
-                        DashboardOnboardingState.Visible(steps)
-                    } else {
-                        DashboardOnboardingState.Hidden
-                    }
+            Singles.zip(
+                userIdentity.isCowboysUser(),
+                cowboysFeatureFlag.enabled,
+            ).flatMap { (isCowboysUser, cowboysFlagEnabled) ->
+                if (isCowboysUser && cowboysFlagEnabled) {
+                    Single.just(DashboardOnboardingState.Hidden)
+                } else {
+                    if (!walletMode.custodialEnabled) {
+                        Single.just(DashboardOnboardingState.Hidden)
+                    } else
+                        getDashboardOnboardingStepsUseCase(Unit).doOnSuccess { steps ->
+                            val hasBoughtCrypto =
+                                steps.find { it.step == DashboardOnboardingStep.BUY }?.isCompleted == true
+                            if (hasBoughtCrypto) onboardingPrefs.isLandingCtaDismissed = true
+                        }.map { steps ->
+                            if (steps.any { !it.isCompleted }) {
+                                DashboardOnboardingState.Visible(steps)
+                            } else {
+                                DashboardOnboardingState.Hidden
+                            }
+                        }
                 }
+            }
         }.subscribeBy(
             onNext = { onboardingState ->
                 model.process(DashboardIntent.FetchOnboardingStepsSuccess(onboardingState))
             },
             onError = {
                 Timber.e(it)
+            }
+        )
+
+    fun checkCowboysFlowSteps(model: DashboardModel): Disposable =
+        Singles.zip(
+            userIdentity.isCowboysUser(),
+            cowboysFeatureFlag.enabled,
+        ).flatMap { (isCowboysUser, cowboysFlagEnabled) ->
+            if (cowboysFlagEnabled && isCowboysUser) {
+                settingsDataManager.getSettings().firstOrError().flatMap { userSettings ->
+                    if (!userSettings.isEmailVerified) {
+                        cowboysDataProvider.getWelcomeAnnouncement().flatMap {
+                            Single.just(DashboardCowboysState.CowboyWelcomeCard(it))
+                        }
+                    } else {
+                        userIdentity.getHighestApprovedKycTier().flatMap { highestApprovedKycTier ->
+                            when (highestApprovedKycTier) {
+                                Tier.BRONZE -> cowboysDataProvider.getRaffleAnnouncement().flatMap {
+                                    Single.just(DashboardCowboysState.CowboyRaffleCard(it))
+                                }
+                                Tier.SILVER -> cowboysDataProvider.getIdentityAnnouncement().flatMap {
+                                    Single.just(DashboardCowboysState.CowboyIdentityCard(it))
+                                }
+                                else -> Single.just(DashboardCowboysState.Hidden)
+                            }
+                        }
+                    }
+                }
+            } else {
+                Single.just(DashboardCowboysState.Hidden)
+            }
+        }.subscribeBy(
+            onSuccess = { state ->
+                model.process(DashboardIntent.UpdateCowboysViewState(state))
+            },
+            onError = {
+                Timber.e("Error in cowboys state ${it.message}")
+                model.process(DashboardIntent.UpdateCowboysViewState(DashboardCowboysState.Hidden))
             }
         )
 
@@ -761,17 +815,27 @@ class DashboardActionInteractor(
         )
     }
 
-    fun checkReferralSuccess(model: DashboardModel) = Completable.fromAction {
-        val title = referralPrefs.referralSuccessTitle
-        val body = referralPrefs.referralSuccessBody
-        if (title.isNotBlank() && body.isNotBlank()) {
-            model.process(DashboardIntent.ShowReferralSuccess(Pair(title, body)))
-        }
-    }.subscribeBy(
-        onError = {
-            Timber.e(it)
-        }
-    )
+    fun checkReferralSuccess(model: DashboardModel): Disposable =
+        Singles.zip(
+            userIdentity.isCowboysUser(),
+            cowboysFeatureFlag.enabled,
+        ).flatMapCompletable { (isCowboysUser, cowboysFlagEnabled) ->
+            if (isCowboysUser && cowboysFlagEnabled) {
+                Completable.complete()
+            } else {
+                Completable.fromAction {
+                    val title = referralPrefs.referralSuccessTitle
+                    val body = referralPrefs.referralSuccessBody
+                    if (title.isNotBlank() && body.isNotBlank()) {
+                        model.process(DashboardIntent.ShowReferralSuccess(Pair(title, body)))
+                    }
+                }
+            }
+        }.subscribeBy(
+            onError = {
+                Timber.e(it)
+            }
+        )
 
     fun dismissReferralSuccess() = Completable.fromAction {
         referralPrefs.referralSuccessTitle = ""

@@ -166,8 +166,9 @@ class Coincore internal constructor(
                         .filterNot { account -> account is InterestAccount || account is ExchangeAccount }
                         .filterNot { account -> account.currency == sourceAccount.currency }
                         .filter { cryptoAccount ->
-                            sourceAccount.filterTargetsByWalletMode(
-                                cryptoAccount, walletModeService.enabledWalletMode()
+                            sourceAccount.isTargetAvailableForSwap(
+                                target = cryptoAccount,
+                                enabledWalletMode = walletModeService.enabledWalletMode()
                             )
                         }
                 }
@@ -179,14 +180,14 @@ class Coincore internal constructor(
      * When wallet is in Universal mode, you can swap from Trading to Trading, from PK to PK and from PK to Trading
      * In any other case, swap is only allowed to same Type accounts
      */
-    private fun SingleAccount.filterTargetsByWalletMode(
-        sourceAccount: CryptoAccount,
+    private fun SingleAccount.isTargetAvailableForSwap(
+        target: CryptoAccount,
         enabledWalletMode: WalletMode,
     ): Boolean {
         return if (enabledWalletMode == WalletMode.UNIVERSAL) {
-            if (sourceAccount.isTrading()) this.isTrading() else true
+            if (isTrading()) target.isTrading() else true
         } else
-            sourceAccount.isSameType(this)
+            this.isSameType(target)
     }
 
     fun findAccountByAddress(

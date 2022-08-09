@@ -108,14 +108,56 @@ class SimpleBuyInteractorTest {
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(1000))
+        val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(10))
+        val defaultAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(50))
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
         test.assertValue {
-            it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal(50)) &&
+            it.first == defaultAmount &&
                 it.second?.buyMaxAmount == maxAmount &&
                 it.second!!.quickFillButtons[0] == FiatValue.fromMajor(fiatCurrency, BigDecimal(110)) &&
                 it.second!!.quickFillButtons[1] == FiatValue.fromMajor(fiatCurrency, BigDecimal(250)) &&
                 it.second!!.quickFillButtons[2] == FiatValue.fromMajor(fiatCurrency, BigDecimal(600))
+        }
+    }
+
+    @Test
+    fun `when no previous buy amount for pair available and default value is lower than min returned and quick fill buttons are correct`() {
+        whenever(simpleBuyPrefs.getLastAmount(any())).thenReturn("")
+        whenever(quickFillButtonsFeatureFlag.enabled).thenReturn(Single.just(true))
+        val fiatCurrency = FiatCurrency.Dollars
+        val assetCode = "BTC"
+        val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(1000))
+        val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(100))
+        val defaultAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(50))
+
+        val prefilledAmount = if (defaultAmount < minAmount) minAmount else defaultAmount
+
+        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
+        test.assertValue {
+            it.first == prefilledAmount &&
+                it.second?.buyMaxAmount == maxAmount &&
+                it.second!!.quickFillButtons[0] == FiatValue.fromMajor(fiatCurrency, BigDecimal(210)) &&
+                it.second!!.quickFillButtons[1] == FiatValue.fromMajor(fiatCurrency, BigDecimal(450))
+        }
+    }
+
+    @Test
+    fun `when no previous buy amount for pair available and default value is higher than max returned and quick fill buttons are correct`() {
+        whenever(simpleBuyPrefs.getLastAmount(any())).thenReturn("")
+        whenever(quickFillButtonsFeatureFlag.enabled).thenReturn(Single.just(true))
+        val fiatCurrency = FiatCurrency.Dollars
+        val assetCode = "BTC"
+        val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(40))
+        val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(10))
+        val defaultAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(50))
+
+        val prefilledAmount = if (defaultAmount > maxAmount) maxAmount else defaultAmount
+
+        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
+        test.assertValue {
+            it.first == prefilledAmount &&
+                it.second?.buyMaxAmount == maxAmount
         }
     }
 
@@ -126,8 +168,9 @@ class SimpleBuyInteractorTest {
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(1000))
+        val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(80))
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal(100)) &&
                 it.second?.buyMaxAmount == maxAmount &&
@@ -143,11 +186,12 @@ class SimpleBuyInteractorTest {
         whenever(quickFillButtonsFeatureFlag.enabled).thenReturn(Single.just(true))
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
-        val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(10))
+        val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(80))
+        val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(10))
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
         test.assertValue {
-            it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal(100)) &&
+            it.first == maxAmount &&
                 it.second?.buyMaxAmount == maxAmount &&
                 it.second!!.quickFillButtons.isEmpty()
         }
@@ -155,15 +199,16 @@ class SimpleBuyInteractorTest {
 
     @Test
     fun `when second quick fill button over payment limit then last two are not returned`() {
-        whenever(simpleBuyPrefs.getLastAmount("BTC-USD")).thenReturn("100")
+        whenever(simpleBuyPrefs.getLastAmount("BTC-USD")).thenReturn("50")
         whenever(quickFillButtonsFeatureFlag.enabled).thenReturn(Single.just(true))
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(300))
+        val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(100))
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
         test.assertValue {
-            it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal(100)) &&
+            it.first == minAmount &&
                 it.second?.buyMaxAmount == maxAmount &&
                 it.second!!.quickFillButtons.size == 1 &&
                 it.second!!.quickFillButtons[0] == FiatValue.fromMajor(fiatCurrency, BigDecimal(210))
@@ -172,15 +217,16 @@ class SimpleBuyInteractorTest {
 
     @Test
     fun `when third quick fill button over payment limit then last is not returned`() {
-        whenever(simpleBuyPrefs.getLastAmount("BTC-USD")).thenReturn("100")
+        whenever(simpleBuyPrefs.getLastAmount("BTC-USD")).thenReturn("50")
         whenever(quickFillButtonsFeatureFlag.enabled).thenReturn(Single.just(true))
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(500))
+        val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(100))
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
         test.assertValue {
-            it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal(100)) &&
+            it.first == minAmount &&
                 it.second?.buyMaxAmount == maxAmount &&
                 it.second!!.quickFillButtons.size == 2 &&
                 it.second!!.quickFillButtons[0] == FiatValue.fromMajor(fiatCurrency, BigDecimal(210)) &&
@@ -195,8 +241,9 @@ class SimpleBuyInteractorTest {
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(500))
+        val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(500))
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal.ZERO) &&
                 it.second == null

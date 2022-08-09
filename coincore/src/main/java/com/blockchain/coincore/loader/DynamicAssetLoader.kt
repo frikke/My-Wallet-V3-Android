@@ -20,9 +20,11 @@ import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.getOrThrow
+import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
@@ -36,9 +38,12 @@ import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -46,7 +51,6 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.filterList
 import piuk.blockchain.androidcore.utils.extensions.filterListItemIsInstance
 import piuk.blockchain.androidcore.utils.extensions.mapList
-import piuk.blockchain.androidcore.utils.extensions.mapListNotNull
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
 
@@ -157,17 +161,38 @@ internal class DynamicAssetLoader(
             }
         }.zipSingles().subscribeOn(Schedulers.io()).ignoreElement()
 
+    @OptIn(FlowPreview::class)
     private fun loadSelfCustodialAssets(): Flow<List<CryptoAsset>> {
-        return if (stxForAllFeatureFlag.isEnabled) {
-            selfCustodyService.getSubscriptions()
-                .mapListNotNull {
-                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
-                        loadSelfCustodialAsset(asset)
+        return selfCustodyService.getSubscriptions()
+            .flatMapConcat { result ->
+                when (result) {
+                    is Outcome.Success ->
+                        flow {
+                            emit(
+                                result.value.mapNotNull {
+                                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
+                                        loadSelfCustodialAsset(asset)
+                                    }
+                                }
+                            )
+                        }
+                    is Outcome.Failure -> {
+                        // getSubscriptions might fail because the wallet has never called auth before
+                        val isSuccess = selfCustodyService.authenticate().getOrThrow()
+                        if (isSuccess) {
+                            selfCustodyService.getSubscriptions().map { subscriptions ->
+                                subscriptions.getOrThrow().mapNotNull {
+                                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
+                                        loadSelfCustodialAsset(asset)
+                                    }
+                                }
+                            }
+                        } else {
+                            throw IllegalStateException("Could not load subscriptions")
+                        }
                     }
                 }
-        } else {
-            flowOf(emptyList())
-        }
+            }
     }
 
     private fun loadErc20AndCustodialAssets(allAssets: Set<Currency>): List<Asset> =
@@ -242,7 +267,7 @@ internal class DynamicAssetLoader(
 
     private fun loadSelfCustodialAsset(assetInfo: AssetInfo): CryptoAsset {
         // TODO(dtverdota): Remove Stx-specific code once it is enabled for all users
-        return if (assetInfo.networkTicker == "STX") {
+        return if (assetInfo.networkTicker == "STX" && stxForAllFeatureFlag.isEnabled) {
             StxAsset(
                 currency = assetInfo,
                 payloadManager = payloadManager,
@@ -253,8 +278,13 @@ internal class DynamicAssetLoader(
                 walletPreferences = walletPreferences
             )
         } else {
-            DynamicSelfCustodyAsset(
-                currency = assetInfo
+            return DynamicSelfCustodyAsset(
+                currency = assetInfo,
+                payloadManager = payloadManager,
+                addressValidation = defaultCustodialAddressValidation,
+                addressResolver = identityAddressResolver,
+                selfCustodyService = selfCustodyService,
+                walletPreferences = walletPreferences
             )
         }
     }

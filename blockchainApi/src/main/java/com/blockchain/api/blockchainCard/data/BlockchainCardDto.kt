@@ -1,6 +1,5 @@
 package com.blockchain.api.blockchainCard.data
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -29,49 +28,39 @@ data class PriceDto(
 )
 
 @Serializable
-class CardCreationRequestBodyDto(
+data class CardCreationRequestBodyDto(
     val productCode: String,
     val ssn: String
 )
 
 @Serializable
-class CardWidgetTokenDto(
+data class CardWidgetTokenDto(
     val token: String
 )
 
 @Serializable
-class CardAccountDto(
+data class CardAccountDto(
     val balance: PriceDto
 )
 
 @Serializable
-class EligibleAccountsDto(
-    val accounts: List<CardAccountDto>
-)
-
-@Serializable
-class LinkedAccountsDto(
-    val accounts: List<CardAccountDto>
-)
-
-@Serializable
-class CardAccountLinkDto(
+data class CardAccountLinkDto(
     val accountCurrency: String
 )
 
 @Serializable
-class ResidentialAddressRequestDto(
+data class ResidentialAddressRequestDto(
     val userId: String,
     val address: ResidentialAddressDto
 )
 
 @Serializable
-class ResidentialAddressUpdateDto(
+data class ResidentialAddressUpdateDto(
     val address: ResidentialAddressDto
 )
 
 @Serializable
-class ResidentialAddressDto(
+data class ResidentialAddressDto(
     val line1: String,
     val line2: String = "",
     val postCode: String,
@@ -81,7 +70,7 @@ class ResidentialAddressDto(
 )
 
 @Serializable
-class BlockchainCardTransactionDto(
+data class BlockchainCardTransactionDto(
     val id: String,
     val cardId: String,
     val type: String,
@@ -99,22 +88,21 @@ class BlockchainCardTransactionDto(
 )
 
 @Serializable
-class BlockchainCardLegalDocumentsDto(
-    @SerialName("short-form-disclosure")
-    val shortFormDisclosure: BlockchainCardLegalDocumentDto,
-
-    @SerialName("terms-and-conditions")
-    val termsAndConditions: BlockchainCardLegalDocumentDto
-)
-
-@Serializable
-class BlockchainCardLegalDocumentDto(
+data class BlockchainCardLegalDocumentDto(
+    val name: String,
+    val displayName: String,
     val url: String,
     val version: String,
     val acceptedVersion: String?
 )
 
 @Serializable
-class AcceptedDocumentFormDto(
-    val acceptedVersion: Int
+data class BlockchainCardAcceptedDocsFormDto(
+    val legalPolicies: List<BlockchainCardAcceptedDocumentDto>
+)
+
+@Serializable
+data class BlockchainCardAcceptedDocumentDto(
+    val name: String,
+    val acceptedVersion: String
 )

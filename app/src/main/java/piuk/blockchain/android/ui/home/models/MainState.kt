@@ -67,7 +67,5 @@ sealed class ViewToLaunch {
     class LaunchUpsellAssetAction(val upsell: KycUpgradePromptManager.Type) : ViewToLaunch()
     class LaunchTransactionFlowWithTargets(val targets: Collection<CryptoTarget>) : ViewToLaunch()
     class ShowTargetScanError(val error: QrScanError) : ViewToLaunch()
-    object ShowUiTour : ViewToLaunch()
-    object ShowEntitySwitchSilverKycUpsell : ViewToLaunch()
     object ShowReferralSheet : ViewToLaunch()
 }

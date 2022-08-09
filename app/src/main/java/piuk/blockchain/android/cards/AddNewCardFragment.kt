@@ -363,7 +363,7 @@ class AddNewCardFragment :
         if (this < 100) 2000 + this else this
 
     companion object {
-        // Card BIN - 6 digit code which can be looked up in the success rate
-        private const val CARD_BIN_LENGTH = 6
+        // Card BIN - 8 digit code which can be looked up for its success rate
+        private const val CARD_BIN_LENGTH = 8
     }
 }

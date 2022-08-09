@@ -7,6 +7,7 @@ import com.airbnb.android.showkase.models.Showkase
 import com.google.android.material.button.MaterialButton
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ActionTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.AlertButtonActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.AsyncMediaActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.BalanceTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.BottomNavigationActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.CardActivity
@@ -68,6 +69,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.images).setOnClickListener {
             startActivity(Intent(this@MainActivity, SimpleImageViewActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.async_media).setOnClickListener {
+            startActivity(Intent(this@MainActivity, AsyncMediaActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.tags).setOnClickListener {
             startActivity(Intent(this@MainActivity, TagsActivity::class.java))

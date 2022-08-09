@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
 
@@ -67,8 +66,7 @@ class DynamicNonCustodialAccount(
 
     override fun getOnChainBalance(): Observable<Money> = rxSingle {
         // Check if we are subscribed to the given currency.
-        val subscriptions = rxSingle { nonCustodialService.getSubscriptions().first() }
-            .awaitOutcome().getOrDefault(emptyList())
+        val subscriptions = nonCustodialService.getSubscriptions().first().getOrDefault(emptyList())
 
         if (subscriptions.contains(currency.networkTicker)) {
             // Get the balance if we found the currency in the subscriptions

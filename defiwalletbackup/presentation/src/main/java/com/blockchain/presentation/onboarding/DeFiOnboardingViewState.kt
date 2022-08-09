@@ -4,7 +4,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 
 data class DeFiOnboardingViewState(
     val flowState: FlowState,
-    val shouldLaunchPinVerification: Boolean
+    val shouldLaunchPhraseBackup: Boolean
 ) : ViewState
 
 sealed interface FlowState {

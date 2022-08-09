@@ -17,7 +17,7 @@ annotation class DoNotLogResponseBody
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class AuthenticateWithOfflineToken
+annotation class CustomAuthentication
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)

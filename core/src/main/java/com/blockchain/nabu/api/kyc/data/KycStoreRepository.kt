@@ -1,6 +1,7 @@
 package com.blockchain.nabu.api.kyc.data
 
-import com.blockchain.nabu.api.kyc.data.store.KycDataSource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.nabu.api.kyc.data.store.KycStore
 import com.blockchain.nabu.api.kyc.domain.KycStoreService
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
@@ -15,16 +16,15 @@ import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 
 internal class KycStoreRepository(
-    private val kycDataSource: KycDataSource,
+    private val kycStore: KycStore,
     private val assetCatalogue: AssetCatalogue,
 ) : KycStoreService {
 
-    private fun getKycTiers(refresh: Boolean): Observable<KycTiers> {
-        return kycDataSource.stream(refresh = refresh)
+    override fun getKycTiers(freshnessStrategy: FreshnessStrategy): Single<KycTiers> =
+        kycStore.stream(freshnessStrategy)
             .mapData { tiersResponse ->
                 KycTiers(
                     constructTierMap(tiersResponse.tiers)
@@ -32,10 +32,9 @@ internal class KycStoreRepository(
             }
             .asObservable()
             .wrapErrorMessage()
-    }
+            .firstOrError()
 
-    override fun getKycTiers(): Single<KycTiers> =
-        getKycTiers(refresh = false).firstElement().toSingle()
+    override fun markAsStale() = kycStore.markAsStale()
 
     private fun constructTierMap(tiersResponse: List<TierResponse>): Tiers =
         KycTierLevel.values().map { level ->

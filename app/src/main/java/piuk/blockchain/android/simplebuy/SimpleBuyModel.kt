@@ -6,6 +6,7 @@ import com.blockchain.api.NabuErrorCodes
 import com.blockchain.api.NabuErrorCodes.MaxPaymentBankAccountLinkAttempts
 import com.blockchain.api.NabuErrorCodes.MaxPaymentBankAccounts
 import com.blockchain.api.isInternetConnectionError
+import com.blockchain.api.paymentmethods.models.PaymentContact
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
@@ -20,6 +21,7 @@ import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankState
 import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.GooglePayAddress
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
@@ -330,7 +332,8 @@ class SimpleBuyModel(
                 processConfirmOrder(
                     id = previousState.id,
                     googlePayPayload = intent.googlePayPayload,
-                    googlePayBeneficiaryId = previousState.googlePayBeneficiaryId,
+                    googlePayBeneficiaryId = previousState.googlePayDetails?.beneficiaryId,
+                    googlePayAddress = intent.googlePayAddress,
                     amount = previousState.amount,
                     pair = CurrencyPair(previousState.selectedCryptoAsset, previousState.fiatCurrency).rawValue,
                     selectedPaymentMethod = previousState.selectedPaymentMethod
@@ -398,6 +401,7 @@ class SimpleBuyModel(
                     } else {
                         FiatValue.zero(intent.fiatCurrency)
                     },
+                    buyMinAmount = intent.minAmount,
                     assetCode = intent.assetCode,
                     fiatCurrency = intent.fiatCurrency,
                 ).subscribeBy(
@@ -587,7 +591,8 @@ class SimpleBuyModel(
                                     limits.max.amount as? FiatValue ?: FiatValue.zero(fiatCurrency)
                                 } else {
                                     FiatValue.zero(fiatCurrency)
-                                }
+                                },
+                                minAmount = limits.min.amount as? FiatValue ?: FiatValue.zero(fiatCurrency)
                             )
                         )
                     }
@@ -874,6 +879,7 @@ class SimpleBuyModel(
         selectedPaymentMethod: SelectedPaymentMethod?,
         googlePayPayload: String?,
         googlePayBeneficiaryId: String?,
+        googlePayAddress: GooglePayAddress?,
     ): Single<BuySellOrder> {
         require(id != null) { "Order Id not available" }
         require(selectedPaymentMethod != null) { "selectedPaymentMethod missing" }
@@ -891,7 +897,19 @@ class SimpleBuyModel(
                     cardActivator.paymentAttributes().copy(
                         disable3DS = false,
                         isMitPayment = false,
-                        googlePayPayload = payload
+                        googlePayPayload = payload,
+                        paymentContact = googlePayAddress?.let {
+                            PaymentContact(
+                                line1 = it.address1,
+                                line2 = it.address2,
+                                city = it.locality,
+                                state = it.administrativeArea,
+                                country = it.countryCode,
+                                postCode = it.postalCode,
+                                firstname = it.name,
+                                lastname = it.name
+                            )
+                        }
                     )
                 } ?: run {
                     cardActivator.paymentAttributes()
@@ -906,11 +924,13 @@ class SimpleBuyModel(
         selectedPaymentMethod: SelectedPaymentMethod?,
         googlePayPayload: String? = null,
         googlePayBeneficiaryId: String? = null,
+        googlePayAddress: GooglePayAddress? = null,
         amount: FiatValue,
         pair: String,
     ): Disposable {
 
-        return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId).map { it }
+        return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId, googlePayAddress)
+            .map { it }
             .trackProgress(activityIndicator)
             .doOnTerminate { buyOrdersCache.invalidate() }
             .subscribeBy(

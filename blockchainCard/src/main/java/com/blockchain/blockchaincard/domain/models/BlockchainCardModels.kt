@@ -55,7 +55,7 @@ data class BlockchainCardAddress(
 data class BlockchainCardTransaction(
     val id: String,
     val cardId: String,
-    val type: String,
+    val type: BlockchainCardTransactionType,
     val state: BlockchainCardTransactionState,
     val originalAmount: FiatValue,
     val fundingAmount: FiatValue,
@@ -70,17 +70,13 @@ data class BlockchainCardTransaction(
 ) : Parcelable
 
 @Parcelize
-data class BlockchainCardLegalDocuments(
-    val shortFormDisclosure: BlockchainCardLegalDocument,
-    val termsAndConditions: BlockchainCardLegalDocument
-) : Parcelable
-
-@Parcelize
 data class BlockchainCardLegalDocument(
+    val name: String,
+    val displayName: String,
     val url: String,
     val version: String,
     val acceptedVersion: String?,
-    val seen: Boolean
+    var seen: Boolean = false
 ) : Parcelable
 
 enum class BlockchainCardBrand {
@@ -120,6 +116,18 @@ enum class BlockchainCardTransactionState {
             CANCELLED -> R.string.bc_card_transaction_cancelled
             DECLINED -> R.string.bc_card_transaction_declined
             COMPLETED -> R.string.bc_card_transaction_completed
+        }
+    }
+}
+
+enum class BlockchainCardTransactionType {
+    PAYMENT,
+    REFUND;
+
+    fun getStringResource(): Int {
+        return when (this) {
+            PAYMENT -> R.string.bc_card_transaction_payment
+            REFUND -> R.string.bc_card_transaction_refund
         }
     }
 }

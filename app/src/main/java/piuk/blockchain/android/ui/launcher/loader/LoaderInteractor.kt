@@ -7,7 +7,10 @@ import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.NotificationTokenManager
+import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetCatalogue
@@ -44,7 +47,9 @@ class LoaderInteractor(
     private val ioScheduler: Scheduler,
     private val referralService: ReferralService,
     private val fiatCurrenciesService: FiatCurrenciesService,
-    private val cowboysPromoFeatureFlag: FeatureFlag
+    private val cowboysPromoFeatureFlag: FeatureFlag,
+    private val cowboysPrefs: CowboysPrefs,
+    private val userIdentity: UserIdentity
 ) {
 
     private val wallet: Wallet
@@ -96,13 +101,7 @@ class LoaderInteractor(
                     referralService.associateReferralCodeIfPresent(referralCode)
                 }
             }.then {
-                Completable.fromAction {
-                    emitter.onNext(
-                        LoaderIntents.UpdateCowboysPromo(
-                            cowboysPromoFeatureFlag.isEnabled
-                        )
-                    )
-                }
+                checkForCowboysUser()
             }
             .doOnSubscribe {
                 emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))
@@ -115,6 +114,21 @@ class LoaderInteractor(
                 }
             )
     }
+
+    private fun checkForCowboysUser() = Single.zip(
+        userIdentity.isCowboysUser(),
+        userIdentity.getHighestApprovedKycTier(),
+        cowboysPromoFeatureFlag.enabled,
+    ) { isCowboysUser, highestTier, isCowboysFlagEnabled ->
+        if (isCowboysFlagEnabled && isCowboysUser && highestTier == Tier.BRONZE) {
+            if (!cowboysPrefs.hasSeenCowboysFlow) {
+                cowboysPrefs.hasSeenCowboysFlow = true
+                emitter.onNext(
+                    LoaderIntents.UpdateCowboysPromo(isCowboysPromoUser = true)
+                )
+            }
+        }
+    }.ignoreElement()
 
     private fun syncFiatCurrencies(settings: Settings): Completable {
         val syncDisplayCurrency = when {

@@ -11,6 +11,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.extensions.exhaustive
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Money
@@ -25,6 +26,7 @@ class WalletModeSelectionViewModel(
     private val walletModeService: WalletModeService,
     private val cache: WalletModeBalanceCache,
     private val payloadManager: PayloadDataManager,
+    walletStatusPrefs: WalletStatusPrefs,
 ) :
     MviViewModel<
         WalletModeSelectionIntent,
@@ -34,6 +36,7 @@ class WalletModeSelectionViewModel(
         ModelConfigArgs.NoArgs>(
         initialState = WalletModeSelectionModelState(
             isWalletBackedUp = false,
+            isWalletBackUpSkipped = walletStatusPrefs.isWalletBackUpSkipped,
             brokerageBalance = null,
             defiBalance = null,
             enabledWalletMode = walletModeService.enabledWalletMode()
@@ -44,13 +47,16 @@ class WalletModeSelectionViewModel(
     override fun reduce(state: WalletModeSelectionModelState): WalletModeSelectionViewState {
         with(state) {
             return WalletModeSelectionViewState(
-                showEnableDeFiMessage = isWalletBackedUp.not(),
                 totalBalance = totalBalance(brokerageBalance, defiBalance),
                 brokerageBalance = brokerageBalance?.let {
                     BalanceState.Data(it)
                 } ?: BalanceState.Loading,
                 defiWalletBalance = defiBalance?.let {
-                    BalanceState.Data(it)
+                    if (shouldActivateWalletForMode(WalletMode.NON_CUSTODIAL_ONLY)) {
+                        BalanceState.ActivationRequired
+                    } else {
+                        BalanceState.Data(it)
+                    }
                 } ?: BalanceState.Loading,
                 defiWalletAvailable = true,
                 enabledWalletMode = enabledWalletMode,
@@ -120,12 +126,16 @@ class WalletModeSelectionViewModel(
                 merge(nonCustodialBalance, custodialBalance).collect()
             }
 
-            is WalletModeSelectionIntent.ActivateWalletMode -> {
-                updateActiveWalletMode(intent.walletMode)
-            }
-
-            WalletModeSelectionIntent.EnableDeFiWallet -> {
-                navigate(WalletModeSelectionNavigationEvent.DeFiOnboarding)
+            is WalletModeSelectionIntent.ActivateWalletModeRequested -> {
+                if (modelState.shouldBackupPhraseForMode(intent.walletMode)) {
+                    navigate(
+                        WalletModeSelectionNavigationEvent.PhraseRecovery(
+                            walletActivationRequired = modelState.shouldActivateWalletForMode(intent.walletMode)
+                        )
+                    )
+                } else {
+                    updateActiveWalletMode(intent.walletMode)
+                }
             }
 
             WalletModeSelectionIntent.DeFiOnboardingComplete -> {
@@ -142,20 +152,29 @@ class WalletModeSelectionViewModel(
 
         navigate(WalletModeSelectionNavigationEvent.Close(walletMode = walletMode))
     }
+
+    private fun WalletModeSelectionModelState.shouldBackupPhraseForMode(walletMode: WalletMode): Boolean {
+        return when (walletMode) {
+            WalletMode.NON_CUSTODIAL_ONLY -> isWalletBackedUp.not() && isWalletBackUpSkipped.not()
+            else -> false
+        }
+    }
+
+    private fun WalletModeSelectionModelState.shouldActivateWalletForMode(walletMode: WalletMode): Boolean {
+        val isWalletEligibleForActivation = when (walletMode) {
+            WalletMode.NON_CUSTODIAL_ONLY -> defiBalance?.isZero == true
+            else -> false
+        }
+        return isWalletEligibleForActivation && shouldBackupPhraseForMode(walletMode)
+    }
 }
 
 sealed class WalletModeSelectionIntent : Intent<WalletModeSelectionModelState> {
     object LoadInitialData : WalletModeSelectionIntent()
 
-    data class ActivateWalletMode(val walletMode: WalletMode) : WalletModeSelectionIntent() {
+    data class ActivateWalletModeRequested(val walletMode: WalletMode) : WalletModeSelectionIntent() {
         override fun isValidFor(modelState: WalletModeSelectionModelState): Boolean {
             return modelState.enabledWalletMode != walletMode
-        }
-    }
-
-    object EnableDeFiWallet : WalletModeSelectionIntent() {
-        override fun isValidFor(modelState: WalletModeSelectionModelState): Boolean {
-            return modelState.isWalletBackedUp.not()
         }
     }
 
@@ -163,7 +182,6 @@ sealed class WalletModeSelectionIntent : Intent<WalletModeSelectionModelState> {
 }
 
 data class WalletModeSelectionViewState(
-    val showEnableDeFiMessage: Boolean,
     val totalBalance: BalanceState,
     val brokerageBalance: BalanceState,
     val defiWalletBalance: BalanceState,
@@ -173,6 +191,7 @@ data class WalletModeSelectionViewState(
 
 data class WalletModeSelectionModelState(
     val isWalletBackedUp: Boolean,
+    val isWalletBackUpSkipped: Boolean,
     val brokerageBalance: Money?,
     val defiBalance: Money?,
     val enabledWalletMode: WalletMode,
@@ -181,10 +200,11 @@ data class WalletModeSelectionModelState(
 sealed class BalanceState {
     object Loading : BalanceState()
     data class Data(val money: Money) : BalanceState()
+    object ActivationRequired : BalanceState()
 }
 
 sealed interface WalletModeSelectionNavigationEvent : NavigationEvent {
-    object DeFiOnboarding : WalletModeSelectionNavigationEvent
+    data class PhraseRecovery(val walletActivationRequired: Boolean) : WalletModeSelectionNavigationEvent
     data class Close(val walletMode: WalletMode) : WalletModeSelectionNavigationEvent
 }
 

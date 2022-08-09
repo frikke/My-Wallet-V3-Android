@@ -123,7 +123,7 @@ fun ManualBackupScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.next),
+                text = stringResource(id = R.string.common_next),
                 onClick = nextOnClick
             )
         }
