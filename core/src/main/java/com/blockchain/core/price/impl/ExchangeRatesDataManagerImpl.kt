@@ -24,10 +24,10 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.flow.Flow
-import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
 import java.math.RoundingMode
 import java.util.Calendar
+import kotlinx.coroutines.flow.Flow
+import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
 
 internal class ExchangeRatesDataManagerImpl(
     private val priceStore: AssetPriceStore,

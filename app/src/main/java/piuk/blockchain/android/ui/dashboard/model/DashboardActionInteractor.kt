@@ -58,6 +58,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.Optional
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onEach
@@ -78,7 +79,6 @@ import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
 import timber.log.Timber
-import java.util.Optional
 
 class DashboardGroupLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
 class DashboardBalanceLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
@@ -315,7 +315,7 @@ class DashboardActionInteractor(
         }
             .subscribeBy(
                 onNext = { dataResource ->
-                    when(dataResource){
+                    when (dataResource) {
                         is DataResource.Data -> {
                             model.process(DashboardIntent.PriceHistoryUpdate(asset, dataResource.data))
                         }
@@ -323,7 +323,6 @@ class DashboardActionInteractor(
                             Timber.e(dataResource.error)
                         }
                         DataResource.Loading -> {
-
                         }
                     }
                 }
@@ -722,8 +721,8 @@ class DashboardActionInteractor(
             onSuccess = {
                 model.process(DashboardIntent.FundsLocksLoaded(it))
             }, onComplete = {
-                model.process(DashboardIntent.FundsLocksLoaded(null))
-            },
+            model.process(DashboardIntent.FundsLocksLoaded(null))
+        },
             onError = {
                 Timber.e(it)
             }

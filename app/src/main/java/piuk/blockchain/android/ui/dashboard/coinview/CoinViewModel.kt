@@ -69,7 +69,7 @@ class CoinViewModel(
             }
             is CoinViewIntent.LoadRecurringBuys ->
                 if
-                    (walletModeService.enabledWalletMode().custodialEnabled) {
+                (walletModeService.enabledWalletMode().custodialEnabled) {
                     loadRecurringBuys(intent)
                 } else null
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
