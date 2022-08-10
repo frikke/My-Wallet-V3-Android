@@ -16,7 +16,9 @@ internal fun DynamicAsset.toAssetInfo(): AssetInfo =
     CryptoCurrency(
         displayTicker = displayTicker,
         networkTicker = networkTicker,
-        name = assetName,
+        name = parentChain?.let {
+            assetName.forParentTicker(it)
+        } ?: assetName,
         categories = mapCategories(products),
         precisionDp = precision,
         l1chainTicker = parentChain?.let { chain ->
@@ -36,6 +38,15 @@ internal fun DynamicAsset.toAssetInfo(): AssetInfo =
     )
 
 private const val BTC_START_DATE = 1282089600L
+
+private fun String.forParentTicker(parentChain: String): String {
+    if (parentChain == AssetDiscoveryApiService.MATIC && !this.endsWith(POLYGON_NETWORK_SUFFIX)) {
+        return this.plus(POLYGON_NETWORK_SUFFIX)
+    }
+    return this
+}
+
+private const val POLYGON_NETWORK_SUFFIX = " - Polygon"
 
 private fun mapCategories(products: Set<DynamicAssetProducts>): Set<AssetCategory> =
     products.mapNotNull {

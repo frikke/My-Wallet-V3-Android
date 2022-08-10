@@ -53,11 +53,11 @@ class EthDataManager(
     val accountAddress: String
         get() = internalAccountAddress ?: throw Exception("No ETH address found")
 
-    val supportedNetworks: Single<List<EvmNetwork>>
+    val supportedNetworks: Single<Set<EvmNetwork>>
         get() = evmNetworksService.getSupportedNetworks().map {
-            listOf(listOf(ethChain), it).flatten()
+            it.plus(ethChain).toSet()
         }
-            .onErrorReturn { listOf(ethChain) }
+            .onErrorReturn { setOf(ethChain) }
 
     /**
      * Clears the currently stored ETH account from memory.

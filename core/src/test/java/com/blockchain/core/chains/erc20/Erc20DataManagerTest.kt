@@ -62,7 +62,7 @@ class Erc20DataManagerTest {
     private val ethDataManager: EthDataManager = mockk {
         every { accountAddress } returns ACCOUNT_HASH
         every { supportedNetworks } returns Single.just(
-            listOf(
+            setOf(
                 EvmNetwork(
                     CryptoCurrency.ETHER.networkTicker,
                     CryptoCurrency.ETHER.name,
@@ -111,7 +111,7 @@ class Erc20DataManagerTest {
         val ethBalance = 1001.toBigInteger()
 
         coEvery { ethDataManager.getBalance() } returns Outcome.Success(ethBalance)
-        every { ethDataManager.supportedNetworks } returns Single.just(listOf(EthDataManager.ethChain))
+        every { ethDataManager.supportedNetworks } returns Single.just(setOf(EthDataManager.ethChain))
         every { assetCatalogue.fromNetworkTicker(EthDataManager.ethChain.networkTicker) } returns CryptoCurrency.ETHER
 
         val expectedResult = CryptoValue.fromMinor(CryptoCurrency.ETHER, ethBalance)
