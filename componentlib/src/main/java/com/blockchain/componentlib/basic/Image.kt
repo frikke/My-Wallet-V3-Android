@@ -87,7 +87,7 @@ fun Image(
                 }
             ) {
                 Box(
-                    modifier = Modifier
+                    modifier = modifier
                         .alpha(imageResource.alpha)
                         .background(
                             color = backgroundColor,
@@ -100,7 +100,7 @@ fun Image(
                 androidx.compose.foundation.Image(
                     painter = painterResource(id = imageResource.id),
                     contentDescription = imageResource.contentDescription,
-                    modifier = Modifier.run { imageResource.iconSize?.let { size(it) } ?: this },
+                    modifier = modifier.run { imageResource.iconSize?.let { size(it) } ?: this },
                     colorFilter = ColorFilter.tint(iconTintColor),
                     contentScale = contentScale,
                 )
