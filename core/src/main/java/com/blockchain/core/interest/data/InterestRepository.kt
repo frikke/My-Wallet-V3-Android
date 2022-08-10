@@ -4,7 +4,6 @@ import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.api.interest.data.InterestEligibilityDto
 import com.blockchain.api.interest.data.InterestWithdrawalBodyDto
-import com.blockchain.core.TransactionsCache
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
@@ -39,11 +38,11 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.Calendar
+import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asObservable
-import java.util.Calendar
-import java.util.Date
 
 internal class InterestRepository(
     private val assetCatalogue: AssetCatalogue,
@@ -55,8 +54,7 @@ internal class InterestRepository(
     private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore,
     private val currencyPrefs: CurrencyPrefs,
     private val authenticator: Authenticator,
-    private val interestApiService: InterestApiService,
-    private val transactionsCache: TransactionsCache,
+    private val interestApiService: InterestApiService
 ) : InterestService {
 
     // balances
@@ -154,7 +152,6 @@ internal class InterestRepository(
                     eligibilityDto.reason.toIneligibilityReason()
                 }
             }
-
         }
     }
 
@@ -180,7 +177,9 @@ internal class InterestRepository(
             .asObservable().firstOrError()
     }
 
-    override fun getLimitsForAssetsFlow(refreshStrategy: FreshnessStrategy): Flow<DataResource<Map<AssetInfo, InterestLimits>>> {
+    override fun getLimitsForAssetsFlow(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Map<AssetInfo, InterestLimits>>> {
         return interestLimitsStore.stream(refreshStrategy).mapData { interestLimits ->
             interestLimits.tickerLimits.entries.mapNotNull { (assetTicker, limits) ->
                 assetCatalogue.assetInfoFromNetworkTicker(assetTicker)?.let { asset ->
@@ -209,7 +208,6 @@ internal class InterestRepository(
                     Pair(asset, interestLimit)
                 }
             }.toMap()
-
         }
     }
 

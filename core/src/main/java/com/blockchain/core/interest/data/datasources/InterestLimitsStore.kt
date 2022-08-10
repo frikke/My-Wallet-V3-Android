@@ -1,7 +1,6 @@
 package com.blockchain.core.interest.data.datasources
 
 import com.blockchain.api.interest.InterestApiService
-import com.blockchain.api.interest.data.InterestEligibilityDto
 import com.blockchain.api.interest.data.InterestTickerLimitsDto
 import com.blockchain.nabu.Authenticator
 import com.blockchain.preferences.CurrencyPrefs
@@ -11,8 +10,6 @@ import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.storedatasource.FlushableDataSource
-import info.blockchain.balance.AssetCatalogue
-import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import timber.log.Timber
 

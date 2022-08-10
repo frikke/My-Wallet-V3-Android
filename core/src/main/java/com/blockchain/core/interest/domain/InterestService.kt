@@ -159,6 +159,7 @@ interface InterestService {
     /**
      * Executes interest withdrawal of [asset]:[amount] to [address]
      * @see [InterestWithdrawOnChainTxEngine]
+     * todo: coroutines
      */
     fun withdraw(asset: AssetInfo, amount: Money, address: String): Completable
 }

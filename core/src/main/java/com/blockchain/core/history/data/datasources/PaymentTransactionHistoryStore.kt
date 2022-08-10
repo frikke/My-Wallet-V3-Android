@@ -11,8 +11,8 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.KeyedFlushableDataSource
 import kotlinx.serialization.Serializable
 
-//todo(othman) refactor dto
-//todo(othman) rename?
+// todo(othman) refactor dto
+// todo(othman) rename?
 class PaymentTransactionHistoryStore(
     private val authenticator: Authenticator,
     private val nabuService: NabuService,
