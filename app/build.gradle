@@ -464,7 +464,7 @@ dependencies {
     implementation Libraries.zendeskChat
     implementation Libraries.zendeskMessaging
 
-    // Imtercom
+    // Intercom
     implementation Libraries.intercom
 
     // Checkout.com

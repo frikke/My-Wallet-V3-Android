@@ -72,7 +72,8 @@ fun Image(
                     Modifier
                         .size(dimensionResource(R.dimen.large_margin))
                         .clip(it)
-                } ?: modifier
+                } ?: modifier,
+                contentScale = contentScale
             )
         is ImageResource.LocalWithBackground -> {
             val iconTintColor =

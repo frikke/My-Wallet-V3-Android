@@ -138,6 +138,14 @@ object Versions {
     const val plaidLinkVersion = "3.9.0"
     const val exoplayerVersion = "2.18.1"
 
+    /**
+     * [composeMarkdownVersion]
+     * If you are updating this dependency, please make sure to post in this ticket:
+     * https://blockchain.atlassian.net/browse/SEC-313
+     * So security can re-scan for vulnerabilities, as this is not a commonly used library
+     */
+    const val composeMarkdownVersion = "0.3.0"
+
     // Logging
     const val timber = "4.7.1"
     const val slf4j = "1.7.20"
@@ -337,6 +345,7 @@ object Libraries {
     const val intercom = "io.intercom.android:intercom-sdk-base:${Versions.intercomVersion}"
     const val plaidLink = "com.plaid.link:sdk-core:${Versions.plaidLinkVersion}"
     const val exoPlayer = "com.google.android.exoplayer:exoplayer:${Versions.exoplayerVersion}"
+    const val composeMarkdown = "com.github.jeziellago:compose-markdown:${Versions.composeMarkdownVersion}"
 
     // Logging
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"

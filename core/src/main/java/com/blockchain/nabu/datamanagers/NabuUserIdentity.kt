@@ -20,7 +20,6 @@ import com.blockchain.nabu.models.responses.nabu.NabuUser
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
@@ -139,7 +138,7 @@ class NabuUserIdentity(
     override fun userAccessForFeature(feature: Feature): Single<FeatureAccess> {
         return when (feature) {
             Feature.Buy ->
-                Singles.zip(
+                Single.zip(
                     rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.BUY) },
                     simpleBuyEligibilityProvider.simpleBuyTradingEligibility()
                 ) { buyEligibility, sbEligibility ->

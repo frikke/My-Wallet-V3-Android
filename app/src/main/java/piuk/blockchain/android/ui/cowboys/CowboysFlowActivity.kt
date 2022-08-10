@@ -5,8 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,7 +25,7 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
-import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.basic.MarkdownContent
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.media.AsyncMediaItem
@@ -253,21 +253,24 @@ fun CowboysInterstitial(
         if (info.iconUrl.isNotEmpty()) {
             AsyncMediaItem(
                 modifier = Modifier
-                    .wrapContentSize()
+                    .size(
+                        width = 64.dp,
+                        height = 64.dp
+                    )
                     .constrainAs(icon) {
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                        bottom.linkTo(parent.bottom)
+                        bottom.linkTo(title.top)
                     },
                 url = info.iconUrl,
                 contentDescription = "cowboys icon"
             )
         }
 
-        SimpleText(
+        MarkdownContent(
             modifier = Modifier
-                .padding(start = 24.dp, end = 24.dp)
+                .padding(start = 24.dp, end = 24.dp, top = 12.dp)
                 .constrainAs(title) {
                     top.linkTo(
                         if (info.iconUrl.isNotEmpty()) {
@@ -280,25 +283,30 @@ fun CowboysInterstitial(
                     end.linkTo(parent.end)
                     bottom.linkTo(subtitle.top, margin = 8.dp)
                 },
-            text = info.title,
+            markdownText = info.message,
             style = ComposeTypographies.Title1,
-            color = ComposeColors.Light,
-            gravity = ComposeGravities.Centre
+            gravity = ComposeGravities.Centre,
+            color = ComposeColors.Light
         )
 
-        SimpleText(
+        MarkdownContent(
             modifier = Modifier
-                .padding(start = 24.dp, end = 24.dp)
+                .padding(start = 24.dp, end = 24.dp, top = 8.dp)
                 .constrainAs(subtitle) {
                     top.linkTo(title.bottom, margin = 16.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     bottom.linkTo(primaryButton.top, margin = 16.dp)
                 },
-            text = info.message,
+            markdownText = info.message,
             style = ComposeTypographies.Body1,
-            color = ComposeColors.Light,
-            gravity = ComposeGravities.Centre
+            gravity = ComposeGravities.Centre,
+            color = ComposeColors.Light
+        )
+
+        createVerticalChain(
+            foregroundImage, icon, title, subtitle,
+            chainStyle = ChainStyle.Packed(0f)
         )
 
         createVerticalChain(
