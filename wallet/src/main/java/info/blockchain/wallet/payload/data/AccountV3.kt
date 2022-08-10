@@ -14,7 +14,7 @@ data class AccountV3(
     @SerialName("xpub")
     val legacyXpub: String,
     @SerialName("cache")
-    val addressCache: AddressCache,
+    private val addressCache: AddressCache? = null,
     @SerialName("address_labels")
     private val _addressLabels: List<AddressLabel>? = null
 ) : Account {
