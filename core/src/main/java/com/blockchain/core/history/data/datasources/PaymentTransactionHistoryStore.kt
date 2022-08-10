@@ -51,6 +51,6 @@ class PaymentTransactionHistoryStore(
     }
 
     companion object {
-        private const val STORE_ID = "InterestRateStore"
+        private const val STORE_ID = "PaymentTransactionHistoryStore"
     }
 }
