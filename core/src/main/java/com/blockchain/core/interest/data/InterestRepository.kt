@@ -5,6 +5,7 @@ import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.api.interest.data.InterestWithdrawalBodyDto
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
+import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStore
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
@@ -16,6 +17,7 @@ import com.blockchain.core.interest.domain.model.InterestActivityAttributes
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.interest.domain.model.InterestState
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
@@ -33,14 +35,15 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asObservable
+import java.util.Date
 
 internal class InterestRepository(
     private val assetCatalogue: AssetCatalogue,
     private val interestBalancesStore: InterestBalancesStore,
+    private val interestAvailableAssetsStore: InterestAvailableAssetsStore,
     private val interestEligibilityTimedCache: InterestEligibilityTimedCache,
     private val interestAvailableAssetsTimedCache: InterestAvailableAssetsTimedCache,
     private val interestLimitsTimedCache: InterestLimitsTimedCache,
@@ -86,6 +89,16 @@ internal class InterestRepository(
     // availability
     override fun getAvailableAssetsForInterest(): Single<List<AssetInfo>> {
         return interestAvailableAssetsTimedCache.cached()
+    }
+
+    override fun getAvailableAssetsForInterestFlow(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<List<AssetInfo>>> {
+        return interestAvailableAssetsStore.stream(refreshStrategy).mapData { response ->
+            response.networkTickers.mapNotNull { networkTicker ->
+                assetCatalogue.assetInfoFromNetworkTicker(networkTicker)
+            }
+        }
     }
 
     override fun isAssetAvailableForInterest(asset: AssetInfo): Single<Boolean> {

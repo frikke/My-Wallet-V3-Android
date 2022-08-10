@@ -4,6 +4,7 @@ import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.domain.model.InterestActivity
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.interest.domain.model.InterestLimits
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -47,6 +48,16 @@ interface InterestService {
      * @see [getEligibilityForAssets]
      */
     fun getAvailableAssetsForInterest(): Single<List<AssetInfo>>
+
+    /**
+     * Returns all assets that can earn rewards
+     * This list doesn't mean that all assets are eligible, some can be [InterestEligibility.Ineligible]
+     *
+     * @see [getEligibilityForAssets]
+     */
+    fun getAvailableAssetsForInterestFlow(
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<List<AssetInfo>>>
 
     /**
      * Returns if an [asset] can earn rewards
