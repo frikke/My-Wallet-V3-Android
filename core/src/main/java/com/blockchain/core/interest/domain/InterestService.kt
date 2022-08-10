@@ -66,9 +66,25 @@ interface InterestService {
     fun isAssetAvailableForInterest(asset: AssetInfo): Single<Boolean>
 
     /**
+     * Returns if an [asset] can earn rewards
+     * True doesn't mean the asset is eligible, it can be [InterestEligibility.Ineligible]
+     */
+    fun isAssetAvailableForInterestFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Boolean>>
+
+    /**
      * Returns a map composed of each [AssetInfo] with its [InterestEligibility]
      */
     fun getEligibilityForAssets(): Single<Map<AssetInfo, InterestEligibility>>
+
+    /**
+     * Returns a map composed of each [AssetInfo] with its [InterestEligibility]
+     */
+    fun getEligibilityForAssetsFlow(
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Map<AssetInfo, InterestEligibility>>>
 
     /**
      * Returns [InterestEligibility] for [asset]
@@ -76,9 +92,24 @@ interface InterestService {
     fun getEligibilityForAsset(asset: AssetInfo): Single<InterestEligibility>
 
     /**
+     * Returns [InterestEligibility] for [asset]
+     */
+    fun getEligibilityForAssetFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<InterestEligibility>>
+
+    /**
      * Returns a map composed of each [AssetInfo] with its [InterestLimits]
      */
     fun getLimitsForAssets(): Single<Map<AssetInfo, InterestLimits>>
+
+    /**
+     * Returns a map composed of each [AssetInfo] with its [InterestLimits]
+     */
+    fun getLimitsForAssetsFlow(
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Map<AssetInfo, InterestLimits>>>
 
     /**
      * Returns [InterestLimits] for [asset]

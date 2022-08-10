@@ -2,7 +2,6 @@ package com.blockchain.koin
 
 import com.blockchain.api.nabuApi
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
 import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
 import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
 import com.blockchain.nabu.Authenticator
@@ -146,14 +145,6 @@ val nabuModule = module {
 
         scoped {
             InterestEligibilityTimedCache(
-                authenticator = get(),
-                assetCatalogue = get(),
-                interestApiService = get()
-            )
-        }
-
-        scoped {
-            InterestAvailableAssetsTimedCache(
                 authenticator = get(),
                 assetCatalogue = get(),
                 interestApiService = get()
