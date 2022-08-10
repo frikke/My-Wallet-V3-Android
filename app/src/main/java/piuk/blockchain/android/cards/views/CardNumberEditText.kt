@@ -13,11 +13,18 @@ import piuk.blockchain.android.cards.icon
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class CardNumberEditText : CardEditText, KoinComponent {
+    interface CardNumberListener {
+        fun onPaste()
+        fun onCut()
+        fun onCopy()
+    }
+
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle)
 
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
+    private lateinit var listener: CardNumberListener
 
     private val supportedCardTypes: String by unsafeLazy {
         simpleBuyPrefs.getSupportedCardTypes() ?: "VISA"
@@ -31,6 +38,10 @@ class CardNumberEditText : CardEditText, KoinComponent {
     }
 
     private fun cardNumberIsInvalid(): Boolean = super.isValid().not()
+
+    fun attachListener(listener: CardNumberListener) {
+        this.listener = listener
+    }
 
     override fun afterTextChanged(editable: Editable) {
         super.afterTextChanged(editable)
@@ -51,5 +62,17 @@ class CardNumberEditText : CardEditText, KoinComponent {
 
     override fun isValid(): Boolean {
         return super.isValid() && supportedCardTypes.contains(cardType.name)
+    }
+
+    override fun onTextContextMenuItem(id: Int): Boolean {
+        val superAction = super.onTextContextMenuItem(id)
+        if (::listener.isInitialized) {
+            when (id) {
+                android.R.id.cut -> listener.onCut()
+                android.R.id.copy -> listener.onCopy()
+                android.R.id.paste -> listener.onPaste()
+            }
+        }
+        return superAction
     }
 }

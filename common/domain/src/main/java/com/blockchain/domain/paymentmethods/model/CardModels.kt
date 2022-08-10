@@ -44,6 +44,7 @@ sealed class CardRejectionState {
 
     @Serializable
     data class MaybeRejected(
+        val errorId: String?,
         val title: String?,
         val description: String?,
         val actions: List<ServerErrorAction> = emptyList(),
@@ -54,6 +55,7 @@ sealed class CardRejectionState {
 
     @Serializable
     data class AlwaysRejected(
+        val errorId: String?,
         val title: String?,
         val description: String?,
         val actions: List<ServerErrorAction> = emptyList(),

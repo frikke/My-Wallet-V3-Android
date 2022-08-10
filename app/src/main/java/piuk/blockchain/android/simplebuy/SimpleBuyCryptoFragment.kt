@@ -79,7 +79,6 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEME
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_INSUFFICIENT_BALANCE
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_STALE_BALANCE
 import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
-import piuk.blockchain.android.ui.BottomSheetInformation
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
@@ -845,15 +844,32 @@ class SimpleBuyCryptoFragment :
                     getString(R.string.common_ok)
                 }
 
-                showBottomSheet(
-                    BottomSheetInformation.newInstance(
-                        title = title ?: getString(R.string.card_issuer_always_rejects_title),
-                        description = description ?: getString(
-                            R.string.card_issuer_always_rejects_desc
+                val sheetTitle = title ?: getString(R.string.card_issuer_always_rejects_title)
+                val sheetSubtitle = description ?: getString(
+                    R.string.card_issuer_always_rejects_desc
+                )
+
+                navigator().showErrorInBottomSheet(
+                    title = sheetTitle,
+                    description = sheetSubtitle,
+                    error = errorId.orEmpty(),
+                    serverSideUxErrorInfo = ServerSideUxErrorInfo(
+                        id = errorId,
+                        title = sheetTitle,
+                        description = sheetSubtitle,
+                        iconUrl = iconUrl.orEmpty(),
+                        statusUrl = statusIconUrl.orEmpty(),
+                        actions = listOf(
+                            ServerErrorAction(
+                                title = tryAnotherCardActionTitle,
+                                deeplinkPath = actions[0].deeplinkPath
+                            ),
+                            ServerErrorAction(
+                                title = learnMoreActionTitle,
+                                deeplinkPath = actions[1].deeplinkPath
+                            )
                         ),
-                        primaryCtaText = tryAnotherCardActionTitle,
-                        secondaryCtaText = learnMoreActionTitle,
-                        icon = null
+                        categories = analyticsCategories
                     )
                 )
             }

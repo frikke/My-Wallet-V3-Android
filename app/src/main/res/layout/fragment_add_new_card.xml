@@ -69,8 +69,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/standard_margin"
                 android:layout_marginTop="@dimen/tiny_margin"
+                android:layout_marginEnd="@dimen/standard_margin"
                 android:visibility="gone"
-                app:layout_constraintEnd_toStartOf="@id/card_input_alert_info"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/card_input_form"
                 tools:visibility="visible" />
@@ -79,12 +80,13 @@
                 android:id="@+id/card_input_alert_info"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/tiny_margin"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginTop="@dimen/smallest_margin"
                 android:layout_marginEnd="@dimen/standard_margin"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/card_input_alert"
-                app:layout_constraintTop_toTopOf="@id/card_input_alert"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/card_input_alert"
                 tools:visibility="visible" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -100,7 +102,7 @@
                 app:layout_constraintEnd_toStartOf="@id/card_cvv_input"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/card_input_alert">
+                app:layout_constraintTop_toBottomOf="@id/card_input_alert_info">
 
                 <piuk.blockchain.android.cards.views.CardExpirationDateEditText
                     android:id="@+id/expiry_date"
