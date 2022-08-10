@@ -37,6 +37,7 @@ import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import com.blockchain.core.eligibility.EligibilityRepository
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.fiatcurrencies.FiatCurrenciesRepository
+import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.core.interest.data.InterestRepository
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
@@ -261,6 +262,7 @@ val coreModule = module {
                 interestAvailableAssetsStore = get(),
                 interestLimitsStore = get(),
                 interestRateStore = get(),
+                paymentTransactionHistoryStore = get(),
                 currencyPrefs = get(),
                 authenticator = get(),
                 interestApiService = get(),
@@ -271,8 +273,16 @@ val coreModule = module {
         scoped {
             BuyPairsCache(nabuService = get())
         }
+
         scoped {
             TransactionsCache(
+                nabuService = get(),
+                authenticator = get()
+            )
+        }
+
+        scoped {
+            PaymentTransactionHistoryStore(
                 nabuService = get(),
                 authenticator = get()
             )

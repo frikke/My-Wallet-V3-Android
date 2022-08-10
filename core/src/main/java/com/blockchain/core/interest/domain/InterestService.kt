@@ -139,6 +139,7 @@ interface InterestService {
 
     /**
      * Returns the address for [asset]
+     * todo: no cache for this - change to coroutines
      */
     fun getAddress(asset: AssetInfo): Single<String>
 
@@ -146,6 +147,14 @@ interface InterestService {
      * Returns a list of transactions for [asset]
      */
     fun getActivity(asset: AssetInfo): Single<List<InterestActivity>>
+
+    /**
+     * Returns a list of transactions for [asset]
+     */
+    fun getActivityFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<List<InterestActivity>>>
 
     /**
      * Executes interest withdrawal of [asset]:[amount] to [address]

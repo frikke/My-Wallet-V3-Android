@@ -5,7 +5,7 @@ import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.api.interest.data.InterestEligibilityDto
 import com.blockchain.api.interest.data.InterestWithdrawalBodyDto
 import com.blockchain.core.TransactionsCache
-import com.blockchain.core.TransactionsRequest
+import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.data.datasources.InterestEligibilityStore
@@ -52,6 +52,7 @@ internal class InterestRepository(
     private val interestAvailableAssetsStore: InterestAvailableAssetsStore,
     private val interestLimitsStore: InterestLimitsStore,
     private val interestRateStore: InterestRateStore,
+    private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore,
     private val currencyPrefs: CurrencyPrefs,
     private val authenticator: Authenticator,
     private val interestApiService: InterestApiService,
@@ -250,16 +251,30 @@ internal class InterestRepository(
 
     // activity
     override fun getActivity(asset: AssetInfo): Single<List<InterestActivity>> {
-        return transactionsCache.transactions(
-            TransactionsRequest(product = PRODUCT_NAME, type = null)
-        ).map { interestActivityResponse ->
-            interestActivityResponse.items
-                .filter { transaction ->
-                    assetCatalogue.fromNetworkTicker(transaction.amount.symbol)?.networkTicker == asset.networkTicker
-                }.map { transaction ->
-                    transaction.toInterestActivity(asset)
-                }
-        }
+        return getActivityFlow(asset)
+            .asObservable().firstOrError()
+    }
+
+    override fun getActivityFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<List<InterestActivity>>> {
+        return paymentTransactionHistoryStore
+            .stream(
+                refreshStrategy.withKey(
+                    PaymentTransactionHistoryStore.Key(product = INTEREST_PRODUCT_NAME, type = null)
+                )
+            )
+            .mapData { interestActivityResponse ->
+                interestActivityResponse.items
+                    .filter { transaction ->
+                        assetCatalogue.fromNetworkTicker(
+                            transaction.amount.symbol
+                        )?.networkTicker == asset.networkTicker
+                    }.map { transaction ->
+                        transaction.toInterestActivity(asset)
+                    }
+            }
     }
 
     // withdrawal
@@ -277,7 +292,7 @@ internal class InterestRepository(
     }
 
     companion object {
-        const val PRODUCT_NAME = "savings"
+        const val INTEREST_PRODUCT_NAME = "savings"
     }
 }
 
