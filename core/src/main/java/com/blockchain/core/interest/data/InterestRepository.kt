@@ -9,7 +9,7 @@ import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.data.datasources.InterestEligibilityStore
-import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
+import com.blockchain.core.interest.data.datasources.InterestLimitsStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.domain.model.InterestActivity
@@ -22,6 +22,7 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asObservable
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
@@ -39,6 +40,7 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asObservable
+import java.util.Calendar
 import java.util.Date
 
 internal class InterestRepository(
@@ -46,7 +48,8 @@ internal class InterestRepository(
     private val interestBalancesStore: InterestBalancesStore,
     private val interestEligibilityStore: InterestEligibilityStore,
     private val interestAvailableAssetsStore: InterestAvailableAssetsStore,
-    private val interestLimitsTimedCache: InterestLimitsTimedCache,
+    private val interestLimitsStore: InterestLimitsStore,
+    private val currencyPrefs: CurrencyPrefs,
     private val authenticator: Authenticator,
     private val interestApiService: InterestApiService,
     private val transactionsCache: TransactionsCache,
@@ -169,17 +172,58 @@ internal class InterestRepository(
 
     // limits
     override fun getLimitsForAssets(): Single<Map<AssetInfo, InterestLimits>> {
-        return interestLimitsTimedCache.cached()
+        return getLimitsForAssetsFlow()
+            .asObservable().firstOrError()
     }
 
     override fun getLimitsForAssetsFlow(refreshStrategy: FreshnessStrategy): Flow<DataResource<Map<AssetInfo, InterestLimits>>> {
-        TODO("Not yet implemented")
+        return interestLimitsStore.stream(refreshStrategy).mapData { interestLimits ->
+            interestLimits.tickerLimits.entries.mapNotNull { (assetTicker, limits) ->
+                assetCatalogue.assetInfoFromNetworkTicker(assetTicker)?.let { asset ->
+
+                    val calendar = Calendar.getInstance().apply {
+                        set(Calendar.DAY_OF_MONTH, 1)
+                        add(Calendar.MONTH, 1)
+                    }
+
+                    val minDepositFiatValue = Money.fromMinor(
+                        currencyPrefs.selectedFiatCurrency,
+                        limits.minDepositAmount.toBigInteger()
+                    )
+                    val maxWithdrawalFiatValue = Money.fromMinor(
+                        currencyPrefs.selectedFiatCurrency,
+                        limits.maxWithdrawalAmount.toBigInteger()
+                    )
+
+                    val interestLimit = InterestLimits(
+                        interestLockUpDuration = limits.lockUpDuration,
+                        nextInterestPayment = calendar.time,
+                        minDepositFiatValue = minDepositFiatValue,
+                        maxWithdrawalFiatValue = maxWithdrawalFiatValue
+                    )
+
+                    Pair(asset, interestLimit)
+                }
+            }.toMap()
+
+        }
     }
 
     override fun getLimitsForAsset(asset: AssetInfo): Single<InterestLimits> {
         return getLimitsForAssets().map { mapAssetWithLimits ->
             mapAssetWithLimits[asset] ?: throw NoSuchElementException("Unable to get limits for ${asset.networkTicker}")
         }
+    }
+
+    override fun getLimitsForAssetFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<InterestLimits>> {
+        return getLimitsForAssetsFlow(refreshStrategy)
+            .mapData { mapAssetWithLimits ->
+                mapAssetWithLimits[asset]
+                    ?: throw NoSuchElementException("Unable to get limits for ${asset.networkTicker}")
+            }
     }
 
     // rate

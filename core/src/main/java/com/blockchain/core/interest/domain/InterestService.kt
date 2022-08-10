@@ -117,6 +117,14 @@ interface InterestService {
     fun getLimitsForAsset(asset: AssetInfo): Single<InterestLimits>
 
     /**
+     * Returns [InterestLimits] for [asset]
+     */
+    fun getLimitsForAssetFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<InterestLimits>>
+
+    /**
      * Returns the interest rate for [asset]
      */
     fun getInterestRate(asset: AssetInfo): Single<Double>

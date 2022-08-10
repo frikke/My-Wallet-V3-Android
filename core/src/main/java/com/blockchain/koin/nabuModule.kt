@@ -2,8 +2,6 @@ package com.blockchain.koin
 
 import com.blockchain.api.nabuApi
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
-import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.NabuToken
@@ -142,23 +140,6 @@ val nabuModule = module {
                 authenticator = get()
             )
         }.bind(SimpleBuyEligibilityProvider::class)
-
-        scoped {
-            InterestEligibilityTimedCache(
-                authenticator = get(),
-                assetCatalogue = get(),
-                interestApiService = get()
-            )
-        }
-
-        scoped {
-            InterestLimitsTimedCache(
-                authenticator = get(),
-                assetCatalogue = get(),
-                interestApiService = get(),
-                currencyPrefs = get()
-            )
-        }
 
         factory {
             TradingPairsProviderImpl(
