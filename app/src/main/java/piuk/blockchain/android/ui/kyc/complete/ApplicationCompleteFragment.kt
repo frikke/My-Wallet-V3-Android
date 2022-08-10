@@ -1,9 +1,12 @@
 package piuk.blockchain.android.ui.kyc.complete
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.KYCAnalyticsEvents
@@ -39,6 +42,15 @@ class ApplicationCompleteFragment : Fragment() {
     private val compositeDisposable = CompositeDisposable()
     private val analytics: Analytics by inject()
     private val kycService: KycService by scopedInject()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        requireActivity().onBackPressedDispatcher.addCallback(owner = this) {
+            requireActivity().setResult(AppCompatActivity.RESULT_OK)
+            requireActivity().finish()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

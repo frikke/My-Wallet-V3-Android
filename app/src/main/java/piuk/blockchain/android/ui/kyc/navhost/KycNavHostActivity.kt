@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
@@ -30,7 +32,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycNavHostBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
-import piuk.blockchain.android.ui.kyc.complete.ApplicationCompleteFragment
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragmentDirections
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
@@ -42,6 +43,8 @@ class KycNavHostActivity :
     EmailEntryHost,
     KycNavHostView {
 
+    private lateinit var backPressCallback: OnBackPressedCallback
+
     private val binding: ActivityKycNavHostBinding by lazy {
         ActivityKycNavHostBinding.inflate(layoutInflater)
     }
@@ -51,8 +54,6 @@ class KycNavHostActivity :
     private val navController: NavController by lazy {
         (supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment).navController
     }
-    private val currentFragment: Fragment?
-        get() = supportFragmentManager.findFragmentById(R.id.nav_host)
 
     private val compositeDisposable = CompositeDisposable()
     private val userIdentity: UserIdentity by scopedInject()
@@ -67,9 +68,12 @@ class KycNavHostActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        setupBackPress()
+
         updateToolbar(
             toolbarTitle = getString(R.string.identity_verification),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         analytics.logEvent(
             KYCAnalyticsEvents.UpgradeKycVeriffClicked(
@@ -77,6 +81,14 @@ class KycNavHostActivity :
                 Tier.GOLD.ordinal
             )
         )
+
+        navController.removeOnDestinationChangedListener { controller, destination, arguments ->
+            verifyBackPressCallback(destination)
+        }
+        navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            verifyBackPressCallback(destination)
+        }
+
         navController.setGraph(R.navigation.kyc_nav, intent.extras)
 
         onViewReady()
@@ -177,41 +189,21 @@ class KycNavHostActivity :
     }
 
     override fun onSupportNavigateUp(): Boolean = consume {
-        if (flowShouldBeClosedAfterBackAction() || !navController.navigateUp()) {
-            if (flowShouldBeClosedAfterBackAction()) {
-                setResultFromApplicationStatus()
-            }
-            if (!navController.navigateUp()) {
-                setResultFromApplicationStatus()
-            }
-            finish()
-        }
+        onBackPressedDispatcher.onBackPressed()
     }
 
-    override fun onBackPressed() {
-        if (flowShouldBeClosedAfterBackAction()) {
-            setResultFromApplicationStatus()
-            finish()
-        } else {
-            super.onBackPressed()
-        }
-    }
-
-    private fun setResultFromApplicationStatus() =
-        if (hasCompletedApplication()) {
-            setResult(RESULT_OK)
-        } else {
+    private fun setupBackPress() {
+        backPressCallback = onBackPressedDispatcher.addCallback(owner = this) {
+            // see ApplicationCompleteFragment for success result
             setResult(RESULT_CANCELED)
+            finish()
         }
+    }
 
-    private fun hasCompletedApplication() =
-        currentFragment is ApplicationCompleteFragment
-
-    private fun flowShouldBeClosedAfterBackAction() =
-        // If on final page, close host Activity on navigate up
-        currentFragment is ApplicationCompleteFragment ||
-            // If not coming from settings, we want the 1st launched screen to be the 1st screen in the stack
-            (navInitialDestination != null && navInitialDestination?.id == navController.currentDestination?.id)
+    private fun verifyBackPressCallback(destination: NavDestination) {
+        // If not coming from settings, we want the 1st launched screen to be the 1st screen in the stack
+        backPressCallback.isEnabled = navInitialDestination?.id == destination.id
+    }
 
     override fun createPresenter(): KycNavHostPresenter = kycNavHastPresenter
 

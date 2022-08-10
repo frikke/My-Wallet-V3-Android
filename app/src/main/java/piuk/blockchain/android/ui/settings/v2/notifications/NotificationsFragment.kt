@@ -29,8 +29,6 @@ class NotificationsFragment :
             "Parent must implement SettingsNavigator"
         )
 
-    override fun onBackPressed(): Boolean = true
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateToolbar(

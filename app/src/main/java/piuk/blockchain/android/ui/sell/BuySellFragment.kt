@@ -309,8 +309,6 @@ class BuySellFragment :
 
     override fun navigator(): HomeNavigator =
         (activity as? HomeNavigator) ?: throw IllegalStateException("Parent must implement HomeNavigator")
-
-    override fun onBackPressed(): Boolean = false
 }
 
 @SuppressLint("WrongConstant")

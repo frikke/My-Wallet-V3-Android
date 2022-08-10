@@ -1,5 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -81,6 +82,7 @@ import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
 import piuk.blockchain.android.util.StringAnnotationClickEvent
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.animateChange
+import piuk.blockchain.android.util.disableBackPress
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class SimpleBuyCheckoutFragment :
@@ -113,6 +115,13 @@ class SimpleBuyCheckoutFragment :
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimplebuyCheckoutBinding =
         FragmentSimplebuyCheckoutBinding.inflate(inflater, container, false)
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        // force disable back press when it's pending payment
+        requireActivity().disableBackPress(owner = this, callbackEnabled = isForPendingPayment)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -150,18 +159,14 @@ class SimpleBuyCheckoutFragment :
             } else {
                 getString(R.string.checkout)
             },
-            backAction = { if (!isForPendingPayment) activity.onBackPressed() }
+            backAction = { activity.onBackPressedDispatcher.onBackPressed() }
         )
     }
-
-    override fun backPressedHandled(): Boolean = isForPendingPayment
 
     override fun navigator(): SimpleBuyNavigator =
         (activity as? SimpleBuyNavigator) ?: throw IllegalStateException(
             "Parent must implement SimpleBuyNavigator"
         )
-
-    override fun onBackPressed(): Boolean = true
 
     private fun getListOfTotalTimes(remainingTime: Double): MutableList<Int> {
         val chunks = MutableList(floor(remainingTime / MIN_QUOTE_REFRESH).toInt()) { MIN_QUOTE_REFRESH.toInt() }

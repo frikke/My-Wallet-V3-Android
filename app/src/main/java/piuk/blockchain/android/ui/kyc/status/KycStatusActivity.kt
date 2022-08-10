@@ -60,7 +60,7 @@ class KycStatusActivity :
         }
         updateToolbar(
             toolbarTitle = getString(title),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         onViewReady()
     }

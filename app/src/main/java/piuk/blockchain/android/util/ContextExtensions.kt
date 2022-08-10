@@ -9,12 +9,16 @@ import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.View
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import piuk.blockchain.android.R
@@ -91,4 +95,13 @@ fun Context.shareTextWithSubject(text: String, subject: String) {
 
     val shareIntent = Intent.createChooser(sendIntent, null)
     startActivity(shareIntent)
+}
+
+fun ComponentActivity.disableBackPress(
+    owner: LifecycleOwner? = null,
+    callbackEnabled: Boolean = true
+): OnBackPressedCallback {
+    return onBackPressedDispatcher.addCallback(owner = owner, enabled = callbackEnabled) {
+        /* this will catch back press but would do nothing */
+    }
 }

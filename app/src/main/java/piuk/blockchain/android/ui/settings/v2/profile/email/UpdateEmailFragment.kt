@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.ui.text.input.KeyboardType
-import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateTitleToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -23,8 +22,7 @@ import piuk.blockchain.android.databinding.FragmentUpdateEmailBinding
 import piuk.blockchain.android.util.FormatChecker
 
 class UpdateEmailFragment :
-    MviFragment<EmailModel, EmailIntent, EmailState, FragmentUpdateEmailBinding>(),
-    FlowFragment {
+    MviFragment<EmailModel, EmailIntent, EmailState, FragmentUpdateEmailBinding>() {
 
     private val formatChecker: FormatChecker by inject()
 
@@ -32,8 +30,6 @@ class UpdateEmailFragment :
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentUpdateEmailBinding =
         FragmentUpdateEmailBinding.inflate(inflater, container, false)
-
-    override fun onBackPressed(): Boolean = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -33,7 +33,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviComposeFragment
 import com.blockchain.componentlib.basic.Image
@@ -51,7 +50,7 @@ import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
 
 class DappsListFragment :
-    MviComposeFragment<DappsListModel, DappsListIntent, DappsListState>(), FlowFragment {
+    MviComposeFragment<DappsListModel, DappsListIntent, DappsListState>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -93,8 +92,6 @@ class DappsListFragment :
     }
 
     override val model: DappsListModel by scopedInject()
-
-    override fun onBackPressed(): Boolean = false
 
     @OptIn(ExperimentalMaterialApi::class)
     @Composable

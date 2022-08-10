@@ -156,7 +156,7 @@ class CoinViewActivity :
                         currency = assetTicker
                     )
             )
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
         })
         originName?.let {
             analytics.logEvent(

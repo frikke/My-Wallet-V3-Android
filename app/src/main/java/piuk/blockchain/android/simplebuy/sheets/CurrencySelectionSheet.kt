@@ -78,8 +78,6 @@ class CurrencySelectionSheet :
     override fun navigator(): SimpleBuyNavigator = (activity as? SimpleBuyNavigator)
         ?: throw IllegalStateException("Parent must implement SimpleBuyNavigator")
 
-    override fun onBackPressed(): Boolean = true
-
     override fun skip() {
         analytics.logEvent(SimpleBuyAnalytics.CURRENCY_NOT_SUPPORTED_SKIP)
         navigator().exitSimpleBuyFlow()

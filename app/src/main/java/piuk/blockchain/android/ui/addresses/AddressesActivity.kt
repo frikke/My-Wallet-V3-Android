@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.MotionEvent
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.annotation.StringRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.coincore.AssetAction
@@ -56,19 +58,29 @@ class AddressesActivity :
         AccountAdapter(this)
     }
 
+    private lateinit var onBackPressCloseHeaderCallback: OnBackPressedCallback
+
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        setupBackPress()
+
         updateToolbar(
             toolbarTitle = getString(R.string.drawer_addresses),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         with(binding.currencyHeader) {
             setCurrentlySelectedCurrency(CryptoCurrency.BTC)
             setSelectionListener { presenter.refresh(it) }
+            setAnimationListener { isOpen ->
+                // enable the callback only when the header is open so it can be closed on back press
+                // otherwise disable it so system can handle back press
+                onBackPressCloseHeaderCallback.isEnabled = isOpen
+            }
         }
 
         with(binding.recyclerviewAccounts) {
@@ -83,15 +95,13 @@ class AddressesActivity :
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> consume { onBackPressed() }
+        android.R.id.home -> consume { onBackPressedDispatcher.onBackPressed() }
         else -> super.onOptionsItemSelected(item)
     }
 
-    override fun onBackPressed() {
-        if (binding.currencyHeader.isOpen()) {
+    private fun setupBackPress() {
+        onBackPressCloseHeaderCallback = onBackPressedDispatcher.addCallback(owner = this) {
             binding.currencyHeader.close()
-        } else {
-            super.onBackPressed()
         }
     }
 

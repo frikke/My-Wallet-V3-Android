@@ -49,8 +49,6 @@ class AccountFragment :
             "Parent must implement SettingsNavigator"
         )
 
-    override fun onBackPressed(): Boolean = true
-
     override val model: AccountModel by scopedInject()
     private val blockchainCardFF: FeatureFlag by scopedInject(blockchainCardFeatureFlag)
 

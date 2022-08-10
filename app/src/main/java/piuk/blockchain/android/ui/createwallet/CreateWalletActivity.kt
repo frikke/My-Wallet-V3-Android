@@ -74,7 +74,7 @@ class CreateWalletActivity :
 
         updateToolbar(
             toolbarTitle = getString(R.string.new_account_title_1),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
 
         with(binding) {

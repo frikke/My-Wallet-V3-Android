@@ -907,7 +907,7 @@ class MainActivity :
                 .alpha(0f)
                 .setDuration(resources.getInteger(android.R.integer.config_shortAnimTime).toLong())
                 .setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator?) {
+                    override fun onAnimationEnd(animation: Animator) {
                         gone()
                         onAnimationEnd?.invoke()
                     }

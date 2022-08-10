@@ -35,8 +35,6 @@ class AboutAppFragment : Fragment(), SettingsScreen {
 
     private val appRatingFF: FeatureFlag by inject(appRatingFeatureFlag)
 
-    override fun onBackPressed(): Boolean = true
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

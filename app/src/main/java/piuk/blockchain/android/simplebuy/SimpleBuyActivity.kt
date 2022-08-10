@@ -43,6 +43,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_REFRESH_REQUIRED
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
+import piuk.blockchain.android.ui.backup.BackupWalletActivity.Companion.startForResult
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
@@ -143,7 +144,7 @@ class SimpleBuyActivity :
         setContentView(binding.root)
         updateToolbar(
             toolbarTitle = getString(R.string.common_buy),
-            backAction = { super.onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
@@ -337,7 +338,7 @@ class SimpleBuyActivity :
         KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, KYC_STARTED)
     }
 
-    override fun pop() = onBackPressed()
+    override fun pop() = onBackPressedDispatcher.onBackPressed()
 
     override fun hasMoreThanOneFragmentInTheStack(): Boolean =
         supportFragmentManager.backStackEntryCount > 1
@@ -357,7 +358,7 @@ class SimpleBuyActivity :
             .commitAllowingStateLoss()
     }
 
-    override fun onSupportNavigateUp(): Boolean = consume { onBackPressed() }
+    override fun onSupportNavigateUp(): Boolean = consume { onBackPressedDispatcher.onBackPressed() }
 
     override fun showLoading() = binding.progress.visible()
 

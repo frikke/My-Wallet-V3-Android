@@ -80,6 +80,4 @@ class RecurringBuyFirstTimeBuyerFragment :
         )
 
     override fun onSheetClosed() {}
-
-    override fun onBackPressed(): Boolean = true
 }

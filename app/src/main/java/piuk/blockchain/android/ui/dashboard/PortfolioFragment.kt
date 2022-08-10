@@ -123,8 +123,6 @@ class PortfolioFragment :
 
     override val model: DashboardModel by scopedInject()
 
-    override fun onBackPressed(): Boolean = false
-
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPortfolioBinding =
         FragmentPortfolioBinding.inflate(inflater, container, false)
 

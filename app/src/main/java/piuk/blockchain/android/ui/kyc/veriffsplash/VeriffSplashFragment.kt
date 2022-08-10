@@ -20,7 +20,6 @@ import com.blockchain.analytics.data.logEvent
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.coincore.AssetAction
-import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
@@ -57,8 +56,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class VeriffSplashFragment :
     BaseFragment<VeriffSplashView, VeriffSplashPresenter>(),
-    VeriffSplashView,
-    FlowFragment {
+    VeriffSplashView {
 
     private var _binding: FragmentKycVeriffSplashBinding? = null
     private val binding: FragmentKycVeriffSplashBinding
@@ -293,8 +291,6 @@ class VeriffSplashFragment :
     private fun showEmptyState() {
         throw IllegalStateException("UiState == EMPTY. This should never happen")
     }
-
-    override fun onBackPressed(): Boolean = true
 
     companion object {
         private const val REQUEST_CODE_VERIFF = 1440

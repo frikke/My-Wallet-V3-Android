@@ -154,8 +154,6 @@ class SimpleBuyCryptoFragment :
         (activity as? SimpleBuyNavigator)
             ?: throw IllegalStateException("Parent must implement SimpleBuyNavigator")
 
-    override fun onBackPressed(): Boolean = true
-
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimpleBuyBuyCryptoBinding =
         FragmentSimpleBuyBuyCryptoBinding.inflate(inflater, container, false)
 
@@ -172,7 +170,7 @@ class SimpleBuyCryptoFragment :
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         activity.updateToolbar(
             toolbarTitle = getString(R.string.tx_title_buy, asset.displayTicker),
-            backAction = { activity.onBackPressed() }
+            backAction = { activity.onBackPressedDispatcher.onBackPressed() }
         )
         model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, fiatCurrency))
         model.process(

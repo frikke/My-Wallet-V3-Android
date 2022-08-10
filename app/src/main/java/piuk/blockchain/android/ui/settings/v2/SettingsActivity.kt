@@ -9,7 +9,6 @@ import com.blockchain.api.services.ContactPreference
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -95,7 +94,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
     private fun setupToolbar() {
         updateToolbar(
             toolbarTitle = getString(R.string.toolbar_settings),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         setupSupportButton()
     }
@@ -269,7 +268,7 @@ interface SettingsNavigator {
     fun goToReferralCode(referral: ReferralInfo.Data)
 }
 
-interface SettingsScreen : FlowFragment {
+interface SettingsScreen {
     fun navigator(): SettingsNavigator
 }
 

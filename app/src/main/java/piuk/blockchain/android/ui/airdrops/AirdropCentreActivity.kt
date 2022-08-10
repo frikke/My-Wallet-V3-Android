@@ -44,7 +44,7 @@ class AirdropCentreActivity :
         setContentView(binding.root)
         updateToolbar(
             toolbarTitle = getString(R.string.airdrop_activity_title),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         binding.airdropList.layoutManager = LinearLayoutManager(this)
     }

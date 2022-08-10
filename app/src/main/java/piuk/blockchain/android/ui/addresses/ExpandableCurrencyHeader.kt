@@ -44,6 +44,12 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : RelativeLayout(context, attrs), KoinComponent {
 
+    fun interface ExpandableCurrencyHeaderAnimationListener {
+        fun onHeaderAnimationEnd(isOpen: Boolean)
+    }
+
+    private var animationListener: ExpandableCurrencyHeaderAnimationListener? = null
+
     private lateinit var selectionListener: (AssetInfo) -> Unit
 
     private val analytics: Analytics by inject()
@@ -128,6 +134,10 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
         outlineProvider = CustomOutline(w, h)
     }
 
+    fun setAnimationListener(animationListener: ExpandableCurrencyHeaderAnimationListener) {
+        this.animationListener = animationListener
+    }
+
     fun setSelectionListener(selectionListener: (AssetInfo) -> Unit) {
         this.selectionListener = selectionListener
     }
@@ -187,6 +197,9 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
         animation.setAnimationListener {
             onAnimationEnd {
                 expanded = !expanded
+
+                animationListener?.onHeaderAnimationEnd(isOpen = expanded)
+
                 if (expanded) {
                     analytics.logEvent(AnalyticsEvents.OpenAssetsSelector)
                     binding.linearLayoutCoinSelection.visible()

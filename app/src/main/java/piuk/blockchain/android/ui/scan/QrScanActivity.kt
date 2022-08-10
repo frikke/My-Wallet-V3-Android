@@ -32,6 +32,7 @@ import android.view.MenuItem
 import android.view.Surface
 import android.view.View
 import android.view.WindowManager
+import androidx.activity.addCallback
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -73,6 +74,7 @@ import kotlin.math.min
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityScanBinding
+import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
@@ -178,6 +180,8 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
+
+        setupBackPress()
     }
 
     // handle reverse-mounted cameras on devices like the Nexus 5X
@@ -188,9 +192,15 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             else -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
         }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(owner = this) {
+            setResult(Activity.RESULT_CANCELED)
+            finish()
+        }
+    }
+
+    override fun onSupportNavigateUp(): Boolean = consume {
+        onBackPressedDispatcher.onBackPressed()
     }
 
     override fun onResume() {
@@ -274,10 +284,6 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         when (keyCode) {
-            KeyEvent.KEYCODE_BACK -> {
-                setResult(Activity.RESULT_CANCELED)
-                finish()
-            }
             KeyEvent.KEYCODE_FOCUS,
             KeyEvent.KEYCODE_CAMERA ->
                 // Handle these events so they don't launch the Camera app

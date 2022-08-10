@@ -1,6 +1,7 @@
 package piuk.blockchain.android.cards
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -27,6 +28,7 @@ import piuk.blockchain.android.databinding.FragmentCardVerificationBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.customviews.TransactionProgressView
+import piuk.blockchain.android.util.disableBackPress
 import timber.log.Timber
 
 class CardVerificationFragment :
@@ -42,6 +44,14 @@ class CardVerificationFragment :
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentCardVerificationBinding =
         FragmentCardVerificationBinding.inflate(inflater, container, false)
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        // this screen ui is mostly for loading so
+        // disable back press by leaving this empty
+        requireActivity().disableBackPress(owner = this)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -313,10 +323,6 @@ class CardVerificationFragment :
     override val cardDetailsPersistence: CardDetailsPersistence
         get() = (activity as? CardDetailsPersistence)
             ?: throw IllegalStateException("Parent must implement CardDetailsPersistence")
-
-    override fun onBackPressed(): Boolean = true
-
-    override fun backPressedHandled(): Boolean = true
 
     private fun PaymentForm.initCheckoutPaymentForm() {
         if (environmentConfig.environment == com.blockchain.enviroment.Environment.PRODUCTION) {

@@ -43,7 +43,7 @@ class ProfileActivity :
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        updateToolbarBackAction { onBackPressed() }
+        updateToolbarBackAction { onBackPressedDispatcher.onBackPressed() }
 
         supportFragmentManager.showFragment(
             fragment = ProfileFragment.newInstance(basicProfileInfo, userTier),

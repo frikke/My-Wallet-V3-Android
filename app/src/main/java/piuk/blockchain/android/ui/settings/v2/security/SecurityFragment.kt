@@ -60,8 +60,6 @@ class SecurityFragment :
             "Parent must implement SettingsNavigator"
         )
 
-    override fun onBackPressed(): Boolean = true
-
     override val model: SecurityModel by scopedInject()
 
     private val biometricsController: BiometricsController by scopedInject()

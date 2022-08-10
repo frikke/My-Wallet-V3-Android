@@ -115,8 +115,6 @@ class SettingsFragment :
             "Parent must implement SettingsNavigator"
         )
 
-    override fun onBackPressed(): Boolean = true
-
     override fun onResume() {
         super.onResume()
         model.process(SettingsIntent.LoadHeaderInformation)

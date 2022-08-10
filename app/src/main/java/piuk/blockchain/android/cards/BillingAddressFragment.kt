@@ -166,8 +166,6 @@ class BillingAddressFragment :
         get() = (activity as? AddCardNavigator)
             ?: throw IllegalStateException("Parent must implement AddCardNavigator")
 
-    override fun onBackPressed(): Boolean = true
-
     override fun render(newState: CardState) {
         if (newState.addCard) {
             navigator.navigateToCardVerification()
