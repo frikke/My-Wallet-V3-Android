@@ -15,7 +15,7 @@ import info.blockchain.balance.percentageDelta
 import info.blockchain.balance.total
 import java.io.Serializable
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
-import piuk.blockchain.android.ui.cowboys.CowboysAnnouncementInfo
+import piuk.blockchain.android.ui.cowboys.CowboysInfo
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.DASHBOARD_FIAT_ASSETS
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.LOCKS_INDEX
@@ -101,9 +101,9 @@ sealed class DashboardOnboardingState {
 }
 
 sealed class DashboardCowboysState {
-    class CowboyWelcomeCard(val cardInfo: CowboysAnnouncementInfo) : DashboardCowboysState()
-    class CowboyRaffleCard(val cardInfo: CowboysAnnouncementInfo) : DashboardCowboysState()
-    class CowboyIdentityCard(val cardInfo: CowboysAnnouncementInfo) : DashboardCowboysState()
+    class CowboyWelcomeCard(val cardInfo: CowboysInfo) : DashboardCowboysState()
+    class CowboyRaffleCard(val cardInfo: CowboysInfo) : DashboardCowboysState()
+    class CowboyIdentityCard(val cardInfo: CowboysInfo) : DashboardCowboysState()
     object Hidden : DashboardCowboysState()
 }
 

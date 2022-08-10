@@ -95,7 +95,7 @@ data class NabuUser(
 
     companion object {
         private const val POWER_PAX_TAG = "POWER_PAX"
-        private const val COWBOYS_TAG = "COWBOYS_TAG"
+        private const val COWBOYS_TAG = "COWBOYS_2022"
     }
 }
 

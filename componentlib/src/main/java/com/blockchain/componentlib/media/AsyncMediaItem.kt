@@ -3,17 +3,16 @@
 package com.blockchain.componentlib.media
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.AsyncImage
 import coil.imageLoader
 import coil.request.ImageRequest
-import coil.size.Size
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -28,11 +27,12 @@ import com.blockchain.componentlib.theme.AppTheme
 fun AsyncMediaItem(
     modifier: Modifier = Modifier,
     url: String,
-    contentDescription: String,
+    contentDescription: String?,
+    contentScale: ContentScale = ContentScale.Fit
 ) {
     val context = LocalContext.current
 
-    Column(Modifier.fillMaxSize()) {
+    Column(modifier = modifier) {
         when (url.getUrlType()) {
             UrlType.MP4.name,
             UrlType.WAV.name,
@@ -53,7 +53,8 @@ fun AsyncMediaItem(
                 )
 
                 LottieAnimation(
-                    composition,
+                    modifier = modifier,
+                    composition = composition,
                     iterations = LottieConstants.IterateForever,
                 )
             }
@@ -61,11 +62,9 @@ fun AsyncMediaItem(
             UrlType.PNG.name,
             UrlType.GIF.name,
             UrlType.SVG.name -> {
-
                 val imageRequest = ImageRequest.Builder(context)
                     .data(url)
-                    .size(Size.ORIGINAL)
-                    .placeholder(R.drawable.loader_background)
+                    .placeholder(R.drawable.bkgd_grey_900_rounded)
                     .error(R.drawable.ic_error)
                     .crossfade(true)
                     .build()
@@ -74,7 +73,9 @@ fun AsyncMediaItem(
 
                 AsyncImage(
                     model = imageRequest,
-                    contentDescription = contentDescription
+                    modifier = modifier,
+                    contentDescription = contentDescription,
+                    contentScale = contentScale
                 )
             }
         }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -22,18 +23,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.annotation.ExperimentalCoilApi
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
-import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey800
 import com.blockchain.componentlib.theme.Grey900
 
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun CustomBackgroundCard(
+    modifier: Modifier = Modifier,
     title: String,
     subtitle: String,
     iconResource: ImageResource = ImageResource.None,
@@ -41,7 +45,9 @@ fun CustomBackgroundCard(
     isCloseable: Boolean = true,
     onClose: () -> Unit = {},
     onClick: () -> Unit = {},
-    isDarkTheme: Boolean = isSystemInDarkTheme()
+    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    textColor: Color = Color.White,
+    contentScale: ContentScale = ContentScale.Fit
 ) {
 
     val backgroundColor = if (!isDarkTheme) {
@@ -54,21 +60,33 @@ fun CustomBackgroundCard(
         modifier = Modifier
             .padding(2.dp)
             .shadow(2.dp, AppTheme.shapes.medium)
+            .wrapContentHeight()
             .clickable(onClick = onClick)
             .defaultMinSize(minWidth = 340.dp)
             .background(color = backgroundColor, shape = AppTheme.shapes.medium)
     ) {
-        // TODO(dserrano): Change this to AsyncImage when ready
-        Image(
-            modifier = Modifier
-                .alpha(0.9f)
-                .clipToBounds()
-                .matchParentSize()
-                .padding(bottom = 25.dp)
-                .align(Alignment.Center),
-            contentScale = ContentScale.Inside,
-            imageResource = backgroundResource
-        )
+        if (backgroundResource is ImageResource.Remote) {
+            AsyncMediaItem(
+                modifier = modifier
+                    .alpha(0.9f)
+                    .clipToBounds()
+                    .matchParentSize()
+                    .align(Alignment.Center),
+                url = backgroundResource.url,
+                contentDescription = "",
+                contentScale = ContentScale.FillWidth
+            )
+        } else {
+            Image(
+                modifier = modifier
+                    .alpha(0.9f)
+                    .clipToBounds()
+                    .matchParentSize()
+                    .align(Alignment.Center),
+                contentScale = ContentScale.FillWidth,
+                imageResource = backgroundResource
+            )
+        }
 
         Surface(
             modifier = Modifier
@@ -86,11 +104,20 @@ fun CustomBackgroundCard(
                     .background(Color.Transparent),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    modifier = Modifier
-                        .size(dimensionResource(R.dimen.large_margin)),
-                    imageResource = iconResource
-                )
+                if (iconResource is ImageResource.Remote) {
+                    AsyncMediaItem(
+                        modifier = Modifier.size(dimensionResource(R.dimen.large_margin)),
+                        url = iconResource.url,
+                        contentDescription = "",
+                        contentScale = ContentScale.Inside,
+                    )
+                } else {
+                    Image(
+                        modifier = Modifier.size(dimensionResource(R.dimen.large_margin)),
+                        contentScale = ContentScale.Inside,
+                        imageResource = iconResource
+                    )
+                }
 
                 Column(
                     modifier = Modifier
@@ -102,13 +129,13 @@ fun CustomBackgroundCard(
                     Text(
                         text = title,
                         style = AppTheme.typography.caption1,
-                        color = Grey100
+                        color = textColor
                     )
 
                     Text(
                         text = subtitle,
                         style = AppTheme.typography.paragraph2,
-                        color = Color.White
+                        color = textColor
                     )
                 }
 
@@ -150,6 +177,27 @@ fun CustomBackgroundCard_Closeable() {
                 subtitle = "Subtitle",
                 iconResource = ImageResource.Local(R.drawable.ic_star),
                 backgroundResource = ImageResource.Local(R.drawable.ic_blockchain_logo_with_text),
+                isCloseable = true
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun CustomBackgroundCard_Remote() {
+    AppTheme {
+        AppSurface {
+            CustomBackgroundCard(
+                title = "Title",
+                subtitle = "Subtitle",
+                iconResource = ImageResource.Remote(
+                    "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com/o/announcement.png"
+                ),
+                backgroundResource = ImageResource.Remote(
+                    "https://firebasestorage.googleapis.com/v0/b/" +
+                        "fir-staging-92d79.appspot.com/o/icon-cowboys-circle.svg?"
+                ),
                 isCloseable = true
             )
         }

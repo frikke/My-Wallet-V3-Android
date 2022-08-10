@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.layout.ContentScale
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -24,6 +25,7 @@ class CustomBackgroundCardView @JvmOverloads constructor(
     var backgroundResource: ImageResource by mutableStateOf(ImageResource.None)
     var isCloseable: Boolean by mutableStateOf(true)
     var onClick: () -> Unit by mutableStateOf({})
+    var contentScale by mutableStateOf(ContentScale.Fit)
 
     @Composable
     override fun Content() {
@@ -36,7 +38,8 @@ class CustomBackgroundCardView @JvmOverloads constructor(
                     onClose = onClose,
                     backgroundResource = backgroundResource,
                     isCloseable = isCloseable,
-                    onClick = onClick
+                    onClick = onClick,
+                    contentScale = contentScale
                 )
             }
         }

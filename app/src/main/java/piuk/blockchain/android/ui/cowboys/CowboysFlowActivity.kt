@@ -5,8 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.Divider
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,19 +14,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import coil.annotation.ExperimentalCoilApi
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
-import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.media.AsyncMediaItem
+import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.BUY_URL
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.KYC_URL
@@ -50,9 +53,9 @@ import timber.log.Timber
 class CowboysFlowActivity : BlockchainActivity() {
 
     private var flowStep = FlowStep.Welcome
-    private var interstitialData by mutableStateOf<CowboysInterstitialInfo?>(null)
+    private var interstitialData by mutableStateOf<CowboysInfo?>(null)
     private val assetCatalogue: AssetCatalogue by scopedInject()
-    private val cowboysDataProvider: CowboysDataProvider by scopedInject()
+    private val cowboysDataProvider: CowboysPromoDataProvider by scopedInject()
     private val compositeDisposable = CompositeDisposable()
 
     private val simpleBuyActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -202,71 +205,84 @@ class CowboysFlowActivity : BlockchainActivity() {
     }
 }
 
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun CowboysInterstitial(
-    info: CowboysInterstitialInfo,
+    info: CowboysInfo,
     onPrimaryCtaClick: () -> Unit,
     onSecondaryCtaClick: () -> Unit
 ) {
     ConstraintLayout {
-        val (
-            primaryButton, secondaryButton, icon, backgroundImage,
-            divider, foregroundImage, title, subtitle
-        ) = createRefs()
+        val (primaryButton, secondaryButton, icon, backgroundImage, foregroundImage, title, subtitle) = createRefs()
 
-        // TODO(dserrano): Change this to AsyncImage when ready
-        Image(
+        AsyncMediaItem(
             modifier = Modifier.constrainAs(backgroundImage) {
                 top.linkTo(parent.top)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
+                bottom.linkTo(parent.bottom)
+                width = Dimension.fillToConstraints
             },
-            imageResource = ImageResource.Local(R.drawable.ic_temp_cowboys_background),
-            contentScale = ContentScale.FillWidth
+            url = info.backgroundUrl,
+            contentScale = ContentScale.FillWidth,
+            contentDescription = "cowboys background"
         )
 
-        Image(
-            modifier = Modifier.constrainAs(foregroundImage) {
-                top.linkTo(parent.top, margin = 48.dp)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            },
-            imageResource = ImageResource.Local(R.drawable.ic_temp_cowboys_header),
-            contentScale = ContentScale.Fit
-        )
+        if (info.headerUrl.isNotEmpty()) {
+            AsyncMediaItem(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .constrainAs(foregroundImage) {
+                        top.linkTo(parent.top, margin = 32.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(
+                            if (info.iconUrl.isNotEmpty()) {
+                                icon.top
+                            } else {
+                                title.top
+                            }
+                        )
+                        width = Dimension.fillToConstraints
+                    },
+                url = info.headerUrl,
+                contentDescription = "cowboys header"
+            )
+        }
 
-        Divider(
-            modifier = Modifier
-                .width(24.dp)
-                .constrainAs(divider) {
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    top.linkTo(foregroundImage.bottom, margin = 16.dp)
-                }
-        )
-
-        // icon
-        //        Image(
-        //            modifier = Modifier.constrainAs(icon) {
-        //                top.linkTo(divider.bottom, margin = 16.dp)
-        //                start.linkTo(parent.start)
-        //                end.linkTo(parent.end)
-        //                bottom.linkTo(backgroundImage.bottom)
-        //            },
-        //            imageResource = ImageResource.Local(R.drawable.ic_temp_cowboys_icon)
-        //        )
+        if (info.iconUrl.isNotEmpty()) {
+            AsyncMediaItem(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .constrainAs(icon) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    },
+                url = info.iconUrl,
+                contentDescription = "cowboys icon"
+            )
+        }
 
         SimpleText(
             modifier = Modifier
                 .padding(start = 24.dp, end = 24.dp)
                 .constrainAs(title) {
-                    top.linkTo(backgroundImage.bottom, margin = 16.dp)
+                    top.linkTo(
+                        if (info.iconUrl.isNotEmpty()) {
+                            icon.bottom
+                        } else {
+                            foregroundImage.bottom
+                        }
+                    )
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
+                    bottom.linkTo(subtitle.top, margin = 8.dp)
                 },
             text = info.title,
             style = ComposeTypographies.Title1,
-            color = ComposeColors.Title,
+            color = ComposeColors.Light,
             gravity = ComposeGravities.Centre
         )
 
@@ -277,24 +293,24 @@ fun CowboysInterstitial(
                     top.linkTo(title.bottom, margin = 16.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    // bottom.linkTo(primaryButton.top)
+                    bottom.linkTo(primaryButton.top, margin = 16.dp)
                 },
             text = info.message,
             style = ComposeTypographies.Body1,
-            color = ComposeColors.Body,
+            color = ComposeColors.Light,
             gravity = ComposeGravities.Centre
+        )
+
+        createVerticalChain(
+            foregroundImage, icon, title, subtitle,
+            chainStyle = ChainStyle.Packed(0f)
         )
 
         if (info.actions.isNotEmpty()) {
             PrimaryButton(
                 modifier = Modifier
                     .constrainAs(primaryButton) {
-                        if (info.actions.size == 2) {
-                            bottom.linkTo(secondaryButton.top, margin = 16.dp)
-                        } else {
-                            bottom.linkTo(parent.bottom, margin = 24.dp)
-                        }
-
+                        bottom.linkTo(secondaryButton.top, margin = 16.dp)
                         start.linkTo(parent.start, margin = 24.dp)
                         end.linkTo(parent.end, margin = 24.dp)
                         width = Dimension.fillToConstraints
@@ -303,19 +319,21 @@ fun CowboysInterstitial(
                 onClick = onPrimaryCtaClick
             )
 
-            if (info.actions.size == 2) {
-                MinimalButton(
-                    modifier = Modifier
-                        .constrainAs(secondaryButton) {
-                            bottom.linkTo(parent.bottom, margin = 24.dp)
-                            start.linkTo(parent.start, margin = 24.dp)
-                            end.linkTo(parent.end, margin = 24.dp)
-                            width = Dimension.fillToConstraints
-                        },
-                    text = info.actions[1].title,
-                    onClick = onSecondaryCtaClick
-                )
-            }
+            MinimalButton(
+                modifier = Modifier
+                    .constrainAs(secondaryButton) {
+                        bottom.linkTo(parent.bottom, margin = 24.dp)
+                        start.linkTo(parent.start, margin = 24.dp)
+                        end.linkTo(parent.end, margin = 24.dp)
+                        width = Dimension.fillToConstraints
+                    },
+                text = if (info.actions.size == 2) {
+                    info.actions[1].title
+                } else {
+                    stringResource(R.string.common_maybe_later)
+                },
+                onClick = onSecondaryCtaClick
+            )
         }
     }
 }
@@ -323,20 +341,29 @@ fun CowboysInterstitial(
 @Preview
 @Composable
 fun CowboysInterstitial() {
-    CowboysInterstitial(
-        info = CowboysInterstitialInfo(
-            "Welcome cowboys",
-            "some longer text here to see how it looks",
-            "", "", "",
-            listOf(
-                ServerErrorAction(
-                    "primary cta", ""
+    AppTheme {
+        AppSurface {
+            CowboysInterstitial(
+                info = CowboysInfo(
+                    title = "Welcome cowboys",
+                    message = "some longer text here to see how it looks",
+                    iconUrl = "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com/o/" +
+                        "announcement.png?alt=media&token=7fa38942-64ed-49ea-ab42-21e5e3ed9afd",
+                    headerUrl = "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com/o/" +
+                        "icon-cowboys-circle.svg?alt=media&token=c526e63a-de56-4668-85eb-ecc402c35feb",
+                    backgroundUrl = "",
+                    foregroundColorScheme = emptyList(),
+                    actions = listOf(
+                        ServerErrorAction(
+                            "primary cta", ""
+                        ),
+                        ServerErrorAction(
+                            "secondary cta", ""
+                        )
+                    )
                 ),
-                ServerErrorAction(
-                    "secondary cta", ""
-                )
+                onPrimaryCtaClick = { }, onSecondaryCtaClick = {}
             )
-        ),
-        onPrimaryCtaClick = { }, onSecondaryCtaClick = {}
-    )
+        }
+    }
 }

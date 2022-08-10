@@ -6,7 +6,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
-import piuk.blockchain.android.ui.cowboys.CowboysDataProvider
+import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewInteractor
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewModel
@@ -146,7 +146,7 @@ val dashboardModule = module {
         scoped { WalletModeBalanceCache(coincore = get()) }
 
         scoped {
-            CowboysDataProvider(
+            CowboysPromoDataProvider(
                 config = get(),
                 json = get()
             )

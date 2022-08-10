@@ -55,8 +55,8 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
-import piuk.blockchain.android.ui.cowboys.CowboysAnnouncementInfo
 import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
+import piuk.blockchain.android.ui.cowboys.CowboysInfo
 import piuk.blockchain.android.ui.cowboys.FlowStep
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
@@ -508,6 +508,15 @@ class PortfolioFragment :
                             )
                         }
                     )
+                is DashboardCowboysState.CowboyRaffleCard ->
+                    showCowboysCard(
+                        cardInfo = cowboysState.cardInfo,
+                        onClick = {
+                            startActivity(
+                                CowboysFlowActivity.newIntent(requireContext(), FlowStep.Welcome)
+                            )
+                        }
+                    )
                 is DashboardCowboysState.CowboyIdentityCard ->
                     showCowboysCard(
                         cardInfo = cowboysState.cardInfo,
@@ -515,15 +524,10 @@ class PortfolioFragment :
                             startActivity(
                                 CowboysFlowActivity.newIntent(requireContext(), FlowStep.Verify)
                             )
-                        }
-                    )
-                is DashboardCowboysState.CowboyRaffleCard ->
-                    showCowboysCard(
-                        cardInfo = cowboysState.cardInfo,
-                        onClick = {
-                            startActivity(
-                                CowboysFlowActivity.newIntent(requireContext(), FlowStep.Raffle)
-                            )
+                        },
+                        isDismissable = true,
+                        onDismiss = {
+                            gone()
                         }
                     )
                 is DashboardCowboysState.Hidden -> gone()
@@ -531,14 +535,20 @@ class PortfolioFragment :
         }
     }
 
-    private fun CustomBackgroundCardView.showCowboysCard(cardInfo: CowboysAnnouncementInfo, onClick: () -> Unit) {
+    private fun CustomBackgroundCardView.showCowboysCard(
+        cardInfo: CowboysInfo,
+        onClick: () -> Unit,
+        isDismissable: Boolean = false,
+        onDismiss: () -> Unit = {}
+    ) {
         visible()
         title = cardInfo.title
         subtitle = cardInfo.message
-        backgroundResource = ImageResource.Local(R.drawable.ic_temp_cowboys_header)
-        iconResource = ImageResource.Local(R.drawable.ic_temp_cowboys_icon)
-        isCloseable = false
+        backgroundResource = ImageResource.Remote(cardInfo.backgroundUrl)
+        iconResource = ImageResource.Remote(cardInfo.iconUrl)
+        isCloseable = isDismissable
         this.onClick = onClick
+        onClose = onDismiss
     }
 
     private fun setupCtaButtons(state: DashboardState) {

@@ -69,7 +69,7 @@ import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCas
 import piuk.blockchain.android.simplebuy.DepositMethodOptionsViewed
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.WithdrawMethodOptionsViewed
-import piuk.blockchain.android.ui.cowboys.CowboysDataProvider
+import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
@@ -104,7 +104,7 @@ class DashboardActionInteractor(
     private val referralPrefs: ReferralPrefs,
     private val cowboysFeatureFlag: FeatureFlag,
     private val settingsDataManager: SettingsDataManager,
-    private val cowboysDataProvider: CowboysDataProvider
+    private val cowboysDataProvider: CowboysPromoDataProvider
 ) {
 
     private val defFilter: AssetFilter

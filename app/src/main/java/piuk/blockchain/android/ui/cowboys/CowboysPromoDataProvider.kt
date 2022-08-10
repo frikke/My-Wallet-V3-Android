@@ -8,39 +8,39 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-class CowboysDataProvider(
+class CowboysPromoDataProvider(
     private val config: RemoteConfig,
     private val json: Json
 ) {
 
-    fun getWelcomeInterstitial(): Single<CowboysInterstitialInfo> =
+    fun getWelcomeInterstitial(): Single<CowboysInfo> =
         config.getRawJson(KEY_INTERSTITIAL_WELCOME).map { data ->
-            json.decodeFromString<CowboysInterstitialData>(data).toDomain()
+            json.decodeFromString<CowboysData>(data).toDomain()
         }
 
-    fun getRaffleInterstitial(): Single<CowboysInterstitialInfo> =
+    fun getRaffleInterstitial(): Single<CowboysInfo> =
         config.getRawJson(KEY_INTERSTITIAL_RAFFLE).map { data ->
-            json.decodeFromString<CowboysInterstitialData>(data).toDomain()
+            json.decodeFromString<CowboysData>(data).toDomain()
         }
 
-    fun getIdentityInterstitial(): Single<CowboysInterstitialInfo> =
+    fun getIdentityInterstitial(): Single<CowboysInfo> =
         config.getRawJson(KEY_INTERSTITIAL_IDENTITY).map { data ->
-            json.decodeFromString<CowboysInterstitialData>(data).toDomain()
+            json.decodeFromString<CowboysData>(data).toDomain()
         }
 
-    fun getWelcomeAnnouncement(): Single<CowboysAnnouncementInfo> =
+    fun getWelcomeAnnouncement(): Single<CowboysInfo> =
         config.getRawJson(KEY_ANNOUNCEMENT_WELCOME).map { data ->
-            json.decodeFromString<CowboysAnnouncementData>(data).toDomain()
+            json.decodeFromString<CowboysData>(data).toDomain()
         }
 
-    fun getRaffleAnnouncement(): Single<CowboysAnnouncementInfo> =
+    fun getRaffleAnnouncement(): Single<CowboysInfo> =
         config.getRawJson(KEY_ANNOUNCEMENT_RAFFLE).map { data ->
-            json.decodeFromString<CowboysAnnouncementData>(data).toDomain()
+            json.decodeFromString<CowboysData>(data).toDomain()
         }
 
-    fun getIdentityAnnouncement(): Single<CowboysAnnouncementInfo> =
+    fun getIdentityAnnouncement(): Single<CowboysInfo> =
         config.getRawJson(KEY_ANNOUNCEMENT_IDENTITY).map { data ->
-            json.decodeFromString<CowboysAnnouncementData>(data).toDomain()
+            json.decodeFromString<CowboysData>(data).toDomain()
         }
 
     companion object {
@@ -60,58 +60,33 @@ enum class FlowStep {
     Verify
 }
 
-data class CowboysInterstitialInfo(
+data class CowboysInfo(
     val title: String,
     val message: String,
     val iconUrl: String,
+    val headerUrl: String,
     val backgroundUrl: String,
-    val foregroundUrl: String,
-    val actions: List<ServerErrorAction>
-)
-
-data class CowboysAnnouncementInfo(
-    val title: String,
-    val message: String,
-    val iconUrl: String,
+    val foregroundColorScheme: List<Float>,
     val actions: List<ServerErrorAction>
 )
 
 @Serializable
-private data class CowboysAnnouncementData(
+private data class CowboysData(
     val title: String,
     val message: String,
-    val icon: UrlInfo,
-    val actions: List<ActionData>
-) {
-    fun toDomain(): CowboysAnnouncementInfo =
-        CowboysAnnouncementInfo(
-            title = title,
-            message = message,
-            iconUrl = icon.url,
-            actions = actions.map {
-                ServerErrorAction(
-                    it.title,
-                    it.url.orEmpty()
-                )
-            }
-        )
-}
-
-@Serializable
-private data class CowboysInterstitialData(
-    val title: String,
-    val message: String,
-    val icon: UrlInfo,
+    val header: MediaInfo?,
+    val icon: UrlInfo?,
     val style: StyleInfo,
     val actions: List<ActionData>
 ) {
-    fun toDomain(): CowboysInterstitialInfo =
-        CowboysInterstitialInfo(
+    fun toDomain(): CowboysInfo =
+        CowboysInfo(
             title = title,
             message = message,
-            iconUrl = icon.url,
-            backgroundUrl = style.background.media.url,
-            foregroundUrl = style.foreground.media.url,
+            iconUrl = icon?.url.orEmpty(),
+            headerUrl = header?.media?.url.orEmpty(),
+            backgroundUrl = style.background?.media?.url.orEmpty(),
+            foregroundColorScheme = style.foreground?.color?.hsb ?: emptyList(),
             actions = actions.map {
                 ServerErrorAction(
                     it.title,
@@ -123,8 +98,8 @@ private data class CowboysInterstitialData(
 
 @Serializable
 private data class StyleInfo(
-    val background: MediaInfo,
-    val foreground: MediaInfo
+    val background: MediaInfo?,
+    val foreground: ColorInfo?
 )
 
 @Serializable
@@ -135,4 +110,14 @@ private data class MediaInfo(
 @Serializable
 private data class UrlInfo(
     val url: String
+)
+
+@Serializable
+private data class ColorInfo(
+    val color: HSBInfo
+)
+
+@Serializable
+private data class HSBInfo(
+    val hsb: List<Float>
 )

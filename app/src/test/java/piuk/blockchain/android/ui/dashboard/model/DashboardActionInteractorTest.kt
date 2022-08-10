@@ -42,8 +42,8 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.cowboys.CowboysAnnouncementInfo
-import piuk.blockchain.android.ui.cowboys.CowboysDataProvider
+import piuk.blockchain.android.ui.cowboys.CowboysInfo
+import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
@@ -66,7 +66,7 @@ class DashboardActionInteractorTest {
     private val referralPrefs: ReferralPrefs = mock()
     private val cowboysFeatureFlag: FeatureFlag = mock()
     private val settingsDataManager: SettingsDataManager = mock()
-    private val cowboysDataProvider: CowboysDataProvider = mock()
+    private val cowboysDataProvider: CowboysPromoDataProvider = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -507,8 +507,8 @@ class DashboardActionInteractorTest {
         val settings: Settings = mock()
         whenever(settings.isEmailVerified).thenReturn(false)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
-        val data = CowboysAnnouncementInfo(
-            "title", "message", "", emptyList()
+        val data = CowboysInfo(
+            "title", "message", "", "", "", emptyList(), emptyList()
         )
         whenever(cowboysDataProvider.getWelcomeAnnouncement()).thenReturn(Single.just(data))
 
@@ -535,8 +535,8 @@ class DashboardActionInteractorTest {
     fun `given cowboys check when flag is on, user is tagged, email verified but bronze kyc then view state is verify SDD`() {
         whenever(cowboysFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(userIdentity.isCowboysUser()).thenReturn(Single.just(true))
-        val data = CowboysAnnouncementInfo(
-            "title", "message", "", emptyList()
+        val data = CowboysInfo(
+            "title", "message", "", "", "", emptyList(), emptyList()
         )
         whenever(cowboysDataProvider.getRaffleAnnouncement()).thenReturn(Single.just(data))
 
@@ -573,8 +573,8 @@ class DashboardActionInteractorTest {
         whenever(userIdentity.isCowboysUser()).thenReturn(Single.just(true))
         val settings: Settings = mock()
         whenever(settings.isEmailVerified).thenReturn(true)
-        val data = CowboysAnnouncementInfo(
-            "title", "message", "", emptyList()
+        val data = CowboysInfo(
+            "title", "message", "", "", "", emptyList(), emptyList()
         )
         whenever(cowboysDataProvider.getIdentityAnnouncement()).thenReturn(Single.just(data))
 

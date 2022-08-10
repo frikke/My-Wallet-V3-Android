@@ -419,8 +419,7 @@ class MainActivity :
             }
             SETTINGS_EDIT,
             ACCOUNT_EDIT,
-            KYC_STARTED,
-            -> {
+            KYC_STARTED -> {
                 // Reset state in case of changing currency etc
                 launchPortfolio()
 
