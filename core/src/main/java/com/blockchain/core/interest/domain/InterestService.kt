@@ -130,6 +130,14 @@ interface InterestService {
     fun getInterestRate(asset: AssetInfo): Single<Double>
 
     /**
+     * Returns the interest rate for [asset]
+     */
+    fun getInterestRateFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Double>>
+
+    /**
      * Returns the address for [asset]
      */
     fun getAddress(asset: AssetInfo): Single<String>

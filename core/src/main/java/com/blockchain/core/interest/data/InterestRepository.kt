@@ -10,6 +10,7 @@ import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStor
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.data.datasources.InterestEligibilityStore
 import com.blockchain.core.interest.data.datasources.InterestLimitsStore
+import com.blockchain.core.interest.data.datasources.InterestRateStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.domain.model.InterestActivity
@@ -19,6 +20,7 @@ import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
@@ -49,6 +51,7 @@ internal class InterestRepository(
     private val interestEligibilityStore: InterestEligibilityStore,
     private val interestAvailableAssetsStore: InterestAvailableAssetsStore,
     private val interestLimitsStore: InterestLimitsStore,
+    private val interestRateStore: InterestRateStore,
     private val currencyPrefs: CurrencyPrefs,
     private val authenticator: Authenticator,
     private val interestApiService: InterestApiService,
@@ -228,11 +231,13 @@ internal class InterestRepository(
 
     // rate
     override fun getInterestRate(asset: AssetInfo): Single<Double> {
-        return authenticator.authenticate { sessionToken ->
-            interestApiService.getInterestRates(sessionToken.authHeader, asset.networkTicker)
-                .map { interestRateResponse -> interestRateResponse.rate }
-                .defaultIfEmpty(0.0)
-        }
+        return getInterestRateFlow(asset)
+            .asObservable().firstOrError()
+    }
+
+    override fun getInterestRateFlow(asset: AssetInfo, refreshStrategy: FreshnessStrategy): Flow<DataResource<Double>> {
+        return interestRateStore.stream(refreshStrategy.withKey(InterestRateStore.Key(asset.networkTicker)))
+            .mapData { interestRateResponse -> interestRateResponse.rate }
     }
 
     // address

@@ -41,6 +41,8 @@ import com.blockchain.core.interest.data.InterestRepository
 import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.data.datasources.InterestEligibilityStore
+import com.blockchain.core.interest.data.datasources.InterestLimitsStore
+import com.blockchain.core.interest.data.datasources.InterestRateStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
@@ -93,7 +95,6 @@ import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
-import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -132,6 +133,7 @@ import piuk.blockchain.androidcore.utils.EncryptedPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.UUIDGenerator
+import java.util.UUID
 
 val coreModule = module {
 
@@ -236,13 +238,30 @@ val coreModule = module {
             )
         }
 
+        scoped {
+            InterestLimitsStore(
+                interestApiService = get(),
+                authenticator = get(),
+                currencyPrefs = get()
+            )
+        }
+
+        scoped {
+            InterestRateStore(
+                interestApiService = get(),
+                authenticator = get()
+            )
+        }
+
         scoped<InterestService> {
             InterestRepository(
                 assetCatalogue = get(),
                 interestBalancesStore = get(),
                 interestEligibilityStore = get(),
                 interestAvailableAssetsStore = get(),
-                interestLimitsTimedCache = get(),
+                interestLimitsStore = get(),
+                interestRateStore = get(),
+                currencyPrefs = get(),
                 authenticator = get(),
                 interestApiService = get(),
                 transactionsCache = get()
