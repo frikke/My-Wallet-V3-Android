@@ -871,15 +871,15 @@ class SimpleBuyCheckoutFragment :
                 googlePayPayload = token,
                 googlePayAddress = address?.let {
                     GooglePayAddress(
-                        address1 = it.address1,
-                        address2 = it.address2,
-                        address3 = it.address3,
-                        administrativeArea = it.administrativeArea,
-                        countryCode = it.countryCode,
-                        locality = it.locality,
-                        name = it.name,
-                        postalCode = it.postalCode,
-                        sortingCode = it.sortingCode
+                        address1 = it.address1.orEmpty(),
+                        address2 = it.address2.orEmpty(),
+                        address3 = it.address3.orEmpty(),
+                        administrativeArea = it.administrativeArea.orEmpty(),
+                        countryCode = it.countryCode.orEmpty(),
+                        locality = it.locality.orEmpty(),
+                        name = it.name.orEmpty(),
+                        postalCode = it.postalCode.orEmpty(),
+                        sortingCode = it.sortingCode.orEmpty()
                     )
                 }
             )
