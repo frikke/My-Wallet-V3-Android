@@ -16,6 +16,7 @@ import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
+import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
@@ -308,15 +309,23 @@ class DashboardActionInteractor(
 
     fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable =
         if (asset.startDate != null) {
-            coincore[asset].lastDayTrend()
+            coincore[asset].lastDayTrend().asObservable()
         } else {
-            Single.just(FLATLINE_CHART)
-        }.map { lastDayTrend ->
-            DashboardIntent.PriceHistoryUpdate(asset, lastDayTrend)
+            Observable.just(DataResource.Data(FLATLINE_CHART))
         }
             .subscribeBy(
-                onSuccess = { model.process(it) },
-                onError = { Timber.e(it) }
+                onNext = { dataResource ->
+                    when (dataResource) {
+                        is DataResource.Data -> {
+                            model.process(DashboardIntent.PriceHistoryUpdate(asset, dataResource.data))
+                        }
+                        is DataResource.Error -> {
+                            Timber.e(dataResource.error)
+                        }
+                        DataResource.Loading -> {
+                        }
+                    }
+                }
             )
 
     fun hasUserBackedUp(): Single<Boolean> = Single.just(payloadManager.isBackedUp)

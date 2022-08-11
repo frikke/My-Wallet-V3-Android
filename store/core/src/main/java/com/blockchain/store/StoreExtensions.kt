@@ -52,6 +52,15 @@ fun <T, R> Flow<DataResource<T>>.mapData(mapper: (T) -> R): Flow<DataResource<R>
         }
     }
 
+fun <T, R : Exception> Flow<DataResource<T>>.mapError(mapper: (Exception) -> R): Flow<DataResource<T>> =
+    map {
+        when (it) {
+            is DataResource.Data -> it
+            is DataResource.Error -> DataResource.Error(mapper(it.error))
+            is DataResource.Loading -> it
+        }
+    }
+
 fun <T, R> Flow<DataResource<List<T>>>.mapListData(mapper: (T) -> R): Flow<DataResource<List<R>>> =
     map {
         when (it) {
@@ -61,7 +70,7 @@ fun <T, R> Flow<DataResource<List<T>>>.mapListData(mapper: (T) -> R): Flow<DataR
         }
     }
 
-fun <T> Flow<DataResource< T>>.getDataOrThrow(): Flow<T> =
+fun <T> Flow<DataResource<T>>.getDataOrThrow(): Flow<T> =
     filterNot { it is DataResource.Loading }
         .map {
             when (it) {

@@ -70,16 +70,16 @@ internal class AssetPriceStore(
         ).findAssetOrError(base, quote)
             .distinctUntilChanged()
 
-    internal suspend fun getHistoricalPriceForAsset(
+    internal fun getHistoricalPriceForAsset(
         base: Currency,
         quote: Currency,
         timeSpan: HistoricalTimeSpan
-    ): Outcome<Exception, List<AssetPriceRecord>> = cache.stream(
+    ): Flow<DataResource<List<AssetPriceRecord>>> = cache.stream(
         KeyedFreshnessStrategy.Cached(
             key = AssetPriceStoreCache.Key.GetHistorical(base, quote.networkTicker, timeSpan),
             forceRefresh = false
         )
-    ).firstOutcome()
+    )
 
     fun getCachedAssetPrice(fromAsset: Currency, toFiat: Currency): AssetPriceRecord =
         quoteTickerToCurrentPrices[toFiat.networkTicker]

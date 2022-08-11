@@ -10,10 +10,10 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.data.DataResource
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -22,6 +22,8 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -73,15 +75,15 @@ class FiatAsset(
     override fun historicRate(epochWhen: Long): Single<ExchangeRate> =
         exchangeRates.getHistoricRate(currency, epochWhen)
 
-    override fun historicRateSeries(period: HistoricalTimeSpan): Single<HistoricalRateList> =
+    override fun historicRateSeries(period: HistoricalTimeSpan): Flow<DataResource<HistoricalRateList>> =
         currency.startDate?.let {
             exchangeRates.getHistoricPriceSeries(currency, period)
-        } ?: Single.just(emptyList())
+        } ?: flowOf(DataResource.Data(emptyList()))
 
-    override fun lastDayTrend(): Single<List<HistoricalRate>> {
+    override fun lastDayTrend(): Flow<DataResource<HistoricalRateList>> {
         return currency.startDate?.let {
             exchangeRates.get24hPriceSeries(currency)
-        } ?: Single.just(emptyList())
+        } ?: flowOf(DataResource.Data(emptyList()))
     }
 
     // we cannot transfer for fiat
