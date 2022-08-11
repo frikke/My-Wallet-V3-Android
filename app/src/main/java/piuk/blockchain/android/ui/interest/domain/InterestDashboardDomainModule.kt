@@ -8,7 +8,12 @@ import piuk.blockchain.android.ui.interest.domain.usecase.GetInterestDashboardUs
 
 val interestDashboardDomainModule = module {
     scope(payloadScopeQualifier) {
-        scoped { GetInterestDashboardUseCase(service = get()) }
+        scoped {
+            GetInterestDashboardUseCase(
+                interestService = get(),
+                exchangeRatesDataManager = get()
+            )
+        }
         scoped { GetAssetsInterestUseCase(service = get()) }
         scoped { GetAccountGroupUseCase(service = get()) }
     }

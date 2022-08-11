@@ -10,11 +10,13 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore
 import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
+import com.blockchain.data.DataResource
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asObservable
+import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -23,6 +25,8 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.math.RoundingMode
 import java.util.Calendar
 import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
@@ -69,6 +73,17 @@ internal class ExchangeRatesDataManagerImpl(
                     rate = it.rate
                 )
             }
+
+    override fun exchangeRateToUserFiatFlow(fromAsset: Currency): Flow<DataResource<ExchangeRate>> {
+        return priceStore.getCurrentPriceForAsset(fromAsset, userFiat)
+            .mapData {
+                ExchangeRate(
+                    from = fromAsset,
+                    to = userFiat,
+                    rate = it.rate
+                )
+            }
+    }
 
     override fun getLastCryptoToUserFiatRate(sourceCrypto: AssetInfo): ExchangeRate {
         val priceRate = priceStore.getCachedAssetPrice(sourceCrypto, userFiat).rate

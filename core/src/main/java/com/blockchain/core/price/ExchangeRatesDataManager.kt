@@ -1,5 +1,6 @@
 package com.blockchain.core.price
 
+import com.blockchain.data.DataResource
 import com.blockchain.domain.common.model.Seconds
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -7,6 +8,7 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
 
 enum class HistoricalTimeSpan(val value: Int) {
@@ -57,6 +59,7 @@ interface ExchangeRatesDataManager : ExchangeRates {
 
     fun exchangeRate(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate>
     fun exchangeRateToUserFiat(fromAsset: Currency): Observable<ExchangeRate>
+    fun exchangeRateToUserFiatFlow(fromAsset: Currency): Flow<DataResource<ExchangeRate>>
 
     fun getHistoricRate(fromAsset: Currency, secSinceEpoch: Long): Single<ExchangeRate>
     fun getPricesWith24hDelta(fromAsset: Currency, isRefreshing: Boolean = false): Observable<Prices24HrWithDelta>

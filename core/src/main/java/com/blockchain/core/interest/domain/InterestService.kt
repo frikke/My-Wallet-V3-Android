@@ -35,6 +35,14 @@ interface InterestService {
     ): Observable<InterestAccountBalance>
 
     /**
+     * Returns [InterestAccountBalance] for [asset]
+     */
+    fun getBalanceForFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<InterestAccountBalance>>
+
+    /**
      * Returns a list of all [AssetInfo] that have an interest balance
      */
     fun getActiveAssets(

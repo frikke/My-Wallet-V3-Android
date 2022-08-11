@@ -12,6 +12,7 @@ val interestDashboardPresentationModule = module {
     scope(payloadScopeQualifier) {
         viewModel {
             InterestDashboardViewModel(
+                kycService = get(),
                 getAssetsInterestUseCase = get(),
                 getInterestDashboardUseCase = get(),
                 getAccountGroupUseCase = get()

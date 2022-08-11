@@ -5,11 +5,16 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.extensions.exhaustive
+import com.blockchain.nabu.api.kyc.domain.KycService
 import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import info.blockchain.balance.AssetInfo
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.ui.interest.domain.model.InterestDashboard
 import piuk.blockchain.android.ui.interest.domain.usecase.GetAccountGroupUseCase
@@ -18,6 +23,7 @@ import piuk.blockchain.android.ui.interest.domain.usecase.GetInterestDashboardUs
 import timber.log.Timber
 
 class InterestDashboardViewModel(
+    private val kycService: KycService,
     private val getAssetsInterestUseCase: GetAssetsInterestUseCase,
     private val getInterestDashboardUseCase: GetInterestDashboardUseCase,
     private val getAccountGroupUseCase: GetAccountGroupUseCase
@@ -66,19 +72,53 @@ class InterestDashboardViewModel(
         )
     }
 
+    /**
+     * Check kyc state first
+     * if kyc gold -> load interest dashboard
+     * if not -> show upgrade kyc
+     */
     private fun loadInterestDashboard() {
         viewModelScope.launch {
-            updateState { it.copy(isLoadingData = true) }
+            kycService.getTiers(FreshnessStrategy.Cached(forceRefresh = true))
+                .onEach { kycTiers ->
+                    if (kycTiers.isApprovedFor(KycTierLevel.GOLD)) {
+                        getInterestDashboardUseCase()
+                            .collectLatest { list ->
+                                updateState {
+                                    it.copy(
+                                        isLoadingData = false,
+                                        isError = false,
+                                        isKycGold = true,
+                                        data = list,
+                                    )
+                                }
+                            }
 
-            getInterestDashboardUseCase().let { result ->
-                result.doOnSuccess { interestDetail ->
-                    loadAssets(interestDetail)
-                }.doOnFailure { error ->
-                    updateState { it.copy(isLoadingData = false, isError = true) }
-                    Timber.e("Error loading interest summary details $error")
+                    } else {
+                        updateState {
+                            it.copy(
+                                isLoadingData = false,
+                                isError = false,
+                                isKycGold = false
+                            )
+                        }
+                    }
                 }
-            }
+                .collect()
         }
+
+//        viewModelScope.launch {
+//            updateState { it.copy(isLoadingData = true) }
+//
+//            getInterestDashboardUseCase().let { result ->
+//                result.doOnSuccess { interestDetail ->
+//                    loadAssets(interestDetail)
+//                }.doOnFailure { error ->
+//                    updateState { it.copy(isLoadingData = false, isError = true) }
+//                    Timber.e("Error loading interest summary details $error")
+//                }
+//            }
+//        }
     }
 
     private fun loadAssets(interestDashboard: InterestDashboard) {
