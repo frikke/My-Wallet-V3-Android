@@ -53,7 +53,6 @@ import piuk.blockchain.android.ui.dashboard.dashboardModule
 import piuk.blockchain.android.ui.debug.remoteFeatureFlagsModule
 import piuk.blockchain.android.ui.educational.walletmodes.educationalWalletModesPresentationModule
 import piuk.blockchain.android.ui.home.mainModule
-import piuk.blockchain.android.ui.interest.data.interestDashboardDataModule
 import piuk.blockchain.android.ui.interest.domain.interestDashboardDomainModule
 import piuk.blockchain.android.ui.interest.presentation.interestDashboardPresentationModule
 import piuk.blockchain.android.ui.kyc.autocomplete.kycAutocompleteModule
@@ -137,7 +136,7 @@ object KoinStarter {
                     storeCachesInMemoryModule,
                     storeCachesPersistedJsonSqlDelightModule,
                     blockchainCardModule,
-                    interestDashboardDataModule, interestDashboardDomainModule, interestDashboardPresentationModule,
+                    interestDashboardDomainModule, interestDashboardPresentationModule,
                     appMaintenanceDataModule, appMaintenanceDomainModule, appMaintenancePresentationModule,
                     bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule,
                     referralPresentationModule,

@@ -2,14 +2,22 @@ package piuk.blockchain.android.ui.interest.domain.usecase
 
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.Coincore
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
-import piuk.blockchain.android.ui.interest.domain.repository.AssetInterestService
+import kotlinx.coroutines.rx3.awaitSingle
 
-// todo move to coincore module
-class GetAccountGroupUseCase(private val service: AssetInterestService) {
+class GetAccountGroupUseCase(private val coincore: Coincore) {
+
     suspend operator fun invoke(
         cryptoCurrency: AssetInfo,
         filter: AssetFilter = AssetFilter.All
-    ): Outcome<Throwable, AccountGroup> = service.getAccountGroup(cryptoCurrency = cryptoCurrency, filter = filter)
+    ): Outcome<Throwable, AccountGroup> {
+        return try {
+            coincore[cryptoCurrency].accountGroup(filter).awaitSingle()
+                .run { Outcome.Success(this) }
+        } catch (e: Throwable) {
+            Outcome.Failure(e)
+        }
+    }
 }

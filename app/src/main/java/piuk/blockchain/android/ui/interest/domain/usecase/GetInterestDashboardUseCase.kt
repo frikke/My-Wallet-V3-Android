@@ -5,35 +5,25 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.store.filterNotLoading
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.flatMap
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flowOf
 import piuk.blockchain.android.ui.interest.domain.model.AssetInterestDetail
 import piuk.blockchain.android.ui.interest.domain.model.InterestAsset
+import java.util.stream.Collectors.toList
 
 class GetInterestDashboardUseCase(
     private val interestService: InterestService,
     private val exchangeRatesManager: ExchangeRatesDataManager,
 ) {
-    suspend operator fun invoke(): Flow<DataResource<List<InterestAsset>>> = flow {
-        interestService.getAvailableAssetsForInterestFlow()
-            .onEach { dataResource ->
+    operator fun invoke(): Flow<DataResource<List<InterestAsset>>> {
+        return interestService.getAvailableAssetsForInterestFlow()
+            .flatMapMerge { dataResource ->
                 when (dataResource) {
                     is DataResource.Data -> {
-                        /**
-                         * because every InterestAsset data is coming as flow (see combine below)
-                         * (since we always want up to date data)
-                         * we need to collect every change, upsert it into the list and then emit the result
-                         *
-                         * we can't return the flow without collecting and updating the list
-                         * otherwise the return type would have to be
-                         * Flow<DataResource<List<*Flow*<InterestAsset>>>>
-                         */
-                        val finalList = mutableListOf<InterestAsset>()
-
-                        dataResource.data
+                        val interestAssetFlowList = dataResource.data
                             .map { asset ->
                                 // get data for each asset - data is coming as Flow
                                 // no need to handle loadings for this
@@ -81,38 +71,21 @@ class GetInterestDashboardUseCase(
                                     }
                                 }
                             }
-                            // the map{} above returns a List<Flow<InterestAsset>>
-                            // so we merge them together and collect them as they are emitted
-                            .merge()
-                            .onEach { interestAsset ->
-                                // each InterestAsset that is received is upserted it into the list
-                                finalList
-                                    .apply {
-                                        removeIf { it.assetInfo.networkTicker == interestAsset.assetInfo.networkTicker }
-                                        add(interestAsset)
-                                    }
-                                    .also {
-                                        // finally the full list is returned
-                                        emit(DataResource.Data(it.sorted()))
-                                    }
 
-                                // thoughts:
-                                // this way whenever any data is changed and emitted by its flow
-                                // for example getBalanceForFlow returned a new value
-                                // "combine" is gonna emit a new InterestAsset
-                                // will be caught here in the onEach and processed
-                            }.collect()
+                        combine(interestAssetFlowList) {
+                            DataResource.Data(it.toList().sorted())
+                        }
                     }
 
                     is DataResource.Error -> {
-                        emit(dataResource)
+                        flowOf(dataResource)
                     }
 
                     is DataResource.Loading -> {
-                        emit(dataResource)
+                        flowOf(dataResource)
                     }
                 }
-            }.collect()
+            }
     }
 
     private fun List<InterestAsset>.sorted() = sortedWith(

@@ -13,7 +13,6 @@ val interestDashboardPresentationModule = module {
         viewModel {
             InterestDashboardViewModel(
                 kycService = get(),
-                getAssetsInterestUseCase = get(),
                 getInterestDashboardUseCase = get(),
                 getAccountGroupUseCase = get()
             )
