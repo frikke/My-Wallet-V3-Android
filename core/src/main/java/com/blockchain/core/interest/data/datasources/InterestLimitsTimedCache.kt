@@ -28,7 +28,7 @@ class InterestLimitsTimedCache(
         authenticator.authenticate { token ->
             interestApiService.getTickersLimits(token.authHeader, currencyPrefs.selectedFiatCurrency.networkTicker)
                 .map { interestLimits ->
-                    interestLimits.tickerLimits.entries.mapNotNull { (assetTicker, limits) ->
+                    interestLimits.limits.entries.mapNotNull { (assetTicker, limits) ->
                         assetCatalogue.assetInfoFromNetworkTicker(assetTicker)?.let { asset ->
 
                             val calendar = Calendar.getInstance().apply {
