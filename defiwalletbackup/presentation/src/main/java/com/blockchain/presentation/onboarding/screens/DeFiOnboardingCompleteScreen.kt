@@ -46,7 +46,7 @@ fun DeFiOnboardingCompleteScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(R.string.defi_onboarding_nav_title))
+        NavigationBar(title = stringResource(R.string.defi_wallet_name))
 
         Box {
             Image(
@@ -73,7 +73,10 @@ fun DeFiOnboardingCompleteScreen(
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))
 
                 SimpleText(
-                    text = stringResource(R.string.defi_onboarding_complete_title),
+                    text = stringResource(
+                        R.string.defi_onboarding_complete_title,
+                        stringResource(R.string.defi_wallet_name)
+                    ),
                     style = ComposeTypographies.Title3,
                     color = ComposeColors.Title,
                     gravity = ComposeGravities.Centre

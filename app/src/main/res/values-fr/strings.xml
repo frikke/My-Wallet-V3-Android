@@ -2565,9 +2565,6 @@ PLEASE NOTE: Key should be used without \'blockchain.nabu.error.\' prefix and \'
     <string name="backup_phrase_intro_ack_2">Si j\'expose ou partage ma phrase secrète avec qui que ce soit, mes fonds peuvent être volés.</string>
     <string name="backup_phrase_intro_ack_3">Il est de mon entière responsabilité de garder ma phrase secrète en sécurité.</string>
     <string name="sell_confirmation_disclaimer">Le montant final peut changer en raison de l\'activité du marché. En approuvant cette vente, vous acceptez les conditions de la <annotation link="refund_policy">Politique de remboursement</annotation> de Blockchain.com</string>
-    <string name="brokerage">Courtage</string>
-    <string name="defi_wallet">Wallet DeFi</string>
-    <string name="defi" translatable="false">DeFi</string>
     <string name="verify_phrase_incorrect_message">Commande erronée. Réinitialisez ou appuyez sur des mots individuels à supprimer.</string>
     <string name="verify_phrase_incorrect_button">Réinitialiser les mots</string>
     <string name="prices_error_title">Impossible de charger les prix des actifs</string>

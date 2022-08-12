@@ -42,7 +42,7 @@
     <string name="backup_success_title" />
     <string name="backup_success_description" />
 
-    <string name="defi_onboarding_nav_title" />
+    <string name="defi_wallet_name" />
 
     <string name="defi_onboarding_intro_title" />
     <string name="defi_onboarding_intro_description" />
@@ -104,9 +104,9 @@
     <!--    <string name="backup_success_title">Back Up Successful!</string>-->
     <!--    <string name="backup_success_description">Remember to keep your Recovery Phrase stored in a safe location and to never share it with anyone.</string>-->
 
-    <!--    <string name="defi_onboarding_nav_title">DeFi Wallet</string>-->
+    <!--    <string name="defi_wallet_name">Private Key Wallet</string>-->
 
-    <!--    <string name="defi_onboarding_intro_title">Introducing the DeFi Wallet</string>-->
+    <!--    <string name="defi_onboarding_intro_title">Introducing the %1$s</string>-->
     <!--    <string name="defi_onboarding_intro_description">Explore all of Web3 and DeFi in one place</string>-->
     <!--    <string name="defi_onboarding_intro_property1_title">Self-Custody Your Assets</string>-->
     <!--    <string name="defi_onboarding_intro_property1_subtitle">DeFi wallets are on-chain</string>-->
@@ -116,7 +116,7 @@
     <!--    <string name="defi_onboarding_intro_property3_subtitle">Log into DApps and sign transactions</string>-->
     <!--    <string name="defi_onboarding_intro_cta">Enable DeFi Wallet</string>-->
 
-    <!--    <string name="defi_onboarding_complete_title">Welcome to Your DeFi Wallet</string>-->
+    <!--    <string name="defi_onboarding_complete_title">Welcome to Your %1$s</string>-->
     <!--    <string name="defi_onboarding_complete_description">Your DeFi Wallet was successfully created. You DeFi wallet supports Bitcoin, Bitcoin Cash, Ethereum, |etc| and 1500 tokens.</string>-->
 
 </resources>
