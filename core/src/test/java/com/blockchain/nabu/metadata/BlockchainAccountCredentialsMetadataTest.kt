@@ -7,7 +7,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import org.junit.Rule
 import org.junit.Test
-import org.koin.java.KoinJavaComponent.inject
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.inject
@@ -160,6 +159,20 @@ class BlockchainAccountCredentialsMetadataTest : KoinTest {
         val encoded = json.encodeToString(data)
         assert(
             encoded == "{\"nabu_user_id\":\"userIewqed\",\"nabu_lifetime_token\":\"lifetimeTokenasdas\"}"
+        )
+    }
+
+    @Test
+    fun `Decode with null values should be decoded successfully`() {
+        val data =
+            " {\"exchange_user_id\":null,\"exchange_lifetime_token\":null,\"nabu_lifetim" +
+                "e_token\":\"23423-fef1-4344-a0d3-60657110e6b0\",\"nabu_user_id\":\"43243-2" +
+                "7d3-4a31-b244-423423\",\"CORRUPTED_KEY\":false}"
+
+        val metadata = json.decodeFromString(BlockchainAccountCredentialsMetadata::class.serializer(), data)
+
+        assert(
+            metadata.exchangeUserId == null && metadata.exchangeLifetimeToken == null
         )
     }
 }

@@ -92,12 +92,12 @@ abstract class MultiAddressFactory(
 
         var receiveIndex: Int? = nextReceiveAddressMap[xpub]
         // Skip reserved addresses
-        for ((index) in reservedAddresses) {
-            if (index == receiveIndex) {
+
+        reservedAddresses.map { it.index }.forEach { indx ->
+            if (indx == receiveIndex) {
                 receiveIndex++
             }
         }
-
         return receiveIndex!!
     }
 
