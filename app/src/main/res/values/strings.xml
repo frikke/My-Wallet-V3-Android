@@ -3153,4 +3153,8 @@
     <string name="educational_wallet_mode_trading_secure_tag">Secured by Blockchain.com</string>
     <string name="educational_wallet_mode_cta">Get Started</string>
 
+    <!-- NFT -->
+    <string name="nft_coming_soon_title">Coming soon!</string>
+    <string name="nft_coming_soon_description">We’re working hard to support your NFTs in the wallet. We’ll send you an email when it’s time to update your app.</string>
+
 </resources>
