@@ -7,6 +7,7 @@ import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.preferences.CowboysPrefs
@@ -119,7 +120,7 @@ class LoaderInteractor(
         userIdentity.getHighestApprovedKycTier(),
         cowboysPromoFeatureFlag.enabled,
     ) { isCowboysUser, highestTier, isCowboysFlagEnabled ->
-        if (/*isCowboysFlagEnabled && isCowboysUser && highestTier == Tier.BRONZE*/ true) {
+        if (isCowboysFlagEnabled && isCowboysUser && highestTier == Tier.BRONZE) {
             if (!cowboysPrefs.hasSeenCowboysFlow) {
                 cowboysPrefs.hasSeenCowboysFlow = true
                 emitter.onNext(
