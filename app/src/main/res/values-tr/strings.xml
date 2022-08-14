@@ -2592,7 +2592,6 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="backup_phrase_intro_ack_2">Gizli ifademi birine ifşa edersem veya paylaşırsam, fonlarım çalınabilir.</string>
     <string name="backup_phrase_intro_ack_3">Gizli ifademi güvende tutmak tamamen benim sorumluluğumdadır.</string>
     <string name="sell_confirmation_disclaimer">Nihai miktar, piyasa hareketliliği nedeniyle değişebilir. Bu Satışı onaylayarak Blockchain.com\'un <annotation link="refund_policy">Geri Ödeme Politikası\'nı</annotation> onaylamış olursunuz</string>
-    <string name="brokerage">Komisyonculuk</string>
     <string name="defi_wallet">DeFi Cüzdanı</string>
     <string name="verify_phrase_incorrect_message">Yanlış talimat. Silmek için sıfırlayın veya tek tek kelimelere dokunun.</string>
     <string name="verify_phrase_incorrect_button">Kelimeleri Sıfırla</string>

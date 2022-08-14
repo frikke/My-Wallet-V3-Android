@@ -210,8 +210,8 @@ sealed interface WalletModeSelectionNavigationEvent : NavigationEvent {
 
 @StringRes
 fun WalletMode.title(): Int = when (this) {
-    WalletMode.NON_CUSTODIAL_ONLY -> R.string.defi_wallet
-    WalletMode.CUSTODIAL_ONLY -> R.string.brokerage
+    WalletMode.NON_CUSTODIAL_ONLY -> R.string.defi_wallet_name
+    WalletMode.CUSTODIAL_ONLY -> R.string.brokerage_wallet_name
     else -> throw IllegalArgumentException("No title supported for mode")
 }
 

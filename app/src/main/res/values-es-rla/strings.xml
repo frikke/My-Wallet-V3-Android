@@ -2461,7 +2461,6 @@ Compra criptomonedas hoy.</string>
     <string name="backup_phrase_intro_ack_2">Si expongo o comparto mi frase secreta con alguien, puede robar mis fondos.</string>
     <string name="backup_phrase_intro_ack_3">Es completamente mi responsabilidad proteger mi frase secreta.</string>
     <string name="sell_confirmation_disclaimer">El monto final podría cambiar debido a la actividad del mercado. Al aprobar esta venta, aceptas la <annotation link="refund_policy">Política de reembolsos</annotation> de Blockchain.com.</string>
-    <string name="brokerage">Corretaje</string>
     <string name="defi_wallet">Wallet de DeFi</string>
     <string name="verify_phrase_incorrect_message">Orden incorrecto. Restablece o toca palabras individuales para eliminarlas.</string>
     <string name="verify_phrase_incorrect_button">Restablecer palabras</string>

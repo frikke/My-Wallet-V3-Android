@@ -60,7 +60,7 @@ fun EducationalWalletModeDefiScreen() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.75F),
+                .weight(0.6F),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))
