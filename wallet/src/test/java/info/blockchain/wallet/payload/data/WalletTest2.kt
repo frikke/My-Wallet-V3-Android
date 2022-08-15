@@ -74,7 +74,7 @@ class WalletTest2 {
         assert(wallet.guid == "dc2095df-0675-47d3-86e5-178ac9220f15")
         assert(wallet.importedAddressList.isEmpty())
         assert(wallet.sharedKey == "20cd6a2b-bff7-4bfa-ac66-090bda6c5b87")
-        assert(wallet.options == Options(pbkdf2Iterations = 5000, feePerKb = 10000, logoutTime = 600000L))
+        assert(wallet.options == Options(pbkdf2Iterations = 5000, feePerKb = 10000, _logoutTime = 600000L))
     }
 
     private fun assertBody(walletBody: WalletBody) {

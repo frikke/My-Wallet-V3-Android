@@ -64,7 +64,7 @@ class PayloadMangerTestV2 : WalletApiMockedResponseTest() {
         assert(payloadManager.payload!!.dpasswordhash!!.isEmpty())
         assert(
             payloadManager.payload!!.options == Options(
-                pbkdf2Iterations = 5000, feePerKb = 10000, _isHtml5Notifications = false, logoutTime = 600000
+                pbkdf2Iterations = 5000, feePerKb = 10000, _isHtml5Notifications = false, _logoutTime = 600000
             )
         )
         assert(payloadManager.payload?.importedAddressList!!.isEmpty())
