@@ -27,7 +27,7 @@ import com.blockchain.componentlib.theme.AppTheme
 fun AsyncMediaItem(
     modifier: Modifier = Modifier,
     url: String,
-    contentDescription: String?,
+    contentDescription: String? = "async media item",
     contentScale: ContentScale = ContentScale.Fit
 ) {
     val context = LocalContext.current

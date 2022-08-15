@@ -6,6 +6,7 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
+import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
@@ -15,6 +16,8 @@ import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
+import com.blockchain.domain.referral.ReferralService
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -42,7 +45,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.cowboys.CowboysInfo
 import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
@@ -67,6 +69,7 @@ class DashboardActionInteractorTest {
     private val cowboysFeatureFlag: FeatureFlag = mock()
     private val settingsDataManager: SettingsDataManager = mock()
     private val cowboysDataProvider: CowboysPromoDataProvider = mock()
+    private val referralService: ReferralService = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -101,7 +104,8 @@ class DashboardActionInteractorTest {
             referralPrefs = referralPrefs,
             cowboysFeatureFlag = cowboysFeatureFlag,
             settingsDataManager = settingsDataManager,
-            cowboysDataProvider = cowboysDataProvider
+            cowboysDataProvider = cowboysDataProvider,
+            referralService = referralService
         )
     }
 
@@ -507,7 +511,7 @@ class DashboardActionInteractorTest {
         val settings: Settings = mock()
         whenever(settings.isEmailVerified).thenReturn(false)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
-        val data = CowboysInfo(
+        val data = PromotionStyleInfo(
             "title", "message", "", "", "", emptyList(), emptyList()
         )
         whenever(cowboysDataProvider.getWelcomeAnnouncement()).thenReturn(Single.just(data))
@@ -535,7 +539,7 @@ class DashboardActionInteractorTest {
     fun `given cowboys check when flag is on, user is tagged, email verified but bronze kyc then view state is verify SDD`() {
         whenever(cowboysFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(userIdentity.isCowboysUser()).thenReturn(Single.just(true))
-        val data = CowboysInfo(
+        val data = PromotionStyleInfo(
             "title", "message", "", "", "", emptyList(), emptyList()
         )
         whenever(cowboysDataProvider.getRaffleAnnouncement()).thenReturn(Single.just(data))
@@ -573,7 +577,7 @@ class DashboardActionInteractorTest {
         whenever(userIdentity.isCowboysUser()).thenReturn(Single.just(true))
         val settings: Settings = mock()
         whenever(settings.isEmailVerified).thenReturn(true)
-        val data = CowboysInfo(
+        val data = PromotionStyleInfo(
             "title", "message", "", "", "", emptyList(), emptyList()
         )
         whenever(cowboysDataProvider.getIdentityAnnouncement()).thenReturn(Single.just(data))
@@ -602,31 +606,45 @@ class DashboardActionInteractorTest {
     }
 
     @Test
-    fun `given cowboys check when flag is on, user is tagged, email verified and gold kyc then view state is hidden`() {
-        val settings: Settings = mock()
+    fun `given cowboys check when flag is on, user is tagged, email verified and gold kyc then view state is referral`() =
+        runTest {
+            val settings: Settings = mock()
 
-        whenever(settings.isEmailVerified).thenReturn(true)
-        whenever(cowboysFeatureFlag.enabled).thenReturn(Single.just(true))
-        whenever(userIdentity.isCowboysUser()).thenReturn(Single.just(true))
-        whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
-        whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
+            whenever(settings.isEmailVerified).thenReturn(true)
+            whenever(cowboysFeatureFlag.enabled).thenReturn(Single.just(true))
+            whenever(userIdentity.isCowboysUser()).thenReturn(Single.just(true))
+            whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
+            whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
 
-        actionInteractor.checkCowboysFlowSteps(model)
+            val referralInfo: ReferralInfo.Data = mock()
+            whenever(referralService.fetchReferralData()).thenReturn(Outcome.Success(referralInfo))
 
-        val captor = argumentCaptor<DashboardIntent>()
-        verify(model, atLeastOnce()).process(captor.capture())
-        assert(
-            captor.allValues.any {
-                val intent = it as? DashboardIntent.UpdateCowboysViewState
-                intent?.cowboysState is DashboardCowboysState.Hidden
-            }
-        )
+            val cowboysData: PromotionStyleInfo = mock()
+            whenever(cowboysDataProvider.getReferFriendsAnnouncement()).thenReturn(Single.just(cowboysData))
 
-        verify(cowboysFeatureFlag).enabled
-        verify(userIdentity).isCowboysUser()
-        verify(userIdentity).getHighestApprovedKycTier()
-        verify(settingsDataManager).getSettings()
-        verifyNoMoreInteractions(settingsDataManager)
-        verifyNoMoreInteractions(userIdentity)
-    }
+            actionInteractor.checkCowboysFlowSteps(model)
+
+            val captor = argumentCaptor<DashboardIntent>()
+            verify(model, atLeastOnce()).process(captor.capture())
+            assert(
+                captor.allValues.any {
+                    val intent = it as? DashboardIntent.UpdateCowboysViewState
+                    intent?.cowboysState is DashboardCowboysState.CowboyReferFriendsCard &&
+                        (intent.cowboysState as DashboardCowboysState.CowboyReferFriendsCard)
+                        .referralData == referralInfo &&
+                        (intent.cowboysState as DashboardCowboysState.CowboyReferFriendsCard).cardInfo == cowboysData
+                }
+            )
+
+            verify(cowboysFeatureFlag).enabled
+            verify(userIdentity).isCowboysUser()
+            verify(userIdentity).getHighestApprovedKycTier()
+            verify(settingsDataManager).getSettings()
+            verify(cowboysDataProvider).getReferFriendsAnnouncement()
+            verify(referralService).fetchReferralData()
+            verifyNoMoreInteractions(settingsDataManager)
+            verifyNoMoreInteractions(userIdentity)
+            verifyNoMoreInteractions(cowboysDataProvider)
+            verifyNoMoreInteractions(referralService)
+        }
 }

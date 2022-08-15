@@ -2,7 +2,10 @@ package com.blockchain.core.referral
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
+import com.blockchain.api.referral.data.StyleData
 import com.blockchain.api.services.ReferralApiService
+import com.blockchain.domain.common.model.PromotionStyleInfo
+import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.featureflag.FeatureFlag
@@ -38,7 +41,9 @@ class ReferralRepository(
                                             rewardSubtitle = response.rewardSubtitle,
                                             criteria = response.criteria,
                                             code = response.code,
-                                            campaignId = response.campaignId
+                                            campaignId = response.campaignId,
+                                            announcementInfo = response.announcement?.toDomain(),
+                                            promotionInfo = response.promotion?.toDomain()
                                         )
                                     )
                                 } else {
@@ -53,6 +58,23 @@ class ReferralRepository(
         } else {
             Outcome.Success(ReferralInfo.NotAvailable)
         }
+
+    private fun StyleData?.toDomain(): PromotionStyleInfo =
+        PromotionStyleInfo(
+            title = this?.title.orEmpty(),
+            message = this?.message.orEmpty(),
+            iconUrl = this?.icon?.url.orEmpty(),
+            headerUrl = this?.header?.media?.url.orEmpty(),
+            backgroundUrl = this?.style?.background?.media?.url.orEmpty(),
+            foregroundColorScheme = this?.style?.foreground?.color?.hsb
+                ?: emptyList(),
+            actions = this?.actions?.map {
+                ServerErrorAction(
+                    it.title,
+                    it.url.orEmpty()
+                )
+            } ?: emptyList()
+        )
 
     override suspend fun isReferralCodeValid(code: String): Outcome<Throwable, Boolean> =
         referralApi.validateReferralCode(code)

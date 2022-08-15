@@ -72,7 +72,8 @@ class ReferralSheet :
                 criteria = criteria,
                 onBackPressed = ::onBackPressed,
                 copyToClipboard = ::copyToClipboard,
-                shareCode = ::shareCode
+                shareCode = ::shareCode,
+                promotionData = promotionData
             )
         }
     }
@@ -101,9 +102,10 @@ class ReferralSheet :
     companion object {
         private const val CLIPBOARD_LABEL = "referralCode"
 
-        fun newInstance(referralData: ReferralInfo.Data) = ReferralSheet().withArgs(
-            key = ReferralArgs.ARGS_KEY,
-            args = referralData.mapArgs()
-        )
+        fun newInstance(referralData: ReferralInfo.Data) =
+            ReferralSheet().withArgs(
+                key = ReferralArgs.ARGS_KEY,
+                args = referralData.mapArgs()
+            )
     }
 }

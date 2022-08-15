@@ -44,13 +44,13 @@ class SettingsInteractor internal constructor(
         return Singles.zip(
             userIdentity.getHighestApprovedKycTier(),
             userIdentity.getBasicProfileInformation(),
-            getReferralDataSingle()
+            getReferralData()
         ).map { (tier, basicInfo, referral) ->
             UserDetails(userTier = tier, userInfo = basicInfo, referralInfo = referral)
         }
     }
 
-    private fun getReferralDataSingle(): Single<ReferralInfo> {
+    private fun getReferralData(): Single<ReferralInfo> {
         return rxSingle {
             referralService.fetchReferralData()
                 .getOrDefault(ReferralInfo.NotAvailable)

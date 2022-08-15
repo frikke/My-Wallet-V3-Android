@@ -5,7 +5,9 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.domain.referral.model.ReferralInfo
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
@@ -15,7 +17,6 @@ import info.blockchain.balance.percentageDelta
 import info.blockchain.balance.total
 import java.io.Serializable
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
-import piuk.blockchain.android.ui.cowboys.CowboysInfo
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.DASHBOARD_FIAT_ASSETS
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.LOCKS_INDEX
@@ -101,9 +102,12 @@ sealed class DashboardOnboardingState {
 }
 
 sealed class DashboardCowboysState {
-    class CowboyWelcomeCard(val cardInfo: CowboysInfo) : DashboardCowboysState()
-    class CowboyRaffleCard(val cardInfo: CowboysInfo) : DashboardCowboysState()
-    class CowboyIdentityCard(val cardInfo: CowboysInfo) : DashboardCowboysState()
+    class CowboyWelcomeCard(val cardInfo: PromotionStyleInfo) : DashboardCowboysState()
+    class CowboyRaffleCard(val cardInfo: PromotionStyleInfo) : DashboardCowboysState()
+    class CowboyIdentityCard(val cardInfo: PromotionStyleInfo) : DashboardCowboysState()
+    class CowboyReferFriendsCard(val referralData: ReferralInfo, val cardInfo: PromotionStyleInfo) :
+        DashboardCowboysState()
+
     object Hidden : DashboardCowboysState()
 }
 
