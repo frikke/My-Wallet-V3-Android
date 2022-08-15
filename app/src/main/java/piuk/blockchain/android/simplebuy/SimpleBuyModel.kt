@@ -28,6 +28,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -84,6 +85,7 @@ class SimpleBuyModel(
     private val userIdentity: UserIdentity,
     private val getSafeConnectTosLinkUseCase: GetSafeConnectTosLinkUseCase,
     private val appRatingService: AppRatingService,
+    private val cardPaymentAsyncFF: FeatureFlag,
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(fiatCurrenciesService),
     uiScheduler = uiScheduler,
@@ -883,40 +885,43 @@ class SimpleBuyModel(
     ): Single<BuySellOrder> {
         require(id != null) { "Order Id not available" }
         require(selectedPaymentMethod != null) { "selectedPaymentMethod missing" }
-        return interactor.confirmOrder(
-            orderId = id,
-            paymentMethodId = googlePayBeneficiaryId ?: selectedPaymentMethod.takeIf { it.isBank() }?.concreteId(),
-            attributes = if (selectedPaymentMethod.isBank()) {
-                // redirectURL is for card providers only.
-                SimpleBuyConfirmationAttributes(
-                    callback = bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY),
-                    redirectURL = null
-                )
-            } else {
-                googlePayPayload?.let { payload ->
-                    cardActivator.paymentAttributes().copy(
-                        disable3DS = false,
-                        isMitPayment = false,
-                        googlePayPayload = payload,
-                        paymentContact = googlePayAddress?.let {
-                            PaymentContact(
-                                line1 = it.address1,
-                                line2 = it.address2,
-                                city = it.locality,
-                                state = it.administrativeArea,
-                                country = it.countryCode,
-                                postCode = it.postalCode,
-                                firstname = it.name,
-                                lastname = it.name
-                            )
-                        }
+        return cardPaymentAsyncFF.enabled.flatMap { cardPaymentAsync ->
+            interactor.confirmOrder(
+                orderId = id,
+                paymentMethodId = googlePayBeneficiaryId ?: selectedPaymentMethod.takeIf { it.isBank() }?.concreteId(),
+                attributes = if (selectedPaymentMethod.isBank()) {
+                    // redirectURL is for card providers only.
+                    SimpleBuyConfirmationAttributes(
+                        callback = bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY),
+                        redirectURL = null
                     )
-                } ?: run {
-                    cardActivator.paymentAttributes()
-                }
-            },
-            isBankPartner = selectedPaymentMethod.isBank()
-        )
+                } else {
+                    googlePayPayload?.let { payload ->
+                        cardActivator.paymentAttributes().copy(
+                            disable3DS = false,
+                            isMitPayment = false,
+                            isAsync = cardPaymentAsync,
+                            googlePayPayload = payload,
+                            paymentContact = googlePayAddress?.let {
+                                PaymentContact(
+                                    line1 = it.address1,
+                                    line2 = it.address2,
+                                    city = it.locality,
+                                    state = it.administrativeArea,
+                                    country = it.countryCode,
+                                    postCode = it.postalCode,
+                                    firstname = it.name,
+                                    lastname = it.name
+                                )
+                            }
+                        )
+                    } ?: run {
+                        cardActivator.paymentAttributes().copy(isAsync = cardPaymentAsync)
+                    }
+                },
+                isBankPartner = selectedPaymentMethod.isBank()
+            )
+        }
     }
 
     private fun processConfirmOrder(

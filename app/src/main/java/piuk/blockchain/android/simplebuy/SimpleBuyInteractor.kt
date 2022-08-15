@@ -387,7 +387,8 @@ class SimpleBuyInteractor(
 
     fun pollForOrderStatus(orderId: String): Single<PollResult<BuySellOrder>> =
         PollService(custodialWalletManager.getBuyOrder(orderId)) {
-            it.state == OrderState.FINISHED ||
+            it.attributes != null ||
+                it.state == OrderState.FINISHED ||
                 it.state == OrderState.FAILED ||
                 it.state == OrderState.CANCELED
         }.start(INTERVAL, RETRIES_SHORT)
