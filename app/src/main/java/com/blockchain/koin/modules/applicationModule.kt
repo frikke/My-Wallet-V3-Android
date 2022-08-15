@@ -542,6 +542,7 @@ val applicationModule = module {
                 cancelOrderUseCase = get(),
                 brokerageDataManager = get(),
                 custodialWalletManager = get(),
+                _activityIndicator = lazy { get<AppUtil>().activityIndicator },
                 buyQuoteRefreshFF = get(buyRefreshQuoteFeatureFlag)
             )
         }

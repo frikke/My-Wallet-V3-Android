@@ -55,7 +55,6 @@ import info.blockchain.balance.isCustodialOnly
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import java.time.ZonedDateTime
-import kotlin.math.floor
 import kotlin.math.max
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -168,16 +167,6 @@ class SimpleBuyCheckoutFragment :
             "Parent must implement SimpleBuyNavigator"
         )
 
-    private fun getListOfTotalTimes(remainingTime: Double): MutableList<Int> {
-        val chunks = MutableList(floor(remainingTime / MIN_QUOTE_REFRESH).toInt()) { MIN_QUOTE_REFRESH.toInt() }
-
-        val remainder = remainingTime % MIN_QUOTE_REFRESH
-        if (remainder > 0) {
-            chunks.add(remainder.toInt())
-        }
-        return chunks
-    }
-
     private fun startCounter(quote: BuyQuote, remainingTime: Int) {
         binding.buttonAction.isEnabled = true
         countDownTimer = object : CountDownTimer(remainingTime * 1000L, COUNT_DOWN_INTERVAL_TIMER) {
@@ -202,6 +191,7 @@ class SimpleBuyCheckoutFragment :
                 } else {
                     countDownTimer?.cancel()
                     countDownTimer = null
+                    binding.buttonAction.isEnabled = false
                 }
             }
         }
@@ -209,16 +199,10 @@ class SimpleBuyCheckoutFragment :
     }
 
     override fun render(newState: SimpleBuyState) {
-        if ((lastState == null || newState.hasQuoteChanged) &&
-            newState.quote != null && animateRefreshQuote
-        ) {
-            if (countDownTimer == null) {
-                chunksCounter = getListOfTotalTimes(newState.quote.remainingTime.toDouble())
-                startCounter(newState.quote, chunksCounter.first())
-            }
+        if (animateRefreshQuote && countDownTimer == null && newState.quote != null) {
+            chunksCounter = newState.quote.chunksTimeCounter
+            startCounter(newState.quote, chunksCounter.first())
         }
-
-        binding.buttonAction.isEnabled = (newState.quote?.remainingTime ?: 0) > 0
 
         showAmountForMethod(newState)
 
@@ -576,7 +560,7 @@ class SimpleBuyCheckoutFragment :
                                 showErrorState(ErrorState.SettlementGenericError)
                             SettlementReason.UNKNOWN,
                             SettlementReason.NONE -> {
-                                binding.quoteExpiration.invisible()
+                                if (animateRefreshQuote) quoteExpiration.invisible()
                                 model.process(SimpleBuyIntent.ConfirmOrder)
                                 analytics.logEvent(
                                     eventWithPaymentMethod(
@@ -924,7 +908,6 @@ class SimpleBuyCheckoutFragment :
         if (isPositive) toStringWithSymbol() else getString(R.string.common_free)
 
     companion object {
-        private const val MIN_QUOTE_REFRESH = 30L
         private const val COUNT_DOWN_INTERVAL_TIMER = 1000L
         private const val PENDING_PAYMENT_ORDER_KEY = "PENDING_PAYMENT_KEY"
         private const val SHOW_ONLY_ORDER_DATA = "SHOW_ONLY_ORDER_DATA"
