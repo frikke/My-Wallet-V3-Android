@@ -56,24 +56,21 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     }
 
     class GetPrefillAndQuickFillAmounts(
+        val limits: TxLimits,
         val assetCode: String,
         val fiatCurrency: FiatCurrency,
-        val maxAmount: FiatValue,
-        val minAmount: FiatValue,
+        val usePrefilledAmount: Boolean,
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
-
-        override fun isValidFor(oldState: SimpleBuyState): Boolean {
-            return maxAmount.isPositive
-        }
     }
 
     class PrefillEnterAmount(
-        val amount: FiatValue,
+        val amount: Money,
     ) : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(amount = amount)
-
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
+            require(amount is FiatValue)
+            return oldState.copy(amount = amount)
+        }
         override fun isValidFor(oldState: SimpleBuyState): Boolean {
             return amount.isPositive
         }
@@ -128,7 +125,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     class PaymentMethodsUpdated(
         val paymentOptions: PaymentOptions,
         val selectedPaymentMethod: SelectedPaymentMethod?,
-        val usePrefilledAmount: Boolean
+        val usePrefilledAmount: Boolean,
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
             return oldState
@@ -188,7 +185,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     }
 
     class SelectedPaymentMethodUpdate(
-        private val paymentMethod: PaymentMethod,
+        val paymentMethod: PaymentMethod,
     ) : SimpleBuyIntent() {
         // UndefinedBankAccount has no visual representation in the UI, it just opens WireTransferDetails,
         // hence why we're ignoring it and keeping the current selectedPaymentMethod
@@ -277,6 +274,8 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     data class FetchSuggestedPaymentMethod(
         val fiatCurrency: FiatCurrency,
         val selectedPaymentMethodId: String? = null,
+        val usePrefilledAmount: Boolean = true,
+        val reloadQuickFillButtons: Boolean = true
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(paymentOptions = PaymentOptions(), selectedPaymentMethod = null)
@@ -491,6 +490,13 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     }
 
     class StopQuotesUpdate(val shouldResetOrder: Boolean) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
+    }
+
+    class SelectedPaymentChangedLimits(
+        val selectedPaymentMethod: SelectedPaymentMethod?,
+        val limits: TxLimits
+    ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
     }
 

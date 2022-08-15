@@ -15,7 +15,6 @@ import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.buy.BuyOrdersCache
-import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.BankPartner
@@ -226,6 +225,7 @@ class SimpleBuyModel(
                     previousSelectedId = previousState.selectedPaymentMethod?.id,
                     usePrefilledAmount = false
                 )
+
             is SimpleBuyIntent.FetchSuggestedPaymentMethod -> {
                 val lastPaymentMethodId = interactor.getLastPaymentMethodId()
 
@@ -233,12 +233,29 @@ class SimpleBuyModel(
                     fiatCurrency = intent.fiatCurrency,
                     preselectedId = intent.selectedPaymentMethodId ?: lastPaymentMethodId,
                     previousSelectedId = previousState.selectedPaymentMethod?.id,
-                    usePrefilledAmount = true
+                    usePrefilledAmount = intent.usePrefilledAmount
                 )
             }
 
+            is SimpleBuyIntent.SelectedPaymentChangedLimits -> {
+                require(previousState.selectedCryptoAsset != null)
+
+                process(
+                    SimpleBuyIntent.GetPrefillAndQuickFillAmounts(
+                        limits = intent.limits,
+                        assetCode = previousState.selectedCryptoAsset.networkTicker,
+                        fiatCurrency = previousState.fiatCurrency,
+                        usePrefilledAmount = false
+                    )
+                )
+                null
+            }
+
             is SimpleBuyIntent.PaymentMethodChangeRequested -> {
-                validateAmountAndUpdatePaymentMethod(intent.paymentMethod, previousState)
+                validateAmountAndUpdatePaymentMethod(
+                    paymentMethod = intent.paymentMethod,
+                    state = previousState
+                )
             }
             is SimpleBuyIntent.PaymentMethodsUpdated -> {
                 check(previousState.selectedCryptoAsset != null)
@@ -306,7 +323,7 @@ class SimpleBuyModel(
                             previousSelectedId = previousState.selectedPaymentMethod?.id,
                             availablePaymentMethods = it,
                             preselectedId = null,
-                            usePrefilledAmount = true
+                            usePrefilledAmount = true,
                         )
                     )
 
@@ -398,12 +415,7 @@ class SimpleBuyModel(
             )
             is SimpleBuyIntent.GetPrefillAndQuickFillAmounts ->
                 interactor.getPrefillAndQuickFillAmounts(
-                    buyMaxAmount = if (previousState.limits.max is TxLimit.Limited) {
-                        previousState.limits.max.amount as FiatValue
-                    } else {
-                        FiatValue.zero(intent.fiatCurrency)
-                    },
-                    buyMinAmount = intent.minAmount,
+                    limits = intent.limits,
                     assetCode = intent.assetCode,
                     fiatCurrency = intent.fiatCurrency,
                 ).subscribeBy(
@@ -411,14 +423,15 @@ class SimpleBuyModel(
                         quickFillData?.let {
                             process(SimpleBuyIntent.PopulateQuickFillButtons(it))
                         }
-                        process(SimpleBuyIntent.PrefillEnterAmount(amountToPrepopulate))
+                        if (intent.usePrefilledAmount) {
+                            process(SimpleBuyIntent.PrefillEnterAmount(amountToPrepopulate as FiatValue))
+                        }
                     },
                     onError = {
                         // do nothing - fail silently
                         Timber.e("Simplebuy: Getting prefill and quickfill data failed - ${it.message}")
                     }
                 )
-
             is SimpleBuyIntent.GooglePayInfoRequested -> requestGooglePayInfo(
                 previousState.fiatCurrency
             ).subscribeBy(
@@ -514,7 +527,7 @@ class SimpleBuyModel(
         fiatCurrency: FiatCurrency,
         selectedPaymentMethod: SelectedPaymentMethod,
         availablePaymentMethods: List<PaymentMethod>,
-        usePrefilledAmount: Boolean
+        usePrefilledAmount: Boolean,
     ): Disposable {
         return interactor.fetchBuyLimits(
             fiat = fiatCurrency,
@@ -547,6 +560,10 @@ class SimpleBuyModel(
                     val shouldRefreshPaymentMethods =
                         paymentMethodsWithEnoughBalance.isNotEmpty() && paymentMethodsWithNotEnoughBalance.isNotEmpty()
 
+                    var paymentOptions = PaymentOptions(
+                        paymentMethodsWithEnoughBalance
+                    )
+
                     if (shouldRefreshPaymentMethods) {
                         val newSelectedPaymentMethodId = selectedMethodId(
                             preselectedId = null,
@@ -569,36 +586,41 @@ class SimpleBuyModel(
                         process(
                             SimpleBuyIntent.UpdatedBuyLimitsAndPaymentMethods(
                                 limits = limits,
-                                paymentOptions = PaymentOptions(
-                                    paymentMethodsWithEnoughBalance
-                                ),
+                                paymentOptions = paymentOptions,
                                 selectedPaymentMethod = updateSelectedPaymentMethod
                             )
                         )
                     } else {
+                        paymentOptions = PaymentOptions(availablePaymentMethods)
                         process(
                             SimpleBuyIntent.UpdatedBuyLimitsAndPaymentMethods(
                                 limits = limits,
-                                paymentOptions = PaymentOptions(availablePaymentMethods),
+                                paymentOptions = paymentOptions,
                                 selectedPaymentMethod = selectedPaymentMethod
                             )
                         )
                     }
-                    if (usePrefilledAmount) {
-                        process(
-                            SimpleBuyIntent.GetPrefillAndQuickFillAmounts(
-                                assetCode = asset.networkTicker,
-                                fiatCurrency = fiatCurrency,
-                                maxAmount = if (limits.max is TxLimit.Limited) {
-                                    limits.max.amount as? FiatValue ?: FiatValue.zero(fiatCurrency)
-                                } else {
-                                    FiatValue.zero(fiatCurrency)
-                                },
-                                minAmount = limits.min.amount as? FiatValue ?: FiatValue.zero(fiatCurrency)
-                            )
-                        )
+
+                    val selectedPaymentMethodDetails = selectedPaymentMethod.id.let { id ->
+                        paymentOptions.availablePaymentMethods.firstOrNull { it.id == id }
                     }
+
+                    val selectedPaymentMethodLimits = selectedPaymentMethodDetails?.let {
+                        TxLimits.fromAmounts(min = it.limits.min, max = it.limits.max)
+                    } ?: TxLimits.withMinAndUnlimitedMax(FiatValue.zero(fiatCurrency))
+
+                    val limitsPrefill = limits.combineWith(selectedPaymentMethodLimits)
+
+                    process(
+                        SimpleBuyIntent.GetPrefillAndQuickFillAmounts(
+                            limits = limitsPrefill,
+                            assetCode = asset.networkTicker,
+                            fiatCurrency = fiatCurrency,
+                            usePrefilledAmount = usePrefilledAmount
+                        )
+                    )
                 }
+
             )
     }
 
@@ -779,7 +801,7 @@ class SimpleBuyModel(
                             preselectedId = preselectedId,
                             previousSelectedId = previousSelectedId,
                             availablePaymentMethods = availablePaymentMethods,
-                            usePrefilledAmount = usePrefilledAmount
+                            usePrefilledAmount = usePrefilledAmount,
                         )
                     )
                 },
@@ -798,8 +820,9 @@ class SimpleBuyModel(
         preselectedId: String?,
         previousSelectedId: String?,
         availablePaymentMethods: List<PaymentMethod>,
-        usePrefilledAmount: Boolean
+        usePrefilledAmount: Boolean,
     ): SimpleBuyIntent.PaymentMethodsUpdated {
+
         val paymentOptions = PaymentOptions(
             availablePaymentMethods = availablePaymentMethods
         )

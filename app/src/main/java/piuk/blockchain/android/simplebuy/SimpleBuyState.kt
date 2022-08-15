@@ -337,8 +337,8 @@ data class SelectedPaymentMethod(
 }
 
 data class QuickFillButtonData(
-    val quickFillButtons: List<FiatValue>,
-    val buyMaxAmount: FiatValue
+    val quickFillButtons: List<Money>,
+    val buyMaxAmount: Money
 )
 
 @kotlinx.serialization.Serializable

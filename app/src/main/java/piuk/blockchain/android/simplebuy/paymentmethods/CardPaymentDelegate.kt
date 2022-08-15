@@ -52,7 +52,7 @@ class CardPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
                         titleStart = buildAnnotatedString { append(it.uiLabel()) }
                         titleEnd = buildAnnotatedString { append(it.dottedEndDigits()) }
                         startImageResource = ImageResource.Local(
-                            it.cardType.toCardType().icon()
+                            id = it.cardType.toCardType().icon(),
                         )
                         bodyStart = buildAnnotatedString {
                             append(

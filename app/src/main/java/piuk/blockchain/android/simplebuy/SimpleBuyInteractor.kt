@@ -65,7 +65,6 @@ import com.blockchain.serializers.StringMapSerializer
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
@@ -565,65 +564,73 @@ class SimpleBuyInteractor(
         onboardingPrefs.isLandingCtaDismissed = true
     }
 
-    // TODO (lmiguelez) https://blockchain.atlassian.net/browse/AND-6420
     fun getPrefillAndQuickFillAmounts(
-        buyMaxAmount: FiatValue,
-        buyMinAmount: FiatValue,
+        limits: TxLimits,
         assetCode: String,
-        fiatCurrency: FiatCurrency
-    ): Single<Pair<FiatValue, QuickFillButtonData?>> =
-        quickFillButtonsFeatureFlag.enabled.map { enabled ->
+        fiatCurrency: FiatCurrency,
+    ): Single<Pair<Money, QuickFillButtonData?>> {
+        return quickFillButtonsFeatureFlag.enabled.map { enabled ->
+
             val amountString = simpleBuyPrefs.getLastAmount("$assetCode-${fiatCurrency.networkTicker}")
 
             var prefilledAmount = when {
                 enabled && amountString.isEmpty() -> {
-                    FiatValue.fromMajor(fiatCurrency, BigDecimal(DEFAULT_MIN_PREFILL_AMOUNT))
+                    Money.fromMajor(fiatCurrency, BigDecimal(DEFAULT_MIN_PREFILL_AMOUNT))
                 }
-                enabled && amountString.isNotEmpty() -> FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
-                else -> FiatValue.fromMajor(fiatCurrency, BigDecimal.ZERO)
+                enabled && amountString.isNotEmpty() -> Money.fromMajor(fiatCurrency, BigDecimal(amountString))
+                else -> Money.fromMajor(fiatCurrency, BigDecimal.ZERO)
             }
 
+            val isMaxLimited = limits.isMaxViolatedByAmount(prefilledAmount)
+            val isMinLimited = limits.isMinViolatedByAmount(prefilledAmount)
+
             val quickFillButtonData = if (enabled) {
-                val listOfAmounts = mutableListOf<FiatValue>()
+                val listOfAmounts = mutableListOf<Money>()
 
                 prefilledAmount = when {
-                    prefilledAmount < buyMinAmount -> buyMinAmount
-                    prefilledAmount > buyMaxAmount -> buyMaxAmount
+                    isMinLimited && isMaxLimited -> Money.fromMajor(fiatCurrency, BigDecimal.ZERO)
+                    isMinLimited -> limits.minAmount
+                    isMaxLimited -> limits.maxAmount
                     else -> prefilledAmount
                 }
 
                 val lowestPrefillAmount = roundToNearest(
-                    2 * prefilledAmount.toFloat(),
+                    Money.fromMajor(fiatCurrency, (2 * prefilledAmount.toFloat()).toBigDecimal()),
                     ROUND_TO_NEAREST_10
                 )
 
-                if (checkIfUnderLimit(lowestPrefillAmount, buyMaxAmount)) {
-                    listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(lowestPrefillAmount)))
+                if (limits.isAmountInRange(lowestPrefillAmount)) {
+                    listOfAmounts.add(lowestPrefillAmount)
                 }
 
                 val mediumPrefillAmount = roundToNearest(
-                    2 * lowestPrefillAmount.toFloat(),
+                    Money.fromMajor(fiatCurrency, (2 * lowestPrefillAmount.toFloat()).toBigDecimal()),
                     ROUND_TO_NEAREST_50
                 )
-                if (checkIfUnderLimit(mediumPrefillAmount, buyMaxAmount)) {
-                    listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(mediumPrefillAmount)))
+
+                if (limits.isAmountInRange(mediumPrefillAmount)) {
+                    listOfAmounts.add(mediumPrefillAmount)
                 }
 
                 val largestPrefillAmount = roundToNearest(
-                    2 * mediumPrefillAmount.toFloat(),
+                    Money.fromMajor(fiatCurrency, (2 * mediumPrefillAmount.toFloat()).toBigDecimal()),
                     ROUND_TO_NEAREST_100
                 )
-                if (checkIfUnderLimit(largestPrefillAmount, buyMaxAmount)) {
-                    listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(largestPrefillAmount)))
+                if (limits.isAmountInRange(largestPrefillAmount)) {
+                    listOfAmounts.add(largestPrefillAmount)
                 }
 
-                QuickFillButtonData(buyMaxAmount = buyMaxAmount, quickFillButtons = listOfAmounts)
+                QuickFillButtonData(
+                    buyMaxAmount = (limits.max as? TxLimit.Limited)?.amount ?: Money.zero(fiatCurrency),
+                    quickFillButtons = listOfAmounts
+                )
             } else {
                 null
             }
 
             return@map Pair(prefilledAmount, quickFillButtonData)
         }
+    }
 
     fun getListOfStates(countryCode: String): Single<List<Region.State>> =
         rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
@@ -638,12 +645,11 @@ class SimpleBuyInteractor(
         simpleBuyPrefs.setLastPaymentMethodId(paymentMethodId = paymentId)
     }
 
-    private fun roundToNearest(lastAmount: Float, nearest: Int): Int {
-        return nearest * (floor(lastAmount.toDouble() / nearest) + 1).toInt()
+    private fun roundToNearest(lastAmount: Money, nearest: Int): Money {
+        return Money.fromMajor(
+            lastAmount.currency, (nearest * (floor(lastAmount.toFloat() / nearest) + 1)).toBigDecimal()
+        )
     }
-
-    private fun checkIfUnderLimit(fiatAmountToButton: Int, maxAmount: Money): Boolean =
-        fiatAmountToButton <= maxAmount.toFloat()
 
     companion object {
         const val PENDING = "pending"

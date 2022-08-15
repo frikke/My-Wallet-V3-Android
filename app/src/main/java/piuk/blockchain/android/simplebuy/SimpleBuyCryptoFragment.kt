@@ -56,6 +56,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import java.math.BigDecimal
@@ -298,7 +299,7 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun sendAnalyticsQuickFillButtonTapped(buttonTapped: FiatValue, position: Int) {
+    private fun sendAnalyticsQuickFillButtonTapped(buttonTapped: Money, position: Int) {
         analytics.logEvent(
             QuickFillButtonTapped(
                 amount = buttonTapped.toBigDecimal().toString(),
@@ -310,7 +311,6 @@ class SimpleBuyCryptoFragment :
 
     private fun loadQuickFillButtons(
         quickFillButtonData: QuickFillButtonData,
-        buyMaxButton: FiatValue,
     ) {
         with(binding.quickFillButtons) {
             visible()
@@ -335,12 +335,14 @@ class SimpleBuyCryptoFragment :
                                 }
                             )
                         }
-                        if (buyMaxButton.isPositive) {
+                        if (quickFillButtonData.buyMaxAmount.isPositive) {
                             SmallMinimalButton(
                                 text = getString(R.string.buy_max),
                                 onClick = {
                                     model.process(
-                                        SimpleBuyIntent.PrefillEnterAmount(buyMaxButton as FiatValue)
+                                        SimpleBuyIntent.PrefillEnterAmount(
+                                            quickFillButtonData.buyMaxAmount as FiatValue
+                                        )
                                     )
                                 },
                                 state = ButtonState.Enabled,
@@ -357,13 +359,15 @@ class SimpleBuyCryptoFragment :
     override fun render(newState: SimpleBuyState) {
         lastState = newState
 
-        newState.quickFillButtonData?.let { data ->
-            loadQuickFillButtons(
-                data,
-                (newState.limits.max as? TxLimit.Limited)?.let {
-                    it.amount as FiatValue
-                } ?: data.buyMaxAmount
+        model.process(
+            SimpleBuyIntent.SelectedPaymentChangedLimits(
+                selectedPaymentMethod = newState.selectedPaymentMethod,
+                limits = newState.limits
             )
+        )
+
+        newState.quickFillButtonData?.let { data ->
+            loadQuickFillButtons(data)
         }
 
         if (newState.buyErrorState != null) {
@@ -1133,6 +1137,7 @@ class SimpleBuyCryptoFragment :
 
     override fun onPaymentMethodChanged(paymentMethod: PaymentMethod) {
         model.process(SimpleBuyIntent.PaymentMethodChangeRequested(paymentMethod))
+
         if (paymentMethod.canBeUsedForPaying()) {
             analytics.logEvent(
                 BuyPaymentMethodSelected(
@@ -1205,7 +1210,9 @@ class SimpleBuyCryptoFragment :
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
                 fiatCurrency,
-                preselectedId
+                preselectedId,
+                usePrefilledAmount = false,
+                reloadQuickFillButtons = true
             )
         )
     }
