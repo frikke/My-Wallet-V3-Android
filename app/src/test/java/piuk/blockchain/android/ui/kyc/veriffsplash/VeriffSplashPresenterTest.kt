@@ -5,6 +5,7 @@ import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.api.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
@@ -29,6 +30,7 @@ class VeriffSplashPresenterTest {
 
     private val nabuToken: NabuToken = mock()
     private val nabuDataManager: NabuDataManager = mock()
+    private val kycTiersStore: KycTiersStore = mock()
     private val view: VeriffSplashView = mock()
     private val analytics: Analytics = mock()
     private val prefs: SessionPrefs = mock()
@@ -36,6 +38,7 @@ class VeriffSplashPresenterTest {
     private val subject = VeriffSplashPresenter(
         nabuToken = nabuToken,
         nabuDataManager = nabuDataManager,
+        kycTiersStore = kycTiersStore,
         analytics = analytics,
         prefs = prefs
     )

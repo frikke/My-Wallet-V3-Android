@@ -41,7 +41,7 @@ class KycTiersStore internal constructor(
                         KycTierState.fromValue(it.state) == KycTierState.Pending ||
                             KycTierState.fromValue(it.state) == KycTierState.UnderReview
                     } -> {
-                        dataAgeMillis > TimeUnit.SECONDS.toMillis(30L)
+                        dataAgeMillis > TimeUnit.SECONDS.toMillis(10L)
                     }
 
                     KycTierState.fromValue(tiersResponse[KycTierLevel.GOLD.ordinal].state) == KycTierState.Verified -> {

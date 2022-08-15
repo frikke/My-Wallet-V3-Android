@@ -52,6 +52,8 @@ class KycRepository(
         return getKycTiersLegacyFlow(refreshStrategy)
     }
 
+    override fun markAsStale() = kycTiersStore.markAsStale()
+
     private fun constructTierMap(tiersResponse: List<KycTierDto>): TiersMap =
         KycTierLevel.values().map { level ->
             val tierResponse = tiersResponse[level.ordinal]
