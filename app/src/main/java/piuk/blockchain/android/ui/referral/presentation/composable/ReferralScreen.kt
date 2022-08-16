@@ -121,7 +121,6 @@ fun ReferralScreen(
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_margin)))
 
                 MarkdownContent(
-                    modifier = Modifier.padding(horizontal = AppTheme.dimensions.xxxPaddingLarge),
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
