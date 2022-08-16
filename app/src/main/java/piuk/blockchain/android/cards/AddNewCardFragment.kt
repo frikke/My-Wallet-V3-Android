@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.card.CardButton
@@ -23,6 +24,7 @@ import java.util.Calendar
 import java.util.Date
 import kotlinx.serialization.Contextual
 import piuk.blockchain.android.R
+import piuk.blockchain.android.cards.views.CardNumberEditText
 import piuk.blockchain.android.databinding.FragmentAddNewCardBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
@@ -120,6 +122,19 @@ class AddNewCardFragment :
                 addTextChangedListener(cardTypeWatcher)
                 addTextChangedListener(textWatcher)
                 addTextChangedListener(cardNumberTextWatcher)
+                attachListener(object : CardNumberEditText.CardNumberListener {
+                    override fun onPaste() {
+                        model.process(CardIntent.CheckProviderFailureRate(cardNumber.text.toString()))
+                    }
+
+                    override fun onCut() {
+                        // do nothing
+                    }
+
+                    override fun onCopy() {
+                        // do nothing
+                    }
+                })
             }
             cvv.addTextChangedListener(textWatcher)
             expiryDate.addTextChangedListener(textWatcher)
@@ -278,6 +293,8 @@ class AddNewCardFragment :
     private fun showCardRejectionAlert(title: String, isError: Boolean) {
         binding.cardInputAlert.apply {
             style = ComposeTypographies.Caption1
+            isMultiline = false
+            gravity = ComposeGravities.Start
             textColor = if (isError) ComposeColors.Error else ComposeColors.Warning
             text = title
             visible()
@@ -296,7 +313,9 @@ class AddNewCardFragment :
         binding.cardInputAlertInfo.apply {
             style = ComposeTypographies.Caption1
             textColor = ComposeColors.Primary
+            gravity = ComposeGravities.Start
             text = getString(R.string.common_learn_more)
+            isMultiline = false
             onClick = {
                 showBottomSheet(
                     ErrorSlidingBottomDialog.newInstance(

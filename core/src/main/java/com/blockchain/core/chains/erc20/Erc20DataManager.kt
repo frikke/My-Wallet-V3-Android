@@ -13,7 +13,6 @@ import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.featureflag.FeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
@@ -21,12 +20,10 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.math.BigInteger
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.rx3.await
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Address
@@ -82,7 +79,7 @@ interface Erc20DataManager {
     fun getErc20Balance(asset: AssetInfo): Observable<Erc20Balance>
     fun getActiveAssets(): Flow<Set<AssetInfo>>
 
-    fun getSupportedNetworks(): Single<List<EvmNetwork>>
+    fun getSupportedNetworks(): Single<Set<EvmNetwork>>
 
     // TODO: Get assets with balance
     fun flushCaches(asset: AssetInfo)
@@ -159,21 +156,20 @@ internal class Erc20DataManagerImpl(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getActiveAssets(): Flow<Set<AssetInfo>> = flow {
         val erc20ActiveAssets = erc20StoreService.getActiveAssets()
 
-        if (ethLayerTwoFeatureFlag.isEnabled) {
+        if (ethLayerTwoFeatureFlag.coEnabled()) {
             val erc20L2ActiveAssets = getSupportedNetworks().await()
                 .map { evmNetwork ->
                     erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
                 }
-                // the result is a List<Flow>, we need to merge them into a single Flow
-                .merge()
 
             emitAll(
-                combine(erc20ActiveAssets, erc20L2ActiveAssets) { erc20ActiveAssets, erc20L2ActiveAssets ->
-                    erc20ActiveAssets + erc20L2ActiveAssets
+                combine(
+                    erc20L2ActiveAssets
+                ) {
+                    it.reduce { acc, set -> acc.plus(set).toSet() }
                 }
             )
         } else {
@@ -343,7 +339,7 @@ internal class Erc20DataManagerImpl(
             } ?: throw IllegalAccessException("Unsupported EVM Network")
         }
 
-    override fun getSupportedNetworks(): Single<List<EvmNetwork>> = ethDataManager.supportedNetworks
+    override fun getSupportedNetworks(): Single<Set<EvmNetwork>> = ethDataManager.supportedNetworks
 
     override fun flushCaches(asset: AssetInfo) {
         require(asset.isErc20())
@@ -398,7 +394,7 @@ internal class Erc20DataManagerImpl(
     }
 }
 
-// TODO this has to scale, need to find a way to get the networks from the remote config
 fun Currency.isErc20() =
-    (this as? AssetInfo)?.l1chainTicker?.equals(CryptoCurrency.ETHER.networkTicker) == true ||
-        (this as? AssetInfo)?.l1chainTicker?.equals(AssetDiscoveryApiService.MATIC) == true
+    (this as? AssetInfo)?.l1chainTicker?.let {
+        it in AssetDiscoveryApiService.supportedErc20Chains
+    } ?: false

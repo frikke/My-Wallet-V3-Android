@@ -59,7 +59,10 @@ data class AccountV4 constructor(
         get() = derivation?.addressLabels ?: listOf()
 
     override fun addAddressLabel(index: Int, reserveLabel: String): Account {
-        val addressLabel = AddressLabel(index = index, label = reserveLabel)
+        val addressLabel = AddressLabel(
+            _index = index,
+            label = reserveLabel
+        )
 
         return derivation?.let { derivation ->
             this.copy(

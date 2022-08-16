@@ -3,12 +3,16 @@ package piuk.blockchain.android.ui.dashboard.coinview
 import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.data.DataResource
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.walletmode.WalletModeService
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -51,7 +55,12 @@ class CoinViewModel(
                 } ?: process(CoinViewIntent.UpdateErrorState(CoinViewError.MissingSelectedFiat))
                 null
             }
-            is CoinViewIntent.LoadAssetChart -> loadChart(intent)
+            is CoinViewIntent.LoadAssetChart -> loadHistoricPrices(
+                cryptoAsset = intent.asset,
+                timeSpan = HistoricalTimeSpan.DAY,
+                prices24Hr = intent.assetPrice,
+                fiatCurrency = intent.selectedFiat
+            )
             is CoinViewIntent.LoadNewChartPeriod -> {
                 previousState.asset?.let {
                     loadNewTimePeriod(it, intent, previousState)
@@ -180,69 +189,66 @@ class CoinViewModel(
             )
 
     private fun loadNewTimePeriod(
-        it: CryptoAsset,
+        cryptoAsset: CryptoAsset,
         intent: CoinViewIntent.LoadNewChartPeriod,
         previousState: CoinViewState
-    ) = interactor.loadHistoricPrices(it, intent.timePeriod)
-        .subscribeBy(
-            onSuccess = { historicalRates ->
-                when {
-                    previousState.assetPrices == null -> process(
-                        CoinViewIntent.UpdateErrorState(CoinViewError.MissingAssetPrices)
-                    )
-                    previousState.selectedFiat == null -> process(
-                        CoinViewIntent.UpdateErrorState(CoinViewError.MissingSelectedFiat)
-                    )
-                    else -> {
-                        if (historicalRates.isEmpty()) {
-                            process(CoinViewIntent.UpdateErrorState(CoinViewError.ChartLoadError))
-                        } else {
-                            process(
-                                CoinViewIntent.UpdateViewState(
-                                    CoinViewViewState.ShowAssetInfo(
-                                        entries = historicalRates.map { point ->
-                                            ChartEntry(
-                                                point.timestamp.toFloat(),
-                                                point.rate.toFloat()
-                                            )
-                                        },
-                                        prices = previousState.assetPrices,
-                                        historicalRateList = historicalRates,
-                                        selectedFiat = previousState.selectedFiat
+    ) {
+        when {
+            previousState.assetPrices == null -> process(
+                CoinViewIntent.UpdateErrorState(CoinViewError.MissingAssetPrices)
+            )
+            previousState.selectedFiat == null -> process(
+                CoinViewIntent.UpdateErrorState(CoinViewError.MissingSelectedFiat)
+            )
+            else -> {
+                loadHistoricPrices(
+                    cryptoAsset = cryptoAsset,
+                    timeSpan = intent.timePeriod,
+                    prices24Hr = previousState.assetPrices,
+                    fiatCurrency = previousState.selectedFiat
+                )
+            }
+        }
+    }
+
+    private fun loadHistoricPrices(
+        cryptoAsset: CryptoAsset,
+        timeSpan: HistoricalTimeSpan,
+        prices24Hr: Prices24HrWithDelta,
+        fiatCurrency: FiatCurrency
+    ): Disposable =
+        interactor.loadHistoricPrices(asset = cryptoAsset, timeSpan = timeSpan)
+            .subscribeBy(
+                onNext = { dataResource: DataResource<HistoricalRateList> ->
+                    when (dataResource) {
+                        is DataResource.Data -> {
+                            if (dataResource.data.isEmpty()) {
+                                process(CoinViewIntent.UpdateErrorState(CoinViewError.ChartLoadError))
+                            } else {
+                                process(
+                                    CoinViewIntent.UpdateViewState(
+                                        CoinViewViewState.ShowAssetInfo(
+                                            entries = dataResource.data.map { point ->
+                                                ChartEntry(
+                                                    point.timestamp.toFloat(),
+                                                    point.rate.toFloat()
+                                                )
+                                            },
+                                            prices = prices24Hr,
+                                            historicalRateList = dataResource.data,
+                                            selectedFiat = fiatCurrency
+                                        )
                                     )
                                 )
-                            )
+                            }
                         }
-                    }
-                }
-            },
-            onError = {
-                process(CoinViewIntent.UpdateErrorState(CoinViewError.ChartLoadError))
-            }
-        )
 
-    private fun loadChart(intent: CoinViewIntent.LoadAssetChart) =
-        interactor.loadHistoricPrices(intent.asset, HistoricalTimeSpan.DAY)
-            .subscribeBy(
-                onSuccess = { list ->
-                    if (list.isEmpty()) {
-                        process(CoinViewIntent.UpdateErrorState(CoinViewError.ChartLoadError))
-                    } else {
-                        process(
-                            CoinViewIntent.UpdateViewState(
-                                CoinViewViewState.ShowAssetInfo(
-                                    entries = list.map { point ->
-                                        ChartEntry(
-                                            point.timestamp.toFloat(),
-                                            point.rate.toFloat()
-                                        )
-                                    },
-                                    prices = intent.assetPrice,
-                                    historicalRateList = list,
-                                    selectedFiat = intent.selectedFiat
-                                )
-                            )
-                        )
+                        is DataResource.Error -> {
+                            process(CoinViewIntent.UpdateErrorState(CoinViewError.ChartLoadError))
+                        }
+
+                        DataResource.Loading -> {
+                        }
                     }
                 },
                 onError = {

@@ -104,7 +104,7 @@ fun BrokerageWalletModeSelection(
         balanceState = brokerageWalletBalance,
         requestedWalletMode = WalletMode.CUSTODIAL_ONLY,
         selectedWalletMode = selectedWalletMode,
-        walletName = stringResource(id = R.string.brokerage),
+        walletName = stringResource(id = R.string.brokerage_wallet_name),
         walletIcon = ImageResource.Local(R.drawable.ic_portfolio),
         onClick = onClick
     )
@@ -120,7 +120,7 @@ fun DefiWalletModeSelection(
         balanceState = defiWalletBalance,
         requestedWalletMode = WalletMode.NON_CUSTODIAL_ONLY,
         selectedWalletMode = selectedWalletMode,
-        walletName = stringResource(id = R.string.defi),
+        walletName = stringResource(id = R.string.defi_wallet_name),
         walletIcon = ImageResource.Local(R.drawable.ic_defi_wallet),
         onClick = onClick
     )

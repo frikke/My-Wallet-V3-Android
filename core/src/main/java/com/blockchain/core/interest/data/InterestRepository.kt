@@ -133,10 +133,10 @@ internal class InterestRepository(
         fun String.toIneligibilityReason(): InterestEligibility.Ineligible {
             return when {
                 this.isEmpty() -> InterestEligibility.Ineligible.NONE
-                this == "NONE" -> InterestEligibility.Ineligible.NONE
-                this == "UNSUPPORTED_REGION" -> InterestEligibility.Ineligible.REGION
-                this == "INVALID_ADDRESS" -> InterestEligibility.Ineligible.REGION
-                this == "TIER_TOO_LOW" -> InterestEligibility.Ineligible.KYC_TIER
+                this == InterestEligibilityDto.DEFAULT_REASON_NONE -> InterestEligibility.Ineligible.NONE
+                this == InterestEligibilityDto.UNSUPPORTED_REGION -> InterestEligibility.Ineligible.REGION
+                this == InterestEligibilityDto.INVALID_ADDRESS -> InterestEligibility.Ineligible.REGION
+                this == InterestEligibilityDto.TIER_TOO_LOW -> InterestEligibility.Ineligible.KYC_TIER
                 else -> InterestEligibility.Ineligible.OTHER
             }
         }
@@ -181,7 +181,7 @@ internal class InterestRepository(
         refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<Map<AssetInfo, InterestLimits>>> {
         return interestLimitsStore.stream(refreshStrategy).mapData { interestLimits ->
-            interestLimits.tickerLimits.entries.mapNotNull { (assetTicker, limits) ->
+            interestLimits.limits.entries.mapNotNull { (assetTicker, limits) ->
                 assetCatalogue.assetInfoFromNetworkTicker(assetTicker)?.let { asset ->
 
                     val calendar = Calendar.getInstance().apply {

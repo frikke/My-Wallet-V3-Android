@@ -482,6 +482,11 @@ dependencies {
     implementation Libraries.composeCoilSvg
     implementation Libraries.composeLottie
     implementation Libraries.constraintLayoutCompose
+
+    // TODO(aromano): TEMP while Google doesn't fix https://issuetracker.google.com/issues/227767363
+    debugImplementation "androidx.customview:customview:1.2.0-alpha01"
+    debugImplementation "androidx.customview:customview-poolingcontainer:1.0.0-alpha01"
+
     implementation Libraries.exoPlayer
     implementation Libraries.accompanistNavigationMaterial
     implementation Libraries.accompanistPager

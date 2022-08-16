@@ -186,12 +186,21 @@ class SettingsFragment :
         }
 
         with(binding.referralBtn) {
-            visibleIf { newState.referralInfo is ReferralInfo.Data }
             if (newState.referralInfo is ReferralInfo.Data) {
-                text = newState.referralInfo.rewardTitle
+                visible()
                 onClick = {
                     analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Origin.Profile))
                     navigator().goToReferralCode(newState.referralInfo)
+                }
+
+                newState.referralInfo.announcementInfo?.let { announcementInfo ->
+                    title = announcementInfo.title
+                    text = announcementInfo.message
+                    backgroundResourceUrl = announcementInfo.backgroundUrl
+                    iconUrl = announcementInfo.iconUrl
+                } ?: run {
+                    // keep old functionality here
+                    text = newState.referralInfo.rewardTitle
                 }
             }
         }

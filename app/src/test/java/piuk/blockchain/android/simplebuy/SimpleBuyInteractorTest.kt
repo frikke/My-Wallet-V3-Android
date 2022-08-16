@@ -4,6 +4,8 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.eligibility.EligibilityService
@@ -109,9 +111,10 @@ class SimpleBuyInteractorTest {
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(1000))
         val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(10))
+        val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
         val defaultAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(50))
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == defaultAmount &&
                 it.second?.buyMaxAmount == maxAmount &&
@@ -129,11 +132,12 @@ class SimpleBuyInteractorTest {
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(1000))
         val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(100))
+        val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
         val defaultAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(50))
 
         val prefilledAmount = if (defaultAmount < minAmount) minAmount else defaultAmount
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == prefilledAmount &&
                 it.second?.buyMaxAmount == maxAmount &&
@@ -150,11 +154,12 @@ class SimpleBuyInteractorTest {
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(40))
         val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(10))
+        val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
         val defaultAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(50))
 
         val prefilledAmount = if (defaultAmount > maxAmount) maxAmount else defaultAmount
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == prefilledAmount &&
                 it.second?.buyMaxAmount == maxAmount
@@ -169,11 +174,12 @@ class SimpleBuyInteractorTest {
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(1000))
         val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(80))
+        val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal(100)) &&
-                it.second?.buyMaxAmount == maxAmount &&
+                it.second?.buyMaxAmount == limits.maxAmount &&
                 it.second!!.quickFillButtons[0] == FiatValue.fromMajor(fiatCurrency, BigDecimal(210)) &&
                 it.second!!.quickFillButtons[1] == FiatValue.fromMajor(fiatCurrency, BigDecimal(450)) &&
                 it.second!!.quickFillButtons[2] == FiatValue.fromMajor(fiatCurrency, BigDecimal(1000))
@@ -188,8 +194,9 @@ class SimpleBuyInteractorTest {
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(80))
         val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(10))
+        val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == maxAmount &&
                 it.second?.buyMaxAmount == maxAmount &&
@@ -205,8 +212,9 @@ class SimpleBuyInteractorTest {
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(300))
         val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(100))
+        val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == minAmount &&
                 it.second?.buyMaxAmount == maxAmount &&
@@ -223,11 +231,12 @@ class SimpleBuyInteractorTest {
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(500))
         val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(100))
+        val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
-            it.first == minAmount &&
-                it.second?.buyMaxAmount == maxAmount &&
+            it.first == limits.minAmount &&
+                it.second?.buyMaxAmount == limits.maxAmount &&
                 it.second!!.quickFillButtons.size == 2 &&
                 it.second!!.quickFillButtons[0] == FiatValue.fromMajor(fiatCurrency, BigDecimal(210)) &&
                 it.second!!.quickFillButtons[1] == FiatValue.fromMajor(fiatCurrency, BigDecimal(450))
@@ -242,8 +251,9 @@ class SimpleBuyInteractorTest {
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(500))
         val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(500))
+        val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
 
-        val test = subject.getPrefillAndQuickFillAmounts(maxAmount, minAmount, assetCode, fiatCurrency).test()
+        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal.ZERO) &&
                 it.second == null

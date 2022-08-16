@@ -12,4 +12,6 @@ interface KycService {
     ): Single<KycTiers>
 
     fun getTiers(refreshStrategy: FreshnessStrategy): Flow<KycTiers>
+
+    fun markAsStale()
 }

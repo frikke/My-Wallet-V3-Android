@@ -314,7 +314,7 @@
     <string name="received_bitcoin_cash">Received Bitcoin Cash</string>
 
     <string name="portfolio">Portfolio</string>
-    <string name="brokerage">Brokerage</string>
+    <string name="brokerage_wallet_name" translatable="false">Trading Account</string>
     <string name="prices">Prices</string>
     <string name="send">Send</string>
     <string name="receive_share">Share Address</string>
@@ -2977,7 +2977,7 @@
 
     <string name="defi_onboarding_nav_title">DeFi Wallet</string>
 
-    <string name="defi_onboarding_intro_title">Introducing the DeFi Wallet</string>
+    <string name="defi_onboarding_intro_title">Introducing the %1$s</string>
     <string name="defi_onboarding_intro_description">Explore all of Web3 and DeFi in one place</string>
     <string name="defi_onboarding_intro_property1_title">Self-Custody Your Assets</string>
     <string name="defi_onboarding_intro_property1_subtitle">DeFi wallets are on-chain</string>
@@ -2987,7 +2987,7 @@
     <string name="defi_onboarding_intro_property3_subtitle">Log into DApps and sign transactions</string>
     <string name="defi_onboarding_intro_cta">Enable DeFi Wallet</string>
 
-    <string name="defi_onboarding_complete_title">Welcome to Your DeFi Wallet</string>
+    <string name="defi_onboarding_complete_title">Welcome to Your %1$s</string>
     <string name="defi_onboarding_complete_description">Your DeFi Wallet was successfully created. You DeFi wallet supports Bitcoin, Bitcoin Cash, Ethereum, |etc| and 1500 tokens.</string>
     <!-- Blockchain Card -->
     <string name="order_my_card">Order My Card</string>
@@ -3124,14 +3124,14 @@
     <string name="accessibility_24h_change">24 Hour Change</string>
     <string name="accessibility_referral">Show Referral Code</string>
     <string name="accessibility_price_not_available">Price not available</string>
+    <string name="accessibility_balance">Balance</string>
 
     <!-- Bottom Nav Items -->
     <string name="bottom_nav_home">Home</string>
     <string name="bottom_nav_prices">Prices</string>
     <string name="bottom_nav_buy_and_sell">Buy &amp; Sell</string>
     <string name="bottom_nav_activity">Activity</string>
-    <string name="defi_wallet">DeFi Wallet</string>
-    <string name="defi" translatable="false">DeFi</string>
+    <string name="defi_wallet_name" translatable="false">Private Key Wallet</string>
 
     <string name="simple_buy_quote_message">New Quote in %s</string>
     <string name="defi_current_balance">Current Balance</string>
@@ -3152,5 +3152,9 @@
     <string name="educational_wallet_mode_trading_description">Access your Trading and Rewards accounts and buy and sell crypto.</string>
     <string name="educational_wallet_mode_trading_secure_tag">Secured by Blockchain.com</string>
     <string name="educational_wallet_mode_cta">Get Started</string>
+
+    <!-- NFT -->
+    <string name="nft_coming_soon_title">Coming soon!</string>
+    <string name="nft_coming_soon_description">We’re working hard to support your NFTs in the wallet. We’ll send you an email when it’s time to update your app.</string>
 
 </resources>

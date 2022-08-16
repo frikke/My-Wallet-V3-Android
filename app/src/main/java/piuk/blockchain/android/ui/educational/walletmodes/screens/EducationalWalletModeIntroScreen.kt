@@ -59,7 +59,7 @@ fun EducationalWalletModeIntroScreen() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.75F)
+                .weight(0.6F)
         ) {
         }
     }

@@ -20,8 +20,11 @@ data class Options(
     private val _isHtml5Notifications: Boolean? = null,
 
     @SerialName("logout_time")
-    val logoutTime: Long
+    private val _logoutTime: Long? = null
 ) {
+
+    val logoutTime: Long
+        get() = _logoutTime ?: DEFAULT_LOGOUT_TIME
 
     companion object {
         private const val DEFAULT_FEE_PER_KB = 10000L
@@ -33,7 +36,7 @@ data class Options(
                 return Options(
                     pbkdf2Iterations = WalletWrapper.DEFAULT_PBKDF2_ITERATIONS_V2,
                     _isHtml5Notifications = DEFAULT_HTML5_NOTIFICATIONS,
-                    logoutTime = DEFAULT_LOGOUT_TIME,
+                    _logoutTime = DEFAULT_LOGOUT_TIME,
                     feePerKb = DEFAULT_FEE_PER_KB
                 )
             }

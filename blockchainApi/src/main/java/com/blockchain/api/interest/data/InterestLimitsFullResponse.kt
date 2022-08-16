@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class InterestTickerLimitsDto(
-    val tickerLimits: Map<String, InterestLimitsDto>
+    val limits: Map<String, InterestLimitsDto>
 )
 
 @Serializable

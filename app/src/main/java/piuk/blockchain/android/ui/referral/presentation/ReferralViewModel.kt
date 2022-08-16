@@ -24,7 +24,8 @@ class ReferralViewModel : MviViewModel<ReferralIntents,
                     code = code,
                     criteria = criteria,
                     rewardSubtitle = rewardSubtitle,
-                    rewardTitle = rewardTitle
+                    rewardTitle = rewardTitle,
+                    promotionStyleInfo = promotionData
                 )
             }
         }
@@ -37,7 +38,8 @@ class ReferralViewModel : MviViewModel<ReferralIntents,
                 criteria = criteria,
                 rewardSubtitle = rewardSubtitle,
                 rewardTitle = rewardTitle,
-                confirmCopiedToClipboard = confirmCopiedToClipboard
+                confirmCopiedToClipboard = confirmCopiedToClipboard,
+                promotionData = promotionStyleInfo
             )
         }
     }

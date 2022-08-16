@@ -31,6 +31,8 @@ import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.common.model.PromotionStyleInfo
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.minus
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
@@ -56,7 +58,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
-import piuk.blockchain.android.ui.cowboys.CowboysInfo
 import piuk.blockchain.android.ui.cowboys.FlowStep
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
@@ -99,6 +100,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkContract
 import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
+import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.v2.BankLinkingHost
@@ -524,6 +526,15 @@ class PortfolioFragment :
                             startActivity(
                                 CowboysFlowActivity.newIntent(requireContext(), FlowStep.Verify)
                             )
+                        }
+                    )
+                is DashboardCowboysState.CowboyReferFriendsCard ->
+                    showCowboysCard(
+                        cardInfo = cowboysState.cardInfo,
+                        onClick = {
+                            if (cowboysState.referralData is ReferralInfo.Data) {
+                                showBottomSheet(ReferralSheet.newInstance(cowboysState.referralData))
+                            }
                         },
                         isDismissable = true,
                         onDismiss = {
@@ -536,7 +547,7 @@ class PortfolioFragment :
     }
 
     private fun CustomBackgroundCardView.showCowboysCard(
-        cardInfo: CowboysInfo,
+        cardInfo: PromotionStyleInfo,
         onClick: () -> Unit,
         isDismissable: Boolean = false,
         onDismiss: () -> Unit = {}

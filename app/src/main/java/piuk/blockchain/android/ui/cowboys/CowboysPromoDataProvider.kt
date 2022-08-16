@@ -1,6 +1,10 @@
 package piuk.blockchain.android.ui.cowboys
 
 import com.blockchain.api.ActionData
+import com.blockchain.api.referral.data.MediaInfo
+import com.blockchain.api.referral.data.StyleInfo
+import com.blockchain.api.referral.data.UrlInfo
+import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.remoteconfig.RemoteConfig
 import io.reactivex.rxjava3.core.Single
@@ -13,33 +17,38 @@ class CowboysPromoDataProvider(
     private val json: Json
 ) {
 
-    fun getWelcomeInterstitial(): Single<CowboysInfo> =
+    fun getWelcomeInterstitial(): Single<PromotionStyleInfo> =
         config.getRawJson(KEY_INTERSTITIAL_WELCOME).map { data ->
             json.decodeFromString<CowboysData>(data).toDomain()
         }
 
-    fun getRaffleInterstitial(): Single<CowboysInfo> =
+    fun getRaffleInterstitial(): Single<PromotionStyleInfo> =
         config.getRawJson(KEY_INTERSTITIAL_RAFFLE).map { data ->
             json.decodeFromString<CowboysData>(data).toDomain()
         }
 
-    fun getIdentityInterstitial(): Single<CowboysInfo> =
+    fun getIdentityInterstitial(): Single<PromotionStyleInfo> =
         config.getRawJson(KEY_INTERSTITIAL_IDENTITY).map { data ->
             json.decodeFromString<CowboysData>(data).toDomain()
         }
 
-    fun getWelcomeAnnouncement(): Single<CowboysInfo> =
+    fun getWelcomeAnnouncement(): Single<PromotionStyleInfo> =
         config.getRawJson(KEY_ANNOUNCEMENT_WELCOME).map { data ->
             json.decodeFromString<CowboysData>(data).toDomain()
         }
 
-    fun getRaffleAnnouncement(): Single<CowboysInfo> =
+    fun getRaffleAnnouncement(): Single<PromotionStyleInfo> =
         config.getRawJson(KEY_ANNOUNCEMENT_RAFFLE).map { data ->
             json.decodeFromString<CowboysData>(data).toDomain()
         }
 
-    fun getIdentityAnnouncement(): Single<CowboysInfo> =
+    fun getIdentityAnnouncement(): Single<PromotionStyleInfo> =
         config.getRawJson(KEY_ANNOUNCEMENT_IDENTITY).map { data ->
+            json.decodeFromString<CowboysData>(data).toDomain()
+        }
+
+    fun getReferFriendsAnnouncement(): Single<PromotionStyleInfo> =
+        config.getRawJson(KEY_ANNOUNCEMENT_REFER).map { data ->
             json.decodeFromString<CowboysData>(data).toDomain()
         }
 
@@ -51,6 +60,7 @@ class CowboysPromoDataProvider(
         private const val KEY_ANNOUNCEMENT_RAFFLE = "${BASE_PATH}_raffle_announcement"
         private const val KEY_INTERSTITIAL_IDENTITY = "${BASE_PATH}_verify_identity_story"
         private const val KEY_ANNOUNCEMENT_IDENTITY = "${BASE_PATH}_verify_identity_announcement"
+        private const val KEY_ANNOUNCEMENT_REFER = "${BASE_PATH}_refer_friends_announcement"
     }
 }
 
@@ -60,33 +70,23 @@ enum class FlowStep {
     Verify
 }
 
-data class CowboysInfo(
-    val title: String,
-    val message: String,
-    val iconUrl: String,
-    val headerUrl: String,
-    val backgroundUrl: String,
-    val foregroundColorScheme: List<Float>,
-    val actions: List<ServerErrorAction>
-)
-
 @Serializable
 private data class CowboysData(
     val title: String,
     val message: String,
     val header: MediaInfo?,
     val icon: UrlInfo?,
-    val style: StyleInfo,
-    val actions: List<ActionData>
+    val style: StyleInfo?,
+    val actions: List<ActionData>,
 ) {
-    fun toDomain(): CowboysInfo =
-        CowboysInfo(
+    fun toDomain(): PromotionStyleInfo =
+        PromotionStyleInfo(
             title = title,
             message = message,
             iconUrl = icon?.url.orEmpty(),
             headerUrl = header?.media?.url.orEmpty(),
-            backgroundUrl = style.background?.media?.url.orEmpty(),
-            foregroundColorScheme = style.foreground?.color?.hsb ?: emptyList(),
+            backgroundUrl = style?.background?.media?.url.orEmpty(),
+            foregroundColorScheme = style?.foreground?.color?.hsb ?: emptyList(),
             actions = actions.map {
                 ServerErrorAction(
                     it.title,
@@ -95,29 +95,3 @@ private data class CowboysData(
             }
         )
 }
-
-@Serializable
-private data class StyleInfo(
-    val background: MediaInfo?,
-    val foreground: ColorInfo?
-)
-
-@Serializable
-private data class MediaInfo(
-    val media: UrlInfo
-)
-
-@Serializable
-private data class UrlInfo(
-    val url: String
-)
-
-@Serializable
-private data class ColorInfo(
-    val color: HSBInfo
-)
-
-@Serializable
-private data class HSBInfo(
-    val hsb: List<Float>
-)

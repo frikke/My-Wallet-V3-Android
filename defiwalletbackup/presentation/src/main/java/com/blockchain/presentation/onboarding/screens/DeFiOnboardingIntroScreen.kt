@@ -59,7 +59,7 @@ fun DeFiOnboardingIntroScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         NavigationBar(
-            title = stringResource(R.string.defi_onboarding_nav_title)
+            title = stringResource(R.string.defi_wallet_name)
         )
 
         Box {
@@ -86,7 +86,10 @@ fun DeFiOnboardingIntroScreen(
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
 
                 SimpleText(
-                    text = stringResource(R.string.defi_onboarding_intro_title),
+                    text = stringResource(
+                        R.string.defi_onboarding_intro_title,
+                        stringResource(R.string.defi_wallet_name)
+                    ),
                     style = ComposeTypographies.Title3,
                     color = ComposeColors.Title,
                     gravity = ComposeGravities.Centre

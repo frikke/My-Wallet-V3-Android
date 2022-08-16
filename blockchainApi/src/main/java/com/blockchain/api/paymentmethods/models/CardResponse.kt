@@ -41,6 +41,8 @@ data class SimpleBuyConfirmationAttributes(
     private val googlePayPayload: String? = null,
     @SerialName("cvv")
     private val cvv: String? = null,
+    @SerialName("isAsync")
+    val isAsync: Boolean? = null,
     @SerialName("paymentContact")
     private val paymentContact: PaymentContact? = null
 )
@@ -65,7 +67,6 @@ data class PaymentContact(
     private val lastname: String? = "",
     @SerialName("phone")
     private val phone: String? = ""
-
 )
 
 @Serializable

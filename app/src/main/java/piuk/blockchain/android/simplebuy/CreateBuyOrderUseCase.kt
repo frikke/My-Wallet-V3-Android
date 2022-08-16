@@ -1,5 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.commonarch.presentation.base.ActivityIndicator
+import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.models.BuyOrderAndQuote
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
@@ -28,12 +30,14 @@ import java.lang.IllegalStateException
 import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
+import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 class CreateBuyOrderUseCase(
     private val cancelOrderUseCase: CancelOrderUseCase,
     private val brokerageDataManager: BrokerageDataManager,
     private val custodialWalletManager: CustodialWalletManager,
+    private val _activityIndicator: Lazy<ActivityIndicator?>,
     buyQuoteRefreshFF: FeatureFlag,
 ) {
     private var latestPendingOrder: BuyOrderAndQuote? = null
@@ -47,6 +51,10 @@ class CreateBuyOrderUseCase(
                 latestPendingOrder = buyOrderAndQuote
             }
         }
+
+    private val activityIndicator: ActivityIndicator? by unsafeLazy {
+        _activityIndicator.value
+    }
 
     private val featureFlag = buyQuoteRefreshFF.enabled
 
@@ -67,7 +75,7 @@ class CreateBuyOrderUseCase(
                     selectedPaymentMethod,
                     order = order,
                     recurringBuyFrequency
-                )
+                ).trackProgress(activityIndicator)
             }
 
         val orderToGetCancelled = latestPendingOrder?.let {

@@ -16,6 +16,7 @@ import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
+import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
@@ -23,6 +24,8 @@ import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.referral.ReferralService
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
@@ -33,6 +36,7 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -104,7 +108,8 @@ class DashboardActionInteractor(
     private val referralPrefs: ReferralPrefs,
     private val cowboysFeatureFlag: FeatureFlag,
     private val settingsDataManager: SettingsDataManager,
-    private val cowboysDataProvider: CowboysPromoDataProvider
+    private val cowboysDataProvider: CowboysPromoDataProvider,
+    private val referralService: ReferralService
 ) {
 
     private val defFilter: AssetFilter
@@ -308,15 +313,23 @@ class DashboardActionInteractor(
 
     fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable =
         if (asset.startDate != null) {
-            coincore[asset].lastDayTrend()
+            coincore[asset].lastDayTrend().asObservable()
         } else {
-            Single.just(FLATLINE_CHART)
-        }.map { lastDayTrend ->
-            DashboardIntent.PriceHistoryUpdate(asset, lastDayTrend)
+            Observable.just(DataResource.Data(FLATLINE_CHART))
         }
             .subscribeBy(
-                onSuccess = { model.process(it) },
-                onError = { Timber.e(it) }
+                onNext = { dataResource ->
+                    when (dataResource) {
+                        is DataResource.Data -> {
+                            model.process(DashboardIntent.PriceHistoryUpdate(asset, dataResource.data))
+                        }
+                        is DataResource.Error -> {
+                            Timber.e(dataResource.error)
+                        }
+                        DataResource.Loading -> {
+                        }
+                    }
+                }
             )
 
     fun hasUserBackedUp(): Single<Boolean> = Single.just(payloadManager.isBackedUp)
@@ -730,7 +743,7 @@ class DashboardActionInteractor(
                 } else {
                     if (!walletMode.custodialEnabled) {
                         Single.just(DashboardOnboardingState.Hidden)
-                    } else
+                    } else {
                         getDashboardOnboardingStepsUseCase(Unit).doOnSuccess { steps ->
                             val hasBoughtCrypto =
                                 steps.find { it.step == DashboardOnboardingStep.BUY }?.isCompleted == true
@@ -742,6 +755,7 @@ class DashboardActionInteractor(
                                 DashboardOnboardingState.Hidden
                             }
                         }
+                    }
                 }
             }
         }.subscribeBy(
@@ -759,25 +773,7 @@ class DashboardActionInteractor(
             cowboysFeatureFlag.enabled,
         ).flatMap { (isCowboysUser, cowboysFlagEnabled) ->
             if (cowboysFlagEnabled && isCowboysUser) {
-                settingsDataManager.getSettings().firstOrError().flatMap { userSettings ->
-                    if (!userSettings.isEmailVerified) {
-                        cowboysDataProvider.getWelcomeAnnouncement().flatMap {
-                            Single.just(DashboardCowboysState.CowboyWelcomeCard(it))
-                        }
-                    } else {
-                        userIdentity.getHighestApprovedKycTier().flatMap { highestApprovedKycTier ->
-                            when (highestApprovedKycTier) {
-                                Tier.BRONZE -> cowboysDataProvider.getRaffleAnnouncement().flatMap {
-                                    Single.just(DashboardCowboysState.CowboyRaffleCard(it))
-                                }
-                                Tier.SILVER -> cowboysDataProvider.getIdentityAnnouncement().flatMap {
-                                    Single.just(DashboardCowboysState.CowboyIdentityCard(it))
-                                }
-                                else -> Single.just(DashboardCowboysState.Hidden)
-                            }
-                        }
-                    }
-                }
+                checkEmailVerificationState()
             } else {
                 Single.just(DashboardCowboysState.Hidden)
             }
@@ -790,6 +786,49 @@ class DashboardActionInteractor(
                 model.process(DashboardIntent.UpdateCowboysViewState(DashboardCowboysState.Hidden))
             }
         )
+
+    private fun checkEmailVerificationState(): Single<DashboardCowboysState> =
+        settingsDataManager.getSettings().firstOrError().flatMap { userSettings ->
+            if (!userSettings.isEmailVerified) {
+                cowboysDataProvider.getWelcomeAnnouncement().flatMap {
+                    Single.just(DashboardCowboysState.CowboyWelcomeCard(it))
+                }
+            } else {
+                checkHighestApprovedKycTier()
+            }
+        }
+
+    private fun checkHighestApprovedKycTier(): Single<DashboardCowboysState> =
+        userIdentity.getHighestApprovedKycTier().flatMap { highestApprovedKycTier ->
+            when (highestApprovedKycTier) {
+                Tier.BRONZE -> cowboysDataProvider.getRaffleAnnouncement().flatMap {
+                    Single.just(DashboardCowboysState.CowboyRaffleCard(it))
+                }
+                Tier.SILVER -> cowboysDataProvider.getIdentityAnnouncement().flatMap {
+                    Single.just(DashboardCowboysState.CowboyIdentityCard(it))
+                }
+                else -> getCowboysReferralInfo()
+            }
+        }
+
+    private fun getCowboysReferralInfo(): Single<DashboardCowboysState> =
+        Singles.zip(
+            getReferralData(),
+            cowboysDataProvider.getReferFriendsAnnouncement()
+        ).flatMap { (referralInfo, cowboysData) ->
+            Single.just(
+                DashboardCowboysState.CowboyReferFriendsCard(
+                    referralData = referralInfo,
+                    cardInfo = cowboysData
+                )
+            )
+        }
+
+    private fun getReferralData(): Single<ReferralInfo> =
+        rxSingle(Schedulers.io().asCoroutineDispatcher()) {
+            referralService.fetchReferralData()
+                .getOrDefault(ReferralInfo.NotAvailable)
+        }.onErrorResumeWith { ReferralInfo.NotAvailable }
 
     private fun getQuestionnaireIfNeeded(
         shouldSkipQuestionnaire: Boolean,

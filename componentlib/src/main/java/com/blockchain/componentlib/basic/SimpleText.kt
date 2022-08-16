@@ -14,14 +14,20 @@ fun SimpleText(
     modifier: Modifier = Modifier,
     style: ComposeTypographies,
     color: ComposeColors,
-    gravity: ComposeGravities
+    gravity: ComposeGravities,
+    isMultiline: Boolean = true
 ) {
     Text(
         modifier = modifier.fillMaxWidth(),
         text = text,
         style = style.toComposeTypography(),
         color = color.toComposeColor(),
-        textAlign = gravity.toTextAlignment()
+        textAlign = gravity.toTextAlignment(),
+        maxLines = if (isMultiline) {
+            Integer.MAX_VALUE
+        } else {
+            1
+        }
     )
 }
 

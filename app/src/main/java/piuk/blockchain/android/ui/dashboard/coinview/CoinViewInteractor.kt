@@ -23,6 +23,7 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistInfo
+import com.blockchain.data.DataResource
 import com.blockchain.extensions.minus
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -40,8 +41,10 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
+import kotlinx.coroutines.rx3.asObservable
 import piuk.blockchain.android.domain.repositories.TradeDataService
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
@@ -67,9 +70,11 @@ class CoinViewInteractor(
     fun loadAccountDetails(asset: CryptoAsset): Single<AssetInformation> =
         getAssetDisplayDetails(asset)
 
-    fun loadHistoricPrices(asset: CryptoAsset, timeSpan: HistoricalTimeSpan): Single<HistoricalRateList> =
-        asset.historicRateSeries(timeSpan)
-            .onErrorResumeNext { Single.just(emptyList()) }
+    fun loadHistoricPrices(
+        asset: CryptoAsset,
+        timeSpan: HistoricalTimeSpan
+    ): Observable<DataResource<HistoricalRateList>> =
+        asset.historicRateSeries(timeSpan).asObservable()
 
     fun loadAssetInformation(asset: AssetInfo): Single<DetailedAssetInformation> =
         assetsManager.getAssetInformation(asset)

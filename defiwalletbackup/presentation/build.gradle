@@ -50,6 +50,7 @@ dependencies {
     implementation Libraries.accompanistNavigationMaterial
     implementation Libraries.accompanistFlowLayout
     implementation Libraries.constraintLayoutCompose
+    implementation Libraries.composeUiPoolingContainer
 
     // test
     testImplementation project(':testutils')

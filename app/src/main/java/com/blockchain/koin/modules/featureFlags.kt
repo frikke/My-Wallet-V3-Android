@@ -10,6 +10,7 @@ import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.bindFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
+import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
@@ -236,6 +237,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_cowboys_promo",
                 "Enable Cowboys promotion"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(cardPaymentAsyncFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "ff_card_payment_async",
+                "Enable Async Card Payment"
             )
         )
     }.bind(FeatureFlag::class)

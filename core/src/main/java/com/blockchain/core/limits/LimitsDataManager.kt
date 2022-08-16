@@ -262,6 +262,9 @@ data class TxLimits(
         it.amount < amount
     } ?: false
 
+    fun isAmountInRange(amount: Money): Boolean =
+        !(isMinViolatedByAmount(amount) || isMaxViolatedByAmount(amount))
+
     // TODO we need to combine the suggested upgrades also but this requires some refactoring and can wait for now
     fun combineWith(other: TxLimits): TxLimits =
         this.copy(

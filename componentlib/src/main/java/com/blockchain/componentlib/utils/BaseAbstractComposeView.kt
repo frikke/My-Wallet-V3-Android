@@ -6,11 +6,15 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
-import com.blockchain.componentlib.R
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 
 /**
  * The issue with Compose XML preview is that Compose needs a lifecycleOwner and a savedStateRegistry to work, both of these
@@ -22,19 +26,40 @@ abstract class BaseAbstractComposeView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AbstractComposeView(context, attrs, defStyleAttr), LifecycleOwner, SavedStateRegistryOwner {
+) : AbstractComposeView(context, attrs, defStyleAttr) {
 
-    private lateinit var lifecycleRegistry: LifecycleRegistry
-    override lateinit var savedStateRegistry: SavedStateRegistry
+    private lateinit var fakeSavedStateRegistryOwner: SavedStateRegistryOwner
+    private lateinit var fakeViewModelStoreOwner: ViewModelStoreOwner
 
     init {
         if (isInEditMode) {
-            lifecycleRegistry = LifecycleRegistry(this as LifecycleOwner)
+            // Taken from androidx.compose.ui.tooling.ComposeViewAdapter.kt
+            fakeSavedStateRegistryOwner = object : SavedStateRegistryOwner {
+                private val lifecycle = LifecycleRegistry.createUnsafe(this)
+                private val controller = SavedStateRegistryController.create(this).apply {
+                    performRestore(Bundle())
+                }
+
+                init {
+                    lifecycle.currentState = Lifecycle.State.RESUMED
+                }
+
+                override val savedStateRegistry: SavedStateRegistry
+                    get() = controller.savedStateRegistry
+
+                override fun getLifecycle(): Lifecycle = lifecycle
+            }
+            fakeViewModelStoreOwner = object : ViewModelStoreOwner {
+                private val viewModelStore = ViewModelStore()
+
+                override fun getViewModelStore() = viewModelStore
+            }
+
+            ViewTreeLifecycleOwner.set(this, fakeSavedStateRegistryOwner)
+            setViewTreeSavedStateRegistryOwner(fakeSavedStateRegistryOwner)
+            ViewTreeViewModelStoreOwner.set(this, fakeViewModelStoreOwner)
         }
     }
-
-    @Deprecated(message = "Do not use, these are needed for Compose XML preview", level = DeprecationLevel.ERROR)
-    override fun getLifecycle(): Lifecycle = lifecycleRegistry
 
     private var ownerView: View? = null
     private fun getLastParent(): View {
@@ -47,40 +72,13 @@ abstract class BaseAbstractComposeView @JvmOverloads constructor(
         return lastParent
     }
 
-    private fun addViewTreeLifecycleOwner() {
-        ownerView?.setTag(R.id.view_tree_lifecycle_owner, this as LifecycleOwner)
-    }
-
-    private fun addSavedStateRegistryOwner() {
-        ownerView?.setTag(R.id.view_tree_saved_state_registry_owner, this as SavedStateRegistryOwner)
-    }
-
-    private fun removeViewTreeLifecycleOwner() {
-        ownerView?.setTag(R.id.view_tree_lifecycle_owner, null)
-    }
-
-    private fun removeSavedStateRegistryOwner() {
-        ownerView?.setTag(R.id.view_tree_saved_state_registry_owner, null)
-    }
-
     override fun onAttachedToWindow() {
         if (isInEditMode) {
             ownerView = getLastParent()
-            addViewTreeLifecycleOwner()
-            addSavedStateRegistryOwner()
-            lifecycleRegistry.currentState = Lifecycle.State.INITIALIZED
-            savedStateRegistry.performSave(Bundle())
-            lifecycleRegistry.currentState = Lifecycle.State.CREATED
+            ViewTreeLifecycleOwner.set(ownerView!!, fakeSavedStateRegistryOwner)
+            setViewTreeSavedStateRegistryOwner(fakeSavedStateRegistryOwner)
+            ViewTreeViewModelStoreOwner.set(ownerView!!, fakeViewModelStoreOwner)
         }
         super.onAttachedToWindow()
-    }
-
-    override fun onDetachedFromWindow() {
-        if (isInEditMode) {
-            removeViewTreeLifecycleOwner()
-            removeSavedStateRegistryOwner()
-            lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
-        }
-        super.onDetachedFromWindow()
     }
 }

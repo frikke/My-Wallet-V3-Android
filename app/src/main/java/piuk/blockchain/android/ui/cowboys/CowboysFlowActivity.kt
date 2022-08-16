@@ -33,6 +33,7 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.BUY_URL
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.KYC_URL
+import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.koin.scopedInject
@@ -53,7 +54,7 @@ import timber.log.Timber
 class CowboysFlowActivity : BlockchainActivity() {
 
     private var flowStep = FlowStep.Welcome
-    private var interstitialData by mutableStateOf<CowboysInfo?>(null)
+    private var interstitialData by mutableStateOf<PromotionStyleInfo?>(null)
     private val assetCatalogue: AssetCatalogue by scopedInject()
     private val cowboysDataProvider: CowboysPromoDataProvider by scopedInject()
     private val compositeDisposable = CompositeDisposable()
@@ -208,7 +209,7 @@ class CowboysFlowActivity : BlockchainActivity() {
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun CowboysInterstitial(
-    info: CowboysInfo,
+    info: PromotionStyleInfo,
     onPrimaryCtaClick: () -> Unit,
     onSecondaryCtaClick: () -> Unit
 ) {
@@ -283,7 +284,7 @@ fun CowboysInterstitial(
                     end.linkTo(parent.end)
                     bottom.linkTo(subtitle.top, margin = 8.dp)
                 },
-            markdownText = info.message,
+            markdownText = info.title,
             style = ComposeTypographies.Title1,
             gravity = ComposeGravities.Centre,
             color = ComposeColors.Light
@@ -352,7 +353,7 @@ fun CowboysInterstitial() {
     AppTheme {
         AppSurface {
             CowboysInterstitial(
-                info = CowboysInfo(
+                info = PromotionStyleInfo(
                     title = "Welcome cowboys",
                     message = "some longer text here to see how it looks",
                     iconUrl = "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com/o/" +

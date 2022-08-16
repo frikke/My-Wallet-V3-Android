@@ -46,8 +46,7 @@ fun CustomBackgroundCard(
     onClose: () -> Unit = {},
     onClick: () -> Unit = {},
     isDarkTheme: Boolean = isSystemInDarkTheme(),
-    textColor: Color = Color.White,
-    contentScale: ContentScale = ContentScale.Fit
+    textColor: Color = Color.White
 ) {
 
     val backgroundColor = if (!isDarkTheme) {

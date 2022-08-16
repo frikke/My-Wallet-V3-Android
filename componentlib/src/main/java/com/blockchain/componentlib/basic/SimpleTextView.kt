@@ -3,7 +3,8 @@ package com.blockchain.componentlib.basic
 import android.content.Context
 import android.util.AttributeSet
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +25,7 @@ class SimpleTextView @JvmOverloads constructor(
     var textColor by mutableStateOf(ComposeColors.Medium)
     var gravity by mutableStateOf(ComposeGravities.Start)
     var onClick by mutableStateOf(null as? (() -> Unit)?)
+    var isMultiline by mutableStateOf(true)
 
     @Composable
     override fun Content() {
@@ -32,7 +34,8 @@ class SimpleTextView @JvmOverloads constructor(
                 SimpleText(
                     text = text,
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .wrapContentWidth()
                         .let {
                             val onClick = onClick
                             if (onClick != null) it.clickable { onClick() }
@@ -41,6 +44,7 @@ class SimpleTextView @JvmOverloads constructor(
                     style = style,
                     color = textColor,
                     gravity = gravity,
+                    isMultiline = isMultiline
                 )
             }
         }

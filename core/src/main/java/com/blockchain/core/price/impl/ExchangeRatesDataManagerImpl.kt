@@ -10,11 +10,12 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore
 import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
+import com.blockchain.data.DataResource
 import com.blockchain.domain.common.model.toSeconds
-import com.blockchain.outcome.map
-import com.blockchain.outcome.mapError
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asObservable
+import com.blockchain.store.mapData
+import com.blockchain.store.mapError
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -25,8 +26,8 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.RoundingMode
 import java.util.Calendar
+import kotlinx.coroutines.flow.Flow
 import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 internal class ExchangeRatesDataManagerImpl(
     private val priceStore: AssetPriceStore,
@@ -190,23 +191,19 @@ internal class ExchangeRatesDataManagerImpl(
         asset: Currency,
         span: HistoricalTimeSpan,
         now: Calendar,
-    ): Single<HistoricalRateList> {
+    ): Flow<DataResource<HistoricalRateList>> {
         require(asset.startDate != null)
-        return rxSingleOutcome {
-            priceStore.getHistoricalPriceForAsset(asset, userFiat, span)
-                .map { prices -> prices.map { it.toHistoricalRate() } }
-                .mapError(transform = { AssetPriceNotFoundException(asset.networkTicker, userFiat.networkTicker) })
-        }
+        return priceStore.getHistoricalPriceForAsset(asset, userFiat, span)
+            .mapData { prices -> prices.map { it.toHistoricalRate() } }
+            .mapError { AssetPriceNotFoundException(asset.networkTicker, userFiat.networkTicker) }
     }
 
     override fun get24hPriceSeries(
         asset: Currency,
-    ): Single<HistoricalRateList> =
-        rxSingleOutcome {
-            priceStore.getHistoricalPriceForAsset(asset, userFiat, HistoricalTimeSpan.DAY)
-                .map { prices -> prices.map { it.toHistoricalRate() } }
-                .mapError(transform = { AssetPriceNotFoundException(asset.networkTicker, userFiat.networkTicker) })
-        }
+    ): Flow<DataResource<HistoricalRateList>> =
+        priceStore.getHistoricalPriceForAsset(asset, userFiat, HistoricalTimeSpan.DAY)
+            .mapData { prices -> prices.map { it.toHistoricalRate() } }
+            .mapError { AssetPriceNotFoundException(asset.networkTicker, userFiat.networkTicker) }
 
     override val fiatAvailableForRates: List<FiatCurrency>
         get() = priceStore.fiatQuoteTickers.mapNotNull {

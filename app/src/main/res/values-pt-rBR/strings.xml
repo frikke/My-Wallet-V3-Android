@@ -2524,7 +2524,6 @@ Se já tiver feito isso, <annotation link="contact_support">entre em contato com
     <string name="backup_phrase_intro_ack_2">Se eu expuser ou compartilhar minha frase secreta com alguém, meus fundos poderão ser roubados.</string>
     <string name="backup_phrase_intro_ack_3">É de minha total responsabilidade manter minha frase secreta segura.</string>
     <string name="sell_confirmation_disclaimer">O valor final pode mudar devido à atividade do mercado. Ao aprovar esta venda, você concorda com a <annotation link="refund_policy">Política de Reembolso</annotation> da Blockchain.com.</string>
-    <string name="brokerage">Corretagem</string>
     <string name="defi_wallet">DeFi Wallet</string>
     <string name="verify_phrase_incorrect_message">Ordem incorreta. Redefina ou toque em palavras individuais para remover.</string>
     <string name="verify_phrase_incorrect_button">Redefinir palavras</string>

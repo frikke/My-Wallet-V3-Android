@@ -32,7 +32,9 @@ class ReferralRepositoryTest {
         rewardSubtitle = "Reward Subtitle",
         code = REF_CODE,
         criteria = emptyList(),
-        campaignId = "UK rewards"
+        campaignId = "UK rewards",
+        announcement = null,
+        promotion = null
     )
 
     private val authenticator: Authenticator = mock {
@@ -69,7 +71,9 @@ class ReferralRepositoryTest {
             rewardSubtitle = referralResponse.rewardSubtitle,
             criteria = referralResponse.criteria,
             code = referralResponse.code,
-            campaignId = "UK rewards"
+            campaignId = "UK rewards",
+            announcementInfo = null,
+            promotionInfo = null
         )
 
         val result = referralRepository.fetchReferralData()

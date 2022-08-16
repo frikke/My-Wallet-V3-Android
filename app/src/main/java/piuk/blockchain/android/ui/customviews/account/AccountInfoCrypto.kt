@@ -110,7 +110,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
         with(binding) {
             val account = item.account
 
-            root.contentDescription = "$ACCOUNT_INFO_CRYPTO_VIEW_ID${account.currency.networkTicker}_${account.label}"
+            root.contentDescription = "${item.title} ${item.subTitle}"
 
             assetTitle.text = item.title
             assetSubtitle.text = item.subTitle
@@ -133,6 +133,10 @@ class AccountInfoCrypto @JvmOverloads constructor(
                         walletBalanceCrypto.text = accountBalance.toStringWithSymbol()
                         walletBalanceFiat.text =
                             accountBalance.toUserFiat(exchangeRates).toStringWithSymbol()
+
+                        root.contentDescription = "${item.title} ${item.subTitle}: " +
+                            "${context.getString(R.string.accessibility_balance)} " +
+                            "${walletBalanceFiat.text} ${walletBalanceCrypto.text}"
                     },
                     onError = {
                         Timber.e("Cannot get balance for ${account.label}")
