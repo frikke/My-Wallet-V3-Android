@@ -16,12 +16,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -46,9 +48,11 @@ fun ReferralCard(
 
     Box(
         modifier = Modifier
+            .padding(2.dp)
+            .shadow(2.dp, AppTheme.shapes.medium)
             .fillMaxWidth()
-            .background(Color.Transparent, shape = AppTheme.shapes.large)
             .clickable(onClick = onClick)
+            .background(color = Color.Transparent, shape = AppTheme.shapes.medium)
     ) {
 
         if (backgroundResourceUrl.isNotEmpty()) {
@@ -56,7 +60,8 @@ fun ReferralCard(
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier
                     .clipToBounds()
-                    .matchParentSize(),
+                    .matchParentSize()
+                    .align(Alignment.Center),
                 url = backgroundResourceUrl
             )
         } else {

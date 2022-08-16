@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -33,13 +32,13 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.MarkdownContent
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue000
 import com.blockchain.componentlib.theme.Blue600
-import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import piuk.blockchain.android.R
@@ -112,21 +111,21 @@ fun ReferralScreen(
 
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
-                SimpleText(
+                MarkdownContent(
                     style = ComposeTypographies.Title2,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
-                    text = promotionData?.title ?: rewardTitle
+                    markdownText = promotionData?.title ?: rewardTitle
                 )
 
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_margin)))
 
-                SimpleText(
+                MarkdownContent(
                     modifier = Modifier.padding(horizontal = AppTheme.dimensions.xxxPaddingLarge),
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
-                    text = promotionData?.message ?: rewardSubtitle
+                    markdownText = promotionData?.message ?: rewardSubtitle
                 )
 
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
@@ -198,10 +197,11 @@ fun ReferralCode(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text(
-            style = AppTheme.typography.title4,
-            color = Grey900,
-            text = code,
+        SimpleText(
+            style = ComposeTypographies.Title4,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre,
+            text = code
         )
 
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
@@ -245,23 +245,24 @@ fun SingleReferralCriteria(
         modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.standard_margin)),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
+        MarkdownContent(
             modifier = Modifier
                 .size(AppTheme.dimensions.paddingLarge)
                 .clip(CircleShape)
                 .background(Blue000),
-            style = AppTheme.typography.body2,
-            textAlign = TextAlign.Center,
-            color = Blue600,
-            text = (index + 1).toString(),
+            style = ComposeTypographies.Body2,
+            color = ComposeColors.Primary,
+            markdownText = (index + 1).toString(),
+            gravity = ComposeGravities.Centre
         )
 
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
-        Text(
-            style = AppTheme.typography.paragraph1,
-            color = if (isCustomBackground) Color.White else Grey900,
-            text = value,
+        MarkdownContent(
+            style = ComposeTypographies.Paragraph1,
+            color = if (isCustomBackground) ComposeColors.Light else ComposeColors.Title,
+            gravity = ComposeGravities.Centre,
+            markdownText = value
         )
     }
 }
@@ -272,7 +273,7 @@ fun ReferralCriteriaSeparator() {
         modifier = Modifier
             .padding(horizontal = 34.dp)
             .size(height = AppTheme.dimensions.paddingSmall, width = AppTheme.dimensions.xPaddingSmall)
-            .background(Color.Red)
+            .background(Blue000)
     )
 }
 

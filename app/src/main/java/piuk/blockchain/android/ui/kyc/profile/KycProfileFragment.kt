@@ -32,8 +32,10 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycProfileBinding
 import piuk.blockchain.android.ui.base.BaseFragment
+import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
+import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
 import piuk.blockchain.android.ui.kyc.navigate
@@ -93,6 +95,10 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
 
         progressListener.setupHostToolbar(R.string.kyc_profile_title)
 
+        if ((requireActivity() as? KycNavHostActivity)?.isCowboysUser == true) {
+            analytics.logEvent(CowboysAnalytics.KycPersonalInfoViewed)
+        }
+
         with(binding) {
             editTextKycFirstName.setOnEditorActionListener { _, i, _ ->
                 consume { if (i == EditorInfo.IME_ACTION_NEXT) binding.editTextKycLastName.requestFocus() }
@@ -127,6 +133,10 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
                                 "${binding.editTextDateOfBirth.text}"
                         )
                     )
+
+                    if ((requireActivity() as? KycNavHostActivity)?.isCowboysUser == true) {
+                        analytics.logEvent(CowboysAnalytics.KycPersonalInfoConfirmed)
+                    }
                 },
                 onError = { Timber.e(it) }
             )

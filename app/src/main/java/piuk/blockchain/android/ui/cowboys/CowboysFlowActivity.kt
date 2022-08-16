@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.cowboys
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -80,6 +81,17 @@ class CowboysFlowActivity : BlockchainActivity() {
 
         flowStep = startingFlowStep
         loadDataForStep(flowStep)
+        logViewAnalyticsForStep(flowStep)
+
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    logCloseEventAnalyticsForStep()
+                    navigateToMainActivity()
+                }
+            }
+        )
 
         setContentView(
             ComposeView(this).apply {
@@ -88,8 +100,14 @@ class CowboysFlowActivity : BlockchainActivity() {
                         interstitialData?.let { data ->
                             CowboysInterstitial(
                                 info = data,
-                                onPrimaryCtaClick = { getPrimaryCtaAction(data.actions[0].deeplinkPath) },
-                                onSecondaryCtaClick = { navigateToMainActivity() }
+                                onPrimaryCtaClick = {
+                                    logPrimaryCtaAnalyticsForStep()
+                                    getPrimaryCtaAction(data.actions[0].deeplinkPath)
+                                },
+                                onSecondaryCtaClick = {
+                                    logCloseEventAnalyticsForStep()
+                                    navigateToMainActivity()
+                                }
                             )
                         }
                     }
@@ -193,6 +211,27 @@ class CowboysFlowActivity : BlockchainActivity() {
         compositeDisposable.clear()
         super.onDestroy()
     }
+
+    private fun logCloseEventAnalyticsForStep() =
+        when (flowStep) {
+            FlowStep.Welcome -> analytics.logEvent(CowboysAnalytics.WelcomeInterstitialClosed)
+            FlowStep.Raffle -> analytics.logEvent(CowboysAnalytics.RaffleInterstitialClosed)
+            FlowStep.Verify -> analytics.logEvent(CowboysAnalytics.VerifyIdInterstitialClosed)
+        }
+
+    private fun logPrimaryCtaAnalyticsForStep() =
+        when (flowStep) {
+            FlowStep.Welcome -> analytics.logEvent(CowboysAnalytics.WelcomeInterstitialContinueClicked)
+            FlowStep.Raffle -> analytics.logEvent(CowboysAnalytics.RaffleInterstitialBuyClicked)
+            FlowStep.Verify -> analytics.logEvent(CowboysAnalytics.VerifyIdInterstitialCtaClicked)
+        }
+
+    private fun logViewAnalyticsForStep(flowStep: FlowStep) =
+        when (flowStep) {
+            FlowStep.Welcome -> analytics.logEvent(CowboysAnalytics.WelcomeInterstitialViewed)
+            FlowStep.Raffle -> analytics.logEvent(CowboysAnalytics.RaffleInterstitialViewed)
+            FlowStep.Verify -> analytics.logEvent(CowboysAnalytics.VerifyIdInterstitialViewed)
+        }
 
     companion object {
         private const val SDD_REQUEST = 567
@@ -303,11 +342,6 @@ fun CowboysInterstitial(
             style = ComposeTypographies.Body1,
             gravity = ComposeGravities.Centre,
             color = ComposeColors.Light
-        )
-
-        createVerticalChain(
-            foregroundImage, icon, title, subtitle,
-            chainStyle = ChainStyle.Packed(0f)
         )
 
         createVerticalChain(

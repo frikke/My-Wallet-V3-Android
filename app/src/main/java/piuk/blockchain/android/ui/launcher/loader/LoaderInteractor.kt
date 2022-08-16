@@ -120,8 +120,11 @@ class LoaderInteractor(
         userIdentity.getHighestApprovedKycTier(),
         cowboysPromoFeatureFlag.enabled,
     ) { isCowboysUser, highestTier, isCowboysFlagEnabled ->
-        if (isCowboysFlagEnabled && isCowboysUser && highestTier == Tier.BRONZE) {
-            if (!cowboysPrefs.hasSeenCowboysFlow) {
+        if (isCowboysFlagEnabled && isCowboysUser) {
+            // reset flag on login
+            cowboysPrefs.hasCowboysReferralBeenDismissed = false
+
+            if (highestTier == Tier.BRONZE && !cowboysPrefs.hasSeenCowboysFlow) {
                 cowboysPrefs.hasSeenCowboysFlow = true
                 emitter.onNext(
                     LoaderIntents.UpdateCowboysPromo(isCowboysPromoUser = true)
