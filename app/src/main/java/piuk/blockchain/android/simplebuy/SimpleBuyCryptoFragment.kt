@@ -1287,6 +1287,15 @@ class SimpleBuyCryptoFragment :
         errorState != TransactionErrorState.NONE && amount.isPositive
 }
 
+fun RecurringBuyFrequency.toRecurringBuySuggestionTitle(context: Context): String {
+    return when (this) {
+        RecurringBuyFrequency.WEEKLY -> context.getString(R.string.checkout_rb_weekly_title)
+        RecurringBuyFrequency.BI_WEEKLY -> context.getString(R.string.checkout_rb_biweekly_title)
+        RecurringBuyFrequency.MONTHLY -> context.getString(R.string.checkout_rb_monthly_title)
+        else -> context.getString(R.string.checkout_rb_weekly_title)
+    }
+}
+
 fun RecurringBuyFrequency.toHumanReadableRecurringBuy(context: Context): String {
     return when (this) {
         RecurringBuyFrequency.ONE_TIME -> context.getString(R.string.recurring_buy_one_time_selector)

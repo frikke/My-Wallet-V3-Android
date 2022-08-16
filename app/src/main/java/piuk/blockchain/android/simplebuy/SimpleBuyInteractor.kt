@@ -168,6 +168,34 @@ class SimpleBuyInteractor(
 
     fun cancelOrder(orderId: String): Completable = cancelOrderUseCase.invoke(orderId)
 
+    fun confirmOrderAndCreateRecurringBuy(
+        orderId: String,
+        paymentMethodId: String?,
+        attributes: SimpleBuyConfirmationAttributes?,
+        isBankPartner: Boolean?,
+        asset: AssetInfo?,
+        order: SimpleBuyOrder,
+        selectedPaymentMethod: SelectedPaymentMethod?,
+        recurringBuyFrequency: RecurringBuyFrequency
+    ): Single<Pair<BuySellOrder, RecurringBuyOrder>> {
+        return Single.zip(
+            confirmOrder(
+                orderId = orderId,
+                paymentMethodId = paymentMethodId,
+                attributes = attributes,
+                isBankPartner = isBankPartner
+            ),
+            createRecurringBuyOrder(
+                asset = asset,
+                order = order,
+                selectedPaymentMethod = selectedPaymentMethod,
+                recurringBuyFrequency = recurringBuyFrequency
+            )
+        ) { buySellOrder, recurringBuy ->
+            Pair(buySellOrder, recurringBuy)
+        }
+    }
+
     fun createRecurringBuyOrder(
         asset: AssetInfo?,
         order: SimpleBuyOrder,

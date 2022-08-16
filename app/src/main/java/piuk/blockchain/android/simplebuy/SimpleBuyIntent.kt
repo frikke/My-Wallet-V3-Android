@@ -437,6 +437,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     class OrderConfirmed(
         private val buyOrder: BuySellOrder,
+        private val isRbActive: Boolean
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
@@ -445,10 +446,10 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                 paymentSucceeded = buyOrder.state == OrderState.FINISHED,
                 isLoading = false,
                 orderValue = buyOrder.orderValue as CryptoValue,
-                recurringBuyState = if (buyOrder.recurringBuyId.isNullOrBlank()) {
-                    RecurringBuyState.UNINITIALISED
-                } else {
+                recurringBuyState = if (isRbActive || buyOrder.recurringBuyId?.isNotEmpty() == true) {
                     RecurringBuyState.ACTIVE
+                } else {
+                    RecurringBuyState.UNINITIALISED
                 }
             )
     }
@@ -569,15 +570,33 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(recurringBuyFrequency = recurringBuyFrequency)
     }
 
-    class RecurringBuySelectedFirstTimeFlow(val recurringBuyFrequency: RecurringBuyFrequency) :
+    class RecurringBuySelectedFirstTimeFlow(
+        val recurringBuyFrequency: RecurringBuyFrequency
+    ) :
         SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(recurringBuyFrequency = recurringBuyFrequency)
     }
 
-    object RecurringBuyCreatedFirstTimeFlow : SimpleBuyIntent() {
+    class RecurringBuySuggestionAccepted(
+        val recurringBuyFrequency: RecurringBuyFrequency,
+        val googlePayPayload: String? = null,
+        val googlePayAddress: GooglePayAddress? = null
+    ) :
+        SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(recurringBuyState = RecurringBuyState.ACTIVE)
+            oldState.copy(
+                confirmationActionRequested = true,
+                isLoading = true
+            )
+    }
+
+    class RecurringBuyCreated(val recurringBuyFrequency: RecurringBuyFrequency) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(
+                recurringBuyState = RecurringBuyState.ACTIVE,
+                recurringBuyFrequency = recurringBuyFrequency
+            )
     }
 
     class RecurringBuyEligibilityUpdated(

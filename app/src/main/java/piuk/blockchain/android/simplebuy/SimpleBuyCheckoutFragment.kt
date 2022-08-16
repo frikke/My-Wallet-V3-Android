@@ -37,6 +37,7 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -92,9 +93,13 @@ class SimpleBuyCheckoutFragment :
 
     override val model: SimpleBuyModel by scopedInject()
     private val googlePayManager: GooglePayManager by inject()
+    private var updateRecurringBuy: Boolean = false
 
     private var lastState: SimpleBuyState? = null
-    private val checkoutAdapterDelegate = CheckoutAdapterDelegate()
+    private val checkoutAdapterDelegate = CheckoutAdapterDelegate(
+        onToggleChanged = { updateRecurringBuy = it }
+    )
+
     private var countDownTimer: CountDownTimer? = null
     private var chunksCounter = mutableListOf<Int>()
 
@@ -108,9 +113,11 @@ class SimpleBuyCheckoutFragment :
 
     private val buyQuoteRefreshFF: FeatureFlag by scopedInject(buyRefreshQuoteFeatureFlag)
     private val plaidFF: FeatureFlag by scopedInject(plaidFeatureFlag)
+    private val rbFrequencySuggestionFF: FeatureFlag by scopedInject(rbFrequencyFeatureFlag)
     private val compositeDisposable = CompositeDisposable()
     private var animateRefreshQuote = false
     private var isPlaidEnabled = false
+    private var isRbFrequencyEnabled = false
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimplebuyCheckoutBinding =
         FragmentSimplebuyCheckoutBinding.inflate(inflater, container, false)
@@ -136,6 +143,13 @@ class SimpleBuyCheckoutFragment :
         compositeDisposable += plaidFF.enabled.onErrorReturn { false }
             .subscribe { enabled ->
                 isPlaidEnabled = enabled
+            }
+
+        compositeDisposable += rbFrequencySuggestionFF.enabled.onErrorReturn { false }
+            .subscribe { enabled ->
+                if (enabled) {
+                    isRbFrequencyEnabled = true
+                }
             }
 
         binding.recycler.apply {
@@ -482,9 +496,23 @@ class SimpleBuyCheckoutFragment :
                 state.amount.toStringWithSymbol(),
                 isImportant = true,
                 hasChanged = false
-            )
+            ),
+            if (state.suggestEnablingRecurringBuyFrequency()) {
+                SimpleBuyCheckoutItem.ToggleCheckoutItem(
+                    title = RecurringBuyFrequency.WEEKLY.toRecurringBuySuggestionTitle(requireContext()),
+                    subtitle = getString(
+                        R.string.checkout_rb_subtitle,
+                        RecurringBuyFrequency.WEEKLY.toHumanReadableRecurringBuy(requireContext()),
+                        RecurringBuyFrequency.WEEKLY.toHumanReadableRecurringDate(requireContext(), ZonedDateTime.now())
+                    )
+                )
+            } else null
         )
     }
+
+    private fun SimpleBuyState.suggestEnablingRecurringBuyFrequency(): Boolean =
+        isRbFrequencyEnabled && this.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME &&
+            this.recurringBuyEligiblePaymentMethods.contains(this.selectedPaymentMethod?.paymentMethodType)
 
     private fun buildPaymentMethodItem(state: SimpleBuyState): SimpleBuyCheckoutItem? =
         state.selectedPaymentMethod?.let {
@@ -561,11 +589,21 @@ class SimpleBuyCheckoutFragment :
                             SettlementReason.UNKNOWN,
                             SettlementReason.NONE -> {
                                 if (animateRefreshQuote) quoteExpiration.invisible()
-                                model.process(SimpleBuyIntent.ConfirmOrder)
+
+                                if (updateRecurringBuy) {
+                                    model.process(
+                                        SimpleBuyIntent.RecurringBuySuggestionAccepted(
+                                            recurringBuyFrequency = RecurringBuyFrequency.WEEKLY
+                                        )
+                                    )
+                                } else {
+                                    model.process(SimpleBuyIntent.ConfirmOrder)
+                                }
                                 analytics.logEvent(
                                     eventWithPaymentMethod(
                                         SimpleBuyAnalytics.CHECKOUT_SUMMARY_CONFIRMED,
-                                        state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
+                                        state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString()
+                                            .orEmpty()
                                     )
                                 )
                             }
@@ -850,24 +888,46 @@ class SimpleBuyCheckoutFragment :
     }
 
     override fun onGooglePayTokenReceived(token: String, address: PaymentDataResponse.Address?) {
-        model.process(
-            SimpleBuyIntent.ConfirmGooglePayOrder(
-                googlePayPayload = token,
-                googlePayAddress = address?.let {
-                    GooglePayAddress(
-                        address1 = it.address1.orEmpty(),
-                        address2 = it.address2.orEmpty(),
-                        address3 = it.address3.orEmpty(),
-                        administrativeArea = it.administrativeArea.orEmpty(),
-                        countryCode = it.countryCode.orEmpty(),
-                        locality = it.locality.orEmpty(),
-                        name = it.name.orEmpty(),
-                        postalCode = it.postalCode.orEmpty(),
-                        sortingCode = it.sortingCode.orEmpty()
-                    )
-                }
+        if (updateRecurringBuy) {
+            model.process(
+                SimpleBuyIntent.RecurringBuySuggestionAccepted(
+                    RecurringBuyFrequency.WEEKLY,
+                    googlePayPayload = token,
+                    googlePayAddress = address?.let {
+                        GooglePayAddress(
+                            address1 = it.address1.orEmpty(),
+                            address2 = it.address2.orEmpty(),
+                            address3 = it.address3.orEmpty(),
+                            administrativeArea = it.administrativeArea.orEmpty(),
+                            countryCode = it.countryCode.orEmpty(),
+                            locality = it.locality.orEmpty(),
+                            name = it.name.orEmpty(),
+                            postalCode = it.postalCode.orEmpty(),
+                            sortingCode = it.sortingCode.orEmpty()
+                        )
+                    }
+                ),
             )
-        )
+        } else {
+            model.process(
+                SimpleBuyIntent.ConfirmGooglePayOrder(
+                    googlePayPayload = token,
+                    googlePayAddress = address?.let {
+                        GooglePayAddress(
+                            address1 = it.address1.orEmpty(),
+                            address2 = it.address2.orEmpty(),
+                            address3 = it.address3.orEmpty(),
+                            administrativeArea = it.administrativeArea.orEmpty(),
+                            countryCode = it.countryCode.orEmpty(),
+                            locality = it.locality.orEmpty(),
+                            name = it.name.orEmpty(),
+                            postalCode = it.postalCode.orEmpty(),
+                            sortingCode = it.sortingCode.orEmpty()
+                        )
+                    }
+                )
+            )
+        }
         binding.buttonGooglePay.showLoading()
     }
 

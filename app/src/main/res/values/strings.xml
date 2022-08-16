@@ -2234,6 +2234,10 @@
     <string name="checkout_fee_free">When using Trading Accounts, there are no network fees</string>
     <string name="private_key_wallet_explanation">%s Private Key wallets, send, and receive are not supported at this time.</string>
     <string name="checkout_rewards_confirmation_disclaimer">After confirming this withdrawal, you will not continue to earn rewards on the amount withdrawn.\n\nYour %1$s will be available in your \"%2$s\" Account within 2 days.</string>
+    <string name="checkout_rb_weekly_title">Invest Weekly?</string>
+    <string name="checkout_rb_biweekly_title">Invest bi-Weekly?</string>
+    <string name="checkout_rb_monthly_title">Invest Monthly?</string>
+    <string name="checkout_rb_subtitle">Buy %1$s %2$s. Cancel anytime.</string>
 
     <!-- New pairing -->
     <string name="pairing_wallet_title">Pair your wallet</string>

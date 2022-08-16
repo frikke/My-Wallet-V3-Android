@@ -99,7 +99,7 @@ data class SimpleBuyState constructor(
         )
     }
 
-    private val recurringBuyEligiblePaymentMethods: List<PaymentMethodType> by lazy {
+    val recurringBuyEligiblePaymentMethods: List<PaymentMethodType> by lazy {
         eligibleAndNextPaymentRecurringBuy.flatMap { it.eligibleMethods }
             .distinct()
     }

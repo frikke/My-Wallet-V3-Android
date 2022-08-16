@@ -53,6 +53,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.rx3.rxSingle
@@ -343,7 +344,7 @@ class SimpleBuyModel(
                     id = previousState.id,
                     selectedPaymentMethod = previousState.selectedPaymentMethod,
                     amount = previousState.amount,
-                    pair = CurrencyPair(previousState.selectedCryptoAsset, previousState.fiatCurrency).rawValue
+                    pair = CurrencyPair(previousState.selectedCryptoAsset, previousState.fiatCurrency).rawValue,
                 )
             }
             is SimpleBuyIntent.ConfirmGooglePayOrder -> {
@@ -355,7 +356,20 @@ class SimpleBuyModel(
                     googlePayAddress = intent.googlePayAddress,
                     amount = previousState.amount,
                     pair = CurrencyPair(previousState.selectedCryptoAsset, previousState.fiatCurrency).rawValue,
-                    selectedPaymentMethod = previousState.selectedPaymentMethod
+                    selectedPaymentMethod = previousState.selectedPaymentMethod,
+                )
+            }
+            is SimpleBuyIntent.RecurringBuySuggestionAccepted -> {
+                require(previousState.id != null) { "RecurringBuySuggestionAccepted Missing id" }
+                processConfirmOrderAndCreateRecurringBuy(
+                    orderId = previousState.id,
+                    googlePayPayload = intent.googlePayPayload,
+                    googlePayBeneficiaryId = previousState.googlePayDetails?.beneficiaryId,
+                    googlePayAddress = intent.googlePayAddress,
+                    asset = previousState.selectedCryptoAsset,
+                    order = previousState.order,
+                    selectedPaymentMethod = previousState.selectedPaymentMethod,
+                    recurringBuyFrequency = intent.recurringBuyFrequency
                 )
             }
             is SimpleBuyIntent.FinishedFirstBuy -> null
@@ -387,11 +401,11 @@ class SimpleBuyModel(
                     previousState.selectedCryptoAsset,
                     previousState.order,
                     previousState.selectedPaymentMethod,
-                    intent.recurringBuyFrequency
+                    intent.recurringBuyFrequency,
                 ).subscribeBy(
                     onSuccess =
                     {
-                        process(SimpleBuyIntent.RecurringBuyCreatedFirstTimeFlow)
+                        process(SimpleBuyIntent.RecurringBuyCreated(intent.recurringBuyFrequency))
                     },
                     onError =
                     {
@@ -883,6 +897,44 @@ class SimpleBuyModel(
         }
     }
 
+    private fun processConfirmOrderAndCreateRecurringBuy(
+        orderId: String,
+        googlePayPayload: String?,
+        googlePayBeneficiaryId: String?,
+        googlePayAddress: GooglePayAddress?,
+        asset: AssetInfo?,
+        order: SimpleBuyOrder,
+        selectedPaymentMethod: SelectedPaymentMethod?,
+        recurringBuyFrequency: RecurringBuyFrequency
+    ): Disposable {
+        return Singles.zip(
+            confirmOrder(
+                id = orderId,
+                selectedPaymentMethod = selectedPaymentMethod,
+                googlePayPayload = googlePayPayload,
+                googlePayBeneficiaryId = googlePayBeneficiaryId,
+                googlePayAddress = googlePayAddress,
+            ),
+            createRecurringBuy(
+                selectedCryptoAsset = asset,
+                order = order,
+                selectedPaymentMethod = selectedPaymentMethod,
+                recurringBuyFrequency = recurringBuyFrequency
+            ).trackProgress(activityIndicator)
+                .doOnTerminate { buyOrdersCache.invalidate() }
+        ).subscribeBy(
+            onSuccess =
+            {
+                process(SimpleBuyIntent.RecurringBuyCreated(recurringBuyFrequency))
+                triggerIntentsAfterOrderConfirmed(it.first, true)
+            },
+            onError =
+            {
+                processOrderErrors(it)
+            }
+        )
+    }
+
     private fun createRecurringBuy(
         selectedCryptoAsset: AssetInfo?,
         order: SimpleBuyOrder,
@@ -954,7 +1006,7 @@ class SimpleBuyModel(
         googlePayBeneficiaryId: String? = null,
         googlePayAddress: GooglePayAddress? = null,
         amount: FiatValue,
-        pair: String,
+        pair: String
     ): Disposable {
 
         return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId, googlePayAddress)
@@ -963,19 +1015,7 @@ class SimpleBuyModel(
             .doOnTerminate { buyOrdersCache.invalidate() }
             .subscribeBy(
                 onSuccess = { buySellOrder ->
-                    val orderCreatedSuccessfully = buySellOrder!!.state == OrderState.FINISHED
-
-                    if (orderCreatedSuccessfully) {
-                        updatePersistingCountersForCompletedOrders(
-                            pair = buySellOrder.pair,
-                            amount = buySellOrder.source.toStringWithoutSymbol(),
-                            paymentMethodId = buySellOrder.paymentMethodId
-                        )
-                    }
-                    process(SimpleBuyIntent.StopQuotesUpdate(true))
-                    process(
-                        SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder)
-                    )
+                    triggerIntentsAfterOrderConfirmed(buySellOrder)
                 },
                 onError = {
                     interactor.saveOrderAmountAndPaymentMethodId(
@@ -986,6 +1026,21 @@ class SimpleBuyModel(
                     processOrderErrors(it)
                 }
             )
+    }
+
+    private fun triggerIntentsAfterOrderConfirmed(buySellOrder: BuySellOrder, isRbEnabled: Boolean = false) {
+        val orderCreatedSuccessfully = buySellOrder.state == OrderState.FINISHED
+
+        if (orderCreatedSuccessfully) {
+            updatePersistingCountersForCompletedOrders(
+                pair = buySellOrder.pair,
+                amount = buySellOrder.source.toStringWithoutSymbol(),
+                paymentMethodId = buySellOrder.paymentMethodId
+            )
+        }
+        process(SimpleBuyIntent.StopQuotesUpdate(true))
+
+        process(SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, isRbActive = isRbEnabled))
     }
 
     private fun processOrderErrors(it: Throwable) {
