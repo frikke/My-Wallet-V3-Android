@@ -17,15 +17,19 @@ class CoinviewViewModel(
         (coincore[args.networkTicker] as? CryptoAsset)?.let { asset ->
             updateState { it.copy(asset = asset) }
         } ?: error("")
+
+        loadData()
     }
 
-    override fun reduce(state: CoinviewModelState): CoinviewViewState {
-        return CoinviewViewState(
-            networkTicker = state.asset?.currency?.networkTicker ?: ""
+    override fun reduce(state: CoinviewModelState): CoinviewViewState = state.run {
+        CoinviewViewState(
+            assetName = asset?.currency?.name ?: "",
+            price = CoinviewPriceState.Loading
         )
     }
 
     private fun loadData() {
+        updateState { it.copy(isLoading = true) }
     }
 
     override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntents) {

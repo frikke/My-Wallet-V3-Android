@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.navigation.NavigationBar
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
 
@@ -29,7 +30,7 @@ fun Coinview(
     viewState?.let { state ->
         CoinviewScreen(
             backOnClick = backOnClick,
-            networkTicker = state.networkTicker
+            networkTicker = state.assetName
         )
     }
 }
@@ -45,6 +46,7 @@ fun CoinviewScreen(
             onBackButtonClick = backOnClick
         )
 
+        AssetPrice(CoinviewPriceState.Loading)
     }
 }
 
