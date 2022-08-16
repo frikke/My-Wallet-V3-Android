@@ -39,6 +39,8 @@ import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -57,6 +59,7 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewActivity
 import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
 import piuk.blockchain.android.ui.cowboys.FlowStep
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
@@ -333,11 +336,15 @@ class PortfolioFragment :
             }
             is DashboardNavigationAction.Coinview -> {
                 activityResultsContract.launch(
-                    CoinViewActivity.newIntent(
-                        context = requireContext(),
-                        asset = navigationAction.asset,
-                        originScreen = LaunchOrigin.HOME.name,
-                    )
+                    if (get<WalletModeService>().enabledWalletMode() == WalletMode.CUSTODIAL_ONLY) {
+                        CoinViewActivity.newIntent(
+                            context = requireContext(),
+                            asset = navigationAction.asset,
+                            originScreen = LaunchOrigin.HOME.name,
+                        )
+                    } else {
+                        CoinviewActivity.newIntent(context = requireContext(), asset = navigationAction.asset)
+                    }
                 )
                 model.process(DashboardIntent.ResetNavigation)
             }
