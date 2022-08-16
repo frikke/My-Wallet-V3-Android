@@ -821,15 +821,13 @@ class DashboardActionInteractor(
         if (cowboysPrefs.hasCowboysReferralBeenDismissed) {
             Single.just(DashboardCowboysState.Hidden)
         } else {
-            Singles.zip(
+            Single.zip(
                 getReferralData(),
                 cowboysDataProvider.getReferFriendsAnnouncement()
-            ).flatMap { (referralInfo, cowboysData) ->
-                Single.just(
-                    DashboardCowboysState.CowboyReferFriendsCard(
-                        referralData = referralInfo,
-                        cardInfo = cowboysData
-                    )
+            ) { referralInfo, cowboysData ->
+                DashboardCowboysState.CowboyReferFriendsCard(
+                    referralData = referralInfo,
+                    cardInfo = cowboysData
                 )
             }
         }
