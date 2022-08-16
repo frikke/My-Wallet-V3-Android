@@ -4,14 +4,13 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -105,11 +104,11 @@ fun ManageCard(
     isTransactionListRefreshing: Boolean,
     transactionList: List<BlockchainCardTransaction>?,
     onManageCardDetails: () -> Unit,
-    onChoosePaymentMethod: () -> Unit,
-    onTopUp: () -> Unit,
+    onFundingAccountClicked: () -> Unit,
     onRefreshBalance: () -> Unit,
     onSeeTransactionDetails: (BlockchainCardTransaction) -> Unit,
-    onRefreshTransactions: () -> Unit
+    onRefreshTransactions: () -> Unit,
+    onRefreshCardWidgetUrl: () -> Unit
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -168,24 +167,50 @@ fun ManageCard(
                 )
             }
 
-            if (!cardWidgetUrl.isNullOrEmpty()) {
-                Webview(
-                    url = cardWidgetUrl,
-                    disableScrolling = true,
-                    modifier = Modifier
-                        .padding(
-                            top = AppTheme.dimensions.paddingMedium
+            when (cardWidgetUrl) {
+                null -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.padding(
+                            horizontal = AppTheme.dimensions.paddingMedium,
+                            vertical = AppTheme.dimensions.xxxPaddingLarge
                         )
-                        .requiredHeight(355.dp)
-                        .requiredWidth(200.dp)
-                )
-            } else {
-                CircularProgressIndicator(
-                    modifier = Modifier.padding(
-                        horizontal = AppTheme.dimensions.paddingMedium,
-                        vertical = AppTheme.dimensions.xxxPaddingLarge
                     )
-                )
+                }
+
+                "" -> {
+                    SimpleText(
+                        text = stringResource(R.string.bc_card_unable_to_load_card),
+                        style = ComposeTypographies.Body1,
+                        color = ComposeColors.Dark,
+                        gravity = ComposeGravities.Centre,
+                        modifier = Modifier.padding(top = AppTheme.dimensions.paddingLarge)
+                    )
+
+                    SimpleText(
+                        text = stringResource(R.string.bc_card_tap_here_to_try_again),
+                        style = ComposeTypographies.Caption1,
+                        color = ComposeColors.Primary,
+                        gravity = ComposeGravities.Centre,
+                        modifier = Modifier
+                            .padding(vertical = AppTheme.dimensions.paddingSmall)
+                            .clickable {
+                                onRefreshCardWidgetUrl()
+                            }
+                    )
+                }
+
+                else -> {
+                    Webview(
+                        url = cardWidgetUrl,
+                        disableScrolling = true,
+                        modifier = Modifier
+                            .padding(
+                                top = AppTheme.dimensions.paddingMedium
+                            )
+                            .requiredHeight(355.dp)
+                            .requiredWidth(200.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
@@ -196,45 +221,13 @@ fun ManageCard(
                 elevation = 0.dp,
                 shape = RoundedCornerShape(20.dp)
             ) {
-
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    if (linkedAccountBalance != null)
-                        AccountItem(
-                            accountBalance = linkedAccountBalance,
-                            onAccountSelected = { }
-                        )
-                    else if (isBalanceLoading)
-                        ShimmerLoadingTableRow()
-
-                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(IntrinsicSize.Min)
-                            .padding(AppTheme.dimensions.paddingMedium),
-                    ) {
-
-                        PrimaryButton(
-                            text = stringResource(R.string.add_funds),
-                            state = if (isBalanceLoading) ButtonState.Disabled else ButtonState.Enabled,
-                            onClick = onTopUp,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                        )
-
-                        Spacer(modifier = Modifier.padding(4.dp))
-
-                        MinimalButton(
-                            text = stringResource(R.string.change_source),
-                            onClick = onChoosePaymentMethod,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                        )
-                    }
-                }
+                if (linkedAccountBalance != null)
+                    FundingAccount(
+                        accountBalance = linkedAccountBalance,
+                        onFundingAccountClicked = onFundingAccountClicked,
+                    )
+                else if (isBalanceLoading)
+                    ShimmerLoadingTableRow()
             }
         }
 
@@ -255,8 +248,8 @@ fun ManageCard(
             ) {
                 SimpleText(
                     text = stringResource(R.string.bc_card_transactions_title),
-                    style = ComposeTypographies.Body2,
-                    color = ComposeColors.Body,
+                    style = ComposeTypographies.Title3,
+                    color = ComposeColors.Title,
                     gravity = ComposeGravities.Start,
                     modifier = Modifier.weight(1f)
                 )
@@ -275,22 +268,56 @@ fun ManageCard(
                 )*/
             }
 
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
             when {
-                transactionList == null -> ShimmerLoadingTableRow()
-                transactionList.isEmpty() -> SimpleText(
-                    text = stringResource(R.string.recent_purchases_here),
-                    style = ComposeTypographies.Paragraph1,
-                    color = ComposeColors.Dark,
-                    gravity = ComposeGravities.Centre
-                )
-                else -> CardTransactionList(
-                    transactionList = transactionList,
-                    onSeeTransactionDetails = onSeeTransactionDetails,
-                    onRefreshTransactions = onRefreshTransactions,
-                    isTransactionListRefreshing = isTransactionListRefreshing
-                )
+                transactionList == null -> {
+                    ShimmerLoadingTableRow()
+                }
+                transactionList.isEmpty() -> {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.empty_transactions_graphic),
+                        contentDescription = stringResource(R.string.recent_purchases_here),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = AppTheme.dimensions.paddingLarge),
+                    )
+
+                    SimpleText(
+                        text = stringResource(R.string.bc_card_empty_transactions_title),
+                        style = ComposeTypographies.Body2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Centre,
+                        modifier = Modifier.padding(top = AppTheme.dimensions.paddingSmall)
+                    )
+
+                    SimpleText(
+                        text = stringResource(R.string.bc_card_empty_transactions_description),
+                        style = ComposeTypographies.Paragraph1,
+                        color = ComposeColors.Dark,
+                        gravity = ComposeGravities.Centre,
+                        modifier = Modifier.padding(top = AppTheme.dimensions.paddingSmall)
+                    )
+
+                    SimpleText(
+                        text = stringResource(R.string.bc_card_tap_here_to_refresh),
+                        style = ComposeTypographies.Caption1,
+                        color = ComposeColors.Primary,
+                        gravity = ComposeGravities.Centre,
+                        modifier = Modifier
+                            .padding(top = AppTheme.dimensions.paddingSmall, bottom = AppTheme.dimensions.paddingLarge)
+                            .clickable {
+                                onRefreshTransactions()
+                            }
+                    )
+                }
+                else -> {
+                    CardTransactionList(
+                        transactionList = transactionList,
+                        onSeeTransactionDetails = onSeeTransactionDetails,
+                        onRefreshTransactions = onRefreshTransactions,
+                        isTransactionListRefreshing = isTransactionListRefreshing
+                    )
+                }
             }
         }
     }
@@ -307,11 +334,12 @@ private fun PreviewManageCard() {
         isTransactionListRefreshing = false,
         transactionList = null,
         onManageCardDetails = {},
-        onChoosePaymentMethod = {},
-        onTopUp = {},
+        onFundingAccountClicked = {},
         onRefreshBalance = {},
         onSeeTransactionDetails = {},
-    ) {}
+        onRefreshTransactions = {},
+        onRefreshCardWidgetUrl = {}
+    )
 }
 
 @Composable
@@ -493,10 +521,12 @@ fun PersonalDetails(
             )
         } else {
             CircularProgressIndicator(
-                modifier = Modifier.padding(
-                    horizontal = AppTheme.dimensions.paddingMedium,
-                    vertical = AppTheme.dimensions.xxxPaddingLarge
-                )
+                modifier = Modifier
+                    .padding(
+                        horizontal = AppTheme.dimensions.paddingMedium,
+                        vertical = AppTheme.dimensions.xxxPaddingLarge
+                    )
+                    .align(Alignment.CenterHorizontally)
             )
         }
     }
@@ -970,14 +1000,14 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
 
         SimpleText(
-            text = stringResource(id = R.string.close_card_number, last4digits),
+            text = stringResource(id = R.string.terminate_card_number, last4digits),
             style = ComposeTypographies.Body1,
             color = ComposeColors.Body,
             gravity = ComposeGravities.Centre
         )
 
         SimpleText(
-            text = stringResource(R.string.close_card_warning),
+            text = stringResource(R.string.terminate_card_warning),
             style = ComposeTypographies.Caption1,
             color = ComposeColors.Muted,
             gravity = ComposeGravities.Centre
@@ -1003,7 +1033,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             },
             placeholder = {
                 SimpleText(
-                    text = stringResource(R.string.delete),
+                    text = stringResource(R.string.terminate_card_confirmation_text),
                     style = ComposeTypographies.Body1,
                     color = ComposeColors.Muted,
                     gravity = ComposeGravities.Start
@@ -1105,6 +1135,62 @@ private fun PreviewCardDetailsBottomSheetElement() {
 }
 
 @Composable
+fun FundingAccountActionChooser(onAddFunds: () -> Unit, onChangeAsset: () -> Unit, onClose: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = AppTheme.dimensions.paddingLarge)
+            .fillMaxWidth()
+    ) {
+
+        SheetHeader(onClosePress = onClose, title = stringResource(R.string.select_one))
+
+        Spacer(modifier = Modifier.padding(vertical = AppTheme.dimensions.paddingMedium))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, Grey000),
+            elevation = 0.dp,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            DefaultTableRow(
+                primaryText = stringResource(R.string.bc_card_add_funds_title),
+                secondaryText = stringResource(R.string.bc_card_add_funds_description),
+                startImageResource = ImageResource.Local(
+                    id = R.drawable.add_funds_icon,
+                    contentDescription = stringResource(R.string.bc_card_add_funds_title)
+                ),
+                onClick = onAddFunds,
+            )
+        }
+
+        Spacer(modifier = Modifier.padding(vertical = AppTheme.dimensions.xPaddingSmall))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, Grey000),
+            elevation = 0.dp,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            DefaultTableRow(
+                primaryText = stringResource(R.string.bc_card_change_asset_title),
+                secondaryText = stringResource(R.string.bc_card_change_asset_description),
+                startImageResource = ImageResource.Local(
+                    id = R.drawable.change_asset_icon,
+                    contentDescription = stringResource(R.string.bc_card_change_asset_title),
+                ),
+                onClick = onChangeAsset,
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewFundingAccountActionChooser() {
+    FundingAccountActionChooser({}, {}, {})
+}
+
+@Composable
 fun AccountPicker(
     eligibleTradingAccountBalances: List<AccountBalance>,
     onAccountSelected: (String) -> Unit,
@@ -1164,6 +1250,39 @@ fun AccountsContent(
 }
 
 @Composable
+fun FundingAccount(accountBalance: AccountBalance, onFundingAccountClicked: () -> Unit) {
+    when (accountBalance.total) {
+        is FiatValue -> {
+            FiatAccountItem(
+                currencyName = accountBalance.totalFiat.currency.name,
+                currencyTicker = accountBalance.totalFiat.currency.networkTicker,
+                currentBalance = accountBalance.totalFiat.toStringWithSymbol(),
+                currencyLogo = accountBalance.totalFiat.currency.logo,
+                endImageResource = ImageResource.Local(
+                    id = R.drawable.ic_chevron_end,
+                    contentDescription = null,
+                ),
+                onClick = onFundingAccountClicked
+            )
+        }
+        is CryptoValue -> {
+            CryptoAccountItem(
+                currencyName = accountBalance.total.currency.name,
+                currencyTicker = accountBalance.total.currency.networkTicker,
+                currentBalance = accountBalance.total.toStringWithSymbol(),
+                currentBalanceInFiat = accountBalance.totalFiat.toStringWithSymbol(),
+                currencyLogo = accountBalance.total.currency.logo,
+                endImageResource = ImageResource.Local(
+                    id = R.drawable.ic_chevron_end,
+                    contentDescription = null,
+                ),
+                onClick = onFundingAccountClicked
+            )
+        }
+    }
+}
+
+@Composable
 fun AccountItem(accountBalance: AccountBalance, onAccountSelected: (String) -> Unit) {
     when (accountBalance.total) {
         is FiatValue -> {
@@ -1195,17 +1314,19 @@ fun CryptoAccountItem(
     currentBalance: String,
     currentBalanceInFiat: String,
     currencyLogo: String,
+    endImageResource: ImageResource = ImageResource.None,
     onClick: () -> Unit,
 ) {
     BalanceTableRow(
         titleStart = buildAnnotatedString { append(currencyName) },
-        bodyStart = buildAnnotatedString { append(currencyTicker) },
+        bodyStart = buildAnnotatedString { append(stringResource(id = R.string.custodial_wallet_default_label_1)) },
         titleEnd = buildAnnotatedString { append(currentBalance) },
         bodyEnd = buildAnnotatedString { append(currentBalanceInFiat) },
         startImageResource = ImageResource.Remote(
             url = currencyLogo,
             contentDescription = null,
         ),
+        endImageResource = endImageResource,
         tags = emptyList(),
         onClick = onClick
     )
@@ -1217,6 +1338,7 @@ fun FiatAccountItem(
     currencyTicker: String,
     currentBalance: String,
     currencyLogo: String,
+    endImageResource: ImageResource = ImageResource.None,
     onClick: () -> Unit,
 ) {
     BalanceTableRow(
@@ -1227,6 +1349,7 @@ fun FiatAccountItem(
             url = currencyLogo,
             contentDescription = null,
         ),
+        endImageResource = endImageResource,
         tags = emptyList(),
         onClick = onClick
     )
@@ -1248,7 +1371,9 @@ fun CardTransactionItem(
         BlockchainCardTransactionState.PENDING -> TagType.InfoAlt()
     }
 
-    val transactionTitle = if (isRefund) "[REFUND] $merchantName" else merchantName
+    val transactionTitle =
+        if (isRefund) "(${stringResource(id = R.string.bc_card_transaction_refund)}) $merchantName"
+        else merchantName
     val transactionAmount = if (isRefund) "+$amount" else "-$amount"
 
     DefaultTableRow(

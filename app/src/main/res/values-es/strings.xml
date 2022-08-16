@@ -2538,11 +2538,13 @@ Verifique su conexión a Internet y vuelva a intentarlo o póngase en contacto c
     <string name="visit_faq">Visite nuestras preguntas frecuentes</string>
     <string name="visit_faq_description">Consulte nuestras preguntas frecuentes</string>
     <string name="contact_support_description">Póngase en contacto con nosotros para cualquier otra cuestión</string>
-    <string name="close_card_number">¿Cerrar %1s ?</string>
-    <string name="close_card_warning">Una vez que se confirme, esta acción no se puede deshacer.</string>
+    <string name="terminate_card">Cancelar tarjeta</string>
+    <string name="terminate_card_number">¿Cerrar %1s ?</string>
+    <string name="terminate_card_warning">\"Una vez confirmada, esta acción no se puede deshacer.\"</string>
+    <string name="terminate_card_confirm_description">Escriba \"ELIMINAR\" para cancelar su tarjeta de forma permanente</string>
     <string name="delete">ELIMINAR</string>
     <string name="no_accounts_eligible_for_linking">No hay cuentas elegibles para vincular</string>
-    <string name="delete_card_confirmation_text">ELIMINAR</string>
+    <string name="terminate_card_confirmation_text">ELIMINAR</string>
     <string name="address_updated">Dirección de facturación actualizada</string>
     <string name="address_update_success">Dirección actualizada correctamente</string>
     <string name="address_update_success_description">Su dirección de facturación se ha cambiado correctamente y entrará en vigor de inmediato.</string>
@@ -2671,9 +2673,6 @@ Si introduce un alias:
     <string name="bc_card_terms_and_conditions_label">Entiendo y acepto los términos y condiciones del programa de tarjetas Visa de Blockchain.com, el acuerdo del titular de la tarjeta de Pathward Bank, el acuerdo de firma electrónica de Pathward Bank y la política de privacidad de Pathward Bank. También entiendo y acepto que estos términos y condiciones funcionan además de los términos y condiciones de servicio de Blockchain.com y la política de privacidad de Blockchain.com.</string>
     <string name="skip_backup_cta_skip">Sí, omitir copia de seguridad</string>
     <string name="skip_backup_cta_backup">Copia de seguridad (recomendado)</string>
-    <string name="terminate_card">Terminar Tarjeta</string>
-    <string name="terminate_card_confirm_description">Escriba \'TERMINAR\' para cancelar permanentemente su tarjeta</string>
-    <string name="terminate_card_confirmation_text">TERMINAR</string>
     <string name="bc_card_transaction_payment">Pago</string>
     <string name="bc_card_transaction_refund">Reembolso</string>
 </resources>

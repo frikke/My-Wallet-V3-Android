@@ -17,7 +17,7 @@ data class BlockchainCardViewState(
     val isLinkedAccountBalanceLoading: Boolean = false,
     val isTransactionListRefreshing: Boolean = false,
     val linkedAccountBalance: AccountBalance? = null,
-    val eligibleTradingAccountBalances: MutableList<AccountBalance> = mutableStateListOf(),
+    val eligibleTradingAccountBalances: List<AccountBalance> = mutableStateListOf(),
     val residentialAddress: BlockchainCardAddress? = null,
     val userFirstAndLastName: String? = null,
     val transactionList: List<BlockchainCardTransaction>? = null,

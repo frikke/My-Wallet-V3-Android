@@ -2500,11 +2500,13 @@ Comprueba la conexión a Internet y vuelve a intentarlo o comunícate con el Sop
     <string name="visit_faq">Consulta nuestras preguntas frecuentes</string>
     <string name="visit_faq_description">Consulta nuestras preguntas más frecuentes</string>
     <string name="contact_support_description">Comunícate con nosotros si tienes otras inquietudes</string>
-    <string name="close_card_number">¿Quieres cerrar %1s?</string>
-    <string name="close_card_warning">Una vez confirmada, esta acción no se puede deshacer.</string>
+    <string name="terminate_card">Cerrar tarjeta</string>
+    <string name="terminate_card_number">¿Quieres cerrar %1s?</string>
+    <string name="terminate_card_warning">\"Una vez confirmada, esta acción no se puede deshacer. \"</string>
+    <string name="terminate_card_confirm_description">Escribe “ELIMINAR” para cerrar tu tarjeta definitivamente</string>
     <string name="delete">ELIMINAR</string>
     <string name="no_accounts_eligible_for_linking">No hay cuentas elegibles para vincular</string>
-    <string name="delete_card_confirmation_text">ELIMINAR</string>
+    <string name="terminate_card_confirmation_text">ELIMINAR</string>
     <string name="address_updated">Dirección de facturación actualizada</string>
     <string name="address_update_success">La dirección se actualizó correctamente</string>
     <string name="address_update_success_description">La dirección de facturación se modificó correctamente y entrará en vigencia de inmediato.</string>

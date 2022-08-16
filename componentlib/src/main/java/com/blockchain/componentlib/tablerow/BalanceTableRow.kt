@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -31,6 +32,7 @@ fun BalanceTableRow(
     bodyStart: AnnotatedString,
     bodyEnd: AnnotatedString? = null,
     startImageResource: ImageResource,
+    endImageResource: ImageResource = ImageResource.None,
     isInlineTags: Boolean = false,
     tags: List<TagViewState>,
     onClick: () -> Unit
@@ -51,9 +53,15 @@ fun BalanceTableRow(
             } else {
                 dimensionResource(R.dimen.zero_margin)
             }
+
+            val endPadding = if (endImageResource != ImageResource.None) {
+                dimensionResource(R.dimen.medium_margin)
+            } else {
+                dimensionResource(R.dimen.zero_margin)
+            }
             Column(
                 modifier = Modifier
-                    .padding(start = startPadding)
+                    .padding(start = startPadding, end = endPadding)
                     .fillMaxWidth()
                     .wrapContentHeight()
             ) {
@@ -96,6 +104,17 @@ fun BalanceTableRow(
                         )
                     }
                 }
+            }
+        },
+        contentEnd = {
+            if (endImageResource != ImageResource.None) {
+                Image(
+                    imageResource = endImageResource,
+                    modifier = Modifier.requiredSizeIn(
+                        maxWidth = dimensionResource(R.dimen.standard_margin),
+                        maxHeight = dimensionResource(R.dimen.standard_margin),
+                    ),
+                )
             }
         },
         contentBottom = {

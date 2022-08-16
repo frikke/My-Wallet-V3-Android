@@ -8,6 +8,7 @@ import com.blockchain.blockchaincard.viewmodel.BlockchainCardModelState
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewState
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.outcome.doOnFailure
@@ -96,6 +97,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             }
 
             is BlockchainCardIntent.LoadCardWidget -> {
+                updateState { it.copy(cardWidgetUrl = null) }
                 if (modelState.card != null) {
                     blockchainCardRepository.getUserFirstAndLastName().flatMap { firstAndLastName ->
                         blockchainCardRepository.getCardWidgetUrl(
@@ -106,13 +108,22 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                     }.fold(
                         onFailure = { error ->
                             Timber.d("Card widget url failed: $error")
-                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                            updateState {
+                                it.copy(
+                                    errorState = BlockchainCardErrorState.SnackbarErrorState(error),
+                                    cardWidgetUrl = ""
+                                )
+                            }
                         },
                         onSuccess = { cardWidgetUrl ->
                             updateState { it.copy(cardWidgetUrl = cardWidgetUrl) }
                         }
                     )
                 }
+            }
+
+            is BlockchainCardIntent.FundingAccountClicked -> {
+                navigate(BlockchainCardNavigationEvent.ChooseFundingAccountAction)
             }
 
             is BlockchainCardIntent.ChoosePaymentMethod -> {
@@ -222,16 +233,19 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             }
 
             is BlockchainCardIntent.LoadEligibleAccountsBalances -> {
-                modelState.eligibleTradingAccountBalances.clear()
+                updateState { it.copy(eligibleTradingAccountBalances = emptyList()) }
+                val eligibleTradingAccountBalancesMutable = mutableListOf<AccountBalance>()
+
                 intent.eligibleAccounts.map { tradingAccount ->
                     blockchainCardRepository.loadAccountBalance(
                         tradingAccount as BlockchainAccount
                     ).fold(
                         onSuccess = { balance ->
-                            val eligibleTradingAccountBalances = modelState.eligibleTradingAccountBalances
-                            eligibleTradingAccountBalances.add(balance)
-                            updateState {
-                                it.copy(eligibleTradingAccountBalances = eligibleTradingAccountBalances)
+                            eligibleTradingAccountBalancesMutable.add(balance)
+                            if (eligibleTradingAccountBalancesMutable.size == intent.eligibleAccounts.size) {
+                                updateState {
+                                    it.copy(eligibleTradingAccountBalances = eligibleTradingAccountBalancesMutable)
+                                }
                             }
                         },
                         onFailure = { error ->

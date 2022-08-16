@@ -1228,7 +1228,7 @@ Nota: não poderá Enviar ou Levantar estes fundos da sua Carteira durante os pr
     <string name="backup_subtitle">Frase de recuperação de chave privada secreta</string>
     <string name="backup_instructions_3">1. Escreva a frase de 12 palavras no ecrã seguinte, na ordem exata em que aparece</string>
     <string name="backup_complete_message_1">Pode utilizar a sua Frase de Recuperação de Chave Privada Secreta para restaurar os seus fundos caso
-        perca a sua palavra-passe. Qualquer pessoa com acesso à sua Frase de Recuperação de Chave Privada Secreta pode aceder aos seus fundos. Por isso, 
+        perca a sua palavra-passe. Qualquer pessoa com acesso à sua Frase de Recuperação de Chave Privada Secreta pode aceder aos seus fundos. Por isso,
         lembre-se de a manter offline num lugar seguro e protegido.
     </string>
     <string name="backup_verify_heading_1">Introduza as seguintes palavras da sua Frase de Recuperação de Chave Privada Secreta para
@@ -2018,7 +2018,7 @@ Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com 
     <string name="feature_limits_header_denied_description">Atualmente, tem o nível mais alto de Limites de Conta e recursos disponíveis.</string>
     <string name="feature_limits_footer">Os limites de transação podem ser aplicados a certos bancos e emissores de cartão.
 
-Os limites de compra ou depósito são determinados por muitos fatores, incluindo a verificação concluída na sua conta, o seu histórico de compras, o seu tipo de pagamento e muito mais. 
+Os limites de compra ou depósito são determinados por muitos fatores, incluindo a verificação concluída na sua conta, o seu histórico de compras, o seu tipo de pagamento e muito mais.
 
  Saiba mais sobre Trading Accounts, Limites e recursos visitando nosso <annotation link="support_center_link"> Centro de apoio ao cliente </annotation> .</string>
     <string name="feature_limits_silver_limits">Limites Acesso Limitado</string>
@@ -2631,11 +2631,13 @@ Verifique a sua ligação à Internet e tente novamente ou Contacte o Apoio ao C
     <string name="visit_faq">Visite as nossas FAQ</string>
     <string name="visit_faq_description">Consulte as nossas dúvidas mais frequentes</string>
     <string name="contact_support_description">Contacte-nos para todas as outras questões</string>
-    <string name="close_card_number">Fechar %1s ?</string>
-    <string name="close_card_warning">Uma vez confirmada, esta ação não pode ser anulada.</string>
+    <string name="terminate_card">Fechar cartão</string>
+    <string name="terminate_card_number">Fechar %1s ?</string>
+    <string name="terminate_card_warning">\"Uma vez confirmada, esta ação não pode ser anulada. \"</string>
+    <string name="terminate_card_confirm_description">Digite \'ELIMINAR\' para fechar permanentemente o seu cartão</string>
     <string name="delete">ELIMINAR</string>
     <string name="no_accounts_eligible_for_linking">Nenhuma conta qualificada para associação</string>
-    <string name="delete_card_confirmation_text">ELIMINAR</string>
+    <string name="terminate_card_confirmation_text">ELIMINAR</string>
     <string name="address_updated">Endereço de faturação atualizado</string>
     <string name="address_update_success">Endereço atualizado com sucesso</string>
     <string name="address_update_success_description">O seu endereço de cobrança foi alterado com sucesso e entrará em vigor imediatamente.</string>
@@ -2764,9 +2766,6 @@ Encontre a aplicação aqui: https://blockchainwallet.page.link/join</string>
     <string name="bc_card_terms_and_conditions_label">Eu entendo e aceito os termos e condições do Programa de Cartão Visa Blockchain.com, o Acordo de Portador de Cartão do Pathward Bank, o Acordo de E-Sign do Pathward Bank e a Política de Privacidade do Pathward Bank. Eu também entendo e aceito que estes termos operam além dos Termos de Serviço do Blockchain.com e da Política de Privacidade do Blockchain.com.</string>
     <string name="skip_backup_cta_skip">Sim, ignorar cópia de segurança</string>
     <string name="skip_backup_cta_backup">Faça uma cópia de segurança (recomendado)</string>
-    <string name="terminate_card">Encerrar Cartão</string>
-    <string name="terminate_card_confirm_description">Digite \'TERMINATE\' para encerrar permanentemente seu cartão</string>
-    <string name="terminate_card_confirmation_text">ENCERRAR</string>
     <string name="bc_card_transaction_payment">Pagamento</string>
     <string name="bc_card_transaction_refund">Reembolso</string>
 </resources>

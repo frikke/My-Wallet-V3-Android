@@ -3075,10 +3075,9 @@
     <string name="visit_faq_description">View our most frequent questions</string>
     <string name="contact_support_description">Contact us for all other concerns</string>
     <string name="terminate_card">Terminate Card</string>
-    <string name="close_card_number">Close %1s ?</string>
-    <string name="close_card_warning">Once confirmed this action cannot be undone.</string>
+    <string name="terminate_card_number">Terminate card %1s ?</string>
+    <string name="terminate_card_warning">Once confirmed this action cannot be undone.</string>
     <string name="terminate_card_confirm_description">Please Type ‘TERMINATE’ to permanently terminate your card</string>
-    <string name="delete">DELETE</string>
     <string name="no_accounts_eligible_for_linking">No accounts eligible for linking</string>
     <string name="terminate_card_confirmation_text">TERMINATE</string>
     <string name="address_updated">Billing Address Updated</string>
@@ -3103,11 +3102,21 @@
     <string name="ssn_title">SSN or Individual Tax ID #</string>
     <string name="ssn_hint">XXXXXXXXX</string>
     <string name="bc_card_locked">Locked</string>
-    <string name="bc_card_transactions_title">Transactions</string>
+    <string name="bc_card_transactions_title">Recent Transactions</string>
     <string name="bc_card_see_all">See All</string>
     <string name="bc_card_terms_and_conditions_label">I understand and accept the terms and conditions of the Blockchain.com Visa Card Program, the Pathward Bank Cardholder Agreement, the Pathward Bank E-Sign Agreement and the Pathward Bank Privacy Policy. I also understand and accept that these terms operate in addition to the Blockchain.com Terms of Service and Blockchain.com Privacy Policy.</string>
     <string name="bc_card_transaction_payment">Payment</string>
     <string name="bc_card_transaction_refund">Refund</string>
+    <string name="bc_card_change_asset_title">Change Asset</string>
+    <string name="bc_card_change_asset_description">Change the asset that will fund the card</string>
+    <string name="bc_card_add_funds_title">Add Funds</string>
+    <string name="bc_card_add_funds_description">Top up your current balance</string>
+    <string name="select_one">Select One</string>
+    <string name="bc_card_empty_transactions_title">Your Transactions Go Here</string>
+    <string name="bc_card_empty_transactions_description">Once you make a purchase with your card, those details will show up here.</string>
+    <string name="bc_card_tap_here_to_refresh">Tap here to refresh</string>
+    <string name="bc_card_tap_here_to_try_again">Tap here to try again</string>
+    <string name="bc_card_unable_to_load_card">Unable to load card</string>
 
     <!--  Sanctions  -->
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>

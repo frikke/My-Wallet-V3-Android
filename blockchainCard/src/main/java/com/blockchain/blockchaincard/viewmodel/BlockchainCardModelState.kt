@@ -1,6 +1,5 @@
 package com.blockchain.blockchaincard.viewmodel
 
-import androidx.compose.runtime.mutableStateListOf
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
@@ -18,7 +17,7 @@ data class BlockchainCardModelState(
     val isLinkedAccountBalanceLoading: Boolean = false,
     val isTransactionListRefreshing: Boolean = false,
     val linkedAccountBalance: AccountBalance? = null,
-    val eligibleTradingAccountBalances: MutableList<AccountBalance> = mutableStateListOf(),
+    var eligibleTradingAccountBalances: List<AccountBalance> = emptyList(),
     val residentialAddress: BlockchainCardAddress? = null,
     val userFirstAndLastName: String? = null,
     val transactionList: List<BlockchainCardTransaction>? = null,

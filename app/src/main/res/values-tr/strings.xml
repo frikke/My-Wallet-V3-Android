@@ -2631,11 +2631,13 @@ Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin veya sorun deva
     <string name="visit_faq">SSS sayfamızı ziyaret edin</string>
     <string name="visit_faq_description">En sık sorulan sorularımıza göz atın</string>
     <string name="contact_support_description">Diğer tüm sorularınız için bizimle iletişime geçebilirsiniz</string>
-    <string name="close_card_number">%1s kapatılsın mı?</string>
-    <string name="close_card_warning">Bu işlem onaylandıktan sonra geri alınamaz.</string>
+    <string name="terminate_card">Kartı Kapat</string>
+    <string name="terminate_card_number">%1s kapatılsın mı?</string>
+    <string name="terminate_card_warning">\"Bu işlem onaylandıktan sonra geri alınamaz. \"</string>
+    <string name="terminate_card_confirm_description">Kartınızı kalıcı olarak kapatmak için lütfen \'SİL\' yazın</string>
     <string name="delete">SİL</string>
     <string name="no_accounts_eligible_for_linking">Bağlanmak için uygun hesap yok</string>
-    <string name="delete_card_confirmation_text">SİL</string>
+    <string name="terminate_card_confirmation_text">SİL</string>
     <string name="address_updated">Fatura Adresi Güncellendi</string>
     <string name="address_update_success">Adres Başarıyla Güncellendi</string>
     <string name="address_update_success_description">Fatura adresiniz başarıyla değiştirildi ve hemen yürürlüğe girecek.</string>
@@ -2764,9 +2766,6 @@ Uygulama linki: https://blockchainwallet.page.link/join</string>
     <string name="bc_card_terms_and_conditions_label">Blockchain.com Visa Card Programının hüküm ve koşullarını, Pathward Bank Kart Sahibi Sözleşmesini, Pathward Bank Elektronik İmza Sözleşmesini ve Pathward Bank Gizlilik Politikasını anlıyor ve kabul ediyorum. Ayrıca bu koşulların Blockchain.com Hizmet Koşulları ve Blockchain.com Gizlilik Politikasına ek olarak yürürlükte olduğunu anlıyor ve kabul ediyorum.</string>
     <string name="skip_backup_cta_skip">Evet, yedeklemeyi atla</string>
     <string name="skip_backup_cta_backup">Yedekle (Önerilir)</string>
-    <string name="terminate_card">Kartı Sonlandır</string>
-    <string name="terminate_card_confirm_description">Kartınızı kalıcı olarak sonlandırmak için lütfen \'SONLANDIR\' yazın</string>
-    <string name="terminate_card_confirmation_text">SONLANDIR</string>
     <string name="bc_card_transaction_payment">Ödeme</string>
     <string name="bc_card_transaction_refund">Geri ödeme</string>
 </resources>

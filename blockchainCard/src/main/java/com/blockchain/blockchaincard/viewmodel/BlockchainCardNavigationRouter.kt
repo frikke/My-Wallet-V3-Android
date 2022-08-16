@@ -97,6 +97,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                 finishHostFragment()
             }
 
+            is BlockchainCardNavigationEvent.ChooseFundingAccountAction -> {
+                destination = BlockchainCardDestination.FundingAccountActionsDestination
+            }
+
             is BlockchainCardNavigationEvent.TopUpCrypto -> {
                 val fragmentManager = (navController.context as? BlockchainActivity)?.supportFragmentManager
                 val fragmentOld = fragmentManager?.fragments?.first { it is BlockchainCardHostFragment }
@@ -207,6 +211,8 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     object ChoosePaymentMethod : BlockchainCardNavigationEvent()
 
+    object ChooseFundingAccountAction : BlockchainCardNavigationEvent()
+
     data class TopUpCrypto(val asset: AssetInfo) : BlockchainCardNavigationEvent()
 
     data class TopUpFiat(val account: FiatAccount) : BlockchainCardNavigationEvent()
@@ -266,6 +272,8 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
     object ManageCardDestination : BlockchainCardDestination(route = "manage_card")
 
     object ManageCardDetailsDestination : BlockchainCardDestination(route = "manage_card_details")
+
+    object FundingAccountActionsDestination : BlockchainCardDestination(route = "funding_account_actions")
 
     object ChoosePaymentMethodDestination : BlockchainCardDestination(route = "choose_payment_method")
 
