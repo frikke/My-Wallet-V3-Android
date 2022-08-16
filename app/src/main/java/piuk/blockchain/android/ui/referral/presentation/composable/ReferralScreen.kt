@@ -271,7 +271,7 @@ fun SingleReferralCriteria(
 fun ReferralCriteriaSeparator() {
     Box(
         modifier = Modifier
-            .padding(horizontal = 34.dp)
+            .padding(horizontal = 34.dp) // padding: 24 + (text width: 24 / 2) - (this view width / 2) -> 24 + 12 - 2
             .size(height = AppTheme.dimensions.paddingSmall, width = AppTheme.dimensions.xPaddingSmall)
             .background(Blue000)
     )
