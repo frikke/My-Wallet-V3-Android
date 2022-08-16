@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.viewextensions.invisibleIf
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.Feature
 import com.blockchain.core.limits.FeatureLimit
 import com.blockchain.core.limits.TxLimitPeriod
-import com.blockchain.nabu.Tier
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemFeatureLimitsCurrentTierBinding
 import piuk.blockchain.android.databinding.ItemFeatureLimitsFeatureBinding
@@ -132,21 +132,21 @@ private class CurrentTierItemViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(item: KycLimitsItem.CurrentTierItem) {
         with(binding) {
-            iconTier.invisibleIf { item.tier == Tier.BRONZE }
+            iconTier.invisibleIf { item.tier == KycTier.BRONZE }
             iconTier.setImageResource(
                 when (item.tier) {
-                    Tier.BRONZE -> R.drawable.ic_blockchain_logo
-                    Tier.SILVER -> R.drawable.ic_blockchain_logo
-                    Tier.GOLD -> R.drawable.ic_verification_badge
+                    KycTier.BRONZE -> R.drawable.ic_blockchain_logo
+                    KycTier.SILVER -> R.drawable.ic_blockchain_logo
+                    KycTier.GOLD -> R.drawable.ic_verification_badge
                 }
             )
 
             textTier.text = when (item.tier) {
-                Tier.BRONZE -> ""
-                Tier.SILVER -> context.getString(R.string.feature_limits_silver_limits)
-                Tier.GOLD -> context.getString(R.string.feature_limits_gold_limits)
+                KycTier.BRONZE -> ""
+                KycTier.SILVER -> context.getString(R.string.feature_limits_silver_limits)
+                KycTier.GOLD -> context.getString(R.string.feature_limits_gold_limits)
             }
-            textGoldTierDescription.visibleIf { item.tier == Tier.GOLD }
+            textGoldTierDescription.visibleIf { item.tier == KycTier.GOLD }
         }
     }
 }

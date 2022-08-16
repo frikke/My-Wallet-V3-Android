@@ -8,13 +8,14 @@ import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_USER_FIAT
 import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -45,6 +46,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
     private val payloadDataManager: PayloadDataManager = mock()
     private val tradingService: TradingService = mock()
     private val userIdentity: UserIdentity = mock()
+    private val kycService: KycService = mock()
 
     private val exchangeRates: ExchangeRatesDataManager = mock {
         on { getLastFiatToUserFiatRate(TEST_USER_FIAT) }.thenReturn(
@@ -106,7 +108,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
 
         // Act
@@ -138,7 +140,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.BRONZE
+            userTier = KycTier.BRONZE
         )
         subject.stateAwareActions
             .test()
@@ -159,7 +161,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -181,7 +183,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             buySupported = true,
             cryptoDepositSupported = false,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -202,7 +204,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -223,7 +225,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = false,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -244,7 +246,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = false,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -265,7 +267,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -286,7 +288,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -307,7 +309,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -329,7 +331,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             buySupported = true,
             swapSupported = true,
             interestDepositSupported = false,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -350,7 +352,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -371,7 +373,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -392,7 +394,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -413,7 +415,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = false,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -435,7 +437,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             buySupported = true,
             swapSupported = true,
             swapAccessAvailable = false,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -456,7 +458,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -477,7 +479,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -499,7 +501,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             buySupported = true,
             swapSupported = true,
             sellEligibilityAccess = false,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -520,7 +522,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = emptyList(),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.BRONZE
+            userTier = KycTier.BRONZE
         )
         subject.stateAwareActions
             .test()
@@ -541,7 +543,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -562,7 +564,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             supportedFiat = listOf(USD),
             buySupported = true,
             swapSupported = true,
-            userTier = Tier.GOLD
+            userTier = KycTier.GOLD
         )
         subject.stateAwareActions
             .test()
@@ -580,6 +582,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             custodialWalletManager = custodialManager,
             tradingService = tradingService,
             identity = userIdentity,
+            kycService = kycService,
             walletModeService = mock {
                 on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
             }
@@ -597,7 +600,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         swapAccessAvailable: Boolean = true,
         sellEligibilityAccess: Boolean = true,
         swapSupported: Boolean,
-        userTier: Tier,
+        userTier: KycTier,
     ) {
         mockActionsFeatureAccess { original ->
             var updated = original
@@ -673,7 +676,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
                 )
             )
 
-        whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(userTier))
+        whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(userTier))
     }
 
     private fun mockActionsFeatureAccess(

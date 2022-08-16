@@ -12,12 +12,13 @@ import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -60,6 +61,7 @@ class CoinViewInteractorTest {
     private val dashboardPrefs: DashboardPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val identity: UserIdentity = mock()
+    private val kycService: KycService = mock()
     private val assetInfo: AssetInfo = object : CryptoCurrency(
         displayTicker = "BTC",
         networkTicker = "BTC",
@@ -137,6 +139,7 @@ class CoinViewInteractorTest {
             currencyPrefs = currencyPrefs,
             dashboardPrefs = dashboardPrefs,
             identity = identity,
+            kycService = kycService,
             custodialWalletManager = custodialWalletManager,
             watchlistDataManager = watchlistDataManager,
             assetActionsComparator = actionsComparator,
@@ -161,7 +164,7 @@ class CoinViewInteractorTest {
 
     @Test
     fun `load quick actions should return valid actions for gold user with balance`() {
-        whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
+        whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.GOLD))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
         whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
@@ -185,7 +188,7 @@ class CoinViewInteractorTest {
                 it.actionableAccount == account
         }
 
-        verify(identity).getHighestApprovedKycTier()
+        verify(kycService).getHighestApprovedTierLevelLegacy()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
         verify(identity).userAccessForFeature(Feature.Buy)
         verify(identity).userAccessForFeature(Feature.Sell)
@@ -196,7 +199,7 @@ class CoinViewInteractorTest {
 
     @Test
     fun `load quick actions should return valid actions for sdd user with no balance`() {
-        whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.SILVER))
+        whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.SILVER))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
         whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
@@ -220,7 +223,7 @@ class CoinViewInteractorTest {
                 it.actionableAccount == account
         }
 
-        verify(identity).getHighestApprovedKycTier()
+        verify(kycService).getHighestApprovedTierLevelLegacy()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
         verify(identity).userAccessForFeature(Feature.Buy)
         verify(identity).userAccessForFeature(Feature.Sell)
@@ -231,7 +234,7 @@ class CoinViewInteractorTest {
 
     @Test
     fun `load quick actions should return valid actions for non sdd silver user`() {
-        whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.SILVER))
+        whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.SILVER))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(false))
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
         whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
@@ -252,7 +255,7 @@ class CoinViewInteractorTest {
                 it.actionableAccount == account
         }
 
-        verify(identity).getHighestApprovedKycTier()
+        verify(kycService).getHighestApprovedTierLevelLegacy()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
         verify(identity).userAccessForFeature(Feature.Buy)
         verify(identity).userAccessForFeature(Feature.Sell)
@@ -263,7 +266,7 @@ class CoinViewInteractorTest {
 
     @Test
     fun `load quick actions should return valid actions when no custodial wallet and no buy access`() {
-        whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
+        whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.GOLD))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Blocked(mock())))
         whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
@@ -285,7 +288,7 @@ class CoinViewInteractorTest {
                 it.actionableAccount == account
         }
 
-        verify(identity).getHighestApprovedKycTier()
+        verify(kycService).getHighestApprovedTierLevelLegacy()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
         verify(identity).userAccessForFeature(Feature.Buy)
         verify(identity).userAccessForFeature(Feature.Sell)
@@ -296,7 +299,7 @@ class CoinViewInteractorTest {
 
     @Test
     fun `load quick actions should return valid actions when not a supported pair and no balance`() {
-        whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
+        whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.GOLD))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
         whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
@@ -318,7 +321,7 @@ class CoinViewInteractorTest {
                 it.actionableAccount == account
         }
 
-        verify(identity).getHighestApprovedKycTier()
+        verify(kycService).getHighestApprovedTierLevelLegacy()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
         verify(identity).userAccessForFeature(Feature.Buy)
         verify(identity).userAccessForFeature(Feature.Sell)
@@ -329,7 +332,7 @@ class CoinViewInteractorTest {
 
     @Test
     fun `load quick actions should return valid actions when not a supported pair and has balance`() {
-        whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
+        whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.GOLD))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
         whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
@@ -354,7 +357,7 @@ class CoinViewInteractorTest {
                 it.actionableAccount == account
         }
 
-        verify(identity).getHighestApprovedKycTier()
+        verify(kycService).getHighestApprovedTierLevelLegacy()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
         verify(identity).userAccessForFeature(Feature.Buy)
         verify(identity).userAccessForFeature(Feature.Sell)

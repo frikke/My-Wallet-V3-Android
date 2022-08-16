@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.nabu.Tier
-import com.blockchain.nabu.UserIdentity
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
@@ -14,7 +14,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCa
 
 class FiatFundsNoKycAnnouncement(
     dismissRecorder: DismissRecorder,
-    private val userIdentity: UserIdentity
+    private val kycService: KycService
 ) : AnnouncementRule(dismissRecorder) {
 
     override val dismissKey = DISMISS_KEY
@@ -24,8 +24,8 @@ class FiatFundsNoKycAnnouncement(
             return Single.just(false)
         }
 
-        return userIdentity.getHighestApprovedKycTier().map {
-            it != Tier.GOLD
+        return kycService.getHighestApprovedTierLevelLegacy().map {
+            it != KycTier.GOLD
         }
     }
 

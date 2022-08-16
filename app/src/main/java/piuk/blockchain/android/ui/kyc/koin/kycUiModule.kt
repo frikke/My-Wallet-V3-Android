@@ -145,7 +145,7 @@ val kycUiModule = module {
         factory {
             KycLimitsInteractor(
                 limitsDataManager = get(),
-                userIdentity = get()
+                kycService = get()
             )
         }
     }

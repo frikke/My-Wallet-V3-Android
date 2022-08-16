@@ -4,8 +4,8 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
+import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.api.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.veriff.VeriffApplicantAndToken
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers

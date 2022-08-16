@@ -1,6 +1,8 @@
 package piuk.blockchain.android.domain.usecases
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.CardStatus
@@ -11,7 +13,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibility
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.braintreepayments.cardform.utils.CardType
 import com.nhaarman.mockitokotlin2.any
@@ -35,6 +36,7 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
     }
 
     private val userIdentity: UserIdentity = mock()
+    private val kycService: KycService = mock()
     private val paymentMethodService: PaymentMethodService = mock()
     private val cardService: CardService = mock()
 
@@ -43,6 +45,7 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
     @Before
     fun setUp() {
         subject = GetAvailablePaymentMethodsTypesUseCase(
+            kycService,
             userIdentity,
             paymentMethodService,
             cardService
@@ -51,7 +54,7 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
 
     @Test
     fun `given gold tier should just return available payments method types and have BLOCKED link access for non eligible`() {
-        whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
+        whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.GOLD))
         whenever(paymentMethodService.getAvailablePaymentMethodsTypes(any(), any(), any()))
             .thenReturn(Single.just(AVAILABLE))
 
@@ -76,7 +79,7 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
 
     @Test
     fun `given bronze tier should just return available payment method types and have NEEDS_UPGRADE for non eligible`() {
-        whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.BRONZE))
+        whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.BRONZE))
         whenever(paymentMethodService.getAvailablePaymentMethodsTypes(any(), any(), any()))
             .thenReturn(Single.just(AVAILABLE))
 
@@ -102,7 +105,7 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
     @Test
     fun `given silver tier with sdd and card type eligible should fetch cards and block linkaccess if user has active cards`() {
         whenever(userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
-        whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.SILVER))
+        whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.SILVER))
         whenever(paymentMethodService.getAvailablePaymentMethodsTypes(any(), any(), any()))
             .thenReturn(Single.just(AVAILABLE))
         whenever(cardService.getLinkedCards(CardStatus.ACTIVE)).thenReturn(Single.just(listOf(CARD)))

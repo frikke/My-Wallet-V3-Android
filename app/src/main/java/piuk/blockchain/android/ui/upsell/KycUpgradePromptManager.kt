@@ -4,8 +4,8 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import io.reactivex.rxjava3.core.Single
 
@@ -21,7 +21,7 @@ class KycUpgradePromptManager(
         } ?: Single.just(Type.NONE)
 
     private fun checkReceiveUpsell(account: BlockchainAccount): Single<Type> =
-        identity.isVerifiedFor(Feature.TierLevel(Tier.SILVER))
+        identity.isVerifiedFor(Feature.TierLevel(KycTier.SILVER))
             .map { isSilver ->
                 Type.CUSTODIAL_RECEIVE.takeIf { !isSilver && account is CustodialTradingAccount } ?: Type.NONE
             }

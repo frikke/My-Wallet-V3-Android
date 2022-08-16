@@ -6,6 +6,9 @@ import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.FiatAccount
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
@@ -13,9 +16,6 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.api.kyc.domain.KycService
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
-import com.blockchain.nabu.api.kyc.domain.model.KycTiers
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.preferences.CurrencyPrefs
@@ -68,7 +68,7 @@ class AnnouncementQueries(
     // Have we been through the Gold KYC process? ie are we Tier2InReview, Tier2Approved or Tier2Failed (cf TierJson)
     fun isGoldComplete(): Single<Boolean> =
         kycService.getTiersLegacy()
-            .map { it.tierCompletedForLevel(KycTierLevel.GOLD) }
+            .map { it.tierCompletedForLevel(KycTier.GOLD) }
 
     fun isTier1Or2Verified(): Single<Boolean> =
         kycService.getTiersLegacy().map { it.isVerified() }
@@ -105,7 +105,7 @@ class AnnouncementQueries(
 
     fun isKycGoldVerifiedAndHasPendingCardToAdd(): Single<Boolean> =
         kycService.getTiersLegacy().map {
-            it.isApprovedFor(KycTierLevel.GOLD)
+            it.isApprovedFor(KycTier.GOLD)
         }.zipWith(
             hasSelectedToAddNewCard()
         ) { isGold, addNewCard ->
@@ -176,4 +176,4 @@ class AnnouncementQueries(
 }
 
 private fun KycTiers.docsSubmittedForGoldTier(): Boolean =
-    isInitialisedFor(KycTierLevel.GOLD)
+    isInitialisedFor(KycTier.GOLD)

@@ -27,8 +27,8 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.veriff.VeriffApplicantAndToken
 import com.blockchain.veriff.VeriffLauncher
@@ -78,7 +78,7 @@ class VeriffSplashFragment :
         onError = {
             analytics.logEvent(
                 VeriffAnalytics.VerifSubmissionFailed(
-                    tierUserIsAboutToUpgrade = Tier.GOLD,
+                    tierUserIsAboutToUpgrade = KycTier.GOLD,
                     failureReason = it
                 )
             )

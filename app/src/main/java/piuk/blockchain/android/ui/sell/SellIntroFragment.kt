@@ -19,13 +19,13 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.api.kyc.domain.KycService
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.preferences.CurrencyPrefs
@@ -177,13 +177,13 @@ class SellIntroFragment : ViewPagerFragment() {
             .trackProgress(binding.accountsList.activityIndicator)
             .subscribeBy(onSuccess = { (kyc, eligible) ->
                 when {
-                    kyc.isApprovedFor(KycTierLevel.GOLD) && eligible -> {
+                    kyc.isApprovedFor(KycTier.GOLD) && eligible -> {
                         renderKycedUserUi()
                     }
-                    kyc.isRejectedFor(KycTierLevel.GOLD) -> {
+                    kyc.isRejectedFor(KycTier.GOLD) -> {
                         renderRejectedKycedUserUi()
                     }
-                    kyc.isApprovedFor(KycTierLevel.GOLD) && !eligible -> {
+                    kyc.isApprovedFor(KycTier.GOLD) && !eligible -> {
                         renderRejectedKycedUserUi()
                     }
                     else -> {

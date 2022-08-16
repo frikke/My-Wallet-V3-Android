@@ -15,6 +15,7 @@ import com.blockchain.coincore.TradingAccount
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestEligibility
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRateList
@@ -57,6 +58,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     private val remoteLogger: RemoteLogger by inject()
     private val walletModeService: WalletModeService by inject()
     protected val identity: UserIdentity by scopedInject()
+    private val kycService: KycService by scopedInject()
 
     private val activeAccounts: ActiveAccountList by unsafeLazy {
         ActiveAccountList(currency, interestService)
@@ -123,6 +125,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                     custodialWalletManager = custodialManager,
                     tradingService = tradingService,
                     identity = identity,
+                    kycService = kycService,
                     walletModeService = walletModeService
                 )
             )
@@ -144,6 +147,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                             custodialWalletManager = custodialManager,
                             exchangeRates = exchangeRates,
                             identity = identity,
+                            kycService = kycService,
                             internalAccountLabel = labels.getDefaultCustodialWalletLabel()
                         )
                     )

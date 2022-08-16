@@ -1,10 +1,11 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.map
@@ -19,6 +20,7 @@ import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 class BuyFlowNavigator(
     private val simpleBuySyncFactory: SimpleBuySyncFactory,
     private val userIdentity: UserIdentity,
+    private val kycService: KycService,
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val custodialWalletManager: CustodialWalletManager,
 ) {
@@ -39,9 +41,9 @@ class BuyFlowNavigator(
         ) {
 
             Single.zip(
-                userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)),
-                userIdentity.isKycInProgress(),
-                userIdentity.isRejectedForTier(Feature.TierLevel(Tier.GOLD))
+                userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD)),
+                kycService.isInProgress(),
+                kycService.isRejectedFor(KycTier.GOLD)
             ) { verifiedGold, kycInProgress, rejectedGold ->
                 when {
                     verifiedGold -> BuyNavigation.FlowScreenWithCurrency(

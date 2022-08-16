@@ -5,11 +5,11 @@ import com.blockchain.api.txlimits.data.FeatureLimitResponse
 import com.blockchain.api.txlimits.data.FeatureName
 import com.blockchain.api.txlimits.data.Limit
 import com.blockchain.api.txlimits.data.LimitPeriod
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.Tier
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.Currency
@@ -128,7 +128,7 @@ class LimitsDataManagerImpl(
                 periodicLimits = periodicLimits,
                 suggestedUpgrade = crossborderLimits.suggestedUpgrade?.let {
                     SuggestedUpgrade(
-                        type = UpgradeType.Kyc(Tier.values()[it.requiredTier]),
+                        type = UpgradeType.Kyc(KycTier.values()[it.requiredTier]),
                         upgradedLimits = upgradedLimits
                     )
                 }
@@ -310,7 +310,7 @@ data class SuggestedUpgrade(
 )
 
 sealed class UpgradeType {
-    data class Kyc(val proposedTier: Tier) : UpgradeType()
+    data class Kyc(val proposedTier: KycTier) : UpgradeType()
 }
 
 data class FeatureWithLimit(

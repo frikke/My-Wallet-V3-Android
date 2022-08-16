@@ -33,6 +33,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.payments.toCardType
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
@@ -43,7 +44,6 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
-import com.blockchain.nabu.Tier
 import com.blockchain.preferences.CurrencyPrefs
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -78,7 +78,7 @@ class SettingsFragment :
 
     interface Host {
         fun updateBasicProfile(basicProfileInfo: BasicProfileInfo)
-        fun updateTier(tier: Tier)
+        fun updateTier(tier: KycTier)
     }
 
     val host: Host by lazy {
@@ -162,7 +162,7 @@ class SettingsFragment :
                 paymentMethodInfo = newState.paymentMethodInfo,
                 totalLinkedPaymentMethods = newState.paymentMethodInfo.linkedBanks.count() +
                     newState.paymentMethodInfo.linkedCards.count(),
-                isUserGold = newState.tier == Tier.GOLD,
+                isUserGold = newState.tier == KycTier.GOLD,
                 canPayWithBind = newState.canPayWithBind
             )
         } else {
@@ -484,11 +484,11 @@ class SettingsFragment :
         }
     }
 
-    private fun showUserTierIcon(tier: Tier) {
+    private fun showUserTierIcon(tier: KycTier) {
         binding.iconUser.setImageResource(
             when (tier) {
-                Tier.GOLD -> R.drawable.bkgd_profile_icon_gold
-                Tier.SILVER -> R.drawable.bkgd_profile_icon_silver
+                KycTier.GOLD -> R.drawable.bkgd_profile_icon_gold
+                KycTier.SILVER -> R.drawable.bkgd_profile_icon_silver
                 else -> 0
             }
         )
@@ -610,8 +610,8 @@ class SettingsFragment :
         // do nothing
     }
 
-    private fun setInfoHeader(userInformation: BasicProfileInfo, tier: Tier) {
-        if (tier == Tier.BRONZE) {
+    private fun setInfoHeader(userInformation: BasicProfileInfo, tier: KycTier) {
+        if (tier == KycTier.BRONZE) {
             setUserTier0Info(userInformation.email)
         } else {
             setUserInfo(userInformation)

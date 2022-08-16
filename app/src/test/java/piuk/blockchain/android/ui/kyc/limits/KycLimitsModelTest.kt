@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.kyc.limits
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.Feature
 import com.blockchain.core.limits.FeatureLimit
 import com.blockchain.core.limits.FeatureWithLimit
 import com.blockchain.core.limits.TxLimitPeriod
 import com.blockchain.core.limits.TxPeriodicLimit
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.nabu.Tier
 import com.blockchain.testutils.USD
 import com.blockchain.testutils.numberToBigInteger
 import com.nhaarman.mockitokotlin2.mock
@@ -23,7 +23,7 @@ class KycLimitsModelTest {
 
     private val interactor: KycLimitsInteractor = mock {
         on { fetchLimits() }.thenReturn(Single.just(TEST_FEATURE_LIMITS))
-        on { fetchHighestApprovedTier() }.thenReturn(Single.just(Tier.SILVER))
+        on { fetchHighestApprovedTier() }.thenReturn(Single.just(KycTier.SILVER))
         on { fetchIsKycRejected() }.thenReturn(Single.just(false))
     }
 
@@ -79,7 +79,7 @@ class KycLimitsModelTest {
 
     @Test
     fun `given bronze user, on fetching tiers success should show new kyc header and hide kyc tier row`() {
-        whenever(interactor.fetchHighestApprovedTier()).thenReturn(Single.just(Tier.BRONZE))
+        whenever(interactor.fetchHighestApprovedTier()).thenReturn(Single.just(KycTier.BRONZE))
 
         val state = model.state.test()
         model.process(KycLimitsIntent.FetchLimitsAndTiers)
@@ -92,7 +92,7 @@ class KycLimitsModelTest {
 
     @Test
     fun `given silver user, on fetching tiers success should show upgrade to gold header and show silver kyc tier row`() {
-        whenever(interactor.fetchHighestApprovedTier()).thenReturn(Single.just(Tier.SILVER))
+        whenever(interactor.fetchHighestApprovedTier()).thenReturn(Single.just(KycTier.SILVER))
 
         val state = model.state.test()
         model.process(KycLimitsIntent.FetchLimitsAndTiers)
@@ -106,7 +106,7 @@ class KycLimitsModelTest {
 
     @Test
     fun `given gold user, on fetching tiers success should show max tier reached header and show gold kyc tier row`() {
-        whenever(interactor.fetchHighestApprovedTier()).thenReturn(Single.just(Tier.GOLD))
+        whenever(interactor.fetchHighestApprovedTier()).thenReturn(Single.just(KycTier.GOLD))
 
         val state = model.state.test()
         model.process(KycLimitsIntent.FetchLimitsAndTiers)

@@ -18,6 +18,8 @@ import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -28,7 +30,6 @@ import com.blockchain.extensions.minus
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.RecurringBuy
@@ -55,6 +56,7 @@ class CoinViewInteractor(
     private val currencyPrefs: CurrencyPrefs,
     private val dashboardPrefs: DashboardPrefs,
     private val identity: UserIdentity,
+    private val kycService: KycService,
     private val walletModeService: WalletModeService,
     private val custodialWalletManager: CustodialWalletManager,
     private val assetActionsComparator: StateAwareActionsComparator,
@@ -99,7 +101,7 @@ class CoinViewInteractor(
         asset: CryptoAsset
     ): Single<QuickActionData> =
         Single.zip(
-            identity.getHighestApprovedKycTier(),
+            kycService.getHighestApprovedTierLevelLegacy(),
             identity.isEligibleFor(Feature.SimplifiedDueDiligence),
             identity.userAccessForFeature(Feature.Buy),
             identity.userAccessForFeature(Feature.Sell),
@@ -117,7 +119,7 @@ class CoinViewInteractor(
                 isTradable && canBuy -> {
                     require(custodialAccount != null)
                     if (isSupportedPair) {
-                        if (tier == Tier.GOLD || sddEligible) {
+                        if (tier == KycTier.GOLD || sddEligible) {
                             if (totalCryptoBalance[AssetFilter.Trading]?.isPositive == true) {
                                 QuickActionData(
                                     startAction = QuickActionCta.Sell,

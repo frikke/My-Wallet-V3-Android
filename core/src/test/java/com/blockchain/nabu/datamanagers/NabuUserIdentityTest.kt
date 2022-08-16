@@ -1,7 +1,13 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycLimits
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTierDetail
+import com.blockchain.core.kyc.domain.model.KycTierState
+import com.blockchain.core.kyc.domain.model.KycTiers
+import com.blockchain.core.kyc.domain.model.TiersMap
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
@@ -11,20 +17,12 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.api.kyc.domain.model.KycLimits
-import com.blockchain.nabu.api.kyc.domain.model.KycTierDetail
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
-import com.blockchain.nabu.api.kyc.domain.model.KycTierState
-import com.blockchain.nabu.api.kyc.domain.model.KycTiers
-import com.blockchain.nabu.api.kyc.domain.model.TiersMap
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.test.runTest
@@ -35,7 +33,7 @@ class NabuUserIdentityTest {
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val interestService: InterestService = mock()
     private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider = mock()
-    private val nabuUserDataManager: NabuUserDataManager = mock()
+    private val kycService: KycService = mock()
     private val eligibilityService: EligibilityService = mock()
     private val userService: UserService = mock()
     private val bindFeatureFlag: FeatureFlag = mock()
@@ -44,87 +42,11 @@ class NabuUserIdentityTest {
         custodialWalletManager = custodialWalletManager,
         interestService = interestService,
         simpleBuyEligibilityProvider = simpleBuyEligibilityProvider,
-        nabuUserDataManager = nabuUserDataManager,
+        kycService = kycService,
         eligibilityService = eligibilityService,
         userService = userService,
         bindFeatureFlag = bindFeatureFlag
     )
-
-    @Test
-    fun `getHighestApprovedKycTier bronze success`() {
-        val mockTiers = createMockTiers(tier1 = KycTierState.None, tier2 = KycTierState.None)
-        whenever(nabuUserDataManager.tiers()).thenReturn(Single.just(mockTiers))
-
-        subject.getHighestApprovedKycTier()
-            .test()
-            .assertValue(Tier.BRONZE)
-
-        verify(nabuUserDataManager).tiers()
-    }
-
-    @Test
-    fun `getHighestApprovedKycTier silver success`() {
-        val mockTiers = createMockTiers(tier1 = KycTierState.Verified, tier2 = KycTierState.Rejected)
-        whenever(nabuUserDataManager.tiers()).thenReturn(Single.just(mockTiers))
-
-        subject.getHighestApprovedKycTier()
-            .test()
-            .assertValue(Tier.SILVER)
-
-        verify(nabuUserDataManager).tiers()
-    }
-
-    @Test
-    fun `getHighestApprovedKycTier gold success`() {
-        val mockTiers = createMockTiers(tier1 = KycTierState.Verified, tier2 = KycTierState.Verified)
-        whenever(nabuUserDataManager.tiers()).thenReturn(Single.just(mockTiers))
-
-        subject.getHighestApprovedKycTier()
-            .test()
-            .assertValue(Tier.GOLD)
-
-        verify(nabuUserDataManager).tiers()
-    }
-
-    @Test
-    fun `isKycRejected not rejected success`() {
-        val mockTiers = createMockTiers(tier1 = KycTierState.Verified, tier2 = KycTierState.None)
-        whenever(nabuUserDataManager.tiers()).thenReturn(Single.just(mockTiers))
-
-        subject.isKycRejected()
-            .test()
-            .assertValue(false)
-    }
-
-    @Test
-    fun `isKycRejected rejected success`() {
-        val mockTiers = createMockTiers(tier1 = KycTierState.Verified, tier2 = KycTierState.Rejected)
-        whenever(nabuUserDataManager.tiers()).thenReturn(Single.just(mockTiers))
-
-        subject.isKycRejected()
-            .test()
-            .assertValue(true)
-    }
-
-    @Test
-    fun `isKycRejected not pending success`() {
-        val mockTiers = createMockTiers(tier1 = KycTierState.Verified, tier2 = KycTierState.None)
-        whenever(nabuUserDataManager.tiers()).thenReturn(Single.just(mockTiers))
-
-        subject.isKycPending(Tier.GOLD)
-            .test()
-            .assertValue(false)
-    }
-
-    @Test
-    fun `isKycRejected pending success`() {
-        val mockTiers = createMockTiers(tier1 = KycTierState.Verified, tier2 = KycTierState.Pending)
-        whenever(nabuUserDataManager.tiers()).thenReturn(Single.just(mockTiers))
-
-        subject.isKycPending(Tier.GOLD)
-            .test()
-            .assertValue(true)
-    }
 
     @Test
     fun `on userAccessForFeature Buy should query eligibility data manager and simpleBuyTradingEligibility`() =
@@ -135,8 +57,8 @@ class NabuUserIdentityTest {
                 maxTransactionsCap = TransactionsLimit.Unlimited,
                 reasonNotEligible = null
             )
-            val mockTiers = createMockTiers(tier1 = KycTierState.Verified, tier2 = KycTierState.Verified)
-            whenever(nabuUserDataManager.tiers()).thenReturn(Single.just(mockTiers))
+            val mockTiers = createMockTiers(silverState = KycTierState.Verified, goldState = KycTierState.Verified)
+            whenever(kycService.getTiersLegacy()).thenReturn(Single.just(mockTiers))
             whenever(eligibilityService.getProductEligibility(EligibleProduct.BUY))
                 .thenReturn(Outcome.Success(eligibility))
             whenever(simpleBuyEligibilityProvider.simpleBuyTradingEligibility())
@@ -284,23 +206,23 @@ class NabuUserIdentityTest {
     }
 
     companion object {
-        fun createMockTiers(tier1: KycTierState, tier2: KycTierState): KycTiers {
+        fun createMockTiers(silverState: KycTierState, goldState: KycTierState): KycTiers {
             return KycTiers(
                 TiersMap(
                     mapOf(
-                        KycTierLevel.BRONZE to
+                        KycTier.BRONZE to
                             KycTierDetail(
                                 KycTierState.Verified,
                                 KycLimits(null, null)
                             ),
-                        KycTierLevel.SILVER to
+                        KycTier.SILVER to
                             KycTierDetail(
-                                tier1,
+                                silverState,
                                 KycLimits(null, null)
                             ),
-                        KycTierLevel.GOLD to
+                        KycTier.GOLD to
                             KycTierDetail(
-                                tier2,
+                                goldState,
                                 KycLimits(null, null)
                             )
                     )

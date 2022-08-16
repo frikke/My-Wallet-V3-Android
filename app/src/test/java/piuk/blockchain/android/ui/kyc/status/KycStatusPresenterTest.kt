@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.kyc.status
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.kyc.domain.model.KycTierState
 import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.api.kyc.domain.model.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.notifications.NotificationTokenManager
 import com.nhaarman.mockitokotlin2.any

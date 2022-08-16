@@ -2,11 +2,11 @@ package piuk.blockchain.android.ui.kyc.navhost
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.KYCAnalyticsEvents
+import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.api.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState

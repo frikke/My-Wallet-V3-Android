@@ -15,6 +15,7 @@ import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.buy.BuyOrdersCache
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.BankPartner
@@ -31,7 +32,6 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuySellOrder
@@ -324,7 +324,7 @@ class SimpleBuyModel(
                             previousSelectedId = previousState.selectedPaymentMethod?.id,
                             availablePaymentMethods = it,
                             preselectedId = null,
-                            usePrefilledAmount = true,
+                            usePrefilledAmount = true
                         )
                     )
 
@@ -541,7 +541,7 @@ class SimpleBuyModel(
         fiatCurrency: FiatCurrency,
         selectedPaymentMethod: SelectedPaymentMethod,
         availablePaymentMethods: List<PaymentMethod>,
-        usePrefilledAmount: Boolean,
+        usePrefilledAmount: Boolean
     ): Disposable {
         return interactor.fetchBuyLimits(
             fiat = fiatCurrency,
@@ -685,12 +685,14 @@ class SimpleBuyModel(
                 balance != null && balance < amount -> Single.just(TransactionErrorState.INSUFFICIENT_FUNDS)
                 buyLimits.isMinViolatedByAmount(amount) -> Single.just(TransactionErrorState.BELOW_MIN_LIMIT)
                 buyLimits.isMaxViolatedByAmount(amount) -> {
-                    userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)).onErrorReturnItem(false).map { gold ->
-                        if (gold)
-                            TransactionErrorState.OVER_GOLD_TIER_LIMIT
-                        else
-                            TransactionErrorState.OVER_SILVER_TIER_LIMIT
-                    }
+                    userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD))
+                        .onErrorReturnItem(false)
+                        .map { gold ->
+                            if (gold)
+                                TransactionErrorState.OVER_GOLD_TIER_LIMIT
+                            else
+                                TransactionErrorState.OVER_SILVER_TIER_LIMIT
+                        }
                 }
                 paymentMethodLimits.isMaxViolatedByAmount(amount) -> Single.just(
                     TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT
@@ -815,7 +817,7 @@ class SimpleBuyModel(
                             preselectedId = preselectedId,
                             previousSelectedId = previousSelectedId,
                             availablePaymentMethods = availablePaymentMethods,
-                            usePrefilledAmount = usePrefilledAmount,
+                            usePrefilledAmount = usePrefilledAmount
                         )
                     )
                 },
@@ -834,7 +836,7 @@ class SimpleBuyModel(
         preselectedId: String?,
         previousSelectedId: String?,
         availablePaymentMethods: List<PaymentMethod>,
-        usePrefilledAmount: Boolean,
+        usePrefilledAmount: Boolean
     ): SimpleBuyIntent.PaymentMethodsUpdated {
 
         val paymentOptions = PaymentOptions(

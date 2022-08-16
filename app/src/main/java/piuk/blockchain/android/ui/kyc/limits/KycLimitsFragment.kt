@@ -11,10 +11,10 @@ import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.Feature
 import com.blockchain.core.limits.FeatureLimit
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.Tier
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycLimitsBinding
@@ -79,8 +79,8 @@ class KycLimitsFragment :
             if (newState.header != Header.HIDDEN) items.add(KycLimitsItem.HeaderItem(newState.header))
             items.add(KycLimitsItem.FeaturesHeaderItem)
             when (newState.currentKycTierRow) {
-                CurrentKycTierRow.SILVER -> items.add(KycLimitsItem.CurrentTierItem(Tier.SILVER))
-                CurrentKycTierRow.GOLD -> items.add(KycLimitsItem.CurrentTierItem(Tier.GOLD))
+                CurrentKycTierRow.SILVER -> items.add(KycLimitsItem.CurrentTierItem(KycTier.SILVER))
+                CurrentKycTierRow.GOLD -> items.add(KycLimitsItem.CurrentTierItem(KycTier.GOLD))
                 CurrentKycTierRow.HIDDEN -> {
                 }
             }
@@ -191,7 +191,7 @@ class KycLimitsFragment :
 sealed class KycLimitsItem : Diffable<KycLimitsItem> {
     data class HeaderItem(val header: Header) : KycLimitsItem()
     object FeaturesHeaderItem : KycLimitsItem()
-    data class CurrentTierItem(val tier: Tier) : KycLimitsItem()
+    data class CurrentTierItem(val tier: KycTier) : KycLimitsItem()
     data class FeatureWithLimitItem(val feature: Feature, val limit: FeatureLimit) : KycLimitsItem() {
         override fun areItemsTheSame(otherItem: KycLimitsItem): Boolean =
             otherItem is FeatureWithLimitItem &&

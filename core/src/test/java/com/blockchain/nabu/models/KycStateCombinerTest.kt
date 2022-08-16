@@ -1,11 +1,11 @@
 package com.blockchain.nabu.models
 
-import com.blockchain.nabu.api.kyc.domain.model.KycLimits
-import com.blockchain.nabu.api.kyc.domain.model.KycTierDetail
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
-import com.blockchain.nabu.api.kyc.domain.model.KycTierState
-import com.blockchain.nabu.api.kyc.domain.model.KycTiers
-import com.blockchain.nabu.api.kyc.domain.model.TiersMap
+import com.blockchain.core.kyc.domain.model.KycLimits
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTierDetail
+import com.blockchain.core.kyc.domain.model.KycTierState
+import com.blockchain.core.kyc.domain.model.KycTiers
+import com.blockchain.core.kyc.domain.model.TiersMap
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -23,19 +23,19 @@ class KycStateCombinerTest {
             KycTierState.Pending,
             KycTierState.None
         ).let {
-            assertTrue(it.isPendingFor(KycTierLevel.SILVER))
+            assertTrue(it.isPendingFor(KycTier.SILVER))
         }
         tiers(
             KycTierState.Verified,
             KycTierState.None
         ).let {
-            assertTrue(it.isApprovedFor(KycTierLevel.SILVER))
+            assertTrue(it.isApprovedFor(KycTier.SILVER))
         }
         tiers(
             KycTierState.Rejected,
             KycTierState.None
         ).let {
-            assertTrue(it.isRejectedFor(KycTierLevel.SILVER))
+            assertTrue(it.isRejectedFor(KycTier.SILVER))
         }
     }
 
@@ -45,28 +45,28 @@ class KycStateCombinerTest {
             KycTierState.None,
             KycTierState.Pending
         ).let {
-            assertTrue(it.isPendingFor(KycTierLevel.GOLD))
+            assertTrue(it.isPendingFor(KycTier.GOLD))
         }
 
         tiers(
             KycTierState.Pending,
             KycTierState.Pending
         ).let {
-            assertTrue(it.isPendingFor(KycTierLevel.GOLD))
+            assertTrue(it.isPendingFor(KycTier.GOLD))
         }
 
         tiers(
             KycTierState.Verified,
             KycTierState.Pending
         ).let {
-            assertTrue(it.isPendingFor(KycTierLevel.GOLD))
+            assertTrue(it.isPendingFor(KycTier.GOLD))
         }
 
         tiers(
             KycTierState.Rejected,
             KycTierState.Pending
         ).let {
-            assertTrue(it.isPendingFor(KycTierLevel.GOLD))
+            assertTrue(it.isPendingFor(KycTier.GOLD))
         }
     }
 
@@ -76,25 +76,25 @@ class KycStateCombinerTest {
             KycTierState.None,
             KycTierState.Verified
         ).let {
-            assertTrue(it.isApprovedFor(KycTierLevel.GOLD))
+            assertTrue(it.isApprovedFor(KycTier.GOLD))
         }
         tiers(
             KycTierState.Pending,
             KycTierState.Verified
         ).let {
-            assertTrue(it.isApprovedFor(KycTierLevel.GOLD))
+            assertTrue(it.isApprovedFor(KycTier.GOLD))
         }
         tiers(
             KycTierState.Verified,
             KycTierState.Verified
         ).let {
-            assertTrue(it.isApprovedFor(KycTierLevel.GOLD))
+            assertTrue(it.isApprovedFor(KycTier.GOLD))
         }
         tiers(
             KycTierState.Rejected,
             KycTierState.Verified
         ).let {
-            assertTrue(it.isApprovedFor(KycTierLevel.GOLD))
+            assertTrue(it.isApprovedFor(KycTier.GOLD))
         }
     }
 
@@ -104,25 +104,25 @@ class KycStateCombinerTest {
             KycTierState.None,
             KycTierState.Rejected
         ).let {
-            assertTrue(it.isRejectedFor(KycTierLevel.GOLD))
+            assertTrue(it.isRejectedFor(KycTier.GOLD))
         }
         tiers(
             KycTierState.Pending,
             KycTierState.Rejected
         ).let {
-            assertTrue(it.isRejectedFor(KycTierLevel.GOLD))
+            assertTrue(it.isRejectedFor(KycTier.GOLD))
         }
         tiers(
             KycTierState.Verified,
             KycTierState.Rejected
         ).let {
-            assertTrue(it.isRejectedFor(KycTierLevel.GOLD))
+            assertTrue(it.isRejectedFor(KycTier.GOLD))
         }
         tiers(
             KycTierState.Rejected,
             KycTierState.Rejected
         ).let {
-            assertTrue(it.isRejectedFor(KycTierLevel.GOLD))
+            assertTrue(it.isRejectedFor(KycTier.GOLD))
         }
     }
 }
@@ -131,17 +131,17 @@ private fun tiers(tier1State: KycTierState, tier2State: KycTierState): KycTiers 
     return KycTiers(
         TiersMap(
             mapOf(
-                KycTierLevel.BRONZE to
+                KycTier.BRONZE to
                     KycTierDetail(
                         KycTierState.Verified,
                         KycLimits(null, null)
                     ),
-                KycTierLevel.SILVER to
+                KycTier.SILVER to
                     KycTierDetail(
                         tier1State,
                         KycLimits(null, null)
                     ),
-                KycTierLevel.GOLD to
+                KycTier.GOLD to
                     KycTierDetail(
                         tier2State,
                         KycLimits(null, null)

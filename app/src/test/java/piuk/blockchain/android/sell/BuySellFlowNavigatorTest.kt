@@ -1,9 +1,9 @@
 package piuk.blockchain.android.sell
 
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -24,7 +24,7 @@ class BuySellFlowNavigatorTest {
     private val simpleBuySyncFactory: SimpleBuySyncFactory = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val userIdentity: UserIdentity = mock {
-        on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
+        on { isVerifiedFor(Feature.TierLevel(KycTier.GOLD)) }.thenReturn(Single.just(true))
         on { isEligibleFor(Feature.Buy) }.thenReturn(Single.just(true))
         on { isEligibleFor(Feature.Sell) }.thenReturn(Single.just(true))
     }

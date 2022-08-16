@@ -19,8 +19,8 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.invisibleIf
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -81,7 +81,7 @@ class KycNavHostActivity :
         analytics.logEvent(
             KYCAnalyticsEvents.UpgradeKycVeriffClicked(
                 campaignType.toLaunchOrigin(),
-                Tier.GOLD.ordinal
+                KycTier.GOLD.ordinal
             )
         )
 

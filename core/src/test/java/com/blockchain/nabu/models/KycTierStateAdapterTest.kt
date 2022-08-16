@@ -1,6 +1,6 @@
 package com.blockchain.nabu.models
 
-import com.blockchain.nabu.api.kyc.domain.model.KycTierState
+import com.blockchain.core.kyc.domain.model.KycTierState
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString

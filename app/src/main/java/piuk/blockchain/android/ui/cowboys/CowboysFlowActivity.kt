@@ -32,13 +32,13 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.BUY_URL
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.KYC_URL
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.Tier
 import info.blockchain.balance.AssetCatalogue
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -121,7 +121,7 @@ class CowboysFlowActivity : BlockchainActivity() {
             when {
                 contains(KYC_URL) -> {
                     when (this.split("=")[1].toInt()) {
-                        Tier.SILVER.ordinal -> {
+                        KycTier.SILVER.ordinal -> {
                             launchKycForResult(SDD_REQUEST, CampaignType.SimpleBuy)
                         }
                         else -> {

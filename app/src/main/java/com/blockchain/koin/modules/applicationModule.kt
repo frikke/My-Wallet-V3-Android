@@ -498,6 +498,7 @@ val applicationModule = module {
 
         factory {
             GetAvailablePaymentMethodsTypesUseCase(
+                kycService = get(),
                 userIdentity = get(),
                 paymentMethodService = get(),
                 cardService = get()
@@ -515,6 +516,7 @@ val applicationModule = module {
             GetDashboardOnboardingStepsUseCase(
                 dashboardPrefs = get(),
                 userIdentity = get(),
+                kycService = get(),
                 bankService = get(),
                 cardService = get(),
                 tradeDataService = get()
@@ -582,6 +584,7 @@ val applicationModule = module {
             BuyFlowNavigator(
                 simpleBuySyncFactory = get(),
                 userIdentity = get(),
+                kycService = get(),
                 fiatCurrenciesService = get(),
                 custodialWalletManager = get()
             )

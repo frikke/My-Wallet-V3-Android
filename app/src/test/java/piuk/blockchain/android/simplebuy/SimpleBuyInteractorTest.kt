@@ -3,6 +3,7 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.analytics.Analytics
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -15,7 +16,6 @@ import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.api.kyc.domain.KycService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
