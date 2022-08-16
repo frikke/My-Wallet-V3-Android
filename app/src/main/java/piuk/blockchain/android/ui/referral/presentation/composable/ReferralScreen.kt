@@ -22,10 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -41,7 +42,6 @@ import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.domain.common.model.PromotionStyleInfo
-import kotlin.math.max
 import piuk.blockchain.android.R
 
 @OptIn(ExperimentalCoilApi::class)
@@ -122,6 +122,7 @@ fun ReferralScreen(
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_margin)))
 
                 SimpleText(
+                    modifier = Modifier.padding(horizontal = AppTheme.dimensions.xxxPaddingLarge),
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
@@ -228,7 +229,7 @@ fun ReferralCriteria(criteria: List<String>, isCustomBackground: Boolean) {
             SingleReferralCriteria(index, value, isCustomBackground)
 
             if (index != criteria.lastIndex) {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                ReferralCriteriaSeparator()
             }
         }
     }
@@ -246,21 +247,11 @@ fun SingleReferralCriteria(
     ) {
         Text(
             modifier = Modifier
+                .size(AppTheme.dimensions.paddingLarge)
                 .clip(CircleShape)
-                .background(Blue000)
-                .layout { measurable, constraints ->
-                    with(measurable.measure(constraints)) {
-                        val size = max(width, height)
-
-                        layout(width = size, height = size) {
-                            placeRelative(
-                                x = size / 2 - width / 2,
-                                y = size / 2 - height / 2
-                            )
-                        }
-                    }
-                },
+                .background(Blue000),
             style = AppTheme.typography.body2,
+            textAlign = TextAlign.Center,
             color = Blue600,
             text = (index + 1).toString(),
         )
@@ -275,6 +266,16 @@ fun SingleReferralCriteria(
     }
 }
 
+@Composable
+fun ReferralCriteriaSeparator() {
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 34.dp)
+            .size(height = AppTheme.dimensions.paddingSmall, width = AppTheme.dimensions.xPaddingSmall)
+            .background(Color.Red)
+    )
+}
+
 // ///////////////
 // PREVIEWS
 // ///////////////
@@ -282,6 +283,22 @@ fun SingleReferralCriteria(
 @Preview(name = "Full Screen", showBackground = true)
 @Composable
 fun PreviewReferralScreen() {
+    ReferralScreen(
+        rewardTitle = "Invite friends, get $30.00!",
+        rewardSubtitle = "Increase your earnings on each successful invite  ",
+        code = "DIEG4321",
+        confirmCopiedToClipboard = false,
+        criteria = listOf("Sign up using your code", "Verify their identity", "Trade (min 50)"),
+        onBackPressed = {},
+        copyToClipboard = {},
+        shareCode = {},
+        promotionData = null
+    )
+}
+
+@Preview(name = "Full Screen", showBackground = true)
+@Composable
+fun PreviewReferralScreenPromotion() {
     ReferralScreen(
         rewardTitle = "Invite friends, get $30.00!",
         rewardSubtitle = "Increase your earnings on each successful invite  ",
