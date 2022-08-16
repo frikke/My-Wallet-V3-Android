@@ -722,6 +722,10 @@ class PrefsUtil(
         get() = getValue(HAS_SEEN_COWBOYS_FLOW, false)
         set(value) = setValue(HAS_SEEN_COWBOYS_FLOW, value)
 
+    override var hasCowboysReferralBeenDismissed: Boolean
+        get() = getValue(COWBOYS_REFERRAL_CARD_DISMISSED, false)
+        set(value) = setValue(COWBOYS_REFERRAL_CARD_DISMISSED, value)
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -851,6 +855,7 @@ class PrefsUtil(
 
         // Cowboys promo
         private const val HAS_SEEN_COWBOYS_FLOW = "has_seen_cowboys_flow"
+        private const val COWBOYS_REFERRAL_CARD_DISMISSED = "referral_card_dismissed"
     }
 }
 

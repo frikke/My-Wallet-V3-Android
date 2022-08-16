@@ -41,6 +41,7 @@ enum class ComposeTypographies {
     Title1,
     Title2,
     Title3,
+    Title4,
     Subheading,
     BodyMono,
     Body1,
@@ -61,6 +62,7 @@ enum class ComposeTypographies {
             Title1 -> AppTheme.typography.title1
             Title2 -> AppTheme.typography.title2
             Title3 -> AppTheme.typography.title3
+            Title4 -> AppTheme.typography.title4
             Subheading -> AppTheme.typography.subheading
             BodyMono -> AppTheme.typography.bodyMono
             Body1 -> AppTheme.typography.body1

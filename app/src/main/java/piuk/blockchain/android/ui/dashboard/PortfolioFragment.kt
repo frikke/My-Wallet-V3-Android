@@ -538,6 +538,7 @@ class PortfolioFragment :
                         },
                         isDismissable = true,
                         onDismiss = {
+                            model.process(DashboardIntent.CowboysReferralCardClosed)
                             gone()
                         }
                     )

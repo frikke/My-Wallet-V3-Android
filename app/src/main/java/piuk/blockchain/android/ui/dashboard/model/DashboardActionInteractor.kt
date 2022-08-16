@@ -37,6 +37,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrDefault
+import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -109,7 +110,8 @@ class DashboardActionInteractor(
     private val cowboysFeatureFlag: FeatureFlag,
     private val settingsDataManager: SettingsDataManager,
     private val cowboysDataProvider: CowboysPromoDataProvider,
-    private val referralService: ReferralService
+    private val referralService: ReferralService,
+    private val cowboysPrefs: CowboysPrefs
 ) {
 
     private val defFilter: AssetFilter
@@ -767,6 +769,10 @@ class DashboardActionInteractor(
             }
         )
 
+    fun markCowboysReferralCardAsDismissed() {
+        cowboysPrefs.hasCowboysReferralBeenDismissed = true
+    }
+
     fun checkCowboysFlowSteps(model: DashboardModel): Disposable =
         Singles.zip(
             userIdentity.isCowboysUser(),
@@ -812,16 +818,20 @@ class DashboardActionInteractor(
         }
 
     private fun getCowboysReferralInfo(): Single<DashboardCowboysState> =
-        Singles.zip(
-            getReferralData(),
-            cowboysDataProvider.getReferFriendsAnnouncement()
-        ).flatMap { (referralInfo, cowboysData) ->
-            Single.just(
-                DashboardCowboysState.CowboyReferFriendsCard(
-                    referralData = referralInfo,
-                    cardInfo = cowboysData
+        if (cowboysPrefs.hasCowboysReferralBeenDismissed) {
+            Single.just(DashboardCowboysState.Hidden)
+        } else {
+            Singles.zip(
+                getReferralData(),
+                cowboysDataProvider.getReferFriendsAnnouncement()
+            ).flatMap { (referralInfo, cowboysData) ->
+                Single.just(
+                    DashboardCowboysState.CowboyReferFriendsCard(
+                        referralData = referralInfo,
+                        cardInfo = cowboysData
+                    )
                 )
-            )
+            }
         }
 
     private fun getReferralData(): Single<ReferralInfo> =
