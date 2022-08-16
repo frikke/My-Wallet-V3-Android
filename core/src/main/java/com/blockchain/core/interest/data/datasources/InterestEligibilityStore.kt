@@ -1,7 +1,7 @@
 package com.blockchain.core.interest.data.datasources
 
 import com.blockchain.api.interest.InterestApiService
-import com.blockchain.api.interest.data.InterestAccountBalanceDto
+import com.blockchain.api.interest.data.InterestEligibilityDto
 import com.blockchain.nabu.Authenticator
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
@@ -12,24 +12,24 @@ import com.blockchain.storedatasource.FlushableDataSource
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 
-class InterestBalancesStore(
-    private val interestApiService: InterestApiService,
-    private val authenticator: Authenticator
-) : Store<Map<String, InterestAccountBalanceDto>> by PersistedJsonSqlDelightStoreBuilder()
+class InterestEligibilityStore(
+    private val authenticator: Authenticator,
+    private val interestApiService: InterestApiService
+) : Store<Map<String, InterestEligibilityDto>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.ofSingle(
             mapper = {
-                authenticator.authenticate {
-                    interestApiService.getAccountBalances(it.authHeader)
+                authenticator.authenticate { token ->
+                    interestApiService.getTickersEligibility(token.authHeader)
                 }
             }
         ),
         dataSerializer = MapSerializer(
             keySerializer = String.serializer(),
-            valueSerializer = InterestAccountBalanceDto.serializer()
+            valueSerializer = InterestEligibilityDto.serializer()
         ),
-        mediator = FreshnessMediator(Freshness.DURATION_24_HOURS)
+        mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
     ),
     FlushableDataSource {
 
@@ -38,6 +38,6 @@ class InterestBalancesStore(
     }
 
     companion object {
-        private const val STORE_ID = "InterestBalancesStore"
+        private const val STORE_ID = "InterestEligibilityStore"
     }
 }

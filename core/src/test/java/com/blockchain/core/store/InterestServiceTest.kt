@@ -2,17 +2,19 @@ package com.blockchain.core.store
 
 import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
-import com.blockchain.core.TransactionsCache
+import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.core.interest.data.InterestRepository
-import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
+import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
-import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
-import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
+import com.blockchain.core.interest.data.datasources.InterestEligibilityStore
+import com.blockchain.core.interest.data.datasources.InterestLimitsStore
+import com.blockchain.core.interest.data.datasources.InterestRateStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.Authenticator
+import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
@@ -32,22 +34,26 @@ import org.junit.Test
 class InterestServiceTest {
     private val assetCatalogue = mockk<AssetCatalogue>()
     private val interestBalancesStore = mockk<InterestBalancesStore>()
-    private val interestEligibilityTimedCache = mockk<InterestEligibilityTimedCache>()
-    private val interestAvailableAssetsTimedCache = mockk<InterestAvailableAssetsTimedCache>()
-    private val interestLimitsTimedCache = mockk<InterestLimitsTimedCache>()
+    private val interestEligibilityStore = mockk<InterestEligibilityStore>()
+    private val interestAvailableAssetsStore = mockk<InterestAvailableAssetsStore>()
+    private val interestLimitsStore = mockk<InterestLimitsStore>()
+    private val interestRateStore = mockk<InterestRateStore>()
+    private val paymentTransactionHistoryStore = mockk<PaymentTransactionHistoryStore>()
+    private val currencyPrefs = mockk<CurrencyPrefs>()
     private val authenticator = mockk<Authenticator>()
     private val interestApiService = mockk<InterestApiService>()
-    private val transactionsCache = mockk<TransactionsCache>()
 
     private val interestService: InterestService = InterestRepository(
         assetCatalogue = assetCatalogue,
         interestBalancesStore = interestBalancesStore,
-        interestEligibilityTimedCache = interestEligibilityTimedCache,
-        interestAvailableAssetsTimedCache = interestAvailableAssetsTimedCache,
-        interestLimitsTimedCache = interestLimitsTimedCache,
+        interestEligibilityStore = interestEligibilityStore,
+        interestAvailableAssetsStore = interestAvailableAssetsStore,
+        interestLimitsStore = interestLimitsStore,
+        interestRateStore = interestRateStore,
+        paymentTransactionHistoryStore = paymentTransactionHistoryStore,
+        currencyPrefs = currencyPrefs,
         authenticator = authenticator,
         interestApiService = interestApiService,
-        transactionsCache = transactionsCache
     )
 
     private val cryptoCurrency = object : CryptoCurrency(
