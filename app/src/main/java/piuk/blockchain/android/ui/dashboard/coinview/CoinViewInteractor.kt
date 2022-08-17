@@ -151,7 +151,6 @@ class CoinViewInteractor(
                         endAction = QuickActionCta.None,
                         actionableAccount = NullCryptoAccount()
                     )
-
                 }
             }
 
