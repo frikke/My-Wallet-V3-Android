@@ -275,6 +275,7 @@ enum class AnalyticsNames(val eventName: String) {
     WALLET_REWARDS_VIEWED("Wallet Rewards Viewed"),
     REFERRAL_CTA_CLICKED("Clicks on referral CTAs"),
     REFERRAL_VIEW_REFERRAL("View referrals page"),
+    REFERRAL_CODE_FILLED("Referral Code Filled"),
     REFERRAL_SHARE_CODE("Share referral code"),
     REFERRAL_COPY_CODE("Referral code copied"),
     COWBOYS_VERIFY_EMAIL_ANNOUNCEMENT_CLICKED("Cowboys Verify Email Announcement Clicked"),
