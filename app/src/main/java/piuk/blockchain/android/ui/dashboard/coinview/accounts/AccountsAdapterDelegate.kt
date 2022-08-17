@@ -10,9 +10,9 @@ import piuk.blockchain.android.ui.resources.AssetResources
 
 class AccountsAdapterDelegate(
     private val onAccountSelected: (AssetDetailsItem.CryptoDetailsInfo) -> Unit,
-    private val onReceiveClicked: (BlockchainAccount) -> Unit,
     private val onLockedAccountSelected: () -> Unit,
     private val labels: DefaultLabels,
+    private val swapOnClick: (BlockchainAccount) -> Unit,
     private val onCardClicked: () -> Unit,
     private val onRecurringBuyClicked: (RecurringBuy) -> Unit,
     private val assetResources: AssetResources
@@ -30,10 +30,10 @@ class AccountsAdapterDelegate(
             addAdapterDelegate(
                 DefiAccountDetailsDelegate(
                     onAccountSelected = onAccountSelected,
-                    onReceiveClicked = onReceiveClicked,
                     onLockedAccountSelected = onLockedAccountSelected
                 )
             )
+            addAdapterDelegate(CentralCtaDelegate(swapOnClick))
             addAdapterDelegate(RecurringBuyItemDelegate(onRecurringBuyClicked))
             addAdapterDelegate(RecurringBuyInfoItemDelegate(onCardClicked))
             addAdapterDelegate(RecurringBuyErrorDelegate())

@@ -106,6 +106,10 @@ sealed interface AssetDetailsItem {
         interestRate = Double.NaN
     )
 
+    data class CentralCta(
+        val account: BlockchainAccount,
+    ) : AssetDetailsItem
+
     data class RecurringBuyInfo(
         val recurringBuy: RecurringBuy
     ) : AssetDetailsItem

@@ -86,6 +86,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.putAccount
+import java.util.Collections.swap
 
 class CoinViewActivity :
     MviActivity<CoinViewModel, CoinViewIntent, CoinViewState, ActivityCoinviewBinding>(),
@@ -136,9 +137,9 @@ class CoinViewActivity :
     private val adapterDelegate by lazy {
         AccountsAdapterDelegate(
             onAccountSelected = ::onAccountSelected,
-            onReceiveClicked = ::onReceiveClicked,
             onLockedAccountSelected = ::showUpgradeKycSheet,
             labels = labels,
+            swapOnClick = ::startSwap,
             onCardClicked = ::openOnboardingForRecurringBuy,
             onRecurringBuyClicked = ::onRecurringBuyClicked,
             assetResources = assetResources
@@ -990,9 +991,18 @@ class CoinViewActivity :
         assetDetails: List<AssetDetailsItem.CryptoDetailsInfo>
     ) {
         listItems.removeIf { details ->
+            details is AssetDetailsItem.CentralCta
+        }
+
+        assetDetails.firstOrNull { it.balance.isPositive }?.let {
+            listItems.add(0, AssetDetailsItem.CentralCta(it.account))
+        }
+
+        listItems.removeIf { details ->
             details is AssetDetailsItem.CryptoDetailsInfo
         }
         listItems.addAll(0, assetDetails)
+
         updateList()
     }
 
@@ -1018,13 +1028,6 @@ class CoinViewActivity :
             )
         )
         model.process(CoinViewIntent.CheckScreenToOpen(accountDetails))
-    }
-
-    private fun onReceiveClicked(
-        account: BlockchainAccount,
-    ) {
-        logReceiveEvent()
-        startReceive(account)
     }
 
     private fun openOnboardingForRecurringBuy() {
