@@ -41,6 +41,7 @@ fun BottomSheetTwoButtons(
     subtitle: String = "",
     button1: BottomSheetButton,
     button2: BottomSheetButton,
+    subtitleAlign: TextAlign = TextAlign.Center,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     shouldShowHeaderDivider: Boolean = true
 ) {
@@ -48,6 +49,7 @@ fun BottomSheetTwoButtons(
         onCloseClick = onCloseClick,
         headerImageResource = headerImageResource,
         title = title,
+        subtitleAlign = subtitleAlign,
         showTitleInHeader = showTitleInHeader,
         subtitle = subtitle,
         buttonsContent = {
@@ -66,6 +68,7 @@ fun BottomSheetOneButton(
     title: String,
     showTitleInHeader: Boolean = false,
     subtitle: String = "",
+    subtitleAlign: TextAlign = TextAlign.Center,
     button: BottomSheetButton,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     shouldShowHeaderDivider: Boolean = true
@@ -74,6 +77,7 @@ fun BottomSheetOneButton(
         onCloseClick = onCloseClick,
         headerImageResource = headerImageResource,
         title = title,
+        subtitleAlign = subtitleAlign,
         showTitleInHeader = showTitleInHeader,
         subtitle = subtitle,
         buttonsContent = {
@@ -89,6 +93,7 @@ fun BottomSheetNoButtons(
     onCloseClick: () -> Unit,
     headerImageResource: ImageResource?,
     title: String,
+    textAlign: TextAlign = TextAlign.Center,
     showTitleInHeader: Boolean = false,
     subtitle: String = "",
     isDarkTheme: Boolean = isSystemInDarkTheme(),
@@ -98,6 +103,7 @@ fun BottomSheetNoButtons(
         onCloseClick = onCloseClick,
         headerImageResource = headerImageResource,
         title = title,
+        subtitleAlign = textAlign,
         showTitleInHeader = showTitleInHeader,
         subtitle = subtitle,
         buttonsContent = null,
@@ -111,6 +117,7 @@ private fun BottomSheet(
     onCloseClick: () -> Unit,
     headerImageResource: ImageResource?,
     title: String,
+    subtitleAlign: TextAlign = TextAlign.Center,
     showTitleInHeader: Boolean = false,
     subtitle: String = "",
     buttonsContent: (@Composable ColumnScope.() -> Unit)? = null,
@@ -155,7 +162,7 @@ private fun BottomSheet(
             Text(
                 text = subtitle,
                 style = AppTheme.typography.paragraph1,
-                textAlign = TextAlign.Center,
+                textAlign = subtitleAlign,
                 color = AppTheme.colors.title,
                 modifier = Modifier.padding(
                     start = dimensionResource(R.dimen.standard_margin),

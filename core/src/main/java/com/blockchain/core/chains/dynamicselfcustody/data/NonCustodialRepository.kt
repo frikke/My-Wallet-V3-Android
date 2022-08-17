@@ -43,9 +43,8 @@ internal class NonCustodialRepository(
     private val remoteConfig: RemoteConfig
 ) : NonCustodialService {
 
-    private val supportedCoins: Single<Map<String, CoinConfiguration>> by lazy {
-        getAllSupportedCoins()
-    }
+    private val supportedCoins: Single<Map<String, CoinConfiguration>>
+        get() = getAllSupportedCoins()
 
     private fun getAllSupportedCoins(): Single<Map<String, CoinConfiguration>> {
         return remoteConfig.getRawJson(COIN_CONFIGURATIONS).map { json ->

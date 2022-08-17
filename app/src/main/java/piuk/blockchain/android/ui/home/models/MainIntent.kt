@@ -95,6 +95,10 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
+    class SwitchWalletMode(val walletMode: WalletMode) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
     class UpdateDeepLinkResult(val deeplinkResult: DeepLinkResult) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(

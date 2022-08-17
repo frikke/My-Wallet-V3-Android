@@ -87,29 +87,28 @@ class MainModel(
     }
 
     private fun updateTabs(walletMode: WalletMode, currentTab: NavigationItem): MainIntent {
-        return when (walletMode) {
+        val tabs = when (walletMode) {
             WalletMode.UNIVERSAL,
-            WalletMode.CUSTODIAL_ONLY -> MainIntent.UpdateTabs(
-                tabs = listOf(
+            WalletMode.CUSTODIAL_ONLY ->
+                listOf(
                     NavigationItem.Home,
                     NavigationItem.Prices,
                     NavigationItem.BuyAndSell,
                     NavigationItem.Activity
-                ),
-                selectedTab = currentTab
-            )
+                )
             WalletMode.NON_CUSTODIAL_ONLY -> {
-                val newTabs = listOf(
+                listOf(
                     NavigationItem.Home,
                     NavigationItem.Prices,
+                    NavigationItem.Nfts,
                     NavigationItem.Activity
-                )
-                MainIntent.UpdateTabs(
-                    tabs = newTabs,
-                    selectedTab = if (newTabs.contains(currentTab)) currentTab else NavigationItem.Home
                 )
             }
         }
+        return MainIntent.UpdateTabs(
+            tabs = tabs,
+            selectedTab = if (tabs.contains(currentTab)) currentTab else NavigationItem.Home
+        )
     }
 
     override fun performAction(previousState: MainState, intent: MainIntent): Disposable? =
@@ -246,6 +245,10 @@ class MainModel(
                     }
                 )
             is MainIntent.ApproveWCSession -> walletConnectServiceAPI.acceptConnection(intent.session).emptySubscribe()
+            is MainIntent.SwitchWalletMode -> {
+                walletModeService.updateEnabledWalletMode(intent.walletMode)
+                null
+            }
             is MainIntent.RejectWCSession -> walletConnectServiceAPI.denyConnection(intent.session).emptySubscribe()
             MainIntent.ResetViewState,
             is MainIntent.UpdateViewToLaunch -> null

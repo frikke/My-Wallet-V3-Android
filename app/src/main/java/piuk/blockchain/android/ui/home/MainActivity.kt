@@ -39,6 +39,7 @@ import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.nfts.comingsoon.NftComingSoonFragment
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.preferences.DashboardPrefs
@@ -124,7 +125,8 @@ class MainActivity :
     AuthNewLoginSheet.Host,
     AccountWalletLinkAlertSheet.Host,
     WCApproveSessionBottomSheet.Host,
-    RedesignActionsBottomSheet.Host,
+    BuyDefiBottomSheet.Host,
+    ActionBottomSheetHost,
     SmallSimpleBuyNavigator,
     BuyPendingOrdersBottomSheet.Host,
     ScanAndConnectBottomSheet.Host,
@@ -367,9 +369,9 @@ class MainActivity :
             }
             onMiddleButtonClick = {
                 dashboardPrefs.hasTappedFabButton = true
-                isPulseAnimationEnabled = false
+                binding.bottomNavigation.isPulseAnimationEnabled = false
                 showBottomSheet(
-                    RedesignActionsBottomSheet.newInstance()
+                    middleButtonBottomSheetLaunch
                 )
             }
         }
@@ -380,8 +382,19 @@ class MainActivity :
             NavigationItem.Home -> launchPortfolio()
             NavigationItem.Prices -> launchPrices()
             NavigationItem.BuyAndSell -> launchBuySell()
+            NavigationItem.Nfts -> launchNfts()
             NavigationItem.Activity -> startActivitiesFragment()
         }.exhaustive
+    }
+
+    private fun launchNfts() {
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_nfts))
+        updateSelectedNavigationItem(NavigationItem.Nfts)
+
+        supportFragmentManager.showFragment(
+            fragment = NftComingSoonFragment(),
+            reloadFragment = false
+        )
     }
 
     override fun showLoading() {
@@ -670,9 +683,16 @@ class MainActivity :
             setupMenuWithPresentButton(newState.referral)
         }
 
-        renderTabs(newState.tabs, newState.currentTab, newState.hasMiddleButton)
+        renderTabs(newState.tabs, newState.currentTab)
         renderMode(newState.walletMode)
     }
+
+    private val middleButtonBottomSheetLaunch: BottomSheetDialogFragment
+        get() = when (walletModeService.enabledWalletMode()) {
+            WalletMode.UNIVERSAL,
+            WalletMode.CUSTODIAL_ONLY -> BrokerageActionsBottomSheet.newInstance()
+            WalletMode.NON_CUSTODIAL_ONLY -> DefiActionsBottomSheet.newInstance()
+        }
 
     private fun renderMode(walletMode: WalletMode) {
         if (walletMode == WalletMode.UNIVERSAL)
@@ -688,11 +708,12 @@ class MainActivity :
         }
     }
 
-    private fun renderTabs(tabs: List<NavigationItem>, currentTab: NavigationItem, hasMiddleButton: Boolean) {
+    private fun renderTabs(tabs: List<NavigationItem>, currentTab: NavigationItem) {
         binding.bottomNavigation.apply {
             this.navigationItems = tabs
-            this.hasMiddleButton = hasMiddleButton
+            this.hasMiddleButton = true
         }
+
         if (binding.bottomNavigation.selectedNavigationItem != currentTab) {
             binding.bottomNavigation.selectedNavigationItem = currentTab
             currentTab.launch()
@@ -955,6 +976,10 @@ class MainActivity :
         launchQrScan()
     }
 
+    override fun goToTrading() {
+        model.process(MainIntent.SwitchWalletMode(WalletMode.CUSTODIAL_ONLY))
+    }
+
     override fun onSheetClosed() {
         binding.bottomNavigation.bottomNavigationState = BottomNavigationState.Add
         Timber.d("On closed")
@@ -1044,6 +1069,10 @@ class MainActivity :
 
     override fun launchBuy() {
         launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+    }
+
+    override fun launchDefiBuy() {
+        showBottomSheet(BuyDefiBottomSheet.newInstance())
     }
 
     override fun launchSell() {
