@@ -856,7 +856,7 @@ class CoinViewActivity :
             is QuickActionCta.Send -> QuickAction(
                 name = getString(R.string.common_send),
                 icon = ImageResource.Local(
-                    R.drawable.ic_cta_sell,
+                    R.drawable.ic_cta_send,
                     colorFilter = ColorFilter.tint(
                         Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
                     ),
