@@ -113,8 +113,8 @@ class CoinViewInteractor(
                     val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
 
                     /**
-                     * Button will be enabled if
-                     * * Access is [FeatureAccess.Granted]
+                     * Sell button will be enabled if
+                     * * Sell access is [FeatureAccess.Granted]
                      *
                      * *AND*
                      *
@@ -129,8 +129,8 @@ class CoinViewInteractor(
                         (kycTier == KycTier.GOLD || sddEligible)
 
                     /**
-                     * Button will be enabled if
-                     * * Access is [FeatureAccess.Granted]
+                     * Buy button will be enabled if
+                     * * Buy access is [FeatureAccess.Granted]
                      *
                      * *OR*
                      *
@@ -158,7 +158,7 @@ class CoinViewInteractor(
                 val nonCustodialAccount = accountList.firstOrNull { it is NonCustodialAccount }
 
                 /**
-                 * Button will be enabled if
+                 * Send button will be enabled if
                  * * Balance is positive
                  */
                 val canSend = totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true

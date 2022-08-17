@@ -883,17 +883,6 @@ class CoinViewActivity :
                 logReceiveEvent()
                 startReceive(highestBalanceWallet)
             }
-            //            QuickActionCta.Swap -> QuickAction(
-            //                getString(R.string.common_swap),
-            //                ImageResource.Local(
-            //                    R.drawable.ic_swap,
-            //                    colorFilter = ColorFilter.tint(
-            //                        Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
-            //                    )
-            //                )
-            //            ) {
-            //                startSwap(highestBalanceWallet)
-            //            } todo
             QuickActionCta.None -> {
                 // do nothing
                 QuickAction(getString(R.string.empty), ImageResource.None, false, {})
@@ -994,22 +983,23 @@ class CoinViewActivity :
     private fun renderAccountsDetails(
         assetDetails: List<AssetDetailsItem.CryptoDetailsInfo>
     ) {
+        val account = assetDetails.firstOrNull { it.balance.isPositive }?.account
         when (walletMode) {
             WalletMode.UNIVERSAL, WalletMode.CUSTODIAL_ONLY -> {
-                listItems.removeAll { details ->
+                listItems.removeIf { details ->
                     details is AssetDetailsItem.CentralCta
                 }
 
-                assetDetails.firstOrNull { it.balance.isPositive }?.let {
-                    listItems.add(0, AssetDetailsItem.CentralCta(it.account))
+                account?.let {
+                    listItems.add(0, AssetDetailsItem.CentralCta(it))
                 }
             }
 
             WalletMode.NON_CUSTODIAL_ONLY -> {
                 binding.swapCta.apply {
-                    assetDetails.firstOrNull { it.balance.isPositive }?.let {
+                    account?.let {
                         visible()
-                        onClick = { startSwap(it.account) }
+                        onClick = { startSwap(it) }
                     } ?: kotlin.run {
                         gone()
                     }
