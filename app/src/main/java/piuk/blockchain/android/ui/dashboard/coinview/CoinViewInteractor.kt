@@ -99,117 +99,92 @@ class CoinViewInteractor(
         totalCryptoBalance: Map<AssetFilter, Money>,
         accountList: List<BlockchainAccount>,
         asset: CryptoAsset
-    ): Single<QuickActionData> =
-        Single.zip(
-            kycService.getHighestApprovedTierLevelLegacy(),
-            identity.isEligibleFor(Feature.SimplifiedDueDiligence),
-            identity.userAccessForFeature(Feature.Buy),
-            identity.userAccessForFeature(Feature.Sell),
-            identity.userAccessForFeature(Feature.DepositCrypto),
-            custodialWalletManager.isCurrencyAvailableForTrading(asset.currency),
-        ) { tier, sddEligible, buyAccess,
-            sellAccess, depositCryptoAccess, isSupportedPair ->
-            val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
-            val nonCustodialAccount = accountList.firstOrNull { it is NonCustodialAccount }
+    ): Single<QuickActionData> {
+        return when (walletMode) {
+            WalletMode.UNIVERSAL, WalletMode.CUSTODIAL_ONLY -> {
+                Single.zip(
+                    kycService.getHighestApprovedTierLevelLegacy(),
+                    identity.isEligibleFor(Feature.SimplifiedDueDiligence),
+                    identity.userAccessForFeature(Feature.Buy),
+                    identity.userAccessForFeature(Feature.Sell),
+                    custodialWalletManager.isCurrencyAvailableForTrading(asset.currency)
+                ) { kycTier, sddEligible, buyAccess, sellAccess, isSupportedPair ->
 
-            val isTradable = custodialAccount != null
-            val canBuy = buyAccess is FeatureAccess.Granted
+                    val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
 
-            val quickActions = when {
-                isTradable && canBuy -> {
-                    require(custodialAccount != null)
-                    if (isSupportedPair) {
-                        if (tier == KycTier.GOLD || sddEligible) {
-                            if (totalCryptoBalance[AssetFilter.Trading]?.isPositive == true) {
-                                QuickActionData(
-                                    startAction = QuickActionCta.Sell,
-                                    endAction = QuickActionCta.Buy,
-                                    actionableAccount = custodialAccount
-                                )
-                            } else {
-                                QuickActionData(
-                                    startAction = QuickActionCta.Receive,
-                                    endAction = QuickActionCta.Buy,
-                                    actionableAccount = custodialAccount
-                                )
-                            }
-                        } else {
-                            QuickActionData(
-                                startAction = QuickActionCta.Receive,
-                                endAction = QuickActionCta.Buy,
-                                actionableAccount = custodialAccount
-                            )
-                        }
-                    } else {
-                        if (totalCryptoBalance[AssetFilter.Trading]?.isPositive == true) {
-                            QuickActionData(
-                                startAction = QuickActionCta.Receive,
-                                endAction = QuickActionCta.Send,
-                                actionableAccount = custodialAccount
-                            )
-                        } else {
-                            QuickActionData(
-                                startAction = QuickActionCta.Receive,
-                                endAction = QuickActionCta.None,
-                                actionableAccount = custodialAccount
-                            )
-                        }
-                    }
-                }
-                isTradable && !canBuy -> {
-                    require(custodialAccount != null)
-                    if (isSupportedPair) {
+                    /**
+                     * Button will be enabled if
+                     * * Access is [FeatureAccess.Granted]
+                     *
+                     * *AND*
+                     *
+                     * * Is available for trading ([isSupportedPair])
+                     *
+                     * *AND*
+                     *
+                     * * kyc Gold *OR* eligible for SimplifiedDueDiligence
+                     */
+                    val canSell = sellAccess is FeatureAccess.Granted &&
+                        isSupportedPair &&
+                        (kycTier == KycTier.GOLD || sddEligible)
+
+                    /**
+                     * Button will be enabled if
+                     * * Access is [FeatureAccess.Granted]
+                     *
+                     * *OR*
+                     *
+                     * * Access is [FeatureAccess.Blocked] but because of [BlockedReason.InsufficientTier],
+                     * when trying to buy with low tier upgrading to gold will be requested
+                     */
+                    val canBuy = buyAccess is FeatureAccess.Granted ||
+                        (buyAccess is FeatureAccess.Blocked && buyAccess.reason !is BlockedReason.InsufficientTier)
+
+                    custodialAccount?.let {
                         QuickActionData(
-                            startAction = QuickActionCta.Receive,
-                            endAction = QuickActionCta.Buy,
+                            startAction = QuickActionCta.Sell(canSell),
+                            endAction = QuickActionCta.Buy(canBuy),
                             actionableAccount = custodialAccount
                         )
-                    } else {
-                        QuickActionData(
-                            startAction = QuickActionCta.Receive,
-                            endAction = QuickActionCta.None,
-                            actionableAccount = custodialAccount
-                        )
-                    }
-                }
-                nonCustodialAccount != null -> {
-                    QuickActionData(
-                        startAction = if (walletMode == WalletMode.UNIVERSAL) {
-                            QuickActionCta.Receive
-                        } else {
-                            QuickActionCta.Swap
-                        },
-                        endAction = if (totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true) {
-                            QuickActionCta.Send
-                        } else {
-                            QuickActionCta.None
-                        },
-                        actionableAccount = nonCustodialAccount
-                    )
-                }
-                else -> {
-                    QuickActionData(
+                    } ?: QuickActionData(
                         startAction = QuickActionCta.None,
                         endAction = QuickActionCta.None,
                         actionableAccount = NullCryptoAccount()
                     )
+
                 }
             }
 
-            quickActions.filterActions { action ->
-                val isActionBlocked = when (action) {
-                    QuickActionCta.Receive -> {
-                        quickActions.actionableAccount == custodialAccount &&
-                            depositCryptoAccess is FeatureAccess.Blocked
-                    }
-                    QuickActionCta.Sell -> sellAccess is FeatureAccess.Blocked
-                    QuickActionCta.Buy ->
-                        buyAccess is FeatureAccess.Blocked && buyAccess.reason !is BlockedReason.InsufficientTier
-                    else -> false
-                }
-                !isActionBlocked
+            WalletMode.NON_CUSTODIAL_ONLY -> {
+                val nonCustodialAccount = accountList.firstOrNull { it is NonCustodialAccount }
+
+                /**
+                 * Button will be enabled if
+                 * * Balance is positive
+                 */
+                val canSend = totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true
+
+                /**
+                 * Can always receive
+                 */
+                val canReceive = true
+
+                Single.just(
+                    nonCustodialAccount?.let {
+                        QuickActionData(
+                            startAction = QuickActionCta.Receive(canReceive),
+                            endAction = QuickActionCta.Send(canSend),
+                            actionableAccount = nonCustodialAccount
+                        )
+                    } ?: QuickActionData(
+                        startAction = QuickActionCta.None,
+                        endAction = QuickActionCta.None,
+                        actionableAccount = NullCryptoAccount()
+                    )
+                )
             }
         }
+    }
 
     private fun QuickActionData.filterActions(predicate: (QuickActionCta) -> Boolean): QuickActionData =
         this.copy(

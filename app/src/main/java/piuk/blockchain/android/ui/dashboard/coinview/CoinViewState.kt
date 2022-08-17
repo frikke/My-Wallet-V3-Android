@@ -21,8 +21,12 @@ data class CoinViewState(
     val hasActionBuyWarning: Boolean = false
 ) : MviState
 
-enum class QuickActionCta {
-    Buy, Sell, Send, Receive, Swap, None
+sealed class QuickActionCta(open val enabled: Boolean) {
+    data class Buy(override val enabled: Boolean) : QuickActionCta(enabled)
+    data class Sell(override val enabled: Boolean) : QuickActionCta(enabled)
+    data class Send(override val enabled: Boolean) : QuickActionCta(enabled)
+    data class Receive(override val enabled: Boolean) : QuickActionCta(enabled)
+    object None : QuickActionCta(false)
 }
 
 data class QuickActionData(
