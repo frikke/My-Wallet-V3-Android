@@ -40,7 +40,7 @@ private class CentralCtaViewHolder(
         with(binding) {
             swapCta.apply {
                 text = context.getString(R.string.common_swap)
-                icon = ImageResource.Local(R.drawable.ic_swap)
+                icon = ImageResource.Local(R.drawable.ic_cta_swap)
                 onClick = { swapOnClick(item.account) }
             }
         }

@@ -189,7 +189,7 @@ class CoinViewActivity :
 
             binding.swapCta.apply {
                 text = context.getString(R.string.common_swap)
-                icon = ImageResource.Local(R.drawable.ic_swap)
+                icon = ImageResource.Local(R.drawable.ic_cta_swap, size = 24.dp)
             }
 
             assetPricesLoading.showIconLoader = false
@@ -822,10 +822,11 @@ class CoinViewActivity :
             is QuickActionCta.Buy -> QuickAction(
                 name = getString(R.string.common_buy),
                 icon = ImageResource.Local(
-                    R.drawable.ic_bottom_nav_buy,
+                    R.drawable.ic_cta_buy,
                     colorFilter = ColorFilter.tint(
                         Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
-                    )
+                    ),
+                    size = 24.dp
                 ),
                 isEnabled = action.enabled
             ) {
@@ -835,10 +836,11 @@ class CoinViewActivity :
             is QuickActionCta.Sell -> QuickAction(
                 name = getString(R.string.common_sell),
                 icon = ImageResource.Local(
-                    R.drawable.ic_fiat_notes,
+                    R.drawable.ic_cta_sell,
                     colorFilter = ColorFilter.tint(
                         Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
-                    )
+                    ),
+                    size = 24.dp
                 ),
                 isEnabled = action.enabled
             ) {
@@ -854,10 +856,11 @@ class CoinViewActivity :
             is QuickActionCta.Send -> QuickAction(
                 name = getString(R.string.common_send),
                 icon = ImageResource.Local(
-                    R.drawable.ic_icon_send,
+                    R.drawable.ic_cta_sell,
                     colorFilter = ColorFilter.tint(
                         Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
-                    )
+                    ),
+                    size = 24.dp
                 ),
                 isEnabled = action.enabled
             ) {
@@ -873,10 +876,11 @@ class CoinViewActivity :
             is QuickActionCta.Receive -> QuickAction(
                 name = getString(R.string.common_receive),
                 icon = ImageResource.Local(
-                    R.drawable.ic_qr_scan,
+                    R.drawable.ic_cta_receive,
                     colorFilter = ColorFilter.tint(
                         Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
-                    )
+                    ),
+                    size = 24.dp
                 ),
                 isEnabled = action.enabled
             ) {

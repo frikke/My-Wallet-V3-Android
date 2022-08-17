@@ -274,13 +274,13 @@ class CoinViewInteractor(
                 val accountsList = mapAccounts(
                     accounts, prices.currentRate, interestRate
                 )
-                val totalCryptoMoney = Money.zero(asset.currency)
                 var totalCryptoMoneyAll = Money.zero(asset.currency)
-                val totalCryptoBalance = hashMapOf(AssetFilter.All to totalCryptoMoneyAll)
+                val totalCryptoBalance = hashMapOf<AssetFilter, Money>()
                 var totalFiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency)
 
                 accountsList.forEach { account ->
-                    totalCryptoBalance[account.filter] = totalCryptoMoney.plus(account.amount)
+                    totalCryptoBalance[account.filter] =
+                        (totalCryptoBalance[account.filter] ?: Money.zero(asset.currency)).plus(account.amount)
                     totalCryptoMoneyAll = totalCryptoMoneyAll.plus(account.amount)
                     totalFiatBalance = totalFiatBalance.plus(account.fiatValue)
                 }
