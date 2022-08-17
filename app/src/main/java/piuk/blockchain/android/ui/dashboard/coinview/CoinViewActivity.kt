@@ -86,7 +86,6 @@ import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.putAccount
-import java.util.Collections.swap
 
 class CoinViewActivity :
     MviActivity<CoinViewModel, CoinViewIntent, CoinViewState, ActivityCoinviewBinding>(),
@@ -186,6 +185,11 @@ class CoinViewActivity :
 
                 adapter = adapterDelegate
                 addItemDecoration(BlockchainListDividerDecor(this@CoinViewActivity))
+            }
+
+            binding.swapCta.apply {
+                text = context.getString(R.string.common_swap)
+                icon = ImageResource.Local(R.drawable.ic_swap)
             }
 
             assetPricesLoading.showIconLoader = false
@@ -693,7 +697,7 @@ class CoinViewActivity :
     ) {
         val startButtonResources = getQuickActionUi(asset, highestBalanceWallet, startAction)
         startCta.apply {
-            buttonState =if(startButtonResources.isEnabled) ButtonState.Enabled else ButtonState.Disabled
+            buttonState = if (startButtonResources.isEnabled) ButtonState.Enabled else ButtonState.Disabled
             text = startButtonResources.name
             icon = startButtonResources.icon
             onClick = {
@@ -709,7 +713,7 @@ class CoinViewActivity :
     ) {
         val endButtonResources = getQuickActionUi(asset, highestBalanceWallet, endAction)
         endCta.apply {
-            buttonState = if(endButtonResources.isEnabled) ButtonState.Enabled else ButtonState.Disabled
+            buttonState = if (endButtonResources.isEnabled) ButtonState.Enabled else ButtonState.Disabled
             text = endButtonResources.name
             icon = endButtonResources.icon
             onClick = {
@@ -830,7 +834,7 @@ class CoinViewActivity :
             }
             is QuickActionCta.Sell -> QuickAction(
                 name = getString(R.string.common_sell),
-                icon =  ImageResource.Local(
+                icon = ImageResource.Local(
                     R.drawable.ic_fiat_notes,
                     colorFilter = ColorFilter.tint(
                         Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
@@ -868,7 +872,7 @@ class CoinViewActivity :
             }
             is QuickActionCta.Receive -> QuickAction(
                 name = getString(R.string.common_receive),
-                icon =  ImageResource.Local(
+                icon = ImageResource.Local(
                     R.drawable.ic_qr_scan,
                     colorFilter = ColorFilter.tint(
                         Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
@@ -990,12 +994,27 @@ class CoinViewActivity :
     private fun renderAccountsDetails(
         assetDetails: List<AssetDetailsItem.CryptoDetailsInfo>
     ) {
-        listItems.removeIf { details ->
-            details is AssetDetailsItem.CentralCta
-        }
+        when (walletMode) {
+            WalletMode.UNIVERSAL, WalletMode.CUSTODIAL_ONLY -> {
+                listItems.removeAll { details ->
+                    details is AssetDetailsItem.CentralCta
+                }
 
-        assetDetails.firstOrNull { it.balance.isPositive }?.let {
-            listItems.add(0, AssetDetailsItem.CentralCta(it.account))
+                assetDetails.firstOrNull { it.balance.isPositive }?.let {
+                    listItems.add(0, AssetDetailsItem.CentralCta(it.account))
+                }
+            }
+
+            WalletMode.NON_CUSTODIAL_ONLY -> {
+                binding.swapCta.apply {
+                    assetDetails.firstOrNull { it.balance.isPositive }?.let {
+                        visible()
+                        onClick = { startSwap(it.account) }
+                    } ?: kotlin.run {
+                        gone()
+                    }
+                }
+            }
         }
 
         listItems.removeIf { details ->
