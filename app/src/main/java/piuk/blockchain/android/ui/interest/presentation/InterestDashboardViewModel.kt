@@ -33,7 +33,7 @@ class InterestDashboardViewModel(
     override suspend fun handleIntent(modelState: InterestDashboardModelState, intent: InterestDashboardIntents) {
         when (intent) {
             InterestDashboardIntents.LoadDashboard -> {
-                loadInterestDashboard()
+                loadDashboard()
             }
 
             is InterestDashboardIntents.FilterData -> {
@@ -71,49 +71,70 @@ class InterestDashboardViewModel(
      * if kyc gold -> load interest dashboard
      * if not -> show upgrade kyc
      */
-    private fun loadInterestDashboard() {
-        updateState { it.copy(isLoadingData = true) }
-
+    private fun loadDashboard() {
         viewModelScope.launch {
             kycService.getTiers(FreshnessStrategy.Cached(forceRefresh = true))
-                .collectLatest { kycTiers ->
-                    if (kycTiers.isApprovedFor(KycTier.GOLD)) {
-                        getInterestDashboardUseCase().collectLatest { dataResource ->
-                            when (dataResource) {
-                                is DataResource.Loading -> updateState {
-                                    it.copy(
-                                        isLoadingData = it.data.isEmpty(),
-                                        isError = false
-                                    )
-                                }
+                .collectLatest { dataResourceKyc ->
+                    when (dataResourceKyc) {
+                        is DataResource.Loading -> updateState {
+                            it.copy(isLoadingData = true)
+                        }
 
-                                is DataResource.Data -> updateState {
+                        is DataResource.Data -> {
+                            // if kyc gold - load interest data
+                            // else - prompt kyc upgrade
+                            if (dataResourceKyc.data.isApprovedFor(KycTier.GOLD)) {
+                                loadInterestData()
+                            } else {
+                                updateState {
                                     it.copy(
                                         isLoadingData = false,
                                         isError = false,
-                                        isKycGold = true,
-                                        data = dataResource.data
-                                    )
-                                }
-
-                                is DataResource.Error -> updateState {
-                                    it.copy(
-                                        isLoadingData = false,
-                                        isError = true,
+                                        isKycGold = false
                                     )
                                 }
                             }
                         }
-                    } else {
-                        updateState {
+
+                        is DataResource.Error -> updateState {
                             it.copy(
                                 isLoadingData = false,
-                                isError = false,
-                                isKycGold = false
+                                isError = true,
                             )
                         }
                     }
                 }
+        }
+    }
+
+    private fun loadInterestData() {
+        viewModelScope.launch {
+            getInterestDashboardUseCase().collectLatest { dataResourceInterest ->
+                when (dataResourceInterest) {
+                    is DataResource.Loading -> updateState {
+                        it.copy(
+                            isLoadingData = it.data.isEmpty(),
+                            isError = false
+                        )
+                    }
+
+                    is DataResource.Data -> updateState {
+                        it.copy(
+                            isLoadingData = false,
+                            isError = false,
+                            isKycGold = true,
+                            data = dataResourceInterest.data
+                        )
+                    }
+
+                    is DataResource.Error -> updateState {
+                        it.copy(
+                            isLoadingData = false,
+                            isError = true,
+                        )
+                    }
+                }
+            }
         }
     }
 
