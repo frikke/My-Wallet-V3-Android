@@ -4,16 +4,14 @@ import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.store.filterNotLoading
+import java.util.stream.Collectors.toList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMap
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flowOf
 import piuk.blockchain.android.ui.interest.domain.model.AssetInterestDetail
 import piuk.blockchain.android.ui.interest.domain.model.InterestAsset
-import java.util.stream.Collectors.toList
 
 class GetInterestDashboardUseCase(
     private val interestService: InterestService,

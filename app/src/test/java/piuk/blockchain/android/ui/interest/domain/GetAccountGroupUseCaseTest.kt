@@ -8,7 +8,6 @@ import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Maybe
@@ -28,7 +27,7 @@ class GetAccountGroupUseCaseTest {
     private val asset = mockk<Asset>()
 
     @Before
-    fun setUp(){
+    fun setUp() {
         every { coincore[any<Currency>()] } returns asset
     }
 

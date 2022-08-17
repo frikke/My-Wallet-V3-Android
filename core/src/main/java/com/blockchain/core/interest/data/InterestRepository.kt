@@ -38,11 +38,11 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.Calendar
+import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onErrorReturn
-import java.util.Calendar
-import java.util.Date
 
 internal class InterestRepository(
     private val assetCatalogue: AssetCatalogue,

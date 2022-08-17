@@ -8,8 +8,8 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
+import kotlinx.coroutines.flow.Flow
 
 enum class HistoricalTimeSpan(val value: Int) {
     DAY(0),

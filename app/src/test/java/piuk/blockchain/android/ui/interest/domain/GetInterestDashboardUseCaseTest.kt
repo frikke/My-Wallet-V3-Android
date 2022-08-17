@@ -14,14 +14,14 @@ import info.blockchain.balance.CryptoCurrency.ETHER
 import info.blockchain.balance.Money
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.interest.domain.usecase.GetInterestDashboardUseCase
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 @ExperimentalCoroutinesApi
 class GetInterestDashboardUseCaseTest {
@@ -105,7 +105,6 @@ class GetInterestDashboardUseCaseTest {
                         assertEquals(ETHER, data[0].assetInfo)
                         assertEquals(BTC, data[1].assetInfo)
                     }
-
                 }
             }
         }
@@ -137,7 +136,6 @@ class GetInterestDashboardUseCaseTest {
 
                         assertNull(data[1].interestDetail)
                     }
-
                 }
             }
         }
