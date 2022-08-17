@@ -13,7 +13,7 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
-class TextInputView @JvmOverloads constructor(
+class OutlinedTextInputView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -24,7 +24,8 @@ class TextInputView @JvmOverloads constructor(
     var state: TextInputState by mutableStateOf(TextInputState.Default())
     var labelText by mutableStateOf("")
     var placeholderText by mutableStateOf("")
-    var trailingIconResource: ImageResource by mutableStateOf(ImageResource.None)
+    var unfocusedTrailingIconResource: ImageResource by mutableStateOf(ImageResource.None)
+    var focusedTrailingIconResource: ImageResource by mutableStateOf(ImageResource.None)
     var leadingIconResource: ImageResource by mutableStateOf(ImageResource.None)
     var singleLine by mutableStateOf(false)
     var inputType by mutableStateOf(KeyboardType.Text)
@@ -34,13 +35,14 @@ class TextInputView @JvmOverloads constructor(
     override fun Content() {
         AppTheme {
             AppSurface {
-                TextInput(
+                OutlinedTextInput(
                     value = value,
                     onValueChange = onValueChange,
                     state = state,
                     placeholder = placeholderText,
                     label = labelText,
-                    trailingIcon = trailingIconResource,
+                    unfocusedTrailingIcon = unfocusedTrailingIconResource,
+                    focusedTrailingIcon = focusedTrailingIconResource,
                     leadingIcon = leadingIconResource,
                     singleLine = singleLine,
                     keyboardOptions = KeyboardOptions(keyboardType = inputType),
@@ -56,7 +58,8 @@ class TextInputView @JvmOverloads constructor(
         state = TextInputState.Default()
         labelText = ""
         placeholderText = ""
-        trailingIconResource = ImageResource.None
+        unfocusedTrailingIconResource = ImageResource.None
+        focusedTrailingIconResource = ImageResource.None
         leadingIconResource = ImageResource.None
         onTrailingIconClicked = {}
     }
