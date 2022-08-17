@@ -463,7 +463,7 @@ class SimpleBuyActivity :
     }
 
     private fun checkQuestionnaire() {
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launchWhenResumed {
             dataRemediationService.getQuestionnaire(QuestionnaireContext.TRADING)
                 .doOnSuccess { questionnaire ->
                     if (questionnaire != null) {
