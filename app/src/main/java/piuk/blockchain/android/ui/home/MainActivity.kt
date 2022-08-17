@@ -729,6 +729,7 @@ class MainActivity :
                             context = this,
                             asset = assetInfo,
                             originScreen = LaunchOrigin.DEEPLINK.name,
+                            recurringBuyId = destination.recurringBuyId
                         )
                     )
                 } ?: run {

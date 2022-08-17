@@ -71,6 +71,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             require(amount is FiatValue)
             return oldState.copy(amount = amount)
         }
+
         override fun isValidFor(oldState: SimpleBuyState): Boolean {
             return amount.isPositive
         }
@@ -570,12 +571,11 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(recurringBuyFrequency = recurringBuyFrequency)
     }
 
-    class RecurringBuySelectedFirstTimeFlow(
+    class CreateRecurringBuy(
         val recurringBuyFrequency: RecurringBuyFrequency
     ) :
         SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(recurringBuyFrequency = recurringBuyFrequency)
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
     }
 
     class RecurringBuySuggestionAccepted(
@@ -591,11 +591,16 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
-    class RecurringBuyCreated(val recurringBuyFrequency: RecurringBuyFrequency) : SimpleBuyIntent() {
+    class RecurringBuyCreated(
+        val recurringBuyId: String,
+        val recurringBuyFrequency: RecurringBuyFrequency,
+    ) :
+        SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
                 recurringBuyState = RecurringBuyState.ACTIVE,
-                recurringBuyFrequency = recurringBuyFrequency
+                recurringBuyFrequency = recurringBuyFrequency,
+                recurringBuyId = recurringBuyId
             )
     }
 

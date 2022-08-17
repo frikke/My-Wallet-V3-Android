@@ -116,6 +116,10 @@ class CoinViewActivity :
         enumValueOfOrNull<LaunchOrigin>(intent.getStringExtra(ORIGIN_NAME).orEmpty())
     }
 
+    private val recurringBuyId: String? by lazy {
+        intent.getStringExtra(RECURRING_BUY_ID)
+    }
+
     private val labels: DefaultLabels by inject()
     private val assetResources: AssetResources by inject()
     private val localSettingsPrefs: LocalSettingsPrefs by inject()
@@ -166,7 +170,12 @@ class CoinViewActivity :
                 )
             )
         }
+
         initUI()
+
+        recurringBuyId?.let {
+            showBottomSheet(RecurringBuyDetailsSheet.newInstance(it))
+        }
     }
 
     private fun initUI() {
@@ -1143,6 +1152,7 @@ class CoinViewActivity :
         private const val ASSET_TICKER = "ASSET_TICKER"
         private const val ASSET_NAME = "ASSET_NAME"
         private const val ORIGIN_NAME = "ORIGIN_NAME"
+        private const val RECURRING_BUY_ID = "RECURRING_BUY_ID"
         private const val PATTERN_HOURS = "HH:mm"
         private const val PATTERN_DAY_HOUR = "HH:mm, EEE"
         private const val PATTERN_DAY_HOUR_MONTH = "HH:mm d, MMM"
@@ -1151,11 +1161,17 @@ class CoinViewActivity :
         const val ACCOUNT_FOR_ACTIVITY = "ACCOUNT_FOR_ACTIVITY"
         private const val VISIBLE_LINES_DESCRIPTION = 6
 
-        fun newIntent(context: Context, asset: AssetInfo, originScreen: String): Intent =
+        fun newIntent(
+            context: Context,
+            asset: AssetInfo,
+            originScreen: String? = null,
+            recurringBuyId: String? = null
+        ): Intent =
             Intent(context, CoinViewActivity::class.java).apply {
                 putExtra(ASSET_TICKER, asset.networkTicker)
                 putExtra(ASSET_NAME, asset.name)
                 putExtra(ORIGIN_NAME, originScreen)
+                putExtra(RECURRING_BUY_ID, recurringBuyId)
             }
     }
 

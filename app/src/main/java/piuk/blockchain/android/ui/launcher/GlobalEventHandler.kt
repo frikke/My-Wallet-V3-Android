@@ -79,6 +79,7 @@ class GlobalEventHandler(
                             context = application,
                             asset = assetInfo,
                             originScreen = LaunchOrigin.NOTIFICATION.name,
+                            recurringBuyId = destination.recurringBuyId
                         )
                     )
                 } ?: run {

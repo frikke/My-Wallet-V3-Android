@@ -41,6 +41,7 @@ import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.payments.googlepay.interceptor.response.PaymentDataResponse
 import com.blockchain.payments.googlepay.manager.GooglePayManager
@@ -83,6 +84,7 @@ import piuk.blockchain.android.util.StringAnnotationClickEvent
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.animateChange
 import piuk.blockchain.android.util.disableBackPress
+import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class SimpleBuyCheckoutFragment :
@@ -115,9 +117,6 @@ class SimpleBuyCheckoutFragment :
     private val plaidFF: FeatureFlag by scopedInject(plaidFeatureFlag)
     private val rbFrequencySuggestionFF: FeatureFlag by scopedInject(rbFrequencyFeatureFlag)
     private val compositeDisposable = CompositeDisposable()
-    private var animateRefreshQuote = false
-    private var isPlaidEnabled = false
-    private var isRbFrequencyEnabled = false
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimplebuyCheckoutBinding =
         FragmentSimplebuyCheckoutBinding.inflate(inflater, container, false)
@@ -135,22 +134,15 @@ class SimpleBuyCheckoutFragment :
         compositeDisposable += buyQuoteRefreshFF.enabled.onErrorReturn { false }
             .subscribe { enabled ->
                 if (enabled) {
-                    animateRefreshQuote = true
                     binding.quoteExpiration.visible()
                     model.process(SimpleBuyIntent.ListenToQuotesUpdate)
                 }
             }
         compositeDisposable += plaidFF.enabled.onErrorReturn { false }
-            .subscribe { enabled ->
-                isPlaidEnabled = enabled
-            }
+            .emptySubscribe()
 
         compositeDisposable += rbFrequencySuggestionFF.enabled.onErrorReturn { false }
-            .subscribe { enabled ->
-                if (enabled) {
-                    isRbFrequencyEnabled = true
-                }
-            }
+            .emptySubscribe()
 
         binding.recycler.apply {
             layoutManager = LinearLayoutManager(activity)
@@ -213,14 +205,14 @@ class SimpleBuyCheckoutFragment :
     }
 
     override fun render(newState: SimpleBuyState) {
-        if (animateRefreshQuote && countDownTimer == null && newState.quote != null) {
+        if (buyQuoteRefreshFF.isEnabled && countDownTimer == null && newState.quote != null) {
             chunksCounter = newState.quote.chunksTimeCounter
             startCounter(newState.quote, chunksCounter.first())
         }
 
         showAmountForMethod(newState)
 
-        if (animateRefreshQuote && newState.hasQuoteChanged) {
+        if (buyQuoteRefreshFF.isEnabled && newState.hasQuoteChanged) {
             binding.amount.animateChange {
                 binding.amount.setTextColor(
                     ContextCompat.getColor(binding.amount.context, R.color.grey_800)
@@ -305,7 +297,9 @@ class SimpleBuyCheckoutFragment :
             OrderState.FINISHED, // Funds orders are getting finished right after confirmation
             OrderState.AWAITING_FUNDS -> {
                 if (newState.confirmationActionRequested) {
-                    navigator().goToPaymentScreen()
+                    navigator().goToPaymentScreen(
+                        showRecurringBuySuggestion = newState.recurringBuySuggestionHasNotBeenEnabled()
+                    )
                 }
             }
             OrderState.FAILED -> {
@@ -366,7 +360,7 @@ class SimpleBuyCheckoutFragment :
     }
 
     private fun getSettlementReason(quote: BuyQuote?, selectedPaymentMethod: SelectedPaymentMethod?): SettlementReason {
-        if (isPlaidEnabled &&
+        if (plaidFF.isEnabled &&
             selectedPaymentMethod?.paymentMethodType == PaymentMethodType.BANK_TRANSFER &&
             selectedPaymentMethod.id.isNotEmpty() &&
             quote?.availability == Availability.UNAVAILABLE &&
@@ -468,7 +462,7 @@ class SimpleBuyCheckoutFragment :
                 label = getString(R.string.quote_price, state.selectedCryptoAsset.displayTicker),
                 title = state.exchangeRate?.toStringWithSymbol().orEmpty(),
                 expandableContent = priceExplanation,
-                hasChanged = state.hasQuoteChanged && animateRefreshQuote
+                hasChanged = state.hasQuoteChanged && buyQuoteRefreshFF.isEnabled
             ),
             buildPaymentMethodItem(state),
             if (state.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
@@ -502,7 +496,7 @@ class SimpleBuyCheckoutFragment :
                     title = RecurringBuyFrequency.WEEKLY.toRecurringBuySuggestionTitle(requireContext()),
                     subtitle = getString(
                         R.string.checkout_rb_subtitle,
-                        RecurringBuyFrequency.WEEKLY.toHumanReadableRecurringBuy(requireContext()),
+                        RecurringBuyFrequency.WEEKLY.toHumanReadableRecurringBuy(requireContext()).lowercase(),
                         RecurringBuyFrequency.WEEKLY.toHumanReadableRecurringDate(requireContext(), ZonedDateTime.now())
                     )
                 )
@@ -511,8 +505,11 @@ class SimpleBuyCheckoutFragment :
     }
 
     private fun SimpleBuyState.suggestEnablingRecurringBuyFrequency(): Boolean =
-        isRbFrequencyEnabled && this.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME &&
+        rbFrequencySuggestionFF.isEnabled && this.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME &&
             this.recurringBuyEligiblePaymentMethods.contains(this.selectedPaymentMethod?.paymentMethodType)
+
+    private fun SimpleBuyState.recurringBuySuggestionHasNotBeenEnabled(): Boolean =
+        rbFrequencySuggestionFF.isEnabled && this.recurringBuyState == RecurringBuyState.UNINITIALISED
 
     private fun buildPaymentMethodItem(state: SimpleBuyState): SimpleBuyCheckoutItem? =
         state.selectedPaymentMethod?.let {
@@ -558,7 +555,7 @@ class SimpleBuyCheckoutFragment :
                 title = feeDetails.fee.toStringWithSymbol(),
                 expandableContent = feeExplanation,
                 promoLayout = viewForPromo(feeDetails),
-                hasChanged = state.hasQuoteChanged && animateRefreshQuote
+                hasChanged = state.hasQuoteChanged && buyQuoteRefreshFF.isEnabled
             )
         }
 
@@ -588,7 +585,7 @@ class SimpleBuyCheckoutFragment :
                                 showErrorState(ErrorState.SettlementGenericError)
                             SettlementReason.UNKNOWN,
                             SettlementReason.NONE -> {
-                                if (animateRefreshQuote) quoteExpiration.invisible()
+                                if (buyQuoteRefreshFF.isEnabled) quoteExpiration.invisible()
 
                                 if (updateRecurringBuy) {
                                     model.process(
@@ -619,7 +616,9 @@ class SimpleBuyCheckoutFragment :
                         if (isForPendingPayment) {
                             navigator().exitSimpleBuyFlow()
                         } else {
-                            navigator().goToPaymentScreen()
+                            navigator().goToPaymentScreen(
+                                showRecurringBuySuggestion = rbFrequencySuggestionFF.isEnabled && !updateRecurringBuy
+                            )
                         }
                     }
                 }
@@ -887,44 +886,37 @@ class SimpleBuyCheckoutFragment :
         binding.buttonGooglePay.hideLoading()
     }
 
+    private fun getGooglePayAddress(address: PaymentDataResponse.Address?): GooglePayAddress? =
+        address?.let {
+            GooglePayAddress(
+                address1 = it.address1.orEmpty(),
+                address2 = it.address2.orEmpty(),
+                address3 = it.address3.orEmpty(),
+                administrativeArea = it.administrativeArea.orEmpty(),
+                countryCode = it.countryCode.orEmpty(),
+                locality = it.locality.orEmpty(),
+                name = it.name.orEmpty(),
+                postalCode = it.postalCode.orEmpty(),
+                sortingCode = it.sortingCode.orEmpty()
+            )
+        }
+
     override fun onGooglePayTokenReceived(token: String, address: PaymentDataResponse.Address?) {
+        val googlePayAddress = getGooglePayAddress(address)
+
         if (updateRecurringBuy) {
             model.process(
                 SimpleBuyIntent.RecurringBuySuggestionAccepted(
-                    RecurringBuyFrequency.WEEKLY,
+                    recurringBuyFrequency = RecurringBuyFrequency.WEEKLY,
                     googlePayPayload = token,
-                    googlePayAddress = address?.let {
-                        GooglePayAddress(
-                            address1 = it.address1.orEmpty(),
-                            address2 = it.address2.orEmpty(),
-                            address3 = it.address3.orEmpty(),
-                            administrativeArea = it.administrativeArea.orEmpty(),
-                            countryCode = it.countryCode.orEmpty(),
-                            locality = it.locality.orEmpty(),
-                            name = it.name.orEmpty(),
-                            postalCode = it.postalCode.orEmpty(),
-                            sortingCode = it.sortingCode.orEmpty()
-                        )
-                    }
+                    googlePayAddress = googlePayAddress
                 ),
             )
         } else {
             model.process(
                 SimpleBuyIntent.ConfirmGooglePayOrder(
                     googlePayPayload = token,
-                    googlePayAddress = address?.let {
-                        GooglePayAddress(
-                            address1 = it.address1.orEmpty(),
-                            address2 = it.address2.orEmpty(),
-                            address3 = it.address3.orEmpty(),
-                            administrativeArea = it.administrativeArea.orEmpty(),
-                            countryCode = it.countryCode.orEmpty(),
-                            locality = it.locality.orEmpty(),
-                            name = it.name.orEmpty(),
-                            postalCode = it.postalCode.orEmpty(),
-                            sortingCode = it.sortingCode.orEmpty()
-                        )
-                    }
+                    googlePayAddress = googlePayAddress
                 )
             )
         }

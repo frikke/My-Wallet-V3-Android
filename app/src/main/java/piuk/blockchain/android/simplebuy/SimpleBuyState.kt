@@ -64,6 +64,7 @@ data class SimpleBuyState constructor(
     val paymentSucceeded: Boolean = false,
     val withdrawalLockPeriod: @Contextual BigInteger = BigInteger.ZERO,
     val recurringBuyFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
+    val recurringBuyId: String? = null,
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
     val showRecurringBuyFirstTimeFlow: Boolean = false,
     val eligibleAndNextPaymentRecurringBuy: List<EligibleAndNextPaymentRecurringBuy> = emptyList(),

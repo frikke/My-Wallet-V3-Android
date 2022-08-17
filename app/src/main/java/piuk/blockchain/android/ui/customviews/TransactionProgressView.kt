@@ -16,13 +16,18 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import java.time.ZonedDateTime
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewTransactionProgressBinding
+import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
+import piuk.blockchain.android.simplebuy.toHumanReadableRecurringDate
+import piuk.blockchain.android.simplebuy.toRecurringBuySuggestionTitle
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.loadRemoteErrorAndStatusIcons
 import piuk.blockchain.android.util.loadRemoteErrorIcon
@@ -43,6 +48,30 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
 
     private val binding: ViewTransactionProgressBinding =
         ViewTransactionProgressBinding.inflate(LayoutInflater.from(context), this, true)
+
+    fun showToggleUI(
+        showToggle: Boolean,
+        recurringBuyFrequency: RecurringBuyFrequency
+    ) {
+        with(binding) {
+            if (showToggle) {
+                toggle.apply {
+                    primaryText = recurringBuyFrequency.toRecurringBuySuggestionTitle(context)
+                    secondaryText = context.getString(
+                        R.string.checkout_rb_subtitle,
+                        recurringBuyFrequency.toHumanReadableRecurringBuy(context).lowercase(),
+                        recurringBuyFrequency.toHumanReadableRecurringDate(context, ZonedDateTime.now())
+                    )
+                    onCheckedChange = { isChecked = it }
+                }
+                borderBox.visible()
+            } else {
+                borderBox.gone()
+            }
+        }
+    }
+
+    fun isRecurringBuyEnabled(): Boolean = binding.toggle.isChecked
 
     fun setAssetIcon(@DrawableRes assetIcon: Int) {
         binding.txIcon.setImageResource(assetIcon)

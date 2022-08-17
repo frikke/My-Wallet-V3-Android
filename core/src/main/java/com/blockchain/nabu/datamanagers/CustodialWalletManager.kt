@@ -545,5 +545,6 @@ data class SimplifiedDueDiligenceUserState(
 )
 
 data class RecurringBuyOrder(
-    val state: RecurringBuyState = RecurringBuyState.UNINITIALISED
+    val state: RecurringBuyState = RecurringBuyState.UNINITIALISED,
+    val id: String? = null,
 )

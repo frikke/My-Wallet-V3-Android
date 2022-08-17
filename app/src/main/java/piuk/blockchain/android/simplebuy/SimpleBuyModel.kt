@@ -396,22 +396,24 @@ class SimpleBuyModel(
                 )
             }
 
-            is SimpleBuyIntent.RecurringBuySelectedFirstTimeFlow ->
+            is SimpleBuyIntent.CreateRecurringBuy ->
                 createRecurringBuy(
                     previousState.selectedCryptoAsset,
                     previousState.order,
                     previousState.selectedPaymentMethod,
                     intent.recurringBuyFrequency,
-                ).subscribeBy(
-                    onSuccess =
-                    {
-                        process(SimpleBuyIntent.RecurringBuyCreated(intent.recurringBuyFrequency))
-                    },
-                    onError =
-                    {
-                        processOrderErrors(it)
-                    }
-                )
+                ).trackProgress(activityIndicator)
+                    .subscribeBy(
+                        onSuccess = {
+                            process(
+                                SimpleBuyIntent.RecurringBuyCreated(
+                                    recurringBuyId = it.id.orEmpty(),
+                                    recurringBuyFrequency = intent.recurringBuyFrequency
+                                )
+                            )
+                        },
+                        onError = { processOrderErrors(it) }
+                    )
             is SimpleBuyIntent.AmountUpdated -> validateAmount(
                 balance = previousState.availableBalance,
                 amount = intent.amount,
@@ -927,7 +929,12 @@ class SimpleBuyModel(
         ).subscribeBy(
             onSuccess =
             {
-                process(SimpleBuyIntent.RecurringBuyCreated(recurringBuyFrequency))
+                process(
+                    SimpleBuyIntent.RecurringBuyCreated(
+                        recurringBuyId = it.second.id.orEmpty(),
+                        recurringBuyFrequency = recurringBuyFrequency
+                    )
+                )
                 triggerIntentsAfterOrderConfirmed(it.first, true)
             },
             onError =
