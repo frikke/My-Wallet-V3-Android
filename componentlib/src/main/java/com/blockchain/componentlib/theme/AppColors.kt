@@ -62,6 +62,7 @@ val Overlay400 = Dark400.copy(0.4f)
 val White600 = Color.White.copy(0.6f)
 
 val UltraLight = Color(0XFFFAFBFF)
+val CowboysDark = Color(0XFF07080D)
 
 val defLightColors = SemanticColors(
     title = Grey900,

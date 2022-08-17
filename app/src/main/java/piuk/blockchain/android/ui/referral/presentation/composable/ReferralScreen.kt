@@ -38,6 +38,7 @@ import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue000
 import com.blockchain.componentlib.theme.Blue600
+import com.blockchain.componentlib.theme.CowboysDark
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import piuk.blockchain.android.R
@@ -101,7 +102,7 @@ fun ReferralScreen(
                         modifier = Modifier.size(dimensionResource(R.dimen.asset_icon_size_large)),
                         url = iconUrl
                     )
-                } else {
+                } else if (backgroundUrl.isNullOrEmpty()) {
                     Image(
                         modifier = Modifier.size(dimensionResource(R.dimen.asset_icon_size_large)),
                         imageResource = ImageResource.Local(R.drawable.ic_referral)
@@ -140,7 +141,8 @@ fun ReferralScreen(
                 ReferralCode(
                     code = code,
                     confirmCopiedToClipboard = confirmCopiedToClipboard,
-                    copyToClipboard = copyToClipboard
+                    copyToClipboard = copyToClipboard,
+                    isCustomBackground = !backgroundUrl.isNullOrEmpty()
                 )
 
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
@@ -182,11 +184,12 @@ fun ReferralScreen(
 fun ReferralCode(
     code: String,
     confirmCopiedToClipboard: Boolean,
-    copyToClipboard: (String) -> Unit
+    copyToClipboard: (String) -> Unit,
+    isCustomBackground: Boolean
 ) {
     Column(
         modifier = Modifier
-            .background(UltraLight)
+            .background(if (isCustomBackground) CowboysDark else UltraLight)
             .padding(
                 top = dimensionResource(R.dimen.standard_margin),
                 bottom = dimensionResource(R.dimen.standard_margin)
@@ -197,7 +200,7 @@ fun ReferralCode(
 
         SimpleText(
             style = ComposeTypographies.Title4,
-            color = ComposeColors.Title,
+            color = if (isCustomBackground) ComposeColors.Light else ComposeColors.Title,
             gravity = ComposeGravities.Centre,
             text = code
         )
@@ -327,7 +330,8 @@ fun PreviewReferralCodeCopy() {
     ReferralCode(
         code = "DIEG4321",
         confirmCopiedToClipboard = false,
-        copyToClipboard = {}
+        copyToClipboard = {},
+        isCustomBackground = false
     )
 }
 
@@ -337,7 +341,8 @@ fun PreviewReferralCodeCopied() {
     ReferralCode(
         code = "DIEG4321",
         confirmCopiedToClipboard = true,
-        copyToClipboard = {}
+        copyToClipboard = {},
+        isCustomBackground = false
     )
 }
 
