@@ -107,32 +107,30 @@ class InterestDashboardViewModel(
         }
     }
 
-    private fun loadInterestData() {
-        viewModelScope.launch {
-            getInterestDashboardUseCase().collectLatest { dataResourceInterest ->
-                when (dataResourceInterest) {
-                    is DataResource.Loading -> updateState {
-                        it.copy(
-                            isLoadingData = it.data.isEmpty(),
-                            isError = false
-                        )
-                    }
+    private suspend fun loadInterestData() {
+        getInterestDashboardUseCase().collectLatest { dataResourceInterest ->
+            when (dataResourceInterest) {
+                is DataResource.Loading -> updateState {
+                    it.copy(
+                        isLoadingData = it.data.isEmpty(),
+                        isError = false
+                    )
+                }
 
-                    is DataResource.Data -> updateState {
-                        it.copy(
-                            isLoadingData = false,
-                            isError = false,
-                            isKycGold = true,
-                            data = dataResourceInterest.data
-                        )
-                    }
+                is DataResource.Data -> updateState {
+                    it.copy(
+                        isLoadingData = false,
+                        isError = false,
+                        isKycGold = true,
+                        data = dataResourceInterest.data
+                    )
+                }
 
-                    is DataResource.Error -> updateState {
-                        it.copy(
-                            isLoadingData = false,
-                            isError = true,
-                        )
-                    }
+                is DataResource.Error -> updateState {
+                    it.copy(
+                        isLoadingData = false,
+                        isError = true,
+                    )
                 }
             }
         }

@@ -4,6 +4,7 @@ import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.store.filterNotLoading
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMap
@@ -16,8 +17,9 @@ import java.util.stream.Collectors.toList
 
 class GetInterestDashboardUseCase(
     private val interestService: InterestService,
-    private val exchangeRatesManager: ExchangeRatesDataManager,
+    private val exchangeRatesManager: ExchangeRatesDataManager
 ) {
+    @OptIn(FlowPreview::class)
     operator fun invoke(): Flow<DataResource<List<InterestAsset>>> {
         return interestService.getAvailableAssetsForInterestFlow()
             .flatMapMerge { dataResource ->
