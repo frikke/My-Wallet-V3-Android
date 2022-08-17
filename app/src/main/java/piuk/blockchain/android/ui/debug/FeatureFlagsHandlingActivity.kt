@@ -11,10 +11,10 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.demo.ComponentLibDemoActivity
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.api.getuser.data.GetUserStore
-import com.blockchain.nabu.api.kyc.data.datasources.KycTiersStore
 import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs

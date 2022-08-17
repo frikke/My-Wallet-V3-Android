@@ -3,6 +3,7 @@ package com.blockchain.coincore.impl
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -23,6 +24,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
     private val custodialManager: CustodialWalletManager = mock()
     private val interestService: InterestService = mock()
     private val identity: UserIdentity = mock()
+    private val kycService: KycService = mock()
 
     private val subject = CryptoInterestAccount(
         currency = TEST_ASSET,
@@ -31,7 +33,8 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
         custodialWalletManager = custodialManager,
         interestService = interestService,
         identity = identity,
-        internalAccountLabel = "Trading Account"
+        internalAccountLabel = "Trading Account",
+        kycService = kycService
     )
 
     @Before

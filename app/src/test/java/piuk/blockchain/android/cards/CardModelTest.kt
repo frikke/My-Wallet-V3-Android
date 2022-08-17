@@ -430,6 +430,7 @@ class CardModelTest {
     fun `when card rejection state returns always rejected then state is updated`() {
         val binNumber = "1234"
         val expectedResult = CardRejectionState.AlwaysRejected(
+            errorId = "errorId",
             title = "title",
             description = "description",
             actions = emptyList(),
@@ -455,6 +456,7 @@ class CardModelTest {
     fun `when card rejection state returns sometimes rejected then state is updated`() {
         val binNumber = "1234"
         val expectedResult = CardRejectionState.MaybeRejected(
+            errorId = "errorId",
             title = "title",
             description = "description",
             actions = emptyList(),

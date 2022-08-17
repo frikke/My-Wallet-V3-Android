@@ -4,6 +4,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -25,6 +26,7 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
     private val custodialManager: CustodialWalletManager = mock()
     private val tradingService: TradingService = mock()
     private val identity: UserIdentity = mock()
+    private val kycService: KycService = mock()
 
     private val subject = CustodialTradingAccount(
         currency = TEST_ASSET,
@@ -33,6 +35,7 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
         custodialWalletManager = custodialManager,
         tradingService = tradingService,
         identity = identity,
+        kycService = kycService,
         walletModeService = mock {
             on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
         }

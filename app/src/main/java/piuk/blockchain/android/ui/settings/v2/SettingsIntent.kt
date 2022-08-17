@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.BasicProfileInfo
-import com.blockchain.nabu.Tier
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 
 sealed class SettingsIntent : MviIntent<SettingsState> {
@@ -17,7 +17,7 @@ sealed class SettingsIntent : MviIntent<SettingsState> {
     }
 
     class UpdateContactSupportEligibility(
-        private val tier: Tier,
+        private val tier: KycTier,
         private val userInformation: BasicProfileInfo? = null,
         private val referralInfo: ReferralInfo = ReferralInfo.NotAvailable
     ) : SettingsIntent() {

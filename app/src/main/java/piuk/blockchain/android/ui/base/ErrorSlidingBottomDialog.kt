@@ -8,6 +8,7 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
 import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.basic.ImageResource
@@ -158,6 +159,14 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
                     subtitle = description,
                     icon = drawable
                 )
+
+                ContextCompat.getDrawable(requireContext(), defaultErrorIcon)?.let { icon ->
+                    updateStatusIcon(
+                        title = title,
+                        subtitle = description,
+                        statusIcon = icon
+                    )
+                }
             },
             onIconLoadError = {
                 showDefaultErrorIcon(

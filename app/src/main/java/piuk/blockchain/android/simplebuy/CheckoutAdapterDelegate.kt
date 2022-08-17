@@ -14,13 +14,15 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemCheckoutComplexInfoBinding
 import piuk.blockchain.android.databinding.ItemCheckoutSimpleExpandableInfoBinding
 import piuk.blockchain.android.databinding.ItemCheckoutSimpleInfoBinding
+import piuk.blockchain.android.databinding.ItemCheckoutToggleInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.util.animateColor
 import piuk.blockchain.android.util.getResolvedColor
 
-class CheckoutAdapterDelegate : DelegationAdapter<SimpleBuyCheckoutItem>(AdapterDelegatesManager(), emptyList()) {
+class CheckoutAdapterDelegate(onToggleChanged: (Boolean) -> Unit) :
+    DelegationAdapter<SimpleBuyCheckoutItem>(AdapterDelegatesManager(), emptyList()) {
 
     override var items: List<SimpleBuyCheckoutItem> = emptyList()
         set(value) {
@@ -35,6 +37,7 @@ class CheckoutAdapterDelegate : DelegationAdapter<SimpleBuyCheckoutItem>(Adapter
             addAdapterDelegate(SimpleCheckoutItemDelegate())
             addAdapterDelegate(ComplexCheckoutItemDelegate())
             addAdapterDelegate(ExpandableCheckoutItemDelegate())
+            addAdapterDelegate(ToggleCheckoutItemDelegate(onToggleChanged))
         }
     }
 }
@@ -66,6 +69,8 @@ sealed class SimpleBuyCheckoutItem {
 
     data class ComplexCheckoutItem(val label: String, val title: String, val subtitle: String) :
         SimpleBuyCheckoutItem()
+
+    data class ToggleCheckoutItem(val title: String, val subtitle: String) : SimpleBuyCheckoutItem()
 
     data class ExpandableCheckoutItem(
         val label: String,
@@ -176,6 +181,48 @@ private class ComplexCheckoutItemItemViewHolder(
             complexItemLabel.text = item.label
             complexItemTitle.text = item.title
             complexItemSubtitle.text = item.subtitle
+        }
+    }
+}
+
+class ToggleCheckoutItemDelegate(private val onToggleChanged: (Boolean) -> Unit) :
+    AdapterDelegate<SimpleBuyCheckoutItem> {
+
+    override fun isForViewType(items: List<SimpleBuyCheckoutItem>, position: Int): Boolean =
+        items[position] is SimpleBuyCheckoutItem.ToggleCheckoutItem
+
+    override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
+        ToggleCheckoutItemItemViewHolder(
+            ItemCheckoutToggleInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        )
+
+    override fun onBindViewHolder(
+        items: List<SimpleBuyCheckoutItem>,
+        position: Int,
+        holder: RecyclerView.ViewHolder,
+    ) = (holder as ToggleCheckoutItemItemViewHolder).bind(
+        items[position] as SimpleBuyCheckoutItem.ToggleCheckoutItem,
+        onToggleChanged
+    )
+}
+
+private class ToggleCheckoutItemItemViewHolder(
+    val binding: ItemCheckoutToggleInfoBinding,
+) : RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(
+        item: SimpleBuyCheckoutItem.ToggleCheckoutItem,
+        onToggleChanged: (Boolean) -> Unit
+    ) {
+        with(binding) {
+            toggleRow.apply {
+                primaryText = item.title
+                secondaryText = item.subtitle
+                onCheckedChange = { newCheckedState ->
+                    isChecked = newCheckedState
+                    onToggleChanged(newCheckedState)
+                }
+            }
         }
     }
 }

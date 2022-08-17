@@ -56,6 +56,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import java.math.BigDecimal
@@ -79,7 +80,6 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEME
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_INSUFFICIENT_BALANCE
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_STALE_BALANCE
 import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
-import piuk.blockchain.android.ui.BottomSheetInformation
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
@@ -299,7 +299,7 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun sendAnalyticsQuickFillButtonTapped(buttonTapped: FiatValue, position: Int) {
+    private fun sendAnalyticsQuickFillButtonTapped(buttonTapped: Money, position: Int) {
         analytics.logEvent(
             QuickFillButtonTapped(
                 amount = buttonTapped.toBigDecimal().toString(),
@@ -311,7 +311,6 @@ class SimpleBuyCryptoFragment :
 
     private fun loadQuickFillButtons(
         quickFillButtonData: QuickFillButtonData,
-        buyMaxButton: FiatValue,
     ) {
         with(binding.quickFillButtons) {
             visible()
@@ -336,12 +335,14 @@ class SimpleBuyCryptoFragment :
                                 }
                             )
                         }
-                        if (buyMaxButton.isPositive) {
+                        if (quickFillButtonData.buyMaxAmount.isPositive) {
                             SmallMinimalButton(
                                 text = getString(R.string.buy_max),
                                 onClick = {
                                     model.process(
-                                        SimpleBuyIntent.PrefillEnterAmount(buyMaxButton as FiatValue)
+                                        SimpleBuyIntent.PrefillEnterAmount(
+                                            quickFillButtonData.buyMaxAmount as FiatValue
+                                        )
                                     )
                                 },
                                 state = ButtonState.Enabled,
@@ -358,13 +359,15 @@ class SimpleBuyCryptoFragment :
     override fun render(newState: SimpleBuyState) {
         lastState = newState
 
-        newState.quickFillButtonData?.let { data ->
-            loadQuickFillButtons(
-                data,
-                (newState.limits.max as? TxLimit.Limited)?.let {
-                    it.amount as FiatValue
-                } ?: data.buyMaxAmount
+        model.process(
+            SimpleBuyIntent.SelectedPaymentChangedLimits(
+                selectedPaymentMethod = newState.selectedPaymentMethod,
+                limits = newState.limits
             )
+        )
+
+        newState.quickFillButtonData?.let { data ->
+            loadQuickFillButtons(data)
         }
 
         if (newState.buyErrorState != null) {
@@ -845,15 +848,32 @@ class SimpleBuyCryptoFragment :
                     getString(R.string.common_ok)
                 }
 
-                showBottomSheet(
-                    BottomSheetInformation.newInstance(
-                        title = title ?: getString(R.string.card_issuer_always_rejects_title),
-                        description = description ?: getString(
-                            R.string.card_issuer_always_rejects_desc
+                val sheetTitle = title ?: getString(R.string.card_issuer_always_rejects_title)
+                val sheetSubtitle = description ?: getString(
+                    R.string.card_issuer_always_rejects_desc
+                )
+
+                navigator().showErrorInBottomSheet(
+                    title = sheetTitle,
+                    description = sheetSubtitle,
+                    error = errorId.orEmpty(),
+                    serverSideUxErrorInfo = ServerSideUxErrorInfo(
+                        id = errorId,
+                        title = sheetTitle,
+                        description = sheetSubtitle,
+                        iconUrl = iconUrl.orEmpty(),
+                        statusUrl = statusIconUrl.orEmpty(),
+                        actions = listOf(
+                            ServerErrorAction(
+                                title = tryAnotherCardActionTitle,
+                                deeplinkPath = actions[0].deeplinkPath
+                            ),
+                            ServerErrorAction(
+                                title = learnMoreActionTitle,
+                                deeplinkPath = actions[1].deeplinkPath
+                            )
                         ),
-                        primaryCtaText = tryAnotherCardActionTitle,
-                        secondaryCtaText = learnMoreActionTitle,
-                        icon = null
+                        categories = analyticsCategories
                     )
                 )
             }
@@ -1117,6 +1137,7 @@ class SimpleBuyCryptoFragment :
 
     override fun onPaymentMethodChanged(paymentMethod: PaymentMethod) {
         model.process(SimpleBuyIntent.PaymentMethodChangeRequested(paymentMethod))
+
         if (paymentMethod.canBeUsedForPaying()) {
             analytics.logEvent(
                 BuyPaymentMethodSelected(
@@ -1189,7 +1210,9 @@ class SimpleBuyCryptoFragment :
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
                 fiatCurrency,
-                preselectedId
+                preselectedId,
+                usePrefilledAmount = false,
+                reloadQuickFillButtons = true
             )
         )
     }
@@ -1262,6 +1285,15 @@ class SimpleBuyCryptoFragment :
 
     private fun SimpleBuyState.errorStateShouldBeIndicated() =
         errorState != TransactionErrorState.NONE && amount.isPositive
+}
+
+fun RecurringBuyFrequency.toRecurringBuySuggestionTitle(context: Context): String {
+    return when (this) {
+        RecurringBuyFrequency.WEEKLY -> context.getString(R.string.checkout_rb_weekly_title)
+        RecurringBuyFrequency.BI_WEEKLY -> context.getString(R.string.checkout_rb_biweekly_title)
+        RecurringBuyFrequency.MONTHLY -> context.getString(R.string.checkout_rb_monthly_title)
+        else -> context.getString(R.string.checkout_rb_weekly_title)
+    }
 }
 
 fun RecurringBuyFrequency.toHumanReadableRecurringBuy(context: Context): String {

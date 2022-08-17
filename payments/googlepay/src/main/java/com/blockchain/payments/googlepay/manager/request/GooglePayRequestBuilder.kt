@@ -36,10 +36,12 @@ object GooglePayRequestBuilder {
             allowedPaymentMethods = listOf(
                 CardPaymentMethod(
                     parameters = CardPaymentMethod.CardPaymentParameters(
-                        allowedAuthMethods = allowedAuthMethods,
-                        allowedCardNetworks = allowedCardNetworks,
+                        allowedAuthMethods = allowedAuthMethods.ifEmpty { defaultAllowedAuthMethods },
+                        allowedCardNetworks = allowedCardNetworks.ifEmpty { defaultAllowedCardNetworks },
                         billingAddressRequired = billingAddressRequired,
-                        billingAddressParameters = billingAddressParameters,
+                        billingAddressParameters = billingAddressParameters.copy(
+                            format = billingAddressParameters.format.ifEmpty { BillingAddressParameters().format }
+                        ),
                         allowPrepaidCards = allowPrepaidCards,
                         allowCreditCards = allowCreditCards
                     ),

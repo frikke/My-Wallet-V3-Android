@@ -2565,9 +2565,6 @@ PLEASE NOTE: Key should be used without \'blockchain.nabu.error.\' prefix and \'
     <string name="backup_phrase_intro_ack_2">Si j\'expose ou partage ma phrase secrète avec qui que ce soit, mes fonds peuvent être volés.</string>
     <string name="backup_phrase_intro_ack_3">Il est de mon entière responsabilité de garder ma phrase secrète en sécurité.</string>
     <string name="sell_confirmation_disclaimer">Le montant final peut changer en raison de l\'activité du marché. En approuvant cette vente, vous acceptez les conditions de la <annotation link="refund_policy">Politique de remboursement</annotation> de Blockchain.com</string>
-    <string name="brokerage">Courtage</string>
-    <string name="defi_wallet">Wallet DeFi</string>
-    <string name="defi" translatable="false">DeFi</string>
     <string name="verify_phrase_incorrect_message">Commande erronée. Réinitialisez ou appuyez sur des mots individuels à supprimer.</string>
     <string name="verify_phrase_incorrect_button">Réinitialiser les mots</string>
     <string name="prices_error_title">Impossible de charger les prix des actifs</string>
@@ -2607,10 +2604,13 @@ Veuillez vérifier votre connexion Internet et réessayer ou contactez l\'assist
     <string name="visit_faq">Visitez notre FAQ</string>
     <string name="visit_faq_description">Voir nos questions les plus fréquentes</string>
     <string name="contact_support_description">Contactez-nous pour toute demande</string>
-    <string name="close_card_number">Clôturer %1s ?</string>
-    <string name="close_card_warning">\"Une fois confirmée, cette action est irréversible. \"</string>
+    <string name="terminate_card">Clôturer la carte</string>
+    <string name="terminate_card_number">Clôturer %1s ?</string>
+    <string name="terminate_card_warning">\"Une fois confirmée, cette action est irréversible. \"</string>
+    <string name="terminate_card_confirm_description">Veuillez saisir « SUPPRIMER » pour clôturer définitivement votre carte</string>
     <string name="delete">EFFACER</string>
     <string name="no_accounts_eligible_for_linking">Aucun compte éligible pour la liaison</string>
+    <string name="terminate_card_confirmation_text">EFFACER</string>
     <string name="address_updated">Adresse de facturation mise à jour</string>
     <string name="address_update_success">Adresse mise à jour avec succès</string>
     <string name="address_update_success_description">Votre adresse de facturation a été modifiée avec succès et prendra effet immédiatement.</string>
@@ -2739,9 +2739,6 @@ Vous trouverez l\'appli ici : https://blockchainwallet.page.link/join</string>
     <string name="bc_card_terms_and_conditions_label">Je comprends et j\'accepte les conditions générales du programme de carte Visa de Blockchain.com, l\'accord de titulaire de carte de Pathward Bank, l\'accord de signature électronique de Pathward Bank et la politique de confidentialité de Pathward Bank. Je comprends et j\'accepte également que ces conditions s\'appliquent en plus des conditions d\'utilisation de Blockchain.com et de la politique de confidentialité de Blockchain.com.</string>
     <string name="skip_backup_cta_skip">Oui, ignorer la sauvegarde</string>
     <string name="skip_backup_cta_backup">Sauvegarder (recommandé)</string>
-    <string name="terminate_card">Résilier la carte</string>
-    <string name="terminate_card_confirm_description">Veuillez taper \'TERMINATE\' pour résilier définitivement votre carte</string>
-    <string name="terminate_card_confirmation_text">METTRE FIN</string>
     <string name="bc_card_transaction_payment">Paiement</string>
     <string name="bc_card_transaction_refund">Remboursement</string>
 </resources>

@@ -57,6 +57,7 @@ import piuk.blockchain.android.ui.auth.BiometricsEnrollmentBottomSheet
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
+import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
 import piuk.blockchain.android.ui.launcher.loader.LoginMethod
@@ -283,6 +284,12 @@ class PinActivity :
             pinIcon.apply {
                 image = ImageResource.Local(R.drawable.ic_pin)
                 imageSize = 40
+
+                if (environmentConfig.isRunningInDebugMode()) {
+                    onClick = {
+                        startActivity(FeatureFlagsHandlingActivity.newIntent(this@PinActivity))
+                    }
+                }
             }
         }
     }

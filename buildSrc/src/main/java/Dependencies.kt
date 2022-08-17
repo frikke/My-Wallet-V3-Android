@@ -136,7 +136,7 @@ object Versions {
     const val stripeVersion = "20.3.0"
     const val intercomVersion = "10.6.0"
     const val plaidLinkVersion = "3.9.0"
-    const val exoplayerVersion = "2.18.1"
+    const val exoPlayerVersion = "2.18.1"
 
     /**
      * [composeMarkdownVersion]
@@ -344,7 +344,7 @@ object Libraries {
     const val stripe = "com.stripe:stripe-android:${Versions.stripeVersion}"
     const val intercom = "io.intercom.android:intercom-sdk-base:${Versions.intercomVersion}"
     const val plaidLink = "com.plaid.link:sdk-core:${Versions.plaidLinkVersion}"
-    const val exoPlayer = "com.google.android.exoplayer:exoplayer:${Versions.exoplayerVersion}"
+    const val exoPlayer = "com.google.android.exoplayer:exoplayer:${Versions.exoPlayerVersion}"
     const val composeMarkdown = "com.github.jeziellago:compose-markdown:${Versions.composeMarkdownVersion}"
 
     // Logging

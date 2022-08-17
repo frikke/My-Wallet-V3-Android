@@ -5,6 +5,9 @@ import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -30,11 +33,7 @@ import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.api.kyc.domain.KycService
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
-import com.blockchain.nabu.api.kyc.domain.model.KycTiers
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -65,7 +64,6 @@ import com.blockchain.serializers.StringMapSerializer
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
@@ -133,15 +131,15 @@ class SimpleBuyInteractor(
     ): Single<TxLimits> =
         Singles.zip(
             fetchLimits(sourceCurrency = fiat, targetCurrency = asset, paymentMethodType = paymentMethodType),
-            userIdentity.getHighestApprovedKycTier()
+            kycService.getHighestApprovedTierLevelLegacy()
         ).flatMap { (limits, highestTier) ->
             when (highestTier) {
-                Tier.BRONZE -> Single.just(limits.copy(max = TxLimit.Unlimited))
-                Tier.SILVER -> userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence).map { isSdd ->
+                KycTier.BRONZE -> Single.just(limits.copy(max = TxLimit.Unlimited))
+                KycTier.SILVER -> userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence).map { isSdd ->
                     if (isSdd) limits
                     else limits.copy(max = TxLimit.Unlimited)
                 }
-                Tier.GOLD -> Single.just(limits)
+                KycTier.GOLD -> Single.just(limits)
             }
         }
 
@@ -168,6 +166,34 @@ class SimpleBuyInteractor(
     }
 
     fun cancelOrder(orderId: String): Completable = cancelOrderUseCase.invoke(orderId)
+
+    fun confirmOrderAndCreateRecurringBuy(
+        orderId: String,
+        paymentMethodId: String?,
+        attributes: SimpleBuyConfirmationAttributes?,
+        isBankPartner: Boolean?,
+        asset: AssetInfo?,
+        order: SimpleBuyOrder,
+        selectedPaymentMethod: SelectedPaymentMethod?,
+        recurringBuyFrequency: RecurringBuyFrequency
+    ): Single<Pair<BuySellOrder, RecurringBuyOrder>> {
+        return Single.zip(
+            confirmOrder(
+                orderId = orderId,
+                paymentMethodId = paymentMethodId,
+                attributes = attributes,
+                isBankPartner = isBankPartner
+            ),
+            createRecurringBuyOrder(
+                asset = asset,
+                order = order,
+                selectedPaymentMethod = selectedPaymentMethod,
+                recurringBuyFrequency = recurringBuyFrequency
+            )
+        ) { buySellOrder, recurringBuy ->
+            Pair(buySellOrder, recurringBuy)
+        }
+    }
 
     fun createRecurringBuyOrder(
         asset: AssetInfo?,
@@ -211,7 +237,7 @@ class SimpleBuyInteractor(
         kycService.getTiersLegacy()
             .flatMap {
                 when {
-                    it.isApprovedFor(KycTierLevel.GOLD) ->
+                    it.isApprovedFor(KycTier.GOLD) ->
                         eligibilityProvider.isEligibleForSimpleBuy(forceRefresh = true).map { eligible ->
                             if (eligible) {
                                 SimpleBuyIntent.KycStateUpdated(KycState.VERIFIED_AND_ELIGIBLE)
@@ -305,7 +331,7 @@ class SimpleBuyInteractor(
     fun checkTierLevel(): Single<SimpleBuyIntent.KycStateUpdated> {
         return kycService.getTiersLegacy().flatMap {
             when {
-                it.isApprovedFor(KycTierLevel.GOLD) -> eligibilityProvider.isEligibleForSimpleBuy(
+                it.isApprovedFor(KycTier.GOLD) -> eligibilityProvider.isEligibleForSimpleBuy(
                     forceRefresh = true
                 )
                     .map { eligible ->
@@ -315,8 +341,8 @@ class SimpleBuyInteractor(
                             SimpleBuyIntent.KycStateUpdated(KycState.VERIFIED_BUT_NOT_ELIGIBLE)
                         }
                     }
-                it.isRejectedFor(KycTierLevel.GOLD) -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.FAILED))
-                it.isPendingFor(KycTierLevel.GOLD) -> Single.just(
+                it.isRejectedFor(KycTier.GOLD) -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.FAILED))
+                it.isPendingFor(KycTier.GOLD) -> Single.just(
                     SimpleBuyIntent.KycStateUpdated(KycState.IN_REVIEW)
                 )
                 else -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.PENDING))
@@ -331,12 +357,12 @@ class SimpleBuyInteractor(
     }
 
     private fun KycTiers.isRejectedForAny(): Boolean =
-        isRejectedFor(KycTierLevel.SILVER) ||
-            isRejectedFor(KycTierLevel.GOLD)
+        isRejectedFor(KycTier.SILVER) ||
+            isRejectedFor(KycTier.GOLD)
 
     private fun KycTiers.isInReviewForAny(): Boolean =
-        isUnderReviewFor(KycTierLevel.SILVER) ||
-            isUnderReviewFor(KycTierLevel.GOLD)
+        isUnderReviewFor(KycTier.SILVER) ||
+            isUnderReviewFor(KycTier.GOLD)
 
     fun exchangeRate(asset: AssetInfo): Single<SimpleBuyIntent.ExchangePriceWithDeltaUpdated> =
         coincore.getExchangePriceWithDelta(asset)
@@ -358,7 +384,7 @@ class SimpleBuyInteractor(
                     getAvailablePaymentMethodsTypesUseCase(
                         GetAvailablePaymentMethodsTypesUseCase.Request(
                             currency = fiatCurrency,
-                            onlyEligible = tier.isInitialisedFor(KycTierLevel.GOLD),
+                            onlyEligible = tier.isInitialisedFor(KycTier.GOLD),
                             fetchSddLimits = sddEligible && tier.isInInitialState()
                         )
                     ),
@@ -387,7 +413,8 @@ class SimpleBuyInteractor(
 
     fun pollForOrderStatus(orderId: String): Single<PollResult<BuySellOrder>> =
         PollService(custodialWalletManager.getBuyOrder(orderId)) {
-            it.state == OrderState.FINISHED ||
+            it.attributes != null ||
+                it.state == OrderState.FINISHED ||
                 it.state == OrderState.FAILED ||
                 it.state == OrderState.CANCELED
         }.start(INTERVAL, RETRIES_SHORT)
@@ -564,65 +591,73 @@ class SimpleBuyInteractor(
         onboardingPrefs.isLandingCtaDismissed = true
     }
 
-    // TODO (lmiguelez) https://blockchain.atlassian.net/browse/AND-6420
     fun getPrefillAndQuickFillAmounts(
-        buyMaxAmount: FiatValue,
-        buyMinAmount: FiatValue,
+        limits: TxLimits,
         assetCode: String,
-        fiatCurrency: FiatCurrency
-    ): Single<Pair<FiatValue, QuickFillButtonData?>> =
-        quickFillButtonsFeatureFlag.enabled.map { enabled ->
+        fiatCurrency: FiatCurrency,
+    ): Single<Pair<Money, QuickFillButtonData?>> {
+        return quickFillButtonsFeatureFlag.enabled.map { enabled ->
+
             val amountString = simpleBuyPrefs.getLastAmount("$assetCode-${fiatCurrency.networkTicker}")
 
             var prefilledAmount = when {
                 enabled && amountString.isEmpty() -> {
-                    FiatValue.fromMajor(fiatCurrency, BigDecimal(DEFAULT_MIN_PREFILL_AMOUNT))
+                    Money.fromMajor(fiatCurrency, BigDecimal(DEFAULT_MIN_PREFILL_AMOUNT))
                 }
-                enabled && amountString.isNotEmpty() -> FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
-                else -> FiatValue.fromMajor(fiatCurrency, BigDecimal.ZERO)
+                enabled && amountString.isNotEmpty() -> Money.fromMajor(fiatCurrency, BigDecimal(amountString))
+                else -> Money.fromMajor(fiatCurrency, BigDecimal.ZERO)
             }
 
+            val isMaxLimited = limits.isMaxViolatedByAmount(prefilledAmount)
+            val isMinLimited = limits.isMinViolatedByAmount(prefilledAmount)
+
             val quickFillButtonData = if (enabled) {
-                val listOfAmounts = mutableListOf<FiatValue>()
+                val listOfAmounts = mutableListOf<Money>()
 
                 prefilledAmount = when {
-                    prefilledAmount < buyMinAmount -> buyMinAmount
-                    prefilledAmount > buyMaxAmount -> buyMaxAmount
+                    isMinLimited && isMaxLimited -> Money.fromMajor(fiatCurrency, BigDecimal.ZERO)
+                    isMinLimited -> limits.minAmount
+                    isMaxLimited -> limits.maxAmount
                     else -> prefilledAmount
                 }
 
                 val lowestPrefillAmount = roundToNearest(
-                    2 * prefilledAmount.toFloat(),
+                    Money.fromMajor(fiatCurrency, (2 * prefilledAmount.toFloat()).toBigDecimal()),
                     ROUND_TO_NEAREST_10
                 )
 
-                if (checkIfUnderLimit(lowestPrefillAmount, buyMaxAmount)) {
-                    listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(lowestPrefillAmount)))
+                if (limits.isAmountInRange(lowestPrefillAmount)) {
+                    listOfAmounts.add(lowestPrefillAmount)
                 }
 
                 val mediumPrefillAmount = roundToNearest(
-                    2 * lowestPrefillAmount.toFloat(),
+                    Money.fromMajor(fiatCurrency, (2 * lowestPrefillAmount.toFloat()).toBigDecimal()),
                     ROUND_TO_NEAREST_50
                 )
-                if (checkIfUnderLimit(mediumPrefillAmount, buyMaxAmount)) {
-                    listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(mediumPrefillAmount)))
+
+                if (limits.isAmountInRange(mediumPrefillAmount)) {
+                    listOfAmounts.add(mediumPrefillAmount)
                 }
 
                 val largestPrefillAmount = roundToNearest(
-                    2 * mediumPrefillAmount.toFloat(),
+                    Money.fromMajor(fiatCurrency, (2 * mediumPrefillAmount.toFloat()).toBigDecimal()),
                     ROUND_TO_NEAREST_100
                 )
-                if (checkIfUnderLimit(largestPrefillAmount, buyMaxAmount)) {
-                    listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(largestPrefillAmount)))
+                if (limits.isAmountInRange(largestPrefillAmount)) {
+                    listOfAmounts.add(largestPrefillAmount)
                 }
 
-                QuickFillButtonData(buyMaxAmount = buyMaxAmount, quickFillButtons = listOfAmounts)
+                QuickFillButtonData(
+                    buyMaxAmount = (limits.max as? TxLimit.Limited)?.amount ?: Money.zero(fiatCurrency),
+                    quickFillButtons = listOfAmounts
+                )
             } else {
                 null
             }
 
             return@map Pair(prefilledAmount, quickFillButtonData)
         }
+    }
 
     fun getListOfStates(countryCode: String): Single<List<Region.State>> =
         rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
@@ -637,12 +672,11 @@ class SimpleBuyInteractor(
         simpleBuyPrefs.setLastPaymentMethodId(paymentMethodId = paymentId)
     }
 
-    private fun roundToNearest(lastAmount: Float, nearest: Int): Int {
-        return nearest * (floor(lastAmount.toDouble() / nearest) + 1).toInt()
+    private fun roundToNearest(lastAmount: Money, nearest: Int): Money {
+        return Money.fromMajor(
+            lastAmount.currency, (nearest * (floor(lastAmount.toFloat() / nearest) + 1)).toBigDecimal()
+        )
     }
-
-    private fun checkIfUnderLimit(fiatAmountToButton: Int, maxAmount: Money): Boolean =
-        fiatAmountToButton <= maxAmount.toFloat()
 
     companion object {
         const val PENDING = "pending"

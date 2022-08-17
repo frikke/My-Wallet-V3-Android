@@ -201,6 +201,7 @@ class BuySellFragment :
 
     private fun renderErrorState() {
         with(binding) {
+            redesignTabLayout.gone()
             pager.gone()
             buySellEmpty.setDetails {
                 subscribeForNavigation()
@@ -211,6 +212,7 @@ class BuySellFragment :
 
     private fun renderNotEligibleUi() {
         with(binding) {
+            redesignTabLayout.gone()
             pager.gone()
             notEligibleIcon.visible()
             notEligibleTitle.visible()

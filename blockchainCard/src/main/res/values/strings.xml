@@ -92,10 +92,9 @@
     <string name="contact_support"></string>
     <string name="contact_support_description"></string>
     <string name="terminate_card"></string>
-    <string name="close_card_number"></string>
-    <string name="close_card_warning"></string>
+    <string name="terminate_card_number"></string>
+    <string name="terminate_card_warning"></string>
     <string name="terminate_card_confirm_description"></string>
-    <string name="delete"></string>
     <string name="no_accounts_eligible_for_linking"></string>
     <string name="terminate_card_confirmation_text"></string>
     <string name="address_updated"></string>
@@ -129,4 +128,15 @@
     <string name="bc_card_terms_and_conditions_label"></string>
     <string name="bc_card_transaction_payment"></string>
     <string name="bc_card_transaction_refund"></string>
+    <string name="custodial_wallet_default_label_1"></string>
+    <string name="bc_card_change_asset_title"></string>
+    <string name="bc_card_change_asset_description"></string>
+    <string name="bc_card_add_funds_title"></string>
+    <string name="bc_card_add_funds_description"></string>
+    <string name="select_one"></string>
+    <string name="bc_card_empty_transactions_title"></string>
+    <string name="bc_card_empty_transactions_description"></string>
+    <string name="bc_card_tap_here_to_refresh"></string>
+    <string name="bc_card_tap_here_to_try_again"></string>
+    <string name="bc_card_unable_to_load_card"></string>
 </resources>

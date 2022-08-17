@@ -17,11 +17,12 @@ import com.blockchain.coincore.toActionState
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestActivity
 import com.blockchain.core.interest.domain.model.InterestState
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -42,6 +43,7 @@ class CryptoInterestAccount(
     private val custodialWalletManager: CustodialWalletManager,
     override val exchangeRates: ExchangeRatesDataManager,
     private val identity: UserIdentity,
+    private val kycService: KycService,
 ) : CryptoAccountBase(), InterestAccount {
 
     override val baseActions: Set<AssetAction> = emptySet() // Not used by this class
@@ -143,14 +145,14 @@ class CryptoInterestAccount(
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.zip(
-            identity.getHighestApprovedKycTier(),
+            kycService.getHighestApprovedTierLevelLegacy(),
             balance.firstOrError(),
             identity.userAccessForFeature(Feature.DepositInterest)
         ) { tier, balance, depositInterestEligibility ->
             return@zip when (tier) {
-                Tier.BRONZE,
-                Tier.SILVER -> emptySet()
-                Tier.GOLD -> setOf(
+                KycTier.BRONZE,
+                KycTier.SILVER -> emptySet()
+                KycTier.GOLD -> setOf(
                     StateAwareAction(
                         when (depositInterestEligibility) {
                             is FeatureAccess.Blocked -> depositInterestEligibility.toActionState()

@@ -1,21 +1,23 @@
 package com.blockchain.core.price.impl
 
+import app.cash.turbine.test
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.AssetPrice
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore
 import com.blockchain.core.price.model.AssetPriceRecord
+import com.blockchain.data.DataResource
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.USD
-import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verifyBlocking
+import com.nhaarman.mockitokotlin2.verify
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
 import java.util.Calendar
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -49,13 +51,13 @@ class ExchangeRatesDataManagerImplTest {
     }
 
     private val priceStore: AssetPriceStore = mock() {
-        onBlocking {
+        on {
             getHistoricalPriceForAsset(
                 base = any(),
                 quote = any(),
                 timeSpan = any()
             )
-        }.thenReturn(Outcome.Success(PRICE_DATA))
+        }.thenReturn(flowOf(DataResource.Data(PRICE_DATA)))
     }
     private val newAssetPriceStoreFF: FeatureFlag = mock() {
         on { enabled }.thenReturn(Single.just(true))
@@ -69,119 +71,84 @@ class ExchangeRatesDataManagerImplTest {
     )
 
     @Test
-    fun `get All Time Price`() {
-        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.ALL_TIME)
-            .test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-
-        verifyBlocking(priceStore) {
-            getHistoricalPriceForAsset(
-                OLD_ASSET,
-                SELECTED_FIAT,
-                HistoricalTimeSpan.ALL_TIME
-            )
+    fun `get All Time Price`() = runTest {
+        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.ALL_TIME).test {
+            awaitEvent()
+            verify(priceStore)
+                .getHistoricalPriceForAsset(
+                    OLD_ASSET, SELECTED_FIAT, HistoricalTimeSpan.ALL_TIME
+                )
+            awaitComplete()
         }
     }
 
     @Test
-    fun getYearPrice() {
-        subject.getHistoricPriceSeries(
-            OLD_ASSET,
-            HistoricalTimeSpan.YEAR,
-            calendar
-        ).test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-
-        verifyBlocking(priceStore) {
-            getHistoricalPriceForAsset(
-                OLD_ASSET,
-                SELECTED_FIAT,
-                HistoricalTimeSpan.YEAR
-            )
+    fun getYearPrice() = runTest {
+        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.YEAR, calendar).test {
+            awaitEvent()
+            verify(priceStore)
+                .getHistoricalPriceForAsset(
+                    OLD_ASSET,
+                    SELECTED_FIAT,
+                    HistoricalTimeSpan.YEAR
+                )
+            awaitComplete()
         }
     }
 
     @Test
-    fun getMonthPrice() {
-        subject.getHistoricPriceSeries(
-            OLD_ASSET,
-            HistoricalTimeSpan.MONTH,
-            calendar
-        ).test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-
-        verifyBlocking(priceStore) {
-            getHistoricalPriceForAsset(
-                OLD_ASSET,
-                SELECTED_FIAT,
-                HistoricalTimeSpan.MONTH
-            )
+    fun getMonthPrice() = runTest {
+        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.MONTH, calendar).test {
+            awaitEvent()
+            verify(priceStore)
+                .getHistoricalPriceForAsset(
+                    OLD_ASSET,
+                    SELECTED_FIAT,
+                    HistoricalTimeSpan.MONTH
+                )
+            awaitComplete()
         }
     }
 
     @Test
     fun getWeekPrice() = runTest {
-        subject.getHistoricPriceSeries(
-            OLD_ASSET,
-            HistoricalTimeSpan.WEEK,
-            calendar
-        ).test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-
-        verifyBlocking(priceStore) {
-            getHistoricalPriceForAsset(
-                OLD_ASSET,
-                SELECTED_FIAT,
-                HistoricalTimeSpan.WEEK
-            )
+        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.WEEK, calendar).test {
+            awaitEvent()
+            verify(priceStore)
+                .getHistoricalPriceForAsset(
+                    OLD_ASSET,
+                    SELECTED_FIAT,
+                    HistoricalTimeSpan.WEEK
+                )
+            awaitComplete()
         }
     }
 
     @Test
-    fun getDayPrice() {
-        subject.getHistoricPriceSeries(
-            OLD_ASSET,
-            HistoricalTimeSpan.DAY,
-            calendar
-        ).test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-
-        verifyBlocking(priceStore) {
-            getHistoricalPriceForAsset(
-                OLD_ASSET,
-                SELECTED_FIAT,
-                HistoricalTimeSpan.DAY
-            )
+    fun getDayPrice() = runTest {
+        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.DAY, calendar).test {
+            awaitEvent()
+            verify(priceStore)
+                .getHistoricalPriceForAsset(
+                    OLD_ASSET,
+                    SELECTED_FIAT,
+                    HistoricalTimeSpan.DAY
+                )
+            awaitComplete()
         }
     }
 
     @Test
-    fun `get year price on new asset`() {
-        subject.getHistoricPriceSeries(
-            NEW_ASSET,
-            HistoricalTimeSpan.WEEK,
-            calendar
-        ).test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-
-        verifyBlocking(priceStore) {
-            getHistoricalPriceForAsset(
-                OLD_ASSET,
-                SELECTED_FIAT,
-                HistoricalTimeSpan.WEEK
-            )
+    fun `get year price on new asset`() = runTest {
+        subject.getHistoricPriceSeries(NEW_ASSET, HistoricalTimeSpan.WEEK, calendar).test {
+            awaitEvent()
+            verify(priceStore)
+                .getHistoricalPriceForAsset(
+                    OLD_ASSET,
+                    SELECTED_FIAT,
+                    HistoricalTimeSpan.WEEK
+                )
+            awaitComplete()
         }
     }
 

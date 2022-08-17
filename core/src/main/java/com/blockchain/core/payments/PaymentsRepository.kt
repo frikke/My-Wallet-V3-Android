@@ -667,6 +667,7 @@ class PaymentsRepository(
         when (this.block) {
             true -> {
                 CardRejectionState.AlwaysRejected(
+                    errorId = this.ux?.id,
                     title = this.ux?.title,
                     description = this.ux?.message,
                     actions = this.ux?.actions.takeUnless { it.isNullOrEmpty() }?.map { data ->
@@ -683,6 +684,7 @@ class PaymentsRepository(
             false -> {
                 if (this.ux?.actions?.isNotEmpty() == true) {
                     CardRejectionState.MaybeRejected(
+                        errorId = this.ux?.id,
                         title = this.ux?.title,
                         description = this.ux?.message,
                         actions = this.ux?.actions.takeUnless { it.isNullOrEmpty() }?.map { data ->

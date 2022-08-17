@@ -14,7 +14,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -136,20 +135,18 @@ class AssetPriceStoreTest {
 
     @Test
     fun `getHistoricalPriceForAsset should request cache and return the first Success or Failure result`() = runTest {
-        flow { emit(subject.getHistoricalPriceForAsset(BTC, USD, HistoricalTimeSpan.WEEK)) }.test {
+        subject.getHistoricalPriceForAsset(BTC, USD, HistoricalTimeSpan.WEEK).test {
             cacheFlow.emit(DataResource.Loading)
-            expectNoEvents()
+            assertEquals(DataResource.Loading, awaitItem())
             cacheFlow.emit(DataResource.Data(RECORDS_HISTORICAL))
-            assertEquals(Outcome.Success(RECORDS_HISTORICAL), awaitItem())
-            awaitComplete()
+            assertEquals(DataResource.Data(RECORDS_HISTORICAL), awaitItem())
         }
 
         cacheFlow.resetReplayCache()
-        flow { emit(subject.getHistoricalPriceForAsset(BTC, USD, HistoricalTimeSpan.WEEK)) }.test {
+        subject.getHistoricalPriceForAsset(BTC, USD, HistoricalTimeSpan.WEEK).test {
             val error = RuntimeException("some message")
             cacheFlow.emit(DataResource.Error(error))
-            assertEquals(Outcome.Failure(error), awaitItem())
-            awaitComplete()
+            assertEquals(DataResource.Error(error), awaitItem())
         }
     }
 

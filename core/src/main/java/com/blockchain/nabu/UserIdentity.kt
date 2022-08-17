@@ -1,5 +1,6 @@
 package com.blockchain.nabu
 
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import info.blockchain.balance.Currency
@@ -11,13 +12,6 @@ import java.io.Serializable
 interface UserIdentity {
     fun isEligibleFor(feature: Feature): Single<Boolean>
     fun isVerifiedFor(feature: Feature): Single<Boolean>
-    fun getHighestApprovedKycTier(): Single<Tier>
-    fun isKycPending(tier: Tier): Single<Boolean>
-    fun isKycRejected(): Single<Boolean>
-    fun isKycInProgress(): Single<Boolean>
-    fun isRejectedForTier(feature: Feature.TierLevel): Single<Boolean>
-    fun isKycResubmissionRequired(): Single<Boolean>
-    fun shouldResubmitAfterRecovery(): Single<Boolean>
     fun getBasicProfileInformation(): Single<BasicProfileInfo>
     fun checkForUserWalletLinkErrors(): Completable
     fun getUserCountry(): Maybe<String>
@@ -30,7 +24,7 @@ interface UserIdentity {
 }
 
 sealed class Feature {
-    data class TierLevel(val tier: Tier) : Feature()
+    data class TierLevel(val tier: KycTier) : Feature()
     object SimplifiedDueDiligence : Feature()
     data class Interest(val currency: Currency) : Feature()
     object Buy : Feature()
@@ -40,17 +34,6 @@ sealed class Feature {
     object DepositCrypto : Feature()
     object DepositInterest : Feature()
     object WithdrawFiat : Feature()
-}
-
-/**
- in ordinal order:
- 0 - no kyc
- 1 - email & address verified
- 2 - identity documents verified
- 3 - simplified due diligence eligible; user with tier 1 verification in specific low risk countries
- */
-enum class Tier {
-    BRONZE, SILVER, GOLD
 }
 
 data class BasicProfileInfo(

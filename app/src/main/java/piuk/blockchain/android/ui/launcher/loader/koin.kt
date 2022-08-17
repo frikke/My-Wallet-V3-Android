@@ -42,7 +42,8 @@ val loaderModule = module {
                 fiatCurrenciesService = get(),
                 cowboysPromoFeatureFlag = get(cowboysPromoFeatureFlag),
                 cowboysPrefs = get(),
-                userIdentity = get()
+                userIdentity = get(),
+                kycService = get()
             )
         }
     }

@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui
 
-import com.blockchain.nabu.api.kyc.domain.model.KycLimits
-import com.blockchain.nabu.api.kyc.domain.model.KycTierDetail
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
-import com.blockchain.nabu.api.kyc.domain.model.KycTierState
-import com.blockchain.nabu.api.kyc.domain.model.KycTiers
-import com.blockchain.nabu.api.kyc.domain.model.TiersMap
+import com.blockchain.core.kyc.domain.model.KycLimits
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTierDetail
+import com.blockchain.core.kyc.domain.model.KycTierState
+import com.blockchain.core.kyc.domain.model.KycTiers
+import com.blockchain.core.kyc.domain.model.TiersMap
 import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
@@ -48,17 +48,17 @@ fun tiers(tier1State: KycTierState, tier2State: KycTierState): KycTiers {
     return KycTiers(
         TiersMap(
             mapOf(
-                KycTierLevel.BRONZE to
+                KycTier.BRONZE to
                     KycTierDetail(
                         KycTierState.Verified,
                         KycLimits(null, null)
                     ),
-                KycTierLevel.SILVER to
+                KycTier.SILVER to
                     KycTierDetail(
                         tier1State,
                         KycLimits(null, getLimit(USD, 1000))
                     ),
-                KycTierLevel.GOLD to
+                KycTier.GOLD to
                     KycTierDetail(
                         tier2State,
                         KycLimits(getLimit(USD, 25000), null)

@@ -59,7 +59,6 @@ private class AssetCardViewHolder(
         onCardClicked: (AssetInfo) -> Unit
     ) {
         with(binding) {
-            root.contentDescription = "$ASSET_CARD_ID${state.currency.networkTicker}"
             fiatBalance.contentDescription = "$FIAT_BALANCE_ID${state.currency.networkTicker}"
             cryptoBalance.contentDescription = "$CRYPTO_BALANCE_ID${state.currency.networkTicker}"
 
@@ -117,6 +116,13 @@ private class AssetCardViewHolder(
             } else {
                 sparkview.gone()
             }
+
+            root.contentDescription =
+                "${context.getString(R.string.accessibility_asset_name)} ${currency.text}." +
+                "${context.getString(R.string.accessibility_total_balance)}: " +
+                "${fiatBalance.text}, ${cryptoBalance.text}." +
+                "${context.getString(R.string.accessibility_current_market_price)}: ${price.text}. " +
+                "${context.getString(R.string.accessibility_24h_change)}: ${priceDelta.text}"
         }
     }
 
@@ -128,6 +134,7 @@ private class AssetCardViewHolder(
             root.setOnClickListener { }
 
             errorMsg.text = context.resources.getString(R.string.dashboard_asset_error, state.currency.displayTicker)
+            root.contentDescription = errorMsg.text
         }
     }
 

@@ -5,11 +5,11 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.extensions.exhaustive
-import com.blockchain.nabu.api.kyc.domain.KycService
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
 import com.blockchain.outcome.doOnSuccess
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.flow.collectLatest
@@ -77,7 +77,7 @@ class InterestDashboardViewModel(
         viewModelScope.launch {
             kycService.getTiers(FreshnessStrategy.Cached(forceRefresh = true))
                 .collectLatest { kycTiers ->
-                    if (kycTiers.isApprovedFor(KycTierLevel.GOLD)) {
+                    if (kycTiers.isApprovedFor(KycTier.GOLD)) {
                         getInterestDashboardUseCase().collectLatest { dataResource ->
                             when (dataResource) {
                                 is DataResource.Loading -> updateState {

@@ -15,12 +15,13 @@ import com.blockchain.coincore.TradingAccount
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestEligibility
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.data.DataResource
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
@@ -35,6 +36,8 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -55,6 +58,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     private val remoteLogger: RemoteLogger by inject()
     private val walletModeService: WalletModeService by inject()
     protected val identity: UserIdentity by scopedInject()
+    private val kycService: KycService by scopedInject()
 
     private val activeAccounts: ActiveAccountList by unsafeLazy {
         ActiveAccountList(currency, interestService)
@@ -121,6 +125,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                     custodialWalletManager = custodialManager,
                     tradingService = tradingService,
                     identity = identity,
+                    kycService = kycService,
                     walletModeService = walletModeService
                 )
             )
@@ -142,6 +147,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                             custodialWalletManager = custodialManager,
                             exchangeRates = exchangeRates,
                             identity = identity,
+                            kycService = kycService,
                             internalAccountLabel = labels.getDefaultCustodialWalletLabel()
                         )
                     )
@@ -192,15 +198,15 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     final override fun historicRate(epochWhen: Long): Single<ExchangeRate> =
         exchangeRates.getHistoricRate(currency, epochWhen)
 
-    final override fun historicRateSeries(period: HistoricalTimeSpan): Single<HistoricalRateList> =
+    final override fun historicRateSeries(period: HistoricalTimeSpan): Flow<DataResource<HistoricalRateList>> =
         currency.startDate?.let {
             exchangeRates.getHistoricPriceSeries(currency, period)
-        } ?: Single.just(emptyList())
+        } ?: flowOf(DataResource.Data(emptyList()))
 
-    final override fun lastDayTrend(): Single<List<HistoricalRate>> {
+    final override fun lastDayTrend(): Flow<DataResource<HistoricalRateList>> {
         return currency.startDate?.let {
             exchangeRates.get24hPriceSeries(currency)
-        } ?: Single.just(emptyList())
+        } ?: flowOf(DataResource.Data(emptyList()))
     }
 
     private fun getPitLinkingTargets(): Maybe<SingleAccountList> =

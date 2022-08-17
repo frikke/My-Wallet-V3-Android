@@ -9,6 +9,8 @@ interface KycNavHostView : View {
 
     val campaignType: CampaignType
 
+    val isCowboysUser: Boolean
+
     fun displayLoading(loading: Boolean)
 
     fun showErrorSnackbarAndFinish(@StringRes message: Int)

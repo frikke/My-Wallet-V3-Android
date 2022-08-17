@@ -1,13 +1,14 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
@@ -29,6 +30,7 @@ class BuyFlowNavigatorTest {
     private val userIdentity: UserIdentity = mock {
         on { userAccessForFeature(Feature.Buy) }.thenReturn(Single.just(FeatureAccess.Granted()))
     }
+    private val kycService: KycService = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock {
         onBlocking { getTradingCurrencies() }.thenReturn(Outcome.Success(tradingCurrencies))
         on { selectedTradingCurrency }.thenReturn(tradingCurrencies.selected)
@@ -49,7 +51,7 @@ class BuyFlowNavigatorTest {
     @Before
     fun setUp() {
         subject = BuyFlowNavigator(
-            simpleBuySyncFactory, userIdentity, fiatCurrenciesService, custodialWalletManager
+            simpleBuySyncFactory, userIdentity, kycService, fiatCurrenciesService, custodialWalletManager
         )
     }
 
@@ -166,9 +168,9 @@ class BuyFlowNavigatorTest {
                 SimpleBuyState().copy(currentScreen = FlowScreen.KYC)
             )
 
-        whenever(userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(true))
-        whenever(userIdentity.isKycInProgress()).thenReturn(Single.just(false))
-        whenever(userIdentity.isRejectedForTier(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(false))
+        whenever(userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD))).thenReturn(Single.just(true))
+        whenever(kycService.isInProgress()).thenReturn(Single.just(false))
+        whenever(kycService.isRejectedFor(KycTier.GOLD)).thenReturn(Single.just(false))
 
         val test =
             subject.navigateTo(
@@ -188,9 +190,9 @@ class BuyFlowNavigatorTest {
             .thenReturn(
                 SimpleBuyState().copy(currentScreen = FlowScreen.KYC)
             )
-        whenever(userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(false))
-        whenever(userIdentity.isKycInProgress()).thenReturn(Single.just(true))
-        whenever(userIdentity.isRejectedForTier(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(false))
+        whenever(userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD))).thenReturn(Single.just(false))
+        whenever(kycService.isInProgress()).thenReturn(Single.just(true))
+        whenever(kycService.isRejectedFor(KycTier.GOLD)).thenReturn(Single.just(false))
 
         val test =
             subject.navigateTo(
@@ -212,9 +214,9 @@ class BuyFlowNavigatorTest {
             .thenReturn(
                 SimpleBuyState().copy(currentScreen = FlowScreen.KYC)
             )
-        whenever(userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(false))
-        whenever(userIdentity.isKycInProgress()).thenReturn(Single.just(false))
-        whenever(userIdentity.isRejectedForTier(Feature.TierLevel(Tier.GOLD))).thenReturn(Single.just(false))
+        whenever(userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD))).thenReturn(Single.just(false))
+        whenever(kycService.isInProgress()).thenReturn(Single.just(false))
+        whenever(kycService.isRejectedFor(KycTier.GOLD)).thenReturn(Single.just(false))
 
         val test =
             subject.navigateTo(

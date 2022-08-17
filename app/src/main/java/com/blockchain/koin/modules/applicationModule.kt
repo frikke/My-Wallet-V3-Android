@@ -19,6 +19,7 @@ import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
+import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.eur
@@ -466,7 +467,8 @@ val applicationModule = module {
                 bankPartnerCallbackProvider = get(),
                 userIdentity = get(),
                 getSafeConnectTosLinkUseCase = payloadScope.get(),
-                appRatingService = get()
+                appRatingService = get(),
+                cardPaymentAsyncFF = get(cardPaymentAsyncFeatureFlag),
             )
         }
 
@@ -496,6 +498,7 @@ val applicationModule = module {
 
         factory {
             GetAvailablePaymentMethodsTypesUseCase(
+                kycService = get(),
                 userIdentity = get(),
                 paymentMethodService = get(),
                 cardService = get()
@@ -513,6 +516,7 @@ val applicationModule = module {
             GetDashboardOnboardingStepsUseCase(
                 dashboardPrefs = get(),
                 userIdentity = get(),
+                kycService = get(),
                 bankService = get(),
                 cardService = get(),
                 tradeDataService = get()
@@ -540,6 +544,7 @@ val applicationModule = module {
                 cancelOrderUseCase = get(),
                 brokerageDataManager = get(),
                 custodialWalletManager = get(),
+                _activityIndicator = lazy { get<AppUtil>().activityIndicator },
                 buyQuoteRefreshFF = get(buyRefreshQuoteFeatureFlag)
             )
         }
@@ -579,6 +584,7 @@ val applicationModule = module {
             BuyFlowNavigator(
                 simpleBuySyncFactory = get(),
                 userIdentity = get(),
+                kycService = get(),
                 fiatCurrenciesService = get(),
                 custodialWalletManager = get()
             )

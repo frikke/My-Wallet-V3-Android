@@ -1,13 +1,12 @@
 package piuk.blockchain.android.rating.data.repository
 
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
-import com.blockchain.nabu.api.kyc.domain.model.KycTiers
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
@@ -71,7 +70,7 @@ class AppRatingServiceTest {
     private val kycTiersNotGold = mockk<KycTiers>()
     private val fundsLocksOnHold = mockk<FundsLocks>()
     private val fundsLocksNotOnHold = mockk<FundsLocks>()
-    private val fetureTierGold = Feature.TierLevel(Tier.GOLD)
+    private val fetureTierGold = Feature.TierLevel(KycTier.GOLD)
 
     @Before
     fun setUp() {
@@ -82,8 +81,8 @@ class AppRatingServiceTest {
         every { appRatingPrefs.promptDateMillis = any() } just Runs
         every { appRatingPrefs.completed = any() } just Runs
 
-        every { kycTiersGold.isApprovedFor(KycTierLevel.GOLD) } returns true
-        every { kycTiersNotGold.isApprovedFor(KycTierLevel.GOLD) } returns false
+        every { kycTiersGold.isApprovedFor(KycTier.GOLD) } returns true
+        every { kycTiersNotGold.isApprovedFor(KycTier.GOLD) } returns false
 
         every { fundsLocksOnHold.onHoldTotalAmount } returns Money.fromMajor(CryptoCurrency.BTC, BigDecimal.TEN)
         every { fundsLocksNotOnHold.onHoldTotalAmount } returns Money.fromMajor(CryptoCurrency.BTC, BigDecimal.ZERO)

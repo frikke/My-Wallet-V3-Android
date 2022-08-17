@@ -37,6 +37,7 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -55,7 +56,6 @@ import info.blockchain.balance.isCustodialOnly
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import java.time.ZonedDateTime
-import kotlin.math.floor
 import kotlin.math.max
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -93,9 +93,13 @@ class SimpleBuyCheckoutFragment :
 
     override val model: SimpleBuyModel by scopedInject()
     private val googlePayManager: GooglePayManager by inject()
+    private var updateRecurringBuy: Boolean = false
 
     private var lastState: SimpleBuyState? = null
-    private val checkoutAdapterDelegate = CheckoutAdapterDelegate()
+    private val checkoutAdapterDelegate = CheckoutAdapterDelegate(
+        onToggleChanged = { updateRecurringBuy = it }
+    )
+
     private var countDownTimer: CountDownTimer? = null
     private var chunksCounter = mutableListOf<Int>()
 
@@ -109,9 +113,11 @@ class SimpleBuyCheckoutFragment :
 
     private val buyQuoteRefreshFF: FeatureFlag by scopedInject(buyRefreshQuoteFeatureFlag)
     private val plaidFF: FeatureFlag by scopedInject(plaidFeatureFlag)
+    private val rbFrequencySuggestionFF: FeatureFlag by scopedInject(rbFrequencyFeatureFlag)
     private val compositeDisposable = CompositeDisposable()
     private var animateRefreshQuote = false
     private var isPlaidEnabled = false
+    private var isRbFrequencyEnabled = false
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimplebuyCheckoutBinding =
         FragmentSimplebuyCheckoutBinding.inflate(inflater, container, false)
@@ -137,6 +143,13 @@ class SimpleBuyCheckoutFragment :
         compositeDisposable += plaidFF.enabled.onErrorReturn { false }
             .subscribe { enabled ->
                 isPlaidEnabled = enabled
+            }
+
+        compositeDisposable += rbFrequencySuggestionFF.enabled.onErrorReturn { false }
+            .subscribe { enabled ->
+                if (enabled) {
+                    isRbFrequencyEnabled = true
+                }
             }
 
         binding.recycler.apply {
@@ -168,16 +181,6 @@ class SimpleBuyCheckoutFragment :
             "Parent must implement SimpleBuyNavigator"
         )
 
-    private fun getListOfTotalTimes(remainingTime: Double): MutableList<Int> {
-        val chunks = MutableList(floor(remainingTime / MIN_QUOTE_REFRESH).toInt()) { MIN_QUOTE_REFRESH.toInt() }
-
-        val remainder = remainingTime % MIN_QUOTE_REFRESH
-        if (remainder > 0) {
-            chunks.add(remainder.toInt())
-        }
-        return chunks
-    }
-
     private fun startCounter(quote: BuyQuote, remainingTime: Int) {
         binding.buttonAction.isEnabled = true
         countDownTimer = object : CountDownTimer(remainingTime * 1000L, COUNT_DOWN_INTERVAL_TIMER) {
@@ -202,6 +205,7 @@ class SimpleBuyCheckoutFragment :
                 } else {
                     countDownTimer?.cancel()
                     countDownTimer = null
+                    binding.buttonAction.isEnabled = false
                 }
             }
         }
@@ -209,16 +213,10 @@ class SimpleBuyCheckoutFragment :
     }
 
     override fun render(newState: SimpleBuyState) {
-        if ((lastState == null || newState.hasQuoteChanged) &&
-            newState.quote != null && animateRefreshQuote
-        ) {
-            if (countDownTimer == null) {
-                chunksCounter = getListOfTotalTimes(newState.quote.remainingTime.toDouble())
-                startCounter(newState.quote, chunksCounter.first())
-            }
+        if (animateRefreshQuote && countDownTimer == null && newState.quote != null) {
+            chunksCounter = newState.quote.chunksTimeCounter
+            startCounter(newState.quote, chunksCounter.first())
         }
-
-        binding.buttonAction.isEnabled = (newState.quote?.remainingTime ?: 0) > 0
 
         showAmountForMethod(newState)
 
@@ -498,9 +496,23 @@ class SimpleBuyCheckoutFragment :
                 state.amount.toStringWithSymbol(),
                 isImportant = true,
                 hasChanged = false
-            )
+            ),
+            if (state.suggestEnablingRecurringBuyFrequency()) {
+                SimpleBuyCheckoutItem.ToggleCheckoutItem(
+                    title = RecurringBuyFrequency.WEEKLY.toRecurringBuySuggestionTitle(requireContext()),
+                    subtitle = getString(
+                        R.string.checkout_rb_subtitle,
+                        RecurringBuyFrequency.WEEKLY.toHumanReadableRecurringBuy(requireContext()),
+                        RecurringBuyFrequency.WEEKLY.toHumanReadableRecurringDate(requireContext(), ZonedDateTime.now())
+                    )
+                )
+            } else null
         )
     }
+
+    private fun SimpleBuyState.suggestEnablingRecurringBuyFrequency(): Boolean =
+        isRbFrequencyEnabled && this.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME &&
+            this.recurringBuyEligiblePaymentMethods.contains(this.selectedPaymentMethod?.paymentMethodType)
 
     private fun buildPaymentMethodItem(state: SimpleBuyState): SimpleBuyCheckoutItem? =
         state.selectedPaymentMethod?.let {
@@ -576,12 +588,22 @@ class SimpleBuyCheckoutFragment :
                                 showErrorState(ErrorState.SettlementGenericError)
                             SettlementReason.UNKNOWN,
                             SettlementReason.NONE -> {
-                                binding.quoteExpiration.invisible()
-                                model.process(SimpleBuyIntent.ConfirmOrder)
+                                if (animateRefreshQuote) quoteExpiration.invisible()
+
+                                if (updateRecurringBuy) {
+                                    model.process(
+                                        SimpleBuyIntent.RecurringBuySuggestionAccepted(
+                                            recurringBuyFrequency = RecurringBuyFrequency.WEEKLY
+                                        )
+                                    )
+                                } else {
+                                    model.process(SimpleBuyIntent.ConfirmOrder)
+                                }
                                 analytics.logEvent(
                                     eventWithPaymentMethod(
                                         SimpleBuyAnalytics.CHECKOUT_SUMMARY_CONFIRMED,
-                                        state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
+                                        state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString()
+                                            .orEmpty()
                                     )
                                 )
                             }
@@ -866,24 +888,46 @@ class SimpleBuyCheckoutFragment :
     }
 
     override fun onGooglePayTokenReceived(token: String, address: PaymentDataResponse.Address?) {
-        model.process(
-            SimpleBuyIntent.ConfirmGooglePayOrder(
-                googlePayPayload = token,
-                googlePayAddress = address?.let {
-                    GooglePayAddress(
-                        address1 = it.address1,
-                        address2 = it.address2,
-                        address3 = it.address3,
-                        administrativeArea = it.administrativeArea,
-                        countryCode = it.countryCode,
-                        locality = it.locality,
-                        name = it.name,
-                        postalCode = it.postalCode,
-                        sortingCode = it.sortingCode
-                    )
-                }
+        if (updateRecurringBuy) {
+            model.process(
+                SimpleBuyIntent.RecurringBuySuggestionAccepted(
+                    RecurringBuyFrequency.WEEKLY,
+                    googlePayPayload = token,
+                    googlePayAddress = address?.let {
+                        GooglePayAddress(
+                            address1 = it.address1.orEmpty(),
+                            address2 = it.address2.orEmpty(),
+                            address3 = it.address3.orEmpty(),
+                            administrativeArea = it.administrativeArea.orEmpty(),
+                            countryCode = it.countryCode.orEmpty(),
+                            locality = it.locality.orEmpty(),
+                            name = it.name.orEmpty(),
+                            postalCode = it.postalCode.orEmpty(),
+                            sortingCode = it.sortingCode.orEmpty()
+                        )
+                    }
+                ),
             )
-        )
+        } else {
+            model.process(
+                SimpleBuyIntent.ConfirmGooglePayOrder(
+                    googlePayPayload = token,
+                    googlePayAddress = address?.let {
+                        GooglePayAddress(
+                            address1 = it.address1.orEmpty(),
+                            address2 = it.address2.orEmpty(),
+                            address3 = it.address3.orEmpty(),
+                            administrativeArea = it.administrativeArea.orEmpty(),
+                            countryCode = it.countryCode.orEmpty(),
+                            locality = it.locality.orEmpty(),
+                            name = it.name.orEmpty(),
+                            postalCode = it.postalCode.orEmpty(),
+                            sortingCode = it.sortingCode.orEmpty()
+                        )
+                    }
+                )
+            )
+        }
         binding.buttonGooglePay.showLoading()
     }
 
@@ -924,7 +968,6 @@ class SimpleBuyCheckoutFragment :
         if (isPositive) toStringWithSymbol() else getString(R.string.common_free)
 
     companion object {
-        private const val MIN_QUOTE_REFRESH = 30L
         private const val COUNT_DOWN_INTERVAL_TIMER = 1000L
         private const val PENDING_PAYMENT_ORDER_KEY = "PENDING_PAYMENT_KEY"
         private const val SHOW_ONLY_ORDER_DATA = "SHOW_ONLY_ORDER_DATA"

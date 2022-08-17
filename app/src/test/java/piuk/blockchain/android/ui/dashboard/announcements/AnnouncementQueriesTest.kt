@@ -4,6 +4,13 @@ import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycLimits
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTierDetail
+import com.blockchain.core.kyc.domain.model.KycTierState
+import com.blockchain.core.kyc.domain.model.KycTiers
+import com.blockchain.core.kyc.domain.model.TiersMap
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -12,13 +19,6 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.api.kyc.domain.KycService
-import com.blockchain.nabu.api.kyc.domain.model.KycLimits
-import com.blockchain.nabu.api.kyc.domain.model.KycTierDetail
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
-import com.blockchain.nabu.api.kyc.domain.model.KycTierState
-import com.blockchain.nabu.api.kyc.domain.model.KycTiers
-import com.blockchain.nabu.api.kyc.domain.model.TiersMap
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.RemoteConfig
@@ -123,17 +123,17 @@ class AnnouncementQueriesTest {
                 KycTiers(
                     TiersMap(
                         mapOf(
-                            KycTierLevel.BRONZE to
+                            KycTier.BRONZE to
                                 KycTierDetail(
                                     KycTierState.None,
                                     KycLimits(null, null)
                                 ),
-                            KycTierLevel.SILVER to
+                            KycTier.SILVER to
                                 KycTierDetail(
                                     KycTierState.Verified,
                                     KycLimits(null, null)
                                 ),
-                            KycTierLevel.GOLD to
+                            KycTier.GOLD to
                                 KycTierDetail(
                                     KycTierState.None,
                                     KycLimits(null, null)
@@ -158,17 +158,17 @@ class AnnouncementQueriesTest {
                 KycTiers(
                     TiersMap(
                         mapOf(
-                            KycTierLevel.BRONZE to
+                            KycTier.BRONZE to
                                 KycTierDetail(
                                     KycTierState.None,
                                     KycLimits(null, null)
                                 ),
-                            KycTierLevel.SILVER to
+                            KycTier.SILVER to
                                 KycTierDetail(
                                     KycTierState.Verified,
                                     KycLimits(null, null)
                                 ),
-                            KycTierLevel.GOLD to
+                            KycTier.GOLD to
                                 KycTierDetail(
                                     KycTierState.Verified,
                                     KycLimits(null, null)
@@ -193,17 +193,17 @@ class AnnouncementQueriesTest {
                 KycTiers(
                     TiersMap(
                         mapOf(
-                            KycTierLevel.BRONZE to
+                            KycTier.BRONZE to
                                 KycTierDetail(
                                     KycTierState.None,
                                     KycLimits(null, null)
                                 ),
-                            KycTierLevel.SILVER to
+                            KycTier.SILVER to
                                 KycTierDetail(
                                     KycTierState.None,
                                     KycLimits(null, null)
                                 ),
-                            KycTierLevel.GOLD to
+                            KycTier.GOLD to
                                 KycTierDetail(
                                     KycTierState.None,
                                     KycLimits(null, null)

@@ -1,12 +1,13 @@
 package piuk.blockchain.android.domain.usecases
 
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.usecases.UseCase
 import info.blockchain.balance.FiatCurrency
@@ -14,6 +15,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 
 class GetAvailablePaymentMethodsTypesUseCase(
+    private val kycService: KycService,
     private val userIdentity: UserIdentity,
     private val paymentMethodService: PaymentMethodService,
     private val cardService: CardService
@@ -30,8 +32,8 @@ class GetAvailablePaymentMethodsTypesUseCase(
             fiatCurrency = parameter.currency,
             fetchSddLimits = parameter.fetchSddLimits,
             onlyEligible = parameter.onlyEligible
-        ).zipWith(userIdentity.getHighestApprovedKycTier()).flatMap { (availableTypes, tier) ->
-            val isSilver = tier == Tier.SILVER
+        ).zipWith(kycService.getHighestApprovedTierLevelLegacy()).flatMap { (availableTypes, tier) ->
+            val isSilver = tier == KycTier.SILVER
             val cardType = availableTypes.find { it.type == PaymentMethodType.PAYMENT_CARD }
             if (cardType == null || !isSilver) {
                 Single.just(
@@ -85,11 +87,11 @@ class GetAvailablePaymentMethodsTypesUseCase(
             }
         }
 
-    private fun linkAccessForTier(eligible: Boolean, tier: Tier): LinkAccess =
+    private fun linkAccessForTier(eligible: Boolean, tier: KycTier): LinkAccess =
         when (tier) {
-            Tier.GOLD -> if (eligible) LinkAccess.GRANTED else LinkAccess.BLOCKED
-            Tier.SILVER,
-            Tier.BRONZE -> if (eligible) LinkAccess.GRANTED else LinkAccess.NEEDS_UPGRADE
+            KycTier.GOLD -> if (eligible) LinkAccess.GRANTED else LinkAccess.BLOCKED
+            KycTier.SILVER,
+            KycTier.BRONZE -> if (eligible) LinkAccess.GRANTED else LinkAccess.NEEDS_UPGRADE
         }
 }
 

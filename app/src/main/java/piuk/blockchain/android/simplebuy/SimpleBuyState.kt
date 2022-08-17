@@ -33,6 +33,7 @@ import info.blockchain.balance.Money
 import java.io.Serializable
 import java.math.BigInteger
 import java.time.ZonedDateTime
+import kotlin.math.floor
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Transient
 import piuk.blockchain.android.cards.CardAcquirerCredentials
@@ -98,7 +99,7 @@ data class SimpleBuyState constructor(
         )
     }
 
-    private val recurringBuyEligiblePaymentMethods: List<PaymentMethodType> by lazy {
+    val recurringBuyEligiblePaymentMethods: List<PaymentMethodType> by lazy {
         eligibleAndNextPaymentRecurringBuy.flatMap { it.eligibleMethods }
             .distinct()
     }
@@ -263,9 +264,12 @@ data class BuyQuote(
     val createdAt: @Contextual ZonedDateTime,
     val expiresAt: @Contextual ZonedDateTime,
     val remainingTime: Long,
+    val chunksTimeCounter: MutableList<Int> = mutableListOf()
 ) {
 
     companion object {
+        private const val MIN_QUOTE_REFRESH = 30L
+
         fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: FiatCurrency, orderFee: Money?) =
             BuyQuote(
                 id = brokerageQuote.id,
@@ -282,7 +286,20 @@ data class BuyQuote(
                 createdAt = brokerageQuote.createdAt,
                 expiresAt = brokerageQuote.expiresAt,
                 remainingTime = brokerageQuote.secondsToExpire.toLong(),
+                chunksTimeCounter = getListOfTotalTimes(brokerageQuote.secondsToExpire.toDouble())
             )
+
+        private fun getListOfTotalTimes(remainingTime: Double): MutableList<Int> {
+            val chunks = MutableList(
+                floor(remainingTime / MIN_QUOTE_REFRESH).toInt()
+            ) { MIN_QUOTE_REFRESH.toInt() }
+
+            val remainder = remainingTime % MIN_QUOTE_REFRESH
+            if (remainder > 0) {
+                chunks.add(remainder.toInt())
+            }
+            return chunks
+        }
 
         private fun fee(quoteFee: FiatValue, orderFee: FiatValue?): FiatValue =
             (
@@ -337,8 +354,8 @@ data class SelectedPaymentMethod(
 }
 
 data class QuickFillButtonData(
-    val quickFillButtons: List<FiatValue>,
-    val buyMaxAmount: FiatValue
+    val quickFillButtons: List<Money>,
+    val buyMaxAmount: Money
 )
 
 @kotlinx.serialization.Serializable

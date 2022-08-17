@@ -37,6 +37,7 @@ import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycHomeAddressBinding
 import piuk.blockchain.android.ui.base.BaseMvpFragment
+import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.address.models.AddressDialog
 import piuk.blockchain.android.ui.kyc.address.models.AddressIntent
@@ -104,6 +105,10 @@ class KycHomeAddressFragment :
 
         setupImeOptions()
         localiseUi()
+
+        if ((requireActivity() as? KycNavHostActivity)?.isCowboysUser == true) {
+            analytics.logEvent(CowboysAnalytics.KycAddressViewed)
+        }
 
         onViewReady()
     }
@@ -182,6 +187,10 @@ class KycHomeAddressFragment :
                     .throttledClicks()
                     .subscribeBy(
                         onNext = {
+                            if ((requireActivity() as? KycNavHostActivity)?.isCowboysUser == true) {
+                                analytics.logEvent(CowboysAnalytics.KycAddressConfirmed)
+                            }
+
                             presenter.onContinueClicked(progressListener.campaignType)
                             analytics.logEvent(KYCAnalyticsEvents.AddressChanged)
                         },

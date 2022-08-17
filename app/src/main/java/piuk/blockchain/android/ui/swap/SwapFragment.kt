@@ -22,6 +22,9 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
@@ -29,9 +32,6 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.api.kyc.domain.KycService
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
-import com.blockchain.nabu.api.kyc.domain.model.KycTiers
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -229,7 +229,7 @@ class SwapFragment :
                                     is BlockedReason.TooManyInFlightTransactions -> { // noop
                                     }
                                 }.exhaustive
-                            } else if (!composite.tiers.isInitialisedFor(KycTierLevel.GOLD)) {
+                            } else if (!composite.tiers.isInitialisedFor(KycTier.GOLD)) {
                                 showKycUpsellIfEligible(composite.limits)
                             }
                         } else {

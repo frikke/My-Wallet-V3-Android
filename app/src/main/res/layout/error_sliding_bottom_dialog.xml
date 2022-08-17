@@ -33,7 +33,7 @@
         android:visibility="gone"
         app:layout_constraintCircle="@+id/error_sheet_icon"
         app:layout_constraintCircleAngle="45"
-        app:layout_constraintCircleRadius="44dp"
+        app:layout_constraintCircleRadius="30dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />

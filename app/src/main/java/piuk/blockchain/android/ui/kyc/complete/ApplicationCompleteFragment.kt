@@ -10,9 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.KYCAnalyticsEvents
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.api.kyc.domain.KycService
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -77,7 +77,7 @@ class ApplicationCompleteFragment : Fragment() {
                         progressListener.campaignType == CampaignType.None
                     ) {
                         kycService.getTiersLegacy().toObservable()
-                            .map { it.isApprovedFor(KycTierLevel.SILVER) || it.isApprovedFor(KycTierLevel.GOLD) }
+                            .map { it.isApprovedFor(KycTier.SILVER) || it.isApprovedFor(KycTier.GOLD) }
                             .onErrorReturn { false }
                     } else {
                         Observable.just(false)

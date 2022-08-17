@@ -483,9 +483,10 @@ class LiveCustodialWalletManager(
         paymentMethodId: String?,
         isBankPartner: Boolean?,
     ): Single<BuySellOrder> =
-        authenticator.authenticate {
+        authenticator.authenticate { authToken ->
             nabuService.confirmOrder(
-                it, orderId,
+                authToken,
+                orderId,
                 ConfirmOrderRequestBody(
                     paymentMethodId = paymentMethodId,
                     attributes = attributes,
@@ -799,8 +800,7 @@ private fun String.toLocalState(): OrderState =
         BuySellOrderResponse.FINISHED -> OrderState.FINISHED
         BuySellOrderResponse.PENDING_CONFIRMATION -> OrderState.PENDING_CONFIRMATION
         BuySellOrderResponse.PENDING_EXECUTION,
-        BuySellOrderResponse.DEPOSIT_MATCHED,
-        -> OrderState.PENDING_EXECUTION
+        BuySellOrderResponse.DEPOSIT_MATCHED -> OrderState.PENDING_EXECUTION
         BuySellOrderResponse.FAILED,
         BuySellOrderResponse.EXPIRED -> OrderState.FAILED
         BuySellOrderResponse.CANCELED -> OrderState.CANCELED

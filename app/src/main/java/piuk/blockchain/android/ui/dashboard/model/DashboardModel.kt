@@ -75,6 +75,10 @@ class DashboardModel(
             is DashboardIntent.LoadFundsLocked -> interactor.loadWithdrawalLocks(this)
             is DashboardIntent.FetchOnboardingSteps -> interactor.getOnboardingSteps(this)
             is DashboardIntent.CheckCowboysFlow -> interactor.checkCowboysFlowSteps(this)
+            is DashboardIntent.CowboysReferralCardClosed -> {
+                interactor.markCowboysReferralCardAsDismissed()
+                null
+            }
             is DashboardIntent.FetchReferralSuccess -> interactor.checkReferralSuccess(this)
             is DashboardIntent.DismissReferralSuccess -> {
                 interactor.dismissReferralSuccess()

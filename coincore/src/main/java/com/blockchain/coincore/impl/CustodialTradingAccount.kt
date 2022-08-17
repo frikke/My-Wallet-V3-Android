@@ -18,10 +18,11 @@ import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.toActionState
 import com.blockchain.coincore.toFiat
 import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CryptoTransaction
@@ -58,6 +59,7 @@ class CustodialTradingAccount(
     val custodialWalletManager: CustodialWalletManager,
     private val tradingService: TradingService,
     private val identity: UserIdentity,
+    private val kycService: KycService,
     private val walletModeService: WalletModeService,
 ) : CryptoAccountBase(), TradingAccount {
 
@@ -258,11 +260,11 @@ class CustodialTradingAccount(
     }
 
     private fun viewActivityEligibility(): Single<StateAwareAction> {
-        val tier = identity.getHighestApprovedKycTier()
+        val tier = kycService.getHighestApprovedTierLevelLegacy()
         return tier.map { highestTier ->
             StateAwareAction(
                 when (highestTier) {
-                    Tier.BRONZE -> ActionState.LockedForTier
+                    KycTier.BRONZE -> ActionState.LockedForTier
                     else -> ActionState.Available
                 },
                 AssetAction.ViewActivity

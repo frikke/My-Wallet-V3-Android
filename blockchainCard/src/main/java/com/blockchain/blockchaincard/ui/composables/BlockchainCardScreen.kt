@@ -21,6 +21,7 @@ import com.blockchain.blockchaincard.ui.composables.managecard.AccountPicker
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddress
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddressUpdated
 import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionDetails
+import com.blockchain.blockchaincard.ui.composables.managecard.FundingAccountActionChooser
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCardDetails
 import com.blockchain.blockchaincard.ui.composables.managecard.PersonalDetails
@@ -219,11 +220,8 @@ fun BlockchainCardNavHost(
                             onManageCardDetails = {
                                 viewModel.onIntent(BlockchainCardIntent.ManageCardDetails)
                             },
-                            onChoosePaymentMethod = {
-                                viewModel.onIntent(BlockchainCardIntent.ChoosePaymentMethod)
-                            },
-                            onTopUp = {
-                                viewModel.onIntent(BlockchainCardIntent.TopUp)
+                            onFundingAccountClicked = {
+                                viewModel.onIntent(BlockchainCardIntent.FundingAccountClicked)
                             },
                             onRefreshBalance = {
                                 viewModel.onIntent(BlockchainCardIntent.LoadLinkedAccount)
@@ -234,6 +232,9 @@ fun BlockchainCardNavHost(
                             onRefreshTransactions = {
                                 viewModel.onIntent(BlockchainCardIntent.RefreshTransactions)
                             },
+                            onRefreshCardWidgetUrl = {
+                                viewModel.onIntent(BlockchainCardIntent.LoadCardWidget)
+                            }
                         )
                     }
                 }
@@ -254,6 +255,14 @@ fun BlockchainCardNavHost(
                         onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
                     )
                 }
+            }
+
+            bottomSheet(BlockchainCardDestination.FundingAccountActionsDestination) {
+                FundingAccountActionChooser(
+                    onAddFunds = { viewModel.onIntent(BlockchainCardIntent.TopUp) },
+                    onChangeAsset = { viewModel.onIntent(BlockchainCardIntent.ChoosePaymentMethod) },
+                    onClose = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
+                )
             }
 
             composable(BlockchainCardDestination.ChoosePaymentMethodDestination) {

@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.nabu.UserIdentity
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
@@ -13,7 +13,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
 
 internal class KycResubmissionAnnouncement(
-    private val userIdentity: UserIdentity,
+    private val kycService: KycService,
     dismissRecorder: DismissRecorder
 ) : AnnouncementRule(dismissRecorder) {
 
@@ -25,7 +25,7 @@ internal class KycResubmissionAnnouncement(
             return Single.just(false)
         }
 
-        return userIdentity.isKycResubmissionRequired()
+        return kycService.isResubmissionRequired()
     }
 
     override val associatedWalletModes: List<WalletMode>

@@ -4,10 +4,10 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes.MaxPaymentBankAccountLinkAttempts
 import com.blockchain.api.NabuErrorCodes.MaxPaymentBankAccounts
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.Tier
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -38,13 +38,13 @@ class SettingsModel(
                         onSuccess = { userDetails ->
                             process(
                                 SettingsIntent.UpdateContactSupportEligibility(
-                                    tier = userDetails.userTier,
+                                    tier = userDetails.kycTier,
                                     userInformation = userDetails.userInfo,
                                     referralInfo = userDetails.referralInfo
                                 )
                             )
                         }, onError = {
-                        process(SettingsIntent.UpdateContactSupportEligibility(tier = Tier.BRONZE))
+                        process(SettingsIntent.UpdateContactSupportEligibility(tier = KycTier.BRONZE))
                     }
                     )
             }

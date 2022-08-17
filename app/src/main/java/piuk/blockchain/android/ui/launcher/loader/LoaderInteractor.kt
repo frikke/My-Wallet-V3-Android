@@ -3,6 +3,8 @@ package piuk.blockchain.android.ui.launcher.loader
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.referral.ReferralService
@@ -48,7 +50,8 @@ class LoaderInteractor(
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val cowboysPromoFeatureFlag: FeatureFlag,
     private val cowboysPrefs: CowboysPrefs,
-    private val userIdentity: UserIdentity
+    private val userIdentity: UserIdentity,
+    private val kycService: KycService
 ) {
 
     private val wallet: Wallet
@@ -116,11 +119,14 @@ class LoaderInteractor(
 
     private fun checkForCowboysUser() = Single.zip(
         userIdentity.isCowboysUser(),
-        userIdentity.getHighestApprovedKycTier(),
+        kycService.getHighestApprovedTierLevelLegacy(),
         cowboysPromoFeatureFlag.enabled,
     ) { isCowboysUser, highestTier, isCowboysFlagEnabled ->
-        if (/*isCowboysFlagEnabled && isCowboysUser && highestTier == Tier.BRONZE*/ true) {
-            if (!cowboysPrefs.hasSeenCowboysFlow) {
+        if (isCowboysFlagEnabled && isCowboysUser) {
+            // reset flag on login
+            cowboysPrefs.hasCowboysReferralBeenDismissed = false
+
+            if (highestTier == KycTier.BRONZE && !cowboysPrefs.hasSeenCowboysFlow) {
                 cowboysPrefs.hasSeenCowboysFlow = true
                 emitter.onNext(
                     LoaderIntents.UpdateCowboysPromo(isCowboysPromoUser = true)

@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.core.Database
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.model.BankState
@@ -28,6 +29,7 @@ import piuk.blockchain.android.ui.home.CredentialsWiper
 
 class SettingsInteractor internal constructor(
     private val userIdentity: UserIdentity,
+    private val kycService: KycService,
     private val database: Database,
     private val credentialsWiper: CredentialsWiper,
     private val bankService: BankService,
@@ -42,15 +44,15 @@ class SettingsInteractor internal constructor(
 
     fun getSupportEligibilityAndBasicInfo(): Single<UserDetails> {
         return Singles.zip(
-            userIdentity.getHighestApprovedKycTier(),
+            kycService.getHighestApprovedTierLevelLegacy(),
             userIdentity.getBasicProfileInformation(),
-            getReferralDataSingle()
-        ).map { (tier, basicInfo, referral) ->
-            UserDetails(userTier = tier, userInfo = basicInfo, referralInfo = referral)
+            getReferralData()
+        ).map { (kycTier, basicInfo, referral) ->
+            UserDetails(kycTier = kycTier, userInfo = basicInfo, referralInfo = referral)
         }
     }
 
-    private fun getReferralDataSingle(): Single<ReferralInfo> {
+    private fun getReferralData(): Single<ReferralInfo> {
         return rxSingle {
             referralService.fetchReferralData()
                 .getOrDefault(ReferralInfo.NotAvailable)

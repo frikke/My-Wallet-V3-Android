@@ -10,6 +10,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
+import kotlinx.coroutines.flow.Flow
 
 enum class HistoricalTimeSpan(val value: Int) {
     DAY(0),
@@ -73,12 +74,12 @@ interface ExchangeRatesDataManager : ExchangeRates {
         asset: Currency,
         span: HistoricalTimeSpan,
         now: Calendar = Calendar.getInstance(),
-    ): Single<HistoricalRateList>
+    ): Flow<DataResource<HistoricalRateList>>
 
     // Specialised call to historic rates for sparkline caching
     fun get24hPriceSeries(
         asset: Currency,
-    ): Single<HistoricalRateList>
+    ): Flow<DataResource<HistoricalRateList>>
 
     val fiatAvailableForRates: List<FiatCurrency>
 }

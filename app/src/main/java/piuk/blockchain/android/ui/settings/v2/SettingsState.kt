@@ -2,11 +2,11 @@ package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.BasicProfileInfo
-import com.blockchain.nabu.Tier
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 
 data class SettingsState(
@@ -14,7 +14,7 @@ data class SettingsState(
     val hasWalletUnpaired: Boolean = false,
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,
     val paymentMethodInfo: PaymentMethods? = null,
-    val tier: Tier = Tier.BRONZE,
+    val tier: KycTier = KycTier.BRONZE,
     val error: SettingsError = SettingsError.None,
     val referralInfo: ReferralInfo = ReferralInfo.NotAvailable,
     val canPayWithBind: Boolean = false
@@ -42,7 +42,7 @@ data class PaymentMethods(
 )
 
 data class UserDetails(
-    val userTier: Tier,
+    val kycTier: KycTier,
     val userInfo: BasicProfileInfo,
     val referralInfo: ReferralInfo
 )

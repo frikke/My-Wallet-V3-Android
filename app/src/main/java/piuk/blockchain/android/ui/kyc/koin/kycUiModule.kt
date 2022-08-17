@@ -101,6 +101,7 @@ val kycUiModule = module {
             VeriffSplashPresenter(
                 nabuToken = get(),
                 nabuDataManager = get(),
+                kycTiersStore = get(),
                 analytics = get(),
                 prefs = get()
             )
@@ -144,7 +145,7 @@ val kycUiModule = module {
         factory {
             KycLimitsInteractor(
                 limitsDataManager = get(),
-                userIdentity = get()
+                kycService = get()
             )
         }
     }

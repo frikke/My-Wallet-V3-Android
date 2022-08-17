@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.nabu.api.kyc.domain.KycService
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
@@ -34,7 +34,7 @@ internal class KycMoreInfoAnnouncement(
 
     private fun didNotStartGoldLevelKyc(): Single<Boolean> =
         kycService.getTiersLegacy().map {
-            it.isNotInitialisedFor(KycTierLevel.GOLD)
+            it.isInitialisedFor(KycTier.GOLD).not()
         }
 
     override fun show(host: AnnouncementHost) {

@@ -10,6 +10,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.data.DataResource
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
@@ -21,6 +22,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
@@ -148,7 +150,8 @@ class CoinViewModelTest {
 
         val assetInfo = AssetInformation.NonTradeable(prices = prices, isAddedToWatchlist = true)
         whenever(interactor.loadAccountDetails(asset)).thenReturn(Single.just(assetInfo))
-        whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadHistoricPrices(eq(asset), any()))
+            .thenReturn(Observable.just(DataResource.Error(Exception())))
 
         val test = localSubject.state.test()
 
@@ -210,7 +213,8 @@ class CoinViewModelTest {
         )
 
         whenever(interactor.loadAccountDetails(asset)).thenReturn(Single.just(assetInfo))
-        whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadHistoricPrices(eq(asset), any()))
+            .thenReturn(Observable.just(DataResource.Error(Exception())))
         whenever(interactor.loadQuickActions(any(), any(), eq(asset))).thenReturn(Single.error(Exception()))
         val test = localSubject.state.test()
 
@@ -283,7 +287,8 @@ class CoinViewModelTest {
         )
 
         val priceList: HistoricalRateList = listOf(mock(), mock())
-        whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.just(priceList))
+        whenever(interactor.loadHistoricPrices(eq(asset), any()))
+            .thenReturn(Observable.just(DataResource.Data(priceList)))
         whenever(interactor.loadQuickActions(any(), any(), eq(asset))).thenReturn(Single.error(Exception()))
         val test = localSubject.state.test()
 
@@ -357,7 +362,8 @@ class CoinViewModelTest {
         }
         val prices: Prices24HrWithDelta = mock()
         val priceList: HistoricalRateList = listOf(mock(), mock(), mock())
-        whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.just(priceList))
+        whenever(interactor.loadHistoricPrices(eq(asset), any()))
+            .thenReturn(Observable.just(DataResource.Data(priceList)))
 
         val test = subject.state.test()
 
@@ -381,7 +387,8 @@ class CoinViewModelTest {
         }
         val prices: Prices24HrWithDelta = mock()
         val priceList: HistoricalRateList = emptyList()
-        whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.just(priceList))
+        whenever(interactor.loadHistoricPrices(eq(asset), any()))
+            .thenReturn(Observable.just(DataResource.Data(priceList)))
 
         val test = subject.state.test()
 
@@ -404,7 +411,8 @@ class CoinViewModelTest {
             on { currency }.thenReturn(mock())
         }
         val prices: Prices24HrWithDelta = mock()
-        whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadHistoricPrices(eq(asset), any()))
+            .thenReturn(Observable.just(DataResource.Error(Exception())))
 
         val test = subject.state.test()
 
@@ -446,9 +454,8 @@ class CoinViewModelTest {
         )
 
         val priceList: HistoricalRateList = listOf(mock(), mock(), mock())
-        whenever(interactor.loadHistoricPrices(eq(asset), eq(HistoricalTimeSpan.YEAR))).thenReturn(
-            Single.just(priceList)
-        )
+        whenever(interactor.loadHistoricPrices(eq(asset), eq(HistoricalTimeSpan.YEAR)))
+            .thenReturn(Observable.just(DataResource.Data(priceList)))
 
         val test = localSubject.state.test()
 
@@ -490,9 +497,8 @@ class CoinViewModelTest {
         )
 
         val priceList: HistoricalRateList = emptyList()
-        whenever(interactor.loadHistoricPrices(eq(asset), eq(HistoricalTimeSpan.YEAR))).thenReturn(
-            Single.just(priceList)
-        )
+        whenever(interactor.loadHistoricPrices(eq(asset), eq(HistoricalTimeSpan.YEAR)))
+            .thenReturn(Observable.just(DataResource.Data(priceList)))
 
         val test = localSubject.state.test()
 
@@ -550,9 +556,8 @@ class CoinViewModelTest {
         )
 
         val priceList: HistoricalRateList = emptyList()
-        whenever(interactor.loadHistoricPrices(eq(asset), eq(HistoricalTimeSpan.YEAR))).thenReturn(
-            Single.just(priceList)
-        )
+        whenever(interactor.loadHistoricPrices(eq(asset), eq(HistoricalTimeSpan.YEAR)))
+            .thenReturn(Observable.just(DataResource.Data(priceList)))
 
         val test = localSubject.state.test()
 
@@ -593,9 +598,8 @@ class CoinViewModelTest {
         )
 
         val priceList: HistoricalRateList = emptyList()
-        whenever(interactor.loadHistoricPrices(eq(asset), eq(HistoricalTimeSpan.YEAR))).thenReturn(
-            Single.just(priceList)
-        )
+        whenever(interactor.loadHistoricPrices(eq(asset), eq(HistoricalTimeSpan.YEAR)))
+            .thenReturn(Observable.just(DataResource.Data(priceList)))
 
         val test = localSubject.state.test()
 

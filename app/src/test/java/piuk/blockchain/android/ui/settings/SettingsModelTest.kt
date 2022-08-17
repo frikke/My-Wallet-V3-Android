@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
@@ -11,7 +12,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.BasicProfileInfo
-import com.blockchain.nabu.Tier
 import com.braintreepayments.cardform.utils.CardType
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -70,7 +70,7 @@ class SettingsModelTest {
         whenever(userInformation.email).thenReturn("paco@gmail.com")
 
         whenever(interactor.getSupportEligibilityAndBasicInfo()).thenReturn(
-            Single.just(UserDetails(Tier.SILVER, userInformation, ReferralInfo.NotAvailable))
+            Single.just(UserDetails(KycTier.SILVER, userInformation, ReferralInfo.NotAvailable))
         )
 
         val testState = model.state.test()
@@ -82,7 +82,7 @@ class SettingsModelTest {
             }.assertValueAt(1) {
                 it == SettingsState(
                     basicProfileInfo = userInformation,
-                    tier = Tier.SILVER
+                    tier = KycTier.SILVER
                 )
             }
     }
@@ -93,7 +93,7 @@ class SettingsModelTest {
         whenever(userInformation.email).thenReturn("paco@gmail.com")
 
         whenever(interactor.getSupportEligibilityAndBasicInfo())
-            .thenReturn(Single.just(UserDetails(Tier.GOLD, userInformation, ReferralInfo.NotAvailable)))
+            .thenReturn(Single.just(UserDetails(KycTier.GOLD, userInformation, ReferralInfo.NotAvailable)))
 
         val testState = model.state.test()
         model.process(SettingsIntent.LoadHeaderInformation)
@@ -104,7 +104,7 @@ class SettingsModelTest {
             }.assertValueAt(1) {
                 it == SettingsState(
                     basicProfileInfo = userInformation,
-                    tier = Tier.GOLD
+                    tier = KycTier.GOLD
                 )
             }
     }

@@ -419,17 +419,7 @@ data class SettlementResponse(
             @SerialName("settlementType")
             val settlementType: String,
             @SerialName("reason")
-            val reason: String?,
-            @SerialName("balances")
-            val balances: Balances
-        ) {
-            @Serializable
-            data class Balances(
-                @SerialName("availableBalance")
-                val availableBalance: String,
-                @SerialName("lastUpdated")
-                val lastUpdated: String
-            )
-        }
+            val reason: String?
+        )
     }
 }
