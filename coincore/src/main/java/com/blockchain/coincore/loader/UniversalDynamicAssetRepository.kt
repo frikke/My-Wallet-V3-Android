@@ -6,7 +6,7 @@ import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 
 class UniversalDynamicAssetRepository(
-    private val l1EvmAssets: Set<AssetInfo>,
+    private val dominantL1Assets: Set<AssetInfo>,
     private val discoveryService: AssetDiscoveryApiService,
     private val l2sDynamicAssetRepository: NonCustodialL2sDynamicAssetRepository
 ) : DynamicAssetsService {
@@ -17,12 +17,13 @@ class UniversalDynamicAssetRepository(
             l2sDynamicAssetRepository.availableL2s()
         ) { erc20, custodial, evmList ->
             val cryptoAssets = erc20 + custodial + evmList
-            cryptoAssets.filterNot { it.isFiat }
+            cryptoAssets.asSequence().filterNot { it.isFiat }
                 .toSet() // Remove dups
+                .asSequence()
                 .filter { it.supportsAnyCustodialOrNonCustodialProducts() }
                 .map { it.toAssetInfo() }
-                .filterNot { l1EvmAssets.contains(it) }
-                .plus(l1EvmAssets)
+                .filterNot { it.networkTicker in dominantL1Assets.map { l1 -> l1.networkTicker } }
+                .plus(dominantL1Assets).toList()
         }
     }
 }
