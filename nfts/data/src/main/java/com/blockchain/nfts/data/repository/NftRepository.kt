@@ -1,6 +1,6 @@
 package com.blockchain.nfts.data.repository
 
-import com.blockchain.api.nfts.data.NftAssetResponse
+import com.blockchain.api.nfts.data.NftAssetsResponse
 import com.blockchain.api.services.NftService
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftData
@@ -10,15 +10,15 @@ class NftRepository(private val nftService: NftService) : com.blockchain.nfts.do
     override suspend fun getNftForAddress(network: String, address: String): List<NftAsset> =
         nftService.getNftsForAddress(address = address).mapToDomain()
 
-    private fun NftAssetResponse.mapToDomain(): List<NftAsset> =
-        this.nftBalances.balances.map {
+    private fun NftAssetsResponse.mapToDomain(): List<NftAsset> =
+        this.assets.map {
             NftAsset(
-                it.tokenId,
-                it.metadata.image,
+                it.tokenId.orEmpty(),
+                it.imageUrl ?: it.imagePreviewUrl.orEmpty(),
                 NftData(
-                    it.metadata.name,
-                    it.metadata.description,
-                    it.metadata.attributes.map { it.value }
+                    it.name.orEmpty(),
+                    it.description.orEmpty(),
+                    it.traits
                 )
             )
         }

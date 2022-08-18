@@ -8,9 +8,10 @@ class NftService internal constructor(
 ) {
     suspend fun getNftsForAddress(network: String = "ETH", address: String) =
         nftApi.getAssetsForAddress(
-            requestBody = NftAssetRequestBody(
-                network = network,
-                address = address
-            )
+            ownerAddress = address
+//            requestBody = NftAssetRequestBody(
+//                network = network,
+//                address = address
+//            )
         )
 }
