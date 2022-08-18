@@ -214,6 +214,9 @@ class InterestDashboardViewModelTest {
     @Test
     fun `GIVEN hasBalance, WHEN InterestItemClicked is triggered, THEN InterestSummarySheet should be triggered`() =
         runTest {
+            coEvery { kycService.getTiers() } returns flowOf(DataResource.Data(kycTiers))
+            every { getInterestDashboardUseCase() } returns flowOf(DataResource.Data(interestAssets))
+
             viewModel.navigationEventFlow.test {
                 viewModel.onIntent(InterestDashboardIntents.LoadDashboard)
 
@@ -226,6 +229,9 @@ class InterestDashboardViewModelTest {
     @Test
     fun `GIVEN hasBalance false, WHEN InterestItemClicked is triggered, THEN TransactionFlow should be triggered`() =
         runTest {
+            coEvery { kycService.getTiers() } returns flowOf(DataResource.Data(kycTiers))
+            every { getInterestDashboardUseCase() } returns flowOf(DataResource.Data(interestAssets))
+
             viewModel.navigationEventFlow.test {
                 viewModel.onIntent(InterestDashboardIntents.LoadDashboard)
 
@@ -238,6 +244,9 @@ class InterestDashboardViewModelTest {
     @Test
     fun `WHEN StartKyc intent is triggered, THEN StartKyc nav should be triggered`() =
         runTest {
+            coEvery { kycService.getTiers() } returns flowOf(DataResource.Data(kycTiers))
+            every { getInterestDashboardUseCase() } returns flowOf(DataResource.Data(interestAssets))
+
             viewModel.navigationEventFlow.test {
                 viewModel.onIntent(InterestDashboardIntents.LoadDashboard)
 
