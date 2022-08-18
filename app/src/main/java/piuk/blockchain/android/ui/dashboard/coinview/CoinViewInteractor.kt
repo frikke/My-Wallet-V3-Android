@@ -139,7 +139,7 @@ class CoinViewInteractor(
                      * when trying to buy with low tier upgrading to gold will be requested
                      */
                     val canBuy = buyAccess is FeatureAccess.Granted ||
-                        (buyAccess is FeatureAccess.Blocked && buyAccess.reason !is BlockedReason.InsufficientTier)
+                        (buyAccess is FeatureAccess.Blocked && buyAccess.reason is BlockedReason.InsufficientTier)
 
                     /**
                      * Swap button will be enabled if
