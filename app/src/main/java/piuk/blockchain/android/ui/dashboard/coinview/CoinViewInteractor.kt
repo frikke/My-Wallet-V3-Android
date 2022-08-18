@@ -107,8 +107,9 @@ class CoinViewInteractor(
                     identity.isEligibleFor(Feature.SimplifiedDueDiligence),
                     identity.userAccessForFeature(Feature.Buy),
                     identity.userAccessForFeature(Feature.Sell),
-                    custodialWalletManager.isCurrencyAvailableForTrading(asset.currency)
-                ) { kycTier, sddEligible, buyAccess, sellAccess, isSupportedPair ->
+                    custodialWalletManager.isCurrencyAvailableForTrading(asset.currency),
+                    custodialWalletManager.isAssetSupportedForSwap(asset.currency)
+                ) { kycTier, sddEligible, buyAccess, sellAccess, isSupportedPair, isSwapSupported ->
 
                     val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
 
@@ -140,13 +141,25 @@ class CoinViewInteractor(
                     val canBuy = buyAccess is FeatureAccess.Granted ||
                         (buyAccess is FeatureAccess.Blocked && buyAccess.reason !is BlockedReason.InsufficientTier)
 
+                    /**
+                     * Swap button will be enabled if
+                     * * Balance is positive
+                     */
+                    val canSwap = when (walletMode) {
+                        WalletMode.UNIVERSAL -> totalCryptoBalance[AssetFilter.All]?.isPositive ?: false
+                        WalletMode.CUSTODIAL_ONLY -> totalCryptoBalance[AssetFilter.Custodial]?.isPositive ?: false
+                        WalletMode.NON_CUSTODIAL_ONLY -> error("NON_CUSTODIAL_ONLY unreachable here")
+                    }
+
                     custodialAccount?.let {
                         QuickActionData(
+                            middleAction = if (isSwapSupported) QuickActionCta.Swap(canSwap) else QuickActionCta.None,
                             startAction = QuickActionCta.Sell(canSell),
                             endAction = QuickActionCta.Buy(canBuy),
                             actionableAccount = custodialAccount
                         )
                     } ?: QuickActionData(
+                        middleAction = QuickActionCta.None,
                         startAction = QuickActionCta.None,
                         endAction = QuickActionCta.None,
                         actionableAccount = NullCryptoAccount()
@@ -155,32 +168,40 @@ class CoinViewInteractor(
             }
 
             WalletMode.NON_CUSTODIAL_ONLY -> {
-                val nonCustodialAccount = accountList.firstOrNull { it is NonCustodialAccount }
+                custodialWalletManager.isAssetSupportedForSwap(asset.currency).map { isSwapSupported ->
+                    val nonCustodialAccount = accountList.firstOrNull { it is NonCustodialAccount }
 
-                /**
-                 * Send button will be enabled if
-                 * * Balance is positive
-                 */
-                val canSend = totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true
+                    /**
+                     * Send button will be enabled if
+                     * * Balance is positive
+                     */
+                    val canSend = totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true
 
-                /**
-                 * Can always receive
-                 */
-                val canReceive = true
+                    /**
+                     * Can always receive
+                     */
+                    val canReceive = true
 
-                Single.just(
+                    /**
+                     * Swap button will be enabled if
+                     * * Balance is positive
+                     */
+                    val canSwap = totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true
+
                     nonCustodialAccount?.let {
                         QuickActionData(
+                            middleAction = if (isSwapSupported) QuickActionCta.Swap(canSwap) else QuickActionCta.None,
                             startAction = QuickActionCta.Receive(canReceive),
                             endAction = QuickActionCta.Send(canSend),
                             actionableAccount = nonCustodialAccount
                         )
                     } ?: QuickActionData(
+                        middleAction = QuickActionCta.None,
                         startAction = QuickActionCta.None,
                         endAction = QuickActionCta.None,
                         actionableAccount = NullCryptoAccount()
                     )
-                )
+                }
             }
         }
     }

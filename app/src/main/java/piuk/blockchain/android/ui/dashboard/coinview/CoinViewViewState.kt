@@ -34,6 +34,7 @@ sealed class CoinViewViewState {
 
     class ShowRecurringBuys(val recurringBuys: List<RecurringBuy>, val shouldShowUpsell: Boolean) : CoinViewViewState()
     class QuickActionsLoaded(
+        val middleAction: QuickActionCta,
         val startAction: QuickActionCta,
         val endAction: QuickActionCta,
         val actionableAccount: BlockchainAccount

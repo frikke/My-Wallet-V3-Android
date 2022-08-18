@@ -33,6 +33,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.BaseButtonView
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.charts.PercentageChangeData
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -484,7 +485,13 @@ class CoinViewActivity :
             }
             is CoinViewViewState.QuickActionsLoaded -> {
                 newState.asset?.let { asset ->
-                    renderQuickActions(asset.currency, state.actionableAccount, state.startAction, state.endAction)
+                    renderQuickActions(
+                        asset = asset.currency,
+                        highestBalanceWallet = state.actionableAccount,
+                        middleAction = state.middleAction,
+                        startAction = state.startAction,
+                        endAction = state.endAction
+                    )
                 }
             }
             is CoinViewViewState.UpdatedWatchlist -> renderWatchlistIcon(state.addedToWatchlist)
@@ -663,9 +670,48 @@ class CoinViewActivity :
     private fun renderQuickActions(
         asset: AssetInfo,
         highestBalanceWallet: BlockchainAccount,
+        middleAction: QuickActionCta,
         startAction: QuickActionCta,
         endAction: QuickActionCta,
     ) {
+        // middle action
+        with(binding) {
+            when (middleAction) {
+                QuickActionCta.None -> {
+                    when (walletMode) {
+                        WalletMode.UNIVERSAL, WalletMode.CUSTODIAL_ONLY -> {
+                            listItems.removeIf { details ->
+                                details is AssetDetailsItem.CentralCta
+                            }
+                            updateList()
+                        }
+
+                        WalletMode.NON_CUSTODIAL_ONLY -> {
+                            swapCta.gone()
+                        }
+                    }
+                }
+
+                else -> {
+                    when (walletMode) {
+                        WalletMode.UNIVERSAL, WalletMode.CUSTODIAL_ONLY -> {
+                            val insertIndex = listItems.indexOfLast { it is AssetDetailsItem.CryptoDetailsInfo }
+                                .let { if (it == -1) 0 else it + 1 }
+
+                            listItems.add(insertIndex, AssetDetailsItem.CentralCta(highestBalanceWallet))
+                            updateList()
+                        }
+
+                        WalletMode.NON_CUSTODIAL_ONLY -> {
+                            swapCta.visible()
+                            swapCta.update(asset, highestBalanceWallet, middleAction)
+                        }
+                    }
+                }
+            }
+        }
+
+        // bottom actions
         with(binding) {
             when {
                 startAction == QuickActionCta.None && endAction == QuickActionCta.None -> {
@@ -675,50 +721,33 @@ class CoinViewActivity :
                 }
                 endAction == QuickActionCta.None -> {
                     startCta.gone()
-                    updateEndCta(asset, highestBalanceWallet, startAction)
+                    endCta.update(asset, highestBalanceWallet, startAction)
                 }
                 startAction == QuickActionCta.None -> {
                     startCta.gone()
-                    updateEndCta(asset, highestBalanceWallet, endAction)
+                    endCta.update(asset, highestBalanceWallet, endAction)
                 }
                 else -> {
-                    updateEndCta(asset, highestBalanceWallet, endAction)
-                    updateStartCta(asset, highestBalanceWallet, startAction)
+                    startCta.update(asset, highestBalanceWallet, startAction)
+                    endCta.update(asset, highestBalanceWallet, endAction)
                     ctaActions = listOf(startAction, endAction)
                 }
             }
         }
     }
 
-    private fun ActivityCoinviewBinding.updateStartCta(
+    private fun BaseButtonView.update(
         asset: AssetInfo,
         highestBalanceWallet: BlockchainAccount,
-        startAction: QuickActionCta,
+        quickAction: QuickActionCta,
     ) {
-        val startButtonResources = getQuickActionUi(asset, highestBalanceWallet, startAction)
-        startCta.apply {
-            buttonState = if (startButtonResources.isEnabled) ButtonState.Enabled else ButtonState.Disabled
-            text = startButtonResources.name
-            icon = startButtonResources.icon
-            onClick = {
-                startButtonResources.onClick()
-            }
-        }
-    }
+        val buttonResources = getQuickActionUi(asset, highestBalanceWallet, quickAction)
 
-    private fun ActivityCoinviewBinding.updateEndCta(
-        asset: AssetInfo,
-        highestBalanceWallet: BlockchainAccount,
-        endAction: QuickActionCta,
-    ) {
-        val endButtonResources = getQuickActionUi(asset, highestBalanceWallet, endAction)
-        endCta.apply {
-            buttonState = if (endButtonResources.isEnabled) ButtonState.Enabled else ButtonState.Disabled
-            text = endButtonResources.name
-            icon = endButtonResources.icon
-            onClick = {
-                endButtonResources.onClick()
-            }
+        buttonState = if (buttonResources.isEnabled) ButtonState.Enabled else ButtonState.Disabled
+        text = buttonResources.name
+        icon = buttonResources.icon
+        onClick = {
+            buttonResources.onClick()
         }
     }
 
@@ -887,6 +916,19 @@ class CoinViewActivity :
                 logReceiveEvent()
                 startReceive(highestBalanceWallet)
             }
+            is QuickActionCta.Swap -> QuickAction(
+                name = getString(R.string.common_swap),
+                icon = ImageResource.Local(
+                    R.drawable.ic_cta_swap,
+                    colorFilter = ColorFilter.tint(
+                        Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
+                    ),
+                    size = 24.dp
+                ),
+                isEnabled = action.enabled
+            ) {
+                startSwap(highestBalanceWallet)
+            }
             QuickActionCta.None -> {
                 // do nothing
                 QuickAction(getString(R.string.empty), ImageResource.None, false, {})
@@ -987,30 +1029,6 @@ class CoinViewActivity :
     private fun renderAccountsDetails(
         assetDetails: List<AssetDetailsItem.CryptoDetailsInfo>
     ) {
-        val account = assetDetails.firstOrNull { it.balance.isPositive }?.account
-        when (walletMode) {
-            WalletMode.UNIVERSAL, WalletMode.CUSTODIAL_ONLY -> {
-                listItems.removeIf { details ->
-                    details is AssetDetailsItem.CentralCta
-                }
-
-                account?.let {
-                    listItems.add(0, AssetDetailsItem.CentralCta(it))
-                }
-            }
-
-            WalletMode.NON_CUSTODIAL_ONLY -> {
-                binding.swapCta.apply {
-                    account?.let {
-                        visible()
-                        onClick = { startSwap(it) }
-                    } ?: kotlin.run {
-                        gone()
-                    }
-                }
-            }
-        }
-
         listItems.removeIf { details ->
             details is AssetDetailsItem.CryptoDetailsInfo
         }
