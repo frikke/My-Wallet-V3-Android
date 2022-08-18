@@ -105,7 +105,8 @@ fun PreviewAssetPrice_Data() {
                 priceChange = "$969.25",
                 percentChange = 5.58,
                 interval = "Past Hour"
-            )
+            ),
+            chartData = listOf()
         )
     )
 }

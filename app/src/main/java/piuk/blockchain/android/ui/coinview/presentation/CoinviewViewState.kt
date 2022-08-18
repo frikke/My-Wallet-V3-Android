@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
+import com.blockchain.charts.ChartEntry
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.charts.PercentageChangeData
 
@@ -15,6 +16,7 @@ sealed interface CoinviewPriceState {
         val assetName: String,
         val assetLogo: String,
         val priceFormattedWithFiatSymbol: String,
-        val percentageChangeData: PercentageChangeData
+        val percentageChangeData: PercentageChangeData,
+        val chartData: List<ChartEntry>
     ) : CoinviewPriceState
 }
