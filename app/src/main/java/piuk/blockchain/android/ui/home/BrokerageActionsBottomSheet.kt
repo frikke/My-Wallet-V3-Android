@@ -21,7 +21,7 @@ import piuk.blockchain.android.ui.sell.BuySellFragment
 interface ActionBottomSheetHost : SlidingModalBottomDialog.Host {
     fun launchSwapScreen()
     fun launchBuy()
-    fun launchDefiBuy()
+    fun launchBuyForDefi()
     fun launchSell()
     fun launchInterestDashboard(origin: LaunchOrigin)
     fun launchReceive()

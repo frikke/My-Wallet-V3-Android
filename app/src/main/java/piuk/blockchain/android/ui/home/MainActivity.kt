@@ -689,9 +689,9 @@ class MainActivity :
 
     private val middleButtonBottomSheetLaunch: BottomSheetDialogFragment
         get() = when (walletModeService.enabledWalletMode()) {
-            WalletMode.UNIVERSAL,
-            WalletMode.CUSTODIAL_ONLY -> BrokerageActionsBottomSheet.newInstance()
-            WalletMode.NON_CUSTODIAL_ONLY -> DefiActionsBottomSheet.newInstance()
+            WalletMode.UNIVERSAL -> BrokerageActionsBottomSheet.newInstance()
+            WalletMode.CUSTODIAL_ONLY,
+            WalletMode.NON_CUSTODIAL_ONLY -> ActionsBottomSheet.newInstance(walletModeService.enabledWalletMode())
         }
 
     private fun renderMode(walletMode: WalletMode) {
@@ -1072,7 +1072,7 @@ class MainActivity :
         launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
     }
 
-    override fun launchDefiBuy() {
+    override fun launchBuyForDefi() {
         showBottomSheet(BuyDefiBottomSheet.newInstance())
     }
 
