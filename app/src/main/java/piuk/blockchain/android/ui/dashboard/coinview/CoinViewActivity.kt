@@ -188,11 +188,6 @@ class CoinViewActivity :
                 addItemDecoration(BlockchainListDividerDecor(this@CoinViewActivity))
             }
 
-            binding.swapCta.apply {
-                text = context.getString(R.string.common_swap)
-                icon = ImageResource.Local(R.drawable.ic_cta_swap, size = 24.dp)
-            }
-
             assetPricesLoading.showIconLoader = false
             assetBalancesLoading.showIconLoader = false
             assetInfoLoading.showIconLoader = false
