@@ -194,13 +194,16 @@ class SettingsFragment :
                 }
 
                 newState.referralInfo.announcementInfo?.let { announcementInfo ->
+                    isCloseable = false
                     title = announcementInfo.title
-                    text = announcementInfo.message
-                    backgroundResourceUrl = announcementInfo.backgroundUrl
-                    iconUrl = announcementInfo.iconUrl
+                    subtitle = announcementInfo.message
+                    backgroundResource = ImageResource.Remote(announcementInfo.backgroundUrl)
+                    iconResource = ImageResource.Remote(announcementInfo.iconUrl)
                 } ?: run {
-                    // keep old functionality here
-                    text = newState.referralInfo.rewardTitle
+                    // keep old functionality here if no data returned
+                    title = getString(R.string.referral_program)
+                    subtitle = newState.referralInfo.rewardTitle
+                    backgroundResource = ImageResource.Local(R.drawable.bkgd_button_blue)
                 }
             }
         }

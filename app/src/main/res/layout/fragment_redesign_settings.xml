@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <piuk.blockchain.android.ui.referral.presentation.composable.ReferralCardView
+        <com.blockchain.componentlib.card.CustomBackgroundCardView
             android:id="@+id/referral_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
