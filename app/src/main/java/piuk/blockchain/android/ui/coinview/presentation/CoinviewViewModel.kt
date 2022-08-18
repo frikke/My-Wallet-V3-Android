@@ -40,16 +40,18 @@ class CoinviewViewModel(
 
     override fun reduce(state: CoinviewModelState): CoinviewViewState = state.run {
         CoinviewViewState(
+            fatalError = CoinviewFatalError.None,
             assetName = asset?.currency?.name ?: "",
-            price = when {
+            assetPrice = when {
                 isPriceDataLoading -> {
                     CoinviewPriceState.Loading
                 }
-                isPriceDataLoading.not() && assetPrice == null -> {
-                    // if it's not loading && price is null -> show error
+
+                isPriceDataError -> {
                     CoinviewPriceState.Error
                 }
-                else -> {
+
+                assetPrice != null -> {
                     CoinviewPriceState.Data(
                         assetName = asset?.currency?.name ?: "",
                         assetLogo = asset?.currency?.logo ?: "",
@@ -73,6 +75,10 @@ class CoinviewViewModel(
                         selectedTimeSpan = assetPrice.timeSpan
                     )
                 }
+
+                else -> {
+                    CoinviewPriceState.Loading
+                }
             }
         )
     }
@@ -82,52 +88,52 @@ class CoinviewViewModel(
             is CoinviewIntents.LoadData -> {
                 loadPriceData(
                     asset = modelState.asset!!,
-                    timeSpan = HistoricalTimeSpan.DAY
+                    currentTimeSpan = modelState.assetPrice?.timeSpan,
+                    requestedTimeSpan = HistoricalTimeSpan.DAY
                 )
             }
         }
     }
 
-    private fun loadPriceData(asset: CryptoAsset, timeSpan: HistoricalTimeSpan) {
+    private fun loadPriceData(
+        asset: CryptoAsset,
+        currentTimeSpan: HistoricalTimeSpan?,
+        requestedTimeSpan: HistoricalTimeSpan
+    ) {
         loadPriceDataJob?.cancel()
 
         loadPriceDataJob = viewModelScope.launch {
-            getAssetPriceUseCase(asset, timeSpan, currencyPrefs.selectedFiatCurrency).collectLatest { dataResource ->
+            getAssetPriceUseCase(
+                asset, requestedTimeSpan, currencyPrefs.selectedFiatCurrency
+            ).collectLatest { dataResource ->
                 when (dataResource) {
                     is DataResource.Data -> {
                         if (dataResource.data.historicRates.isEmpty()) {
-                            //                            process(CoinViewIntent.UpdateErrorState(CoinViewError.ChartLoadError))
+                            updateState {
+                                it.copy(isPriceDataLoading = false, isPriceDataError = true)
+                            }
                         } else {
                             updateState {
-                                it.copy(
-                                    isPriceDataLoading = false,
-                                    assetPrice = dataResource.data
-                                )
+                                it.copy(isPriceDataLoading = false, isPriceDataError = true)
                             }
-                            //                            process(
-                            //                                CoinViewIntent.UpdateViewState(
-                            //                                    CoinViewViewState.ShowAssetInfo(
-                            //                                        entries = dataResource.data.map { point ->
-                            //                                            ChartEntry(
-                            //                                                point.timestamp.toFloat(),
-                            //                                                point.rate.toFloat()
-                            //                                            )
-                            //                                        },
-                            //                                        prices = prices24Hr,
-                            //                                        historicalRateList = dataResource.data,
-                            //                                        selectedFiat = fiatCurrency
-                            //                                    )
-                            //                                )
-                            //                            )
+
+                            //                            updateState {
+                            //                                it.copy(isPriceDataLoading = false, assetPrice = dataResource.data)
+                            //                            }
                         }
                     }
 
                     is DataResource.Error -> {
-                        //                        process(CoinViewIntent.UpdateErrorState(CoinViewError.ChartLoadError))
+                        updateState {
+                            it.copy(isPriceDataLoading = false, isPriceDataError = true)
+                        }
                     }
 
                     DataResource.Loading -> {
-                        updateState { it.copy(isPriceDataLoading = it.assetPrice == null) }
+                        updateState {
+                            // if loading a new timespan or no data is loaded yet
+                            it.copy(isPriceDataLoading = currentTimeSpan != requestedTimeSpan || it.assetPrice == null)
+                        }
                     }
                 }
             }

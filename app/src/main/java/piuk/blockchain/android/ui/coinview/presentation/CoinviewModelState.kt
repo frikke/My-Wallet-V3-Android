@@ -8,5 +8,6 @@ data class CoinviewModelState(
     val asset: CryptoAsset? = null,
 
     val isPriceDataLoading: Boolean = false,
-    val assetPrice: CoinViewAssetPrice? = null,
+    val isPriceDataError: Boolean = false,
+    val assetPrice: CoinViewAssetPrice? = null
 ) : ModelState

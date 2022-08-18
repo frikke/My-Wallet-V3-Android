@@ -32,7 +32,7 @@ fun Coinview(
             backOnClick = backOnClick,
             networkTicker = state.assetName,
 
-            price = state.price
+            price = state.assetPrice
         )
     }
 }

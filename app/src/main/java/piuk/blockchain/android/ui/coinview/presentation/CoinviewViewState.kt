@@ -6,9 +6,16 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.core.price.HistoricalTimeSpan
 
 data class CoinviewViewState(
+    val fatalError: CoinviewFatalError,
     val assetName: String,
-    val price: CoinviewPriceState
+    val assetPrice: CoinviewPriceState
 ) : ViewState
+
+// FATAL ERROR
+sealed interface CoinviewFatalError {
+    object None : CoinviewFatalError
+    object Price : CoinviewFatalError
+}
 
 // BALANCE
 sealed interface CoinviewPriceState {

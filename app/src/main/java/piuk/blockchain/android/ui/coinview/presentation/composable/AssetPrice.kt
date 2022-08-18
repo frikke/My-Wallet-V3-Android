@@ -1,10 +1,13 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -12,6 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.blockchain.charts.ChartEntry
 import com.blockchain.charts.ChartView
+import com.blockchain.componentlib.alert.AlertType
+import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.charts.Balance
 import com.blockchain.componentlib.charts.PercentageChangeData
@@ -19,6 +24,7 @@ import com.blockchain.componentlib.charts.SparkLineHistoricalRate
 import com.blockchain.componentlib.control.TabLayoutLive
 import com.blockchain.componentlib.system.LoadingChart
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.core.price.HistoricalTimeSpan
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
@@ -34,7 +40,7 @@ fun AssetPrice(
         }
 
         CoinviewPriceState.Error -> {
-            AssetPriceInfoLoading()
+            AssetPriceError()
         }
 
         is CoinviewPriceState.Data -> {
@@ -149,6 +155,25 @@ fun AssetPriceInfoData(data: CoinviewPriceState.Data) {
     }
 }
 
+@Composable
+fun AssetPriceError() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(240.dp)
+            .padding(AppTheme.dimensions.paddingLarge),
+        contentAlignment = Alignment.Center
+    ) {
+        CardAlert(
+            title = stringResource(R.string.coinview_chart_load_error_title),
+            subtitle = stringResource(R.string.coinview_chart_load_error_subtitle),
+            alertType = AlertType.Warning,
+            isBordered = true,
+            isDismissable = false
+        )
+    }
+}
+
 @Preview
 @Composable
 fun PreviewAssetPrice_Loading() {
@@ -170,4 +195,10 @@ fun PreviewAssetPrice_Data() {
             selectedTimeSpan = HistoricalTimeSpan.DAY
         )
     )
+}
+
+@Preview
+@Composable
+fun PreviewAssetPriceError() {
+    AssetPriceError()
 }
