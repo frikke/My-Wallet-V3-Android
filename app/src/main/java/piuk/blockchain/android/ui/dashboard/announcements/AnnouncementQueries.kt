@@ -165,7 +165,7 @@ class AnnouncementQueries(
         }
 
     fun getAssetPrice(asset: Currency) =
-        exchangeRatesDataManager.getPricesWith24hDelta(asset, currencyPrefs.selectedFiatCurrency)
+        exchangeRatesDataManager.getPricesWith24hDeltaLegacy(asset, currencyPrefs.selectedFiatCurrency)
 
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

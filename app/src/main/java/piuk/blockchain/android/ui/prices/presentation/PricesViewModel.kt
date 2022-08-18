@@ -125,7 +125,7 @@ class PricesViewModel(
 
     private fun fetchAssetPrice(assetInfo: AssetInfo): Single<AssetPriceInfo> {
 
-        return exchangeRatesDataManager.getPricesWith24hDelta(assetInfo).firstOrError()
+        return exchangeRatesDataManager.getPricesWith24hDeltaLegacy(assetInfo).firstOrError()
             .map { prices24HrWithDelta ->
                 AssetPriceInfo(
                     price = prices24HrWithDelta,

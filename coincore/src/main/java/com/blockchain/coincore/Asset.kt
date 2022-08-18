@@ -136,9 +136,12 @@ interface Asset {
     // Fetch exchange rate to user's selected/display fiat
     @Deprecated("Use getPricesWith24hDelta() instead")
     fun exchangeRate(): Single<ExchangeRate>
-    fun getPricesWith24hDelta(): Single<Prices24HrWithDelta>
+    @Deprecated("use flow")
+    fun getPricesWith24hDeltaLegacy(): Single<Prices24HrWithDelta>
     fun historicRate(epochWhen: Long): Single<ExchangeRate>
 
+    // flow
+    fun getPricesWith24hDelta(): Flow<DataResource<Prices24HrWithDelta>>
     fun historicRateSeries(period: HistoricalTimeSpan): Flow<DataResource<HistoricalRateList>>
 }
 

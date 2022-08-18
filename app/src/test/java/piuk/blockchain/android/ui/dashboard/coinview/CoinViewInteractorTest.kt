@@ -125,7 +125,7 @@ class CoinViewInteractorTest {
         on { accountGroup(AssetFilter.Trading) }.thenReturn(Maybe.just(custodialGroup))
         on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(interestGroup))
         on { accountGroup(AssetFilter.All) }.thenReturn(Maybe.just(allGroups))
-        on { getPricesWith24hDelta() }.thenReturn(Single.just(prices))
+        on { getPricesWith24hDeltaLegacy() }.thenReturn(Single.just(prices))
         on { interestRate() }.thenReturn(Single.just(5.0))
     }
 
@@ -369,7 +369,7 @@ class CoinViewInteractorTest {
         val asset: CryptoAsset = mock {
             on { this.currency }.thenReturn(assetInfo)
             on { accountGroup(AssetFilter.All) }.thenReturn(Maybe.empty())
-            on { getPricesWith24hDelta() }.thenReturn(Single.just(prices))
+            on { getPricesWith24hDeltaLegacy() }.thenReturn(Single.just(prices))
             on { interestRate() }.thenReturn(Single.just(5.0))
         }
         whenever(watchlistDataManager.isAssetInWatchlist(asset.currency)).thenReturn(Single.just(true))

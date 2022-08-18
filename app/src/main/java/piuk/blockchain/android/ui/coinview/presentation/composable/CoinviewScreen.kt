@@ -30,7 +30,9 @@ fun Coinview(
     viewState?.let { state ->
         CoinviewScreen(
             backOnClick = backOnClick,
-            networkTicker = state.assetName
+            networkTicker = state.assetName,
+
+            price = state.price
         )
     }
 }
@@ -38,7 +40,8 @@ fun Coinview(
 @Composable
 fun CoinviewScreen(
     backOnClick: () -> Unit,
-    networkTicker: String
+    networkTicker: String,
+    price: CoinviewPriceState
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         NavigationBar(
@@ -46,12 +49,12 @@ fun CoinviewScreen(
             onBackButtonClick = backOnClick
         )
 
-        AssetPrice(CoinviewPriceState.Loading)
+        AssetPrice(price)
     }
 }
 
 @Preview(name = "CoinviewScreen", showBackground = true)
 @Composable
 fun PreviewCoinviewScreen() {
-    CoinviewScreen(backOnClick = {}, networkTicker = "ETH")
+    CoinviewScreen(backOnClick = {}, networkTicker = "ETH", CoinviewPriceState.Loading)
 }

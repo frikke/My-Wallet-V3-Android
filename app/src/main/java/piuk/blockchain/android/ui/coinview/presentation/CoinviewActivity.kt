@@ -30,13 +30,19 @@ class CoinviewActivity : BlockchainActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        viewModel.viewCreated(args = args)
+
         setContent {
             Coinview(
                 viewModel = viewModel,
                 backOnClick = { onBackPressedDispatcher.onBackPressed() }
             )
-            viewModel.viewCreated(args = args)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.onIntent(CoinviewIntents.LoadData)
     }
 
     companion object {

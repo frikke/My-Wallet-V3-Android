@@ -11,6 +11,9 @@ import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore
 import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
+import com.blockchain.data.anyError
+import com.blockchain.data.anyLoading
+import com.blockchain.data.getError
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asObservable
@@ -24,10 +27,11 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
 import java.math.RoundingMode
 import java.util.Calendar
-import kotlinx.coroutines.flow.Flow
-import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
 
 internal class ExchangeRatesDataManagerImpl(
     private val priceStore: AssetPriceStore,
@@ -160,10 +164,13 @@ internal class ExchangeRatesDataManagerImpl(
         }
     }
 
-    override fun getPricesWith24hDelta(fromAsset: Currency, isRefreshing: Boolean): Observable<Prices24HrWithDelta> =
-        getPricesWith24hDelta(fromAsset, userFiat, isRefreshing)
+    override fun getPricesWith24hDeltaLegacy(
+        fromAsset: Currency,
+        isRefreshing: Boolean
+    ): Observable<Prices24HrWithDelta> =
+        getPricesWith24hDeltaLegacy(fromAsset, userFiat, isRefreshing)
 
-    override fun getPricesWith24hDelta(
+    override fun getPricesWith24hDeltaLegacy(
         fromAsset: Currency,
         fiat: Currency,
         isRefreshing: Boolean,
@@ -185,6 +192,49 @@ internal class ExchangeRatesDataManagerImpl(
             ),
             marketCap = current.marketCap
         )
+    }
+
+    override fun getPricesWith24hDelta(
+        fromAsset: Currency
+    ): Flow<DataResource<Prices24HrWithDelta>> {
+        return combine(
+            priceStore.getCurrentPriceForAsset(fromAsset, userFiat),
+            priceStore.getYesterdayPriceForAsset(fromAsset, userFiat)
+        ) { currentPrice, yesterdayPrice ->
+            val results = listOf(currentPrice, yesterdayPrice)
+
+            when {
+                results.anyLoading() -> {
+                    DataResource.Loading
+                }
+
+                results.anyError() -> {
+                    DataResource.Error(results.getError().error)
+                }
+
+                else -> {
+                    currentPrice as DataResource.Data
+                    yesterdayPrice as DataResource.Data
+
+                    DataResource.Data(
+                        Prices24HrWithDelta(
+                            delta24h = currentPrice.data.getPriceDelta(yesterdayPrice.data),
+                            previousRate = ExchangeRate(
+                                from = fromAsset,
+                                to = userFiat,
+                                rate = yesterdayPrice.data.rate
+                            ),
+                            currentRate = ExchangeRate(
+                                from = fromAsset,
+                                to = userFiat,
+                                rate = currentPrice.data.rate
+                            ),
+                            marketCap = currentPrice.data.marketCap
+                        )
+                    )
+                }
+            }
+        }
     }
 
     override fun getHistoricPriceSeries(

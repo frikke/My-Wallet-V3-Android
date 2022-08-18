@@ -4,12 +4,9 @@ import com.blockchain.commonarch.presentation.mvi_v2.Intent
 
 sealed interface CoinviewIntents : Intent<CoinviewModelState> {
     /**
-     * Triggers loading
-     * * asset price
-     * * chart values
+     * Triggers loading:
+     * * asset price / chart values
      * * todo
      */
-    object LoadData : CoinviewIntents {
-        override fun isValidFor(modelState: CoinviewModelState): Boolean = modelState.asset != null
-    }
+    object LoadData : CoinviewIntents
 }

@@ -34,13 +34,13 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
+import java.util.concurrent.atomic.AtomicBoolean
 
 interface AccountRefreshTrigger {
     fun forceAccountsRefresh()
@@ -188,8 +188,12 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     final override fun exchangeRate(): Single<ExchangeRate> =
         exchangeRates.exchangeRateToUserFiat(currency).firstOrError()
 
-    final override fun getPricesWith24hDelta(): Single<Prices24HrWithDelta> =
-        exchangeRates.getPricesWith24hDelta(currency).firstOrError()
+    final override fun getPricesWith24hDeltaLegacy(): Single<Prices24HrWithDelta> =
+        exchangeRates.getPricesWith24hDeltaLegacy(currency).firstOrError()
+
+    final override fun getPricesWith24hDelta(): Flow<DataResource<Prices24HrWithDelta>> {
+        return exchangeRates.getPricesWith24hDelta(currency)
+    }
 
     final override fun historicRate(epochWhen: Long): Single<ExchangeRate> =
         exchangeRates.getHistoricRate(currency, epochWhen)
