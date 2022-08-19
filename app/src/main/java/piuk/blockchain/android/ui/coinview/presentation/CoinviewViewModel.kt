@@ -112,7 +112,7 @@ class CoinviewViewModel(
                 }
             },
 
-            totalBalance = CoinviewTotalBalance.Loading
+            totalBalance = CoinviewTotalBalance.NotSupported
         )
     }
 

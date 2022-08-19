@@ -6,12 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.charts.ChartEntry
 import com.blockchain.componentlib.sectionheader.BalanceSectionHeader
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
-import com.blockchain.core.price.HistoricalTimeSpan
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalance
 
 @Composable
@@ -19,6 +16,10 @@ fun TotalBalance(
     data: CoinviewTotalBalance
 ) {
     when (data) {
+        CoinviewTotalBalance.NotSupported -> {
+            // don't show any view
+        }
+
         CoinviewTotalBalance.Loading -> {
             TotalBalanceLoading()
         }

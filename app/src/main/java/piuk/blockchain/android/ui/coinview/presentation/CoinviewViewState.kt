@@ -35,10 +35,11 @@ sealed interface CoinviewPriceState {
 
 // Total balance
 sealed interface CoinviewTotalBalance {
+    object NotSupported : CoinviewTotalBalance
     object Loading : CoinviewTotalBalance
     data class Data(
         val assetName: String,
         val totalFiatBalance: String,
-        val totalCryptoBalance: String,
+        val totalCryptoBalance: String
     ) : CoinviewTotalBalance
 }
