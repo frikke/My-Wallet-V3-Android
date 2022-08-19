@@ -53,7 +53,7 @@ class CoinviewViewModel(
             fatalError = CoinviewFatalError.None,
             assetName = asset?.currency?.name ?: "",
             assetPrice = when {
-                isPriceDataLoading -> {
+                isPriceDataLoading && assetPriceHistory == null -> {
                     CoinviewPriceState.Loading
                 }
 
@@ -79,10 +79,19 @@ class CoinviewViewModel(
                                 HistoricalTimeSpan.YEAR -> R.string.coinview_price_year
                                 HistoricalTimeSpan.ALL_TIME -> R.string.coinview_price_all
                             },
-                        chartData = assetPriceHistory.historicRates.map { point ->
-                            ChartEntry(
-                                point.timestamp.toFloat(),
-                                point.rate.toFloat()
+                        chartData = when {
+                            isPriceDataLoading &&
+                                requestedTimeSpan != null &&
+                                assetPriceHistory.priceDetail.timeSpan != requestedTimeSpan -> {
+                                CoinviewPriceState.Data.CoinviewChart.Loading
+                            }
+                            else -> CoinviewPriceState.Data.CoinviewChart.Data(
+                                assetPriceHistory.historicRates.map { point ->
+                                    ChartEntry(
+                                        point.timestamp.toFloat(),
+                                        point.rate.toFloat()
+                                    )
+                                }
                             )
                         },
                         selectedTimeSpan = (interactiveAssetPrice ?: assetPriceHistory.priceDetail).timeSpan
@@ -101,7 +110,6 @@ class CoinviewViewModel(
             is CoinviewIntents.LoadData -> {
                 loadPriceData(
                     asset = modelState.asset!!,
-                    currentTimeSpan = modelState.assetPriceHistory?.priceDetail?.timeSpan ?: defaultTimeSpan,
                     requestedTimeSpan = modelState.assetPriceHistory?.priceDetail?.timeSpan ?: defaultTimeSpan,
                 )
             }
@@ -115,9 +123,10 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntents.NewTimeSpanSelected -> {
+                updateState { it.copy(requestedTimeSpan = intent.timeSpan) }
+
                 loadPriceData(
                     asset = modelState.asset!!,
-                    currentTimeSpan = modelState.assetPriceHistory?.priceDetail?.timeSpan ?: defaultTimeSpan,
                     requestedTimeSpan = intent.timeSpan,
                 )
             }
@@ -126,7 +135,6 @@ class CoinviewViewModel(
 
     private fun loadPriceData(
         asset: CryptoAsset,
-        currentTimeSpan: HistoricalTimeSpan?,
         requestedTimeSpan: HistoricalTimeSpan
     ) {
         loadPriceDataJob?.cancel()
@@ -139,27 +147,34 @@ class CoinviewViewModel(
                     is DataResource.Data -> {
                         if (dataResource.data.historicRates.isEmpty()) {
                             updateState {
-                                it.copy(isPriceDataLoading = false, isPriceDataError = true)
+                                it.copy(
+                                    isPriceDataLoading = false,
+                                    isPriceDataError = true
+                                )
                             }
                         } else {
                             updateState {
-                                it.copy(isPriceDataLoading = false, assetPriceHistory = dataResource.data)
+                                it.copy(
+                                    isPriceDataLoading = false,
+                                    assetPriceHistory = dataResource.data,
+                                    requestedTimeSpan = null
+                                )
                             }
                         }
                     }
 
                     is DataResource.Error -> {
                         updateState {
-                            it.copy(isPriceDataLoading = false, isPriceDataError = true)
+                            it.copy(
+                                isPriceDataLoading = false,
+                                isPriceDataError = true,
+                            )
                         }
                     }
 
                     DataResource.Loading -> {
                         updateState {
-                            // if loading a new timespan or no data is loaded yet
-                            it.copy(
-                                isPriceDataLoading = currentTimeSpan != requestedTimeSpan || it.assetPriceHistory == null
-                            )
+                            it.copy(isPriceDataLoading = true)
                         }
                     }
                 }
@@ -185,7 +200,7 @@ class CoinviewViewModel(
                         price = Money.fromMajor(
                             fiatCurrency, selectedHistoricalRate.rate.toBigDecimal()
                         ),
-                        timeSpan = HistoricalTimeSpan.ALL_TIME,
+                        timeSpan = it.assetPriceHistory!!.priceDetail.timeSpan,
                         changeDifference = changeDifference,
                         percentChange = percentChange
                     )

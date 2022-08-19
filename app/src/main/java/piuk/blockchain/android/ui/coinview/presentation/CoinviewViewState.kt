@@ -14,7 +14,6 @@ data class CoinviewViewState(
 // FATAL ERROR
 sealed interface CoinviewFatalError {
     object None : CoinviewFatalError
-    object Price : CoinviewFatalError
 }
 
 // BALANCE
@@ -29,7 +28,12 @@ sealed interface CoinviewPriceState {
         val priceChangeFormattedWithFiatSymbol: String,
         val percentChange: Double,
         @StringRes val intervalName: Int,
-        val chartData: List<ChartEntry>,
+        val chartData: CoinviewChart,
         val selectedTimeSpan: HistoricalTimeSpan
-    ) : CoinviewPriceState
+    ) : CoinviewPriceState {
+        sealed interface CoinviewChart {
+            object Loading : CoinviewChart
+            data class Data(val chartData: List<ChartEntry>) : CoinviewChart
+        }
+    }
 }

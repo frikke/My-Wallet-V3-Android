@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -65,15 +69,7 @@ fun AssetPriceInfoLoading() {
     Column(modifier = Modifier.fillMaxWidth()) {
         ShimmerLoadingTableRow(showIconLoader = false)
 
-        LoadingChart(
-            historicalRates = List(20) {
-                object : SparkLineHistoricalRate {
-                    override val timestamp: Long = it.toLong()
-                    override val rate: Double = Random.nextDouble(50.0, 150.0)
-                }
-            },
-            loadingText = stringResource(R.string.coinview_chart_loading)
-        )
+        LoadingChart()
     }
 }
 
@@ -96,42 +92,20 @@ fun AssetPriceInfoData(
             endIcon = ImageResource.Remote(url = data.assetLogo, shape = CircleShape)
         )
 
-        AndroidView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(240.dp),
-            factory = { context ->
-                ChartView(context).apply {
-                    isChartLive = false
-                    onEntryHighlighted = { entry ->
-                        onChartEntryHighlighted(entry)
-                    }
-                    onActionPressDown = {
-                        //                        analytics.logEvent(
-                        //                            CoinViewAnalytics.ChartEngaged(
-                        //                                origin = LaunchOrigin.COIN_VIEW,
-                        //                                currency = assetTicker,
-                        //                                timeInterval = stringPositionToTimeInterval(binding.chartControls.selectedItemIndex)
-                        //                            )
-                        //                        )
-                    }
-                    onScrubRelease = {
-                        //                        analytics.logEvent(
-                        //                            CoinViewAnalytics.ChartDisengaged(
-                        //                                origin = LaunchOrigin.COIN_VIEW,
-                        //                                currency = assetTicker,
-                        //                                timeInterval = stringPositionToTimeInterval(binding.chartControls.selectedItemIndex)
-                        //                            )
-                        //                        )
-                        resetPriceInformation()
-                    }
-
-                    datePattern = HistoricalTimeSpan.fromValue(0).toDatePattern()
-                    fiatSymbol = data.fiatSymbol
-                    setData(data.chartData)
-                }
+        when (data.chartData) {
+            CoinviewPriceState.Data.CoinviewChart.Loading -> {
+                LoadingChart()
             }
-        )
+
+            is CoinviewPriceState.Data.CoinviewChart.Data -> {
+                ContentChart(
+                    fiatSymbol = data.fiatSymbol,
+                    chartData = data.chartData.chartData,
+                    onChartEntryHighlighted = onChartEntryHighlighted,
+                    resetPriceInformation = resetPriceInformation
+                )
+            }
+        }
 
         TabLayoutLive(
             items = HistoricalTimeSpan.values().map { stringResource(it.toSimpleName()) },
@@ -173,6 +147,71 @@ fun AssetPriceError() {
     }
 }
 
+@Composable
+fun LoadingChart() {
+    LoadingChart(
+        historicalRates = List(20) {
+            object : SparkLineHistoricalRate {
+                override val timestamp: Long = it.toLong()
+                override val rate: Double = Random.nextDouble(50.0, 150.0)
+            }
+        },
+        loadingText = stringResource(R.string.coinview_chart_loading)
+    )
+}
+
+@Composable
+fun ContentChart(
+    fiatSymbol: String,
+    chartData: List<ChartEntry>,
+    onChartEntryHighlighted: (Entry) -> Unit,
+    resetPriceInformation: () -> Unit,
+) {
+    var isInteractingWithChart by remember { mutableStateOf(false) }
+
+    AndroidView(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(240.dp),
+        factory = { context ->
+            ChartView(context).apply {
+                isChartLive = false
+                onEntryHighlighted = { entry ->
+                    onChartEntryHighlighted(entry)
+                }
+                onActionPressDown = {
+                    isInteractingWithChart = true
+                    //                        analytics.logEvent(
+                    //                            CoinViewAnalytics.ChartEngaged(
+                    //                                origin = LaunchOrigin.COIN_VIEW,
+                    //                                currency = assetTicker,
+                    //                                timeInterval = stringPositionToTimeInterval(binding.chartControls.selectedItemIndex)
+                    //                            )
+                    //                        )
+                }
+                onScrubRelease = {
+                    isInteractingWithChart = false
+                    //                        analytics.logEvent(
+                    //                            CoinViewAnalytics.ChartDisengaged(
+                    //                                origin = LaunchOrigin.COIN_VIEW,
+                    //                                currency = assetTicker,
+                    //                                timeInterval = stringPositionToTimeInterval(binding.chartControls.selectedItemIndex)
+                    //                            )
+                    //                        )
+                    resetPriceInformation()
+                }
+
+                datePattern = HistoricalTimeSpan.fromValue(0).toDatePattern()
+                this.fiatSymbol = fiatSymbol
+                setData(chartData)
+            }
+        },
+        update = {
+            if (isInteractingWithChart.not()) it.setData(chartData)
+        }
+    )
+}
+
 @Preview
 @Composable
 fun PreviewAssetPrice_Loading() {
@@ -191,7 +230,9 @@ fun PreviewAssetPrice_Data() {
             priceChangeFormattedWithFiatSymbol = "$969.25",
             percentChange = 5.58,
             intervalName = R.string.coinview_price_day,
-            chartData = listOf(ChartEntry(1.4f, 43f), ChartEntry(3.4f, 4f)),
+            chartData = CoinviewPriceState.Data.CoinviewChart.Data(
+                listOf(ChartEntry(1.4f, 43f), ChartEntry(3.4f, 4f))
+            ),
             selectedTimeSpan = HistoricalTimeSpan.DAY
         ),
         {},
