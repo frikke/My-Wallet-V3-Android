@@ -52,8 +52,10 @@ class CoinviewViewModel(
         CoinviewViewState(
             fatalError = CoinviewFatalError.None,
             assetName = asset?.currency?.name ?: "",
+
             assetPrice = when {
                 isPriceDataLoading && assetPriceHistory == null -> {
+                    // show loading when data is loading and no data is previously available
                     CoinviewPriceState.Loading
                 }
 
@@ -62,6 +64,11 @@ class CoinviewViewModel(
                 }
 
                 assetPriceHistory != null -> {
+                    // priceFormattedWithFiatSymbol, priceChangeFormattedWithFiatSymbol, percentChange
+                    // will contain values from interactiveAssetPrice to correspond with user interaction
+
+                    // intervalName will be empty if user is interacting with the chart
+
                     CoinviewPriceState.Data(
                         assetName = asset?.currency?.name ?: "",
                         assetLogo = asset?.currency?.logo ?: "",
@@ -83,6 +90,7 @@ class CoinviewViewModel(
                             isPriceDataLoading &&
                                 requestedTimeSpan != null &&
                                 assetPriceHistory.priceDetail.timeSpan != requestedTimeSpan -> {
+                                // show chart loading when data is loading and a new timespan is selected
                                 CoinviewPriceState.Data.CoinviewChart.Loading
                             }
                             else -> CoinviewPriceState.Data.CoinviewChart.Data(
@@ -108,9 +116,10 @@ class CoinviewViewModel(
     override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntents) {
         when (intent) {
             is CoinviewIntents.LoadData -> {
+                require(modelState.asset != null) { "asset not initialized" }
                 loadPriceData(
-                    asset = modelState.asset!!,
-                    requestedTimeSpan = modelState.assetPriceHistory?.priceDetail?.timeSpan ?: defaultTimeSpan,
+                    asset = modelState.asset,
+                    requestedTimeSpan = modelState.assetPriceHistory?.priceDetail?.timeSpan ?: defaultTimeSpan
                 )
             }
 
@@ -182,6 +191,10 @@ class CoinviewViewModel(
         }
     }
 
+    /**
+     * Build a [CoinviewModelState.interactiveAssetPrice] based on the [entry] selected
+     * to update the price information with
+     */
     private fun updatePriceForChartSelection(
         entry: Entry,
         historicRates: List<HistoricalRate>,
@@ -209,6 +222,9 @@ class CoinviewViewModel(
         }
     }
 
+    /**
+     * Reset [CoinviewModelState.interactiveAssetPrice] to update the price information with original value
+     */
     private fun resetPriceSelection() {
         updateState { it.copy(interactiveAssetPrice = null) }
     }
