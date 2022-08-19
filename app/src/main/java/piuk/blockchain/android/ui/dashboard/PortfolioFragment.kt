@@ -39,8 +39,6 @@ import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -59,7 +57,6 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewActivity
 import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
 import piuk.blockchain.android.ui.cowboys.FlowStep
