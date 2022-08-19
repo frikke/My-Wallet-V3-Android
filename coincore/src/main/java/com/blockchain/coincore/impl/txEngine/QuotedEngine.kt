@@ -12,12 +12,12 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.makeExternalAssetAddress
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrder
@@ -57,7 +57,7 @@ abstract class QuotedEngine(
         get() = (txTarget as SingleAccount).currency
 
     private val userIsGoldVerified: Single<Boolean>
-        get() = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))
+        get() = userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD))
 
     protected fun updateLimits(
         fiat: Currency,

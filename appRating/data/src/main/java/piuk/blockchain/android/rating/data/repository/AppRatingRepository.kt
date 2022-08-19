@@ -1,9 +1,9 @@
 package piuk.blockchain.android.rating.data.repository
 
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
@@ -95,7 +95,7 @@ internal class AppRatingRepository(
 
     private suspend fun isFFEnabled(): Boolean = appRatingFF.enabled.await()
 
-    private suspend fun isKycGold(): Boolean = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)).await()
+    private suspend fun isKycGold(): Boolean = userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD)).await()
 
     private suspend fun hasWithdrawalLocks(): Boolean {
         bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).await().let { fundsLocks ->

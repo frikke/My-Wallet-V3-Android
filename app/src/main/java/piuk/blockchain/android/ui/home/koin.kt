@@ -50,7 +50,6 @@ val mainModule = module {
                 qrScanResultProcessor = get(),
                 secureChannelService = get(),
                 cancelOrderUseCase = get(),
-                onboardingPrefs = get(),
                 referralPrefs = get(),
                 referralRepository = get()
             )

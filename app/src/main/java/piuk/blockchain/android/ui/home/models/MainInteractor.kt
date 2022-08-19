@@ -8,6 +8,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.core.Database
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
@@ -17,7 +18,6 @@ import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.outcome.fold
 import com.blockchain.preferences.BankLinkingPrefs
-import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ReferralPrefs
 import exchange.ExchangeLinking
 import info.blockchain.balance.AssetCatalogue
@@ -61,7 +61,6 @@ class MainInteractor internal constructor(
     private val qrScanResultProcessor: QrScanResultProcessor,
     private val secureChannelService: SecureChannelService,
     private val cancelOrderUseCase: CancelOrderUseCase,
-    private val onboardingPrefs: OnboardingPrefs,
     private val referralPrefs: ReferralPrefs,
     private val referralRepository: ReferralRepository
 ) {
@@ -142,7 +141,7 @@ class MainInteractor internal constructor(
     fun cancelOrder(orderId: String): Completable =
         cancelOrderUseCase.invoke(orderId)
 
-    fun processDeepLinkV2(url: Uri): Completable =
+    fun processDeepLinkV2(url: Uri): Single<DeepLinkResult> =
         deeplinkRedirector.processDeeplinkURL(url)
 
     fun clearDeepLink(): Completable =

@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.blockchain.nabu.UserIdentity
+import com.blockchain.core.kyc.domain.KycService
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
@@ -12,7 +12,7 @@ class KycIncompleteAnnouncementTest {
 
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
-    private val userIdentity: UserIdentity = mock()
+    private val kycService: KycService = mock()
     private lateinit var subject: KycIncompleteAnnouncement
 
     @Before
@@ -23,7 +23,7 @@ class KycIncompleteAnnouncementTest {
             .thenReturn(KycIncompleteAnnouncement.DISMISS_KEY)
 
         subject = KycIncompleteAnnouncement(
-            userIdentity = userIdentity,
+            kycService = kycService,
             dismissRecorder = dismissRecorder
         )
     }
@@ -42,7 +42,7 @@ class KycIncompleteAnnouncementTest {
     @Test
     fun `should not show, if kyc is not ongoing`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(userIdentity.isKycInProgress()).thenReturn(Single.just(false))
+        whenever(kycService.isInProgress()).thenReturn(Single.just(false))
 
         subject.shouldShow()
             .test()
@@ -54,7 +54,7 @@ class KycIncompleteAnnouncementTest {
     @Test
     fun `should show, if kyc is ongoing`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(userIdentity.isKycInProgress()).thenReturn(Single.just(true))
+        whenever(kycService.isInProgress()).thenReturn(Single.just(true))
 
         subject.shouldShow()
             .test()

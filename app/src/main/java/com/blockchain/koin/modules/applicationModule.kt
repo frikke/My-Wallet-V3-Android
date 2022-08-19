@@ -130,6 +130,7 @@ import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.customviews.inputview.InputAmountKeyboard
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireModel
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
+import piuk.blockchain.android.ui.home.ActionsSheetViewModel
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.kyc.autocomplete.PlacesClientProvider
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
@@ -316,6 +317,10 @@ val applicationModule = module {
         }
 
         viewModel {
+            ActionsSheetViewModel(userIdentity = get())
+        }
+
+        viewModel {
             QuestionnaireModel(
                 dataRemediationService = get(),
                 stateMachine = QuestionnaireStateMachine(),
@@ -498,6 +503,7 @@ val applicationModule = module {
 
         factory {
             GetAvailablePaymentMethodsTypesUseCase(
+                kycService = get(),
                 userIdentity = get(),
                 paymentMethodService = get(),
                 cardService = get()
@@ -515,6 +521,7 @@ val applicationModule = module {
             GetDashboardOnboardingStepsUseCase(
                 dashboardPrefs = get(),
                 userIdentity = get(),
+                kycService = get(),
                 bankService = get(),
                 cardService = get(),
                 tradeDataService = get()
@@ -582,6 +589,7 @@ val applicationModule = module {
             BuyFlowNavigator(
                 simpleBuySyncFactory = get(),
                 userIdentity = get(),
+                kycService = get(),
                 fiatCurrenciesService = get(),
                 custodialWalletManager = get()
             )

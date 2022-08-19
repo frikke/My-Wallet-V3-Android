@@ -15,6 +15,7 @@ import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.buy.BuyOrdersCache
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.BankPartner
@@ -31,7 +32,6 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BuySellOrder
@@ -53,6 +53,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.rx3.rxSingle
@@ -323,7 +324,7 @@ class SimpleBuyModel(
                             previousSelectedId = previousState.selectedPaymentMethod?.id,
                             availablePaymentMethods = it,
                             preselectedId = null,
-                            usePrefilledAmount = true,
+                            usePrefilledAmount = true
                         )
                     )
 
@@ -343,7 +344,7 @@ class SimpleBuyModel(
                     id = previousState.id,
                     selectedPaymentMethod = previousState.selectedPaymentMethod,
                     amount = previousState.amount,
-                    pair = CurrencyPair(previousState.selectedCryptoAsset, previousState.fiatCurrency).rawValue
+                    pair = CurrencyPair(previousState.selectedCryptoAsset, previousState.fiatCurrency).rawValue,
                 )
             }
             is SimpleBuyIntent.ConfirmGooglePayOrder -> {
@@ -355,7 +356,20 @@ class SimpleBuyModel(
                     googlePayAddress = intent.googlePayAddress,
                     amount = previousState.amount,
                     pair = CurrencyPair(previousState.selectedCryptoAsset, previousState.fiatCurrency).rawValue,
-                    selectedPaymentMethod = previousState.selectedPaymentMethod
+                    selectedPaymentMethod = previousState.selectedPaymentMethod,
+                )
+            }
+            is SimpleBuyIntent.RecurringBuySuggestionAccepted -> {
+                require(previousState.id != null) { "RecurringBuySuggestionAccepted Missing id" }
+                processConfirmOrderAndCreateRecurringBuy(
+                    orderId = previousState.id,
+                    googlePayPayload = intent.googlePayPayload,
+                    googlePayBeneficiaryId = previousState.googlePayDetails?.beneficiaryId,
+                    googlePayAddress = intent.googlePayAddress,
+                    asset = previousState.selectedCryptoAsset,
+                    order = previousState.order,
+                    selectedPaymentMethod = previousState.selectedPaymentMethod,
+                    recurringBuyFrequency = intent.recurringBuyFrequency
                 )
             }
             is SimpleBuyIntent.FinishedFirstBuy -> null
@@ -382,22 +396,24 @@ class SimpleBuyModel(
                 )
             }
 
-            is SimpleBuyIntent.RecurringBuySelectedFirstTimeFlow ->
+            is SimpleBuyIntent.CreateRecurringBuy ->
                 createRecurringBuy(
                     previousState.selectedCryptoAsset,
                     previousState.order,
                     previousState.selectedPaymentMethod,
-                    intent.recurringBuyFrequency
-                ).subscribeBy(
-                    onSuccess =
-                    {
-                        process(SimpleBuyIntent.RecurringBuyCreatedFirstTimeFlow)
-                    },
-                    onError =
-                    {
-                        processOrderErrors(it)
-                    }
-                )
+                    intent.recurringBuyFrequency,
+                ).trackProgress(activityIndicator)
+                    .subscribeBy(
+                        onSuccess = {
+                            process(
+                                SimpleBuyIntent.RecurringBuyCreated(
+                                    recurringBuyId = it.id.orEmpty(),
+                                    recurringBuyFrequency = intent.recurringBuyFrequency
+                                )
+                            )
+                        },
+                        onError = { processOrderErrors(it) }
+                    )
             is SimpleBuyIntent.AmountUpdated -> validateAmount(
                 balance = previousState.availableBalance,
                 amount = intent.amount,
@@ -527,7 +543,7 @@ class SimpleBuyModel(
         fiatCurrency: FiatCurrency,
         selectedPaymentMethod: SelectedPaymentMethod,
         availablePaymentMethods: List<PaymentMethod>,
-        usePrefilledAmount: Boolean,
+        usePrefilledAmount: Boolean
     ): Disposable {
         return interactor.fetchBuyLimits(
             fiat = fiatCurrency,
@@ -671,12 +687,14 @@ class SimpleBuyModel(
                 balance != null && balance < amount -> Single.just(TransactionErrorState.INSUFFICIENT_FUNDS)
                 buyLimits.isMinViolatedByAmount(amount) -> Single.just(TransactionErrorState.BELOW_MIN_LIMIT)
                 buyLimits.isMaxViolatedByAmount(amount) -> {
-                    userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)).onErrorReturnItem(false).map { gold ->
-                        if (gold)
-                            TransactionErrorState.OVER_GOLD_TIER_LIMIT
-                        else
-                            TransactionErrorState.OVER_SILVER_TIER_LIMIT
-                    }
+                    userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD))
+                        .onErrorReturnItem(false)
+                        .map { gold ->
+                            if (gold)
+                                TransactionErrorState.OVER_GOLD_TIER_LIMIT
+                            else
+                                TransactionErrorState.OVER_SILVER_TIER_LIMIT
+                        }
                 }
                 paymentMethodLimits.isMaxViolatedByAmount(amount) -> Single.just(
                     TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT
@@ -801,7 +819,7 @@ class SimpleBuyModel(
                             preselectedId = preselectedId,
                             previousSelectedId = previousSelectedId,
                             availablePaymentMethods = availablePaymentMethods,
-                            usePrefilledAmount = usePrefilledAmount,
+                            usePrefilledAmount = usePrefilledAmount
                         )
                     )
                 },
@@ -820,7 +838,7 @@ class SimpleBuyModel(
         preselectedId: String?,
         previousSelectedId: String?,
         availablePaymentMethods: List<PaymentMethod>,
-        usePrefilledAmount: Boolean,
+        usePrefilledAmount: Boolean
     ): SimpleBuyIntent.PaymentMethodsUpdated {
 
         val paymentOptions = PaymentOptions(
@@ -881,6 +899,49 @@ class SimpleBuyModel(
             )
             else -> process(SimpleBuyIntent.GetAuthorisationUrl(order.id))
         }
+    }
+
+    private fun processConfirmOrderAndCreateRecurringBuy(
+        orderId: String,
+        googlePayPayload: String?,
+        googlePayBeneficiaryId: String?,
+        googlePayAddress: GooglePayAddress?,
+        asset: AssetInfo?,
+        order: SimpleBuyOrder,
+        selectedPaymentMethod: SelectedPaymentMethod?,
+        recurringBuyFrequency: RecurringBuyFrequency
+    ): Disposable {
+        return Singles.zip(
+            confirmOrder(
+                id = orderId,
+                selectedPaymentMethod = selectedPaymentMethod,
+                googlePayPayload = googlePayPayload,
+                googlePayBeneficiaryId = googlePayBeneficiaryId,
+                googlePayAddress = googlePayAddress,
+            ),
+            createRecurringBuy(
+                selectedCryptoAsset = asset,
+                order = order,
+                selectedPaymentMethod = selectedPaymentMethod,
+                recurringBuyFrequency = recurringBuyFrequency
+            ).trackProgress(activityIndicator)
+                .doOnTerminate { buyOrdersCache.invalidate() }
+        ).subscribeBy(
+            onSuccess =
+            {
+                process(
+                    SimpleBuyIntent.RecurringBuyCreated(
+                        recurringBuyId = it.second.id.orEmpty(),
+                        recurringBuyFrequency = recurringBuyFrequency
+                    )
+                )
+                triggerIntentsAfterOrderConfirmed(it.first, true)
+            },
+            onError =
+            {
+                processOrderErrors(it)
+            }
+        )
     }
 
     private fun createRecurringBuy(
@@ -954,7 +1015,7 @@ class SimpleBuyModel(
         googlePayBeneficiaryId: String? = null,
         googlePayAddress: GooglePayAddress? = null,
         amount: FiatValue,
-        pair: String,
+        pair: String
     ): Disposable {
 
         return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId, googlePayAddress)
@@ -963,19 +1024,7 @@ class SimpleBuyModel(
             .doOnTerminate { buyOrdersCache.invalidate() }
             .subscribeBy(
                 onSuccess = { buySellOrder ->
-                    val orderCreatedSuccessfully = buySellOrder!!.state == OrderState.FINISHED
-
-                    if (orderCreatedSuccessfully) {
-                        updatePersistingCountersForCompletedOrders(
-                            pair = buySellOrder.pair,
-                            amount = buySellOrder.source.toStringWithoutSymbol(),
-                            paymentMethodId = buySellOrder.paymentMethodId
-                        )
-                    }
-                    process(SimpleBuyIntent.StopQuotesUpdate(true))
-                    process(
-                        SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder)
-                    )
+                    triggerIntentsAfterOrderConfirmed(buySellOrder)
                 },
                 onError = {
                     interactor.saveOrderAmountAndPaymentMethodId(
@@ -986,6 +1035,21 @@ class SimpleBuyModel(
                     processOrderErrors(it)
                 }
             )
+    }
+
+    private fun triggerIntentsAfterOrderConfirmed(buySellOrder: BuySellOrder, isRbEnabled: Boolean = false) {
+        val orderCreatedSuccessfully = buySellOrder.state == OrderState.FINISHED
+
+        if (orderCreatedSuccessfully) {
+            updatePersistingCountersForCompletedOrders(
+                pair = buySellOrder.pair,
+                amount = buySellOrder.source.toStringWithoutSymbol(),
+                paymentMethodId = buySellOrder.paymentMethodId
+            )
+        }
+        process(SimpleBuyIntent.StopQuotesUpdate(true))
+
+        process(SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, isRbActive = isRbEnabled))
     }
 
     private fun processOrderErrors(it: Throwable) {

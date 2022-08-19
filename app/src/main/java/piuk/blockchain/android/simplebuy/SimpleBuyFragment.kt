@@ -30,7 +30,11 @@ interface SimpleBuyNavigator :
     fun pop()
     fun hasMoreThanOneFragmentInTheStack(): Boolean
     fun goToPendingOrderScreen()
-    fun goToPaymentScreen(addToBackStack: Boolean = true, isPaymentAuthorised: Boolean = false)
+    fun goToPaymentScreen(
+        addToBackStack: Boolean = true,
+        isPaymentAuthorised: Boolean = false,
+        showRecurringBuySuggestion: Boolean = false
+    )
     fun goToSetupFirstRecurringBuy(addToBackStack: Boolean = true)
     fun goToFirstRecurringBuyCreated(addToBackStack: Boolean = true)
     fun goToBlockedBuyScreen()
@@ -48,7 +52,7 @@ interface ErrorBuyNavigator {
         error: String,
         errorDescription: String? = null,
         nabuApiException: NabuApiException? = null,
-        serverSideUxErrorInfo: ServerSideUxErrorInfo ? = null
+        serverSideUxErrorInfo: ServerSideUxErrorInfo? = null
     )
 
     fun showBankRefreshError(accountId: String)

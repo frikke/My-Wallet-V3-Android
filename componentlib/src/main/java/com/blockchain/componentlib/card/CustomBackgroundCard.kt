@@ -3,6 +3,7 @@ package com.blockchain.componentlib.card
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -101,7 +102,8 @@ fun CustomBackgroundCard(
             Row(
                 modifier = Modifier
                     .background(Color.Transparent),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
             ) {
                 if (iconResource is ImageResource.Remote) {
                     AsyncMediaItem(

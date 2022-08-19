@@ -5,8 +5,8 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.extensions.exhaustive
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import info.blockchain.balance.AssetInfo
@@ -90,7 +90,7 @@ class InterestDashboardViewModel(
                         it.copy(
                             isLoadingData = false,
                             isError = false,
-                            isKycGold = interestDashboard.tiers.isApprovedFor(KycTierLevel.GOLD),
+                            isKycGold = interestDashboard.tiers.isApprovedFor(KycTier.GOLD),
                             data = assetInterestInfoList,
                         )
                     }

@@ -36,8 +36,8 @@ object GooglePayRequestBuilder {
             allowedPaymentMethods = listOf(
                 CardPaymentMethod(
                     parameters = CardPaymentMethod.CardPaymentParameters(
-                        allowedAuthMethods = allowedAuthMethods.ifEmpty { defaultAllowedAuthMethods },
-                        allowedCardNetworks = allowedCardNetworks.ifEmpty { defaultAllowedCardNetworks },
+                        allowedAuthMethods = allowedAuthMethods.ifInvalid { defaultAllowedAuthMethods },
+                        allowedCardNetworks = allowedCardNetworks.ifInvalid { defaultAllowedCardNetworks },
                         billingAddressRequired = billingAddressRequired,
                         billingAddressParameters = billingAddressParameters.copy(
                             format = billingAddressParameters.format.ifEmpty { BillingAddressParameters().format }
@@ -60,6 +60,13 @@ object GooglePayRequestBuilder {
             ),
             shippingAddressRequired = false
         )
+
+    private fun List<String>.ifInvalid(defaultValue: () -> List<String>): List<String> {
+        if (this.isEmpty() || this.filterNot { it.isEmpty() || it.isBlank() }.isEmpty()) {
+            return defaultValue()
+        }
+        return this
+    }
 }
 
 val defaultAllowedAuthMethods: List<String> = listOf("PAN_ONLY", "CRYPTOGRAM_3DS")

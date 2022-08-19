@@ -74,8 +74,8 @@
                 <com.blockchain.componentlib.alert.CardAlertView
                     android:id="@+id/asset_chart_error"
                     android:layout_width="match_parent"
-                    android:layout_gravity="center"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_marginStart="@dimen/standard_margin"
                     android:layout_marginEnd="@dimen/standard_margin" />
             </ViewFlipper>
@@ -154,13 +154,28 @@
                         app:layout_constraintTop_toTopOf="parent" />
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/asset_list"
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/very_small_margin"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    app:layout_constrainedHeight="true" />
+                    android:orientation="vertical">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/asset_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/very_small_margin"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        app:layout_constrainedHeight="true" />
+
+                    <com.blockchain.componentlib.button.PrimaryButtonView
+                        android:id="@+id/swap_cta"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="@dimen/small_margin"
+                        android:layout_marginBottom="@dimen/standard_margin"
+                        android:visibility="gone" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
             </ViewSwitcher>
 
             <ViewSwitcher
@@ -223,20 +238,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/medium_margin"
-        app:layout_constraintBottom_toTopOf="@id/primary_cta" />
+        app:layout_constraintBottom_toTopOf="@id/end_cta" />
 
     <com.blockchain.componentlib.button.SecondaryButtonView
-        android:id="@+id/secondary_cta"
+        android:id="@+id/start_cta"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginBottom="@dimen/small_margin"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/primary_cta"
+        app:layout_constraintEnd_toStartOf="@id/end_cta"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.blockchain.componentlib.button.PrimaryButtonView
-        android:id="@+id/primary_cta"
+    <com.blockchain.componentlib.button.SecondaryButtonView
+        android:id="@+id/end_cta"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/tiny_margin"
@@ -244,7 +259,7 @@
         android:layout_marginBottom="@dimen/small_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/secondary_cta"
+        app:layout_constraintStart_toEndOf="@id/start_cta"
         app:layout_goneMarginEnd="@dimen/standard_margin" />
 
     <androidx.constraintlayout.widget.ConstraintLayout

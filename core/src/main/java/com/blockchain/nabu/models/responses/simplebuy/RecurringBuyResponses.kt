@@ -62,7 +62,10 @@ private fun String.toRecurringBuyState() =
     }
 
 fun RecurringBuyResponse.toRecurringBuyOrder(): RecurringBuyOrder =
-    RecurringBuyOrder(state = this.state.toRecurringBuyState())
+    RecurringBuyOrder(
+        id = this.id,
+        state = this.state.toRecurringBuyState()
+    )
 
 fun String.toRecurringBuyFrequency(): RecurringBuyFrequency =
     when (this) {

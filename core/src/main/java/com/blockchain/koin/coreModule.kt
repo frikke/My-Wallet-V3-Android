@@ -37,8 +37,13 @@ import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import com.blockchain.core.eligibility.EligibilityRepository
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.fiatcurrencies.FiatCurrenciesRepository
+import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.core.interest.data.InterestRepository
+import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.data.datasources.InterestEligibilityStore
+import com.blockchain.core.interest.data.datasources.InterestLimitsStore
+import com.blockchain.core.interest.data.datasources.InterestRateStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
@@ -220,24 +225,63 @@ val coreModule = module {
             )
         }
 
+        scoped {
+            InterestAvailableAssetsStore(
+                interestApiService = get(),
+                authenticator = get()
+            )
+        }
+
+        scoped {
+            InterestEligibilityStore(
+                interestApiService = get(),
+                authenticator = get()
+            )
+        }
+
+        scoped {
+            InterestLimitsStore(
+                interestApiService = get(),
+                authenticator = get(),
+                currencyPrefs = get()
+            )
+        }
+
+        scoped {
+            InterestRateStore(
+                interestApiService = get(),
+                authenticator = get()
+            )
+        }
+
         scoped<InterestService> {
             InterestRepository(
                 assetCatalogue = get(),
                 interestBalancesStore = get(),
-                interestEligibilityTimedCache = get(),
-                interestAvailableAssetsTimedCache = get(),
-                interestLimitsTimedCache = get(),
+                interestEligibilityStore = get(),
+                interestAvailableAssetsStore = get(),
+                interestLimitsStore = get(),
+                interestRateStore = get(),
+                paymentTransactionHistoryStore = get(),
+                currencyPrefs = get(),
                 authenticator = get(),
-                interestApiService = get(),
-                transactionsCache = get()
+                interestApiService = get()
             )
         }
 
         scoped {
             BuyPairsCache(nabuService = get())
         }
+
         scoped {
             TransactionsCache(
+                nabuService = get(),
+                authenticator = get()
+            )
+        }
+
+        scoped {
+            PaymentTransactionHistoryStore(
                 nabuService = get(),
                 authenticator = get()
             )

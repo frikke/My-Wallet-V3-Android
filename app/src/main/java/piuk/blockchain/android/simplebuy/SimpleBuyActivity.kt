@@ -16,6 +16,10 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.ASSET_URL
+import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_CODE
+import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_RECURRING_BUY_ID
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
@@ -43,7 +47,6 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_REFRESH_REQUIRED
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
-import piuk.blockchain.android.ui.backup.BackupWalletActivity.Companion.startForResult
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
@@ -62,7 +65,7 @@ import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
+import piuk.blockchain.android.util.checkValidUrlAndOpen
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -72,6 +75,7 @@ class SimpleBuyActivity :
     SimpleBuyNavigator,
     KycUpgradeNowSheet.Host,
     QuestionnaireSheet.Host,
+    RecurringBuyCreatedBottomSheet.Host,
     ErrorSlidingBottomDialog.Host {
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -343,11 +347,16 @@ class SimpleBuyActivity :
     override fun hasMoreThanOneFragmentInTheStack(): Boolean =
         supportFragmentManager.backStackEntryCount > 1
 
-    override fun goToPaymentScreen(addToBackStack: Boolean, isPaymentAuthorised: Boolean) {
+    override fun goToPaymentScreen(
+        addToBackStack: Boolean,
+        isPaymentAuthorised: Boolean,
+        showRecurringBuySuggestion: Boolean
+    ) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(
-                R.id.content_frame, SimpleBuyPaymentFragment.newInstance(isPaymentAuthorised),
+                R.id.content_frame,
+                SimpleBuyPaymentFragment.newInstance(isPaymentAuthorised, showRecurringBuySuggestion),
                 SimpleBuyPaymentFragment::class.simpleName
             )
             .apply {
@@ -463,7 +472,7 @@ class SimpleBuyActivity :
     }
 
     private fun checkQuestionnaire() {
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launchWhenResumed {
             dataRemediationService.getQuestionnaire(QuestionnaireContext.TRADING)
                 .doOnSuccess { questionnaire ->
                     if (questionnaire != null) {
@@ -503,15 +512,6 @@ class SimpleBuyActivity :
             }
         }
 
-    private fun redirectToDeeplinkProcessor(link: String) {
-        compositeDisposable += deeplinkRedirector.processDeeplinkURL(
-            link.appendTickerToDeeplink()
-        ).emptySubscribe()
-    }
-
-    private fun String.appendTickerToDeeplink(): Uri =
-        Uri.parse("$this?code=${asset?.networkTicker}")
-
     override fun onErrorPrimaryCta() {
         primaryErrorCtaAction()
     }
@@ -523,6 +523,35 @@ class SimpleBuyActivity :
     override fun onErrorTertiaryCta() {
         tertiaryErrorCtaAction()
     }
+
+    private fun processDeeplink(deepLink: Uri) {
+        compositeDisposable += deeplinkRedirector.processDeeplinkURL(deepLink).subscribeBy(
+            onSuccess = {
+                if (it is DeepLinkResult.DeepLinkResultUnknownLink) {
+                    it.uri?.let { uri ->
+                        this@SimpleBuyActivity.checkValidUrlAndOpen(uri)
+                    }
+                }
+            }
+        )
+    }
+
+    private fun redirectToDeeplinkProcessor(link: String) {
+        processDeeplink(Uri.parse(link.appendTickerToDeeplink()))
+    }
+
+    override fun viewRecurringBuy(recurringBuyId: String) {
+        processDeeplink(
+            Uri.parse(ASSET_URL.appendTickerToDeeplink().appendRecurringBuyId(recurringBuyId))
+        )
+    }
+
+    private fun String.appendTickerToDeeplink() = "$this?$PARAMETER_CODE=${asset?.networkTicker}"
+
+    private fun String.appendRecurringBuyId(recurringBuyId: String) =
+        "$this&$PARAMETER_RECURRING_BUY_ID=$recurringBuyId"
+
+    override fun skip() = finish()
 
     override fun onSheetClosed() {
         // do nothing

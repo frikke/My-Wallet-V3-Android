@@ -15,10 +15,12 @@ class DeeplinkProcessorV2 {
         return when (deeplinkUri.path) {
             ASSET_URL -> {
                 val networkTicker = getAssetNetworkTicker(deeplinkUri)
+
                 Timber.d("deeplink: openAsset with args $networkTicker")
 
                 if (!networkTicker.isNullOrEmpty()) {
-                    val destination = Destination.AssetViewDestination(networkTicker)
+                    val recurringBuyId = getRecurringBuyId(deeplinkUri)
+                    val destination = Destination.AssetViewDestination(networkTicker, recurringBuyId)
                     Single.just(
                         DeepLinkResult.DeepLinkResultSuccess(
                             destination = destination,
@@ -26,7 +28,7 @@ class DeeplinkProcessorV2 {
                         )
                     )
                 } else {
-                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
+                    Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
                 }
             }
             BUY_URL -> {
@@ -43,7 +45,7 @@ class DeeplinkProcessorV2 {
                         )
                     )
                 } else {
-                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
+                    Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
                 }
             }
             SEND_URL -> {
@@ -60,7 +62,7 @@ class DeeplinkProcessorV2 {
                         )
                     )
                 } else {
-                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
+                    Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
                 }
             }
             ACTIVITY_URL -> {
@@ -84,7 +86,7 @@ class DeeplinkProcessorV2 {
                         )
                     )
                 } else {
-                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
+                    Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
                 }
             }
             DIFFERENT_PAYMENT_URL -> {
@@ -100,7 +102,7 @@ class DeeplinkProcessorV2 {
                         )
                     )
                 } else {
-                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
+                    Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
                 }
             }
             ENTER_AMOUNT_URL -> {
@@ -116,7 +118,7 @@ class DeeplinkProcessorV2 {
                         )
                     )
                 } else {
-                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
+                    Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
                 }
             }
             CUSTOMER_SUPPORT_URL -> {
@@ -145,22 +147,6 @@ class DeeplinkProcessorV2 {
                 val destination = Destination.ReferralDestination
                 Single.just(DeepLinkResult.DeepLinkResultSuccess(destination = destination, payload))
             }
-            EXTERNAL_LINK_URL -> {
-                val url = getUrl(deeplinkUri)
-                Timber.d("deeplink: External link with URL $url")
-
-                if (!url.isNullOrEmpty()) {
-                    val destination = Destination.ExternalLinkDestination(url)
-                    Single.just(
-                        DeepLinkResult.DeepLinkResultSuccess(
-                            destination = destination,
-                            notificationPayload = payload
-                        )
-                    )
-                } else {
-                    Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
-                }
-            }
             DASHBOARD_URL -> {
                 Timber.d("deeplink: Dashboard")
 
@@ -171,7 +157,9 @@ class DeeplinkProcessorV2 {
                     )
                 )
             }
-            else -> Single.just(DeepLinkResult.DeepLinkResultFailed(deeplinkUri))
+            else -> {
+                Single.just(DeepLinkResult.DeepLinkResultUnknownLink(deeplinkUri))
+            }
         }
     }
 
@@ -192,15 +180,16 @@ class DeeplinkProcessorV2 {
         const val KYC_URL = "$APP_URL/kyc"
         const val ACTIVITY_URL = "$APP_URL/activity"
         const val REFERRAL_URL = "$APP_URL/referral"
-        const val EXTERNAL_LINK_URL = "$APP_URL/external/link"
         const val DASHBOARD_URL = "$APP_URL/go/to/dashboard"
 
+        const val PARAMETER_RECURRING_BUY_ID = "recurring_buy_id"
         const val PARAMETER_CODE = "code"
         const val PARAMETER_AMOUNT = "amount"
         const val PARAMETER_ADDRESS = "address"
-        const val PARAMETER_FILTER = "filter"
-        const val PARAMETER_URL = "url"
     }
+
+    private fun getRecurringBuyId(deeplinkUri: Uri): String? =
+        deeplinkUri.getQueryParameter(PARAMETER_RECURRING_BUY_ID)
 
     private fun getAssetNetworkTicker(deeplinkUri: Uri): String? =
         deeplinkUri.getQueryParameter(PARAMETER_CODE)
@@ -210,12 +199,6 @@ class DeeplinkProcessorV2 {
 
     private fun getAddress(deeplinkUri: Uri): String? =
         deeplinkUri.getQueryParameter(PARAMETER_ADDRESS)
-
-    private fun getFilter(deeplinkUri: Uri): String? =
-        deeplinkUri.getQueryParameter(PARAMETER_FILTER)
-
-    private fun getUrl(deeplinkUri: Uri): String? =
-        deeplinkUri.getQueryParameter(PARAMETER_URL)
 }
 
 sealed class DeepLinkResult {
@@ -223,5 +206,6 @@ sealed class DeepLinkResult {
         val destination: Destination,
         val notificationPayload: NotificationPayload?
     ) : DeepLinkResult()
-    data class DeepLinkResultFailed(val uri: Uri? = null) : DeepLinkResult()
+
+    data class DeepLinkResultUnknownLink(val uri: Uri? = null) : DeepLinkResult()
 }

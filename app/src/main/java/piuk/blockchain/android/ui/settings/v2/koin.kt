@@ -60,6 +60,7 @@ val redesignSettingsModule = module {
         factory {
             SettingsInteractor(
                 userIdentity = get(),
+                kycService = get(),
                 database = get(),
                 credentialsWiper = get(),
                 bankService = get(),
@@ -300,6 +301,7 @@ val redesignSettingsModule = module {
         factory {
             SupportInteractor(
                 userIdentity = get(),
+                kycService = get(),
                 isIntercomEnabledFlag = get(intercomChatFeatureFlag)
             )
         }

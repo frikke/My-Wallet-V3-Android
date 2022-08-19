@@ -9,6 +9,7 @@ import androidx.annotation.CallSuper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.analytics.Analytics
+import com.blockchain.componentlib.theme.AppTheme
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -25,6 +26,7 @@ abstract class ComposeModalBottomDialog : BottomSheetDialogFragment() {
     }
 
     private var dismissed = false
+    protected open val makeSheetNonCollapsible: Boolean = false
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
@@ -32,11 +34,12 @@ abstract class ComposeModalBottomDialog : BottomSheetDialogFragment() {
 
     final override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = BottomSheetDialog(requireActivity())
-
         dialog.setContentView(
             ComposeView(requireContext()).apply {
                 setContent {
-                    Sheet()
+                    AppTheme {
+                        Sheet()
+                    }
                 }
             }
         )
@@ -47,27 +50,47 @@ abstract class ComposeModalBottomDialog : BottomSheetDialogFragment() {
             dialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
         bottomSheetBehavior = BottomSheetBehavior.from(layout)
 
-        bottomSheetBehavior.addBottomSheetCallback(object :
-                BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(view: View, i: Int) {
-                    when (i) {
-                        BottomSheetBehavior.STATE_EXPANDED -> onSheetExpanded()
-                        BottomSheetBehavior.STATE_COLLAPSED -> onSheetCollapsed()
-                        BottomSheetBehavior.STATE_HIDDEN -> onSheetHidden()
-                        else -> { /* shouldn't get here! */
-                        }
-                    }
-                }
-
-                override fun onSlide(view: View, v: Float) {}
-            })
+        bottomSheetBehavior.addBottomSheetCallback(bottomSheetCallback)
 
         dialog.setOnShowListener {
             bottomSheetBehavior.skipCollapsed = true
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
+        if (makeSheetNonCollapsible) {
+            makeSheetSticky()
+        }
+
         return dialog
+    }
+
+    private val bottomSheetCallback = object :
+        BottomSheetBehavior.BottomSheetCallback() {
+        override fun onStateChanged(view: View, i: Int) {
+            when (i) {
+                BottomSheetBehavior.STATE_EXPANDED -> onSheetExpanded()
+                BottomSheetBehavior.STATE_COLLAPSED -> onSheetCollapsed()
+                BottomSheetBehavior.STATE_HIDDEN -> onSheetHidden()
+                else -> { /* shouldn't get here! */
+                }
+            }
+        }
+
+        override fun onSlide(view: View, v: Float) {}
+    }
+
+    private fun makeSheetSticky() {
+        bottomSheetBehavior.apply {
+            removeBottomSheetCallback(bottomSheetCallback)
+            addBottomSheetCallback(object :
+                    BottomSheetBehavior.BottomSheetCallback() {
+                    override fun onStateChanged(view: View, i: Int) {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                    }
+
+                    override fun onSlide(view: View, v: Float) {}
+                })
+        }
     }
 
     @Composable

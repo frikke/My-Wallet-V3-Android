@@ -103,12 +103,34 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/tiny_margin"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/tx_primary_btn"
+        app:layout_constraintBottom_toTopOf="@id/border_box"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tx_note_locks"
         app:layout_constraintVertical_bias="0"
         tools:visibility="visible" />
+
+    <FrameLayout
+        android:id="@+id/border_box"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/standard_margin"
+        android:padding="@dimen/smallest_margin"
+        android:background="@drawable/rounded_view_grey_border"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/tx_primary_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tx_tertiary_btn">
+
+        <com.blockchain.componentlib.tablerow.ToggleTableRowView
+            android:id="@+id/toggle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
 
     <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/tx_primary_btn"

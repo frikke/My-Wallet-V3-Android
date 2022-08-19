@@ -4,8 +4,8 @@ import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.api.kyc.domain.KycService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo

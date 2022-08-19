@@ -48,6 +48,7 @@ val dashboardModule = module {
                 bankService = get(),
                 simpleBuyPrefs = get(),
                 userIdentity = get(),
+                kycService = get(),
                 dataRemediationService = get(),
                 walletModeService = get(),
                 analytics = get(),
@@ -61,7 +62,8 @@ val dashboardModule = module {
                 cowboysFeatureFlag = get(cowboysPromoFeatureFlag),
                 settingsDataManager = get(),
                 cowboysDataProvider = get(),
-                referralService = get()
+                referralService = get(),
+                cowboysPrefs = get()
             )
         }
 
@@ -118,6 +120,7 @@ val dashboardModule = module {
                 currencyPrefs = get(),
                 dashboardPrefs = get(),
                 identity = get(),
+                kycService = get(),
                 custodialWalletManager = get(),
                 assetActionsComparator = get(),
                 assetsManager = get(),

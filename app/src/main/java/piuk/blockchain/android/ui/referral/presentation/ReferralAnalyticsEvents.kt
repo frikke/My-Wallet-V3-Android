@@ -16,6 +16,14 @@ sealed class ReferralAnalyticsEvents(
         )
     )
 
+    data class ReferralCodeFilled(val code: String) : ReferralAnalyticsEvents(
+        event = AnalyticsNames.REFERRAL_VIEW_REFERRAL.eventName,
+        params = mapOf(
+            KEY_PLATFORM to WALLET,
+            KEY_CODE to code
+        )
+    )
+
     data class ReferralView(val campaign: String) : ReferralAnalyticsEvents(
         event = AnalyticsNames.REFERRAL_VIEW_REFERRAL.eventName,
         params = mapOf(

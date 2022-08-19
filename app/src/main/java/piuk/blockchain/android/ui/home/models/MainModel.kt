@@ -8,6 +8,7 @@ import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.componentlib.navigation.NavigationItem
+import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.referral.model.ReferralInfo
@@ -87,29 +88,28 @@ class MainModel(
     }
 
     private fun updateTabs(walletMode: WalletMode, currentTab: NavigationItem): MainIntent {
-        return when (walletMode) {
+        val tabs = when (walletMode) {
             WalletMode.UNIVERSAL,
-            WalletMode.CUSTODIAL_ONLY -> MainIntent.UpdateTabs(
-                tabs = listOf(
+            WalletMode.CUSTODIAL_ONLY ->
+                listOf(
                     NavigationItem.Home,
                     NavigationItem.Prices,
                     NavigationItem.BuyAndSell,
                     NavigationItem.Activity
-                ),
-                selectedTab = currentTab
-            )
+                )
             WalletMode.NON_CUSTODIAL_ONLY -> {
-                val newTabs = listOf(
+                listOf(
                     NavigationItem.Home,
                     NavigationItem.Prices,
+                    NavigationItem.Nfts,
                     NavigationItem.Activity
-                )
-                MainIntent.UpdateTabs(
-                    tabs = newTabs,
-                    selectedTab = if (newTabs.contains(currentTab)) currentTab else NavigationItem.Home
                 )
             }
         }
+        return MainIntent.UpdateTabs(
+            tabs = tabs,
+            selectedTab = if (tabs.contains(currentTab)) currentTab else NavigationItem.Home
+        )
     }
 
     override fun performAction(previousState: MainState, intent: MainIntent): Disposable? =
@@ -146,13 +146,14 @@ class MainModel(
             is MainIntent.ProcessPendingDeeplinkIntent -> {
                 intent.deeplinkIntent.data.takeIf { it != Uri.EMPTY }?.let { uri ->
                     interactor.processDeepLinkV2(uri).subscribeBy(
-                        onComplete = {
-                            // Nothing to do. Deeplink V2 was parsed successfully
+                        onSuccess = {
+                            if (it is DeepLinkResult.DeepLinkResultUnknownLink) {
+                                process(MainIntent.CheckForPendingLinks(intent.deeplinkIntent))
+                            }
                         },
                         onError = {
-                            // Deeplink V2 parsing failed, fallback to legacy
+                            // fail silently
                             Timber.e(it)
-                            process(MainIntent.CheckForPendingLinks(intent.deeplinkIntent))
                         }
                     )
                 }
@@ -183,7 +184,9 @@ class MainModel(
                                 dispatchDeepLink(linkState)
                             }
                         },
-                        onError = { Timber.e(it) }
+                        onError = {
+                            Timber.e(it)
+                        }
                     )
             }
             is MainIntent.ClearDeepLinkResult -> interactor.clearDeepLink()
@@ -246,7 +249,12 @@ class MainModel(
                     }
                 )
             is MainIntent.ApproveWCSession -> walletConnectServiceAPI.acceptConnection(intent.session).emptySubscribe()
+            is MainIntent.SwitchWalletMode -> {
+                walletModeService.updateEnabledWalletMode(intent.walletMode)
+                null
+            }
             is MainIntent.RejectWCSession -> walletConnectServiceAPI.denyConnection(intent.session).emptySubscribe()
+            is MainIntent.StartWCSession -> walletConnectServiceAPI.attemptToConnect(intent.url).emptySubscribe()
             MainIntent.ResetViewState,
             is MainIntent.UpdateViewToLaunch -> null
             is MainIntent.UpdateDeepLinkResult -> null

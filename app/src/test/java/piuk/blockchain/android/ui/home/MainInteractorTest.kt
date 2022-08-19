@@ -10,7 +10,6 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.BankLinkingPrefs
-import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.serializers.BigDecimalSerializer
 import com.nhaarman.mockitokotlin2.any
@@ -69,7 +68,6 @@ class MainInteractorTest {
     private val secureChannelService: SecureChannelService = mock()
     private val cancelOrderUseCase: CancelOrderUseCase = mock()
     private val bankService: BankService = mock()
-    private val onboardingPrefs: OnboardingPrefs = mock()
     private val referralPrefs: ReferralPrefs = mock()
     private val referralRepository: ReferralRepository = mock()
 
@@ -111,7 +109,6 @@ class MainInteractorTest {
             secureChannelService = secureChannelService,
             cancelOrderUseCase = cancelOrderUseCase,
             bankService = bankService,
-            onboardingPrefs = onboardingPrefs,
             referralPrefs = referralPrefs,
             referralRepository = referralRepository
         )

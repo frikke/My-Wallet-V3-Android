@@ -40,7 +40,7 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
     }
 
     private val listAdapter: CheckoutAdapterDelegate by lazy {
-        CheckoutAdapterDelegate()
+        CheckoutAdapterDelegate(onToggleChanged = {})
     }
 
     private val recurringBuyId: String by lazy {

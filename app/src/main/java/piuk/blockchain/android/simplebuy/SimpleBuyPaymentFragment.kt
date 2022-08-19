@@ -25,6 +25,7 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.stripe.StripeFactory
+import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.secondsToDays
 import com.checkout.android_sdk.PaymentForm
 import com.checkout.android_sdk.Utils.Environment
@@ -34,7 +35,6 @@ import com.stripe.android.PaymentConfiguration
 import com.stripe.android.model.ConfirmPaymentIntentParams
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
-import java.util.Locale
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -77,6 +77,10 @@ class SimpleBuyPaymentFragment :
         arguments?.getBoolean(IS_PAYMENT_AUTHORISED, false) ?: false
     }
 
+    private val showRecurringBuyToggle: Boolean by lazy {
+        arguments?.getBoolean(RECURRING_BUY_SUGGESTION, false) ?: false
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity.disableBackPress(owner = this)
@@ -94,6 +98,11 @@ class SimpleBuyPaymentFragment :
         super.onViewCreated(view, savedInstanceState)
         activity.updateToolbarTitle(getString(R.string.common_payment))
 
+        binding.transactionProgressView.showToggleUI(
+            showToggle = showRecurringBuyToggle,
+            recurringBuyFrequency = RecurringBuyFrequency.WEEKLY
+        )
+
         binding.checkoutCardForm.initCheckoutPaymentForm()
     }
 
@@ -103,6 +112,25 @@ class SimpleBuyPaymentFragment :
 
         previousSelectedPaymentMethodId = newState.selectedPaymentMethod.id
         previousSelectedCryptoAsset = newState.selectedCryptoAsset
+
+        if (showRecurringBuyToggle && newState.recurringBuyState == RecurringBuyState.ACTIVE) {
+            showBottomSheet(
+                RecurringBuyCreatedBottomSheet.newInstance(
+                    title = getString(
+                        R.string.recurring_buy_created_title, newState.recurringBuyFrequency.name.capitalizeFirstChar()
+                    ),
+                    subtitle = getString(
+                        R.string.recurring_buy_payment_message,
+                        newState.order.amount?.toStringWithSymbol(),
+                        newState.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext()).lowercase(),
+                        newState.orderValue?.currency?.name,
+                        newState.selectedCryptoAsset.displayTicker
+                    ),
+                    recurringBuyId = newState.recurringBuyId.orEmpty()
+                )
+            )
+            return
+        }
 
         newState.selectedCryptoAsset.let {
             binding.transactionProgressView.setAssetIcon(it)
@@ -145,7 +173,13 @@ class SimpleBuyPaymentFragment :
                 newState.showRecurringBuyFirstTimeFlow -> {
                     navigator().goToSetupFirstRecurringBuy()
                 }
-                !newState.paymentPending -> navigator().exitSimpleBuyFlow()
+                !newState.paymentPending -> {
+                    if (showRecurringBuyToggle && binding.transactionProgressView.isRecurringBuyEnabled()) {
+                        model.process(SimpleBuyIntent.CreateRecurringBuy(RecurringBuyFrequency.WEEKLY))
+                    } else {
+                        navigator().exitSimpleBuyFlow()
+                    }
+                }
                 else -> navigator().goToPendingOrderScreen()
             }
         }
@@ -653,8 +687,7 @@ class SimpleBuyPaymentFragment :
                     getString(
                         R.string.recurring_buy_payment_message,
                         newState.order.amount?.toStringWithSymbol(),
-                        newState.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext())
-                            .toLowerCase(Locale.getDefault()),
+                        newState.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext()).lowercase(),
                         newState.orderValue.currency.name,
                         newState.selectedCryptoAsset?.displayTicker
                     )
@@ -832,13 +865,15 @@ class SimpleBuyPaymentFragment :
 
     companion object {
         private const val IS_PAYMENT_AUTHORISED = "IS_PAYMENT_AUTHORISED"
+        private const val RECURRING_BUY_SUGGESTION = "RECURRING_BUY_SUGGESTION"
         private const val BANK_APPROVAL = 5123
         private const val SUPPORT_SB_SUBJECT = "Issue with Payments"
 
-        fun newInstance(isFromDeepLink: Boolean) =
+        fun newInstance(isFromDeepLink: Boolean, showRecurringBuySuggestion: Boolean) =
             SimpleBuyPaymentFragment().apply {
                 arguments = Bundle().apply {
                     putBoolean(IS_PAYMENT_AUTHORISED, isFromDeepLink)
+                    putBoolean(RECURRING_BUY_SUGGESTION, showRecurringBuySuggestion)
                 }
             }
     }

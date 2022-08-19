@@ -23,6 +23,7 @@ import java.util.Locale
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import piuk.blockchain.android.ui.referral.presentation.ReferralAnalyticsEvents
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -200,6 +201,7 @@ class CreateWalletViewModel(
 
                 updateState { it.copy(isCreateWalletLoading = true) }
                 if (modelState.referralCodeInput.isNotEmpty()) {
+                    analytics.logEvent(ReferralAnalyticsEvents.ReferralCodeFilled(modelState.referralCodeInput))
                     val isReferralValidOutcome = referralService.isReferralCodeValid(modelState.referralCodeInput)
                     val isReferralValid = isReferralValidOutcome is Outcome.Success && isReferralValidOutcome.value
                     if (!isReferralValid) {

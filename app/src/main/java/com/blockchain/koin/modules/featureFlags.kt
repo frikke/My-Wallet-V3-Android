@@ -22,6 +22,7 @@ import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.quickFillButtonsFeatureFlag
+import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
@@ -246,6 +247,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "ff_card_payment_async",
                 "Enable Async Card Payment"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(rbFrequencyFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_rb_frequency_suggestion",
+                "Enable Recurring Buy suggestion"
             )
         )
     }.bind(FeatureFlag::class)

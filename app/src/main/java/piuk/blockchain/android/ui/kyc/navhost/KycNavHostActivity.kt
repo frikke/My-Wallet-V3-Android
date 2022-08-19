@@ -19,8 +19,8 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.invisibleIf
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -62,6 +62,9 @@ class KycNavHostActivity :
         intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType
     }
 
+    override val isCowboysUser: Boolean
+        get() = intent.getBooleanExtra(FROM_COWBOYS, false)
+
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
@@ -78,7 +81,7 @@ class KycNavHostActivity :
         analytics.logEvent(
             KYCAnalyticsEvents.UpgradeKycVeriffClicked(
                 campaignType.toLaunchOrigin(),
-                Tier.GOLD.ordinal
+                KycTier.GOLD.ordinal
             )
         )
 
@@ -213,6 +216,7 @@ class KycNavHostActivity :
         const val RESULT_KYC_FOR_SDD_COMPLETE = 35432
         const val RESULT_KYC_FOR_TIER_COMPLETE = 8954234
         private const val EXTRA_CAMPAIGN_TYPE = "piuk.blockchain.android.EXTRA_CAMPAIGN_TYPE"
+        private const val FROM_COWBOYS = "FROM_COWBOYS"
 
         @JvmStatic
         fun start(context: Context, campaignType: CampaignType) {
@@ -223,6 +227,14 @@ class KycNavHostActivity :
         @JvmStatic
         fun startForResult(activity: Activity, campaignType: CampaignType, requestCode: Int) {
             newIntent(activity, campaignType)
+                .run { activity.startActivityForResult(this, requestCode) }
+        }
+
+        @JvmStatic
+        fun startForResultForCowboys(activity: Activity, campaignType: CampaignType, requestCode: Int) {
+            newIntent(activity, campaignType).apply {
+                putExtra(FROM_COWBOYS, true)
+            }
                 .run { activity.startActivityForResult(this, requestCode) }
         }
 

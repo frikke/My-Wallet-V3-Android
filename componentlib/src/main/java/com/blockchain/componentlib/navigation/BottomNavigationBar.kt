@@ -230,9 +230,10 @@ fun BottomNavigationBarPreview() {
     }
 }
 
-sealed class NavigationItem(var route: String, var icon: Int, var title: Int) {
+sealed class NavigationItem(val route: String, val icon: Int, val title: Int) {
     object Home : NavigationItem("home", R.drawable.ic_bottom_nav_home, R.string.bottom_nav_home)
     object Prices : NavigationItem("prices", R.drawable.ic_bottom_nav_prices, R.string.bottom_nav_prices)
     object BuyAndSell : NavigationItem("buy_and_sell", R.drawable.ic_bottom_nav_buy, R.string.bottom_nav_buy_and_sell)
     object Activity : NavigationItem("activity", R.drawable.ic_bottom_nav_activity, R.string.bottom_nav_activity)
+    object Nfts : NavigationItem("nfts", R.drawable.ic_bottom_nav_nfts, R.string.bottom_nav_nfts)
 }

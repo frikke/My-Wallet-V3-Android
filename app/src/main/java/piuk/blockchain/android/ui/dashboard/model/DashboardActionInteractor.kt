@@ -13,6 +13,8 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
@@ -32,11 +34,11 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrDefault
+import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -100,6 +102,7 @@ class DashboardActionInteractor(
     private val nftWaitlistService: NftWaitlistService,
     private val nftAnnouncementPrefs: NftAnnouncementPrefs,
     private val userIdentity: UserIdentity,
+    private val kycService: KycService,
     private val dataRemediationService: DataRemediationService,
     private val walletModeBalanceCache: WalletModeBalanceCache,
     private val walletModeService: WalletModeService,
@@ -109,7 +112,8 @@ class DashboardActionInteractor(
     private val cowboysFeatureFlag: FeatureFlag,
     private val settingsDataManager: SettingsDataManager,
     private val cowboysDataProvider: CowboysPromoDataProvider,
-    private val referralService: ReferralService
+    private val referralService: ReferralService,
+    private val cowboysPrefs: CowboysPrefs
 ) {
 
     private val defFilter: AssetFilter
@@ -346,9 +350,9 @@ class DashboardActionInteractor(
     }
 
     fun canDeposit(): Single<Boolean> =
-        userIdentity.getHighestApprovedKycTier()
+        kycService.getHighestApprovedTierLevelLegacy()
             .flatMap {
-                if (it == Tier.GOLD) {
+                if (it == KycTier.GOLD) {
                     bankService.canTransactWithBankMethods(currencyPrefs.selectedFiatCurrency)
                 } else Single.just(true)
             }
@@ -767,6 +771,10 @@ class DashboardActionInteractor(
             }
         )
 
+    fun markCowboysReferralCardAsDismissed() {
+        cowboysPrefs.hasCowboysReferralBeenDismissed = true
+    }
+
     fun checkCowboysFlowSteps(model: DashboardModel): Disposable =
         Singles.zip(
             userIdentity.isCowboysUser(),
@@ -799,12 +807,12 @@ class DashboardActionInteractor(
         }
 
     private fun checkHighestApprovedKycTier(): Single<DashboardCowboysState> =
-        userIdentity.getHighestApprovedKycTier().flatMap { highestApprovedKycTier ->
+        kycService.getHighestApprovedTierLevelLegacy().flatMap { highestApprovedKycTier ->
             when (highestApprovedKycTier) {
-                Tier.BRONZE -> cowboysDataProvider.getRaffleAnnouncement().flatMap {
+                KycTier.BRONZE -> cowboysDataProvider.getRaffleAnnouncement().flatMap {
                     Single.just(DashboardCowboysState.CowboyRaffleCard(it))
                 }
-                Tier.SILVER -> cowboysDataProvider.getIdentityAnnouncement().flatMap {
+                KycTier.SILVER -> cowboysDataProvider.getIdentityAnnouncement().flatMap {
                     Single.just(DashboardCowboysState.CowboyIdentityCard(it))
                 }
                 else -> getCowboysReferralInfo()
@@ -812,16 +820,18 @@ class DashboardActionInteractor(
         }
 
     private fun getCowboysReferralInfo(): Single<DashboardCowboysState> =
-        Singles.zip(
-            getReferralData(),
-            cowboysDataProvider.getReferFriendsAnnouncement()
-        ).flatMap { (referralInfo, cowboysData) ->
-            Single.just(
+        if (cowboysPrefs.hasCowboysReferralBeenDismissed) {
+            Single.just(DashboardCowboysState.Hidden)
+        } else {
+            Single.zip(
+                getReferralData(),
+                cowboysDataProvider.getReferFriendsAnnouncement()
+            ) { referralInfo, cowboysData ->
                 DashboardCowboysState.CowboyReferFriendsCard(
                     referralData = referralInfo,
                     cardInfo = cowboysData
                 )
-            )
+            }
         }
 
     private fun getReferralData(): Single<ReferralInfo> =

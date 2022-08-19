@@ -443,6 +443,12 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
 
+    object CowboysReferralCardClosed : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(
+            dashboardCowboysState = DashboardCowboysState.Hidden
+        )
+    }
+
     class UpdateCowboysViewState(val cowboysState: DashboardCowboysState) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(dashboardCowboysState = cowboysState)

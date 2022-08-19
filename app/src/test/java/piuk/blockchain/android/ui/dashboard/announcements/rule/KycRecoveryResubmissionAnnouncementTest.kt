@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.blockchain.nabu.UserIdentity
+import com.blockchain.core.kyc.domain.KycService
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
@@ -12,7 +12,7 @@ class KycRecoveryResubmissionAnnouncementTest {
 
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
-    private val userIdentity: UserIdentity = mock()
+    private val kycService: KycService = mock()
 
     private lateinit var subject: KycRecoveryResubmissionAnnouncement
 
@@ -23,7 +23,7 @@ class KycRecoveryResubmissionAnnouncementTest {
 
         subject = KycRecoveryResubmissionAnnouncement(
             dismissRecorder = dismissRecorder,
-            userIdentity = userIdentity
+            kycService = kycService
         )
     }
 
@@ -31,7 +31,7 @@ class KycRecoveryResubmissionAnnouncementTest {
     fun `should show, when not already shown, user  kyc requires resubmission`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
 
-        whenever(userIdentity.shouldResubmitAfterRecovery()).thenReturn(Single.just(true))
+        whenever(kycService.shouldResubmitAfterRecovery()).thenReturn(Single.just(true))
 
         subject.shouldShow()
             .test()
@@ -44,7 +44,7 @@ class KycRecoveryResubmissionAnnouncementTest {
     fun `should not show, when not already shown, user is verified`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
 
-        whenever(userIdentity.shouldResubmitAfterRecovery()).thenReturn(Single.just(false))
+        whenever(kycService.shouldResubmitAfterRecovery()).thenReturn(Single.just(false))
 
         subject.shouldShow()
             .test()

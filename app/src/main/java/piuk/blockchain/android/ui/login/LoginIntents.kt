@@ -263,4 +263,14 @@ sealed class LoginIntents : MviIntent<LoginState> {
                 pollingState = AuthPollingState.COMPLETE
             )
     }
+
+    class WalletConnectDeeplinkReceived(
+        private val payload: String
+    ) : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                currentStep = LoginStep.NAVIGATE_TO_WALLET_CONNECT,
+                walletConnectUrl = payload,
+            )
+    }
 }

@@ -1,15 +1,15 @@
 package piuk.blockchain.android.ui.kyc.settings
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTierState
+import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.api.kyc.domain.KycService
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
-import com.blockchain.nabu.api.kyc.domain.model.KycTierState
-import com.blockchain.nabu.api.kyc.domain.model.KycTiers
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.outcome.Outcome
@@ -257,7 +257,7 @@ class KycStatusHelperTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         testObserver.assertValue {
-            it.isPendingFor(KycTierLevel.SILVER)
+            it.isPendingFor(KycTier.SILVER)
         }
     }
 
@@ -283,7 +283,7 @@ class KycStatusHelperTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         testObserver.assertValue {
-            it.isApprovedFor(KycTierLevel.GOLD)
+            it.isApprovedFor(KycTier.GOLD)
         }
     }
 
@@ -309,8 +309,8 @@ class KycStatusHelperTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         testObserver.assertValue {
-            it.isRejectedFor(KycTierLevel.GOLD) &&
-                it.isRejectedFor(KycTierLevel.SILVER)
+            it.isRejectedFor(KycTier.GOLD) &&
+                it.isRejectedFor(KycTier.SILVER)
         }
     }
 
@@ -336,7 +336,7 @@ class KycStatusHelperTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         testObserver.assertValue {
-            it.isPendingFor(KycTierLevel.SILVER)
+            it.isPendingFor(KycTier.SILVER)
         }
     }
 
@@ -362,7 +362,7 @@ class KycStatusHelperTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         testObserver.assertValue {
-            it.isUnderReviewFor(KycTierLevel.SILVER)
+            it.isUnderReviewFor(KycTier.SILVER)
         }
     }
 
@@ -387,7 +387,7 @@ class KycStatusHelperTest {
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         testObserver.assertValue {
-            it.isApprovedFor(KycTierLevel.GOLD)
+            it.isApprovedFor(KycTier.GOLD)
         }
     }
 

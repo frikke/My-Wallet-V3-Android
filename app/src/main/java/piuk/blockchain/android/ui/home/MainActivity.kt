@@ -39,6 +39,7 @@ import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.nfts.comingsoon.NftComingSoonFragment
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.preferences.DashboardPrefs
@@ -114,7 +115,6 @@ import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.openUrl
 import timber.log.Timber
 
 class MainActivity :
@@ -124,7 +124,8 @@ class MainActivity :
     AuthNewLoginSheet.Host,
     AccountWalletLinkAlertSheet.Host,
     WCApproveSessionBottomSheet.Host,
-    RedesignActionsBottomSheet.Host,
+    BuyDefiBottomSheet.Host,
+    ActionBottomSheetHost,
     SmallSimpleBuyNavigator,
     BuyPendingOrdersBottomSheet.Host,
     ScanAndConnectBottomSheet.Host,
@@ -367,9 +368,9 @@ class MainActivity :
             }
             onMiddleButtonClick = {
                 dashboardPrefs.hasTappedFabButton = true
-                isPulseAnimationEnabled = false
+                binding.bottomNavigation.isPulseAnimationEnabled = false
                 showBottomSheet(
-                    RedesignActionsBottomSheet.newInstance()
+                    middleButtonBottomSheetLaunch
                 )
             }
         }
@@ -380,8 +381,19 @@ class MainActivity :
             NavigationItem.Home -> launchPortfolio()
             NavigationItem.Prices -> launchPrices()
             NavigationItem.BuyAndSell -> launchBuySell()
+            NavigationItem.Nfts -> launchNfts()
             NavigationItem.Activity -> startActivitiesFragment()
         }.exhaustive
+    }
+
+    private fun launchNfts() {
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_nfts))
+        updateSelectedNavigationItem(NavigationItem.Nfts)
+
+        supportFragmentManager.showFragment(
+            fragment = NftComingSoonFragment(),
+            reloadFragment = false
+        )
     }
 
     override fun showLoading() {
@@ -670,9 +682,16 @@ class MainActivity :
             setupMenuWithPresentButton(newState.referral)
         }
 
-        renderTabs(newState.tabs, newState.currentTab, newState.hasMiddleButton)
+        renderTabs(newState.tabs, newState.currentTab)
         renderMode(newState.walletMode)
     }
+
+    private val middleButtonBottomSheetLaunch: BottomSheetDialogFragment
+        get() = when (walletModeService.enabledWalletMode()) {
+            WalletMode.UNIVERSAL -> BrokerageActionsBottomSheet.newInstance()
+            WalletMode.CUSTODIAL_ONLY,
+            WalletMode.NON_CUSTODIAL_ONLY -> ActionsBottomSheet.newInstance(walletModeService.enabledWalletMode())
+        }
 
     private fun renderMode(walletMode: WalletMode) {
         if (walletMode == WalletMode.UNIVERSAL)
@@ -688,11 +707,12 @@ class MainActivity :
         }
     }
 
-    private fun renderTabs(tabs: List<NavigationItem>, currentTab: NavigationItem, hasMiddleButton: Boolean) {
+    private fun renderTabs(tabs: List<NavigationItem>, currentTab: NavigationItem) {
         binding.bottomNavigation.apply {
             this.navigationItems = tabs
-            this.hasMiddleButton = hasMiddleButton
+            this.hasMiddleButton = true
         }
+
         if (binding.bottomNavigation.selectedNavigationItem != currentTab) {
             binding.bottomNavigation.selectedNavigationItem = currentTab
             currentTab.launch()
@@ -708,6 +728,7 @@ class MainActivity :
                             context = this,
                             asset = assetInfo,
                             originScreen = LaunchOrigin.DEEPLINK.name,
+                            recurringBuyId = destination.recurringBuyId
                         )
                     )
                 } ?: run {
@@ -802,8 +823,8 @@ class MainActivity :
             Destination.StartKycDestination ->
                 startActivity(KycNavHostActivity.newIntent(this, CampaignType.None))
             Destination.ReferralDestination -> model.process(MainIntent.ShowReferralWhenAvailable)
-            is Destination.ExternalLinkDestination -> openUrl(destination.url)
             is Destination.DashboardDestination -> launchPortfolio(reload = true)
+            is Destination.WalletConnectDestination -> model.process(MainIntent.StartWCSession(destination.url))
         }.exhaustive
 
         model.process(MainIntent.ClearDeepLinkResult)
@@ -955,6 +976,10 @@ class MainActivity :
         launchQrScan()
     }
 
+    override fun goToTrading() {
+        model.process(MainIntent.SwitchWalletMode(WalletMode.CUSTODIAL_ONLY))
+    }
+
     override fun onSheetClosed() {
         binding.bottomNavigation.bottomNavigationState = BottomNavigationState.Add
         Timber.d("On closed")
@@ -1044,6 +1069,10 @@ class MainActivity :
 
     override fun launchBuy() {
         launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
+    }
+
+    override fun launchBuyForDefi() {
+        showBottomSheet(BuyDefiBottomSheet.newInstance())
     }
 
     override fun launchSell() {

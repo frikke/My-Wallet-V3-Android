@@ -2,9 +2,9 @@ package com.blockchain.koin
 
 import com.blockchain.api.nabuApi
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
-import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
-import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
+import com.blockchain.core.kyc.data.KycRepository
+import com.blockchain.core.kyc.data.datasources.KycTiersStore
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.NabuToken
@@ -13,9 +13,6 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.data.UserRepository
 import com.blockchain.nabu.api.getuser.domain.UserService
-import com.blockchain.nabu.api.kyc.data.KycRepository
-import com.blockchain.nabu.api.kyc.data.datasources.KycTiersStore
-import com.blockchain.nabu.api.kyc.domain.KycService
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.datamanagers.AnalyticsNabuUserReporterImpl
 import com.blockchain.nabu.datamanagers.AnalyticsWalletReporter
@@ -129,7 +126,7 @@ val nabuModule = module {
             NabuUserIdentity(
                 custodialWalletManager = get(),
                 interestService = get(),
-                nabuUserDataManager = get(),
+                kycService = get(),
                 simpleBuyEligibilityProvider = get(),
                 eligibilityService = get(),
                 userService = get(),
@@ -143,31 +140,6 @@ val nabuModule = module {
                 authenticator = get()
             )
         }.bind(SimpleBuyEligibilityProvider::class)
-
-        scoped {
-            InterestEligibilityTimedCache(
-                authenticator = get(),
-                assetCatalogue = get(),
-                interestApiService = get()
-            )
-        }
-
-        scoped {
-            InterestAvailableAssetsTimedCache(
-                authenticator = get(),
-                assetCatalogue = get(),
-                interestApiService = get()
-            )
-        }
-
-        scoped {
-            InterestLimitsTimedCache(
-                authenticator = get(),
-                assetCatalogue = get(),
-                interestApiService = get(),
-                currencyPrefs = get()
-            )
-        }
 
         factory {
             TradingPairsProviderImpl(
@@ -209,6 +181,7 @@ val nabuModule = module {
         scoped<KycService> {
             KycRepository(
                 kycTiersStore = get(),
+                userService = get(),
                 assetCatalogue = get()
             )
         }

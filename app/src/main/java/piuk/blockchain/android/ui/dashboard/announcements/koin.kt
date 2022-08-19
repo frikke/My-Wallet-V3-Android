@@ -84,14 +84,14 @@ val dashboardAnnouncementsModule = module {
 
         factory {
             KycResubmissionAnnouncement(
-                userIdentity = get(),
+                kycService = get(),
                 dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)
 
         factory {
             KycIncompleteAnnouncement(
-                userIdentity = get(),
+                kycService = get(),
                 dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)
@@ -187,7 +187,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             FiatFundsNoKycAnnouncement(
                 dismissRecorder = get(),
-                userIdentity = get()
+                kycService = get()
             )
         }.bind(AnnouncementRule::class)
 
@@ -246,7 +246,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             KycRecoveryResubmissionAnnouncement(
                 dismissRecorder = get(),
-                userIdentity = get()
+                kycService = get()
             )
         }.bind(AnnouncementRule::class)
 

@@ -34,6 +34,7 @@ sealed class CoinViewViewState {
 
     class ShowRecurringBuys(val recurringBuys: List<RecurringBuy>, val shouldShowUpsell: Boolean) : CoinViewViewState()
     class QuickActionsLoaded(
+        val middleAction: QuickActionCta,
         val startAction: QuickActionCta,
         val endAction: QuickActionCta,
         val actionableAccount: BlockchainAccount
@@ -105,6 +106,10 @@ sealed interface AssetDetailsItem {
         actions = actions,
         interestRate = Double.NaN
     )
+
+    data class CentralCta(
+        val account: BlockchainAccount,
+    ) : AssetDetailsItem
 
     data class RecurringBuyInfo(
         val recurringBuy: RecurringBuy

@@ -1,4 +1,4 @@
-package com.blockchain.nabu.api.kyc.domain.model
+package com.blockchain.core.kyc.domain.model
 
 import info.blockchain.balance.Money
 
@@ -7,17 +7,16 @@ import info.blockchain.balance.Money
 data class KycTiers(
     private val tiersMap: TiersMap
 ) {
-    fun isApprovedFor(level: KycTierLevel) = tiersMap[level].state == KycTierState.Verified
-    fun isPendingFor(level: KycTierLevel) = tiersMap[level].state == KycTierState.Pending
-    fun isUnderReviewFor(level: KycTierLevel) = tiersMap[level].state == KycTierState.UnderReview
-    fun isPendingOrUnderReviewFor(level: KycTierLevel) = isUnderReviewFor(level) || isPendingFor(level)
-    fun isRejectedFor(level: KycTierLevel) = tiersMap[level].state == KycTierState.Rejected
-    fun isNotInitialisedFor(level: KycTierLevel) = tiersMap[level].state == KycTierState.None
-    fun isInitialisedFor(level: KycTierLevel) = tiersMap[level].state != KycTierState.None
-    fun isInitialised() = tiersMap[KycTierLevel.BRONZE].state != KycTierState.None
-    fun isInInitialState() = tiersMap[KycTierLevel.SILVER].state == KycTierState.None
-    fun tierForLevel(level: KycTierLevel) = tiersMap[level]
-    fun tierCompletedForLevel(level: KycTierLevel) =
+    fun isApprovedFor(level: KycTier) = tiersMap[level].state == KycTierState.Verified
+    fun isPendingFor(level: KycTier) = tiersMap[level].state == KycTierState.Pending
+    fun isUnderReviewFor(level: KycTier) = tiersMap[level].state == KycTierState.UnderReview
+    fun isPendingOrUnderReviewFor(level: KycTier) = isUnderReviewFor(level) || isPendingFor(level)
+    fun isRejectedFor(level: KycTier) = tiersMap[level].state == KycTierState.Rejected
+    fun isInitialisedFor(level: KycTier) = tiersMap[level].state != KycTierState.None
+    fun isInitialised() = tiersMap[KycTier.BRONZE].state != KycTierState.None
+    fun isInInitialState() = tiersMap[KycTier.SILVER].state == KycTierState.None
+    fun tierForLevel(level: KycTier) = tiersMap[level]
+    fun tierCompletedForLevel(level: KycTier) =
         isApprovedFor(level) || isRejectedFor(level) || isPendingFor(level)
 
     fun highestActiveLevelState(): KycTierState =
@@ -25,13 +24,13 @@ data class KycTiers(
             it.value.state != KycTierState.None
         }?.value?.state ?: KycTierState.None
 
-    fun isVerified() = isApprovedFor(KycTierLevel.SILVER) || isApprovedFor(KycTierLevel.GOLD)
+    fun isVerified() = isApprovedFor(KycTier.SILVER) || isApprovedFor(KycTier.GOLD)
 
     companion object {
         fun default() =
             KycTiers(
                 TiersMap(
-                    KycTierLevel.values().map {
+                    KycTier.values().map {
                         it to KycTierDetail(KycTierState.None, null)
                     }.toMap()
                 )
@@ -72,22 +71,22 @@ data class KycTierDetail(
     val kycLimits: KycLimits? = null
 )
 
-enum class KycTierLevel {
+enum class KycTier {
     BRONZE,
     SILVER,
     GOLD
 }
 
 /**
- * Holds each [KycTierLevel] with its corresponding [KycTierDetail],
+ * Holds each [KycTier] with its corresponding [KycTierDetail],
  * which defines the [KycTierState] (pending, approved etc), and the [KycLimits] (daily, annual limits)
  */
 data class TiersMap(
-    private val map: Map<KycTierLevel, KycTierDetail>
-) : Map<KycTierLevel, KycTierDetail> by map {
-    override operator fun get(key: KycTierLevel): KycTierDetail {
+    private val map: Map<KycTier, KycTierDetail>
+) : Map<KycTier, KycTierDetail> by map {
+    override operator fun get(key: KycTier): KycTierDetail {
         return map.getOrElse(key) {
-            throw IllegalArgumentException("$key is not a known KycTierLevel")
+            throw IllegalArgumentException("$key is not a known KycTier")
         }
     }
 }

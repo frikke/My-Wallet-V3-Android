@@ -17,6 +17,7 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
@@ -35,6 +36,7 @@ import piuk.blockchain.android.maintenance.presentation.AppMaintenanceFragment
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceSharedViewModel
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
+import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.ui.scan.QrExpected
@@ -239,6 +241,10 @@ class LoginActivity :
                     model.process(LoginIntents.ShowEmailSent)
                 }
             }
+            LoginStep.NAVIGATE_TO_WALLET_CONNECT -> {
+                model.process(LoginIntents.ResetState)
+                navigateToMainWithWCLink(newState.walletConnectUrl)
+            }
             LoginStep.UNKNOWN_ERROR -> {
                 model.process(LoginIntents.CheckShouldNavigateToOtherScreen)
                 showSnackbar(SnackbarType.Error, R.string.common_error)
@@ -277,6 +283,15 @@ class LoginActivity :
             Intent(this, LauncherActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+        )
+    }
+
+    private fun navigateToMainWithWCLink(url: String) {
+        startActivity(
+            MainActivity.newIntent(
+                context = application,
+                pendingDestination = Destination.WalletConnectDestination(url)
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         )
     }
 

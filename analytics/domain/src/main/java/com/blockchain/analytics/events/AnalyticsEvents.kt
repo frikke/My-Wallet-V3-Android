@@ -275,8 +275,26 @@ enum class AnalyticsNames(val eventName: String) {
     WALLET_REWARDS_VIEWED("Wallet Rewards Viewed"),
     REFERRAL_CTA_CLICKED("Clicks on referral CTAs"),
     REFERRAL_VIEW_REFERRAL("View referrals page"),
+    REFERRAL_CODE_FILLED("Referral Code Filled"),
     REFERRAL_SHARE_CODE("Share referral code"),
     REFERRAL_COPY_CODE("Referral code copied"),
+    COWBOYS_VERIFY_EMAIL_ANNOUNCEMENT_CLICKED("Cowboys Verify Email Announcement Clicked"),
+    COWBOYS_WELCOME_INTERSTITIAL_VIEWED("Cowboys Welcome Interstitial Viewed"),
+    COWBOYS_WELCOME_INTERSTITIAL_CONTINUE_CLICKED("Cowboys Welcome Interstitial Continue Clicked"),
+    COWBOYS_WELCOME_INTERSTITIAL_CLOSED("Cowboys Welcome Interstitial Closed"),
+    COWBOYS_COMPLETE_SIGNUP_ANNOUNCEMENT_CLICKED("Cowboys Complete Sign-Up Annoucement Clicked"),
+    COWBOYS_KYC_PERSONAL_INFO_VIEWED("Cowboys Personal Info Viewed"),
+    COWBOYS_KYC_ADDRESS_VIEWED("Cowboys Address Viewed"),
+    COWBOYS_KYC_PERSONAL_INFO_CONFIRMED("Cowboys Personal Info Confirmed"),
+    COWBOYS_KYC_ADDRESS_CONFIRMED("Cowboys Address Confirmed"),
+    COWBOYS_RAFFLE_INTERSTITIAL_VIEWED("Cowboys Raffle Interstitial Viewed"),
+    COWBOYS_RAFFLE_INTERSTITIAL_CLOSED("Cowboys Raffle Interstitial Closed"),
+    COWBOYS_RAFFLE_INTERSTITIAL_BUY_CLICKED("Cowboys Raffle Interstitial Buy Crypto Clicked"),
+    COWBOYS_VERIFY_ANNOUNCEMENT_CLICKED("Cowboys Verify Identity Announcement Clicked"),
+    COWBOYS_VERIFY_INTERSTITIAL_VIEWED("Cowboys Verify Identity Interstitial Viewed"),
+    COWBOYS_VERIFY_INTERSTITIAL_CLOSED("Cowboys Verify Identity Interstitial Closed"),
+    COWBOYS_VERIFY_INTERSTITIAL_CTA_CLICKED("Cowboys Verify Identity Interstitial Verify ID Clicked"),
+    COWBOYS_REFER_FRIEND_ANNOUNCEMENT_CLICKED("Cowboys Refer Friends Announcement Clicked")
     ;
 }
 

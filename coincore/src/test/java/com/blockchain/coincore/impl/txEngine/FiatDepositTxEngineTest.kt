@@ -13,6 +13,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -28,7 +29,6 @@ import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.domain.paymentmethods.model.SettlementType
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransactionError
@@ -78,7 +78,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
     }
 
     private val userIdentity: UserIdentity = mock {
-        on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
+        on { isVerifiedFor(Feature.TierLevel(KycTier.GOLD)) }.thenReturn(Single.just(true))
     }
 
     @Before

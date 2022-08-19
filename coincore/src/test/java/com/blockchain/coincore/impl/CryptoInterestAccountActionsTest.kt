@@ -6,11 +6,12 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.domain.model.InterestEligibility
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.nhaarman.mockitokotlin2.mock
@@ -30,6 +31,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
     private val custodialManager: CustodialWalletManager = mock()
     private val interestService: InterestService = mock()
     private val userIdentity: UserIdentity = mock()
+    private val kycService: KycService = mock()
 
     @Before
     fun setup() {
@@ -41,7 +43,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
     fun `when user is bronze then actions are not returned`() {
         val subject = configureActionSubject()
 
-        configureActionTest(Tier.BRONZE)
+        configureActionTest(KycTier.BRONZE)
 
         subject.stateAwareActions
             .test().assertValue {
@@ -53,7 +55,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
     fun `when user is silver then actions are not returned`() {
         val subject = configureActionSubject()
 
-        configureActionTest(Tier.SILVER)
+        configureActionTest(KycTier.SILVER)
 
         subject.stateAwareActions
             .test().assertValue {
@@ -66,7 +68,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
         val subject = configureActionSubject()
 
         configureActionTest(
-            tier = Tier.GOLD,
+            tier = KycTier.GOLD,
             userAccessForFeature = FeatureAccess.Blocked(BlockedReason.NotEligible),
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN)
         )
@@ -89,7 +91,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
         val subject = configureActionSubject()
 
         configureActionTest(
-            tier = Tier.GOLD,
+            tier = KycTier.GOLD,
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
             userAccessForFeature = FeatureAccess.Blocked(BlockedReason.NotEligible)
         )
@@ -112,7 +114,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
         val subject = configureActionSubject()
 
         configureActionTest(
-            tier = Tier.GOLD,
+            tier = KycTier.GOLD,
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
             userAccessForFeature = FeatureAccess.Granted()
         )
@@ -135,7 +137,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
         val subject = configureActionSubject()
 
         configureActionTest(
-            tier = Tier.GOLD,
+            tier = KycTier.GOLD,
             accountBalance = CryptoValue.Companion.fromMinor(TEST_ASSET, BigInteger.TEN),
             userAccessForFeature = FeatureAccess.Granted()
         )
@@ -161,16 +163,17 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
             custodialWalletManager = custodialManager,
             interestService = interestService,
             identity = userIdentity,
+            kycService = kycService,
             internalAccountLabel = "Trading Account"
         )
 
     private fun configureActionTest(
-        tier: Tier,
+        tier: KycTier,
         userAccessForFeature: FeatureAccess = FeatureAccess.Granted(),
         accountBalance: CryptoValue = CryptoValue.zero(TEST_ASSET)
     ) {
 
-        whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(tier))
+        whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(tier))
         whenever(userIdentity.userAccessForFeature(Feature.DepositInterest)).thenReturn(
             Single.just(userAccessForFeature)
         )

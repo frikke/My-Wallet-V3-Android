@@ -2234,6 +2234,10 @@
     <string name="checkout_fee_free">When using Trading Accounts, there are no network fees</string>
     <string name="private_key_wallet_explanation">%s Private Key wallets, send, and receive are not supported at this time.</string>
     <string name="checkout_rewards_confirmation_disclaimer">After confirming this withdrawal, you will not continue to earn rewards on the amount withdrawn.\n\nYour %1$s will be available in your \"%2$s\" Account within 2 days.</string>
+    <string name="checkout_rb_weekly_title">Invest Weekly?</string>
+    <string name="checkout_rb_biweekly_title">Invest bi-Weekly?</string>
+    <string name="checkout_rb_monthly_title">Invest Monthly?</string>
+    <string name="checkout_rb_subtitle">Buy %1$s %2$s. Cancel anytime.</string>
 
     <!-- New pairing -->
     <string name="pairing_wallet_title">Pair your wallet</string>
@@ -2346,6 +2350,9 @@
     <string name="recurring_buy_cta_alert">OK</string>
     <string name="recurring_buy_payment_message">You’ll be charged %1$s %2$s for the market equivalent of %3$s. You can manage your Recurring Buy from the %4$s Wallets &amp; Accounts Page.</string>
     <string name="recurring_buy_creation_error">Error creating your Recurring Buy. Please try again.</string>
+    <string name="recurring_buy_view_rb">View Recurring Buy</string>
+    <string name="recurring_buy_created_title">%s Buy Created</string>
+    <string name="recurring_buy_created_subtitle">You’ll now buy %1$s in %2$s %3$s. You can cancel at any time.</string>
     <string name="dashboard_title_recurring_buy">Unsure when to buy?</string>
     <string name="dashboard_recurring_buy_description">Timing the market is hard, which is why many investors use dollar cost averaging.</string>
     <string name="dashboard_recurring_buy_learn_more">Learn more →</string>
@@ -2462,6 +2469,7 @@
     <string name="main_toolbar_home">Home</string>
     <string name="main_toolbar_prices">Prices</string>
     <string name="main_toolbar_buy_sell">Buy &amp; Sell</string>
+    <string name="main_toolbar_nfts" translatable="false">NFTs</string>
     <string name="main_toolbar_activity">Activity</string>
     <string name="toolbar_swap">Swap</string>
     <string name="toolbar_send">Send</string>
@@ -3134,12 +3142,14 @@
     <string name="accessibility_referral">Show Referral Code</string>
     <string name="accessibility_price_not_available">Price not available</string>
     <string name="accessibility_balance">Balance</string>
+    <string name="accessibility_total_balance">Total Balance</string>
 
     <!-- Bottom Nav Items -->
     <string name="bottom_nav_home">Home</string>
     <string name="bottom_nav_prices">Prices</string>
     <string name="bottom_nav_buy_and_sell">Buy &amp; Sell</string>
     <string name="bottom_nav_activity">Activity</string>
+    <string name="bottom_nav_nfts" translatable="false">NFTs</string>
     <string name="defi_wallet_name" translatable="false">Private Key Wallet</string>
 
     <string name="simple_buy_quote_message">New Quote in %s</string>
@@ -3165,5 +3175,14 @@
     <!-- NFT -->
     <string name="nft_coming_soon_title">Coming soon!</string>
     <string name="nft_coming_soon_description">We’re working hard to support your NFTs in the wallet. We’ll send you an email when it’s time to update your app.</string>
-
+    <string name="shortcuts">Shortcuts</string>
+    <string name="exchange_your_crypto">Exchange your crypto</string>
+    <string name="transfer_to_another_wallet">Transfer to another wallet</string>
+    <string name="top_up_trading_account">Top up in your Trading Account.</string>
+    <string name="receive_to_your_wallet">Receive to your wallet</string>
+    <string name="buy_crypto">Buy Crypto</string>
+    <string name="defi_buy_not_supported">We don’t support buying crypto into your Private Key Wallet at this time. You can buy from your Trading Account and send to your Private Key Wallet.</string>
+    <string name="go_to_trading">Go to Trading Account</string>
+    <string name="use_your_card_or_cash">Use Your Cash or Card</string>
+    <string name="fiat_to_cash">Convert Your Crypto to Cash</string>
 </resources>

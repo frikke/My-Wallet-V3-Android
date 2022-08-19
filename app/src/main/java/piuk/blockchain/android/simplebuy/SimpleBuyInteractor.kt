@@ -5,6 +5,9 @@ import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -30,11 +33,7 @@ import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.api.kyc.domain.KycService
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
-import com.blockchain.nabu.api.kyc.domain.model.KycTiers
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -132,15 +131,15 @@ class SimpleBuyInteractor(
     ): Single<TxLimits> =
         Singles.zip(
             fetchLimits(sourceCurrency = fiat, targetCurrency = asset, paymentMethodType = paymentMethodType),
-            userIdentity.getHighestApprovedKycTier()
+            kycService.getHighestApprovedTierLevelLegacy()
         ).flatMap { (limits, highestTier) ->
             when (highestTier) {
-                Tier.BRONZE -> Single.just(limits.copy(max = TxLimit.Unlimited))
-                Tier.SILVER -> userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence).map { isSdd ->
+                KycTier.BRONZE -> Single.just(limits.copy(max = TxLimit.Unlimited))
+                KycTier.SILVER -> userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence).map { isSdd ->
                     if (isSdd) limits
                     else limits.copy(max = TxLimit.Unlimited)
                 }
-                Tier.GOLD -> Single.just(limits)
+                KycTier.GOLD -> Single.just(limits)
             }
         }
 
@@ -210,7 +209,7 @@ class SimpleBuyInteractor(
         kycService.getTiersLegacy()
             .flatMap {
                 when {
-                    it.isApprovedFor(KycTierLevel.GOLD) ->
+                    it.isApprovedFor(KycTier.GOLD) ->
                         eligibilityProvider.isEligibleForSimpleBuy(forceRefresh = true).map { eligible ->
                             if (eligible) {
                                 SimpleBuyIntent.KycStateUpdated(KycState.VERIFIED_AND_ELIGIBLE)
@@ -304,7 +303,7 @@ class SimpleBuyInteractor(
     fun checkTierLevel(): Single<SimpleBuyIntent.KycStateUpdated> {
         return kycService.getTiersLegacy().flatMap {
             when {
-                it.isApprovedFor(KycTierLevel.GOLD) -> eligibilityProvider.isEligibleForSimpleBuy(
+                it.isApprovedFor(KycTier.GOLD) -> eligibilityProvider.isEligibleForSimpleBuy(
                     forceRefresh = true
                 )
                     .map { eligible ->
@@ -314,8 +313,8 @@ class SimpleBuyInteractor(
                             SimpleBuyIntent.KycStateUpdated(KycState.VERIFIED_BUT_NOT_ELIGIBLE)
                         }
                     }
-                it.isRejectedFor(KycTierLevel.GOLD) -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.FAILED))
-                it.isPendingFor(KycTierLevel.GOLD) -> Single.just(
+                it.isRejectedFor(KycTier.GOLD) -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.FAILED))
+                it.isPendingFor(KycTier.GOLD) -> Single.just(
                     SimpleBuyIntent.KycStateUpdated(KycState.IN_REVIEW)
                 )
                 else -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.PENDING))
@@ -330,12 +329,12 @@ class SimpleBuyInteractor(
     }
 
     private fun KycTiers.isRejectedForAny(): Boolean =
-        isRejectedFor(KycTierLevel.SILVER) ||
-            isRejectedFor(KycTierLevel.GOLD)
+        isRejectedFor(KycTier.SILVER) ||
+            isRejectedFor(KycTier.GOLD)
 
     private fun KycTiers.isInReviewForAny(): Boolean =
-        isUnderReviewFor(KycTierLevel.SILVER) ||
-            isUnderReviewFor(KycTierLevel.GOLD)
+        isUnderReviewFor(KycTier.SILVER) ||
+            isUnderReviewFor(KycTier.GOLD)
 
     fun exchangeRate(asset: AssetInfo): Single<SimpleBuyIntent.ExchangePriceWithDeltaUpdated> =
         coincore.getExchangePriceWithDelta(asset)
@@ -357,7 +356,7 @@ class SimpleBuyInteractor(
                     getAvailablePaymentMethodsTypesUseCase(
                         GetAvailablePaymentMethodsTypesUseCase.Request(
                             currency = fiatCurrency,
-                            onlyEligible = tier.isInitialisedFor(KycTierLevel.GOLD),
+                            onlyEligible = tier.isInitialisedFor(KycTier.GOLD),
                             fetchSddLimits = sddEligible && tier.isInInitialState()
                         )
                     ),

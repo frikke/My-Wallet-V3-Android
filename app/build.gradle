@@ -367,6 +367,8 @@ dependencies {
     implementation project(':defiwalletbackup:domain')
     implementation project(':defiwalletbackup:data')
 
+    implementation project(':nfts:presentation')
+
     implementation project(':appRating:data')
     implementation project(':appRating:domain')
     implementation project(':appRating:presentaion')

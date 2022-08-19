@@ -38,6 +38,6 @@ class InterestBalancesStore(
     }
 
     companion object {
-        private const val STORE_ID = "InterestStore"
+        private const val STORE_ID = "InterestBalancesStore"
     }
 }

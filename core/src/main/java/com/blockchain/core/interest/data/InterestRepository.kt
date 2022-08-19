@@ -2,13 +2,14 @@ package com.blockchain.core.interest.data
 
 import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
+import com.blockchain.api.interest.data.InterestEligibilityDto
 import com.blockchain.api.interest.data.InterestWithdrawalBodyDto
-import com.blockchain.core.TransactionsCache
-import com.blockchain.core.TransactionsRequest
-import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsTimedCache
+import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
+import com.blockchain.core.interest.data.datasources.InterestAvailableAssetsStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
-import com.blockchain.core.interest.data.datasources.InterestEligibilityTimedCache
-import com.blockchain.core.interest.data.datasources.InterestLimitsTimedCache
+import com.blockchain.core.interest.data.datasources.InterestEligibilityStore
+import com.blockchain.core.interest.data.datasources.InterestLimitsStore
+import com.blockchain.core.interest.data.datasources.InterestRateStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.domain.model.InterestActivity
@@ -16,10 +17,14 @@ import com.blockchain.core.interest.domain.model.InterestActivityAttributes
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.interest.domain.model.InterestState
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
+import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.asObservable
 import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
 import com.blockchain.utils.fromIso8601ToUtc
@@ -33,6 +38,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -41,12 +47,14 @@ import kotlinx.coroutines.rx3.asObservable
 internal class InterestRepository(
     private val assetCatalogue: AssetCatalogue,
     private val interestBalancesStore: InterestBalancesStore,
-    private val interestEligibilityTimedCache: InterestEligibilityTimedCache,
-    private val interestAvailableAssetsTimedCache: InterestAvailableAssetsTimedCache,
-    private val interestLimitsTimedCache: InterestLimitsTimedCache,
+    private val interestEligibilityStore: InterestEligibilityStore,
+    private val interestAvailableAssetsStore: InterestAvailableAssetsStore,
+    private val interestLimitsStore: InterestLimitsStore,
+    private val interestRateStore: InterestRateStore,
+    private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore,
+    private val currencyPrefs: CurrencyPrefs,
     private val authenticator: Authenticator,
-    private val interestApiService: InterestApiService,
-    private val transactionsCache: TransactionsCache,
+    private val interestApiService: InterestApiService
 ) : InterestService {
 
     // balances
@@ -85,7 +93,18 @@ internal class InterestRepository(
 
     // availability
     override fun getAvailableAssetsForInterest(): Single<List<AssetInfo>> {
-        return interestAvailableAssetsTimedCache.cached()
+        return getAvailableAssetsForInterestFlow()
+            .asObservable().firstOrError()
+    }
+
+    override fun getAvailableAssetsForInterestFlow(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<List<AssetInfo>>> {
+        return interestAvailableAssetsStore.stream(refreshStrategy).mapData { response ->
+            response.networkTickers.mapNotNull { networkTicker ->
+                assetCatalogue.assetInfoFromNetworkTicker(networkTicker)
+            }
+        }
     }
 
     override fun isAssetAvailableForInterest(asset: AssetInfo): Single<Boolean> {
@@ -94,9 +113,46 @@ internal class InterestRepository(
             .onErrorResumeNext { Single.just(false) }
     }
 
+    override fun isAssetAvailableForInterestFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Boolean>> {
+        return getAvailableAssetsForInterestFlow(refreshStrategy)
+            .mapData { assets -> assets.contains(asset) }
+    }
+
     // eligibility
     override fun getEligibilityForAssets(): Single<Map<AssetInfo, InterestEligibility>> {
-        return interestEligibilityTimedCache.cached()
+        return getEligibilityForAssetsFlow()
+            .asObservable().firstOrError()
+    }
+
+    override fun getEligibilityForAssetsFlow(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Map<AssetInfo, InterestEligibility>>> {
+        fun String.toIneligibilityReason(): InterestEligibility.Ineligible {
+            return when {
+                this.isEmpty() -> InterestEligibility.Ineligible.NONE
+                this == InterestEligibilityDto.DEFAULT_REASON_NONE -> InterestEligibility.Ineligible.NONE
+                this == InterestEligibilityDto.UNSUPPORTED_REGION -> InterestEligibility.Ineligible.REGION
+                this == InterestEligibilityDto.INVALID_ADDRESS -> InterestEligibility.Ineligible.REGION
+                this == InterestEligibilityDto.TIER_TOO_LOW -> InterestEligibility.Ineligible.KYC_TIER
+                else -> InterestEligibility.Ineligible.OTHER
+            }
+        }
+
+        return interestEligibilityStore.stream(refreshStrategy).mapData { mapAssetTicketWithEligibility ->
+            assetCatalogue.supportedCustodialAssets.associateWith { asset ->
+                val eligibilityDto = mapAssetTicketWithEligibility[asset.networkTicker.uppercase()]
+                    ?: InterestEligibilityDto.default()
+
+                if (eligibilityDto.isEligible) {
+                    InterestEligibility.Eligible
+                } else {
+                    eligibilityDto.reason.toIneligibilityReason()
+                }
+            }
+        }
     }
 
     override fun getEligibilityForAsset(asset: AssetInfo): Single<InterestEligibility> {
@@ -105,9 +161,54 @@ internal class InterestRepository(
         }
     }
 
+    override fun getEligibilityForAssetFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<InterestEligibility>> {
+        return getEligibilityForAssetsFlow(refreshStrategy)
+            .mapData { mapAssetWithEligibility ->
+                mapAssetWithEligibility[asset] ?: InterestEligibility.Ineligible.default()
+            }
+    }
+
     // limits
     override fun getLimitsForAssets(): Single<Map<AssetInfo, InterestLimits>> {
-        return interestLimitsTimedCache.cached()
+        return getLimitsForAssetsFlow()
+            .asObservable().firstOrError()
+    }
+
+    override fun getLimitsForAssetsFlow(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Map<AssetInfo, InterestLimits>>> {
+        return interestLimitsStore.stream(refreshStrategy).mapData { interestLimits ->
+            interestLimits.limits.entries.mapNotNull { (assetTicker, limits) ->
+                assetCatalogue.assetInfoFromNetworkTicker(assetTicker)?.let { asset ->
+
+                    val calendar = Calendar.getInstance().apply {
+                        set(Calendar.DAY_OF_MONTH, 1)
+                        add(Calendar.MONTH, 1)
+                    }
+
+                    val minDepositFiatValue = Money.fromMinor(
+                        currencyPrefs.selectedFiatCurrency,
+                        limits.minDepositAmount.toBigInteger()
+                    )
+                    val maxWithdrawalFiatValue = Money.fromMinor(
+                        currencyPrefs.selectedFiatCurrency,
+                        limits.maxWithdrawalAmount.toBigInteger()
+                    )
+
+                    val interestLimit = InterestLimits(
+                        interestLockUpDuration = limits.lockUpDuration,
+                        nextInterestPayment = calendar.time,
+                        minDepositFiatValue = minDepositFiatValue,
+                        maxWithdrawalFiatValue = maxWithdrawalFiatValue
+                    )
+
+                    Pair(asset, interestLimit)
+                }
+            }.toMap()
+        }
     }
 
     override fun getLimitsForAsset(asset: AssetInfo): Single<InterestLimits> {
@@ -116,13 +217,26 @@ internal class InterestRepository(
         }
     }
 
+    override fun getLimitsForAssetFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<InterestLimits>> {
+        return getLimitsForAssetsFlow(refreshStrategy)
+            .mapData { mapAssetWithLimits ->
+                mapAssetWithLimits[asset]
+                    ?: throw NoSuchElementException("Unable to get limits for ${asset.networkTicker}")
+            }
+    }
+
     // rate
     override fun getInterestRate(asset: AssetInfo): Single<Double> {
-        return authenticator.authenticate { sessionToken ->
-            interestApiService.getInterestRates(sessionToken.authHeader, asset.networkTicker)
-                .map { interestRateResponse -> interestRateResponse.rate }
-                .defaultIfEmpty(0.0)
-        }
+        return getInterestRateFlow(asset)
+            .asObservable().firstOrError()
+    }
+
+    override fun getInterestRateFlow(asset: AssetInfo, refreshStrategy: FreshnessStrategy): Flow<DataResource<Double>> {
+        return interestRateStore.stream(refreshStrategy.withKey(InterestRateStore.Key(asset.networkTicker)))
+            .mapData { interestRateResponse -> interestRateResponse.rate }
     }
 
     // address
@@ -135,16 +249,30 @@ internal class InterestRepository(
 
     // activity
     override fun getActivity(asset: AssetInfo): Single<List<InterestActivity>> {
-        return transactionsCache.transactions(
-            TransactionsRequest(product = PRODUCT_NAME, type = null)
-        ).map { interestActivityResponse ->
-            interestActivityResponse.items
-                .filter { transaction ->
-                    assetCatalogue.fromNetworkTicker(transaction.amount.symbol)?.networkTicker == asset.networkTicker
-                }.map { transaction ->
-                    transaction.toInterestActivity(asset)
-                }
-        }
+        return getActivityFlow(asset)
+            .asObservable().firstOrError()
+    }
+
+    override fun getActivityFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<List<InterestActivity>>> {
+        return paymentTransactionHistoryStore
+            .stream(
+                refreshStrategy.withKey(
+                    PaymentTransactionHistoryStore.Key(product = INTEREST_PRODUCT_NAME, type = null)
+                )
+            )
+            .mapData { interestActivityResponse ->
+                interestActivityResponse.items
+                    .filter { transaction ->
+                        assetCatalogue.fromNetworkTicker(
+                            transaction.amount.symbol
+                        )?.networkTicker == asset.networkTicker
+                    }.map { transaction ->
+                        transaction.toInterestActivity(asset)
+                    }
+            }
     }
 
     // withdrawal
@@ -162,7 +290,7 @@ internal class InterestRepository(
     }
 
     companion object {
-        const val PRODUCT_NAME = "savings"
+        const val INTEREST_PRODUCT_NAME = "savings"
     }
 }
 

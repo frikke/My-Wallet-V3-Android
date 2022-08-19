@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.blockchain.nabu.UserIdentity
+import com.blockchain.core.kyc.domain.KycService
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
@@ -11,7 +11,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 class KycResubmissionAnnouncementTest {
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
-    private val userIdentity: UserIdentity = mock()
+    private val kycService: KycService = mock()
 
     private lateinit var subject: KycResubmissionAnnouncement
 
@@ -23,7 +23,7 @@ class KycResubmissionAnnouncementTest {
             .thenReturn(KycResubmissionAnnouncement.DISMISS_KEY)
 
         subject = KycResubmissionAnnouncement(
-            userIdentity = userIdentity,
+            kycService = kycService,
             dismissRecorder = dismissRecorder
         )
     }
@@ -42,7 +42,7 @@ class KycResubmissionAnnouncementTest {
     @Test
     fun `should not show, if kyc resubmission is not required`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(userIdentity.isKycResubmissionRequired()).thenReturn(Single.just(false))
+        whenever(kycService.isResubmissionRequired()).thenReturn(Single.just(false))
 
         subject.shouldShow()
             .test()
@@ -54,7 +54,7 @@ class KycResubmissionAnnouncementTest {
     @Test
     fun `should show, if kyc resubmission is required`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(userIdentity.isKycResubmissionRequired()).thenReturn(Single.just(true))
+        whenever(kycService.isResubmissionRequired()).thenReturn(Single.just(true))
 
         subject.shouldShow()
             .test()

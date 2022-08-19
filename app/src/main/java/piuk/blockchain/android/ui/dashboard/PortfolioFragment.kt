@@ -60,6 +60,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewActivity
+import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
 import piuk.blockchain.android.ui.cowboys.FlowStep
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
@@ -512,6 +513,7 @@ class PortfolioFragment :
                     showCowboysCard(
                         cardInfo = cowboysState.cardInfo,
                         onClick = {
+                            analytics.logEvent(CowboysAnalytics.VerifyEmailAnnouncementClicked)
                             startActivity(
                                 CowboysFlowActivity.newIntent(requireContext(), FlowStep.Welcome)
                             )
@@ -521,6 +523,7 @@ class PortfolioFragment :
                     showCowboysCard(
                         cardInfo = cowboysState.cardInfo,
                         onClick = {
+                            analytics.logEvent(CowboysAnalytics.CompleteSignupAnnouncementClicked)
                             startActivity(
                                 CowboysFlowActivity.newIntent(requireContext(), FlowStep.Welcome)
                             )
@@ -530,6 +533,7 @@ class PortfolioFragment :
                     showCowboysCard(
                         cardInfo = cowboysState.cardInfo,
                         onClick = {
+                            analytics.logEvent(CowboysAnalytics.VerifyIdAnnouncementClicked)
                             startActivity(
                                 CowboysFlowActivity.newIntent(requireContext(), FlowStep.Verify)
                             )
@@ -540,11 +544,13 @@ class PortfolioFragment :
                         cardInfo = cowboysState.cardInfo,
                         onClick = {
                             if (cowboysState.referralData is ReferralInfo.Data) {
+                                analytics.logEvent(CowboysAnalytics.ReferFriendAnnouncementClicked)
                                 showBottomSheet(ReferralSheet.newInstance(cowboysState.referralData))
                             }
                         },
                         isDismissable = true,
                         onDismiss = {
+                            model.process(DashboardIntent.CowboysReferralCardClosed)
                             gone()
                         }
                     )

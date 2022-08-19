@@ -18,7 +18,18 @@ import piuk.blockchain.android.ui.home.models.FlowToLaunch
 import piuk.blockchain.android.ui.home.models.SplitButtonCtaOrdering
 import piuk.blockchain.android.ui.sell.BuySellFragment
 
-class RedesignActionsBottomSheet :
+interface ActionBottomSheetHost : SlidingModalBottomDialog.Host {
+    fun launchSwapScreen()
+    fun launchBuy()
+    fun launchBuyForDefi()
+    fun launchSell()
+    fun launchInterestDashboard(origin: LaunchOrigin)
+    fun launchReceive()
+    fun launchSend()
+    fun launchTooManyPendingBuys(maxTransactions: Int)
+}
+
+class BrokerageActionsBottomSheet :
     MviBottomSheet<ActionsSheetModel, ActionsSheetIntent, ActionsSheetState, BottomSheetRedesignActionsBinding>() {
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): BottomSheetRedesignActionsBinding =
@@ -26,19 +37,9 @@ class RedesignActionsBottomSheet :
 
     override val model: ActionsSheetModel by scopedInject()
 
-    interface Host : SlidingModalBottomDialog.Host {
-        fun launchSwapScreen()
-        fun launchBuy()
-        fun launchSell()
-        fun launchInterestDashboard(origin: LaunchOrigin)
-        fun launchReceive()
-        fun launchSend()
-        fun launchTooManyPendingBuys(maxTransactions: Int)
-    }
-
-    override val host: Host by lazy {
-        super.host as? Host ?: throw IllegalStateException(
-            "Host fragment is not a RedesignActionsBottomSheet.Host"
+    override val host: ActionBottomSheetHost by lazy {
+        super.host as? ActionBottomSheetHost ?: throw IllegalStateException(
+            "Host fragment is not a ActionBottomSheetHost"
         )
     }
 
@@ -165,6 +166,6 @@ class RedesignActionsBottomSheet :
     override fun getTheme() = R.style.RedesignBottomSheetDialog
 
     companion object {
-        fun newInstance() = RedesignActionsBottomSheet()
+        fun newInstance() = BrokerageActionsBottomSheet()
     }
 }

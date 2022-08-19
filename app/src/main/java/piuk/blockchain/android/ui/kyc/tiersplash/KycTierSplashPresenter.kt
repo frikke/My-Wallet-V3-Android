@@ -2,9 +2,9 @@ package piuk.blockchain.android.ui.kyc.tiersplash
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AnalyticsEvents
-import com.blockchain.nabu.api.kyc.domain.KycService
-import com.blockchain.nabu.api.kyc.domain.model.KycTierLevel
-import com.blockchain.nabu.api.kyc.domain.model.KycTierState
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTierState
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -28,8 +28,8 @@ class KycTierSplashPresenter(
                 .subscribeBy(
                     onSuccess = { tiers ->
                         reportState(
-                            tiers.tierForLevel(KycTierLevel.SILVER).state,
-                            tiers.tierForLevel(KycTierLevel.GOLD).state
+                            tiers.tierForLevel(KycTier.SILVER).state,
+                            tiers.tierForLevel(KycTier.GOLD).state
                         )
                     },
                     onError = {

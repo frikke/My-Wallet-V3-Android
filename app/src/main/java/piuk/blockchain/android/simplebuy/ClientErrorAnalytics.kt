@@ -29,7 +29,7 @@ sealed class ClientErrorAnalytics(
             "title" to title,
             "action" to action,
             "network_endpoint" to nabuApiException?.getPath(),
-            "network_error_code" to nabuApiException?.getErrorCode()?.code.toString(),
+            "network_error_code" to nabuApiException?.getErrorCode()?.code?.or(-1),
             "network_error_description" to (nabuApiException?.message ?: errorDescription.orEmpty()),
             "network_error_id" to nabuApiException?.getId(),
             "network_error_type" to nabuApiException?.getErrorType()?.type,

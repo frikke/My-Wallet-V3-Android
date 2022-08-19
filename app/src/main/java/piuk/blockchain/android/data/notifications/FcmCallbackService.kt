@@ -36,6 +36,7 @@ import piuk.blockchain.android.ui.auth.newlogin.domain.model.toArg
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import timber.log.Timber
 
 class FcmCallbackService : FirebaseMessagingService() {
@@ -157,14 +158,7 @@ class FcmCallbackService : FirebaseMessagingService() {
                                 if (isEnabled) {
                                     deeplinkRedirector.processDeeplinkURL(
                                         Uri.parse(payload.deeplinkURL), payload
-                                    ).subscribeBy(
-                                        onComplete = {
-                                            // Nothing to do
-                                        },
-                                        onError = {
-                                            Timber.e(it)
-                                        }
-                                    )
+                                    ).emptySubscribe()
                                 }
                             }
                         )
