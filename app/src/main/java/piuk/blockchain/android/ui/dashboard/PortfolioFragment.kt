@@ -337,15 +337,11 @@ class PortfolioFragment :
             }
             is DashboardNavigationAction.Coinview -> {
                 activityResultsContract.launch(
-                    if (get<WalletModeService>().enabledWalletMode() == WalletMode.CUSTODIAL_ONLY) {
-                        CoinViewActivity.newIntent(
-                            context = requireContext(),
-                            asset = navigationAction.asset,
-                            originScreen = LaunchOrigin.HOME.name,
-                        )
-                    } else {
-                        CoinviewActivity.newIntent(context = requireContext(), asset = navigationAction.asset)
-                    }
+                    CoinViewActivity.newIntent(
+                        context = requireContext(),
+                        asset = navigationAction.asset,
+                        originScreen = LaunchOrigin.HOME.name,
+                    )
                 )
                 model.process(DashboardIntent.ResetNavigation)
             }
