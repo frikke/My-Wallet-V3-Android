@@ -8,6 +8,7 @@ import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.componentlib.navigation.NavigationItem
+import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.referral.model.ReferralInfo
@@ -145,13 +146,14 @@ class MainModel(
             is MainIntent.ProcessPendingDeeplinkIntent -> {
                 intent.deeplinkIntent.data.takeIf { it != Uri.EMPTY }?.let { uri ->
                     interactor.processDeepLinkV2(uri).subscribeBy(
-                        onComplete = {
-                            // Nothing to do. Deeplink V2 was parsed successfully
+                        onSuccess = {
+                            if (it is DeepLinkResult.DeepLinkResultUnknownLink) {
+                                process(MainIntent.CheckForPendingLinks(intent.deeplinkIntent))
+                            }
                         },
                         onError = {
-                            // Deeplink V2 parsing failed, fallback to legacy
+                            // fail silently
                             Timber.e(it)
-                            process(MainIntent.CheckForPendingLinks(intent.deeplinkIntent))
                         }
                     )
                 }
@@ -182,7 +184,9 @@ class MainModel(
                                 dispatchDeepLink(linkState)
                             }
                         },
-                        onError = { Timber.e(it) }
+                        onError = {
+                            Timber.e(it)
+                        }
                     )
             }
             is MainIntent.ClearDeepLinkResult -> interactor.clearDeepLink()

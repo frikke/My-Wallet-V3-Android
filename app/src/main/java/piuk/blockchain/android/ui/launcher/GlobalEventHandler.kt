@@ -54,18 +54,21 @@ class GlobalEventHandler(
         }
     }
 
-    private fun navigateToDeeplinkDestination(deeplinkResult: DeepLinkResult.DeepLinkResultSuccess) {
-        if (deeplinkResult.notificationPayload != null) {
-            Timber.d("deeplink: triggering notification with deeplink")
-            triggerNotificationFromDeeplink(deeplinkResult.destination, deeplinkResult.notificationPayload!!)
-        } else {
-            Timber.d("deeplink: Starting main activity with pending destination")
-            application.startActivity(
-                MainActivity.newIntent(
-                    context = application,
-                    pendingDestination = deeplinkResult.destination
-                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
+    private fun navigateToDeeplinkDestination(deeplinkResult: DeepLinkResult) {
+        // this is a known v2 deeplink that should be handled with the newer approach
+        if (deeplinkResult is DeepLinkResult.DeepLinkResultSuccess) {
+            if (deeplinkResult.notificationPayload != null) {
+                Timber.d("deeplink: triggering notification with deeplink")
+                triggerNotificationFromDeeplink(deeplinkResult.destination, deeplinkResult.notificationPayload!!)
+            } else {
+                Timber.d("deeplink: Starting main activity with pending destination")
+                application.startActivity(
+                    MainActivity.newIntent(
+                        context = application,
+                        pendingDestination = deeplinkResult.destination
+                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }
         }
     }
 

@@ -113,7 +113,7 @@ sealed class MainIntent : MviIntent<MainState> {
     object ClearDeepLinkResult : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(
-                deeplinkResult = DeepLinkResult.DeepLinkResultFailed()
+                deeplinkResult = DeepLinkResult.DeepLinkResultUnknownLink()
             )
     }
 

@@ -115,7 +115,6 @@ import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.openUrl
 import timber.log.Timber
 
 class MainActivity :
@@ -824,7 +823,6 @@ class MainActivity :
             Destination.StartKycDestination ->
                 startActivity(KycNavHostActivity.newIntent(this, CampaignType.None))
             Destination.ReferralDestination -> model.process(MainIntent.ShowReferralWhenAvailable)
-            is Destination.ExternalLinkDestination -> openUrl(destination.url)
             is Destination.DashboardDestination -> launchPortfolio(reload = true)
             is Destination.WalletConnectDestination -> model.process(MainIntent.StartWCSession(destination.url))
         }.exhaustive

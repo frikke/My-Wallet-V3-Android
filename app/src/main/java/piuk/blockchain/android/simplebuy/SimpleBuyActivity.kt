@@ -16,6 +16,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.ASSET_URL
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_CODE
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_RECURRING_BUY_ID
@@ -64,7 +65,7 @@ import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
+import piuk.blockchain.android.util.checkValidUrlAndOpen
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -524,7 +525,15 @@ class SimpleBuyActivity :
     }
 
     private fun processDeeplink(deepLink: Uri) {
-        compositeDisposable += deeplinkRedirector.processDeeplinkURL(deepLink).emptySubscribe()
+        compositeDisposable += deeplinkRedirector.processDeeplinkURL(deepLink).subscribeBy(
+            onSuccess = {
+                if (it is DeepLinkResult.DeepLinkResultUnknownLink) {
+                    it.uri?.let { uri ->
+                        this@SimpleBuyActivity.checkValidUrlAndOpen(uri)
+                    }
+                }
+            }
+        )
     }
 
     private fun redirectToDeeplinkProcessor(link: String) {

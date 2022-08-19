@@ -557,8 +557,9 @@ class PaymentsRepository(
                 SettlementInfo(
                     partner = it.partner.toLinkingBankPartner(),
                     state = it.state.toBankState(),
-                    settlementType = it.attributes.settlementResponse.settlementType.toSettlementType(),
-                    settlementReason = it.attributes.settlementResponse.reason?.toSettlementReason()
+                    settlementType = it.attributes?.settlementResponse?.settlementType?.toSettlementType()
+                        ?: SettlementType.UNKNOWN,
+                    settlementReason = it.attributes?.settlementResponse?.reason?.toSettlementReason()
                         ?: SettlementReason.NONE
                 )
             }
