@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.core.price.HistoricalTimeSpan
 import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntents
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
@@ -35,11 +36,14 @@ fun Coinview(
             networkTicker = state.assetName,
 
             price = state.assetPrice,
-            onChartEntryHighlighted = {
-                viewModel.onIntent(CoinviewIntents.UpdatePriceForChartSelection(it))
+            onChartEntryHighlighted = { entry ->
+                viewModel.onIntent(CoinviewIntents.UpdatePriceForChartSelection(entry))
             },
             resetPriceInformation = {
                 viewModel.onIntent(CoinviewIntents.ResetPriceSelection)
+            },
+            onNewTimeSpanSelected = { timeSpan ->
+                viewModel.onIntent(CoinviewIntents.NewTimeSpanSelected(timeSpan))
             }
         )
     }
@@ -51,7 +55,8 @@ fun CoinviewScreen(
     networkTicker: String,
     price: CoinviewPriceState,
     onChartEntryHighlighted: (Entry) -> Unit,
-    resetPriceInformation: () -> Unit
+    resetPriceInformation: () -> Unit,
+    onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         NavigationBar(
@@ -62,7 +67,8 @@ fun CoinviewScreen(
         AssetPrice(
             data = price,
             onChartEntryHighlighted = onChartEntryHighlighted,
-            resetPriceInformation = resetPriceInformation
+            resetPriceInformation = resetPriceInformation,
+            onNewTimeSpanSelected = onNewTimeSpanSelected
         )
     }
 }
@@ -75,6 +81,7 @@ fun PreviewCoinviewScreen() {
         networkTicker = "ETH",
         price = CoinviewPriceState.Loading,
         onChartEntryHighlighted = {},
-        resetPriceInformation = {}
+        resetPriceInformation = {},
+        onNewTimeSpanSelected = {}
     )
 }

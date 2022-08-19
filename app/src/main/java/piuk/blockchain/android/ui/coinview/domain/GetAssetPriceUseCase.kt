@@ -14,7 +14,7 @@ object GetAssetPriceUseCase {
     operator fun invoke(
         asset: CryptoAsset,
         timeSpan: HistoricalTimeSpan,
-        fiat: FiatCurrency
+        fiatCurrency: FiatCurrency
     ): Flow<DataResource<CoinviewAssetPriceHistory>> {
         return combine(
             asset.historicRateSeries(timeSpan),
@@ -43,7 +43,7 @@ object GetAssetPriceUseCase {
                         if (timeSpan == HistoricalTimeSpan.DAY) prices.data.delta24h
                         else (difference / firstPrice) * 100
 
-                    val changeDifference = Money.fromMajor(fiat, difference.toBigDecimal())
+                    val changeDifference = Money.fromMajor(fiatCurrency, difference.toBigDecimal())
 
                     DataResource.Data(
                         CoinviewAssetPriceHistory(

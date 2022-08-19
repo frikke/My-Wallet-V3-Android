@@ -10,6 +10,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.preferences.CurrencyPrefs
 import com.github.mikephil.charting.data.Entry
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -30,6 +31,9 @@ class CoinviewViewModel(
     CoinviewArgs>(CoinviewModelState()) {
 
     private var loadPriceDataJob: Job? = null
+
+    private val fiatCurrency: FiatCurrency
+        get() = currencyPrefs.selectedFiatCurrency
 
     private val defaultTimeSpan = HistoricalTimeSpan.DAY
 
@@ -61,6 +65,7 @@ class CoinviewViewModel(
                     CoinviewPriceState.Data(
                         assetName = asset?.currency?.name ?: "",
                         assetLogo = asset?.currency?.logo ?: "",
+                        fiatSymbol = fiatCurrency.symbol,
                         priceFormattedWithFiatSymbol = (interactiveAssetPrice ?: assetPriceHistory.priceDetail)
                             .price.toStringWithSymbol(),
                         priceChangeFormattedWithFiatSymbol = (interactiveAssetPrice ?: assetPriceHistory.priceDetail)
@@ -108,6 +113,14 @@ class CoinviewViewModel(
             is CoinviewIntents.ResetPriceSelection -> {
                 resetPriceSelection()
             }
+
+            is CoinviewIntents.NewTimeSpanSelected -> {
+                loadPriceData(
+                    asset = modelState.asset!!,
+                    currentTimeSpan = modelState.assetPriceHistory?.priceDetail?.timeSpan ?: defaultTimeSpan,
+                    requestedTimeSpan = intent.timeSpan,
+                )
+            }
         }
     }
 
@@ -120,7 +133,7 @@ class CoinviewViewModel(
 
         loadPriceDataJob = viewModelScope.launch {
             getAssetPriceUseCase(
-                asset, requestedTimeSpan, currencyPrefs.selectedFiatCurrency
+                asset = asset, timeSpan = requestedTimeSpan, fiatCurrency = fiatCurrency
             ).collectLatest { dataResource ->
                 when (dataResource) {
                     is DataResource.Data -> {
@@ -164,13 +177,13 @@ class CoinviewViewModel(
 
             val percentChange = (difference / firstForPeriod.rate)
 
-            val changeDifference = Money.fromMajor(currencyPrefs.selectedFiatCurrency, difference.toBigDecimal())
+            val changeDifference = Money.fromMajor(fiatCurrency, difference.toBigDecimal())
 
             updateState {
                 it.copy(
                     interactiveAssetPrice = CoinviewAssetPrice(
                         price = Money.fromMajor(
-                            currencyPrefs.selectedFiatCurrency, selectedHistoricalRate.rate.toBigDecimal()
+                            fiatCurrency, selectedHistoricalRate.rate.toBigDecimal()
                         ),
                         timeSpan = HistoricalTimeSpan.ALL_TIME,
                         changeDifference = changeDifference,

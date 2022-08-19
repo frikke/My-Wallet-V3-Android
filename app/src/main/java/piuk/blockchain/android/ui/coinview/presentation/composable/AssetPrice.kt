@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +27,7 @@ import com.blockchain.componentlib.system.LoadingChart
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.impl.toDatePattern
 import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
@@ -35,7 +37,8 @@ import kotlin.random.Random
 fun AssetPrice(
     data: CoinviewPriceState,
     onChartEntryHighlighted: (Entry) -> Unit,
-    resetPriceInformation: () -> Unit
+    resetPriceInformation: () -> Unit,
+    onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit
 ) {
     when (data) {
         CoinviewPriceState.Loading -> {
@@ -50,7 +53,8 @@ fun AssetPrice(
             AssetPriceInfoData(
                 data = data,
                 onChartEntryHighlighted = onChartEntryHighlighted,
-                resetPriceInformation = resetPriceInformation
+                resetPriceInformation = resetPriceInformation,
+                onNewTimeSpanSelected = onNewTimeSpanSelected
             )
         }
     }
@@ -77,7 +81,8 @@ fun AssetPriceInfoLoading() {
 fun AssetPriceInfoData(
     data: CoinviewPriceState.Data,
     onChartEntryHighlighted: (Entry) -> Unit,
-    resetPriceInformation: () -> Unit
+    resetPriceInformation: () -> Unit,
+    onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Balance(
@@ -118,52 +123,34 @@ fun AssetPriceInfoData(
                         //                                timeInterval = stringPositionToTimeInterval(binding.chartControls.selectedItemIndex)
                         //                            )
                         //                        )
-                        //                        renderPriceInformation(
-                        //                            prices24Hr,
-                        //                            historicalGraphData,
-                        //                            selectedFiat
-                        //                        )
                         resetPriceInformation()
                     }
-                    //                    shouldVibrate = localSettingsPrefs.isChartVibrationEnabled
 
-                    fun HistoricalTimeSpan.toDatePattern(): String {
-                        val PATTERN_HOURS = "HH:mm"
-                        val PATTERN_DAY_HOUR = "HH:mm, EEE"
-                        val PATTERN_DAY_HOUR_MONTH = "HH:mm d, MMM"
-                        val PATTERN_DAY_MONTH_YEAR = "d MMM YYYY"
-                        return when (this) {
-                            HistoricalTimeSpan.DAY -> PATTERN_HOURS
-                            HistoricalTimeSpan.WEEK -> PATTERN_DAY_HOUR
-                            HistoricalTimeSpan.MONTH -> PATTERN_DAY_HOUR_MONTH
-                            HistoricalTimeSpan.YEAR,
-                            HistoricalTimeSpan.ALL_TIME,
-                            -> PATTERN_DAY_MONTH_YEAR
-                        }
-                    }
-
-                    datePattern = HistoricalTimeSpan.fromInt(0).toDatePattern()
-                    fiatSymbol = "AA"/*state.selectedFiat.symbol*/
+                    datePattern = HistoricalTimeSpan.fromValue(0).toDatePattern()
+                    fiatSymbol = data.fiatSymbol
                     setData(data.chartData)
                 }
             }
         )
 
         TabLayoutLive(
-            items = listOf(
-                stringResource(R.string.coinview_chart_tab_day),
-                stringResource(R.string.coinview_chart_tab_week),
-                stringResource(R.string.coinview_chart_tab_month),
-                stringResource(R.string.coinview_chart_tab_year),
-                stringResource(R.string.coinview_chart_tab_all)
-            ),
+            items = HistoricalTimeSpan.values().map { stringResource(it.toSimpleName()) },
             onItemSelected = { index ->
-                //                selectedItemIndex = index
-                //                onItemSelected(index)
+                onNewTimeSpanSelected(HistoricalTimeSpan.fromValue(index))
             },
-            selectedItemIndex = 0,
+            selectedItemIndex = data.selectedTimeSpan.value,
             showLiveIndicator = false
         )
+    }
+}
+
+@StringRes private fun HistoricalTimeSpan.toSimpleName(): Int {
+    return when (this) {
+        HistoricalTimeSpan.DAY -> R.string.coinview_chart_tab_day
+        HistoricalTimeSpan.WEEK -> R.string.coinview_chart_tab_week
+        HistoricalTimeSpan.MONTH -> R.string.coinview_chart_tab_month
+        HistoricalTimeSpan.YEAR -> R.string.coinview_chart_tab_year
+        HistoricalTimeSpan.ALL_TIME -> R.string.coinview_chart_tab_all
     }
 }
 
@@ -189,7 +176,7 @@ fun AssetPriceError() {
 @Preview
 @Composable
 fun PreviewAssetPrice_Loading() {
-    AssetPrice(CoinviewPriceState.Loading, {}, {})
+    AssetPrice(CoinviewPriceState.Loading, {}, {}, {})
 }
 
 @Preview
@@ -199,6 +186,7 @@ fun PreviewAssetPrice_Data() {
         CoinviewPriceState.Data(
             assetName = "Ethereum",
             assetLogo = "logo//",
+            fiatSymbol = "€",
             priceFormattedWithFiatSymbol = "$4,570.27",
             priceChangeFormattedWithFiatSymbol = "$969.25",
             percentChange = 5.58,
@@ -206,6 +194,7 @@ fun PreviewAssetPrice_Data() {
             chartData = listOf(ChartEntry(1.4f, 43f), ChartEntry(3.4f, 4f)),
             selectedTimeSpan = HistoricalTimeSpan.DAY
         ),
+        {},
         {},
         {}
     )

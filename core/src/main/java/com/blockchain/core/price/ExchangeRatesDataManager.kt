@@ -20,7 +20,7 @@ enum class HistoricalTimeSpan(val value: Int) {
     ALL_TIME(4);
 
     companion object {
-        fun fromInt(value: Int) = values().first { it.value == value }
+        fun fromValue(value: Int) = values().first { it.value == value }
     }
 }
 

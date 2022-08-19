@@ -57,3 +57,12 @@ internal fun Single<List<AssetPrice>>.toHistoricalRateList(): Single<HistoricalR
             )
         }
     }
+
+fun HistoricalTimeSpan.toDatePattern(): String {
+    return when (this) {
+        HistoricalTimeSpan.DAY -> "HH:mm"
+        HistoricalTimeSpan.WEEK -> "HH:mm, EEE"
+        HistoricalTimeSpan.MONTH -> "HH:mm d, MMM"
+        HistoricalTimeSpan.YEAR, HistoricalTimeSpan.ALL_TIME -> "d MMM YYYY"
+    }
+}

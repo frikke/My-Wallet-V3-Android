@@ -286,7 +286,7 @@ class CoinViewActivity :
                             timeInterval = stringPositionToTimeInterval(it)
                         )
                     )
-                    model.process(CoinViewIntent.LoadNewChartPeriod(HistoricalTimeSpan.fromInt(it)))
+                    model.process(CoinViewIntent.LoadNewChartPeriod(HistoricalTimeSpan.fromValue(it)))
                 }
                 selectedItemIndex = 0
                 showLiveIndicator = false
@@ -320,7 +320,7 @@ class CoinViewActivity :
         )
 
     private fun stringPositionToTimeInterval(position: Int): CoinViewAnalytics.Companion.TimeInterval =
-        when (HistoricalTimeSpan.fromInt(position)) {
+        when (HistoricalTimeSpan.fromValue(position)) {
             HistoricalTimeSpan.DAY -> CoinViewAnalytics.Companion.TimeInterval.DAY
             HistoricalTimeSpan.WEEK -> CoinViewAnalytics.Companion.TimeInterval.WEEK
             HistoricalTimeSpan.MONTH -> CoinViewAnalytics.Companion.TimeInterval.MONTH
@@ -467,7 +467,7 @@ class CoinViewActivity :
                 with(binding) {
                     assetChartViewSwitcher.displayedChild = CHART_VIEW
                     assetChart.apply {
-                        datePattern = HistoricalTimeSpan.fromInt(chartControls.selectedItemIndex).toDatePattern()
+                        datePattern = HistoricalTimeSpan.fromValue(chartControls.selectedItemIndex).toDatePattern()
                         fiatSymbol = state.selectedFiat.symbol
                         setData(state.entries)
                     }

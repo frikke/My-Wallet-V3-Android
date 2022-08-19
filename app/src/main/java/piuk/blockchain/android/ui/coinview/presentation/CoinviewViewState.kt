@@ -24,6 +24,7 @@ sealed interface CoinviewPriceState {
     data class Data(
         val assetName: String,
         val assetLogo: String,
+        val fiatSymbol: String,
         val priceFormattedWithFiatSymbol: String,
         val priceChangeFormattedWithFiatSymbol: String,
         val percentChange: Double,
