@@ -9,8 +9,8 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
+import kotlinx.coroutines.flow.Flow
 
 enum class HistoricalTimeSpan(val value: Int) {
     DAY(0),
@@ -63,14 +63,17 @@ interface ExchangeRatesDataManager : ExchangeRates {
 
     fun getHistoricRate(fromAsset: Currency, secSinceEpoch: Long): Single<ExchangeRate>
 
-    @Deprecated("User the reactive getPricesWith24hDelta")
-    fun getPricesWith24hDeltaLegacy(fromAsset: Currency, isRefreshing: Boolean = false): Observable<Prices24HrWithDelta>
+    @Deprecated("Use the reactive getPricesWith24hDelta")
+    fun getPricesWith24hDeltaLegacy(
+        fromAsset: Currency,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Observable<Prices24HrWithDelta>
 
-    @Deprecated("User the reactive getPricesWith24hDelta")
+    @Deprecated("Use the reactive getPricesWith24hDelta")
     fun getPricesWith24hDeltaLegacy(
         fromAsset: Currency,
         fiat: Currency,
-        isRefreshing: Boolean = false,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Observable<Prices24HrWithDelta>
 
     fun getPricesWith24hDelta(

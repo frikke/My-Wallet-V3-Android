@@ -14,7 +14,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.anyError
 import com.blockchain.data.anyLoading
-import com.blockchain.data.getError
+import com.blockchain.data.getFirstError
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asObservable
@@ -28,11 +28,11 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.RoundingMode
+import java.util.Calendar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
-import java.math.RoundingMode
-import java.util.Calendar
 
 internal class ExchangeRatesDataManagerImpl(
     private val priceStore: AssetPriceStore,
@@ -168,18 +168,18 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getPricesWith24hDeltaLegacy(
         fromAsset: Currency,
-        isRefreshing: Boolean
+        freshnessStrategy: FreshnessStrategy
     ): Observable<Prices24HrWithDelta> =
-        getPricesWith24hDeltaLegacy(fromAsset, userFiat, isRefreshing)
+        getPricesWith24hDeltaLegacy(fromAsset, userFiat, freshnessStrategy)
 
     override fun getPricesWith24hDeltaLegacy(
         fromAsset: Currency,
         fiat: Currency,
-        isRefreshing: Boolean,
+        freshnessStrategy: FreshnessStrategy
     ): Observable<Prices24HrWithDelta> = Observable.combineLatest(
-        priceStore.getCurrentPriceForAsset(fromAsset, fiat, FreshnessStrategy.Cached(forceRefresh = true))
+        priceStore.getCurrentPriceForAsset(fromAsset, fiat, freshnessStrategy)
             .asObservable(),
-        priceStore.getYesterdayPriceForAsset(fromAsset, fiat, FreshnessStrategy.Cached(forceRefresh = true))
+        priceStore.getYesterdayPriceForAsset(fromAsset, fiat, freshnessStrategy)
             .asObservable()
     ) { current, yesterday ->
         Prices24HrWithDelta(
@@ -222,7 +222,7 @@ internal class ExchangeRatesDataManagerImpl(
                 }
 
                 results.anyError() -> {
-                    DataResource.Error(results.getError().error)
+                    DataResource.Error(results.getFirstError().error)
                 }
 
                 else -> {

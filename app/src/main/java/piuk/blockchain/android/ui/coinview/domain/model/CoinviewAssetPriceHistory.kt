@@ -15,4 +15,3 @@ data class CoinviewAssetPrice(
     val changeDifference: Money,
     val percentChange: Double
 )
-

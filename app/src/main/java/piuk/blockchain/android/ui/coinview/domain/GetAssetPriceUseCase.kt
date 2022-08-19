@@ -3,6 +3,9 @@ package piuk.blockchain.android.ui.coinview.domain
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
+import com.blockchain.data.anyError
+import com.blockchain.data.anyLoading
+import com.blockchain.data.getFirstError
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import kotlinx.coroutines.flow.Flow
@@ -23,12 +26,12 @@ object GetAssetPriceUseCase {
             val results = listOf(historicRates, prices)
 
             when {
-                results.any { it is DataResource.Loading } -> {
+                results.anyLoading() -> {
                     DataResource.Loading
                 }
 
-                results.any { it is DataResource.Error } -> {
-                    DataResource.Error((results.first { it is DataResource.Error } as DataResource.Error).error)
+                results.anyError() -> {
+                    DataResource.Error(results.getFirstError().error)
                 }
 
                 else -> {

@@ -13,4 +13,4 @@ sealed class DataResource<out T> {
 
 fun <T> List<DataResource<T>>.anyLoading() = any { it is DataResource.Loading }
 fun <T> List<DataResource<T>>.anyError() = any { it is DataResource.Error }
-fun <T> List<DataResource<T>>.getError() = (first { it is DataResource.Error } as DataResource.Error)
+fun <T> List<DataResource<T>>.getFirstError() = (first { it is DataResource.Error } as DataResource.Error)

@@ -11,13 +11,13 @@ import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.map
 import com.blockchain.store.firstOutcome
 import info.blockchain.balance.Currency
+import java.util.Calendar
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import java.util.Calendar
-import java.util.concurrent.ConcurrentHashMap
 
 internal typealias SupportedTickerList = List<String>
 

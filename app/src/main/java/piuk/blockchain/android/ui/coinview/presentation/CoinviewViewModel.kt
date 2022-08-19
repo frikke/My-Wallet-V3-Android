@@ -45,12 +45,11 @@ class CoinviewViewModel(
                     isPriceDataLoading = true
                 )
             }
-        } ?: error("")
+        } ?: error("asset ${args.networkTicker} not found")
     }
 
     override fun reduce(state: CoinviewModelState): CoinviewViewState = state.run {
         CoinviewViewState(
-            fatalError = CoinviewFatalError.None,
             assetName = asset?.currency?.name ?: "",
 
             assetPrice = when {
@@ -69,9 +68,11 @@ class CoinviewViewModel(
 
                     // intervalName will be empty if user is interacting with the chart
 
+                    require(asset != null) { "asset not initialized" }
+
                     CoinviewPriceState.Data(
-                        assetName = asset?.currency?.name ?: "",
-                        assetLogo = asset?.currency?.logo ?: "",
+                        assetName = asset.currency.name,
+                        assetLogo = asset.currency.logo,
                         fiatSymbol = fiatCurrency.symbol,
                         priceFormattedWithFiatSymbol = (interactiveAssetPrice ?: assetPriceHistory.priceDetail)
                             .price.toStringWithSymbol(),
@@ -132,10 +133,12 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntents.NewTimeSpanSelected -> {
+                require(modelState.asset != null) { "asset not initialized" }
+
                 updateState { it.copy(requestedTimeSpan = intent.timeSpan) }
 
                 loadPriceData(
-                    asset = modelState.asset!!,
+                    asset = modelState.asset,
                     requestedTimeSpan = intent.timeSpan,
                 )
             }

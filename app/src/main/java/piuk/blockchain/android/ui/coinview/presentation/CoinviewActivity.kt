@@ -12,7 +12,8 @@ import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
 
-class CoinviewActivity : BlockchainActivity(),
+class CoinviewActivity :
+    BlockchainActivity(),
     KoinScopeComponent {
 
     override val alwaysDisableScreenshots: Boolean
