@@ -14,6 +14,7 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -72,16 +73,21 @@ class FiatAsset(
     override fun getPricesWith24hDeltaLegacy(): Single<Prices24HrWithDelta> =
         exchangeRates.getPricesWith24hDeltaLegacy(currency).firstOrError()
 
-    override fun getPricesWith24hDelta(): Flow<DataResource<Prices24HrWithDelta>> {
-       return  exchangeRates.getPricesWith24hDelta(currency)
+    override fun getPricesWith24hDelta(
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<Prices24HrWithDelta>> {
+        return exchangeRates.getPricesWith24hDelta(fromAsset = currency, freshnessStrategy = freshnessStrategy)
     }
 
     override fun historicRate(epochWhen: Long): Single<ExchangeRate> =
         exchangeRates.getHistoricRate(currency, epochWhen)
 
-    override fun historicRateSeries(period: HistoricalTimeSpan): Flow<DataResource<HistoricalRateList>> =
+    override fun historicRateSeries(
+        period: HistoricalTimeSpan,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<HistoricalRateList>> =
         currency.startDate?.let {
-            exchangeRates.getHistoricPriceSeries(currency, period)
+            exchangeRates.getHistoricPriceSeries(asset = currency, span = period, freshnessStrategy = freshnessStrategy)
         } ?: flowOf(DataResource.Data(emptyList()))
 
     override fun lastDayTrend(): Flow<DataResource<HistoricalRateList>> {

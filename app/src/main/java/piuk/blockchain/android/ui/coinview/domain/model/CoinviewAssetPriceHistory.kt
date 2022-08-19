@@ -4,10 +4,15 @@ import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import info.blockchain.balance.Money
 
-data class CoinViewAssetPrice(
+data class CoinviewAssetPriceHistory(
     val historicRates: List<HistoricalRate>,
-    val timeSpan: HistoricalTimeSpan,
+    val priceDetail: CoinviewAssetPrice
+)
+
+data class CoinviewAssetPrice(
     val price: Money,
+    val timeSpan: HistoricalTimeSpan,
     val changeDifference: Money,
     val percentChange: Double
 )
+

@@ -1,6 +1,7 @@
 package com.blockchain.core.price
 
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.common.model.Seconds
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -72,17 +73,22 @@ interface ExchangeRatesDataManager : ExchangeRates {
         isRefreshing: Boolean = false,
     ): Observable<Prices24HrWithDelta>
 
-    fun getPricesWith24hDelta(fromAsset: Currency): Flow<DataResource<Prices24HrWithDelta>>
+    fun getPricesWith24hDelta(
+        fromAsset: Currency,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Prices24HrWithDelta>>
 
     fun getHistoricPriceSeries(
         asset: Currency,
         span: HistoricalTimeSpan,
         now: Calendar = Calendar.getInstance(),
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<HistoricalRateList>>
 
     // Specialised call to historic rates for sparkline caching
     fun get24hPriceSeries(
         asset: Currency,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<HistoricalRateList>>
 
     val fiatAvailableForRates: List<FiatCurrency>

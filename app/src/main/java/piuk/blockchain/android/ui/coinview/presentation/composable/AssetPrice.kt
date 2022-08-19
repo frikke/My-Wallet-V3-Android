@@ -26,15 +26,18 @@ import com.blockchain.componentlib.system.LoadingChart
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import kotlin.random.Random
 
 @Composable
 fun AssetPrice(
-    balance: CoinviewPriceState
+    data: CoinviewPriceState,
+    onChartEntryHighlighted: (Entry) -> Unit,
+    resetPriceInformation: () -> Unit
 ) {
-    when (balance) {
+    when (data) {
         CoinviewPriceState.Loading -> {
             AssetPriceInfoLoading()
         }
@@ -44,7 +47,11 @@ fun AssetPrice(
         }
 
         is CoinviewPriceState.Data -> {
-            AssetPriceInfoData(balance)
+            AssetPriceInfoData(
+                data = data,
+                onChartEntryHighlighted = onChartEntryHighlighted,
+                resetPriceInformation = resetPriceInformation
+            )
         }
     }
 }
@@ -67,7 +74,11 @@ fun AssetPriceInfoLoading() {
 }
 
 @Composable
-fun AssetPriceInfoData(data: CoinviewPriceState.Data) {
+fun AssetPriceInfoData(
+    data: CoinviewPriceState.Data,
+    onChartEntryHighlighted: (Entry) -> Unit,
+    resetPriceInformation: () -> Unit
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Balance(
             title = stringResource(R.string.coinview_price_label, data.assetName),
@@ -88,7 +99,7 @@ fun AssetPriceInfoData(data: CoinviewPriceState.Data) {
                 ChartView(context).apply {
                     isChartLive = false
                     onEntryHighlighted = { entry ->
-                        //                        updateScrubPriceInformation(entry)
+                        onChartEntryHighlighted(entry)
                     }
                     onActionPressDown = {
                         //                        analytics.logEvent(
@@ -112,6 +123,7 @@ fun AssetPriceInfoData(data: CoinviewPriceState.Data) {
                         //                            historicalGraphData,
                         //                            selectedFiat
                         //                        )
+                        resetPriceInformation()
                     }
                     //                    shouldVibrate = localSettingsPrefs.isChartVibrationEnabled
 
@@ -177,7 +189,7 @@ fun AssetPriceError() {
 @Preview
 @Composable
 fun PreviewAssetPrice_Loading() {
-    AssetPrice(CoinviewPriceState.Loading)
+    AssetPrice(CoinviewPriceState.Loading, {}, {})
 }
 
 @Preview
@@ -193,7 +205,9 @@ fun PreviewAssetPrice_Data() {
             intervalName = R.string.coinview_price_day,
             chartData = listOf(ChartEntry(1.4f, 43f), ChartEntry(3.4f, 4f)),
             selectedTimeSpan = HistoricalTimeSpan.DAY
-        )
+        ),
+        {},
+        {}
     )
 }
 

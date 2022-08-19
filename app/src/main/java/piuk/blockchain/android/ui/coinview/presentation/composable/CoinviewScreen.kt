@@ -12,6 +12,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.github.mikephil.charting.data.Entry
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntents
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
@@ -32,7 +34,13 @@ fun Coinview(
             backOnClick = backOnClick,
             networkTicker = state.assetName,
 
-            price = state.assetPrice
+            price = state.assetPrice,
+            onChartEntryHighlighted = {
+                viewModel.onIntent(CoinviewIntents.UpdatePriceForChartSelection(it))
+            },
+            resetPriceInformation = {
+                viewModel.onIntent(CoinviewIntents.ResetPriceSelection)
+            }
         )
     }
 }
@@ -41,7 +49,9 @@ fun Coinview(
 fun CoinviewScreen(
     backOnClick: () -> Unit,
     networkTicker: String,
-    price: CoinviewPriceState
+    price: CoinviewPriceState,
+    onChartEntryHighlighted: (Entry) -> Unit,
+    resetPriceInformation: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         NavigationBar(
@@ -49,12 +59,22 @@ fun CoinviewScreen(
             onBackButtonClick = backOnClick
         )
 
-        AssetPrice(price)
+        AssetPrice(
+            data = price,
+            onChartEntryHighlighted = onChartEntryHighlighted,
+            resetPriceInformation = resetPriceInformation
+        )
     }
 }
 
 @Preview(name = "CoinviewScreen", showBackground = true)
 @Composable
 fun PreviewCoinviewScreen() {
-    CoinviewScreen(backOnClick = {}, networkTicker = "ETH", CoinviewPriceState.Loading)
+    CoinviewScreen(
+        backOnClick = {},
+        networkTicker = "ETH",
+        price = CoinviewPriceState.Loading,
+        onChartEntryHighlighted = {},
+        resetPriceInformation = {}
+    )
 }

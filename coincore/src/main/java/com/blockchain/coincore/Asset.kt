@@ -6,6 +6,7 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.walletmode.WalletMode
@@ -136,13 +137,20 @@ interface Asset {
     // Fetch exchange rate to user's selected/display fiat
     @Deprecated("Use getPricesWith24hDelta() instead")
     fun exchangeRate(): Single<ExchangeRate>
+
     @Deprecated("use flow")
     fun getPricesWith24hDeltaLegacy(): Single<Prices24HrWithDelta>
     fun historicRate(epochWhen: Long): Single<ExchangeRate>
 
     // flow
-    fun getPricesWith24hDelta(): Flow<DataResource<Prices24HrWithDelta>>
-    fun historicRateSeries(period: HistoricalTimeSpan): Flow<DataResource<HistoricalRateList>>
+    fun getPricesWith24hDelta(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Prices24HrWithDelta>>
+
+    fun historicRateSeries(
+        period: HistoricalTimeSpan,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<HistoricalRateList>>
 }
 
 interface CryptoAsset : Asset {
