@@ -10,7 +10,7 @@ data class CoinviewViewState(
     val assetPrice: CoinviewPriceState
 ) : ViewState
 
-// BALANCE
+// Price
 sealed interface CoinviewPriceState {
     object Loading : CoinviewPriceState
     object Error : CoinviewPriceState
@@ -18,8 +18,8 @@ sealed interface CoinviewPriceState {
         val assetName: String,
         val assetLogo: String,
         val fiatSymbol: String,
-        val priceFormattedWithFiatSymbol: String,
-        val priceChangeFormattedWithFiatSymbol: String,
+        val price: String,
+        val priceChange: String,
         val percentChange: Double,
         @StringRes val intervalName: Int,
         val chartData: CoinviewChart,

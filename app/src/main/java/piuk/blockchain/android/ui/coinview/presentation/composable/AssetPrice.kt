@@ -83,9 +83,9 @@ fun AssetPriceInfoData(
     Column(modifier = Modifier.fillMaxWidth()) {
         Balance(
             title = stringResource(R.string.coinview_price_label, data.assetName),
-            price = data.priceFormattedWithFiatSymbol,
+            price = data.price,
             percentageChangeData = PercentageChangeData(
-                priceChange = data.priceChangeFormattedWithFiatSymbol,
+                priceChange = data.priceChange,
                 percentChange = data.percentChange,
                 interval = stringResource(data.intervalName)
             ),
@@ -226,8 +226,8 @@ fun PreviewAssetPrice_Data() {
             assetName = "Ethereum",
             assetLogo = "logo//",
             fiatSymbol = "€",
-            priceFormattedWithFiatSymbol = "$4,570.27",
-            priceChangeFormattedWithFiatSymbol = "$969.25",
+            price = "$4,570.27",
+            priceChange = "$969.25",
             percentChange = 5.58,
             intervalName = R.string.coinview_price_day,
             chartData = CoinviewPriceState.Data.CoinviewChart.Data(

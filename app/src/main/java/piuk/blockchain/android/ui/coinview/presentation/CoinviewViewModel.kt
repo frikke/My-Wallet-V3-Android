@@ -74,9 +74,9 @@ class CoinviewViewModel(
                         assetName = asset.currency.name,
                         assetLogo = asset.currency.logo,
                         fiatSymbol = fiatCurrency.symbol,
-                        priceFormattedWithFiatSymbol = (interactiveAssetPrice ?: assetPriceHistory.priceDetail)
+                        price = (interactiveAssetPrice ?: assetPriceHistory.priceDetail)
                             .price.toStringWithSymbol(),
-                        priceChangeFormattedWithFiatSymbol = (interactiveAssetPrice ?: assetPriceHistory.priceDetail)
+                        priceChange = (interactiveAssetPrice ?: assetPriceHistory.priceDetail)
                             .changeDifference.toStringWithSymbol(),
                         percentChange = (interactiveAssetPrice ?: assetPriceHistory.priceDetail).percentChange,
                         intervalName = if (interactiveAssetPrice != null) R.string.empty else
