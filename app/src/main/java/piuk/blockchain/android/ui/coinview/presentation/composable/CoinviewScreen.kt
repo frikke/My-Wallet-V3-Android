@@ -16,6 +16,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntents
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalance
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
 
@@ -44,7 +45,9 @@ fun Coinview(
             },
             onNewTimeSpanSelected = { timeSpan ->
                 viewModel.onIntent(CoinviewIntents.NewTimeSpanSelected(timeSpan))
-            }
+            },
+
+            totalBalance = state.totalBalance
         )
     }
 }
@@ -53,10 +56,13 @@ fun Coinview(
 fun CoinviewScreen(
     backOnClick: () -> Unit,
     networkTicker: String,
+
     price: CoinviewPriceState,
     onChartEntryHighlighted: (Entry) -> Unit,
     resetPriceInformation: () -> Unit,
-    onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit
+    onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit,
+
+    totalBalance: CoinviewTotalBalance
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         NavigationBar(
@@ -70,6 +76,10 @@ fun CoinviewScreen(
             resetPriceInformation = resetPriceInformation,
             onNewTimeSpanSelected = onNewTimeSpanSelected
         )
+
+        TotalBalance(
+            data = totalBalance
+        )
     }
 }
 
@@ -82,6 +92,7 @@ fun PreviewCoinviewScreen() {
         price = CoinviewPriceState.Loading,
         onChartEntryHighlighted = {},
         resetPriceInformation = {},
-        onNewTimeSpanSelected = {}
+        onNewTimeSpanSelected = {},
+        totalBalance = CoinviewTotalBalance.Loading
     )
 }

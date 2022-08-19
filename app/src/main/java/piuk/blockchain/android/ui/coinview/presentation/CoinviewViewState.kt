@@ -7,7 +7,8 @@ import com.blockchain.core.price.HistoricalTimeSpan
 
 data class CoinviewViewState(
     val assetName: String,
-    val assetPrice: CoinviewPriceState
+    val assetPrice: CoinviewPriceState,
+    val totalBalance: CoinviewTotalBalance
 ) : ViewState
 
 // Price
@@ -30,4 +31,14 @@ sealed interface CoinviewPriceState {
             data class Data(val chartData: List<ChartEntry>) : CoinviewChart
         }
     }
+}
+
+// Total balance
+sealed interface CoinviewTotalBalance {
+    object Loading : CoinviewTotalBalance
+    data class Data(
+        val assetName: String,
+        val totalFiatBalance: String,
+        val totalCryptoBalance: String,
+    ) : CoinviewTotalBalance
 }

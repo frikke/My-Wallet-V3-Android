@@ -110,7 +110,9 @@ class CoinviewViewModel(
                 else -> {
                     CoinviewPriceState.Loading
                 }
-            }
+            },
+
+            totalBalance = CoinviewTotalBalance.Loading
         )
     }
 
