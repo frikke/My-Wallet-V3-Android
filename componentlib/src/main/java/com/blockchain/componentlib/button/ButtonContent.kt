@@ -48,7 +48,7 @@ fun ButtonContent(
                 is ImageResource.Local -> {
                     Image(
                         imageResource = icon.withColorFilter(ColorFilter.tint(textColor)),
-                        modifier = Modifier.size(dimensionResource(R.dimen.medium_margin)),
+                        modifier = Modifier.size(icon.size ?: dimensionResource(R.dimen.medium_margin)),
                     )
                     Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
                 }

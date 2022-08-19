@@ -176,6 +176,7 @@ class CoinViewModel(
                     process(
                         CoinViewIntent.UpdateViewState(
                             CoinViewViewState.QuickActionsLoaded(
+                                middleAction = actions.middleAction,
                                 startAction = actions.startAction,
                                 endAction = actions.endAction,
                                 actionableAccount = actions.actionableAccount

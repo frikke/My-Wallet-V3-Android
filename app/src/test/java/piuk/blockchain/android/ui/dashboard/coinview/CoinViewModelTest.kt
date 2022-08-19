@@ -662,7 +662,7 @@ class CoinViewModelTest {
         }
         whenever(interactor.loadQuickActions(any(), any(), eq(asset))).thenReturn(
             Single.just(
-                QuickActionData(mock(), mock(), mock())
+                QuickActionData(mock(), mock(), mock(), mock())
             )
         )
 
