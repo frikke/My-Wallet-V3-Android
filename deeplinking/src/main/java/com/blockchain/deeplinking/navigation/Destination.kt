@@ -54,4 +54,9 @@ sealed class Destination : Parcelable {
 
     @Parcelize
     object DashboardDestination : Destination()
+
+    @Parcelize
+    class WalletConnectDestination(
+        val url: String
+    ) : Destination()
 }

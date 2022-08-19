@@ -826,6 +826,7 @@ class MainActivity :
             Destination.ReferralDestination -> model.process(MainIntent.ShowReferralWhenAvailable)
             is Destination.ExternalLinkDestination -> openUrl(destination.url)
             is Destination.DashboardDestination -> launchPortfolio(reload = true)
+            is Destination.WalletConnectDestination -> model.process(MainIntent.StartWCSession(destination.url))
         }.exhaustive
 
         model.process(MainIntent.ClearDeepLinkResult)
