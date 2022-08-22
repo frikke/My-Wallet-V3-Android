@@ -82,7 +82,7 @@ data class BlockchainCardTransactionDto(
     val clearedFundingAmount: PriceDto,
     val userTransactionTime: String,
     val merchantName: String,
-    val networkConversionRate: Int?,
+    val networkConversionRate: Float?,
     val declineReason: String?,
     val fee: PriceDto,
 )
