@@ -76,6 +76,7 @@ data class BlockchainCardLegalDocument(
     val url: String,
     val version: String,
     val acceptedVersion: String?,
+    val required: Boolean,
     var seen: Boolean = false
 ) : Parcelable
 

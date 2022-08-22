@@ -93,7 +93,8 @@ data class BlockchainCardLegalDocumentDto(
     val displayName: String,
     val url: String,
     val version: String,
-    val acceptedVersion: String?
+    val acceptedVersion: String?,
+    val required: Boolean
 )
 
 @Serializable

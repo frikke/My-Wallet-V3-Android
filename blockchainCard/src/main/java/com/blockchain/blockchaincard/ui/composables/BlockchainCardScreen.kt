@@ -189,7 +189,7 @@ fun BlockchainCardNavHost(
             composable(BlockchainCardDestination.LegalDocumentsDestination) {
                 state?.legalDocuments?.let { legalDocuments ->
                     LegalDocumentsViewer(
-                        legalDocuments = legalDocuments,
+                        legalDocuments = legalDocuments.filter { it.required },
                         onLegalDocSeen = { documentName ->
                             viewModel.onIntent(BlockchainCardIntent.OnLegalDocSeen(documentName))
                         },
