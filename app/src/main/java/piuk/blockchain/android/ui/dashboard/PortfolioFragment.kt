@@ -39,8 +39,6 @@ import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -344,7 +342,7 @@ class PortfolioFragment :
 //                            originScreen = LaunchOrigin.HOME.name,
 //                        )
 //                    } else {
-                        CoinviewActivity.newIntent(context = requireContext(), asset = navigationAction.asset)
+                    CoinviewActivity.newIntent(context = requireContext(), asset = navigationAction.asset)
 //                    }
                 )
                 model.process(DashboardIntent.ResetNavigation)

@@ -19,6 +19,7 @@ import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -32,7 +33,6 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
-import java.text.DecimalFormat
 
 class CoinviewViewModel(
     walletModeService: WalletModeService,
@@ -304,7 +304,7 @@ class CoinviewViewModel(
         }
     }
 
-    ////////////////////////
+    // //////////////////////
     // Prices
     private fun loadPriceData(
         asset: CryptoAsset,
@@ -394,7 +394,7 @@ class CoinviewViewModel(
         updateState { it.copy(interactiveAssetPrice = null) }
     }
 
-    ////////////////////////
+    // //////////////////////
     // Accounts
     /**
      * Loads accounts and todo

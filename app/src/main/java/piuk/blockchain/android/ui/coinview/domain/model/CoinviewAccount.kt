@@ -20,7 +20,6 @@ sealed interface CoinviewAccounts {
     ) : CoinviewAccounts
 }
 
-
 sealed interface CoinviewAccount {
     val isAvailable: Boolean
     val account: BlockchainAccount

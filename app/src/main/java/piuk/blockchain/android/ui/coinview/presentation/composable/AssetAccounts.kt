@@ -90,7 +90,7 @@ fun AssetAccountsData(
 
 @Composable
 fun AssetAccountHeader(header: CoinviewAccountsHeaderState) {
-    when(header){
+    when (header) {
         is CoinviewAccountsHeaderState.ShowHeader -> {
             SmallSectionHeader(
                 modifier = Modifier.fillMaxWidth(),
@@ -146,7 +146,7 @@ fun PreviewAssetAccounts_Data_Simple() {
     AssetAccounts(
         CoinviewAccountsState.Data(
             style = CoinviewAccountsStyle.Simple,
-            header  = CoinviewAccountsHeaderState.ShowHeader(SimpleValue.StringValue("wallet & accounts")),
+            header = CoinviewAccountsHeaderState.ShowHeader(SimpleValue.StringValue("wallet & accounts")),
             accounts = listOf(
                 CoinviewAccountState.Available(
                     title = "Ethereum 1",
@@ -173,7 +173,7 @@ fun PreviewAssetAccounts_Data_Boxed() {
     AssetAccounts(
         CoinviewAccountsState.Data(
             style = CoinviewAccountsStyle.Boxed,
-            header  = CoinviewAccountsHeaderState.NoHeader,
+            header = CoinviewAccountsHeaderState.NoHeader,
             accounts = listOf(
                 CoinviewAccountState.Available(
                     title = "Ethereum 1",
