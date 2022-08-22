@@ -52,13 +52,13 @@ fun TotalBalanceData(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun PreviewTotalBalance_Loading() {
     TotalBalance(CoinviewTotalBalance.Loading)
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun PreviewTotalBalance_Data() {
     TotalBalance(

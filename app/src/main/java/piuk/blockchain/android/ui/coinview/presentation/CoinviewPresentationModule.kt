@@ -10,7 +10,8 @@ val coinviewPresentationModule = module {
             CoinviewViewModel(
                 coincore = get(),
                 currencyPrefs = get(),
-                getAssetPriceUseCase = get()
+                getAssetPriceUseCase = get(),
+                getAssetAccountsUseCase = get()
             )
         }
     }

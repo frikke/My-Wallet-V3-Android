@@ -16,13 +16,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.coinview.domain.GetAssetAccountsUseCase
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 
 class CoinviewViewModel(
     private val coincore: Coincore,
     private val currencyPrefs: CurrencyPrefs,
-    private val getAssetPriceUseCase: GetAssetPriceUseCase
+    private val getAssetPriceUseCase: GetAssetPriceUseCase,
+    private val getAssetAccountsUseCase: GetAssetAccountsUseCase
 ) : MviViewModel<
     CoinviewIntents,
     CoinviewViewState,
@@ -123,6 +125,9 @@ class CoinviewViewModel(
                 loadPriceData(
                     asset = modelState.asset,
                     requestedTimeSpan = modelState.assetPriceHistory?.priceDetail?.timeSpan ?: defaultTimeSpan
+                )
+                loadAccountsData(
+                    asset = modelState.asset,
                 )
             }
 
@@ -232,5 +237,21 @@ class CoinviewViewModel(
      */
     private fun resetPriceSelection() {
         updateState { it.copy(interactiveAssetPrice = null) }
+    }
+
+    // Accounts
+    private fun loadAccountsData(asset: CryptoAsset) {
+        viewModelScope.launch {
+            getAssetAccountsUseCase(asset = asset).collectLatest { dataResource ->
+                when (dataResource) {
+                    DataResource.Loading -> {
+                    }
+                    is DataResource.Error -> {
+                    }
+                    is DataResource.Data -> {
+                    }
+                }
+            }
+        }
     }
 }
