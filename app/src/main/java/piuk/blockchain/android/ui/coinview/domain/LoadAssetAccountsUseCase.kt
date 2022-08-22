@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.coinview.domain
 
-import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.InterestAccount
@@ -25,19 +24,21 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.await
-import piuk.blockchain.android.ui.dashboard.coinview.AssetDisplayInfo
-import piuk.blockchain.android.ui.dashboard.coinview.AssetInformation
-import piuk.blockchain.android.ui.dashboard.coinview.DetailsItem
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccountDetail
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 
-class GetAssetAccountsUseCase(
+class LoadAssetAccountsUseCase(
     private val walletModeService: WalletModeService,
     private val interestService: InterestService,
     private val watchlistDataManager: WatchlistDataManager,
     private val currencyPrefs: CurrencyPrefs
 ) {
-    suspend operator fun invoke(asset: CryptoAsset): Flow<DataResource<AssetInformation>> {
+    suspend operator fun invoke(asset: CryptoAsset): Flow<DataResource<CoinviewAssetInformation>> {
 
         val accountsFlow = asset.accountGroup(walletModeService.enabledWalletMode().defaultFilter())
             .map { it.accounts }
@@ -96,17 +97,19 @@ class GetAssetAccountsUseCase(
                         totalCryptoBalance[AssetFilter.All] = totalCryptoMoneyAll
 
                         DataResource.Data(
-                            AssetInformation.AccountsInfo(
+                            CoinviewAssetInformation.AccountsInfo(
                                 isAddedToWatchlist = isAddedToWatchlist.data,
                                 prices = prices.data,
                                 accountsList = accountsList,
-                                totalCryptoBalance = totalCryptoBalance,
-                                totalFiatBalance = totalFiatBalance
+                                totalBalance = CoinviewAssetTotalBalance(
+                                    totalCryptoBalance = totalCryptoBalance,
+                                    totalFiatBalance = totalFiatBalance
+                                ),
                             )
                         )
                     } else {
                         DataResource.Data(
-                            AssetInformation.NonTradeable(
+                            CoinviewAssetInformation.NonTradeable(
                                 isAddedToWatchlist = isAddedToWatchlist.data,
                                 prices = prices.data
                             )
@@ -117,45 +120,78 @@ class GetAssetAccountsUseCase(
         }
     }
 
-    private suspend fun extractAccountDetails(accounts: List<SingleAccount>): Flow<DataResource<List<DetailsItem>>> {
+    private suspend fun extractAccountDetails(accounts: List<SingleAccount>): Flow<DataResource<List<CoinviewAccountDetail>>> {
         return accounts
-            .filter {
-                (it as? CryptoNonCustodialAccount)?.isArchived?.not() ?: true
+            .filter { account ->
+                (account as? CryptoNonCustodialAccount)?.isArchived?.not() ?: true
             }
             .map { account ->
                 combine(
-                    account.balance.asFlow(),
-                    flowOf(account.stateAwareActions.await())
+                    account.balance.asFlow().map { DataResource.Data(it) },
+                    flowOf(account.stateAwareActions.await()).map { DataResource.Data(it) }
                 ) { balance, actions ->
-                    DetailsItem(
-                        account = account,
-                        balance = balance.total,
-                        pendingBalance = balance.pending,
-                        actions = actions,
-                        isDefault = account.isDefault
-                    )
+                    val results = listOf(balance, actions)
+
+                    when {
+                        results.anyLoading() -> {
+                            DataResource.Loading
+                        }
+
+                        results.anyError() -> {
+                            DataResource.Error(results.getFirstError().error)
+                        }
+
+                        else -> {
+                            balance as DataResource.Data
+                            actions as DataResource.Data
+
+                            DataResource.Data(
+                                CoinviewAccountDetail(
+                                    account = account,
+                                    balance = balance.data.total,
+                                    isDefault = account.isDefault
+                                )
+                            )
+                        }
+                    }
                 }
             }
             .run {
                 combine(this) {
-                    DataResource.Data(it.toList())
+                    val results = it.toList()
+
+                    when {
+                        results.anyLoading() -> {
+                            DataResource.Loading
+                        }
+
+                        results.anyError() -> {
+                            DataResource.Error(results.getFirstError().error)
+                        }
+
+                        else -> {
+                            DataResource.Data(
+                                results.map { it as DataResource.Data }.map { it.data }
+                            )
+                        }
+                    }
                 }
             }
     }
 
     private fun mapAccounts(
         walletMode: WalletMode,
-        accounts: List<DetailsItem>,
+        accounts: List<CoinviewAccountDetail>,
         exchangeRate: ExchangeRate,
         interestRate: Double = Double.NaN
-    ): List<AssetDisplayInfo> {
+    ): List<CoinviewAccount> {
 
-        val accountComparator = object : Comparator<DetailsItem> {
-            override fun compare(o1: DetailsItem, o2: DetailsItem): Int {
+        val accountComparator = object : Comparator<CoinviewAccountDetail> {
+            override fun compare(o1: CoinviewAccountDetail, o2: CoinviewAccountDetail): Int {
                 return getAssignedValue(o1).compareTo(getAssignedValue(o2))
             }
 
-            fun getAssignedValue(detailItem: DetailsItem): Int {
+            fun getAssignedValue(detailItem: CoinviewAccountDetail): Int {
                 return when {
                     detailItem.account is NonCustodialAccount && detailItem.isDefault -> 0
                     detailItem.account is TradingAccount -> 1
@@ -172,7 +208,7 @@ class GetAssetAccountsUseCase(
             when (walletMode) {
                 WalletMode.UNIVERSAL,
                 WalletMode.CUSTODIAL_ONLY -> {
-                    AssetDisplayInfo.BrokerageDisplayInfo(
+                    CoinviewAccount.Brokerage(
                         account = it.account,
                         filter = when (it.account) {
                             is TradingAccount -> AssetFilter.Trading
@@ -183,22 +219,14 @@ class GetAssetAccountsUseCase(
                         },
                         amount = it.balance,
                         fiatValue = exchangeRate.convert(it.balance),
-                        pendingAmount = it.pendingBalance,
-                        actions = it.actions.filter { action ->
-                            action.action != AssetAction.InterestDeposit
-                        }.toSet(),
                         interestRate = interestRate
                     )
                 }
                 WalletMode.NON_CUSTODIAL_ONLY -> {
-                    AssetDisplayInfo.DefiDisplayInfo(
+                    CoinviewAccount.Defi(
                         account = it.account,
                         amount = it.balance,
                         fiatValue = exchangeRate.convert(it.balance),
-                        pendingAmount = it.pendingBalance,
-                        actions = it.actions.filter { action ->
-                            action.action != AssetAction.InterestDeposit
-                        }.toSet()
                     )
                 }
             }

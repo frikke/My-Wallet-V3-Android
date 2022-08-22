@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.coinview.presentation
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.charts.ChartEntry
+import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -9,6 +10,8 @@ import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -16,21 +19,23 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.coinview.domain.GetAssetAccountsUseCase
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
+import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 
 class CoinviewViewModel(
+    walletModeService: WalletModeService,
     private val coincore: Coincore,
     private val currencyPrefs: CurrencyPrefs,
     private val getAssetPriceUseCase: GetAssetPriceUseCase,
-    private val getAssetAccountsUseCase: GetAssetAccountsUseCase
+    private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase
 ) : MviViewModel<
     CoinviewIntents,
     CoinviewViewState,
     CoinviewModelState,
     CoinviewNavigationEvent,
-    CoinviewArgs>(CoinviewModelState()) {
+    CoinviewArgs>(CoinviewModelState(walletMode = walletModeService.enabledWalletMode())) {
 
     private var loadPriceDataJob: Job? = null
 
@@ -44,7 +49,7 @@ class CoinviewViewModel(
             updateState {
                 it.copy(
                     asset = asset,
-                    isPriceDataLoading = true
+                    isPriceDataLoading = true,
                 )
             }
         } ?: error("asset ${args.networkTicker} not found")
@@ -114,7 +119,35 @@ class CoinviewViewModel(
                 }
             },
 
-            totalBalance = CoinviewTotalBalance.NotSupported
+            totalBalance = when {
+                // not supported for non custodial
+                walletMode == WalletMode.NON_CUSTODIAL_ONLY -> {
+                    CoinviewTotalBalance.NotSupported
+                }
+
+                isTotalBalanceLoading && totalBalance == null -> {
+                    CoinviewTotalBalance.Loading
+                }
+
+                isTotalBalanceError -> {
+                    CoinviewTotalBalance.NotSupported
+                }
+
+                totalBalance != null -> {
+                    require(asset != null) { "asset not initialized" }
+                    require(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
+
+                    CoinviewTotalBalance.Data(
+                        assetName = asset.currency.name,
+                        totalFiatBalance = totalBalance.totalFiatBalance.toStringWithSymbol(),
+                        totalCryptoBalance = totalBalance.totalCryptoBalance[AssetFilter.All]!!.toStringWithSymbol()
+                    )
+                }
+
+                else -> {
+                    CoinviewTotalBalance.Loading
+                }
+            }
         )
     }
 
@@ -152,6 +185,8 @@ class CoinviewViewModel(
         }
     }
 
+    ////////////////////////
+    // Prices
     private fun loadPriceData(
         asset: CryptoAsset,
         requestedTimeSpan: HistoricalTimeSpan
@@ -163,22 +198,9 @@ class CoinviewViewModel(
                 asset = asset, timeSpan = requestedTimeSpan, fiatCurrency = fiatCurrency
             ).collectLatest { dataResource ->
                 when (dataResource) {
-                    is DataResource.Data -> {
-                        if (dataResource.data.historicRates.isEmpty()) {
-                            updateState {
-                                it.copy(
-                                    isPriceDataLoading = false,
-                                    isPriceDataError = true
-                                )
-                            }
-                        } else {
-                            updateState {
-                                it.copy(
-                                    isPriceDataLoading = false,
-                                    assetPriceHistory = dataResource.data,
-                                    requestedTimeSpan = null
-                                )
-                            }
+                    DataResource.Loading -> {
+                        updateState {
+                            it.copy(isPriceDataLoading = true)
                         }
                     }
 
@@ -191,9 +213,23 @@ class CoinviewViewModel(
                         }
                     }
 
-                    DataResource.Loading -> {
-                        updateState {
-                            it.copy(isPriceDataLoading = true)
+                    is DataResource.Data -> {
+                        if (dataResource.data.historicRates.isEmpty()) {
+                            updateState {
+                                it.copy(
+                                    isPriceDataLoading = false,
+                                    isPriceDataError = true
+                                )
+                            }
+                        } else {
+                            updateState {
+                                it.copy(
+                                    isPriceDataLoading = false,
+                                    isPriceDataError = false,
+                                    assetPriceHistory = dataResource.data,
+                                    requestedTimeSpan = null
+                                )
+                            }
                         }
                     }
                 }
@@ -239,19 +275,60 @@ class CoinviewViewModel(
         updateState { it.copy(interactiveAssetPrice = null) }
     }
 
+    ////////////////////////
     // Accounts
+    /**
+     * Loads accounts and todo
+     */
     private fun loadAccountsData(asset: CryptoAsset) {
         viewModelScope.launch {
-            getAssetAccountsUseCase(asset = asset).collectLatest { dataResource ->
+            loadAssetAccountsUseCase(asset = asset).collectLatest { dataResource ->
                 when (dataResource) {
                     DataResource.Loading -> {
+                        updateState {
+                            it.copy(isTotalBalanceLoading = true)
+                        }
                     }
+
                     is DataResource.Error -> {
+                        updateState {
+                            it.copy(
+                                isTotalBalanceLoading = false,
+                                isTotalBalanceError = true
+                            )
+                        }
                     }
+
                     is DataResource.Data -> {
+                        updateState {
+                            it.copy(
+                                isTotalBalanceLoading = false,
+                                isTotalBalanceError = false
+                            )
+                        }
+
+                        when (dataResource.data) {
+                            is CoinviewAssetInformation.AccountsInfo -> {
+                                (dataResource.data as CoinviewAssetInformation.AccountsInfo).let { data ->
+                                    extractTotalBalance(data)
+                                    extractAccounts(data)
+                                }
+                            }
+                            is CoinviewAssetInformation.NonTradeable -> {
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+
+    private fun extractTotalBalance(accountsInfo: CoinviewAssetInformation.AccountsInfo) {
+        updateState {
+            it.copy(totalBalance = accountsInfo.totalBalance)
+        }
+    }
+
+    private fun extractAccounts(accountsInfo: CoinviewAssetInformation.AccountsInfo) {
     }
 }
