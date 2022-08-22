@@ -15,6 +15,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.commonarch.presentation.base.ComposeModalBottomDialog
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.koin.payloadScope
@@ -50,6 +51,7 @@ class ActionsBottomSheet : ComposeModalBottomDialog(), AndroidScopeComponent {
                         ActionsSheetNavEvent.Send -> host.launchSend()
                         ActionsSheetNavEvent.TradingBuy -> host.launchBuyForDefi()
                         ActionsSheetNavEvent.Swap -> host.launchSwapScreen()
+                        ActionsSheetNavEvent.Rewards -> host.launchInterestDashboard(LaunchOrigin.NAVIGATION)
                         ActionsSheetNavEvent.Sell -> host.launchSell()
                         is ActionsSheetNavEvent.TooMayPendingBuys -> host.launchTooManyPendingBuys(
                             it.maxTransactions

@@ -3180,6 +3180,7 @@
     <string name="transfer_to_another_wallet">Transfer to another wallet</string>
     <string name="top_up_trading_account">Top up in your Trading Account.</string>
     <string name="receive_to_your_wallet">Receive to your wallet</string>
+    <string name="rewards_to_your_cryptos">Earn Rewards on Your Crypto</string>
     <string name="buy_crypto">Buy Crypto</string>
     <string name="defi_buy_not_supported">We don’t support buying crypto into your Private Key Wallet at this time. You can buy from your Trading Account and send to your Private Key Wallet.</string>
     <string name="go_to_trading">Go to Trading Account</string>
