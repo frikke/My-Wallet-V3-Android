@@ -50,12 +50,13 @@ sealed interface CoinviewAccountsState {
     object Loading : CoinviewAccountsState
     data class Data(
         val style: CoinviewAccountsStyle,
+        val header: CoinviewAccountsHeaderState,
         val accounts: List<CoinviewAccountState>
     ) : CoinviewAccountsState {
         sealed interface CoinviewAccountState {
             data class Available(
                 val title: String,
-                val subtitle: String,
+                val subtitle: SimpleValue,
                 val cryptoBalance: String,
                 val fiatBalance: String,
                 val logo: String
@@ -65,6 +66,11 @@ sealed interface CoinviewAccountsState {
                 val title: String,
                 val subtitle: SimpleValue
             ) : CoinviewAccountState
+        }
+
+        sealed interface CoinviewAccountsHeaderState {
+            data class ShowHeader(val text: SimpleValue) : CoinviewAccountsHeaderState
+            object NoHeader : CoinviewAccountsHeaderState
         }
     }
 }

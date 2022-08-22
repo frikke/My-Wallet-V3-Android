@@ -15,12 +15,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsStyle
+import piuk.blockchain.android.ui.coinview.presentation.SimpleValue
 
 @Composable
 fun AssetAccounts(
@@ -56,12 +59,16 @@ fun AssetAccountsData(
             .fillMaxWidth()
             .applyStyle(data.style)
     ) {
+        // header
+        AssetAccountHeader(header = data.header)
+
+        // accounts
         data.accounts.forEachIndexed { index, account ->
             when (account) {
                 is CoinviewAccountState.Available -> {
                     BalanceTableRow(
                         titleStart = buildAnnotatedString { append(account.title) },
-                        bodyStart = buildAnnotatedString { append(account.subtitle) },
+                        bodyStart = buildAnnotatedString { append(account.subtitle.value()) },
                         titleEnd = buildAnnotatedString { append(account.fiatBalance) },
                         bodyEnd = buildAnnotatedString { append(account.cryptoBalance) },
                         startImageResource = ImageResource.Remote(url = account.logo, shape = CircleShape),
@@ -77,6 +84,22 @@ fun AssetAccountsData(
             if (data.accounts.lastIndex != index) {
                 Separator()
             }
+        }
+    }
+}
+
+@Composable
+fun AssetAccountHeader(header: CoinviewAccountsHeaderState) {
+    when(header){
+        is CoinviewAccountsHeaderState.ShowHeader -> {
+            SmallSectionHeader(
+                modifier = Modifier.fillMaxWidth(),
+                text = header.text.value()
+            )
+        }
+
+        CoinviewAccountsHeaderState.NoHeader -> {
+            // don't show any view
         }
     }
 }
@@ -123,17 +146,18 @@ fun PreviewAssetAccounts_Data_Simple() {
     AssetAccounts(
         CoinviewAccountsState.Data(
             style = CoinviewAccountsStyle.Simple,
+            header  = CoinviewAccountsHeaderState.ShowHeader(SimpleValue.StringValue("wallet & accounts")),
             accounts = listOf(
                 CoinviewAccountState.Available(
                     title = "Ethereum 1",
-                    subtitle = "ETH",
+                    subtitle = SimpleValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
                     fiatBalance = "$2,000.00",
                     logo = ""
                 ),
                 CoinviewAccountState.Available(
                     title = "Ethereum 2",
-                    subtitle = "ETH",
+                    subtitle = SimpleValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
                     fiatBalance = "$2,000.00",
                     logo = ""
@@ -149,17 +173,18 @@ fun PreviewAssetAccounts_Data_Boxed() {
     AssetAccounts(
         CoinviewAccountsState.Data(
             style = CoinviewAccountsStyle.Boxed,
+            header  = CoinviewAccountsHeaderState.NoHeader,
             accounts = listOf(
                 CoinviewAccountState.Available(
                     title = "Ethereum 1",
-                    subtitle = "ETH",
+                    subtitle = SimpleValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
                     fiatBalance = "$2,000.00",
                     logo = ""
                 ),
                 CoinviewAccountState.Available(
                     title = "Ethereum 2",
-                    subtitle = "ETH",
+                    subtitle = SimpleValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
                     fiatBalance = "$2,000.00",
                     logo = ""

@@ -1,7 +1,5 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
@@ -12,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -24,6 +23,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
+import piuk.blockchain.android.ui.coinview.presentation.SimpleValue
 
 @Composable
 fun Coinview(
@@ -113,4 +113,13 @@ fun PreviewCoinviewScreen() {
         totalBalance = CoinviewTotalBalanceState.Loading,
         accounts = CoinviewAccountsState.Loading
     )
+}
+
+// todo move
+@Composable
+fun SimpleValue.value(): String {
+    return when (this) {
+        is SimpleValue.IntResValue -> stringResource(value, *args.toTypedArray())
+        is SimpleValue.StringValue -> value
+    }
 }

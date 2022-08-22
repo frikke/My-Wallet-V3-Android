@@ -11,6 +11,7 @@ val coinviewPresentationModule = module {
                 walletModeService = get(),
                 coincore = get(),
                 currencyPrefs = get(),
+                labels = get(),
                 getAssetPriceUseCase = get(),
                 loadAssetAccountsUseCase = get()
             )

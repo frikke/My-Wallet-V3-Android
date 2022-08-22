@@ -13,6 +13,7 @@ import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
@@ -30,11 +31,14 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
+import java.text.DecimalFormat
 
 class CoinviewViewModel(
     walletModeService: WalletModeService,
     private val coincore: Coincore,
     private val currencyPrefs: CurrencyPrefs,
+    private val labels: DefaultLabels,
     private val getAssetPriceUseCase: GetAssetPriceUseCase,
     private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase
 ) : MviViewModel<
@@ -162,13 +166,22 @@ class CoinviewViewModel(
                 }
 
                 accounts != null -> {
+                    require(asset != null) { "asset not initialized" }
+
                     CoinviewAccountsState.Data(
                         style = when (accounts) {
                             is CoinviewAccounts.Universal,
                             is CoinviewAccounts.Custodial -> CoinviewAccountsStyle.Simple
                             is CoinviewAccounts.Defi -> CoinviewAccountsStyle.Boxed
                         },
-                        accounts.accounts.map { cvAccount ->
+                        header = when (accounts) {
+                            is CoinviewAccounts.Universal,
+                            is CoinviewAccounts.Custodial -> CoinviewAccountsHeaderState.ShowHeader(
+                                SimpleValue.IntResValue(R.string.coinview_accounts_label)
+                            )
+                            is CoinviewAccounts.Defi -> CoinviewAccountsHeaderState.NoHeader
+                        },
+                        accounts = accounts.accounts.map { cvAccount ->
                             val account: CryptoAccount = cvAccount.account.let { blockchainAccount ->
                                 when (blockchainAccount) {
                                     is CryptoAccount -> blockchainAccount
@@ -182,32 +195,67 @@ class CoinviewViewModel(
                             when (cvAccount.isAvailable) {
                                 true -> {
                                     when (cvAccount) {
-                                        is CoinviewAccount.Custodial.Interest -> TODO()
-                                        is CoinviewAccount.Custodial.Trading -> TODO()
-                                        is CoinviewAccount.Defi -> {
+                                        is CoinviewAccount.Universal -> TODO()
+                                        is CoinviewAccount.Custodial.Trading -> {
                                             Available(
-                                                title = account.label,
-                                                subtitle = account.currency.displayTicker,
+                                                title = labels.getDefaultCustodialWalletLabel(),
+                                                subtitle = SimpleValue.IntResValue(R.string.coinview_c_available_desc),
                                                 cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
                                                 fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
                                                 logo = account.currency.logo
                                             )
                                         }
-                                        is CoinviewAccount.Universal -> TODO()
+                                        is CoinviewAccount.Custodial.Interest -> {
+                                            Available(
+                                                title = labels.getDefaultInterestWalletLabel(),
+                                                subtitle = SimpleValue.IntResValue(
+                                                    R.string.coinview_interest_with_balance,
+                                                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
+                                                ),
+                                                cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+                                                fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+                                                logo = account.currency.logo
+                                            )
+                                        }
+                                        is CoinviewAccount.Defi -> {
+                                            Available(
+                                                title = account.label,
+                                                subtitle = SimpleValue.StringValue(account.currency.displayTicker),
+                                                cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+                                                fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+                                                logo = account.currency.logo
+                                            )
+                                        }
                                     }
                                 }
 
                                 false -> {
                                     when (cvAccount) {
-                                        is CoinviewAccount.Custodial.Interest -> TODO()
-                                        is CoinviewAccount.Custodial.Trading -> TODO()
+                                        is CoinviewAccount.Universal -> TODO()
+                                        is CoinviewAccount.Custodial.Trading -> {
+                                            Unavailable(
+                                                title = labels.getDefaultCustodialWalletLabel(),
+                                                subtitle = SimpleValue.IntResValue(
+                                                    R.string.coinview_c_unavailable_desc,
+                                                    listOf(asset.currency.name)
+                                                ),
+                                            )
+                                        }
+                                        is CoinviewAccount.Custodial.Interest -> {
+                                            Unavailable(
+                                                title = labels.getDefaultInterestWalletLabel(),
+                                                subtitle = SimpleValue.IntResValue(
+                                                    R.string.coinview_interest_no_balance,
+                                                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
+                                                ),
+                                            )
+                                        }
                                         is CoinviewAccount.Defi -> {
                                             Unavailable(
                                                 title = account.currency.name,
                                                 subtitle = SimpleValue.IntResValue(R.string.coinview_nc_desc),
                                             )
                                         }
-                                        is CoinviewAccount.Universal -> TODO()
                                     }
                                 }
                             }
