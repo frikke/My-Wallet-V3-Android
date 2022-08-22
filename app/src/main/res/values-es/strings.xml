@@ -965,7 +965,7 @@ Puedes seguir utilizando la billetera para gestionar tus criptomonedas.</string>
     <string name="send_state_locked_funds_1">Tiene transacciones pendientes.</string>
     <string name="sell_info_title">¿Quiere vender desde sus otras carteras?</string>
     <string name="sell_info_blurb_1">Envíe criptomonedas desde sus monederos hasta sus</string>
-    <string name="sell_info_blurb_2"> monederos de operaciones. </string>
+    <string name="sell_info_blurb_2"> monederos de operaciones. </string>
     <string name="sell_info_blurb_3">Una vez que se complete el envío, venda esa criptomoneda por dinero en efectivo.</string>
     <string name="sell_info_action">Enviar ahora →</string>
     <string name="common_pending">Pendiente</string>
@@ -1386,7 +1386,7 @@ Sus fondos estarán disponibles para que pueda retirarlos cuando complete la tra
 
 • Datos de identificación
 
-• Detalles de la/s cuenta/s</string>
+• Detalles de las cuentas</string>
     <string name="bank_linking_invalid_title">Banco no válido</string>
     <string name="bank_linking_invalid_subtitle">Ha intentado vincular una cuenta que no es válida. Vuelve a comprobarlo o ponte en contacto con el servicio de asistencia.</string>
     <string name="receive_memo_warning">Si envía fondos sin el Memo Text %1$s, sus fondos se perderán y no se acreditarán en su cuenta. Envíe solo %1$s a esta dirección.</string>
@@ -1410,7 +1410,7 @@ Sus fondos estarán disponibles para que pueda retirarlos cuando complete la tra
     <string name="checkout_item_price_note">Blockchain.com ofrece los mejores precios del mercado que obtenemos y aplica un diferencial.</string>
     <string name="checkout_item_network_fee_note">Pagos por minadores %1$s para confirmar su transacción en la red de Blockchain.</string>
     <string name="swap_confirmation_disclaimer_1">Puede que el importe final cambie según la actividad del mercado. Al aprobar este intercambio, acepta la <annotation link="refund_policy">Política de reembolso</annotation> de Blockchain.com</string>
-    <string name="checkout_swap_exchange_note">El tipo de cambio es el mejor precio para %1$s respecto a 1 %2$s </string>
+    <string name="checkout_swap_exchange_note">El tipo de cambio es el mejor precio para %1$s respecto a 1 %2$s </string>
     <string name="upsell_message">Obtenga tarifas más bajas y duplique la velocidad de transacción cuando cambie sus criptomonedas desde cualquier cuenta de operaciones. Busque estos símbolos para reducir las tarifas hasta un 50 %.</string>
     <string name="upsell_title">Reduzca las tarifas. Cambie a cuenta de operaciones.</string>
     <string name="swap_erc_20_tooltip">Este es un token ERC-20. Las tarifas de red las establece la red Ethereum.</string>
@@ -1677,7 +1677,7 @@ Mientras tanto, puede vender en efectivo, intercambiar y comerciar dentro de Blo
     <string name="activity_details_title_rewards_earned">Recompensas ganadas</string>
     <string name="withdraw_rewards_confirmation_success_message">Su %1$s estará disponible en su %2$s en periodo de dos días.</string>
     <string name="send_confirmation_rewards_tos_pp">He leído y acepto las <annotation link="interest_tos">Condiciones de servicio</annotation> y <annotation link="interest_pp"> la Política de privacidad</annotation>.</string>
-    <string name="send_confirmation_rewards_holding_period_1">Al aceptar esto, usted acepta transferir </string>
+    <string name="send_confirmation_rewards_holding_period_1">Al aceptar esto, usted acepta transferir </string>
     <string name="send_confirmation_rewards_holding_period_2">  (%1$s) de su monedero %2$s a su cuenta de recompensas. Se aplicará un período de retención inicial de 7 días a sus fondos.</string>
     <string name="rewards_enter_amount_error_insufficient_funds_for_fees">No hay suficientes %1$s en su monedero para transferir con las tarifas de red actuales.</string>
     <string name="send_internal_transfer_message_1_1">En este momento, puede transferir %1$s desde su %2$scuenta de operaciones a su%2$s cuenta de recompensas o monederos de clave privada. Si desea transferir a direcciones externas, puede hacerlo desde su monedero de clave privada.</string>
@@ -1698,7 +1698,7 @@ Mientras tanto, puede vender en efectivo, intercambiar y comerciar dentro de Blo
     <string name="rewards_dashboard_item_rate_1">Ganar hasta</string>
     <string name="rewards_dashboard_item_rate_2">anualmente en su %1$s</string>
     <string name="rewards_dashboard_verify_title">Obtenga recompensas con sus criptomonedas</string>
-    <string name="rewards_dashboard_verify_label">Gane hasta un 12 \% instantáneamente cuando transfiera criptomonedas a su cuenta de recompensas.</string>
+    <string name="rewards_dashboard_verify_label">Gane hasta un 12 %% instantáneamente cuando transfiera criptomonedas a su cuenta de recompensas.</string>
     <string name="rewards_dashboard_verify_point_one_title">Verifique su identidad</string>
     <string name="rewards_dashboard_verify_point_two_title">Comprar criptomonedas</string>
     <string name="rewards_dashboard_verify_point_two_label">Utilice su tarjeta bancaria, de débito o de crédito para financiar cualquier compra de criptomonedas.</string>
@@ -1994,6 +1994,7 @@ Compre hoy criptomonedas.</string>
     <string name="about_app_privacy_policy">Política de privacidad</string>
     <string name="swap_empty_state_sheet_title">¡Primero necesitará algunas criptomonedas!</string>
     <string name="swap_empty_state_sheet_subtitle">Vincule un banco o una tarjeta y compre ahora o reciba pagos de un amigo. Una vez que tenga saldo, puede intercambiar criptomonedas en cualquier momento.</string>
+    <string name="settings_initials">%1$s %2$s</string>
     <string name="settings_bank_transfer_blurb">Envíe fondos directamente desde su banco a su Blockchain Wallet. Una vez que recibamos la transferencia bancaria, completaremos su compra.</string>
     <string name="settings_logout_error">Hubo un problema al cerrar la sesión. Inténtelo de nuevo.</string>
     <string name="select_a_display_currency">Seleccione una moneda para ver.</string>
@@ -2499,7 +2500,6 @@ Compre hoy criptomonedas.</string>
     <string name="backup_phrase_intro_ack_2">Si expongo o comparto mi frase secreta con alguien, mis fondos pueden ser robados.</string>
     <string name="backup_phrase_intro_ack_3">Es mi responsabilidad mantener segura mi frase secreta.</string>
     <string name="sell_confirmation_disclaimer">El importe final puede cambiar debido a la actividad del mercado. Al aprobar esta Venta, acepta la <annotation link="refund_policy">Política de reembolso</annotation> de Blockchain.com</string>
-    <string name="defi_wallet">DeFi Wallet</string>
     <string name="verify_phrase_incorrect_message">Orden incorrecto. Restablezca o toque palabras individuales para eliminarlas.</string>
     <string name="verify_phrase_incorrect_button">Restablecer palabras</string>
     <string name="prices_error_title">No se pueden cargar los precios de los activos</string>
@@ -2538,13 +2538,7 @@ Verifique su conexión a Internet y vuelva a intentarlo o póngase en contacto c
     <string name="visit_faq">Visite nuestras preguntas frecuentes</string>
     <string name="visit_faq_description">Consulte nuestras preguntas frecuentes</string>
     <string name="contact_support_description">Póngase en contacto con nosotros para cualquier otra cuestión</string>
-    <string name="terminate_card">Cancelar tarjeta</string>
-    <string name="terminate_card_number">¿Cerrar %1s ?</string>
-    <string name="terminate_card_warning">\"Una vez confirmada, esta acción no se puede deshacer.\"</string>
-    <string name="terminate_card_confirm_description">Escriba \"ELIMINAR\" para cancelar su tarjeta de forma permanente</string>
-    <string name="delete">ELIMINAR</string>
     <string name="no_accounts_eligible_for_linking">No hay cuentas elegibles para vincular</string>
-    <string name="terminate_card_confirmation_text">ELIMINAR</string>
     <string name="address_updated">Dirección de facturación actualizada</string>
     <string name="address_update_success">Dirección actualizada correctamente</string>
     <string name="address_update_success_description">Su dirección de facturación se ha cambiado correctamente y entrará en vigor de inmediato.</string>
@@ -2673,6 +2667,42 @@ Si introduce un alias:
     <string name="bc_card_terms_and_conditions_label">Entiendo y acepto los términos y condiciones del programa de tarjetas Visa de Blockchain.com, el acuerdo del titular de la tarjeta de Pathward Bank, el acuerdo de firma electrónica de Pathward Bank y la política de privacidad de Pathward Bank. También entiendo y acepto que estos términos y condiciones funcionan además de los términos y condiciones de servicio de Blockchain.com y la política de privacidad de Blockchain.com.</string>
     <string name="skip_backup_cta_skip">Sí, omitir copia de seguridad</string>
     <string name="skip_backup_cta_backup">Copia de seguridad (recomendado)</string>
+    <string name="terminate_card">Cancelar tarjeta</string>
+    <string name="terminate_card_confirm_description">Escriba \"CANCELAR\" para cancelar permanentemente su tarjeta</string>
+    <string name="terminate_card_confirmation_text">CANCELAR</string>
     <string name="bc_card_transaction_payment">Pago</string>
     <string name="bc_card_transaction_refund">Reembolso</string>
+    <string name="nft_coming_soon_title">¡Próximamente!</string>
+    <string name="nft_coming_soon_description">Estamos trabajando duro para respaldar sus NFT en su cartera. Le enviaremos un correo electrónico cuando sea el momento de actualizar su aplicación.</string>
+    <string name="accessibility_balance">Saldo</string>
+    <string name="terminate_card_number">¿Terminar la tarjeta %1s ?</string>
+    <string name="terminate_card_warning">Una vez que se confirme, esta acción no se puede deshacer.</string>
+    <string name="bc_card_change_asset_title">Cambiar activo</string>
+    <string name="bc_card_change_asset_description">Cambiar el activo que financiará la tarjeta</string>
+    <string name="bc_card_add_funds_title">Añadir fondos</string>
+    <string name="bc_card_add_funds_description">Recarga tu saldo actual</string>
+    <string name="select_one">Seleccione uno</string>
+    <string name="bc_card_empty_transactions_title">Sus transacciones van aquí</string>
+    <string name="bc_card_empty_transactions_description">Una vez que realice una compra con su tarjeta, esos detalles aparecerán aquí.</string>
+    <string name="bc_card_tap_here_to_refresh">Toque aquí para actualizar</string>
+    <string name="bc_card_tap_here_to_try_again">Toca aquí para volver a intentarlo</string>
+    <string name="bc_card_unable_to_load_card">No se puede cargar la tarjeta</string>
+    <string name="accessibility_total_balance">Saldo total</string>
+    <string name="checkout_rb_weekly_title">¿Invertir semanalmente?</string>
+    <string name="checkout_rb_biweekly_title">¿Invertir quincenalmente?</string>
+    <string name="checkout_rb_monthly_title">invertir mensualmente?</string>
+    <string name="checkout_rb_subtitle">Compra %1$s %2$s . Cancelar en cualquier momento.</string>
+    <string name="shortcuts">Atajos</string>
+    <string name="exchange_your_crypto">Intercambia tu cripto</string>
+    <string name="transfer_to_another_wallet">Transferir a otra billetera</string>
+    <string name="receive_to_your_wallet">Recibe en tu billetera</string>
+    <string name="buy_crypto">Comprar criptomonedas</string>
+    <string name="defi_buy_not_supported">No admitimos la compra de criptomonedas en su billetera de clave privada en este momento. Puede comprar desde su cuenta comercial y enviar a su billetera de clave privada.</string>
+    <string name="go_to_trading">Ir a la cuenta comercial</string>
+    <string name="recurring_buy_view_rb">Ver compra recurrente</string>
+    <string name="recurring_buy_created_title">%s Compra creada</string>
+    <string name="recurring_buy_created_subtitle">Ahora comprará %1$s en %2$s %3$s . Usted puede cancelar en cualquier momento.</string>
+    <string name="top_up_trading_account">Recarga en tu Cuenta de Trading.</string>
+    <string name="use_your_card_or_cash">Use su efectivo o tarjeta</string>
+    <string name="fiat_to_cash">Convierta sus criptomonedas en efectivo</string>
 </resources>

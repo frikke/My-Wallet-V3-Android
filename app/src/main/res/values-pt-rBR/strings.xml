@@ -1404,7 +1404,7 @@ Seus fundos estarão disponíveis para saque assim que a transferência bancári
     <string name="select_withdraw_target_title">Retirar para</string>
     <string name="simple_buy_confirmation_error">Ocorreu um problema com seu pagamento, tente novamente ou entre em contato com o suporte se o problema persistir.</string>
     <string name="send_enter_amount_error_invalid_amount_1">Envie %1$s ou mais.</string>
-    <string name="tx_confirmation_free_fee_learn_more_2_1"> Contas Trading </string>
+    <string name="tx_confirmation_free_fee_learn_more_2_1"> Contas Trading </string>
     <string name="error_email_veriff_title">Ops! Algo deu errado.</string>
     <string name="error_email_veriff">Não foi possível verificar seu e-mail. Tente novamente ou podemos encaminhar um novo e-mail.</string>
     <string name="yapily_agreement_blurb_1_1">%1$s recuperará seus dados bancários com base em sua solicitação e fornecerá essas informações à Blockchain.</string>
@@ -1413,8 +1413,9 @@ Seus fundos estarão disponíveis para saque assim que a transferência bancári
     <string name="yapily_agreement_blurb_4_2">%1$s Os Termos e Condições podem ser acessados usando o seguinte link <a>https://yapi.ly/GDNT</a></string>
     <string name="yapily_agreement_blurb_5_1">Para compartilhar seus dados %1$s com a Blockchain.com, agora você será redirecionado com segurança para seu banco para confirmar seu consentimento com a YapilyConnect para ler as seguintes informações:
 
- • Detalhes de identificação
- • Detalhes da(s) conta(s)</string>
+• Detalhes de identificação
+
+• Detalhes da(s) conta(s)</string>
     <string name="bank_linking_invalid_title">Banco inválido</string>
     <string name="bank_linking_invalid_subtitle">Você tentou vincular uma conta que não é válida. Verifique novamente ou entre em contato com o suporte.</string>
     <string name="receive_memo_warning">Se você enviar fundos sem o Texto do Memorando %1$s, seus fundos serão perdidos e não serão creditados em sua conta. Envie apenas %1$s para este endereço.</string>
@@ -1722,7 +1723,7 @@ Enquanto isso, você pode vender em dinheiro ou trocar e negociar na Blockchain.
     <string name="rewards_dashboard_item_rate_1">Ganhe até</string>
     <string name="rewards_dashboard_item_rate_2">anualmente em seu %1$s</string>
     <string name="rewards_dashboard_verify_title">Ganhe recompensas em suas criptomoedas</string>
-    <string name="rewards_dashboard_verify_label">Ganhe até 12\% instantaneamente ao transferir criptomoedas para sua Conta Rewards.</string>
+    <string name="rewards_dashboard_verify_label">Ganhe até 12%% instantaneamente ao transferir criptomoedas para sua Conta Rewards.</string>
     <string name="rewards_dashboard_verify_point_one_title">Verifique sua identidade</string>
     <string name="rewards_dashboard_verify_point_two_title">Comprar criptomoedas</string>
     <string name="rewards_dashboard_verify_point_two_label">Use seu banco, cartão de débito ou crédito para financiar qualquer compra de criptomoeda.</string>
@@ -2018,6 +2019,7 @@ Compre criptomoedas hoje.</string>
     <string name="about_app_privacy_policy">Política de Privacidade</string>
     <string name="swap_empty_state_sheet_title">Você precisará de criptomoedas primeiro!</string>
     <string name="swap_empty_state_sheet_subtitle">Vincule um banco ou cartão e compre agora ou receba de um amigo. Depois de manter um saldo, é possível trocar criptomoedas a qualquer momento.</string>
+    <string name="settings_initials">%1$s %2$s</string>
     <string name="settings_bank_transfer_blurb">Envie fundos diretamente do seu banco para sua Blockchain Wallet. Assim que recebermos a transferência bancária, concluiremos sua compra.</string>
     <string name="settings_logout_error">Ocorreu um problema ao desconectá-lo, tente novamente!</string>
     <string name="select_a_display_currency">Selecione uma moeda de exibição.</string>
@@ -2516,7 +2518,7 @@ Se já tiver feito isso, <annotation link="contact_support">entre em contato com
     <string name="no_fees_description">Sem taxas anuais, de inscrição e de transação.</string>
     <string name="terms_and_conditions_label">Eu concordo com os Termos de Serviço da Blockchain.com</string>
     <string name="crypto_rewards">Recompensas em criptomoedas</string>
-    <string name="crypto_rewards_description">Ganhe 1\% de volta em recompensas em criptomoedas em todas as suas compras.</string>
+    <string name="crypto_rewards_description">Ganhe 1%% de volta em recompensas em criptomoedas em todas as suas compras.</string>
     <string name="legal_info_title">Informações jurídicas</string>
     <string name="continue_to_card_dashboard">Continue para visualizar o painel do seu cartão.</string>
     <string name="go_to_dashboard">Ir para o Painel</string>
@@ -2524,7 +2526,6 @@ Se já tiver feito isso, <annotation link="contact_support">entre em contato com
     <string name="backup_phrase_intro_ack_2">Se eu expuser ou compartilhar minha frase secreta com alguém, meus fundos poderão ser roubados.</string>
     <string name="backup_phrase_intro_ack_3">É de minha total responsabilidade manter minha frase secreta segura.</string>
     <string name="sell_confirmation_disclaimer">O valor final pode mudar devido à atividade do mercado. Ao aprovar esta venda, você concorda com a <annotation link="refund_policy">Política de Reembolso</annotation> da Blockchain.com.</string>
-    <string name="defi_wallet">DeFi Wallet</string>
     <string name="verify_phrase_incorrect_message">Ordem incorreta. Redefina ou toque em palavras individuais para remover.</string>
     <string name="verify_phrase_incorrect_button">Redefinir palavras</string>
     <string name="prices_error_title">Não é possível carregar os Preços dos ativos</string>
@@ -2563,13 +2564,7 @@ Verifique sua conexão com a Internet e tente novamente ou entre em contato com 
     <string name="visit_faq">Visite nossas perguntas frequentes</string>
     <string name="visit_faq_description">Veja as dúvidas mais frequentes</string>
     <string name="contact_support_description">Entre em contato conosco para quaisquer outras questões</string>
-    <string name="terminate_card">Encerrar cartão</string>
-    <string name="terminate_card_number">Encerrar %1s?</string>
-    <string name="terminate_card_warning">\"Uma vez confirmada, esta ação não pode ser desfeita.\"</string>
-    <string name="terminate_card_confirm_description">Digite \"EXCLUIR\" para encerrar permanentemente seu cartão</string>
-    <string name="delete">EXCLUIR</string>
     <string name="no_accounts_eligible_for_linking">Nenhuma conta qualificada para vincular</string>
-    <string name="terminate_card_confirmation_text">EXCLUIR</string>
     <string name="address_updated">Endereço de cobrança atualizado</string>
     <string name="address_update_success">Endereço atualizado com sucesso</string>
     <string name="address_update_success_description">Seu endereço de cobrança foi alterado com sucesso e entrará em vigor imediatamente.</string>
@@ -2698,4 +2693,12 @@ Se você inserir um Alias:
     <string name="bc_card_terms_and_conditions_label">Eu entendo e aceito os termos e condições do Programa de Cartão Visa Blockchain.com, o Acordo de Portador de Cartão do Pathward Bank, o Acordo de E-Sign do Pathward Bank e a Política de Privacidade do Pathward Bank. Eu também entendo e aceito que estes termos operam além dos Termos de Serviço do Blockchain.com e da Política de Privacidade do Blockchain.com.</string>
     <string name="skip_backup_cta_skip">Sim, pular backup</string>
     <string name="skip_backup_cta_backup">Backup (recomendado)</string>
+    <string name="terminate_card">Encerrar Cartão</string>
+    <string name="terminate_card_confirm_description">Digite \'TERMINATE\' para encerrar permanentemente seu cartão</string>
+    <string name="terminate_card_confirmation_text">ENCERRAR</string>
+    <string name="bc_card_transaction_payment">Pagamento</string>
+    <string name="bc_card_transaction_refund">Reembolso</string>
+    <string name="nft_coming_soon_title">Em breve!</string>
+    <string name="nft_coming_soon_description">Estamos trabalhando arduamente para dar suporte a seus NFTs na carteira. Enviaremos um e-mail quando for o momento de atualizar seu aplicativo.</string>
+    <string name="accessibility_balance">Saldo</string>
 </resources>

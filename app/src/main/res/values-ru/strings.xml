@@ -996,7 +996,7 @@ Blockchain Wallet:
     <string name="send_error_tx_in_flight">Транзакция уже выполняется</string>
     <string name="send_error_tx_option_invalid">Произошла ошибка</string>
     <string name="send_to_exchange_xlm_title">[%key_id:39022898%]</string>
-    <string name="send_to_exchange_xlm_blurb"> Добавьте заметку, чтобы не потерять средства. </string>
+    <string name="send_to_exchange_xlm_blurb"> Добавьте заметку, чтобы не потерять средства. </string>
     <string name="send_to_exchange_xlm_link"><annotation link="send_memo_link">Узнать больше о требованиях к балансу.</annotation></string>
     <string name="send_confirm_memo_text_hint">Добавить заметку (максимум 28 символов)</string>
     <string name="send_confirm_memo_id_hint">Добавить идентификатор</string>
@@ -1054,7 +1054,7 @@ Blockchain Wallet:
     <string name="swap_select_target_subtitle">Подтвердите кошелек, с которого хотите выполнить обмен, и выберите кошелек, на который хотите получить.</string>
     <string name="tx_confirmation_network_fee">Комиссия сети %1$s</string>
     <string name="tx_confirmation_fee_learn_more_1">Сеть </string>
-    <string name="tx_confirmation_fee_learn_more_2">комиссии установлены сетью %1$s. </string>
+    <string name="tx_confirmation_fee_learn_more_2">комиссии установлены сетью %1$s. </string>
     <string name="tx_confirmation_fee_learn_more_3"><annotation link="send_tx_fees">Узнайте больше о комиссиях</annotation>.</string>
     <string name="tx_confirmation_free_fee_learn_more_1">Сетевые сборы при использовании</string>
     <string name="tx_confirmation_free_fee_learn_more_3">БЕСПЛАТНО! <annotation link="send_tx_fees">Узнайте больше о комиссиях</annotation>.</string>
@@ -1436,7 +1436,7 @@ YapilyConnect поделится этими данными с вашим бан�
 
  • Идентификационные данные
 
- • Информация аккаунта (-ов)</string>
+ • Информация аккаунта(-ов)</string>
     <string name="bank_linking_invalid_title">Неверный банк</string>
     <string name="bank_linking_invalid_subtitle">Вы пытались связать неверный аккаунт. Пожалуйста, проверьте еще раз или обратитесь в службу поддержки.</string>
     <string name="receive_memo_warning">Если вы отправите средства без текстовой заметки %1$s, то они будут потеряны и не будут зачислены на ваш счет. Отправляйте на этот адрес только %1$s.</string>
@@ -1709,7 +1709,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="reset_password_kyc_reset_failed_message">Не удалось восстановить ваш аккаунт, попробуйте еще раз</string>
     <string name="fund_recovery_failed_title">Не удалось восстановить средства</string>
     <string name="fund_recovery_failed_blurb">Не беспокойтесь, ваш аккаунт в безопасности. Обратитесь в службу поддержки, чтобы завершить процесс восстановления аккаунта. В вашем аккаунте не будут отображаться остатки или история транзакций, пока вы не завершите процесс восстановления.</string>
-    <string name="fund_recovery_failed_label">Сбои в восстановлении средств могут произойти по ряду причин. Наша служба поддержки может помочь восстановить ваш аккаунт. </string>
+    <string name="fund_recovery_failed_label">Сбои в восстановлении средств могут произойти по ряду причин. Наша служба поддержки может помочь восстановить ваш аккаунт. </string>
     <string name="empty_portfolio_title">Добро пожаловать на Blockchain.com!</string>
     <string name="empty_portfolio_description">Все ваши криптовалютные балансы будут отображаться здесь сразу после покупки или получения.</string>
     <string name="search_coins_hint">Искать монеты</string>
@@ -1746,8 +1746,8 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="rewards_item_issue_region">Недоступно в вашем регионе</string>
     <string name="rewards_item_issue_kyc">Чтобы начать зарабатывать Rewards, необходимо иметь Полный доступ</string>
     <string name="rewards_item_issue_other">В настоящее время недоступно, повторите попытку позже</string>
-    <string name="rewards_dashboard_item_rate_1">Зарабатывайте до </string>
-    <string name="rewards_dashboard_item_rate_2"> ежегодно на своих %1$s</string>
+    <string name="rewards_dashboard_item_rate_1">Зарабатывайте до </string>
+    <string name="rewards_dashboard_item_rate_2"> ежегодно на своих %1$s</string>
     <string name="rewards_dashboard_verify_title">Получайте вознаграждения за криптовалюту</string>
     <string name="rewards_dashboard_verify_label">Мгновенно зарабатывайте до 12 %%, переводя криптовалюту на свой счет вознаграждений.</string>
     <string name="rewards_dashboard_verify_point_one_title">Подтвердите свою личность</string>
@@ -2045,6 +2045,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="about_app_privacy_policy">Политика конфиденциальности</string>
     <string name="swap_empty_state_sheet_title">Сначала вам понадобится немного криптовалюты!</string>
     <string name="swap_empty_state_sheet_subtitle">Привяжите банк или карту и купите криптовалюту сейчас или получите ее от друга. Как только она появится на вашем балансе, вы можете в любой момент обменять ее.</string>
+    <string name="settings_initials">%1s %2s</string>
     <string name="settings_bank_transfer_blurb">Отправляйте средства прямо со своего банковского счета на свой кошелек Blockchain. Как только мы получим банковский перевод, мы завершим вашу покупку.</string>
     <string name="settings_logout_error">При выходе из системы возникла проблема, попробуйте еще раз!</string>
     <string name="select_a_display_currency">Выберите отображаемую валюту.</string>
@@ -2232,7 +2233,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="settings_signout_wallet">Выйти</string>
     <string name="settings_ask_you_sure_signout">Вы уверены, что хотите выйти из этого кошелька?</string>
     <string name="settings_btn_signout">Выйти</string>
-    <string name="coinview_price_day">Последние 24 часа</string>
+    <string name="coinview_price_day">Последние 24 часа</string>
     <string name="coinview_price_week">Прошлая неделя</string>
     <string name="coinview_price_month">Прошлый месяц</string>
     <string name="coinview_price_year">Прошлый год</string>
@@ -2545,7 +2546,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="no_fees_description">Без платы за регистрацию. Без ежегодных сборов. Без комиссий за транзакции.</string>
     <string name="terms_and_conditions_label">Я согласен(-на) с Условиями использования Blockchain.com</string>
     <string name="crypto_rewards">Крипто Rewards</string>
-    <string name="crypto_rewards_description">Получайте 1\% обратно в крипто-вознаграждениях за все ваши покупки.</string>
+    <string name="crypto_rewards_description">Получайте 1%% обратно в крипто-вознаграждениях за все ваши покупки.</string>
     <string name="legal_info_title">Юридическая информация</string>
     <string name="continue_to_card_dashboard">Перейти к панели управления картой.</string>
     <string name="go_to_dashboard">Перейти к панели управления</string>
@@ -2554,7 +2555,6 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="backup_phrase_intro_ack_3">Я несу полную ответственность за сохранность своей секретной фразы.</string>
     <string name="sell_confirmation_disclaimer">Окончательная сумма может измениться в связи с активностью рынка. Утверждая данную продажу, вы соглашаетесь с
 <annotation link="refund_policy">Политикой возврата</annotation> Blockchain.com</string>
-    <string name="defi_wallet">DeFi Wallet</string>
     <string name="verify_phrase_incorrect_message">Неверный ордер. Сбросьте или коснитесь отдельных слов, чтобы удалить их.</string>
     <string name="verify_phrase_incorrect_button">Сбросить слова</string>
     <string name="prices_error_title">Не удалось загрузить цены активов</string>
@@ -2593,13 +2593,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="visit_faq">Посмотрите часто задаваемые вопросы</string>
     <string name="visit_faq_description">Посмотрите наши самые популярные вопросы</string>
     <string name="contact_support_description">Свяжитесь с нами, если у вас есть другие вопросы</string>
-    <string name="terminate_card">Закрыть карту</string>
-    <string name="terminate_card_number">Закрыть %1s ?</string>
-    <string name="terminate_card_warning">\"После подтверждения это действие нельзя будет отменить.\"</string>
-    <string name="terminate_card_confirm_description">Введите «УДАЛИТЬ», чтобы навсегда закрыть карту</string>
-    <string name="delete">УДАЛИТЬ</string>
     <string name="no_accounts_eligible_for_linking">Нет аккаунтов, подходящих для связывания</string>
-    <string name="terminate_card_confirmation_text">УДАЛИТЬ</string>
     <string name="address_updated">Платежный адрес обновлен</string>
     <string name="address_update_success">Адрес успешно обновлен</string>
     <string name="address_update_success_description">Ваш платежный адрес был успешно изменен и вступит в силу немедленно.</string>
@@ -2728,6 +2722,42 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="bc_card_terms_and_conditions_label">Я понимаю и принимаю условия и положения программы Visa Card Blockchain.com, Договор с держателем карты Pathward Bank, Договор об электронной подписи Pathward Bank и Политику конфиденциальности Pathward Bank. Я также понимаю и принимаю, что эти условия действуют в дополнение к Условиям обслуживания Blockchain.com и Политике конфиденциальности Blockchain.com.</string>
     <string name="skip_backup_cta_skip">Да, пропустить резервное копирование</string>
     <string name="skip_backup_cta_backup">Резервное копирование (рекомендуется)</string>
+    <string name="terminate_card">Прекратить действие карты</string>
+    <string name="terminate_card_confirm_description">Введите «ЗАВЕРШИТЬ», чтобы прекратить действие карты навсегда</string>
+    <string name="terminate_card_confirmation_text">ЗАВЕРШИТЬ</string>
     <string name="bc_card_transaction_payment">Платеж</string>
     <string name="bc_card_transaction_refund">Возврат</string>
+    <string name="nft_coming_soon_title">Скоро!</string>
+    <string name="nft_coming_soon_description">Мы прилагаем все усилия для поддержки ваших NFT в кошельке. Когда придет время обновить приложение, мы отправим вам электронное письмо.</string>
+    <string name="accessibility_balance">Остаток</string>
+    <string name="terminate_card_number">Закрыть карту %1s ?</string>
+    <string name="terminate_card_warning">После подтверждения это действие нельзя будет отменить.</string>
+    <string name="bc_card_change_asset_title">Изменить актив</string>
+    <string name="bc_card_change_asset_description">Измените актив, который будет финансировать карту</string>
+    <string name="bc_card_add_funds_title">Добавить средства</string>
+    <string name="bc_card_add_funds_description">Пополнить текущий баланс</string>
+    <string name="select_one">Выберите один</string>
+    <string name="bc_card_empty_transactions_title">Ваши транзакции попадают сюда</string>
+    <string name="bc_card_empty_transactions_description">Когда вы совершите покупку с помощью карты, эти данные появятся здесь.</string>
+    <string name="bc_card_tap_here_to_refresh">Нажмите здесь, чтобы обновить</string>
+    <string name="bc_card_tap_here_to_try_again">Нажмите здесь, чтобы повторить попытку</string>
+    <string name="bc_card_unable_to_load_card">Не удалось загрузить карту</string>
+    <string name="accessibility_total_balance">Итоговый баланс</string>
+    <string name="checkout_rb_weekly_title">Инвестировать еженедельно?</string>
+    <string name="checkout_rb_biweekly_title">Инвестировать раз в две недели?</string>
+    <string name="checkout_rb_monthly_title">Инвестировать ежемесячно?</string>
+    <string name="checkout_rb_subtitle">Купить %1$s %2$s . Отменить в любое время.</string>
+    <string name="shortcuts">Ярлыки</string>
+    <string name="exchange_your_crypto">Обменяй свою крипту</string>
+    <string name="transfer_to_another_wallet">Перевод на другой кошелек</string>
+    <string name="receive_to_your_wallet">Получите на свой кошелек</string>
+    <string name="buy_crypto">Купить криптовалюту</string>
+    <string name="defi_buy_not_supported">В настоящее время мы не поддерживаем покупку криптовалюты в ваш кошелек с закрытым ключом. Вы можете купить со своего торгового счета и отправить на свой кошелек с закрытым ключом.</string>
+    <string name="go_to_trading">Перейти к торговому счету</string>
+    <string name="recurring_buy_view_rb">Посмотреть повторяющуюся покупку</string>
+    <string name="recurring_buy_created_title">%s Купить Создано</string>
+    <string name="recurring_buy_created_subtitle">Теперь вы купите %1$s в %2$s %3$s . Вы можете отменить в любое время.</string>
+    <string name="top_up_trading_account">Пополните свой торговый счет.</string>
+    <string name="use_your_card_or_cash">Используйте наличные деньги или карту</string>
+    <string name="fiat_to_cash">Конвертируйте свою криптовалюту в наличные</string>
 </resources>
