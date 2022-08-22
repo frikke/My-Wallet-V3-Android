@@ -82,7 +82,7 @@ data class BlockchainCardTransactionDto(
     val clearedFundingAmount: PriceDto,
     val userTransactionTime: String,
     val merchantName: String,
-    val networkConversionRate: Int?,
+    val networkConversionRate: Float?,
     val declineReason: String?,
     val fee: PriceDto,
 )
@@ -93,7 +93,8 @@ data class BlockchainCardLegalDocumentDto(
     val displayName: String,
     val url: String,
     val version: String,
-    val acceptedVersion: String?
+    val acceptedVersion: String?,
+    val required: Boolean
 )
 
 @Serializable

@@ -392,14 +392,6 @@ fun ManageCardDetails(
         )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-        // Transaction Controls
-        DefaultTableRow(
-            primaryText = stringResource(R.string.transaction_controls),
-            secondaryText = stringResource(R.string.settings_features_for_card_transactions),
-            onClick = onSeeTransactionControls,
-        )
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
         // Support
         DefaultTableRow(
             primaryText = stringResource(R.string.support),

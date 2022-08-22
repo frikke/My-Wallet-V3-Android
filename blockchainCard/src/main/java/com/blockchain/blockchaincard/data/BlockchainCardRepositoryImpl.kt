@@ -390,8 +390,8 @@ internal class BlockchainCardRepositoryImpl(
             url = url,
             version = version,
             acceptedVersion = acceptedVersion,
-            seen = false
-
+            required = required,
+            seen = false,
         )
 
     private fun List<BlockchainCardLegalDocument>.toAcceptedLegalDocForm(): BlockchainCardAcceptedDocsFormDto =
