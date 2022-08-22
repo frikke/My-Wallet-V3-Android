@@ -101,7 +101,6 @@ class LoadAssetAccountsUseCase(
                         DataResource.Data(
                             CoinviewAssetInformation.AccountsInfo(
                                 isAddedToWatchlist = isAddedToWatchlist.data,
-                                prices = prices.data,
                                 accounts = accountsList,
                                 totalBalance = CoinviewAssetTotalBalance(
                                     totalCryptoBalance = totalCryptoBalance,
@@ -112,8 +111,7 @@ class LoadAssetAccountsUseCase(
                     } else {
                         DataResource.Data(
                             CoinviewAssetInformation.NonTradeable(
-                                isAddedToWatchlist = isAddedToWatchlist.data,
-                                prices = prices.data
+                                isAddedToWatchlist = isAddedToWatchlist.data
                             )
                         )
                     }
@@ -222,7 +220,7 @@ class LoadAssetAccountsUseCase(
                         cryptoBalance = it.balance,
                         fiatBalance = exchangeRate.convert(it.balance),
                         interestRate = interestRate,
-                        isAvailable = it.isAvailable
+                        isEnabled = it.isAvailable
                     )
                 }.run { CoinviewAccounts.Universal(this) }
             }
@@ -232,7 +230,7 @@ class LoadAssetAccountsUseCase(
                     when (it.account) {
                         is TradingAccount -> {
                             CoinviewAccount.Custodial.Trading(
-                                isAvailable = it.isAvailable,
+                                isEnabled = it.isAvailable,
                                 account = it.account,
                                 cryptoBalance = it.balance,
                                 fiatBalance = exchangeRate.convert(it.balance)
@@ -241,7 +239,7 @@ class LoadAssetAccountsUseCase(
 
                         is InterestAccount -> {
                             CoinviewAccount.Custodial.Interest(
-                                isAvailable = it.isAvailable,
+                                isEnabled = it.isAvailable,
                                 account = it.account,
                                 cryptoBalance = it.balance,
                                 fiatBalance = exchangeRate.convert(it.balance),
@@ -260,7 +258,7 @@ class LoadAssetAccountsUseCase(
                         account = it.account,
                         cryptoBalance = it.balance,
                         fiatBalance = exchangeRate.convert(it.balance),
-                        isAvailable = it.isAvailable
+                        isEnabled = it.isAvailable
                     )
                 }.run { CoinviewAccounts.Defi(this) }
             }

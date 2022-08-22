@@ -21,11 +21,11 @@ sealed interface CoinviewAccounts {
 }
 
 sealed interface CoinviewAccount {
-    val isAvailable: Boolean
+    val filter: AssetFilter
+    val isEnabled: Boolean
     val account: BlockchainAccount
     val cryptoBalance: Money
     val fiatBalance: Money
-    val filter: AssetFilter
 
     /**
      * Universal mode
@@ -33,7 +33,7 @@ sealed interface CoinviewAccount {
      */
     data class Universal(
         override val filter: AssetFilter,
-        override val isAvailable: Boolean,
+        override val isEnabled: Boolean,
         override val account: BlockchainAccount,
         override val cryptoBalance: Money,
         override val fiatBalance: Money,
@@ -46,7 +46,7 @@ sealed interface CoinviewAccount {
      */
     sealed interface Custodial : CoinviewAccount {
         data class Trading(
-            override val isAvailable: Boolean,
+            override val isEnabled: Boolean,
             override val account: BlockchainAccount,
             override val cryptoBalance: Money,
             override val fiatBalance: Money
@@ -55,7 +55,7 @@ sealed interface CoinviewAccount {
         }
 
         data class Interest(
-            override val isAvailable: Boolean,
+            override val isEnabled: Boolean,
             override val account: BlockchainAccount,
             override val cryptoBalance: Money,
             override val fiatBalance: Money,
@@ -72,7 +72,7 @@ sealed interface CoinviewAccount {
         override val account: BlockchainAccount,
         override val cryptoBalance: Money,
         override val fiatBalance: Money,
-        override val isAvailable: Boolean
+        override val isEnabled: Boolean
     ) : CoinviewAccount {
         override val filter: AssetFilter = AssetFilter.NonCustodial
     }

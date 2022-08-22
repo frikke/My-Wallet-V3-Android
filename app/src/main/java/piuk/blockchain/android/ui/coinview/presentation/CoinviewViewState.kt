@@ -1,8 +1,10 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.charts.ChartEntry
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.core.price.HistoricalTimeSpan
 
 data class CoinviewViewState(
@@ -59,12 +61,14 @@ sealed interface CoinviewAccountsState {
                 val subtitle: SimpleValue,
                 val cryptoBalance: String,
                 val fiatBalance: String,
-                val logo: String
+                val logo: LogoSource,
+                val assetColor: String,
             ) : CoinviewAccountState
 
             data class Unavailable(
                 val title: String,
-                val subtitle: SimpleValue
+                val subtitle: SimpleValue,
+                val logo: LogoSource
             ) : CoinviewAccountState
         }
 
@@ -75,6 +79,9 @@ sealed interface CoinviewAccountsState {
     }
 }
 
+/**
+ * The accounts section can be drawn either boxed (defi) or simple (custodial)
+ */
 enum class CoinviewAccountsStyle {
     Simple, Boxed
 }
@@ -85,4 +92,9 @@ sealed interface SimpleValue {
         @StringRes val value: Int,
         val args: List<String> = emptyList()
     ) : SimpleValue
+}
+
+sealed interface LogoSource {
+    data class Remote(val value: String) : LogoSource
+    data class Local(@DrawableRes val value: Int) : LogoSource
 }

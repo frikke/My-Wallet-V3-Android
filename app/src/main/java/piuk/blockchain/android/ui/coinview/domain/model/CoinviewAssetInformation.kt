@@ -5,20 +5,17 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import info.blockchain.balance.Money
 
 sealed class CoinviewAssetInformation(
-    open val prices: Prices24HrWithDelta,
     open val isAddedToWatchlist: Boolean
 ) {
     data class AccountsInfo(
         override val isAddedToWatchlist: Boolean,
-        override val prices: Prices24HrWithDelta,
         val accounts: CoinviewAccounts,
         val totalBalance: CoinviewAssetTotalBalance
-    ) : CoinviewAssetInformation(prices, isAddedToWatchlist)
+    ) : CoinviewAssetInformation(isAddedToWatchlist)
 
     class NonTradeable(
         override val isAddedToWatchlist: Boolean,
-        override val prices: Prices24HrWithDelta,
-    ) : CoinviewAssetInformation(prices, isAddedToWatchlist)
+    ) : CoinviewAssetInformation(isAddedToWatchlist)
 }
 
 data class CoinviewAssetTotalBalance(
