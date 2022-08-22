@@ -44,6 +44,7 @@ fun TotalBalanceData(
     data: CoinviewTotalBalanceState.Data
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
+        // todo(othman) wishlist
         BalanceSectionHeader(
             labelText = stringResource(R.string.coinview_balance_label, data.assetName),
             primaryText = data.totalFiatBalance,
