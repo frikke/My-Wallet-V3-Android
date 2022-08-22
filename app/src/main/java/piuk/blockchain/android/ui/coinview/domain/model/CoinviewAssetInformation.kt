@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.coinview.domain.model
 
 import com.blockchain.coincore.AssetFilter
-import com.blockchain.core.price.Prices24HrWithDelta
 import info.blockchain.balance.Money
 
 sealed class CoinviewAssetInformation(

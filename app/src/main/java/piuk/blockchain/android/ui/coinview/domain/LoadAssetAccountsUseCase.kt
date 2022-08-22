@@ -91,7 +91,9 @@ class LoadAssetAccountsUseCase(
 
                         accountsList.accounts.forEach { account ->
                             totalCryptoBalance[account.filter] =
-                                (totalCryptoBalance[account.filter] ?: Money.zero(asset.currency)).plus(account.cryptoBalance)
+                                (totalCryptoBalance[account.filter] ?: Money.zero(asset.currency)).plus(
+                                    account.cryptoBalance
+                                )
                             totalCryptoMoneyAll = totalCryptoMoneyAll.plus(account.cryptoBalance)
                             totalFiatBalance = totalFiatBalance.plus(account.fiatBalance)
                         }
@@ -120,7 +122,9 @@ class LoadAssetAccountsUseCase(
         }
     }
 
-    private suspend fun extractAccountDetails(accounts: List<SingleAccount>): Flow<DataResource<List<CoinviewAccountDetail>>> {
+    private suspend fun extractAccountDetails(
+        accounts: List<SingleAccount>
+    ): Flow<DataResource<List<CoinviewAccountDetail>>> {
         return accounts
             .filter { account ->
                 (account as? CryptoNonCustodialAccount)?.isArchived?.not() ?: true

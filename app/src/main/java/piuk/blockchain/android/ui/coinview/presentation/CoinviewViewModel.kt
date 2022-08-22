@@ -20,6 +20,7 @@ import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -33,7 +34,6 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
-import java.text.DecimalFormat
 
 class CoinviewViewModel(
     walletModeService: WalletModeService,
@@ -326,10 +326,10 @@ class CoinviewViewModel(
                                             logo = LogoSource.Local(
                                                 when (cvAccount.filter) {
                                                     AssetFilter.Trading -> {
-                                                         R.drawable.ic_custodial_account_indicator
+                                                        R.drawable.ic_custodial_account_indicator
                                                     }
                                                     AssetFilter.Interest -> {
-                                                         R.drawable.ic_interest_account_indicator
+                                                        R.drawable.ic_interest_account_indicator
                                                     }
                                                     AssetFilter.NonCustodial -> {
                                                         R.drawable.ic_non_custodial_account_indicator

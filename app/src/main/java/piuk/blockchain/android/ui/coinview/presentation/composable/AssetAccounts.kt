@@ -91,7 +91,7 @@ fun AssetAccountsData(
                             }
                         },
                         tags = emptyList(),
-                        onClick = {/*todo*/ }
+                        onClick = { /*todo*/ }
                     )
                 }
                 is CoinviewAccountState.Unavailable -> {

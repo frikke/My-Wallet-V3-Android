@@ -4,7 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.charts.ChartEntry
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.core.price.HistoricalTimeSpan
 
 data class CoinviewViewState(
