@@ -4,6 +4,8 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.walletmode.WalletMode
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistory
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
@@ -27,6 +29,10 @@ data class CoinviewModelState(
     // total balance
     val isTotalBalanceLoading: Boolean = false,
     val isTotalBalanceError: Boolean = false,
-    val totalBalance: CoinviewAssetTotalBalance? = null
+    val totalBalance: CoinviewAssetTotalBalance? = null,
 
+    // accounts
+    val isAccountsLoading: Boolean = false,
+    val isAccountsError: Boolean = false,
+    val accounts: CoinviewAccounts? = null
 ) : ModelState

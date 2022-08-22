@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.coinview.domain
 
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.InterestAccount
@@ -29,6 +30,7 @@ import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.await
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccountDetail
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 
@@ -87,11 +89,11 @@ class LoadAssetAccountsUseCase(
                         val totalCryptoBalance = hashMapOf<AssetFilter, Money>()
                         var totalFiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency)
 
-                        accountsList.forEach { account ->
+                        accountsList.accounts.forEach { account ->
                             totalCryptoBalance[account.filter] =
-                                (totalCryptoBalance[account.filter] ?: Money.zero(asset.currency)).plus(account.amount)
-                            totalCryptoMoneyAll = totalCryptoMoneyAll.plus(account.amount)
-                            totalFiatBalance = totalFiatBalance.plus(account.fiatValue)
+                                (totalCryptoBalance[account.filter] ?: Money.zero(asset.currency)).plus(account.cryptoBalance)
+                            totalCryptoMoneyAll = totalCryptoMoneyAll.plus(account.cryptoBalance)
+                            totalFiatBalance = totalFiatBalance.plus(account.fiatBalance)
                         }
 
                         totalCryptoBalance[AssetFilter.All] = totalCryptoMoneyAll
@@ -100,7 +102,7 @@ class LoadAssetAccountsUseCase(
                             CoinviewAssetInformation.AccountsInfo(
                                 isAddedToWatchlist = isAddedToWatchlist.data,
                                 prices = prices.data,
-                                accountsList = accountsList,
+                                accounts = accountsList,
                                 totalBalance = CoinviewAssetTotalBalance(
                                     totalCryptoBalance = totalCryptoBalance,
                                     totalFiatBalance = totalFiatBalance
@@ -149,6 +151,7 @@ class LoadAssetAccountsUseCase(
                                 CoinviewAccountDetail(
                                     account = account,
                                     balance = balance.data.total,
+                                    isAvailable = actions.data.any { it.state == ActionState.Available },
                                     isDefault = account.isDefault
                                 )
                             )
@@ -184,7 +187,7 @@ class LoadAssetAccountsUseCase(
         accounts: List<CoinviewAccountDetail>,
         exchangeRate: ExchangeRate,
         interestRate: Double = Double.NaN
-    ): List<CoinviewAccount> {
+    ): CoinviewAccounts {
 
         val accountComparator = object : Comparator<CoinviewAccountDetail> {
             override fun compare(o1: CoinviewAccountDetail, o2: CoinviewAccountDetail): Int {
@@ -204,31 +207,62 @@ class LoadAssetAccountsUseCase(
 
         val sortedAccounts = accounts.sortedWith(accountComparator)
 
-        return sortedAccounts.map {
-            when (walletMode) {
-                WalletMode.UNIVERSAL,
-                WalletMode.CUSTODIAL_ONLY -> {
-                    CoinviewAccount.Brokerage(
-                        account = it.account,
+        // create accounts based on wallet mode and account type
+        return when (walletMode) {
+            WalletMode.UNIVERSAL -> {
+                sortedAccounts.map {
+                    CoinviewAccount.Universal(
                         filter = when (it.account) {
                             is TradingAccount -> AssetFilter.Trading
                             is InterestAccount -> AssetFilter.Interest
-                            // todo (othman) should be removed once universal mode is removed
                             is NonCustodialAccount -> AssetFilter.NonCustodial
                             else -> error("account type not supported")
                         },
-                        amount = it.balance,
-                        fiatValue = exchangeRate.convert(it.balance),
-                        interestRate = interestRate
+                        account = it.account,
+                        cryptoBalance = it.balance,
+                        fiatBalance = exchangeRate.convert(it.balance),
+                        interestRate = interestRate,
+                        isAvailable = it.isAvailable
                     )
-                }
-                WalletMode.NON_CUSTODIAL_ONLY -> {
+                }.run { CoinviewAccounts.Universal(this) }
+            }
+
+            WalletMode.CUSTODIAL_ONLY -> {
+                sortedAccounts.map {
+                    when (it.account) {
+                        is TradingAccount -> {
+                            CoinviewAccount.Custodial.Trading(
+                                isAvailable = it.isAvailable,
+                                account = it.account,
+                                cryptoBalance = it.balance,
+                                fiatBalance = exchangeRate.convert(it.balance)
+                            )
+                        }
+
+                        is InterestAccount -> {
+                            CoinviewAccount.Custodial.Interest(
+                                isAvailable = it.isAvailable,
+                                account = it.account,
+                                cryptoBalance = it.balance,
+                                fiatBalance = exchangeRate.convert(it.balance),
+                                interestRate = interestRate
+                            )
+                        }
+
+                        else -> error("account type not supported")
+                    }
+                }.run { CoinviewAccounts.Custodial(this) }
+            }
+
+            WalletMode.NON_CUSTODIAL_ONLY -> {
+                sortedAccounts.map {
                     CoinviewAccount.Defi(
                         account = it.account,
-                        amount = it.balance,
-                        fiatValue = exchangeRate.convert(it.balance),
+                        cryptoBalance = it.balance,
+                        fiatBalance = exchangeRate.convert(it.balance),
+                        isAvailable = it.isAvailable
                     )
-                }
+                }.run { CoinviewAccounts.Defi(this) }
             }
         }
     }

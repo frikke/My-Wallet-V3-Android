@@ -8,7 +8,8 @@ import com.blockchain.core.price.HistoricalTimeSpan
 data class CoinviewViewState(
     val assetName: String,
     val assetPrice: CoinviewPriceState,
-    val totalBalance: CoinviewTotalBalance
+    val totalBalance: CoinviewTotalBalanceState,
+    val accounts: CoinviewAccountsState
 ) : ViewState
 
 // Price
@@ -34,12 +35,48 @@ sealed interface CoinviewPriceState {
 }
 
 // Total balance
-sealed interface CoinviewTotalBalance {
-    object NotSupported : CoinviewTotalBalance
-    object Loading : CoinviewTotalBalance
+sealed interface CoinviewTotalBalanceState {
+    object NotSupported : CoinviewTotalBalanceState
+    object Loading : CoinviewTotalBalanceState
     data class Data(
         val assetName: String,
         val totalFiatBalance: String,
         val totalCryptoBalance: String
-    ) : CoinviewTotalBalance
+    ) : CoinviewTotalBalanceState
+}
+
+// Accounts
+sealed interface CoinviewAccountsState {
+    object Loading : CoinviewAccountsState
+    data class Data(
+        val style: CoinviewAccountsStyle,
+        val accounts: List<CoinviewAccountState>
+    ) : CoinviewAccountsState {
+        sealed interface CoinviewAccountState {
+            data class Available(
+                val title: String,
+                val subtitle: String,
+                val cryptoBalance: String,
+                val fiatBalance: String,
+                val logo: String
+            ) : CoinviewAccountState
+
+            data class Unavailable(
+                val title: String,
+                val subtitle: SimpleValue
+            ) : CoinviewAccountState
+        }
+    }
+}
+
+enum class CoinviewAccountsStyle {
+    Simple, Boxed
+}
+
+sealed interface SimpleValue {
+    data class StringValue(val value: String) : SimpleValue
+    data class IntResValue(
+        @StringRes val value: Int,
+        val args: List<String> = emptyList()
+    ) : SimpleValue
 }

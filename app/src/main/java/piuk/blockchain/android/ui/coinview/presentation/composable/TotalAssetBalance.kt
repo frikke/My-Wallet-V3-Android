@@ -9,22 +9,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.sectionheader.BalanceSectionHeader
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalance
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
 
 @Composable
 fun TotalBalance(
-    data: CoinviewTotalBalance
+    data: CoinviewTotalBalanceState
 ) {
     when (data) {
-        CoinviewTotalBalance.NotSupported -> {
+        CoinviewTotalBalanceState.NotSupported -> {
             // don't show any view
         }
 
-        CoinviewTotalBalance.Loading -> {
+        CoinviewTotalBalanceState.Loading -> {
             TotalBalanceLoading()
         }
 
-        is CoinviewTotalBalance.Data -> {
+        is CoinviewTotalBalanceState.Data -> {
             TotalBalanceData(
                 data = data
             )
@@ -41,7 +41,7 @@ fun TotalBalanceLoading() {
 
 @Composable
 fun TotalBalanceData(
-    data: CoinviewTotalBalance.Data
+    data: CoinviewTotalBalanceState.Data
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         BalanceSectionHeader(
@@ -55,14 +55,14 @@ fun TotalBalanceData(
 @Preview(showBackground = true)
 @Composable
 fun PreviewTotalBalance_Loading() {
-    TotalBalance(CoinviewTotalBalance.Loading)
+    TotalBalance(CoinviewTotalBalanceState.Loading)
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewTotalBalance_Data() {
     TotalBalance(
-        CoinviewTotalBalance.Data(
+        CoinviewTotalBalanceState.Data(
             assetName = "Ethereum",
             totalFiatBalance = "$4,570.27",
             totalCryptoBalance = "969.25 BTC",

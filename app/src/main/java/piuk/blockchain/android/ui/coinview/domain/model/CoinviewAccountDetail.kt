@@ -7,5 +7,6 @@ import info.blockchain.balance.Money
 class CoinviewAccountDetail(
     val account: BlockchainAccount,
     val balance: Money,
+    val isAvailable: Boolean,
     val isDefault: Boolean = false
 )

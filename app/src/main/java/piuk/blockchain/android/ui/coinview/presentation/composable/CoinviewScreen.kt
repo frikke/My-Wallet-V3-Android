@@ -1,7 +1,11 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -14,9 +18,10 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.github.mikephil.charting.data.Entry
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntents
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalance
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
 
@@ -47,7 +52,9 @@ fun Coinview(
                 viewModel.onIntent(CoinviewIntents.NewTimeSpanSelected(timeSpan))
             },
 
-            totalBalance = state.totalBalance
+            totalBalance = state.totalBalance,
+
+            accounts = state.accounts
         )
     }
 }
@@ -62,9 +69,15 @@ fun CoinviewScreen(
     resetPriceInformation: () -> Unit,
     onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit,
 
-    totalBalance: CoinviewTotalBalance
+    totalBalance: CoinviewTotalBalanceState,
+
+    accounts: CoinviewAccountsState
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+    ) {
         NavigationBar(
             title = networkTicker,
             onBackButtonClick = backOnClick
@@ -80,6 +93,10 @@ fun CoinviewScreen(
         TotalBalance(
             data = totalBalance
         )
+
+        AssetAccounts(
+            data = accounts
+        )
     }
 }
 
@@ -93,6 +110,7 @@ fun PreviewCoinviewScreen() {
         onChartEntryHighlighted = {},
         resetPriceInformation = {},
         onNewTimeSpanSelected = {},
-        totalBalance = CoinviewTotalBalance.Loading
+        totalBalance = CoinviewTotalBalanceState.Loading,
+        accounts = CoinviewAccountsState.Loading
     )
 }

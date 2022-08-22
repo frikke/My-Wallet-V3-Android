@@ -11,7 +11,7 @@ sealed class CoinviewAssetInformation(
     data class AccountsInfo(
         override val isAddedToWatchlist: Boolean,
         override val prices: Prices24HrWithDelta,
-        val accountsList: List<CoinviewAccount>,
+        val accounts: CoinviewAccounts,
         val totalBalance: CoinviewAssetTotalBalance
     ) : CoinviewAssetInformation(prices, isAddedToWatchlist)
 

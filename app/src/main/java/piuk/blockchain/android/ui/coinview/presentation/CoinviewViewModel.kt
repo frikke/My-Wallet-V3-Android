@@ -2,9 +2,12 @@ package piuk.blockchain.android.ui.coinview.presentation
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.charts.ChartEntry
+import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -21,8 +24,12 @@ import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 
 class CoinviewViewModel(
     walletModeService: WalletModeService,
@@ -122,22 +129,22 @@ class CoinviewViewModel(
             totalBalance = when {
                 // not supported for non custodial
                 walletMode == WalletMode.NON_CUSTODIAL_ONLY -> {
-                    CoinviewTotalBalance.NotSupported
+                    CoinviewTotalBalanceState.NotSupported
                 }
 
                 isTotalBalanceLoading && totalBalance == null -> {
-                    CoinviewTotalBalance.Loading
+                    CoinviewTotalBalanceState.Loading
                 }
 
                 isTotalBalanceError -> {
-                    CoinviewTotalBalance.NotSupported
+                    CoinviewTotalBalanceState.NotSupported
                 }
 
                 totalBalance != null -> {
                     require(asset != null) { "asset not initialized" }
                     require(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
 
-                    CoinviewTotalBalance.Data(
+                    CoinviewTotalBalanceState.Data(
                         assetName = asset.currency.name,
                         totalFiatBalance = totalBalance.totalFiatBalance.toStringWithSymbol(),
                         totalCryptoBalance = totalBalance.totalCryptoBalance[AssetFilter.All]!!.toStringWithSymbol()
@@ -145,7 +152,71 @@ class CoinviewViewModel(
                 }
 
                 else -> {
-                    CoinviewTotalBalance.Loading
+                    CoinviewTotalBalanceState.Loading
+                }
+            },
+
+            accounts = when {
+                isAccountsLoading && accounts == null -> {
+                    CoinviewAccountsState.Loading
+                }
+
+                accounts != null -> {
+                    CoinviewAccountsState.Data(
+                        style = when (accounts) {
+                            is CoinviewAccounts.Universal,
+                            is CoinviewAccounts.Custodial -> CoinviewAccountsStyle.Simple
+                            is CoinviewAccounts.Defi -> CoinviewAccountsStyle.Boxed
+                        },
+                        accounts.accounts.map { cvAccount ->
+                            val account: CryptoAccount = cvAccount.account.let { blockchainAccount ->
+                                when (blockchainAccount) {
+                                    is CryptoAccount -> blockchainAccount
+                                    is AccountGroup -> blockchainAccount.selectFirstAccount()
+                                    else -> throw IllegalStateException(
+                                        "Unsupported account type for asset details ${cvAccount.account}"
+                                    )
+                                }
+                            }
+
+                            when (cvAccount.isAvailable) {
+                                true -> {
+                                    when (cvAccount) {
+                                        is CoinviewAccount.Custodial.Interest -> TODO()
+                                        is CoinviewAccount.Custodial.Trading -> TODO()
+                                        is CoinviewAccount.Defi -> {
+                                            Available(
+                                                title = account.label,
+                                                subtitle = account.currency.displayTicker,
+                                                cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+                                                fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+                                                logo = account.currency.logo
+                                            )
+                                        }
+                                        is CoinviewAccount.Universal -> TODO()
+                                    }
+                                }
+
+                                false -> {
+                                    when (cvAccount) {
+                                        is CoinviewAccount.Custodial.Interest -> TODO()
+                                        is CoinviewAccount.Custodial.Trading -> TODO()
+                                        is CoinviewAccount.Defi -> {
+                                            Unavailable(
+                                                title = account.currency.name,
+                                                subtitle = SimpleValue.IntResValue(R.string.coinview_nc_desc),
+                                            )
+                                        }
+                                        is CoinviewAccount.Universal -> TODO()
+                                    }
+                                }
+                            }
+                        }
+                    )
+                }
+
+                else -> {
+                    CoinviewAccountsState.Loading
                 }
             }
         )
@@ -286,7 +357,10 @@ class CoinviewViewModel(
                 when (dataResource) {
                     DataResource.Loading -> {
                         updateState {
-                            it.copy(isTotalBalanceLoading = true)
+                            it.copy(
+                                isTotalBalanceLoading = true,
+                                isAccountsLoading = true
+                            )
                         }
                     }
 
@@ -294,7 +368,10 @@ class CoinviewViewModel(
                         updateState {
                             it.copy(
                                 isTotalBalanceLoading = false,
-                                isTotalBalanceError = true
+                                isTotalBalanceError = true,
+
+                                isAccountsLoading = false,
+                                isAccountsError = true
                             )
                         }
                     }
@@ -303,7 +380,10 @@ class CoinviewViewModel(
                         updateState {
                             it.copy(
                                 isTotalBalanceLoading = false,
-                                isTotalBalanceError = false
+                                isTotalBalanceError = false,
+
+                                isAccountsLoading = false,
+                                isAccountsError = false
                             )
                         }
 
@@ -330,5 +410,8 @@ class CoinviewViewModel(
     }
 
     private fun extractAccounts(accountsInfo: CoinviewAssetInformation.AccountsInfo) {
+        updateState {
+            it.copy(accounts = accountsInfo.accounts)
+        }
     }
 }
