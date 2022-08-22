@@ -237,4 +237,14 @@ class CardModel(
     override fun onStateUpdate(s: CardState) {
         prefs.updateCardState(json.encodeToString(s))
     }
+
+    override fun distinctIntentFilter(previousIntent: CardIntent, nextIntent: CardIntent): Boolean {
+        return if (previousIntent is CardIntent.UpdateCardRejectionState &&
+            nextIntent is CardIntent.UpdateCardRejectionState
+        ) {
+            false
+        } else {
+            super.distinctIntentFilter(previousIntent, nextIntent)
+        }
+    }
 }
