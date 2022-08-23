@@ -146,7 +146,8 @@ public class PayloadManager {
     public Wallet create(
         @Nonnull String defaultAccountName,
         @Nonnull String email,
-        @Nonnull String password
+        @Nonnull String password,
+        String recaptchaToken
     ) throws Exception {
 
         this.password = password;
@@ -154,7 +155,7 @@ public class PayloadManager {
             defaultAccountName
         ));
 
-        saveNewWallet(email);
+        saveNewWallet(email, recaptchaToken);
 
         return getPayload();
     }
@@ -181,7 +182,7 @@ public class PayloadManager {
         Wallet wallet = new Wallet(walletBody);
         walletBase = new WalletBase(wallet);
 
-        saveNewWallet(email);
+        saveNewWallet(email, null);
 
 
         return getPayload();
@@ -447,7 +448,7 @@ public class PayloadManager {
         }
     }
 
-    private void saveNewWallet(String email) throws Exception {
+    private void saveNewWallet(String email, String recaptchaToken) throws Exception {
         validateSave();
         // Encrypt and wrap payload
         Pair pair = walletBase.encryptAndWrapPayload(password);
@@ -462,7 +463,8 @@ public class PayloadManager {
             payloadWrapper.toJson(),
             newPayloadChecksum,
             email,
-            device.getOsType()
+            device.getOsType(),
+            recaptchaToken
         );
 
         Response<ResponseBody> exe = call.execute();

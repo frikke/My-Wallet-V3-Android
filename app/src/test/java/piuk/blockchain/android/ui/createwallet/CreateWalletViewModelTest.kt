@@ -211,7 +211,7 @@ class CreateWalletViewModelTest {
         populateNextEnabledState()
         subject.viewState.test {
             expectMostRecentItem()
-            subject.onIntent(CreateWalletIntent.NextClicked)
+            subject.onIntent(CreateWalletIntent.NextClicked(null))
             awaitItem().error shouldBeEqualTo CreateWalletError.InvalidEmail
         }
         verify { formatChecker.isValidEmailAddress("bla@something.com") }
@@ -225,19 +225,19 @@ class CreateWalletViewModelTest {
             subject.onIntent(CreateWalletIntent.PasswordInputChanged("1"))
             subject.onIntent(CreateWalletIntent.PasswordConfirmationInputChanged("1"))
             expectMostRecentItem()
-            subject.onIntent(CreateWalletIntent.NextClicked)
+            subject.onIntent(CreateWalletIntent.NextClicked(null))
             awaitItem().error shouldBeEqualTo CreateWalletError.InvalidPasswordTooShort
 
             subject.onIntent(CreateWalletIntent.PasswordInputChanged("1".repeat(256)))
             subject.onIntent(CreateWalletIntent.PasswordConfirmationInputChanged("1".repeat(256)))
             expectMostRecentItem()
-            subject.onIntent(CreateWalletIntent.NextClicked)
+            subject.onIntent(CreateWalletIntent.NextClicked(null))
             awaitItem().error shouldBeEqualTo CreateWalletError.InvalidPasswordTooLong
 
             subject.onIntent(CreateWalletIntent.PasswordInputChanged("1234"))
             subject.onIntent(CreateWalletIntent.PasswordConfirmationInputChanged("4321"))
             expectMostRecentItem()
-            subject.onIntent(CreateWalletIntent.NextClicked)
+            subject.onIntent(CreateWalletIntent.NextClicked(null))
             awaitItem().error shouldBeEqualTo CreateWalletError.PasswordsMismatch
 
             mockkStatic(PasswordUtil::class)
@@ -246,7 +246,7 @@ class CreateWalletViewModelTest {
             subject.onIntent(CreateWalletIntent.PasswordInputChanged("1234"))
             subject.onIntent(CreateWalletIntent.PasswordConfirmationInputChanged("1234"))
             expectMostRecentItem()
-            subject.onIntent(CreateWalletIntent.NextClicked)
+            subject.onIntent(CreateWalletIntent.NextClicked(null))
             awaitItem().error shouldBeEqualTo CreateWalletError.InvalidPasswordTooWeak
             verify { PasswordUtil.getStrength("1234") }
             unmockkStatic(PasswordUtil::class)
@@ -268,7 +268,7 @@ class CreateWalletViewModelTest {
             subject.onIntent(CreateWalletIntent.ReferralInputChanged("12345678"))
             subject.viewState.test {
                 expectMostRecentItem()
-                subject.onIntent(CreateWalletIntent.NextClicked)
+                subject.onIntent(CreateWalletIntent.NextClicked(null))
                 awaitItem().isCreateWalletLoading shouldBeEqualTo true
                 coVerify { referralService.isReferralCodeValid("12345678") }
                 awaitItem().run {
@@ -286,16 +286,29 @@ class CreateWalletViewModelTest {
         runTest {
             populateValidInputsState()
             val error = Exception("error")
+            val recaptcha = "CAPTCHA"
             coEvery { referralService.isReferralCodeValid("12345678") } returns Outcome.Success(true)
             every { defaultLabels.getDefaultNonCustodialWalletLabel() } returns "default_nc_name"
             every {
-                payloadDataManager.createHdWallet("1234", "default_nc_name", "bla@something.com")
+                payloadDataManager.createHdWallet(
+                    "1234",
+                    "default_nc_name",
+                    "bla@something.com",
+                    recaptcha
+                )
             } returns Single.error(error)
 
             subject.viewState.test {
                 expectMostRecentItem()
-                subject.onIntent(CreateWalletIntent.NextClicked)
-                verify { payloadDataManager.createHdWallet("1234", "default_nc_name", "bla@something.com") }
+                subject.onIntent(CreateWalletIntent.NextClicked(recaptcha))
+                verify {
+                    payloadDataManager.createHdWallet(
+                        "1234",
+                        "default_nc_name",
+                        "bla@something.com",
+                        recaptcha
+                    )
+                }
                 verify { appUtil.clearCredentialsAndRestart() }
                 awaitItem().run {
                     isCreateWalletLoading shouldBeEqualTo false
@@ -313,16 +326,29 @@ class CreateWalletViewModelTest {
                 every { guid } returns "guid"
                 every { sharedKey } returns "sharedKey"
             }
+            val recaptcha = "CAPTCHA"
             coEvery { referralService.isReferralCodeValid("12345678") } returns Outcome.Success(true)
             every { defaultLabels.getDefaultNonCustodialWalletLabel() } returns "default_nc_name"
             every {
-                payloadDataManager.createHdWallet("1234", "default_nc_name", "bla@something.com")
+                payloadDataManager.createHdWallet(
+                    "1234",
+                    "default_nc_name",
+                    "bla@something.com",
+                    recaptcha
+                )
             } returns Single.just(wallet)
 
             subject.navigationEventFlow.test {
                 subject.onIntent(CreateWalletIntent.ReferralInputChanged("12345678"))
-                subject.onIntent(CreateWalletIntent.NextClicked)
-                verify { payloadDataManager.createHdWallet("1234", "default_nc_name", "bla@something.com") }
+                subject.onIntent(CreateWalletIntent.NextClicked(recaptcha))
+                verify {
+                    payloadDataManager.createHdWallet(
+                        "1234",
+                        "default_nc_name",
+                        "bla@something.com",
+                        recaptcha
+                    )
+                }
                 verify { walletStatusPrefs.isNewlyCreated = true }
                 verify { authPrefs.walletGuid = "guid" }
                 verify { authPrefs.sharedKey = "sharedKey" }

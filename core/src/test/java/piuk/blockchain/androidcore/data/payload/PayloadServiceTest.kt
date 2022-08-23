@@ -86,12 +86,12 @@ class PayloadServiceTest {
         val walletName = "WALLET_NAME"
         val email = "EMAIL"
         val mockWallet: Wallet = mock()
-        val v4Enabled = true
-        whenever(mockPayloadManager.create(walletName, email, password)).thenReturn(mockWallet)
+        val recaptchaToken = "CAPTCHA"
+        whenever(mockPayloadManager.create(walletName, email, password, recaptchaToken)).thenReturn(mockWallet)
         // Act
-        val testObserver = subject.createHdWallet(password, walletName, email).test()
+        val testObserver = subject.createHdWallet(password, walletName, email, recaptchaToken).test()
         // Assert
-        verify(mockPayloadManager).create(walletName, email, password)
+        verify(mockPayloadManager).create(walletName, email, password, recaptchaToken)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
         testObserver.assertValue(mockWallet)

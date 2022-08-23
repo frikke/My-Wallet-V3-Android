@@ -131,6 +131,7 @@
     <string name="country_not_selected">Please select your Country of Residence</string>
     <string name="state_not_selected">Please select your State</string>
     <string name="invalid_guid">Invalid Wallet ID</string>
+    <string name="recaptcha_failed">Please background the App and re-launch to try again.</string>
 
     <string name="password_mismatch_error">Passwords do not match</string>
     <string name="change_password_new_matches_current">You can’t use your current password as your new password</string>
