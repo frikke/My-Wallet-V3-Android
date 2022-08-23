@@ -68,8 +68,7 @@ class BchDataManager(
                 )
             )
             .doOnSuccess { (metadata, _) ->
-                bchDataStore.bchMetadata = metadata
-                restoreBchWallet(metadata)
+                bchDataStore.bchMetadata = restoreBchWallet(metadata)
             }
             .flatMapCompletable { metadataPair ->
                 val saveToMetadataCompletable = if (metadataPair.needsSave) {
@@ -88,12 +87,25 @@ class BchDataManager(
             }
             .subscribeOn(Schedulers.io())
 
-    fun syncWithServer(): Completable = metadataRepository.saveRawValue(
-        bchDataStore.bchMetadata!!.toJson(),
-        MetadataEntry.METADATA_BCH
-    )
+    fun updateAccount(oldAccount: GenericMetadataAccount, newAccount: GenericMetadataAccount): Completable {
+        val payload = bchDataStore.bchMetadata!!.updateAccount(oldAccount = oldAccount, newAccount = newAccount)
+        return updateBchPayload(payload)
+    }
 
-    fun updateTransactions() =
+    fun updateDefaultAccount(internalAccount: GenericMetadataAccount): Completable {
+        val newIndex = bchDataStore.bchMetadata!!.accounts.indexOf(internalAccount)
+        val payload = bchDataStore.bchMetadata!!.updateDefaultIndex(newIndex)
+        return updateBchPayload(payload)
+    }
+
+    private fun updateBchPayload(payload: GenericMetadataWallet): Completable = metadataRepository.saveRawValue(
+        payload.toJson(),
+        MetadataEntry.METADATA_BCH
+    ).doOnComplete {
+        bchDataStore.bchMetadata = payload
+    }
+
+    fun updateTransactions(): Completable =
         Completable.fromObservable(getWalletTransactions(50, 50))
 
     @VisibleForTesting
@@ -107,53 +119,28 @@ class BchDataManager(
                 val metaData = GenericMetadataWallet.fromJson(walletJson)
 
                 // Sanity check (Add missing metadata accounts)
-                metaData.accounts.apply {
-                    val bchAccounts = getMetadataAccounts(defaultLabel, size, accountTotal)
-                    addAll(bchAccounts)
-                }
-                if (bchDataStore.bchMetadata == null || !listContentEquals(
-                        bchDataStore.bchMetadata!!.accounts,
-                        metaData.accounts
-                    )
-                ) {
-                    bchDataStore.bchMetadata = metaData
-                }
+                val missingBchAccounts = getAccountsAfterIndex(defaultLabel, metaData.accounts.size, accountTotal)
+
+                bchDataStore.bchMetadata = metaData.copy(accounts = metaData.accounts.plus(missingBchAccounts))
                 metaData
             }
 
     @VisibleForTesting
     internal fun createMetadata(defaultLabel: String, accountTotal: Int): GenericMetadataWallet {
-        val bchAccounts = getMetadataAccounts(defaultLabel, 0, accountTotal)
+        val bchAccounts = getAccountsAfterIndex(defaultLabel, 0, accountTotal)
 
-        return GenericMetadataWallet().apply {
-            accounts = bchAccounts
-            isHasSeen = true
-        }
+        return GenericMetadataWallet(
+            _defaultAcccountIdx = 0,
+            accounts = bchAccounts,
+            _hasSeen = true,
+        )
     }
 
-    private fun listContentEquals(
-        listA: MutableList<GenericMetadataAccount>,
-        listB: MutableList<GenericMetadataAccount>
-    ): Boolean {
-
-        listA.forEach { accountA ->
-            val filteredItems = listB.filter { accountB ->
-                (accountB.label == accountA.label) && (accountB.isArchived == accountA.isArchived)
-            }
-
-            if (filteredItems.isEmpty()) {
-                return false
-            }
-        }
-
-        return true
-    }
-
-    private fun getMetadataAccounts(
+    private fun getAccountsAfterIndex(
         defaultLabel: String,
         startingAccountIndex: Int,
         accountTotal: Int
-    ): ArrayList<GenericMetadataAccount> {
+    ): List<GenericMetadataAccount> {
         val bchAccounts = arrayListOf<GenericMetadataAccount>()
         ((startingAccountIndex + 1)..accountTotal)
             .map {
@@ -171,7 +158,7 @@ class BchDataManager(
      * Restore bitcoin cash wallet
      */
     @VisibleForTesting
-    internal fun restoreBchWallet(walletMetadata: GenericMetadataWallet) {
+    internal fun restoreBchWallet(walletMetadata: GenericMetadataWallet): GenericMetadataWallet {
         if (!payloadDataManager.isDoubleEncrypted) {
             bchDataStore.bchWallet = BitcoinCashWallet.restore(
                 bitcoinApi,
@@ -181,12 +168,14 @@ class BchDataManager(
             )
 
             // BCH Metadata does not store xpub - get from btc wallet since PATH is the same
-            payloadDataManager.accounts.forEachIndexed { i, account ->
-                bchDataStore.bchWallet?.addAccount()
-                val xpub = account.xpubForDerivation(Derivation.LEGACY_TYPE)
-                checkXpubAndLog(xpub, "restorebchwallet_update", i)
-                walletMetadata.accounts[i].setXpub(xpub)
-            }
+            return walletMetadata.copy(
+                accounts = payloadDataManager.accounts.mapIndexed { i, account ->
+                    bchDataStore.bchWallet?.addAccount()
+                    val xpub = account.xpubForDerivation(Derivation.LEGACY_TYPE)
+                    checkXpubAndLog(xpub, "restorebchwallet_update", i)
+                    walletMetadata.accounts[i].updateXpub(xpub!!)
+                }
+            )
         } else {
             val params = BchMainNetParams.get()
             bchDataStore.bchWallet = BitcoinCashWallet.createWatchOnly(
@@ -196,12 +185,15 @@ class BchDataManager(
 
             // NB! A watch-only account xpub != account xpub, they do however derive the same addresses.
             // Only use this [DeterministicAccount] to derive receive/change addresses. Don't use xpub as multiaddr etc parameter.
-            payloadDataManager.accounts.forEachIndexed { i, account ->
-                bchDataStore.bchWallet?.addWatchOnlyAccount(account.xpubForDerivation(Derivation.LEGACY_TYPE))
-                val xpub = account.xpubForDerivation(Derivation.LEGACY_TYPE)
-                checkXpubAndLog(xpub, "restorebchwallet_wo", i)
-                walletMetadata.accounts[i].setXpub(xpub)
-            }
+
+            return walletMetadata.copy(
+                accounts = payloadDataManager.accounts.mapIndexed { i, account ->
+                    bchDataStore.bchWallet?.addWatchOnlyAccount(account.xpubForDerivation(Derivation.LEGACY_TYPE))
+                    val xpub = account.xpubForDerivation(Derivation.LEGACY_TYPE)
+                    checkXpubAndLog(xpub, "restorebchwallet_update", i)
+                    walletMetadata.accounts[i].updateXpub(xpub!!)
+                }
+            )
         }
     }
 
@@ -224,14 +216,10 @@ class BchDataManager(
                     val accountNumber = it + 1
                     val label = defaultLabels.getDefaultNonCustodialWalletLabel()
                     val newAccountLabel = "$label $accountNumber"
-                    println(newAccountLabel)
                     val acc = payloadDataManager.addAccountWithLabel(newAccountLabel)
-
-                    bchDataStore.bchMetadata!!.accounts[it].apply {
-                        val xpub = acc.xpubForDerivation(Derivation.LEGACY_TYPE)
-                        checkXpubAndLog(xpub, "correctoffset", it)
-                        this.setXpub(xpub)
-                    }
+                    bchDataStore.bchMetadata = bchDataStore.bchMetadata!!.updateXpubForAccountIndex(
+                        it, acc.xpubForDerivation(Derivation.LEGACY_TYPE)!!
+                    )
                 }
         }
     }
@@ -248,12 +236,13 @@ class BchDataManager(
             ""
         )
 
-        payloadDataManager.accounts.forEachIndexed { i, account ->
+        val accounts = payloadDataManager.accounts.mapIndexed { i, account ->
             bchDataStore.bchWallet?.addAccount()
             val xpub = account.xpubForDerivation(Derivation.LEGACY_TYPE)
             checkXpubAndLog(xpub, "decryptwatchonly", i)
-            bchDataStore.bchMetadata!!.accounts[i].setXpub(xpub)
+            bchDataStore.bchMetadata!!.accounts[i].copy(_xpub = xpub)
         }
+        bchDataStore.bchMetadata = bchDataStore.bchMetadata!!.copy(accounts = accounts)
     }
 
     /**
@@ -261,7 +250,7 @@ class BchDataManager(
      * point. This assumes that a new [info.blockchain.wallet.payload.data.Account] has already
      * been added to the user's Payload, otherwise xPubs could get out of sync.
      */
-    fun createAccount(bitcoinXpub: String) {
+    fun createAccount(bitcoinXpub: String): Completable {
         if (bchDataStore.bchWallet!!.isWatchOnly) {
             bchDataStore.bchWallet!!.addWatchOnlyAccount(bitcoinXpub)
         } else {
@@ -270,15 +259,17 @@ class BchDataManager(
 
         val defaultLabel = defaultLabels.getDefaultNonCustodialWalletLabel()
         val count = bchDataStore.bchWallet!!.accountTotal
-        bchDataStore.bchMetadata!!.addAccount(
+        val payload = bchDataStore.bchMetadata!!.addAccount(
             GenericMetadataAccount(
-                """$defaultLabel $count""",
-                false
-            ).apply { setXpub(bitcoinXpub) }
+                label = """$defaultLabel $count""",
+                _archived = false,
+                _xpub = bitcoinXpub
+            )
         )
+        return updateBchPayload(payload)
     }
 
-    fun getActiveXpubs(): List<XPubs> {
+    private fun getActiveXpubs(): List<XPubs> {
         val accounts = bchDataStore.bchMetadata?.accounts
         return accounts?.let {
             it.filterNot { a -> a.isArchived }
@@ -318,10 +309,6 @@ class BchDataManager(
     fun getAccountList(): List<DeterministicAccount> = bchDataStore.bchWallet!!.accounts
 
     fun getDefaultAccountPosition(): Int = bchDataStore.bchMetadata?.defaultAcccountIdx ?: 0
-
-    fun setDefaultAccountPosition(position: Int) {
-        bchDataStore.bchMetadata!!.defaultAcccountIdx = position
-    }
 
     /**
      * Allows you to generate a BCH receive address at an arbitrary number of positions on the chain

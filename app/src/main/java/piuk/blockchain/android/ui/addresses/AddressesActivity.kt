@@ -23,7 +23,6 @@ import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityAddressesBinding
 import piuk.blockchain.android.ui.addresses.adapter.AccountAdapter
@@ -34,8 +33,6 @@ import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import piuk.blockchain.androidcore.data.events.ActionEvent
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -46,7 +43,6 @@ class AddressesActivity :
     AccountAdapter.Listener,
     AccountEditSheet.Host {
 
-    private val rxBus: RxBus by inject()
     private val secondPasswordHandler: SecondPasswordHandler by scopedInject()
     private val compositeDisposable = CompositeDisposable()
 
@@ -182,10 +178,6 @@ class AddressesActivity :
         }.toList()
     }
 
-    private val event by unsafeLazy {
-        rxBus.register(ActionEvent::class.java)
-    }
-
     override fun onResume() {
         super.onResume()
         presenter.refresh(binding.currencyHeader.getSelectedCurrency())
@@ -193,7 +185,6 @@ class AddressesActivity :
 
     override fun onPause() {
         super.onPause()
-        rxBus.unregister(ActionEvent::class.java, event)
         compositeDisposable.clear()
     }
 
