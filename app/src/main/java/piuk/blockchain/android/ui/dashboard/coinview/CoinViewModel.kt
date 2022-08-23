@@ -292,11 +292,9 @@ class CoinViewModel(
                                     },
                                     isAddedToWatchlist = accountInfo.isAddedToWatchlist
                                 )
-                                is AssetInformation.NonTradeable -> {
-                                    CoinViewViewState.ShowNonTradeableAccount(
-                                        accountInfo.isAddedToWatchlist
-                                    )
-                                }
+                                is AssetInformation.NonTradeable -> CoinViewViewState.ShowNonTradeableAccount(
+                                    accountInfo.isAddedToWatchlist
+                                )
                             },
                             assetInformation = accountInfo,
                             asset = intent.asset,
