@@ -131,6 +131,10 @@ class CoinViewInteractor(
 
                     /**
                      * Buy button will be enabled if
+                     * * Is available for trading ([isSupportedPair])
+                     *
+                     * *AND*
+                     *
                      * * Buy access is [FeatureAccess.Granted]
                      *
                      * *OR*
@@ -138,8 +142,9 @@ class CoinViewInteractor(
                      * * Access is [FeatureAccess.Blocked] but because of [BlockedReason.InsufficientTier],
                      * when trying to buy with low tier upgrading to gold will be requested
                      */
-                    val canBuy = buyAccess is FeatureAccess.Granted ||
-                        (buyAccess is FeatureAccess.Blocked && buyAccess.reason is BlockedReason.InsufficientTier)
+                    val canBuy = isSupportedPair &&
+                        (buyAccess is FeatureAccess.Granted ||
+                            (buyAccess is FeatureAccess.Blocked && buyAccess.reason is BlockedReason.InsufficientTier))
 
                     /**
                      * Swap button will be enabled if
@@ -319,8 +324,13 @@ class CoinViewInteractor(
         }
     }
 
-    fun checkIfUserCanBuy(): Single<FeatureAccess> =
-        identity.userAccessForFeature(Feature.Buy)
+    fun checkIfUserCanBuy(asset: CryptoAsset): Single<Pair<FeatureAccess, Boolean>> =
+        Single.zip(
+            identity.userAccessForFeature(Feature.Buy),
+            custodialWalletManager.isCurrencyAvailableForTrading(asset.currency),
+        ) { buyAccess, isSupportedPair ->
+            Pair(buyAccess, isSupportedPair)
+        }
 
     private fun mapAccounts(
         accounts: List<DetailsItem>,

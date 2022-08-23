@@ -41,6 +41,7 @@ class CoinViewModel(
                             process(CoinViewIntent.LoadAccounts(it))
                             process(CoinViewIntent.LoadRecurringBuys(it.currency))
                             process(CoinViewIntent.LoadAssetDetails(it.currency))
+                            process(CoinViewIntent.CheckBuyStatus)
                         } ?: process(CoinViewIntent.UpdateErrorState(CoinViewError.UnknownAsset))
                     },
                     onError = {
@@ -69,13 +70,13 @@ class CoinViewModel(
             }
             is CoinViewIntent.LoadRecurringBuys ->
                 if
-                (walletModeService.enabledWalletMode().custodialEnabled) {
+                    (walletModeService.enabledWalletMode().custodialEnabled) {
                     loadRecurringBuys(intent)
                 } else null
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
             is CoinViewIntent.ToggleWatchlist -> toggleWatchlist(previousState)
             is CoinViewIntent.CheckScreenToOpen -> getAccountActions(intent)
-            is CoinViewIntent.CheckBuyStatus -> checkUserBuyStatus()
+            is CoinViewIntent.CheckBuyStatus -> checkUserBuyStatus(previousState.asset)
             is CoinViewIntent.LoadAssetDetails -> loadAssetInfoDetails(intent)
             CoinViewIntent.ResetErrorState,
             CoinViewIntent.ResetViewState,
@@ -145,20 +146,23 @@ class CoinViewModel(
                 }
             )
 
-    private fun checkUserBuyStatus() = interactor.checkIfUserCanBuy().subscribeBy(
-        onSuccess = { buyAccess ->
-            if ((buyAccess as? FeatureAccess.Blocked)?.reason is BlockedReason.TooManyInFlightTransactions) {
-                process(CoinViewIntent.BuyHasWarning)
-            }
+    private fun checkUserBuyStatus(asset: CryptoAsset?): Disposable {
+        require(asset != null)
+        return interactor.checkIfUserCanBuy(asset).subscribeBy(
+            onSuccess = { (buyAccess, isSupportedPair) ->
+                if ((buyAccess as? FeatureAccess.Blocked)?.reason is BlockedReason.TooManyInFlightTransactions) {
+                    process(CoinViewIntent.BuyHasWarning)
+                }
 
-            val canBuy = buyAccess is FeatureAccess.Granted ||
-                (buyAccess is FeatureAccess.Blocked && buyAccess.reason is BlockedReason.InsufficientTier)
-            process(CoinViewIntent.UpdateBuyEligibility(canBuy))
-        },
-        onError = {
-            remoteLogger.logException(it, "CoinViewModel userCanBuy failed")
-        }
-    )
+                val canBuy = isSupportedPair && (buyAccess is FeatureAccess.Granted ||
+                    (buyAccess is FeatureAccess.Blocked && buyAccess.reason is BlockedReason.InsufficientTier))
+                process(CoinViewIntent.UpdateBuyEligibility(canBuy))
+            },
+            onError = {
+                remoteLogger.logException(it, "CoinViewModel userCanBuy failed")
+            }
+        )
+    }
 
     private fun loadRecurringBuys(intent: CoinViewIntent.LoadRecurringBuys) =
         interactor.loadRecurringBuys(intent.asset)
@@ -305,7 +309,6 @@ class CoinViewModel(
                             },
                             assetInformation = accountInfo,
                             asset = intent.asset,
-                            isTradeableAsset = accountInfo is AssetInformation.AccountsInfo,
                             isAddedToWatchlist = accountInfo.isAddedToWatchlist
                         )
                     )

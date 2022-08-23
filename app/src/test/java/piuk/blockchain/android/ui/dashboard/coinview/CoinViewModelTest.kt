@@ -294,13 +294,13 @@ class CoinViewModelTest {
 
         localSubject.process(
             CoinViewIntent.UpdateAccountDetails(
-                viewState = CoinViewViewState.ShowAccountInfo(
+                CoinViewViewState.ShowAccountInfo(
                     totalCryptoBalance = assetInfo.totalCryptoBalance,
                     totalFiatBalance = assetInfo.totalFiatBalance,
                     assetDetails = listOf(mock()),
                     isAddedToWatchlist = true
                 ),
-                assetInformation = assetInfo, asset = asset, isAddedToWatchlist = true, isTradeableAsset = true
+                assetInfo, asset, true
             )
         )
 
@@ -335,13 +335,13 @@ class CoinViewModelTest {
 
         subject.process(
             CoinViewIntent.UpdateAccountDetails(
-                viewState = CoinViewViewState.ShowAccountInfo(
+                CoinViewViewState.ShowAccountInfo(
                     totalCryptoBalance = assetInfo.totalCryptoBalance,
                     totalFiatBalance = assetInfo.totalFiatBalance,
                     assetDetails = emptyList(),
                     isAddedToWatchlist = true
                 ),
-                assetInformation = assetInfo, asset = asset, isAddedToWatchlist = true, isTradeableAsset = true
+                assetInfo, asset, true
             )
         )
 

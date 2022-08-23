@@ -86,14 +86,12 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
         private val viewState: CoinViewViewState,
         val assetInformation: AssetInformation,
         val asset: CryptoAsset,
-        private val isAddedToWatchlist: Boolean,
-        private val isTradeableAsset: Boolean
+        private val isAddedToWatchlist: Boolean
     ) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState =
             oldState.copy(
                 viewState = viewState,
                 assetPrices = assetInformation.prices,
-                isTradeableAsset = isTradeableAsset,
                 isAddedToWatchlist = isAddedToWatchlist
             )
     }
@@ -114,7 +112,7 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
         override fun reduce(oldState: CoinViewState): CoinViewState =
             oldState.copy(
                 viewState = CoinViewViewState.ShowBalanceUpsellSheet(
-                    account = account, action = action, canBuy = oldState.isTradeableAsset && oldState.canBuy
+                    account = account, action = action, canBuy = oldState.canBuy
                 )
             )
     }
