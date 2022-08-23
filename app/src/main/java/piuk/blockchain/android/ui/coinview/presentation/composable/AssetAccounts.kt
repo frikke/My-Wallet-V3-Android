@@ -51,7 +51,6 @@ fun AssetAccounts(
 fun AssetAccountsLoading() {
     Column(modifier = Modifier.fillMaxWidth()) {
         ShimmerLoadingTableRow()
-        ShimmerLoadingTableRow()
     }
 }
 

@@ -14,6 +14,7 @@ import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -24,6 +25,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
+import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetRecurringBuysUseCase
@@ -34,6 +36,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.RecurringBuyState
 import java.text.DecimalFormat
 
 class CoinviewViewModel(
@@ -402,6 +405,8 @@ class CoinviewViewModel(
             }
 
             recurringBuys != null -> {
+                require(asset != null) { "asset not initialized" }
+
                 if (recurringBuys.data.isEmpty()) {
                     if (recurringBuys.isAvailableForTrading) {
                         CoinviewRecurringBuysState.Upsell
@@ -409,7 +414,32 @@ class CoinviewViewModel(
                         CoinviewRecurringBuysState.NotSupported
                     }
                 } else {
-                    CoinviewRecurringBuysState.Data(recurringBuys.data)
+                    CoinviewRecurringBuysState.Data(
+                        recurringBuys.data.map { recurringBuy ->
+                            RecurringBuyState(
+                                description = SimpleValue.IntResValue(
+                                    R.string.dashboard_recurring_buy_item_title_1,
+                                    listOf(
+                                        recurringBuy.amount.toStringWithSymbol(),
+                                        recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
+                                    )
+                                ),
+
+                                status = if (recurringBuy.state == com.blockchain.nabu.models.data.RecurringBuyState.ACTIVE) {
+                                    SimpleValue.IntResValue(
+                                        R.string.dashboard_recurring_buy_item_label,
+                                        listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
+                                    )
+                                } else {
+                                    SimpleValue.IntResValue(
+                                        R.string.dashboard_recurring_buy_item_label_error
+                                    )
+                                },
+
+                                assetColor = asset.currency.colour
+                            )
+                        }
+                    )
                 }
             }
 

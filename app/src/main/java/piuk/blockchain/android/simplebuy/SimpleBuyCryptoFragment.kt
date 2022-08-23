@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -1304,6 +1305,17 @@ fun RecurringBuyFrequency.toHumanReadableRecurringBuy(context: Context): String 
         RecurringBuyFrequency.BI_WEEKLY -> context.getString(R.string.recurring_buy_bi_weekly_1)
         RecurringBuyFrequency.MONTHLY -> context.getString(R.string.recurring_buy_monthly_1)
         else -> context.getString(R.string.common_unknown)
+    }
+}
+
+@StringRes fun RecurringBuyFrequency.toHumanReadableRecurringBuy(): Int {
+    return when (this) {
+        RecurringBuyFrequency.ONE_TIME -> R.string.recurring_buy_one_time_selector
+        RecurringBuyFrequency.DAILY -> R.string.recurring_buy_daily_1
+        RecurringBuyFrequency.WEEKLY -> R.string.recurring_buy_weekly_1
+        RecurringBuyFrequency.BI_WEEKLY -> R.string.recurring_buy_bi_weekly_1
+        RecurringBuyFrequency.MONTHLY -> R.string.recurring_buy_monthly_1
+        else -> R.string.common_unknown
     }
 }
 

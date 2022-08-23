@@ -5,7 +5,6 @@ import androidx.annotation.StringRes
 import com.blockchain.charts.ChartEntry
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.core.price.HistoricalTimeSpan
-import com.blockchain.nabu.models.data.RecurringBuy
 
 data class CoinviewViewState(
     val assetName: String,
@@ -94,8 +93,14 @@ sealed interface CoinviewRecurringBuysState {
     object Error : CoinviewRecurringBuysState
     object Upsell : CoinviewRecurringBuysState
     data class Data(
-        val recurringBuys: List<RecurringBuy>
-    ) : CoinviewRecurringBuysState
+        val recurringBuys: List<RecurringBuyState>
+    ) : CoinviewRecurringBuysState {
+        data class RecurringBuyState(
+            val description: SimpleValue,
+            val status: SimpleValue,
+            val assetColor: String
+        )
+    }
 }
 
 // misc
@@ -103,7 +108,7 @@ sealed interface SimpleValue {
     data class StringValue(val value: String) : SimpleValue
     data class IntResValue(
         @StringRes val value: Int,
-        val args: List<String> = emptyList()
+        val args: List<Any> = emptyList()
     ) : SimpleValue
 }
 
