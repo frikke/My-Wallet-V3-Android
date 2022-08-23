@@ -5,7 +5,7 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
-import kotlinx.coroutines.rx3.awaitSingle
+import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 class GetAccountGroupUseCase(private val coincore: Coincore) {
 
@@ -13,11 +13,8 @@ class GetAccountGroupUseCase(private val coincore: Coincore) {
         cryptoCurrency: AssetInfo,
         filter: AssetFilter = AssetFilter.All
     ): Outcome<Throwable, AccountGroup> {
-        return try {
-            coincore[cryptoCurrency].accountGroup(filter).awaitSingle()
-                .run { Outcome.Success(this) }
-        } catch (e: Throwable) {
-            Outcome.Failure(e)
-        }
+        return coincore[cryptoCurrency].accountGroup(filter)
+            .toSingle()
+            .awaitOutcome()
     }
 }

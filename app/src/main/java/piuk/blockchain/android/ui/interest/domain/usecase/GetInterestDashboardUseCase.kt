@@ -4,7 +4,7 @@ import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.store.filterNotLoading
-import java.util.stream.Collectors.toList
+import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -25,51 +25,7 @@ class GetInterestDashboardUseCase(
                     is DataResource.Data -> {
                         val interestAssetFlowList = dataResource.data
                             .map { asset ->
-                                // get data for each asset - data is coming as Flow
-                                // no need to handle loadings for this
-                                //
-                                // -> we only want the base data loading from getAvailableAssetsForInterestFlow
-                                // loading state for composite data is irrelevant for this use case
-                                combine(
-                                    interestService.getBalanceForFlow(asset).filterNotLoading(),
-                                    interestService.getInterestRateFlow(asset).filterNotLoading(),
-                                    interestService.getEligibilityForAssetFlow(asset).filterNotLoading(),
-                                    exchangeRatesManager.exchangeRateToUserFiatFlow(asset).filterNotLoading()
-                                ) { balance, interestRate, eligibility, exchangeRate ->
-                                    when {
-                                        // if any of the data is an error - interestDetail is null
-                                        listOf(
-                                            balance, interestRate, eligibility, exchangeRate
-                                        ).any { it is DataResource.Error } -> {
-                                            InterestAsset(
-                                                assetInfo = asset,
-                                                interestDetail = null
-                                            )
-                                        }
-
-                                        // otherwise (all are successful - remember no loading state is coming)
-                                        // we finally create InterestAsset
-                                        else -> {
-                                            balance as DataResource.Data
-                                            interestRate as DataResource.Data
-                                            eligibility as DataResource.Data
-                                            exchangeRate as DataResource.Data
-
-                                            InterestAsset(
-                                                assetInfo = asset,
-                                                interestDetail = AssetInterestDetail(
-                                                    totalInterest = balance.data.totalInterest,
-                                                    totalBalance = balance.data.totalBalance,
-                                                    rate = interestRate.data,
-                                                    eligibility = eligibility.data,
-                                                    totalBalanceFiat = exchangeRate.data.convert(
-                                                        balance.data.totalBalance
-                                                    )
-                                                )
-                                            )
-                                        }
-                                    }
-                                }
+                                mapToInterestAsset(asset)
                             }
 
                         combine(interestAssetFlowList) {
@@ -86,6 +42,54 @@ class GetInterestDashboardUseCase(
                     }
                 }
             }
+    }
+
+    private fun mapToInterestAsset(asset: AssetInfo): Flow<InterestAsset> {
+        // get data for each asset - data is coming as Flow
+        // no need to handle loadings for this
+        //
+        // -> we only want the base data loading from getAvailableAssetsForInterestFlow
+        // loading state for composite data is irrelevant for this use case
+        return combine(
+            interestService.getBalanceForFlow(asset).filterNotLoading(),
+            interestService.getInterestRateFlow(asset).filterNotLoading(),
+            interestService.getEligibilityForAssetFlow(asset).filterNotLoading(),
+            exchangeRatesManager.exchangeRateToUserFiatFlow(asset).filterNotLoading()
+        ) { balance, interestRate, eligibility, exchangeRate ->
+            when {
+                // if any of the data is an error - interestDetail is null
+                listOf(
+                    balance, interestRate, eligibility, exchangeRate
+                ).any { it is DataResource.Error } -> {
+                    InterestAsset(
+                        assetInfo = asset,
+                        interestDetail = null
+                    )
+                }
+
+                // otherwise (all are successful - remember no loading state is coming)
+                // we finally create InterestAsset
+                else -> {
+                    balance as DataResource.Data
+                    interestRate as DataResource.Data
+                    eligibility as DataResource.Data
+                    exchangeRate as DataResource.Data
+
+                    InterestAsset(
+                        assetInfo = asset,
+                        interestDetail = AssetInterestDetail(
+                            totalInterest = balance.data.totalInterest,
+                            totalBalance = balance.data.totalBalance,
+                            rate = interestRate.data,
+                            eligibility = eligibility.data,
+                            totalBalanceFiat = exchangeRate.data.convert(
+                                balance.data.totalBalance
+                            )
+                        )
+                    )
+                }
+            }
+        }
     }
 
     private fun List<InterestAsset>.sorted() = sortedWith(
