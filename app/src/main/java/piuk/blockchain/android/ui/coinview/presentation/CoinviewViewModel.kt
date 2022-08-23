@@ -417,6 +417,7 @@ class CoinviewViewModel(
                     CoinviewRecurringBuysState.Data(
                         recurringBuys.data.map { recurringBuy ->
                             RecurringBuyState(
+                                id = recurringBuy.id,
                                 description = SimpleValue.IntResValue(
                                     R.string.dashboard_recurring_buy_item_title_1,
                                     listOf(
@@ -500,6 +501,14 @@ class CoinviewViewModel(
                     asset = modelState.asset,
                     requestedTimeSpan = intent.timeSpan,
                 )
+            }
+
+            CoinviewIntents.RecurringBuysUpsell -> {
+                // todo
+            }
+
+            is CoinviewIntents.ShowRecurringBuyDetail -> {
+                // todo
             }
         }
     }

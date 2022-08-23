@@ -29,7 +29,7 @@ import piuk.blockchain.android.ui.coinview.presentation.SimpleValue
 fun RecurringBuys(
     data: CoinviewRecurringBuysState,
     onRecurringBuyUpsellClick: () -> Unit,
-    onRecurringBuyItemClick: () -> Unit
+    onRecurringBuyItemClick: (String) -> Unit
 ) {
     when (data) {
         CoinviewRecurringBuysState.NotSupported -> {
@@ -114,7 +114,7 @@ fun RecurringBuysUpsell(
 @Composable
 fun RecurringBuysData(
     data: CoinviewRecurringBuysState.Data,
-    onRecurringBuyItemClick: () -> Unit
+    onRecurringBuyItemClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -137,7 +137,7 @@ fun RecurringBuysData(
                     ),
                     shape = CircleShape
                 ),
-                onClick = { onRecurringBuyItemClick() }
+                onClick = { onRecurringBuyItemClick(recurringBuy.id) }
             )
 
             if (data.recurringBuys.lastIndex != index) {
@@ -171,18 +171,21 @@ fun PreviewRecurringBuys_Data() {
     RecurringBuys(CoinviewRecurringBuysState.Data(
         listOf(
             RecurringBuyState(
+                id = "1",
                 description = SimpleValue.StringValue("RecurringBuyState description 1"),
-                status =  SimpleValue.StringValue("RecurringBuyState status 1"),
+                status = SimpleValue.StringValue("RecurringBuyState status 1"),
                 assetColor = "#2949F8"
             ),
             RecurringBuyState(
+                id = "2",
                 description = SimpleValue.StringValue("RecurringBuyState description 2"),
-                status =  SimpleValue.StringValue("RecurringBuyState status 2"),
+                status = SimpleValue.StringValue("RecurringBuyState status 2"),
                 assetColor = "#2949F8"
             ),
             RecurringBuyState(
+                id = "3",
                 description = SimpleValue.StringValue("RecurringBuyState description 3"),
-                status =  SimpleValue.StringValue("RecurringBuyState status 3"),
+                status = SimpleValue.StringValue("RecurringBuyState status 3"),
                 assetColor = "#2949F8"
             )
         )

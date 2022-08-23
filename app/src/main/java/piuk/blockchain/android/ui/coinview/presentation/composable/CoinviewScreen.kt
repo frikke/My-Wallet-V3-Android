@@ -59,10 +59,10 @@ fun Coinview(
 
             recurringBuys = state.recurringBuys,
             onRecurringBuyUpsellClick = {
-
+                viewModel.onIntent(CoinviewIntents.RecurringBuysUpsell)
             },
-            onRecurringBuyItemClick = {
-
+            onRecurringBuyItemClick = { recurringBuyId ->
+                viewModel.onIntent(CoinviewIntents.ShowRecurringBuyDetail(recurringBuyId))
             }
         )
     }
@@ -84,7 +84,7 @@ fun CoinviewScreen(
 
     recurringBuys: CoinviewRecurringBuysState,
     onRecurringBuyUpsellClick: () -> Unit,
-    onRecurringBuyItemClick: () -> Unit
+    onRecurringBuyItemClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier

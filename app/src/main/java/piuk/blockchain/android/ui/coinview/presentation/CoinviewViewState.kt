@@ -96,6 +96,7 @@ sealed interface CoinviewRecurringBuysState {
         val recurringBuys: List<RecurringBuyState>
     ) : CoinviewRecurringBuysState {
         data class RecurringBuyState(
+            val id: String,
             val description: SimpleValue,
             val status: SimpleValue,
             val assetColor: String

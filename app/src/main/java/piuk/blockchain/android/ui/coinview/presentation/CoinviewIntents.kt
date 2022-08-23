@@ -57,4 +57,8 @@ sealed interface CoinviewIntents : Intent<CoinviewModelState> {
             return modelState.assetPriceHistory?.priceDetail?.timeSpan != timeSpan
         }
     }
+
+    object RecurringBuysUpsell : CoinviewIntents
+
+    data class ShowRecurringBuyDetail(val recurringBuyId: String) : CoinviewIntents
 }
