@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.coinview
 
 import com.blockchain.api.services.DetailedAssetInformation
 import com.blockchain.charts.ChartEntry
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.StateAwareAction
@@ -45,6 +46,11 @@ sealed class CoinViewViewState {
     class UpdatedWatchlist(val addedToWatchlist: Boolean) : CoinViewViewState()
     class ShowAccountActionSheet(val actions: Array<StateAwareAction>) : CoinViewViewState()
     class ShowAccountExplainerSheet(val actions: Array<StateAwareAction>) : CoinViewViewState()
+    class ShowBalanceUpsellSheet(
+        val account: BlockchainAccount,
+        val action: AssetAction,
+        val canBuy: Boolean
+    ) : CoinViewViewState()
 }
 
 enum class CoinViewError {

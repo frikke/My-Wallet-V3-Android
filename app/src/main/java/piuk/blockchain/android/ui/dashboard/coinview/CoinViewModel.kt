@@ -83,7 +83,9 @@ class CoinViewModel(
             CoinViewIntent.BuyHasWarning,
             is CoinViewIntent.UpdateErrorState,
             is CoinViewIntent.UpdateViewState,
-            is CoinViewIntent.AssetLoaded -> null
+            is CoinViewIntent.AssetLoaded,
+            is CoinViewIntent.ShowBalanceUpsell,
+            is CoinViewIntent.UpdateBuyEligibility -> null
         }
 
     private fun toggleWatchlist(previousState: CoinViewState) =
@@ -144,10 +146,14 @@ class CoinViewModel(
             )
 
     private fun checkUserBuyStatus() = interactor.checkIfUserCanBuy().subscribeBy(
-        onSuccess = {
-            if ((it as? FeatureAccess.Blocked)?.reason is BlockedReason.TooManyInFlightTransactions) {
+        onSuccess = { buyAccess ->
+            if ((buyAccess as? FeatureAccess.Blocked)?.reason is BlockedReason.TooManyInFlightTransactions) {
                 process(CoinViewIntent.BuyHasWarning)
             }
+
+            val canBuy = buyAccess is FeatureAccess.Granted ||
+                (buyAccess is FeatureAccess.Blocked && buyAccess.reason is BlockedReason.InsufficientTier)
+            process(CoinViewIntent.UpdateBuyEligibility(canBuy))
         },
         onError = {
             remoteLogger.logException(it, "CoinViewModel userCanBuy failed")
@@ -291,12 +297,15 @@ class CoinViewModel(
                                     },
                                     isAddedToWatchlist = accountInfo.isAddedToWatchlist
                                 )
-                                is AssetInformation.NonTradeable -> CoinViewViewState.ShowNonTradeableAccount(
-                                    accountInfo.isAddedToWatchlist
-                                )
+                                is AssetInformation.NonTradeable -> {
+                                    CoinViewViewState.ShowNonTradeableAccount(
+                                        accountInfo.isAddedToWatchlist
+                                    )
+                                }
                             },
                             assetInformation = accountInfo,
                             asset = intent.asset,
+                            isTradeableAsset = accountInfo is AssetInformation.AccountsInfo,
                             isAddedToWatchlist = accountInfo.isAddedToWatchlist
                         )
                     )

@@ -18,6 +18,8 @@ data class CoinViewState(
     val error: CoinViewError = CoinViewError.None,
     val assetPrices: Prices24HrWithDelta? = null,
     val isAddedToWatchlist: Boolean = false,
+    val isTradeableAsset: Boolean = false,
+    val canBuy: Boolean = false,
     val hasActionBuyWarning: Boolean = false
 ) : MviState
 

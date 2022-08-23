@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.coinview
 
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
@@ -42,6 +43,11 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
             oldState.copy(hasActionBuyWarning = true)
     }
 
+    data class UpdateBuyEligibility(val canBuy: Boolean) : CoinViewIntent() {
+        override fun reduce(oldState: CoinViewState): CoinViewState =
+            oldState.copy(canBuy = canBuy)
+    }
+
     class CheckScreenToOpen(val cryptoAccountSelected: AssetDetailsItem.CryptoDetailsInfo) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState =
             oldState.copy(selectedCryptoAccount = cryptoAccountSelected)
@@ -80,12 +86,14 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
         private val viewState: CoinViewViewState,
         val assetInformation: AssetInformation,
         val asset: CryptoAsset,
-        private val isAddedToWatchlist: Boolean
+        private val isAddedToWatchlist: Boolean,
+        private val isTradeableAsset: Boolean
     ) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState =
             oldState.copy(
                 viewState = viewState,
                 assetPrices = assetInformation.prices,
+                isTradeableAsset = isTradeableAsset,
                 isAddedToWatchlist = isAddedToWatchlist
             )
     }
@@ -97,6 +105,18 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
 
     object ToggleWatchlist : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState = oldState
+    }
+
+    data class ShowBalanceUpsell(
+        val account: BlockchainAccount,
+        val action: AssetAction,
+    ) : CoinViewIntent() {
+        override fun reduce(oldState: CoinViewState): CoinViewState =
+            oldState.copy(
+                viewState = CoinViewViewState.ShowBalanceUpsellSheet(
+                    account = account, action = action, canBuy = oldState.isTradeableAsset && oldState.canBuy
+                )
+            )
     }
 
     class UpdateWatchlistState(private val isAddedToWatchlist: Boolean) : CoinViewIntent() {

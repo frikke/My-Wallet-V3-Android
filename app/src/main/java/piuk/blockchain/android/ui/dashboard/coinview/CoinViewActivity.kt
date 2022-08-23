@@ -527,6 +527,13 @@ class CoinViewActivity :
                     )
                 }
             }
+            is CoinViewViewState.ShowBalanceUpsellSheet -> {
+                showBottomSheet(
+                    NoBalanceActionBottomSheet.newInstance(
+                        selectedAccount = state.account, action = state.action, canBuy = state.canBuy
+                    )
+                )
+            }
             is CoinViewViewState.ShowAssetDetails -> renderAssetInfo(state)
             CoinViewViewState.None -> {
                 // do nothing
@@ -1133,7 +1140,9 @@ class CoinViewActivity :
 
     override fun showBalanceUpsellSheet(item: AccountActionsBottomSheet.AssetActionItem) {
         item.account?.let {
-            showBottomSheet(NoBalanceActionBottomSheet.newInstance(it, item.action.action))
+            model.process(
+                CoinViewIntent.ShowBalanceUpsell(account = it, action = item.action.action)
+            )
         }
     }
 
