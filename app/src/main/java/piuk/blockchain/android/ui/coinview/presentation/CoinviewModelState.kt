@@ -8,6 +8,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistory
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewRecurringBuys
 
 /**
  * @property assetPriceHistory - contains chart data + price and price change information
@@ -33,5 +34,10 @@ data class CoinviewModelState(
     // accounts
     val isAccountsLoading: Boolean = false,
     val isAccountsError: Boolean = false,
-    val accounts: CoinviewAccounts? = null
+    val accounts: CoinviewAccounts? = null,
+
+    // recurring buys
+    val isRecurringBuysLoading: Boolean = false,
+    val isRecurringBuysError: Boolean = false,
+    val recurringBuys: CoinviewRecurringBuys? = null
 ) : ModelState

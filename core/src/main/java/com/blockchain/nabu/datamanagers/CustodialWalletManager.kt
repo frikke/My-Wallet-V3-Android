@@ -2,6 +2,8 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
@@ -25,9 +27,9 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 import java.math.BigInteger
 import java.util.Date
-import kotlinx.coroutines.flow.Flow
 
 enum class OrderState {
     UNKNOWN,
@@ -103,9 +105,15 @@ interface CustodialWalletManager {
 
     fun getCustodialAccountAddress(asset: Currency): Single<String>
 
-    fun isCurrencyAvailableForTrading(
+    @Deprecated("use isCurrencyAvailableForTradingFlow")
+    fun isCurrencyAvailableForTradingLegacy(
         assetInfo: AssetInfo
     ): Single<Boolean>
+
+    fun isCurrencyAvailableForTrading(
+        assetInfo: AssetInfo,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Boolean>>
 
     fun availableFiatCurrenciesForTrading(assetInfo: AssetInfo): Single<List<FiatCurrency>>
 

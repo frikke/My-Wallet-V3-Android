@@ -643,7 +643,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
             return@mockActionsFeatureAccess updated
         }
 
-        whenever(custodialManager.isCurrencyAvailableForTrading(TEST_ASSET)).thenReturn(Single.just(buySupported))
+        whenever(custodialManager.isCurrencyAvailableForTradingLegacy(TEST_ASSET)).thenReturn(Single.just(buySupported))
 
         val interestFeature = Feature.Interest(TEST_ASSET)
         whenever(userIdentity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))

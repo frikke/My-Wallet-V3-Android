@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
+import piuk.blockchain.android.ui.coinview.domain.LoadAssetRecurringBuysUseCase
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
@@ -41,7 +42,8 @@ class CoinviewViewModel(
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
     private val getAssetPriceUseCase: GetAssetPriceUseCase,
-    private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase
+    private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase,
+    private val loadAssetRecurringBuysUseCase: LoadAssetRecurringBuysUseCase
 ) : MviViewModel<
     CoinviewIntents,
     CoinviewViewState,
@@ -72,7 +74,8 @@ class CoinviewViewModel(
             assetName = asset?.currency?.name ?: "",
             assetPrice = reduceAssetPrice(this),
             totalBalance = reduceTotalBalance(this),
-            accounts = reduceAccounts(this)
+            accounts = reduceAccounts(this),
+            recurringBuys = reduceRecurringBuys(this)
         )
     }
 
@@ -379,6 +382,43 @@ class CoinviewViewModel(
         }
     }
 
+    private fun reduceRecurringBuys(state: CoinviewModelState): CoinviewRecurringBuysState = state.run {
+        when {
+            // not supported for non custodial
+            walletMode == WalletMode.NON_CUSTODIAL_ONLY -> {
+                CoinviewRecurringBuysState.NotSupported
+            }
+
+            isRecurringBuysLoading && recurringBuys == null -> {
+                CoinviewRecurringBuysState.Loading
+            }
+
+            isRecurringBuysLoading -> {
+                CoinviewRecurringBuysState.NotSupported
+            }
+
+            isRecurringBuysError -> {
+                CoinviewRecurringBuysState.Error
+            }
+
+            recurringBuys != null -> {
+                if (recurringBuys.data.isEmpty()) {
+                    if (recurringBuys.isAvailableForTrading) {
+                        CoinviewRecurringBuysState.Upsell
+                    } else {
+                        CoinviewRecurringBuysState.NotSupported
+                    }
+                } else {
+                    CoinviewRecurringBuysState.Data(recurringBuys.data)
+                }
+            }
+
+            else -> {
+                CoinviewRecurringBuysState.Loading
+            }
+        }
+    }
+
     override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntents) {
         when (intent) {
             is CoinviewIntents.LoadAllData -> {
@@ -596,5 +636,38 @@ class CoinviewViewModel(
     // //////////////////////
     // Recurring buys
     private fun loadRecurringBuysData(asset: CryptoAsset) {
+        viewModelScope.launch {
+            loadAssetRecurringBuysUseCase(asset).collectLatest { dataResource ->
+                when (dataResource) {
+                    DataResource.Loading -> {
+                        updateState {
+                            it.copy(
+                                isRecurringBuysLoading = true,
+                                isRecurringBuysError = true
+                            )
+                        }
+                    }
+
+                    is DataResource.Error -> {
+                        updateState {
+                            it.copy(
+                                isRecurringBuysLoading = false,
+                                isRecurringBuysError = true
+                            )
+                        }
+                    }
+
+                    is DataResource.Data -> {
+                        updateState {
+                            it.copy(
+                                isRecurringBuysLoading = false,
+                                isRecurringBuysError = false,
+                                recurringBuys = dataResource.data
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }

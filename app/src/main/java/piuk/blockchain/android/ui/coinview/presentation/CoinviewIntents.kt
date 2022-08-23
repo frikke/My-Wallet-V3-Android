@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.coinview.presentation
 
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.walletmode.WalletMode
 import com.github.mikephil.charting.data.Entry
 
 sealed interface CoinviewIntents : Intent<CoinviewModelState> {
@@ -14,9 +15,25 @@ sealed interface CoinviewIntents : Intent<CoinviewModelState> {
      */
     object LoadAllData : CoinviewIntents
 
-    object LoadPriceData: CoinviewIntents
-    object LoadAccountsData: CoinviewIntents
-    object LoadRecurringBuysData: CoinviewIntents
+    /**
+     * Load asset price and chart data
+     */
+    object LoadPriceData : CoinviewIntents
+
+    /**
+     * Load total balance and accounts
+     */
+    object LoadAccountsData : CoinviewIntents
+
+    /**
+     * Load recurring buys / show upsell when no data (if eligible)
+     * Not supported by [WalletMode.NON_CUSTODIAL_ONLY]
+     */
+    object LoadRecurringBuysData : CoinviewIntents {
+        override fun isValidFor(modelState: CoinviewModelState): Boolean {
+            return modelState.walletMode != WalletMode.NON_CUSTODIAL_ONLY
+        }
+    }
 
     /**
      * Performs price updates while chart is interactive

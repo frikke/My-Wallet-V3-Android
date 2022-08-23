@@ -83,8 +83,8 @@ class CoinViewInteractor(
 
     fun loadRecurringBuys(asset: AssetInfo): Single<Pair<List<RecurringBuy>, Boolean>> =
         Single.zip(
-            tradeDataService.getRecurringBuysForAsset(asset),
-            custodialWalletManager.isCurrencyAvailableForTrading(asset)
+            tradeDataService.getRecurringBuysForAssetLegacy(asset),
+            custodialWalletManager.isCurrencyAvailableForTradingLegacy(asset)
         ) { rbList, isSupportedPair ->
             Pair(rbList, isSupportedPair)
         }
@@ -107,7 +107,7 @@ class CoinViewInteractor(
                     identity.isEligibleFor(Feature.SimplifiedDueDiligence),
                     identity.userAccessForFeature(Feature.Buy),
                     identity.userAccessForFeature(Feature.Sell),
-                    custodialWalletManager.isCurrencyAvailableForTrading(asset.currency),
+                    custodialWalletManager.isCurrencyAvailableForTradingLegacy(asset.currency),
                     custodialWalletManager.isAssetSupportedForSwap(asset.currency)
                 ) { kycTier, sddEligible, buyAccess, sellAccess, isSupportedPair, isSwapSupported ->
 

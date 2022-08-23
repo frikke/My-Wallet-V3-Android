@@ -158,11 +158,11 @@ class CoinViewInteractorTest {
         val asset: CryptoAsset = mock {
             on { currency }.thenReturn(mock())
         }
-        whenever(tradeDataService.getRecurringBuysForAsset(asset.currency)).thenReturn(Single.just(emptyList()))
-        whenever(custodialWalletManager.isCurrencyAvailableForTrading(asset.currency)).thenReturn(Single.just(true))
+        whenever(tradeDataService.getRecurringBuysForAssetLegacy(asset.currency)).thenReturn(Single.just(emptyList()))
+        whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(asset.currency)).thenReturn(Single.just(true))
         val test = subject.loadRecurringBuys(asset.currency).test()
         test.assertValue(Pair(emptyList(), true))
-        verify(tradeDataService).getRecurringBuysForAsset(asset.currency)
+        verify(tradeDataService).getRecurringBuysForAssetLegacy(asset.currency)
     }
 
     private fun prepareQuickActionsCustodial(
@@ -179,7 +179,7 @@ class CoinViewInteractorTest {
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(sdd))
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(buyAccess))
         whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(sellAccess))
-        whenever(custodialWalletManager.isCurrencyAvailableForTrading(CryptoCurrency.BTC)).thenReturn(
+        whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(CryptoCurrency.BTC)).thenReturn(
             Single.just(availableForTrading)
         )
         whenever(custodialWalletManager.isAssetSupportedForSwap(CryptoCurrency.BTC)).thenReturn(
