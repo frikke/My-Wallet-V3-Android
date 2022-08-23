@@ -8,9 +8,15 @@ sealed interface CoinviewIntents : Intent<CoinviewModelState> {
     /**
      * Triggers loading:
      * * asset price / chart values
+     * * asset accounts
+     * * recurring buys
      * * todo
      */
-    object LoadData : CoinviewIntents
+    object LoadAllData : CoinviewIntents
+
+    object LoadPriceData: CoinviewIntents
+    object LoadAccountsData: CoinviewIntents
+    object LoadRecurringBuysData: CoinviewIntents
 
     /**
      * Performs price updates while chart is interactive

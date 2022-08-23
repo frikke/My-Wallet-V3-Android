@@ -85,6 +85,18 @@ enum class CoinviewAccountsStyle {
     Simple, Boxed
 }
 
+// Recurring buys
+sealed interface CoinviewRecurringBuysState {
+    object NotSupported : CoinviewRecurringBuysState
+    object Loading : CoinviewRecurringBuysState
+    object Error : CoinviewRecurringBuysState
+    data class Data(
+        val assetName: String,
+        val totalFiatBalance: String,
+        val totalCryptoBalance: String
+    ) : CoinviewRecurringBuysState
+}
+
 sealed interface SimpleValue {
     data class StringValue(val value: String) : SimpleValue
     data class IntResValue(

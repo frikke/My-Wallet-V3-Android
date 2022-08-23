@@ -20,7 +20,6 @@ import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
-import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -34,6 +33,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
+import java.text.DecimalFormat
 
 class CoinviewViewModel(
     walletModeService: WalletModeService,
@@ -381,13 +381,34 @@ class CoinviewViewModel(
 
     override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntents) {
         when (intent) {
-            is CoinviewIntents.LoadData -> {
+            is CoinviewIntents.LoadAllData -> {
                 require(modelState.asset != null) { "asset not initialized" }
+                onIntent(CoinviewIntents.LoadPriceData)
+                onIntent(CoinviewIntents.LoadAccountsData)
+                onIntent(CoinviewIntents.LoadRecurringBuysData)
+            }
+
+            CoinviewIntents.LoadPriceData -> {
+                require(modelState.asset != null) { "asset not initialized" }
+
                 loadPriceData(
                     asset = modelState.asset,
                     requestedTimeSpan = modelState.assetPriceHistory?.priceDetail?.timeSpan ?: defaultTimeSpan
                 )
+            }
+
+            CoinviewIntents.LoadAccountsData -> {
+                require(modelState.asset != null) { "asset not initialized" }
+
                 loadAccountsData(
+                    asset = modelState.asset,
+                )
+            }
+
+            CoinviewIntents.LoadRecurringBuysData -> {
+                require(modelState.asset != null) { "asset not initialized" }
+
+                loadRecurringBuysData(
                     asset = modelState.asset,
                 )
             }
@@ -570,5 +591,10 @@ class CoinviewViewModel(
         updateState {
             it.copy(accounts = accountsInfo.accounts)
         }
+    }
+
+    // //////////////////////
+    // Recurring buys
+    private fun loadRecurringBuysData(asset: CryptoAsset) {
     }
 }
