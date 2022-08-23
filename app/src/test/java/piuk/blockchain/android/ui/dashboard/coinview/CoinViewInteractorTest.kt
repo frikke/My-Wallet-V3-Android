@@ -27,6 +27,7 @@ import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.testutils.rxInit
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -422,14 +423,22 @@ class CoinViewInteractorTest {
     @Test
     fun `when CheckBuyStatus then show userCanBuy Granted`() {
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(custodialWalletManager.isCurrencyAvailableForTrading(any()))
+            .thenReturn(Single.just(true))
 
-        val test = subject.checkIfUserCanBuy().test()
+        val currency: AssetInfo = mock()
+        val asset: CryptoAsset = mock {
+            on { this.currency }.thenReturn(currency)
+        }
 
-        test.assertValue {
-            it == FeatureAccess.Granted()
+        val test = subject.getBuyStatus(asset).test()
+
+        test.assertValue { (buyAccess, isSupportedPair) ->
+            buyAccess == FeatureAccess.Granted() && isSupportedPair
         }
 
         verify(identity).userAccessForFeature(Feature.Buy)
+        verify(custodialWalletManager).isCurrencyAvailableForTrading(currency)
 
         verifyNoMoreInteractions(identity)
     }

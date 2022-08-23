@@ -38,11 +38,6 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
         override fun reduce(oldState: CoinViewState): CoinViewState = oldState
     }
 
-    object BuyHasWarning : CoinViewIntent() {
-        override fun reduce(oldState: CoinViewState): CoinViewState =
-            oldState.copy(hasActionBuyWarning = true)
-    }
-
     data class UpdateBuyEligibility(val canBuy: Boolean) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState =
             oldState.copy(canBuy = canBuy)

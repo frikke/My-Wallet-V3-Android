@@ -521,8 +521,7 @@ class CoinViewActivity :
                             balanceFiat = fiatBalance,
                             balanceCrypto = balance,
                             interestRate = interestRate,
-                            stateAwareActions = state.actions,
-                            hasWarning = newState.hasActionBuyWarning
+                            stateAwareActions = state.actions
                         )
                     )
                 }

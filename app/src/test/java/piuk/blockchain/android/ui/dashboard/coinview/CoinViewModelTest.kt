@@ -5,6 +5,7 @@ import com.blockchain.api.services.DetailedAssetInformation
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.HistoricalRateList
@@ -733,14 +734,116 @@ class CoinViewModelTest {
     }
 
     @Test
-    fun `when user can buy and there is no buy warning nothing should happen`() {
-        whenever(interactor.checkIfUserCanBuy()).thenReturn(Single.just(FeatureAccess.Granted()))
+    fun `when buy is granted and asset is supported for trading, canBuy should be true`() {
+        whenever(interactor.getBuyStatus(any()))
+            .thenReturn(
+                Single.just(
+                    Pair(FeatureAccess.Granted(), true)
+                )
+            )
 
-        val testState = subject.state.test()
-        subject.process(CoinViewIntent.CheckBuyStatus)
+        val asset: CryptoAsset = mock {
+            on { currency }.thenReturn(mock())
+        }
 
-        testState.assertValueAt(0) {
-            it == defaultState
+        val state = CoinViewState(
+            asset = asset,
+            canBuy = false
+        )
+
+        val localSubject = CoinViewModel(
+            initialState = state,
+            mainScheduler = Schedulers.io(),
+            interactor = interactor,
+            environmentConfig = environmentConfig,
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
+        )
+
+        val testState = localSubject.state.test()
+        localSubject.process(CoinViewIntent.CheckBuyStatus)
+
+        testState.assertValueCount(2)
+        testState.assertValueAt(1) {
+            it.canBuy
+        }
+    }
+
+    @Test
+    fun `when buy is granted and asset is not supported for trading, canBuy should be false`() {
+        whenever(interactor.getBuyStatus(any()))
+            .thenReturn(
+                Single.just(
+                    Pair(FeatureAccess.Granted(), false)
+                )
+            )
+
+        val asset: CryptoAsset = mock {
+            on { currency }.thenReturn(mock())
+        }
+
+        val state = CoinViewState(
+            asset = asset,
+            canBuy = true
+        )
+
+        val localSubject = CoinViewModel(
+            initialState = state,
+            mainScheduler = Schedulers.io(),
+            interactor = interactor,
+            environmentConfig = environmentConfig,
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
+        )
+
+        val testState = localSubject.state.test()
+        localSubject.process(CoinViewIntent.CheckBuyStatus)
+
+        testState.assertValueCount(2)
+        testState.assertValueAt(1) {
+            it.canBuy.not()
+        }
+    }
+
+    @Test
+    fun `when buy is blocked and asset is not supported for trading, canBuy should be false`() {
+        whenever(interactor.getBuyStatus(any()))
+            .thenReturn(
+                Single.just(
+                    Pair(FeatureAccess.Blocked(BlockedReason.NotEligible), false)
+                )
+            )
+
+        val asset: CryptoAsset = mock {
+            on { currency }.thenReturn(mock())
+        }
+
+        val state = CoinViewState(
+            asset = asset,
+            canBuy = true
+        )
+
+        val localSubject = CoinViewModel(
+            initialState = state,
+            mainScheduler = Schedulers.io(),
+            interactor = interactor,
+            environmentConfig = environmentConfig,
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
+        )
+
+        val testState = localSubject.state.test()
+        localSubject.process(CoinViewIntent.CheckBuyStatus)
+
+        testState.assertValueCount(2)
+        testState.assertValueAt(1) {
+            it.canBuy.not()
         }
     }
 
@@ -776,39 +879,6 @@ class CoinViewModelTest {
             it == state
         }.assertValueAt(1) {
             it.error == CoinViewError.WatchlistUpdateFailed
-        }
-    }
-
-    @Test
-    fun `when userCanBuy fails nothing should happen`() {
-        whenever(interactor.checkIfUserCanBuy()).thenReturn(Single.error(Throwable()))
-
-        val testState = subject.state.test()
-        subject.process(CoinViewIntent.CheckBuyStatus)
-
-        testState.assertValueAt(0) {
-            it == defaultState
-        }
-    }
-
-    @Test
-    fun `when userCanBuy and hasActionBuyWarning warning then state reflects update`() {
-        whenever(interactor.checkIfUserCanBuy())
-            .thenReturn(
-                Single.just(
-                    FeatureAccess.Blocked(
-                        BlockedReason.TooManyInFlightTransactions(3)
-                    )
-                )
-            )
-
-        val testState = subject.state.test()
-        subject.process(CoinViewIntent.CheckBuyStatus)
-
-        testState.assertValueAt(0) {
-            it == defaultState
-        }.assertValueAt(1) {
-            it == defaultState.copy(hasActionBuyWarning = true)
         }
     }
 

@@ -70,7 +70,7 @@ class CoinViewModel(
             }
             is CoinViewIntent.LoadRecurringBuys ->
                 if
-                    (walletModeService.enabledWalletMode().custodialEnabled) {
+                (walletModeService.enabledWalletMode().custodialEnabled) {
                     loadRecurringBuys(intent)
                 } else null
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
@@ -81,7 +81,6 @@ class CoinViewModel(
             CoinViewIntent.ResetErrorState,
             CoinViewIntent.ResetViewState,
             is CoinViewIntent.UpdateWatchlistState,
-            CoinViewIntent.BuyHasWarning,
             is CoinViewIntent.UpdateErrorState,
             is CoinViewIntent.UpdateViewState,
             is CoinViewIntent.AssetLoaded,
@@ -148,14 +147,12 @@ class CoinViewModel(
 
     private fun checkUserBuyStatus(asset: CryptoAsset?): Disposable {
         require(asset != null)
-        return interactor.checkIfUserCanBuy(asset).subscribeBy(
+        return interactor.getBuyStatus(asset).subscribeBy(
             onSuccess = { (buyAccess, isSupportedPair) ->
-                if ((buyAccess as? FeatureAccess.Blocked)?.reason is BlockedReason.TooManyInFlightTransactions) {
-                    process(CoinViewIntent.BuyHasWarning)
-                }
-
-                val canBuy = isSupportedPair && (buyAccess is FeatureAccess.Granted ||
-                    (buyAccess is FeatureAccess.Blocked && buyAccess.reason is BlockedReason.InsufficientTier))
+                val canBuy = isSupportedPair && (
+                    buyAccess is FeatureAccess.Granted ||
+                        (buyAccess is FeatureAccess.Blocked && buyAccess.reason is BlockedReason.InsufficientTier)
+                    )
                 process(CoinViewIntent.UpdateBuyEligibility(canBuy))
             },
             onError = {

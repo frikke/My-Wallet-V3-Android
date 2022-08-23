@@ -143,8 +143,10 @@ class CoinViewInteractor(
                      * when trying to buy with low tier upgrading to gold will be requested
                      */
                     val canBuy = isSupportedPair &&
-                        (buyAccess is FeatureAccess.Granted ||
-                            (buyAccess is FeatureAccess.Blocked && buyAccess.reason is BlockedReason.InsufficientTier))
+                        (
+                            buyAccess is FeatureAccess.Granted ||
+                                (buyAccess is FeatureAccess.Blocked && buyAccess.reason is BlockedReason.InsufficientTier)
+                            )
 
                     /**
                      * Swap button will be enabled if
@@ -324,7 +326,7 @@ class CoinViewInteractor(
         }
     }
 
-    fun checkIfUserCanBuy(asset: CryptoAsset): Single<Pair<FeatureAccess, Boolean>> =
+    fun getBuyStatus(asset: CryptoAsset): Single<Pair<FeatureAccess, Boolean>> =
         Single.zip(
             identity.userAccessForFeature(Feature.Buy),
             custodialWalletManager.isCurrencyAvailableForTrading(asset.currency),
