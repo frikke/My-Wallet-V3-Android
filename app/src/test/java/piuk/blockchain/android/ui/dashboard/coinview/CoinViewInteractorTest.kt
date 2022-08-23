@@ -421,7 +421,7 @@ class CoinViewInteractorTest {
     }
 
     @Test
-    fun `when CheckBuyStatus then show userCanBuy Granted`() {
+    fun `when buy is granted and asset is supported for trading, canBuy should be true`() {
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted()))
         whenever(custodialWalletManager.isCurrencyAvailableForTrading(any()))
             .thenReturn(Single.just(true))
@@ -431,10 +431,33 @@ class CoinViewInteractorTest {
             on { this.currency }.thenReturn(currency)
         }
 
-        val test = subject.getBuyStatus(asset).test()
+        val test = subject.isBuyOptionAvailable(asset).test()
 
-        test.assertValue { (buyAccess, isSupportedPair) ->
-            buyAccess == FeatureAccess.Granted() && isSupportedPair
+        test.assertValue { canBuy ->
+            canBuy
+        }
+
+        verify(identity).userAccessForFeature(Feature.Buy)
+        verify(custodialWalletManager).isCurrencyAvailableForTrading(currency)
+
+        verifyNoMoreInteractions(identity)
+    }
+
+    @Test
+    fun `when buy is granted and asset is not supported for trading, canBuy should be false`() {
+        whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(custodialWalletManager.isCurrencyAvailableForTrading(any()))
+            .thenReturn(Single.just(false))
+
+        val currency: AssetInfo = mock()
+        val asset: CryptoAsset = mock {
+            on { this.currency }.thenReturn(currency)
+        }
+
+        val test = subject.isBuyOptionAvailable(asset).test()
+
+        test.assertValue { canBuy ->
+            canBuy.not()
         }
 
         verify(identity).userAccessForFeature(Feature.Buy)

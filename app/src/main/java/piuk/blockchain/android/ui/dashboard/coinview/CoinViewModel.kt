@@ -9,8 +9,6 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.BlockedReason
-import com.blockchain.nabu.FeatureAccess
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Scheduler
@@ -147,12 +145,8 @@ class CoinViewModel(
 
     private fun checkUserBuyStatus(asset: CryptoAsset?): Disposable {
         require(asset != null)
-        return interactor.getBuyStatus(asset).subscribeBy(
-            onSuccess = { (buyAccess, isSupportedPair) ->
-                val canBuy = isSupportedPair && (
-                    buyAccess is FeatureAccess.Granted ||
-                        (buyAccess is FeatureAccess.Blocked && buyAccess.reason is BlockedReason.InsufficientTier)
-                    )
+        return interactor.isBuyOptionAvailable(asset).subscribeBy(
+            onSuccess = { canBuy ->
                 process(CoinViewIntent.UpdateBuyEligibility(canBuy))
             },
             onError = {

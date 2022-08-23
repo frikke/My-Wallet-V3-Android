@@ -5,7 +5,6 @@ import com.blockchain.api.services.DetailedAssetInformation
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.HistoricalRateList
@@ -13,8 +12,6 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.nabu.BlockedReason
-import com.blockchain.nabu.FeatureAccess
 import com.blockchain.walletmode.WalletMode
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -735,11 +732,9 @@ class CoinViewModelTest {
 
     @Test
     fun `when buy is granted and asset is supported for trading, canBuy should be true`() {
-        whenever(interactor.getBuyStatus(any()))
+        whenever(interactor.isBuyOptionAvailable(any()))
             .thenReturn(
-                Single.just(
-                    Pair(FeatureAccess.Granted(), true)
-                )
+                Single.just(true)
             )
 
         val asset: CryptoAsset = mock {
@@ -773,49 +768,9 @@ class CoinViewModelTest {
 
     @Test
     fun `when buy is granted and asset is not supported for trading, canBuy should be false`() {
-        whenever(interactor.getBuyStatus(any()))
+        whenever(interactor.isBuyOptionAvailable(any()))
             .thenReturn(
-                Single.just(
-                    Pair(FeatureAccess.Granted(), false)
-                )
-            )
-
-        val asset: CryptoAsset = mock {
-            on { currency }.thenReturn(mock())
-        }
-
-        val state = CoinViewState(
-            asset = asset,
-            canBuy = true
-        )
-
-        val localSubject = CoinViewModel(
-            initialState = state,
-            mainScheduler = Schedulers.io(),
-            interactor = interactor,
-            environmentConfig = environmentConfig,
-            remoteLogger = mock(),
-            walletModeService = mock {
-                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
-            }
-        )
-
-        val testState = localSubject.state.test()
-        localSubject.process(CoinViewIntent.CheckBuyStatus)
-
-        testState.assertValueCount(2)
-        testState.assertValueAt(1) {
-            it.canBuy.not()
-        }
-    }
-
-    @Test
-    fun `when buy is blocked and asset is not supported for trading, canBuy should be false`() {
-        whenever(interactor.getBuyStatus(any()))
-            .thenReturn(
-                Single.just(
-                    Pair(FeatureAccess.Blocked(BlockedReason.NotEligible), false)
-                )
+                Single.just(false)
             )
 
         val asset: CryptoAsset = mock {
