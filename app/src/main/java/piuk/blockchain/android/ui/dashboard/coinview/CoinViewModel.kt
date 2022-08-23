@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.coinview
 
 import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -74,7 +75,10 @@ class CoinViewModel(
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
             is CoinViewIntent.ToggleWatchlist -> toggleWatchlist(previousState)
             is CoinViewIntent.CheckScreenToOpen -> getAccountActions(intent)
-            is CoinViewIntent.CheckBuyStatus -> checkUserBuyStatus(previousState.asset)
+            is CoinViewIntent.CheckBuyStatus -> {
+                require(previousState.asset != null)
+                checkUserBuyStatus(previousState.asset)
+            }
             is CoinViewIntent.LoadAssetDetails -> loadAssetInfoDetails(intent)
             CoinViewIntent.ResetErrorState,
             CoinViewIntent.ResetViewState,
@@ -143,8 +147,7 @@ class CoinViewModel(
                 }
             )
 
-    private fun checkUserBuyStatus(asset: CryptoAsset?): Disposable {
-        require(asset != null)
+    private fun checkUserBuyStatus(asset: CryptoAsset): Disposable {
         return interactor.isBuyOptionAvailable(asset).subscribeBy(
             onSuccess = { canBuy ->
                 process(CoinViewIntent.UpdateBuyEligibility(canBuy))

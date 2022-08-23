@@ -74,6 +74,7 @@ class CoinViewModelTest {
         whenever(interactor.loadAccountDetails(asset)).thenReturn(Single.error(Exception()))
         whenever(interactor.loadRecurringBuys(asset.currency)).thenReturn(Single.error(Exception()))
         whenever(interactor.loadAssetInformation(asset.currency)).thenReturn(Single.error(Exception()))
+        whenever(interactor.isBuyOptionAvailable(asset)).thenReturn(Single.just(true))
 
         val test = subject.state.test()
         subject.process(CoinViewIntent.LoadAsset(ticker))
