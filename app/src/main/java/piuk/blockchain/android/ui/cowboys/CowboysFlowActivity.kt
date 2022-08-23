@@ -189,7 +189,7 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
                     }
                 }
                 else -> {
-                    Timber.e("!!! Cowboys - Unknown link $this")
+                    Timber.e("Cowboys action url - Unknown link: $this")
                 }
             }
         }
@@ -211,15 +211,17 @@ class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
                 .cache()
             FlowStep.Verify -> cowboysDataProvider.getIdentityInterstitial()
                 .cache()
-            else -> Single.error(UnsupportedOperationException())
+            FlowStep.EmailVerification -> Single.error(StepHasNoDataException())
         }.observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onSuccess = {
                     interstitialData = it
                 },
                 onError = {
-                    Timber.e("Error getting cowboys data: ${it.message}")
-                    finish()
+                    if (it !is StepHasNoDataException) {
+                        Timber.e("Cowboys data acquisition error: ${it.message}")
+                        finish()
+                    }
                 }
             )
     }
@@ -536,3 +538,5 @@ fun CowboysInterstitial() {
         }
     }
 }
+
+private class StepHasNoDataException() : Throwable()
