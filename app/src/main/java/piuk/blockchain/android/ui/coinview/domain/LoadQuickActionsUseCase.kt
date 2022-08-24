@@ -8,6 +8,7 @@ import com.blockchain.data.anyLoading
 import com.blockchain.data.getFirstError
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -20,7 +21,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewRecurringBuys
 class LoadQuickActionsUseCase(
     private val walletModeService: WalletModeService,
     private val kycService: KycService,
-    private val identity: UserIdentity,
+    private val userFeaturePermissionService: UserFeaturePermissionService,
     private val custodialWalletManager: CustodialWalletManager,
 ) {
     // todo(othman) remove accounts/total balance args - and use flow once caching is available
@@ -37,8 +38,12 @@ class LoadQuickActionsUseCase(
 
                 combine(
                     kycService.getHighestApprovedTierLevel(),
-                    identity.isEligibleFor(Feature.SimplifiedDueDiligence)
-                ) { kycTier ->
+                    userFeaturePermissionService.isEligibleFor(Feature.SimplifiedDueDiligence),
+                    userFeaturePermissionService.getAccessForFeature(Feature.Buy),
+                    userFeaturePermissionService.getAccessForFeature(Feature.Sell),
+                    custodialWalletManager.isCurrencyAvailableForTrading(asset.currency),
+                    custodialWalletManager.isCurrencyAvailableForTrading(asset.currency)
+                ) { kycTier, sddEligibility, buyAccess, sellAccess, isAvailableForTrading, isSupportedForSwap->
 
                 }
             }

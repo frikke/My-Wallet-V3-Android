@@ -5,4 +5,7 @@ data class SimpleBuyEligibility(
     val simpleBuyTradingEligible: Boolean,
     val pendingDepositSimpleBuyTrades: Int,
     val maxPendingDepositSimpleBuyTrades: Int
-)
+) {
+    val isPendingDepositThresholdReached: Boolean
+        get() = pendingDepositSimpleBuyTrades >= maxPendingDepositSimpleBuyTrades
+}

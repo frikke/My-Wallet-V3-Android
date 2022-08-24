@@ -1,27 +1,32 @@
 package com.blockchain.nabu.api.getuser.data
 
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.sdd.domain.SddService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.anyError
+import com.blockchain.data.anyLoading
+import com.blockchain.data.getFirstError
+import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
+import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
-import com.blockchain.nabu.datamanagers.toFeatureAccess
 import com.blockchain.store.mapData
-import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
+import kotlinx.coroutines.flow.combine
 
 internal class UserFeaturePermissionRepository(
-    private val getUserStore: GetUserStore,
     private val kycService: KycService,
     private val interestService: InterestService,
-    private val sddService: SddService
+    private val sddService: SddService,
+    private val eligibilityService: EligibilityService,
+    private val simpleBuyService: SimpleBuyService
 ) : UserFeaturePermissionService {
 
     override fun isEligibleFor(
@@ -56,47 +61,120 @@ internal class UserFeaturePermissionRepository(
         feature: Feature,
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<FeatureAccess>> {
-
-          when (feature) {
-            Feature.Buy ->
-                Single.zip(
-                    rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.BUY) },
-                    simpleBuyEligibilityProvider.simpleBuyTradingEligibility()
-                ) { buyEligibility, sbEligibility ->
-                    val buyFeatureAccess = buyEligibility.toFeatureAccess()
+        return when (feature) {
+            Feature.Buy -> {
+                combine(
+                    eligibilityService.getProductEligibility(EligibleProduct.BUY),
+                    simpleBuyService.getEligibility()
+                ) { buyEligibility, simpleBuyEligibility ->
+                    val results = listOf(buyEligibility, simpleBuyEligibility)
 
                     when {
-                        buyFeatureAccess !is FeatureAccess.Granted -> buyFeatureAccess
-                        sbEligibility.pendingDepositSimpleBuyTrades < sbEligibility.maxPendingDepositSimpleBuyTrades ->
-                            FeatureAccess.Granted()
-                        else -> FeatureAccess.Blocked(
-                            BlockedReason.TooManyInFlightTransactions(
-                                sbEligibility.maxPendingDepositSimpleBuyTrades
+                        results.anyLoading() -> {
+                            DataResource.Loading
+                        }
+
+                        results.anyError() -> {
+                            DataResource.Error(results.getFirstError().error)
+                        }
+
+                        else -> {
+                            buyEligibility as DataResource.Data
+                            simpleBuyEligibility as DataResource.Data
+
+                            DataResource.Data(
+                                when {
+                                    buyEligibility.data.toFeatureAccess() !is FeatureAccess.Granted -> {
+                                        buyEligibility.data.toFeatureAccess()
+                                    }
+
+                                    simpleBuyEligibility.data.isPendingDepositThresholdReached.not() -> {
+                                        FeatureAccess.Granted()
+                                    }
+
+                                    else -> {
+                                        FeatureAccess.Blocked(
+                                            BlockedReason.TooManyInFlightTransactions(
+                                                simpleBuyEligibility.data.maxPendingDepositSimpleBuyTrades
+                                            )
+                                        )
+                                    }
+                                }
                             )
-                        )
+                        }
+
                     }
                 }
-            Feature.Swap ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.SWAP) }
-                    .map(ProductEligibility::toFeatureAccess)
-            Feature.Sell ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.SELL) }
-                    .map(ProductEligibility::toFeatureAccess)
-            Feature.DepositFiat ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_FIAT) }
-                    .map(ProductEligibility::toFeatureAccess)
-            Feature.DepositCrypto ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_CRYPTO) }
-                    .map(ProductEligibility::toFeatureAccess)
-            Feature.DepositInterest ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_INTEREST) }
-                    .map(ProductEligibility::toFeatureAccess)
-            Feature.WithdrawFiat ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.WITHDRAW_FIAT) }
-                    .map(ProductEligibility::toFeatureAccess)
+            }
+
+            Feature.Swap -> {
+                eligibilityService.getProductEligibility(EligibleProduct.SWAP)
+                    .mapData(ProductEligibility::toFeatureAccess)
+            }
+
+            Feature.Sell -> {
+                eligibilityService.getProductEligibility(EligibleProduct.SELL)
+                    .mapData(ProductEligibility::toFeatureAccess)
+            }
+
+            Feature.DepositFiat -> {
+                eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_FIAT)
+                    .mapData(ProductEligibility::toFeatureAccess)
+            }
+
+            Feature.DepositCrypto -> {
+                eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_CRYPTO)
+                    .mapData(ProductEligibility::toFeatureAccess)
+            }
+
+            Feature.DepositInterest -> {
+                eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_INTEREST)
+                    .mapData(ProductEligibility::toFeatureAccess)
+            }
+
+            Feature.WithdrawFiat -> {
+                eligibilityService.getProductEligibility(EligibleProduct.WITHDRAW_FIAT)
+                    .mapData(ProductEligibility::toFeatureAccess)
+            }
+
             is Feature.Interest,
             Feature.SimplifiedDueDiligence,
-            is Feature.TierLevel -> TODO("Not Implemented Yet")
+            is Feature.TierLevel -> {
+                TODO("Not Implemented Yet")
+            }
         }
     }
 }
+
+private fun ProductEligibility.toFeatureAccess(): FeatureAccess {
+    return if (canTransact) {
+        FeatureAccess.Granted(maxTransactionsCap)
+    } else {
+        FeatureAccess.Blocked(
+            when (val reason = reasonNotEligible) {
+                ProductNotEligibleReason.InsufficientTier.Tier1TradeLimitExceeded -> {
+                    BlockedReason.InsufficientTier.Tier1TradeLimitExceeded
+                }
+                ProductNotEligibleReason.InsufficientTier.Tier2Required -> {
+                    BlockedReason.InsufficientTier.Tier2Required
+                }
+                is ProductNotEligibleReason.InsufficientTier.Unknown -> {
+                    BlockedReason.InsufficientTier.Unknown(reason.message)
+                }
+                ProductNotEligibleReason.Sanctions.RussiaEU5 -> {
+                    BlockedReason.Sanctions.RussiaEU5
+                }
+                is ProductNotEligibleReason.Sanctions.Unknown -> {
+                    BlockedReason.Sanctions.Unknown(reason.message)
+                }
+                is ProductNotEligibleReason.Unknown -> {
+                    BlockedReason.NotEligible
+                }
+                null -> {
+                    BlockedReason.NotEligible
+                }
+            }
+        )
+    }
+}
+
