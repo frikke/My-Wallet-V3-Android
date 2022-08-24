@@ -8,7 +8,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import dev.jeziellago.compose.markdowntext.MarkdownText
 
 @Composable
-fun MarkdownContent(
+fun MarkdownText(
     markdownText: String,
     modifier: Modifier = Modifier,
     style: ComposeTypographies,
@@ -31,7 +31,7 @@ fun MarkdownContent(
 fun MarkdownText_Basic() {
     AppTheme(darkTheme = false) {
         AppSurface {
-            MarkdownContent(
+            MarkdownText(
                 markdownText = "**Bold** _Italic_ blockchain.com",
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Medium,
@@ -46,7 +46,7 @@ fun MarkdownText_Basic() {
 fun MarkdownText_Links() {
     AppTheme(darkTheme = false) {
         AppSurface {
-            MarkdownContent(
+            MarkdownText(
                 markdownText = "**Bold** _Italic_ blockchain.com",
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Medium,
