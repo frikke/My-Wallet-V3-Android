@@ -437,11 +437,12 @@ class SimpleBuyActivity :
                     nabuApiException = nabuApiException,
                     errorDescription = description,
                     action = ACTION_BUY,
-                    analyticsCategories = nabuApiException?.getServerSideErrorInfo()?.categories
-                        ?: serverSideUxErrorInfo?.categories.orEmpty(),
-                    iconUrl = nabuApiException?.getServerSideErrorInfo()?.iconUrl,
-                    statusIconUrl = nabuApiException?.getServerSideErrorInfo()?.statusUrl,
-                    errorId = nabuApiException?.getServerSideErrorInfo()?.id ?: serverSideUxErrorInfo?.id
+                    analyticsCategories = serverSideUxErrorInfo?.categories
+                        ?: nabuApiException?.getServerSideErrorInfo()?.categories.orEmpty(),
+                    iconUrl = serverSideUxErrorInfo?.iconUrl ?: nabuApiException?.getServerSideErrorInfo()?.iconUrl,
+                    statusIconUrl = serverSideUxErrorInfo?.statusUrl
+                        ?: nabuApiException?.getServerSideErrorInfo()?.statusUrl,
+                    errorId = serverSideUxErrorInfo?.id ?: nabuApiException?.getServerSideErrorInfo()?.id
                 )
             )
         )

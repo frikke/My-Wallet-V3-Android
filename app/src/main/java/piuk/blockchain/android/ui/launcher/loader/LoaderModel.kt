@@ -150,9 +150,8 @@ class LoaderModel(
                         data = data
                     )
                 }
-
                 isUserInCowboysPromo -> {
-                    LoaderIntents.StartCowboysInterstitialPromo
+                    LoaderIntents.StartMainActivity(data, false)
                 }
                 else -> {
                     LoaderIntents.StartMainActivity(data, shouldLaunchUiTour)

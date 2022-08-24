@@ -22,9 +22,11 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.referralsFeatureFlag
+import com.google.android.gms.recaptcha.RecaptchaActionType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -39,12 +41,14 @@ import piuk.blockchain.android.cards.SearchPickerItemBottomSheet
 import piuk.blockchain.android.cards.StatePickerItem
 import piuk.blockchain.android.databinding.ActivityCreateWalletBinding
 import piuk.blockchain.android.ui.customviews.CircularProgressDrawable
+import piuk.blockchain.android.ui.login.GoogleReCaptchaClient
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.urllinks.URL_BACKUP_INFO
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
+import timber.log.Timber
 
 class CreateWalletActivity :
     MVIActivity<CreateWalletViewState>(),
@@ -66,6 +70,12 @@ class CreateWalletActivity :
     private val viewModel: CreateWalletViewModel by viewModel()
 
     private val referralFF: FeatureFlag by inject(referralsFeatureFlag)
+
+    private val environmentConfig: EnvironmentConfig by inject()
+
+    private val recaptchaClient: GoogleReCaptchaClient by lazy {
+        GoogleReCaptchaClient(this, environmentConfig)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,7 +115,7 @@ class CreateWalletActivity :
             }
 
             commandNext.setOnClickListener {
-                viewModel.onIntent(CreateWalletIntent.NextClicked)
+                verifyReCaptcha()
             }
 
             updatePasswordDisclaimer()
@@ -131,6 +141,12 @@ class CreateWalletActivity :
                 }
             }
         }
+        recaptchaClient.initReCaptcha()
+    }
+
+    override fun onDestroy() {
+        recaptchaClient.close()
+        super.onDestroy()
     }
 
     override fun onItemPicked(item: PickerItem) {
@@ -237,6 +253,14 @@ class CreateWalletActivity :
                             binding.walletPass.requestFocus()
                         }.show()
                 }
+                CreateWalletError.RecaptchaFailed -> {
+                    binding.commandNext.text = getString(R.string.common_retry)
+                    BlockchainSnackbar.make(
+                        binding.root,
+                        state.error.errorMessage(),
+                        type = SnackbarType.Error
+                    ).show()
+                }
             }
             viewModel.onIntent(CreateWalletIntent.ErrorHandled)
         }
@@ -300,6 +324,19 @@ class CreateWalletActivity :
         }
     }
 
+    private fun verifyReCaptcha() {
+        recaptchaClient.verify(
+            verificationType = RecaptchaActionType.SIGNUP,
+            onSuccess = { result ->
+                viewModel.onIntent(CreateWalletIntent.NextClicked(result.tokenResult))
+            },
+            onError = {
+                Timber.e(it)
+                viewModel.onIntent(CreateWalletIntent.RecaptchaFailed)
+            }
+        )
+    }
+
     private fun CreateWalletError.errorMessage(): String = when (this) {
         CreateWalletError.InvalidEmail -> getString(R.string.invalid_email)
         CreateWalletError.InvalidPasswordTooLong -> getString(R.string.invalid_password)
@@ -307,6 +344,7 @@ class CreateWalletActivity :
         CreateWalletError.InvalidPasswordTooWeak -> getString(R.string.weak_password)
         CreateWalletError.PasswordsMismatch -> getString(R.string.password_mismatch_error)
         CreateWalletError.WalletCreationFailed -> getString(R.string.hd_error)
+        CreateWalletError.RecaptchaFailed -> getString(R.string.recaptcha_failed)
         is CreateWalletError.Unknown -> this.message ?: getString(R.string.something_went_wrong_try_again)
     }
 

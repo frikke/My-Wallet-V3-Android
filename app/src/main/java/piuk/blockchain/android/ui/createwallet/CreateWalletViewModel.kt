@@ -33,6 +33,7 @@ data class CreateWalletModelState(
     val emailInput: String = "",
     val passwordInput: String = "",
     val passwordConfirmationInput: String = "",
+    val recaptchaToken: String? = null,
 
     val countryInputState: CountryInputState = CountryInputState.Loading,
     val stateInputState: StateInputState = StateInputState.Hidden,
@@ -72,6 +73,7 @@ sealed class CreateWalletError {
     object PasswordsMismatch : CreateWalletError()
     object InvalidPasswordTooWeak : CreateWalletError()
     object WalletCreationFailed : CreateWalletError()
+    object RecaptchaFailed : CreateWalletError()
 
     data class Unknown(val message: String?) : CreateWalletError()
 }
@@ -191,7 +193,7 @@ class CreateWalletViewModel(
             is CreateWalletIntent.TermsOfServiceStateChanged -> updateState {
                 it.copy(areTermsOfServiceChecked = intent.isChecked)
             }
-            CreateWalletIntent.NextClicked -> {
+            is CreateWalletIntent.NextClicked -> {
                 analytics.logEventOnce(AnalyticsEvents.WalletSignupCreated)
                 val validateInputsOutcome = modelState.validateInputs()
                 if (validateInputsOutcome is Outcome.Failure) {
@@ -199,7 +201,12 @@ class CreateWalletViewModel(
                     return
                 }
 
-                updateState { it.copy(isCreateWalletLoading = true) }
+                updateState {
+                    it.copy(
+                        recaptchaToken = intent.recaptchaToken,
+                        isCreateWalletLoading = true
+                    )
+                }
                 if (modelState.referralCodeInput.isNotEmpty()) {
                     analytics.logEvent(ReferralAnalyticsEvents.ReferralCodeFilled(modelState.referralCodeInput))
                     val isReferralValidOutcome = referralService.isReferralCodeValid(modelState.referralCodeInput)
@@ -213,7 +220,8 @@ class CreateWalletViewModel(
                 payloadDataManager.createHdWallet(
                     modelState.passwordInput,
                     defaultLabels.getDefaultNonCustodialWalletLabel(),
-                    modelState.emailInput
+                    modelState.emailInput,
+                    intent.recaptchaToken
                 ).awaitOutcome()
                     .doOnSuccess { wallet ->
                         val countryIso =
@@ -246,6 +254,7 @@ class CreateWalletViewModel(
                     }
             }
             CreateWalletIntent.ErrorHandled -> updateState { it.copy(error = null) }
+            CreateWalletIntent.RecaptchaFailed -> updateState { it.copy(error = CreateWalletError.RecaptchaFailed) }
         }
     }
 

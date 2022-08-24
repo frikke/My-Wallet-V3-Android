@@ -508,7 +508,7 @@ class PortfolioFragment :
                         onClick = {
                             analytics.logEvent(CowboysAnalytics.VerifyEmailAnnouncementClicked)
                             startActivity(
-                                CowboysFlowActivity.newIntent(requireContext(), FlowStep.Welcome)
+                                CowboysFlowActivity.newIntent(requireContext(), FlowStep.EmailVerification)
                             )
                         }
                     )
@@ -520,6 +520,13 @@ class PortfolioFragment :
                             startActivity(
                                 CowboysFlowActivity.newIntent(requireContext(), FlowStep.Welcome)
                             )
+                        }
+                    )
+                is DashboardCowboysState.CowboyKycInProgressCard ->
+                    showCowboysCard(
+                        cardInfo = cowboysState.cardInfo,
+                        onClick = {
+                            analytics.logEvent(CowboysAnalytics.KycInProgressAnnouncementClicked)
                         }
                     )
                 is DashboardCowboysState.CowboyIdentityCard ->
@@ -774,7 +781,7 @@ class PortfolioFragment :
 
         override fun startSetup2Fa() = navigator().launchSetup2Fa()
 
-        override fun startVerifyEmail() = navigator().launchVerifyEmail()
+        override fun startVerifyEmail() = navigator().launchOpenExternalEmailApp()
 
         override fun startEnableFingerprintLogin() = navigator().launchSetupFingerprintLogin()
 

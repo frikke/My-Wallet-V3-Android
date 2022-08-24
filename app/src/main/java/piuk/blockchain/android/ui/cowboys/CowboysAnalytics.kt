@@ -57,6 +57,10 @@ sealed class CowboysAnalytics(
         event = AnalyticsNames.COWBOYS_RAFFLE_INTERSTITIAL_BUY_CLICKED.eventName
     )
 
+    object KycInProgressAnnouncementClicked : CowboysAnalytics(
+        event = AnalyticsNames.COWBOYS_KYC_IN_PROGRESS_ANNOUNCEMENT_CLICKED.eventName
+    )
+
     object VerifyIdAnnouncementClicked : CowboysAnalytics(
         event = AnalyticsNames.COWBOYS_VERIFY_ANNOUNCEMENT_CLICKED.eventName
     )

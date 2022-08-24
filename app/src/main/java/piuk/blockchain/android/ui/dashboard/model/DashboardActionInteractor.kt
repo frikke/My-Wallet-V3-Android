@@ -19,6 +19,7 @@ import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
@@ -807,17 +808,28 @@ class DashboardActionInteractor(
         }
 
     private fun checkHighestApprovedKycTier(): Single<DashboardCowboysState> =
-        kycService.getHighestApprovedTierLevelLegacy().flatMap { highestApprovedKycTier ->
-            when (highestApprovedKycTier) {
-                KycTier.BRONZE -> cowboysDataProvider.getRaffleAnnouncement().flatMap {
-                    Single.just(DashboardCowboysState.CowboyRaffleCard(it))
+        kycService.getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)
+            .flatMap { highestApprovedKycTier ->
+                when (highestApprovedKycTier) {
+                    KycTier.BRONZE -> cowboysDataProvider.getRaffleAnnouncement().flatMap {
+                        Single.just(DashboardCowboysState.CowboyRaffleCard(it))
+                    }
+                    KycTier.SILVER ->
+                        kycService.getTiersLegacy(FreshnessStrategy.Fresh)
+                            .flatMap { tierData ->
+                                if (tierData.isPendingOrUnderReviewFor(KycTier.GOLD)) {
+                                    cowboysDataProvider.getKycInProgressAnnouncement().flatMap {
+                                        Single.just(DashboardCowboysState.CowboyKycInProgressCard(it))
+                                    }
+                                } else {
+                                    cowboysDataProvider.getIdentityAnnouncement().flatMap {
+                                        Single.just(DashboardCowboysState.CowboyIdentityCard(it))
+                                    }
+                                }
+                            }
+                    else -> getCowboysReferralInfo()
                 }
-                KycTier.SILVER -> cowboysDataProvider.getIdentityAnnouncement().flatMap {
-                    Single.just(DashboardCowboysState.CowboyIdentityCard(it))
-                }
-                else -> getCowboysReferralInfo()
             }
-        }
 
     private fun getCowboysReferralInfo(): Single<DashboardCowboysState> =
         if (cowboysPrefs.hasCowboysReferralBeenDismissed) {

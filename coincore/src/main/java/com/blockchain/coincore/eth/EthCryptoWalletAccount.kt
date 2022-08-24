@@ -28,7 +28,7 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 /*internal*/ class EthCryptoWalletAccount internal constructor(
-    private val jsonAccount: EthereumAccount,
+    private var jsonAccount: EthereumAccount,
     private val ethDataManager: EthDataManager,
     private val fees: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
@@ -77,10 +77,7 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
     override fun updateLabel(newLabel: String): Completable {
         require(newLabel.isNotEmpty())
-        val revertLabel = label
-        jsonAccount.label = newLabel
         return ethDataManager.updateAccountLabel(newLabel)
-            .doOnError { jsonAccount.label = revertLabel }
     }
 
     override val activity: Single<ActivitySummaryList>

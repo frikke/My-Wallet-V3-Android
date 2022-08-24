@@ -76,17 +76,20 @@ internal class PayloadService(
      * @param password The user's choice of password
      * @param walletName The name of the wallet, usually a default name localised by region
      * @param email The user's email address, preferably not associated with another account
+     * @param recaptchaToken The generated token during registration
      * @return An [Observable] wrapping the [Wallet] object
      */
     internal fun createHdWallet(
         password: String,
         walletName: String,
-        email: String
+        email: String,
+        recaptchaToken: String?
     ): Single<Wallet> = Single.fromCallable {
         payloadManager.create(
             walletName,
             email,
-            password
+            password,
+            recaptchaToken
         )
     }
 

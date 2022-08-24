@@ -64,7 +64,7 @@ data class BlockchainCardTransaction(
     val clearedFundingAmount: FiatValue,
     val userTransactionTime: String,
     val merchantName: String,
-    val networkConversionRate: Int?,
+    val networkConversionRate: Float?,
     val declineReason: String?,
     val fee: FiatValue,
 ) : Parcelable
@@ -76,6 +76,7 @@ data class BlockchainCardLegalDocument(
     val url: String,
     val version: String,
     val acceptedVersion: String?,
+    val required: Boolean,
     var seen: Boolean = false
 ) : Parcelable
 

@@ -13,14 +13,16 @@ fun MarkdownContent(
     modifier: Modifier = Modifier,
     style: ComposeTypographies,
     color: ComposeColors,
-    gravity: ComposeGravities
+    gravity: ComposeGravities,
+    disableLinks: Boolean = true
 ) {
     MarkdownText(
         modifier = modifier,
         markdown = markdownText,
         style = style.toComposeTypography(),
         textAlign = gravity.toTextAlignment(),
-        color = color.toComposeColor()
+        color = color.toComposeColor(),
+        disableLinkMovementMethod = disableLinks
     )
 }
 
@@ -30,10 +32,26 @@ fun MarkdownText_Basic() {
     AppTheme(darkTheme = false) {
         AppSurface {
             MarkdownContent(
-                markdownText = "**Bold** _Italic_",
+                markdownText = "**Bold** _Italic_ blockchain.com",
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Medium,
                 gravity = ComposeGravities.Centre
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun MarkdownText_Links() {
+    AppTheme(darkTheme = false) {
+        AppSurface {
+            MarkdownContent(
+                markdownText = "**Bold** _Italic_ blockchain.com",
+                style = ComposeTypographies.Body1,
+                color = ComposeColors.Medium,
+                gravity = ComposeGravities.Centre,
+                disableLinks = false
             )
         }
     }

@@ -131,6 +131,7 @@
     <string name="country_not_selected">Please select your Country of Residence</string>
     <string name="state_not_selected">Please select your State</string>
     <string name="invalid_guid">Invalid Wallet ID</string>
+    <string name="recaptcha_failed">Please background the App and re-launch to try again.</string>
 
     <string name="password_mismatch_error">Passwords do not match</string>
     <string name="change_password_new_matches_current">You can’t use your current password as your new password</string>
@@ -1788,7 +1789,7 @@
     <string name="rewards_dashboard_item_rate_1">Earn up to&#160;</string>
     <string name="rewards_dashboard_item_rate_2">&#160;annually on your %1$s</string>
     <string name="rewards_dashboard_verify_title">Earn Rewards on Your Crypto</string>
-    <string name="rewards_dashboard_verify_label">Earn up to 12\% instantly when you transfer crypto to your Rewards Account.</string>
+    <string name="rewards_dashboard_verify_label">Earn up to 12%% instantly when you transfer crypto to your Rewards Account.</string>
     <string name="rewards_dashboard_verify_point_one_title">Verify Your Identity</string>
     <string name="rewards_dashboard_verify_point_one_label">To prevent identity theft or fraud, we’ll need to make sure it’s really you by uploading an ID.</string>
     <string name="rewards_dashboard_verify_point_two_title">Buy Crypto</string>
@@ -3045,7 +3046,7 @@
     <string name="account_restricted">Account Restricted</string>
     <string name="terms_and_conditions_label">I agree to Blockchain.com’s Terms of Service</string>
     <string name="crypto_rewards">Crypto Rewards</string>
-    <string name="crypto_rewards_description">Earn 1\% back in crypto rewards on all your purchases.</string>
+    <string name="crypto_rewards_description">Earn 1%% back in crypto rewards on all your purchases.</string>
     <string name="legal_info_title">The Legal Stuff</string>
     <string name="continue_to_card_dashboard">Continue to view your card dashboard.</string>
     <string name="go_to_dashboard">Go To Dashboard</string>
@@ -3180,6 +3181,7 @@
     <string name="transfer_to_another_wallet">Transfer to another wallet</string>
     <string name="top_up_trading_account">Top up in your Trading Account.</string>
     <string name="receive_to_your_wallet">Receive to your wallet</string>
+    <string name="rewards_to_your_cryptos">Earn Rewards on Your Crypto</string>
     <string name="buy_crypto">Buy Crypto</string>
     <string name="defi_buy_not_supported">We don’t support buying crypto into your Private Key Wallet at this time. You can buy from your Trading Account and send to your Private Key Wallet.</string>
     <string name="go_to_trading">Go to Trading Account</string>

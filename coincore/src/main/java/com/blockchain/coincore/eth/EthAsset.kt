@@ -40,33 +40,28 @@ internal class EthAsset(
 
     override fun initToken(): Completable =
         ethDataManager.initEthereumWallet(
-            assetCatalogue.value,
             labels.getDefaultNonCustodialWalletLabel()
         )
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        Single.just(ethDataManager.getEthWallet() ?: throw Exception("No ether wallet found"))
-            .flatMap { ethereumWallet ->
-                ethereumWallet.account?.let { ethereumAccount ->
-                    Single.just(
-                        EthCryptoWalletAccount(
-                            ethDataManager = ethDataManager,
-                            fees = feeDataManager,
-                            jsonAccount = ethereumAccount,
-                            walletPreferences = walletPrefs,
-                            exchangeRates = exchangeRates,
-                            custodialWalletManager = custodialManager,
-                            assetCatalogue = assetCatalogue.value,
-                            addressResolver = addressResolver,
-                            l1Network = EthDataManager.ethChain
-                        )
-                    )
-                } ?: throw Exception("No ethereum account found")
-            }.doOnSuccess { ethAccount ->
-                updateBackendNotificationAddresses(ethAccount)
-            }.map {
-                listOf(it)
-            }
+
+        Single.just(
+            EthCryptoWalletAccount(
+                ethDataManager = ethDataManager,
+                fees = feeDataManager,
+                jsonAccount = ethDataManager.ehtAccount,
+                walletPreferences = walletPrefs,
+                exchangeRates = exchangeRates,
+                custodialWalletManager = custodialManager,
+                assetCatalogue = assetCatalogue.value,
+                addressResolver = addressResolver,
+                l1Network = EthDataManager.ethChain
+            )
+        ).doOnSuccess { ethAccount ->
+            updateBackendNotificationAddresses(ethAccount)
+        }.map {
+            listOf(it)
+        }
 
     private fun updateBackendNotificationAddresses(account: EthCryptoWalletAccount) {
         val notify = NotificationAddresses(

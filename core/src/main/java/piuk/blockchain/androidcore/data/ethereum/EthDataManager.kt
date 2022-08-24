@@ -9,12 +9,12 @@ import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.ethereum.EthUrls
+import info.blockchain.wallet.ethereum.EthereumAccount
 import info.blockchain.wallet.ethereum.EthereumWallet
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthTransaction
@@ -46,6 +46,9 @@ class EthDataManager(
     private val evmNetworksService: EvmNetworksService,
     private val nonCustodialEvmService: NonCustodialEvmService
 ) : EthMessageSigner {
+
+    val ehtAccount: EthereumAccount
+        get() = ethDataStore.ethWallet?.account ?: throw IllegalStateException("Eth account is not initialised yet")
 
     private val internalAccountAddress: String?
         get() = ethDataStore.ethWallet?.account?.address
@@ -95,8 +98,7 @@ class EthDataManager(
     fun updateAccountLabel(label: String): Completable {
         require(label.isNotEmpty())
         check(ethDataStore.ethWallet != null)
-        ethDataStore.ethWallet?.renameAccount(label)
-        return save()
+        return save(ethDataStore.ethWallet!!.renameAccount(label))
     }
 
     /**
@@ -105,14 +107,6 @@ class EthDataManager(
      * @return A nullable [CombinedEthModel] object
      */
     fun getEthResponseModel(): CombinedEthModel? = ethDataStore.ethAddressResponse
-
-    /**
-     * Returns the user's [EthereumWallet] object if previously fetched.
-     *
-     * @return A nullable [EthereumWallet] object
-     */
-    @Deprecated("This shouldn't be directly exposed to higher layers")
-    fun getEthWallet(): EthereumWallet? = ethDataStore.ethWallet
 
     /**
      * Returns a stream of [EthTransaction] objects associated with a user's ETH address specifically
@@ -182,7 +176,7 @@ class EthDataManager(
     /**
      * Returns the transaction notes for a given transaction hash, or null if not found.
      */
-    fun getTransactionNotes(hash: String): String? = ethDataStore.ethWallet?.txNotes?.get(hash)
+    fun getTransactionNotes(hash: String): String? = ethDataStore.ethWallet?.getTxNotes()?.get(hash)
 
     /**
      * Puts a given note in the [HashMap] of transaction notes keyed to a transaction hash. This
@@ -190,12 +184,11 @@ class EthDataManager(
      *
      * @return A [Completable] object
      */
-    fun updateTransactionNotes(hash: String, note: String): Completable =
-        ethDataStore.ethWallet?.let {
-            it.txNotes?.set(hash, note)
-            return@let save()
-        } ?: Completable.error { IllegalStateException("ETH Wallet is null") }
-            .applySchedulers()
+    fun updateTransactionNotes(hash: String, note: String): Completable {
+        return Completable.fromCallable {
+            save(ethDataStore.ethWallet!!.withUpdatedTxNotes(hash, note))
+        }.applySchedulers()
+    }
 
     internal fun updateErc20TransactionNotes(
         asset: AssetInfo,
@@ -206,8 +199,7 @@ class EthDataManager(
 
         return Completable.defer {
             getErc20TokenData(asset)?.let {
-                it.putTxNote(hash, note)
-                save()
+                save(ethDataStore.ethWallet!!.updateTxNoteForErc20(hash, note, it))
             } ?: Completable.complete()
         }.applySchedulers()
     }
@@ -219,14 +211,13 @@ class EthDataManager(
      * @return An [Completable]
      */
     fun initEthereumWallet(
-        assetCatalogue: AssetCatalogue,
         label: String
     ): Completable =
-        fetchOrCreateEthereumWallet(assetCatalogue, label)
+        fetchOrCreateEthereumWallet(label)
             .flatMapCompletable { (wallet, needsSave) ->
                 ethDataStore.ethWallet = wallet
                 if (needsSave) {
-                    save()
+                    save(wallet)
                 } else {
                     Completable.complete()
                 }
@@ -332,7 +323,6 @@ class EthDataManager(
             .applySchedulers()
 
     private fun fetchOrCreateEthereumWallet(
-        assetCatalogue: AssetCatalogue,
         label: String
     ): Single<Pair<EthereumWallet, Boolean>> =
         metadataRepository.loadRawValue(MetadataEntry.METADATA_ETH).defaultIfEmpty("")
@@ -342,7 +332,7 @@ class EthDataManager(
                 var ethWallet = EthereumWallet.load(walletJson)
                 var needsSave = false
 
-                if (ethWallet?.account == null || !ethWallet.account!!.isCorrect) {
+                if (ethWallet?.account == null || !ethWallet.account.ethAccountDto.isCorrect) {
                     try {
                         val masterKey = payloadDataManager.masterKey
                         ethWallet = EthereumWallet(masterKey, label)
@@ -354,29 +344,28 @@ class EthDataManager(
                         )
                     }
                 }
-
-                ethWallet.account?.let { ethereumAccount ->
-                    if (!ethereumAccount.isAddressChecksummed()) {
-                        ethereumAccount.address = ethereumAccount.withChecksummedAddress()
-                        needsSave = true
-                    }
+                if (!ethWallet.account.isAddressChecksummed()) {
+                    ethWallet = ethWallet.withCheckSummedAccount()
+                    needsSave = true
                 }
 
                 ethWallet to needsSave
             }
 
-    fun save(): Completable =
+    private fun save(wallet: EthereumWallet): Completable =
         metadataRepository.saveRawValue(
-            ethDataStore.ethWallet!!.toJson(),
+            wallet.toJson(),
             MetadataEntry.METADATA_ETH
-        )
+        ).doOnComplete {
+            ethDataStore.ethWallet = wallet
+        }
 
     fun getErc20TokenData(asset: AssetInfo): Erc20TokenData? {
         require(asset.isErc20())
         require(asset.l2identifier != null)
         val name = asset.networkTicker.lowercase()
 
-        return getEthWallet()?.getErc20TokenData(name)
+        return ethDataStore.ethWallet?.getErc20TokenData(name)
     }
 
     val requireSecondPassword: Boolean

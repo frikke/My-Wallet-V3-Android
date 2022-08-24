@@ -62,7 +62,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
-            "SomePassword"
+            "SomePassword",
+            "CAPTCHA"
         )
         val walletBody = payloadManager.payload!!
         Assert.assertEquals(36, walletBody.guid.length.toLong()) // GUIDs are 36 in length
@@ -82,7 +83,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
-            "SomePassword"
+            "SomePassword",
+            "CAPTCHA"
         )
     }
 
@@ -216,7 +218,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
-            "MyTestWallet"
+            "MyTestWallet",
+            "CAPTCHA"
         )
         Assert.assertEquals(0, payloadManager.payload!!.importedAddressList.size)
         responseList = LinkedList()
@@ -240,7 +243,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
-            "MyTestWallet"
+            "MyTestWallet",
+            "CAPTCHA"
         )
         Assert.assertEquals(0, payloadManager.payload!!.importedAddressList.size.toLong())
         responseList = LinkedList()
@@ -281,7 +285,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
-            "MyTestWallet"
+            "MyTestWallet",
+            "CAPTCHA"
         )
         Assert.assertEquals(0, payloadManager.payload!!.importedAddressList.size.toLong())
         responseList = LinkedList()
@@ -316,7 +321,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
-            "MyTestWallet"
+            "MyTestWallet",
+            "CAPTCHA"
         )
         Assert.assertEquals(1, payloadManager.payload!!.walletBody!!.accounts.size.toLong())
         responseList.add("MyWallet save successful")
@@ -340,7 +346,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
-            "SomePassword"
+            "SomePassword",
+            "CAPTCHA"
         )
         mockInterceptor!!.setResponseString("MyWallet save successful.")
     }

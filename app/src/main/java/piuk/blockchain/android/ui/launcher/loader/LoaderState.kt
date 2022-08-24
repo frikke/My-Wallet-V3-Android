@@ -8,7 +8,6 @@ sealed class LoadingStep {
     object Launcher : LoadingStep()
     object EmailVerification : LoadingStep()
     object RequestPin : LoadingStep()
-    object CowboysInterstitial : LoadingStep()
     data class EducationalWalletMode(val data: String?) : LoadingStep()
 }
 

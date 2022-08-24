@@ -28,11 +28,6 @@ sealed class LoaderIntents : MviIntent<LoaderState> {
             oldState.copy(nextLoadingStep = LoadingStep.Main(data, shouldLaunchUiTour))
     }
 
-    object StartCowboysInterstitialPromo : LoaderIntents() {
-        override fun reduce(oldState: LoaderState): LoaderState =
-            oldState.copy(nextLoadingStep = LoadingStep.CowboysInterstitial)
-    }
-
     data class StartEducationalWalletModeActivity(val data: String?) : LoaderIntents() {
         override fun reduce(oldState: LoaderState): LoaderState =
             oldState.copy(
