@@ -27,6 +27,7 @@ import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.testutils.rxInit
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -420,16 +421,47 @@ class CoinViewInteractorTest {
     }
 
     @Test
-    fun `when CheckBuyStatus then show userCanBuy Granted`() {
+    fun `when buy is granted and asset is supported for trading, canBuy should be true`() {
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(custodialWalletManager.isCurrencyAvailableForTrading(any()))
+            .thenReturn(Single.just(true))
 
-        val test = subject.checkIfUserCanBuy().test()
+        val currency: AssetInfo = mock()
+        val asset: CryptoAsset = mock {
+            on { this.currency }.thenReturn(currency)
+        }
 
-        test.assertValue {
-            it == FeatureAccess.Granted()
+        val test = subject.isBuyOptionAvailable(asset).test()
+
+        test.assertValue { canBuy ->
+            canBuy
         }
 
         verify(identity).userAccessForFeature(Feature.Buy)
+        verify(custodialWalletManager).isCurrencyAvailableForTrading(currency)
+
+        verifyNoMoreInteractions(identity)
+    }
+
+    @Test
+    fun `when buy is granted and asset is not supported for trading, canBuy should be false`() {
+        whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(custodialWalletManager.isCurrencyAvailableForTrading(any()))
+            .thenReturn(Single.just(false))
+
+        val currency: AssetInfo = mock()
+        val asset: CryptoAsset = mock {
+            on { this.currency }.thenReturn(currency)
+        }
+
+        val test = subject.isBuyOptionAvailable(asset).test()
+
+        test.assertValue { canBuy ->
+            canBuy.not()
+        }
+
+        verify(identity).userAccessForFeature(Feature.Buy)
+        verify(custodialWalletManager).isCurrencyAvailableForTrading(currency)
 
         verifyNoMoreInteractions(identity)
     }

@@ -18,7 +18,7 @@ data class CoinViewState(
     val error: CoinViewError = CoinViewError.None,
     val assetPrices: Prices24HrWithDelta? = null,
     val isAddedToWatchlist: Boolean = false,
-    val hasActionBuyWarning: Boolean = false
+    val canBuy: Boolean = false
 ) : MviState
 
 sealed class QuickActionCta(open val enabled: Boolean) {
