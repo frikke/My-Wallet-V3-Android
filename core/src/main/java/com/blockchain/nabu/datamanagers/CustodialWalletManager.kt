@@ -105,7 +105,7 @@ interface CustodialWalletManager {
 
     fun getCustodialAccountAddress(asset: Currency): Single<String>
 
-    @Deprecated("use isCurrencyAvailableForTradingFlow")
+    @Deprecated("use isCurrencyAvailableForTradingFlow - remove when CoinView is migrated")
     fun isCurrencyAvailableForTradingLegacy(
         assetInfo: AssetInfo
     ): Single<Boolean>
@@ -158,7 +158,7 @@ interface CustodialWalletManager {
 
     fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
 
-    @Deprecated("use SddRepository")
+    @Deprecated("use SddService")
     fun isSimplifiedDueDiligenceEligible(): Single<Boolean>
 
     fun fetchSimplifiedDueDiligenceUserState(): Single<SimplifiedDueDiligenceUserState>

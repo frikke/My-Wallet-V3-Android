@@ -1,4 +1,4 @@
-package com.blockchain.core.buy
+package com.blockchain.core.buy.data.dataresources
 
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
 import com.blockchain.nabu.service.NabuService

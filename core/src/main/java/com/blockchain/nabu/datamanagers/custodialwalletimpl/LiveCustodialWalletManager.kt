@@ -7,7 +7,7 @@ import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
-import com.blockchain.core.buy.BuyPairsStore
+import com.blockchain.core.buy.data.dataresources.BuyPairsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy

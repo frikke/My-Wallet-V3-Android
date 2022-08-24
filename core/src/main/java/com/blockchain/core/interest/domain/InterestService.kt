@@ -45,7 +45,7 @@ interface InterestService {
      * Returns all assets that can earn rewards
      * This list doesn't mean that all assets are eligible, some can be [InterestEligibility.Ineligible]
      *
-     * @see [getEligibilityForAssets]
+     * @see [getEligibilityForAssetsLegacy]
      */
     fun getAvailableAssetsForInterest(): Single<List<AssetInfo>>
 
@@ -53,7 +53,7 @@ interface InterestService {
      * Returns all assets that can earn rewards
      * This list doesn't mean that all assets are eligible, some can be [InterestEligibility.Ineligible]
      *
-     * @see [getEligibilityForAssets]
+     * @see [getEligibilityForAssetsLegacy]
      */
     fun getAvailableAssetsForInterestFlow(
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
@@ -77,12 +77,13 @@ interface InterestService {
     /**
      * Returns a map composed of each [AssetInfo] with its [InterestEligibility]
      */
-    fun getEligibilityForAssets(): Single<Map<AssetInfo, InterestEligibility>>
+    @Deprecated("use flow getEligibilityForAssets")
+    fun getEligibilityForAssetsLegacy(): Single<Map<AssetInfo, InterestEligibility>>
 
     /**
      * Returns a map composed of each [AssetInfo] with its [InterestEligibility]
      */
-    fun getEligibilityForAssetsFlow(
+    fun getEligibilityForAssets(
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<Map<AssetInfo, InterestEligibility>>>
 

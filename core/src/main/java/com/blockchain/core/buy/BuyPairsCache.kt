@@ -5,7 +5,7 @@ import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
 import com.blockchain.nabu.service.NabuService
 import io.reactivex.rxjava3.core.Single
 
-@Deprecated("use store")
+@Deprecated("use store - remove when CoinView is migrated")
 class BuyPairsCache(private val nabuService: NabuService) {
 
     private val refresh: () -> Single<SimpleBuyPairsResp> = {

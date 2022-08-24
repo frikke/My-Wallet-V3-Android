@@ -20,7 +20,7 @@ data class SimpleBuyPairResp(
 )
 
 @Serializable
-data class SimpleBuyEligibility(
+data class SimpleBuyEligibilityDto(
     val eligible: Boolean,
     val simpleBuyTradingEligible: Boolean,
     val pendingDepositSimpleBuyTrades: Int,

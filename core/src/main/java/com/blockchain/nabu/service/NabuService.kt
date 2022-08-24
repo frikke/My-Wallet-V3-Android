@@ -27,7 +27,7 @@ import com.blockchain.nabu.models.responses.simplebuy.DepositRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
@@ -306,7 +306,7 @@ class NabuService internal constructor(
     internal fun isEligibleForSimpleBuy(
         sessionToken: NabuSessionTokenResponse,
         fiatCurrency: String? = null
-    ): Single<SimpleBuyEligibility> = nabu.isEligibleForSimpleBuy(
+    ): Single<SimpleBuyEligibilityDto> = nabu.isEligibleForSimpleBuy(
         sessionToken.authHeader,
         fiatCurrency
     ).wrapErrorMessage()

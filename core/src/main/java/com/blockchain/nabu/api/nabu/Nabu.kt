@@ -29,7 +29,7 @@ import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyResponse
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferFundsResponse
@@ -209,7 +209,7 @@ internal interface Nabu {
         @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("fiatCurrency") fiatCurrency: String?,
         @Query("methods") methods: String = "BANK_ACCOUNT,PAYMENT_CARD"
-    ): Single<SimpleBuyEligibility>
+    ): Single<SimpleBuyEligibilityDto>
 
     @POST(NABU_SIMPLE_BUY_ORDERS)
     fun createOrder(

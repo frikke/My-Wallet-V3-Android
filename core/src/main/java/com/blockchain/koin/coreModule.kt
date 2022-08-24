@@ -8,7 +8,10 @@ import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
-import com.blockchain.core.buy.BuyPairsStore
+import com.blockchain.core.buy.data.SimpleBuyRepository
+import com.blockchain.core.buy.data.dataresources.BuyPairsStore
+import com.blockchain.core.buy.data.dataresources.SimpleBuyEligibilityStore
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
@@ -291,6 +294,19 @@ val coreModule = module {
 
         scoped {
             BuyPairsStore(nabuService = get())
+        }
+
+        scoped {
+            SimpleBuyEligibilityStore(
+                nabuService = get(),
+                authenticator = get()
+            )
+        }
+
+        scoped<SimpleBuyService> {
+            SimpleBuyRepository(
+                simpleBuyEligibilityStore = get()
+            )
         }
 
         scoped {
