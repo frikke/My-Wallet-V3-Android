@@ -240,7 +240,7 @@ class Coincore internal constructor(
     fun getExchangePriceWithDelta(asset: AssetInfo): Single<ExchangePriceWithDelta> {
         val cryptoAsset = this[asset] as CryptoAsset
         return cryptoAsset.exchangeRate().zipWith(
-            cryptoAsset.getPricesWith24hDelta()
+            cryptoAsset.getPricesWith24hDeltaLegacy()
         ) { currentPrice, priceDelta ->
             ExchangePriceWithDelta(currentPrice.price, priceDelta.delta24h)
         }

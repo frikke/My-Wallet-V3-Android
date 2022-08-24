@@ -157,7 +157,7 @@ class BuyIntroFragment :
                     .filterIsInstance<AssetInfo>()
             }.flatMapObservable { assets ->
                 Observable.fromIterable(assets).flatMapMaybe { asset ->
-                    coincore[asset].getPricesWith24hDelta().map { priceDelta ->
+                    coincore[asset].getPricesWith24hDeltaLegacy().map { priceDelta ->
                         PricedAsset(
                             asset = asset,
                             priceHistory = PriceHistory(

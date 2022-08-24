@@ -473,7 +473,7 @@ class AnnouncementQueriesTest {
         )
         whenever(currencyPrefs.selectedFiatCurrency)
             .thenReturn(FiatCurrency.Dollars)
-        whenever(exchangeRatesDataManager.getPricesWith24hDelta(asset, FiatCurrency.Dollars))
+        whenever(exchangeRatesDataManager.getPricesWith24hDeltaLegacy(asset, FiatCurrency.Dollars))
             .thenReturn(Observable.just(prices24HrWithDelta))
 
         subject.getAssetPrice(asset).test().assertValue(prices24HrWithDelta)

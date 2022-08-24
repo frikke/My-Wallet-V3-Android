@@ -10,3 +10,7 @@ sealed class DataResource<out T> {
     data class Data<out T>(val data: T) : DataResource<T>()
     data class Error(val error: Exception) : DataResource<Nothing>()
 }
+
+fun <T> List<DataResource<T>>.anyLoading() = any { it is DataResource.Loading }
+fun <T> List<DataResource<T>>.anyError() = any { it is DataResource.Error }
+fun <T> List<DataResource<T>>.getFirstError() = (first { it is DataResource.Error } as DataResource.Error)

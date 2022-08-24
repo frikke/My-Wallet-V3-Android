@@ -271,7 +271,7 @@ class CoinViewInteractor(
     }
 
     private fun load24hPriceDelta(asset: CryptoAsset) =
-        asset.getPricesWith24hDelta()
+        asset.getPricesWith24hDeltaLegacy()
 
     private fun getAssetDisplayDetails(asset: CryptoAsset): Single<AssetInformation> {
 

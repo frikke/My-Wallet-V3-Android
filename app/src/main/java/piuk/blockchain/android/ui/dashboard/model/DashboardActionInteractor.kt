@@ -176,7 +176,7 @@ class DashboardActionInteractor(
     }
 
     fun fetchAssetPrice(model: DashboardModel, asset: AssetInfo): Disposable =
-        exchangeRates.getPricesWith24hDelta(asset)
+        exchangeRates.getPricesWith24hDeltaLegacy(asset)
             // If prices are coming in too fast, be sure not to miss any
             .subscribeBy(
                 onNext = {
@@ -284,7 +284,7 @@ class DashboardActionInteractor(
             }
 
     private fun refreshPricesWith24HDelta(model: DashboardModel, crypto: AssetInfo): Disposable =
-        exchangeRates.getPricesWith24hDelta(crypto).firstOrError()
+        exchangeRates.getPricesWith24hDeltaLegacy(crypto).firstOrError()
             .map { pricesWithDelta ->
                 DashboardIntent.AssetPriceWithDeltaUpdate(crypto, pricesWithDelta, true)
             }

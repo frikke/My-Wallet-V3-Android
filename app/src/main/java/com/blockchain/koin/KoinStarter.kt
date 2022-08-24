@@ -47,6 +47,8 @@ import piuk.blockchain.android.rating.presentaion.appRatingPresentationModule
 import piuk.blockchain.android.ui.activity.activitiesModule
 import piuk.blockchain.android.ui.auth.newlogin.data.secureChannelDataModule
 import piuk.blockchain.android.ui.auth.newlogin.presentation.secureChannelPresentationModule
+import piuk.blockchain.android.ui.coinview.domain.coinviewDomainModule
+import piuk.blockchain.android.ui.coinview.presentation.coinviewPresentationModule
 import piuk.blockchain.android.ui.customersupport.customerSupportModule
 import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncementsModule
 import piuk.blockchain.android.ui.dashboard.dashboardModule
@@ -107,6 +109,7 @@ object KoinStarter {
                     dashboardAnnouncementsModule,
                     environmentModule,
 
+                    coinviewPresentationModule, coinviewDomainModule,
                     internalFeatureFlagsModule,
                     authenticationModule,
                     kycUiModule,

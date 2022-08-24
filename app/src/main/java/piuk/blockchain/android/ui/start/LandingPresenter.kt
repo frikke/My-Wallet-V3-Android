@@ -96,7 +96,7 @@ class LandingPresenter(
 
     fun getPrices(price: PriceView.Price) {
         assetInfo[price.networkTicker]?.let {
-            compositeDisposable += exchangeRatesDataManager.getPricesWith24hDelta(it, Dollars)
+            compositeDisposable += exchangeRatesDataManager.getPricesWith24hDeltaLegacy(it, Dollars)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
