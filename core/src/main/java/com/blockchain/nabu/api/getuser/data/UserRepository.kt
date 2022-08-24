@@ -22,8 +22,4 @@ internal class UserRepository(
     override fun getUserFlow(refreshStrategy: FreshnessStrategy): Flow<NabuUser> =
         getUserStore.stream(refreshStrategy)
             .getDataOrThrow()
-
-    override fun markAsStale() {
-        getUserStore.markAsStale()
-    }
 }

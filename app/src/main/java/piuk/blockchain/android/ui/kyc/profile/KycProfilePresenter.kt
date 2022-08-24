@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.kyc.profile
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
@@ -31,6 +32,7 @@ class KycProfilePresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
     private val userService: UserService,
+    private val getUserStore: GetUserStore,
     private val stringUtils: StringUtils,
 ) : BaseKycPresenter<KycProfileView>(nabuToken) {
 
@@ -117,7 +119,7 @@ class KycProfilePresenter(
             offlineToken
         ).subscribeOn(Schedulers.io())
             .doOnComplete {
-                userService.markAsStale()
+                getUserStore.markAsStale()
             }
 
     private fun enableButtonIfComplete() {

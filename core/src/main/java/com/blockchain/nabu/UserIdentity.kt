@@ -1,16 +1,19 @@
 package com.blockchain.nabu
 
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.data.DataResource
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 import java.io.Serializable
 
 interface UserIdentity {
     fun isEligibleFor(feature: Feature): Single<Boolean>
+    @Deprecated("use UserService")
     fun isVerifiedFor(feature: Feature): Single<Boolean>
     fun getBasicProfileInformation(): Single<BasicProfileInfo>
     fun checkForUserWalletLinkErrors(): Completable

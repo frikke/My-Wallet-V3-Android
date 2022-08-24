@@ -64,6 +64,7 @@ val kycUiModule = module {
                 nabuToken = get(),
                 nabuDataManager = get(),
                 userService = get(),
+                getUserStore = get(),
                 stringUtils = get(),
             )
         }

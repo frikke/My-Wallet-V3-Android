@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.kyc.profile
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
@@ -16,6 +17,7 @@ import com.blockchain.nabu.models.responses.tokenresponse.toNabuOfflineToken
 import com.blockchain.nabu.util.toISO8601DateString
 import com.blockchain.testutils.date
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -24,7 +26,6 @@ import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import java.util.Locale
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import org.amshove.kluent.`should throw`
@@ -35,6 +36,7 @@ import piuk.blockchain.android.ui.validOfflineToken
 import piuk.blockchain.android.util.StringUtils
 import retrofit2.HttpException
 import retrofit2.Response
+import java.util.Locale
 
 class KycProfilePresenterTest {
 
@@ -42,6 +44,9 @@ class KycProfilePresenterTest {
     private val view: KycProfileView = mock()
     private val nabuDataManager: NabuDataManager = mock()
     private val userService: UserService = mock()
+    private val getUserStore: GetUserStore = mock() {
+        on { markAsStale() }.doReturn(Unit)
+    }
     private val stringUtils: StringUtils = mock()
     private val nabuToken: NabuToken = mock()
 
@@ -58,6 +63,7 @@ class KycProfilePresenterTest {
             nabuToken,
             nabuDataManager,
             userService,
+            getUserStore,
             stringUtils,
         )
         whenever(stringUtils.getString(any())).thenReturn("")
@@ -163,7 +169,7 @@ class KycProfilePresenterTest {
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
         verify(view).continueSignUp(any())
-        verify(userService).markAsStale()
+        verify(getUserStore).markAsStale()
     }
 
     @Test
