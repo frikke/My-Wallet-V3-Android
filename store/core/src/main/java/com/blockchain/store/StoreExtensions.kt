@@ -82,3 +82,6 @@ fun <T> Flow<DataResource<T>>.getDataOrThrow(): Flow<T> =
                 is DataResource.Loading -> throw IllegalStateException()
             }
         }
+
+fun <T> Flow<DataResource<T>>.filterNotLoading(): Flow<DataResource<T>> =
+    filterNot { it is DataResource.Loading }

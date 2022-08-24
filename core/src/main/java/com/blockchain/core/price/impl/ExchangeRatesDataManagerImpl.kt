@@ -71,6 +71,17 @@ internal class ExchangeRatesDataManagerImpl(
                 )
             }
 
+    override fun exchangeRateToUserFiatFlow(fromAsset: Currency): Flow<DataResource<ExchangeRate>> {
+        return priceStore.getCurrentPriceForAsset(fromAsset, userFiat)
+            .mapData {
+                ExchangeRate(
+                    from = fromAsset,
+                    to = userFiat,
+                    rate = it.rate
+                )
+            }
+    }
+
     override fun getLastCryptoToUserFiatRate(sourceCrypto: AssetInfo): ExchangeRate {
         val priceRate = priceStore.getCachedAssetPrice(sourceCrypto, userFiat).rate
         return ExchangeRate(

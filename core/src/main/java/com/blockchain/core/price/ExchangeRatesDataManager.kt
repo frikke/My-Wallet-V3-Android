@@ -59,6 +59,7 @@ interface ExchangeRatesDataManager : ExchangeRates {
 
     fun exchangeRate(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate>
     fun exchangeRateToUserFiat(fromAsset: Currency): Observable<ExchangeRate>
+    fun exchangeRateToUserFiatFlow(fromAsset: Currency): Flow<DataResource<ExchangeRate>>
 
     fun getHistoricRate(fromAsset: Currency, secSinceEpoch: Long): Single<ExchangeRate>
     fun getPricesWith24hDelta(fromAsset: Currency, isRefreshing: Boolean = false): Observable<Prices24HrWithDelta>
