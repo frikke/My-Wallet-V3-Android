@@ -473,7 +473,6 @@ class CoinViewActivity :
             }
             is CoinViewViewState.ShowNonTradeableAccount -> renderNonTradeableAsset(newState, state.isAddedToWatchlist)
             is CoinViewViewState.ShowAssetInfo -> {
-//                djzdjzdzj
                 with(binding) {
                     assetChartViewSwitcher.displayedChild = CHART_VIEW
                     assetChart.apply {
