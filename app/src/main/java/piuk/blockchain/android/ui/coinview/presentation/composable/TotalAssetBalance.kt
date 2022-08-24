@@ -17,7 +17,7 @@ fun TotalBalance(
 ) {
     when (data) {
         CoinviewTotalBalanceState.NotSupported -> {
-            // don't show any view
+            Empty()
         }
 
         CoinviewTotalBalanceState.Loading -> {

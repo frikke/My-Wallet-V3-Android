@@ -100,6 +100,13 @@ fun CoinviewScreen(
     }
 }
 
+/**
+ * For when no view is needed todo maybe moved to compose module
+ */
+@Composable
+fun Empty() {
+}
+
 @Preview(name = "CoinviewScreen", showBackground = true)
 @Composable
 fun PreviewCoinviewScreen() {
