@@ -156,6 +156,8 @@ class MainActivity :
 
     private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
 
+    private var onEmailVerificationCompleteAction: () -> Unit = {}
+
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
             (
@@ -643,7 +645,7 @@ class MainActivity :
             is ViewToLaunch.LaunchSimpleBuyFromDeepLinkApproval -> launchSimpleBuyFromDeepLinkApproval()
             is ViewToLaunch.LaunchSwap -> launchSwap()
             is ViewToLaunch.LaunchTwoFaSetup -> launchSetup2Fa()
-            is ViewToLaunch.LaunchVerifyEmail -> launchVerifyEmail()
+            is ViewToLaunch.LaunchVerifyEmail -> launchOpenExternalEmailApp()
             is ViewToLaunch.ShowOpenBankingError ->
                 BlockchainSnackbar.make(
                     binding.root,
@@ -1047,7 +1049,7 @@ class MainActivity :
         startActivity(SettingsActivity.newIntent(this, true))
     }
 
-    override fun launchVerifyEmail() {
+    override fun launchOpenExternalEmailApp() {
         Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_APP_EMAIL)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

@@ -25,6 +25,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.recaptcha.RecaptchaActionType
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -418,7 +419,8 @@ class LoginActivity :
     }
 
     private fun verifyReCaptcha(selectedEmail: String) {
-        recaptchaClient.verifyForLogin(
+        recaptchaClient.verify(
+            verificationType = RecaptchaActionType.LOGIN,
             onSuccess = { response ->
                 analytics.logEvent(LoginAnalytics.LoginIdentifierEntered)
                 model.process(

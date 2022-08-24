@@ -106,6 +106,12 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
             subtitle = R.string.receive_to_your_wallet,
             icon = R.drawable.ic_sheet_menu_receive,
             action = AssetAction.Receive,
+        ),
+        SheetAction(
+            title = R.string.common_rewards,
+            subtitle = R.string.rewards_to_your_cryptos,
+            icon = R.drawable.ic_sheet_menu_rewards,
+            action = AssetAction.InterestDeposit,
         )
     )
 
@@ -127,6 +133,7 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
         when (action) {
             AssetAction.Receive -> navigate(ActionsSheetNavEvent.Receive)
             AssetAction.Send -> navigate(ActionsSheetNavEvent.Send)
+            AssetAction.InterestDeposit -> navigate(ActionsSheetNavEvent.Rewards)
             AssetAction.Swap -> navigate(ActionsSheetNavEvent.Swap)
             AssetAction.Sell -> navigate(ActionsSheetNavEvent.Sell)
             AssetAction.Buy -> checkBuyStatus()
@@ -197,6 +204,7 @@ sealed class ActionsSheetNavEvent : NavigationEvent {
     object Sell : ActionsSheetNavEvent()
     object Receive : ActionsSheetNavEvent()
     object Send : ActionsSheetNavEvent()
+    object Rewards : ActionsSheetNavEvent()
     object Swap : ActionsSheetNavEvent()
     class TooMayPendingBuys(val maxTransactions: Int) : ActionsSheetNavEvent()
 }

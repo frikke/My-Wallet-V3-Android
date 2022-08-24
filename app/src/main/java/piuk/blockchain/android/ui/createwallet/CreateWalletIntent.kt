@@ -12,8 +12,9 @@ sealed class CreateWalletIntent : Intent<CreateWalletModelState> {
     data class StateInputChanged(val stateCode: StateIso) : CreateWalletIntent()
     data class ReferralInputChanged(val input: String) : CreateWalletIntent()
     data class TermsOfServiceStateChanged(val isChecked: Boolean) : CreateWalletIntent()
-    object NextClicked : CreateWalletIntent() {
+    data class NextClicked(val recaptchaToken: String?) : CreateWalletIntent() {
         override fun isValidFor(modelState: CreateWalletModelState): Boolean = modelState.validateIsNextEnabled()
     }
     object ErrorHandled : CreateWalletIntent()
+    object RecaptchaFailed : CreateWalletIntent()
 }

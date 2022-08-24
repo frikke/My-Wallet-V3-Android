@@ -1,6 +1,6 @@
 package info.blockchain.wallet.coin
 
-import java.util.ArrayList
+import com.blockchain.extensions.replace
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -10,20 +10,34 @@ import kotlinx.serialization.json.Json
  * <p> Generic coin data that can be stored in blockchain.info KV store. </p>
  */
 @Serializable
-class GenericMetadataWallet(
+data class GenericMetadataWallet(
     @SerialName("default_account_idx")
-    var defaultAcccountIdx: Int = 0,
+    private val _defaultAcccountIdx: Int? = null,
 
     @SerialName("has_seen")
-    var isHasSeen: Boolean = false,
+    private val _hasSeen: Boolean? = null,
 
     @SerialName("accounts")
-    var accounts: MutableList<GenericMetadataAccount> = mutableListOf()
+    val accounts: List<GenericMetadataAccount>
 ) {
+    val defaultAcccountIdx: Int
+        get() = _defaultAcccountIdx ?: 0
 
-    fun addAccount(account: GenericMetadataAccount) {
-        accounts.add(account)
-    }
+    val hasSeen: Boolean
+        get() = _hasSeen ?: false
+
+    fun addAccount(account: GenericMetadataAccount): GenericMetadataWallet =
+        this.copy(
+            accounts = accounts.plus(account)
+        )
+
+    fun updateXpubForAccountIndex(index: Int, xPub: String): GenericMetadataWallet =
+        this.copy(
+            accounts = accounts.replace(
+                old = accounts[index],
+                new = accounts[index].updateXpub(xPub),
+            )
+        )
 
     fun toJson(): String {
         return jsonBuilder.encodeToString(returnSafeClone())
@@ -36,16 +50,24 @@ class GenericMetadataWallet(
      * @return A [GenericMetadataWallet] with xPubs removed
      */
     private fun returnSafeClone(): GenericMetadataWallet {
-        val safeAccounts: MutableList<GenericMetadataAccount> = ArrayList()
-        for (account in accounts) {
-            val safeClone = GenericMetadataAccount(account.label, account.isArchived)
-            safeAccounts.add(safeClone)
-        }
-        return GenericMetadataWallet(defaultAcccountIdx, isHasSeen, safeAccounts)
+        return this.copy(
+            accounts = accounts.map { it.removeXpub() }
+        )
+    }
+
+    fun updateAccount(oldAccount: GenericMetadataAccount, newAccount: GenericMetadataAccount): GenericMetadataWallet {
+        return copy(
+            accounts = accounts.replace(oldAccount, newAccount)
+        )
+    }
+
+    fun updateDefaultIndex(newIndex: Int): GenericMetadataWallet {
+        return copy(
+            _defaultAcccountIdx = newIndex
+        )
     }
 
     companion object {
-
         private val jsonBuilder: Json = Json {
             ignoreUnknownKeys = true
         }

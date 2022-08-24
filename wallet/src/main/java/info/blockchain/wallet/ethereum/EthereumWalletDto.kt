@@ -1,49 +1,67 @@
 package info.blockchain.wallet.ethereum
 
-import java.util.ArrayList
-import java.util.HashMap
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Serializable
-class EthereumWalletDto {
+class EthereumWalletDto(
     @SerialName("ethereum")
-    var walletData: EthereumWalletData? = null
-
+    val walletData: EthereumWalletData
+) {
     constructor(
-        accounts: ArrayList<EthereumAccount>
-    ) {
-        walletData = EthereumWalletData().apply {
-            hasSeen = false
-            defaultAccountIdx = 0
-            txNotes = HashMap()
-            this.accounts = accounts
-        }
-    }
+        accounts: List<EthAccountDto>
+    ) : this(
+        EthereumWalletData(
+            _hasSeen = false,
+            _defaultAccountIdx = 0,
+            _txNotes = emptyMap(),
+            _accounts = accounts
+        )
+    )
 
     fun toJson(): String {
         val jsonBuilder = Json {
             ignoreUnknownKeys = true
-            encodeDefaults = true
         }
         return jsonBuilder.encodeToString(this)
     }
+
+    fun updateTxNotes(hash: String, note: String): EthereumWalletDto {
+        return EthereumWalletDto(
+            walletData = walletData.updateTxNotes(hash, note)
+        )
+    }
+
+    fun renameAccount(label: String): EthereumWalletDto =
+        EthereumWalletDto(
+            walletData = walletData.withRenamedAccount(label)
+        )
+
+    fun updateTxNoteForErc20(hash: String, note: String, erc20: Erc20TokenData): EthereumWalletDto {
+        return EthereumWalletDto(
+            walletData = walletData.withUpdatedNoteForErc20(hash, note, erc20)
+        )
+    }
+
+    fun withCheckedSummedAccount(): EthereumWalletDto =
+        EthereumWalletDto(
+            walletData = walletData.withCheckedSummedAccount()
+        )
 
     /**
      * @return Single Ethereum account
      */
     val account: EthereumAccount?
-        get() = if (walletData!!.accounts!!.isEmpty()) {
+        get() = if (walletData.accounts.isEmpty()) {
             null
-        } else walletData!!.accounts!![ACCOUNT_INDEX]
+        } else EthereumAccount(walletData.accounts[ACCOUNT_INDEX])
 
-    val txNotes: HashMap<String, String>?
-        get() = walletData!!.txNotes
+    val txNotes: Map<String, String>
+        get() = walletData.txNotes
 
     companion object {
-        const val METADATA_TYPE_EXTERNAL = 5
         private const val ACCOUNT_INDEX = 0
 
         @JvmStatic

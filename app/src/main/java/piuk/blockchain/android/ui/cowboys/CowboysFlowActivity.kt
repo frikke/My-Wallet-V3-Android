@@ -3,25 +3,35 @@ package piuk.blockchain.android.ui.cowboys
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.core.view.ViewCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.commit
 import coil.annotation.ExperimentalCoilApi
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.basic.ComposeColors
@@ -32,8 +42,11 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.MarkdownContent
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.media.AsyncMediaItem
+import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.BUY_URL
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.KYC_URL
@@ -43,6 +56,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.AssetCatalogue
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -50,14 +64,18 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
+import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity.Companion.RESULT_KYC_FOR_SDD_COMPLETE
 import timber.log.Timber
 
-class CowboysFlowActivity : BlockchainActivity() {
+class CowboysFlowActivity : BlockchainActivity(), EmailEntryHost {
 
-    private var flowStep = FlowStep.Welcome
+    private var flowStep by mutableStateOf(FlowStep.Welcome)
     private var interstitialData by mutableStateOf<PromotionStyleInfo?>(null)
+    private var shouldShowEmailSkipButton by mutableStateOf(false)
+    private var emailSkipAction: () -> Unit = {}
     private val assetCatalogue: AssetCatalogue by scopedInject()
     private val cowboysDataProvider: CowboysPromoDataProvider by scopedInject()
     private val compositeDisposable = CompositeDisposable()
@@ -99,23 +117,45 @@ class CowboysFlowActivity : BlockchainActivity() {
             ComposeView(this).apply {
                 setContent {
                     AppTheme {
-                        interstitialData?.let { data ->
-                            CowboysInterstitial(
-                                info = data,
-                                onPrimaryCtaClick = {
-                                    logPrimaryCtaAnalyticsForStep()
-                                    getPrimaryCtaAction(data.actions[0].deeplinkPath)
-                                },
-                                onCloseClicked = {
-                                    logCloseEventAnalyticsForStep()
-                                    navigateToMainActivity()
-                                }
+                        if (flowStep == FlowStep.EmailVerification) {
+                            EmailKycHost(
+                                shouldShowEmailSkipButton = shouldShowEmailSkipButton,
+                                emailSkipAction = emailSkipAction,
+                                fragmentManager = supportFragmentManager
                             )
+                        } else {
+                            interstitialData?.let { data ->
+                                CowboysInterstitial(
+                                    info = data,
+                                    onPrimaryCtaClick = {
+                                        logPrimaryCtaAnalyticsForStep()
+                                        getPrimaryCtaAction(data.actions[0].deeplinkPath)
+                                    },
+                                    onCloseClicked = {
+                                        logCloseEventAnalyticsForStep()
+                                        navigateToMainActivity()
+                                    }
+                                )
+                            }
                         }
                     }
                 }
             }
         )
+    }
+
+    override fun onEmailEntryFragmentUpdated(shouldShowButton: Boolean, buttonAction: () -> Unit) {
+        emailSkipAction = buttonAction
+        shouldShowEmailSkipButton = shouldShowButton
+    }
+
+    override fun onEmailVerified() {
+        flowStep = FlowStep.Welcome
+        loadDataForStep(flowStep)
+    }
+
+    override fun onEmailVerificationSkipped() {
+        finish()
     }
 
     private fun getPrimaryCtaAction(deeplinkPath: String) {
@@ -149,7 +189,7 @@ class CowboysFlowActivity : BlockchainActivity() {
                     }
                 }
                 else -> {
-                    Timber.e("!!! Cowboys - Unknown link $this")
+                    Timber.e("Cowboys action url - Unknown link: $this")
                 }
             }
         }
@@ -171,10 +211,17 @@ class CowboysFlowActivity : BlockchainActivity() {
                 .cache()
             FlowStep.Verify -> cowboysDataProvider.getIdentityInterstitial()
                 .cache()
+            FlowStep.EmailVerification -> Single.error(StepHasNoDataException())
         }.observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onSuccess = {
                     interstitialData = it
+                },
+                onError = {
+                    if (it !is StepHasNoDataException) {
+                        Timber.e("Cowboys data acquisition error: ${it.message}")
+                        finish()
+                    }
                 }
             )
     }
@@ -219,6 +266,9 @@ class CowboysFlowActivity : BlockchainActivity() {
             FlowStep.Welcome -> analytics.logEvent(CowboysAnalytics.WelcomeInterstitialClosed)
             FlowStep.Raffle -> analytics.logEvent(CowboysAnalytics.RaffleInterstitialClosed)
             FlowStep.Verify -> analytics.logEvent(CowboysAnalytics.VerifyIdInterstitialClosed)
+            FlowStep.EmailVerification -> {
+                // no-op
+            }
         }
 
     private fun logPrimaryCtaAnalyticsForStep() =
@@ -226,6 +276,9 @@ class CowboysFlowActivity : BlockchainActivity() {
             FlowStep.Welcome -> analytics.logEvent(CowboysAnalytics.WelcomeInterstitialContinueClicked)
             FlowStep.Raffle -> analytics.logEvent(CowboysAnalytics.RaffleInterstitialBuyClicked)
             FlowStep.Verify -> analytics.logEvent(CowboysAnalytics.VerifyIdInterstitialCtaClicked)
+            FlowStep.EmailVerification -> {
+                // no-op
+            }
         }
 
     private fun logViewAnalyticsForStep(flowStep: FlowStep) =
@@ -233,6 +286,9 @@ class CowboysFlowActivity : BlockchainActivity() {
             FlowStep.Welcome -> analytics.logEvent(CowboysAnalytics.WelcomeInterstitialViewed)
             FlowStep.Raffle -> analytics.logEvent(CowboysAnalytics.RaffleInterstitialViewed)
             FlowStep.Verify -> analytics.logEvent(CowboysAnalytics.VerifyIdInterstitialViewed)
+            FlowStep.EmailVerification -> {
+                // no-op
+            }
         }
 
     companion object {
@@ -244,6 +300,41 @@ class CowboysFlowActivity : BlockchainActivity() {
             Intent(context, CowboysFlowActivity::class.java).apply {
                 putExtra(FLOW_STEP, flowStep)
             }
+    }
+}
+
+@Composable
+fun EmailKycHost(
+    shouldShowEmailSkipButton: Boolean,
+    emailSkipAction: () -> Unit,
+    fragmentManager: FragmentManager
+) {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        val emailKycFragment = remember { KycEmailEntryFragment.newInstance(true) }
+
+        NavigationBar(
+            title = stringResource(R.string.security_check),
+            endNavigationBarButtons = if (shouldShowEmailSkipButton) {
+                listOf(
+                    NavigationBarButton.Text(
+                        color = Blue600,
+                        text = stringResource(R.string.common_skip),
+                        onTextClick = emailSkipAction
+                    )
+                )
+            } else {
+                emptyList()
+            }
+        )
+
+        LegacyViewSystemFragment(
+            fragment = emailKycFragment,
+            fragmentManager = fragmentManager,
+            tag = KycEmailEntryFragment.javaClass.simpleName,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
@@ -391,6 +482,33 @@ fun CowboysInterstitial(
     }
 }
 
+// TODO (dserrano): move this to the componentlib
+@Composable
+fun LegacyViewSystemFragment(
+    fragment: Fragment,
+    fragmentManager: FragmentManager,
+    modifier: Modifier = Modifier,
+    tag: String
+) {
+    AndroidView(
+        modifier = modifier,
+        factory = { context ->
+            FrameLayout(context).apply {
+                id = ViewCompat.generateViewId()
+            }
+        },
+        update = {
+            val fragmentAlreadyAdded = fragmentManager.findFragmentByTag(tag) != null
+
+            if (!fragmentAlreadyAdded) {
+                fragmentManager.commit {
+                    replace(it.id, fragment, tag)
+                }
+            }
+        }
+    )
+}
+
 @Preview
 @Composable
 fun CowboysInterstitial() {
@@ -420,3 +538,5 @@ fun CowboysInterstitial() {
         }
     }
 }
+
+private class StepHasNoDataException() : Throwable()

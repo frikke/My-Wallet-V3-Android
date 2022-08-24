@@ -126,8 +126,7 @@ internal class BchAsset internal constructor(
         throw UnsupportedOperationException("Action not supported")
 
     override fun createWalletFromAddress(address: String): Completable {
-        bchDataManager.createAccount(address)
-        return bchDataManager.syncWithServer().doOnComplete { forceAccountsRefresh() }
+        return bchDataManager.createAccount(address).doOnComplete { forceAccountsRefresh() }
     }
 
     override fun importWalletFromKey(

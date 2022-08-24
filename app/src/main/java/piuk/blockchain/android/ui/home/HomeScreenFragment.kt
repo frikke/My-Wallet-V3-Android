@@ -28,7 +28,7 @@ interface HomeNavigator {
     fun launchKyc(campaignType: CampaignType)
     fun launchBackupFunds(fragment: Fragment? = null, requestCode: Int = 0)
     fun launchSetup2Fa()
-    fun launchVerifyEmail()
+    fun launchOpenExternalEmailApp()
     fun launchSetupFingerprintLogin()
     fun launchReceive()
     fun launchSend()
