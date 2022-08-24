@@ -273,7 +273,7 @@ enum class AnalyticsNames(val eventName: String) {
     WALLET_HOME_VIEWED("Wallet Home Viewed"),
     WALLET_PRICES_VIEWED("Wallet Prices Viewed"),
     WALLET_REWARDS_VIEWED("Wallet Rewards Viewed"),
-    REFERRAL_CTA_CLICKED("Clicks on referral CTAs"),
+    REFERRAL_PROGRAM_CLICKED("Wallet Referral Program Clicked"),
     REFERRAL_VIEW_REFERRAL("View referrals page"),
     REFERRAL_CODE_FILLED("Referral Code Filled"),
     REFERRAL_SHARE_CODE("Share referral code"),

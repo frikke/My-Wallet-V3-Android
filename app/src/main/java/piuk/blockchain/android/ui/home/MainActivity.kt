@@ -316,7 +316,7 @@ class MainActivity :
             ) {
                 model.process(MainIntent.ReferralIconClicked)
                 showReferralBottomSheet(referralState.referralInfo)
-                analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Origin.Portfolio))
+                analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Portfolio))
             }
         } else {
             null
@@ -670,7 +670,7 @@ class MainActivity :
                 view.walletConnectSession
             )
             is ViewToLaunch.ShowReferralSheet -> {
-                analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Origin.Deeplink))
+                analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Deeplink))
                 showReferralBottomSheet(newState.referral.referralInfo)
             }
         }.exhaustive
