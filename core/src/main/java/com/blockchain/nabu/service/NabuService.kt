@@ -28,7 +28,7 @@ import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsDto
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
 import com.blockchain.nabu.models.responses.simplebuy.WithdrawLocksCheckRequestBody
@@ -268,7 +268,7 @@ class NabuService internal constructor(
 
     internal fun getSupportedCurrencies(
         fiatCurrency: String? = null
-    ): Single<SimpleBuyPairsResp> =
+    ): Single<SimpleBuyPairsDto> =
         nabu.getSupportedSimpleBuyPairs(fiatCurrency).wrapErrorMessage()
 
     fun getSimpleBuyBankAccountDetails(

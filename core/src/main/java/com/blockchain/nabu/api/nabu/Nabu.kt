@@ -30,7 +30,7 @@ import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyResponse
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsDto
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferFundsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
@@ -187,7 +187,7 @@ internal interface Nabu {
     @GET(NABU_SIMPLE_BUY_PAIRS)
     fun getSupportedSimpleBuyPairs(
         @Query("fiatCurrency") fiatCurrency: String? = null
-    ): Single<SimpleBuyPairsResp>
+    ): Single<SimpleBuyPairsDto>
 
     @GET(NABU_SIMPLE_BUY_TRANSACTIONS)
     fun getTransactions(
