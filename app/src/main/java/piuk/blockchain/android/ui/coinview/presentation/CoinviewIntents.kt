@@ -36,6 +36,11 @@ sealed interface CoinviewIntents : Intent<CoinviewModelState> {
     }
 
     /**
+     * Load quick actions to setup the center and bottom buttons
+     */
+    object LoadQuickActions : CoinviewIntents
+
+    /**
      * Performs price updates while chart is interactive
      */
     data class UpdatePriceForChartSelection(val entry: Entry) : CoinviewIntents {

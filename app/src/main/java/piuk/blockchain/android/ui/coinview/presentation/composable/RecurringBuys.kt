@@ -22,7 +22,7 @@ import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.RecurringBuyState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
 import piuk.blockchain.android.ui.coinview.presentation.SimpleValue
 
 @Composable
@@ -170,19 +170,19 @@ fun PreviewRecurringBuys_Upsell() {
 fun PreviewRecurringBuys_Data() {
     RecurringBuys(CoinviewRecurringBuysState.Data(
         listOf(
-            RecurringBuyState(
+            CoinviewRecurringBuyState(
                 id = "1",
                 description = SimpleValue.StringValue("RecurringBuyState description 1"),
                 status = SimpleValue.StringValue("RecurringBuyState status 1"),
                 assetColor = "#2949F8"
             ),
-            RecurringBuyState(
+            CoinviewRecurringBuyState(
                 id = "2",
                 description = SimpleValue.StringValue("RecurringBuyState description 2"),
                 status = SimpleValue.StringValue("RecurringBuyState status 2"),
                 assetColor = "#2949F8"
             ),
-            RecurringBuyState(
+            CoinviewRecurringBuyState(
                 id = "3",
                 description = SimpleValue.StringValue("RecurringBuyState description 3"),
                 status = SimpleValue.StringValue("RecurringBuyState status 3"),

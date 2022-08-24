@@ -36,7 +36,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.RecurringBuyState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
 import java.text.DecimalFormat
 
 class CoinviewViewModel(
@@ -78,7 +78,8 @@ class CoinviewViewModel(
             assetPrice = reduceAssetPrice(this),
             totalBalance = reduceTotalBalance(this),
             accounts = reduceAccounts(this),
-            recurringBuys = reduceRecurringBuys(this)
+            recurringBuys = reduceRecurringBuys(this),
+            quickActions = reduceQuickActions(this)
         )
     }
 
@@ -123,9 +124,9 @@ class CoinviewViewModel(
                             requestedTimeSpan != null &&
                             assetPriceHistory.priceDetail.timeSpan != requestedTimeSpan -> {
                             // show chart loading when data is loading and a new timespan is selected
-                            CoinviewPriceState.Data.CoinviewChart.Loading
+                            CoinviewPriceState.Data.CoinviewChartState.Loading
                         }
-                        else -> CoinviewPriceState.Data.CoinviewChart.Data(
+                        else -> CoinviewPriceState.Data.CoinviewChartState.Data(
                             assetPriceHistory.historicRates.map { point ->
                                 ChartEntry(
                                     point.timestamp.toFloat(),
@@ -416,7 +417,7 @@ class CoinviewViewModel(
                 } else {
                     CoinviewRecurringBuysState.Data(
                         recurringBuys.data.map { recurringBuy ->
-                            RecurringBuyState(
+                            CoinviewRecurringBuyState(
                                 id = recurringBuy.id,
                                 description = SimpleValue.IntResValue(
                                     R.string.dashboard_recurring_buy_item_title_1,
@@ -450,6 +451,10 @@ class CoinviewViewModel(
         }
     }
 
+    private fun reduceQuickActions(state: CoinviewModelState): CoinviewQuickActionsState = state.run {
+        CoinviewQuickActionsState.Loading
+    }
+
     override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntents) {
         when (intent) {
             is CoinviewIntents.LoadAllData -> {
@@ -474,6 +479,8 @@ class CoinviewViewModel(
                 loadAccountsData(
                     asset = modelState.asset,
                 )
+
+                onIntent(CoinviewIntents.LoadQuickActions)
             }
 
             CoinviewIntents.LoadRecurringBuysData -> {
@@ -482,6 +489,10 @@ class CoinviewViewModel(
                 loadRecurringBuysData(
                     asset = modelState.asset,
                 )
+            }
+
+            CoinviewIntents.LoadQuickActions -> {
+
             }
 
             is CoinviewIntents.UpdatePriceForChartSelection -> {
@@ -709,4 +720,8 @@ class CoinviewViewModel(
             }
         }
     }
+
+    // //////////////////////
+    // Quick actions
+
 }
