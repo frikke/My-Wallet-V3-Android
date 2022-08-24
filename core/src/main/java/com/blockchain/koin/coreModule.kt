@@ -56,6 +56,9 @@ import com.blockchain.core.payments.WithdrawLocksCache
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.referral.ReferralRepository
+import com.blockchain.core.sdd.data.SddRepository
+import com.blockchain.core.sdd.data.datasources.SddEligibilityStore
+import com.blockchain.core.sdd.domain.SddService
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.core.user.WatchlistDataManager
@@ -267,6 +270,18 @@ val coreModule = module {
                 currencyPrefs = get(),
                 authenticator = get(),
                 interestApiService = get()
+            )
+        }
+
+        scoped {
+            SddEligibilityStore(
+                nabuService = get()
+            )
+        }
+
+        scoped<SddService> {
+            SddRepository(
+                sddEligibilityStore = get()
             )
         }
 

@@ -752,6 +752,7 @@ class LiveCustodialWalletManager(
     companion object {
         private const val ACH_CURRENCY = "USD"
 
+        @Deprecated("use SddRepository")
         private const val SDD_ELIGIBLE_TIER = 3
     }
 }

@@ -158,6 +158,7 @@ interface CustodialWalletManager {
 
     fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
 
+    @Deprecated("use SddRepository")
     fun isSimplifiedDueDiligenceEligible(): Single<Boolean>
 
     fun fetchSimplifiedDueDiligenceUserState(): Single<SimplifiedDueDiligenceUserState>

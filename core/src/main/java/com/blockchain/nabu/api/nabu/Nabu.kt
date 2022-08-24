@@ -16,8 +16,8 @@ import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocumentsResponse
 import com.blockchain.nabu.models.responses.nabu.VeriffToken
-import com.blockchain.nabu.models.responses.sdd.SDDEligibilityResponse
-import com.blockchain.nabu.models.responses.sdd.SDDStatusResponse
+import com.blockchain.core.sdd.domain.model.SddEligibilityDto
+import com.blockchain.core.sdd.domain.model.SddStatusDto
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuyOrderListResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
@@ -176,12 +176,12 @@ internal interface Nabu {
 
     @AuthenticationNotRequired
     @GET(SDD_ELIGIBLE)
-    fun isSDDEligible(): Single<SDDEligibilityResponse>
+    fun isSDDEligible(): Single<SddEligibilityDto>
 
     @GET(SDD_VERIFIED)
     fun isSDDVerified(
         @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Single<SDDStatusResponse>
+    ): Single<SddStatusDto>
 
     @AuthenticationNotRequired
     @GET(NABU_SIMPLE_BUY_PAIRS)

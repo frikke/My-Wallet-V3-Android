@@ -18,8 +18,8 @@ import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
-import com.blockchain.nabu.models.responses.sdd.SDDEligibilityResponse
-import com.blockchain.nabu.models.responses.sdd.SDDStatusResponse
+import com.blockchain.core.sdd.domain.model.SddEligibilityDto
+import com.blockchain.core.sdd.domain.model.SddStatusDto
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.ConfirmOrderRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
@@ -214,10 +214,10 @@ class NabuService internal constructor(
         SendToExchangeAddressRequest(cryptoSymbol)
     ).wrapErrorMessage()
 
-    internal fun isSDDEligible(): Single<SDDEligibilityResponse> =
+    internal fun isSDDEligible(): Single<SddEligibilityDto> =
         nabu.isSDDEligible().wrapErrorMessage()
 
-    internal fun isSDDVerified(sessionToken: NabuSessionTokenResponse): Single<SDDStatusResponse> =
+    internal fun isSDDVerified(sessionToken: NabuSessionTokenResponse): Single<SddStatusDto> =
         nabu.isSDDVerified(
             sessionToken.authHeader
         ).wrapErrorMessage()
