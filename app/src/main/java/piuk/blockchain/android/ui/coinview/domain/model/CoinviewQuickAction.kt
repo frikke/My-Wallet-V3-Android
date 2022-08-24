@@ -1,18 +1,20 @@
 package piuk.blockchain.android.ui.coinview.domain.model
 
-import com.blockchain.coincore.BlockchainAccount
-
-data class QuickActionData(
-    val middleAction: CoinviewQuickAction,
-    val startAction: CoinviewQuickAction,
-    val endAction: CoinviewQuickAction,
+data class CoinviewQuickActions(
+    val center: CoinviewQuickAction,
+    val bottomStart: CoinviewQuickAction,
+    val bottomEnd: CoinviewQuickAction,
 )
 
-sealed class CoinviewQuickAction(open val enabled: Boolean) {
-    data class Buy(override val enabled: Boolean) : CoinviewQuickAction(enabled)
-    data class Sell(override val enabled: Boolean) : CoinviewQuickAction(enabled)
-    data class Send(override val enabled: Boolean) : CoinviewQuickAction(enabled)
-    data class Receive(override val enabled: Boolean) : CoinviewQuickAction(enabled)
-    data class Swap(override val enabled: Boolean) : CoinviewQuickAction(enabled)
-    object None : CoinviewQuickAction(false)
+sealed interface CoinviewQuickAction {
+    val enabled: Boolean
+
+    data class Buy(override val enabled: Boolean) : CoinviewQuickAction
+    data class Sell(override val enabled: Boolean) : CoinviewQuickAction
+    data class Send(override val enabled: Boolean) : CoinviewQuickAction
+    data class Receive(override val enabled: Boolean) : CoinviewQuickAction
+    data class Swap(override val enabled: Boolean) : CoinviewQuickAction
+    object None : CoinviewQuickAction {
+        override val enabled = error("None action doesn't have enabled property")
+    }
 }
