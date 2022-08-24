@@ -18,9 +18,14 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.math.BigDecimal
+import java.lang.IllegalArgumentException
 import java.util.Date
 import java.util.Locale
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.then
@@ -149,15 +154,28 @@ private fun AnalyticsEvent.toNabuAnalyticsEvent(): NabuAnalyticsEvent =
         name = this.event,
         type = "EVENT",
         originalTimestamp = Date().toUtcIso8601(Locale.ENGLISH),
-        properties = this.params.filterValues { it is String }.mapValues { it.value.toString() }
-            .plusOriginIfAvailable(this.origin),
-        numericProperties = this.params.filterValues { it is Number }.mapValues { BigDecimal(it.value.toString()) },
-        booleanProperties = this.params.filterValues { it is Boolean }.mapValues { it.value as Boolean }
+        properties = this.params.mapValues {
+            it.value.toJsonElement()
+        }.plusOriginIfAvailable(this.origin)
     )
 
-private fun Map<String, String>.plusOriginIfAvailable(launchOrigin: LaunchOrigin?): Map<String, String> {
+private fun Any?.toJsonElement(): JsonElement {
+    return when (this) {
+        null -> JsonNull
+        is JsonElement -> this
+        is Boolean -> JsonPrimitive(this)
+        is Number -> JsonPrimitive(this)
+        is String -> JsonPrimitive(this)
+        is Iterable<*> -> JsonArray(this.map { it.toJsonElement() })
+        // key simply converted to string
+        is Map<*, *> -> JsonObject(this.map { it.key.toString() to it.value.toJsonElement() }.toMap())
+        else -> throw IllegalArgumentException("Type not supported ${this::class}=$this}")
+    }
+}
+
+private fun Map<String, JsonElement>.plusOriginIfAvailable(launchOrigin: LaunchOrigin?): Map<String, JsonElement> {
     val origin = launchOrigin ?: return this
     return this.toMutableMap().apply {
-        this["origin"] = origin.name
+        this["origin"] = JsonPrimitive(origin.name)
     }.toMap()
 }

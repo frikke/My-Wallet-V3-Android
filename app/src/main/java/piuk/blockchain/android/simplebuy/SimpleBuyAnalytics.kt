@@ -212,7 +212,7 @@ class BuyMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsEvent 
     override val origin: LaunchOrigin = LaunchOrigin.BUY
     override val params: Map<String, Serializable> = mapOf(
         "type" to if (paymentMethodTypes.isNotEmpty()) {
-            paymentMethodTypes.toSet().joinToString(",")
+            paymentMethodTypes as Serializable
         } else {
             null
         }
@@ -224,7 +224,7 @@ class DepositMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsEv
     override val origin: LaunchOrigin = LaunchOrigin.DEPOSIT
     override val params: Map<String, Serializable> = mapOf(
         "type" to if (paymentMethodTypes.isNotEmpty()) {
-            paymentMethodTypes.toSet().joinToString(",")
+            paymentMethodTypes as Serializable
         } else {
             null
         }
@@ -236,7 +236,7 @@ class WithdrawMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsE
     override val origin: LaunchOrigin = LaunchOrigin.WITHDRAW
     override val params: Map<String, Serializable> = mapOf(
         "type" to if (paymentMethodTypes.isNotEmpty()) {
-            paymentMethodTypes.toSet().joinToString(",")
+            paymentMethodTypes as Serializable
         } else {
             null
         }
