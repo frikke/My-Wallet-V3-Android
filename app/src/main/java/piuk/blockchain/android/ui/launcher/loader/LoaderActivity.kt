@@ -21,7 +21,6 @@ import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
-import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
 import piuk.blockchain.android.ui.educational.walletmodes.EducationalWalletModeActivity
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
@@ -71,22 +70,12 @@ class LoaderActivity :
                 isUserInCowboysPromo = newState.isUserInCowboysPromo
             )
             is LoadingStep.Main -> onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
-            is LoadingStep.CowboysInterstitial -> startCowboysInterstitial()
             else -> {
                 // do nothing
             }
         }
 
         updateUi(newState)
-    }
-
-    private fun startCowboysInterstitial() {
-        startActivity(
-            CowboysFlowActivity.newIntent(
-                context = this
-            )
-        )
-        finish()
     }
 
     private fun updateUi(newState: LoaderState) {

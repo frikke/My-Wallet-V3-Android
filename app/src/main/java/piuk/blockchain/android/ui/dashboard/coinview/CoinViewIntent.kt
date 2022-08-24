@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.coinview
 
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
@@ -37,9 +38,9 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
         override fun reduce(oldState: CoinViewState): CoinViewState = oldState
     }
 
-    object BuyHasWarning : CoinViewIntent() {
+    data class UpdateBuyEligibility(val canBuy: Boolean) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState =
-            oldState.copy(hasActionBuyWarning = true)
+            oldState.copy(canBuy = canBuy)
     }
 
     class CheckScreenToOpen(val cryptoAccountSelected: AssetDetailsItem.CryptoDetailsInfo) : CoinViewIntent() {
@@ -97,6 +98,18 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
 
     object ToggleWatchlist : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState = oldState
+    }
+
+    data class ShowBalanceUpsell(
+        val account: BlockchainAccount,
+        val action: AssetAction,
+    ) : CoinViewIntent() {
+        override fun reduce(oldState: CoinViewState): CoinViewState =
+            oldState.copy(
+                viewState = CoinViewViewState.ShowBalanceUpsellSheet(
+                    account = account, action = action, canBuy = oldState.canBuy
+                )
+            )
     }
 
     class UpdateWatchlistState(private val isAddedToWatchlist: Boolean) : CoinViewIntent() {

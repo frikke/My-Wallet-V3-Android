@@ -291,6 +291,7 @@ enum class AnalyticsNames(val eventName: String) {
     COWBOYS_RAFFLE_INTERSTITIAL_CLOSED("Cowboys Raffle Interstitial Closed"),
     COWBOYS_RAFFLE_INTERSTITIAL_BUY_CLICKED("Cowboys Raffle Interstitial Buy Crypto Clicked"),
     COWBOYS_VERIFY_ANNOUNCEMENT_CLICKED("Cowboys Verify Identity Announcement Clicked"),
+    COWBOYS_KYC_IN_PROGRESS_ANNOUNCEMENT_CLICKED("Cowboys Kyc In Progress Announcement Clicked"),
     COWBOYS_VERIFY_INTERSTITIAL_VIEWED("Cowboys Verify Identity Interstitial Viewed"),
     COWBOYS_VERIFY_INTERSTITIAL_CLOSED("Cowboys Verify Identity Interstitial Closed"),
     COWBOYS_VERIFY_INTERSTITIAL_CTA_CLICKED("Cowboys Verify Identity Interstitial Verify ID Clicked"),

@@ -16,6 +16,7 @@ class AnalyticsFileLocalPersistence(context: Context) : AnalyticsLocalPersistenc
 
     private val json = Json {
         encodeDefaults = true
+        ignoreUnknownKeys = true
     }
 
     private val queueFile: QueueFile by lazy {

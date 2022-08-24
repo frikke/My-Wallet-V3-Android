@@ -5,8 +5,6 @@ import info.blockchain.wallet.ethereum.util.HashUtil
 import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.keys.SigningKeyImpl
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
@@ -18,44 +16,33 @@ import org.web3j.crypto.Sign
 import org.web3j.crypto.StructuredDataEncoder
 import org.web3j.crypto.TransactionEncoder
 
-@Serializable
-class EthereumAccount : JsonSerializableAccount {
+class EthereumAccount(val ethAccountDto: EthAccountDto) : JsonSerializableAccount {
 
-    @SerialName("archived")
-    private val archived: Boolean = false
-
-    @SerialName("label")
-    override var label = ""
-
-    @SerialName("correct")
-    var isCorrect: Boolean = false
-
-    @SerialName("addr")
-    var address: String = ""
-
-    constructor(addressKey: ECKey) {
-        this.address = Keys.toChecksumAddress(
-            HashUtil.toHexString(
-                computeAddress(addressKey.pubKeyPoint.getEncoded(false))
-            )
+    constructor(addressKey: ECKey, label: String) : this(
+        EthAccountDto.fromCheckSumAddress(
+            address = Keys.toChecksumAddress(
+                HashUtil.toHexString(
+                    computeAddress(addressKey.pubKeyPoint.getEncoded(false))
+                )
+            ),
+            label = label
         )
-    }
+    )
+
+    fun withUpdatedLabel(label: String): EthereumAccount =
+        EthereumAccount(ethAccountDto.copy(label = label))
+
+    val address: String
+        get() = ethAccountDto.address
 
     override val isArchived: Boolean
-        get() = archived
+        get() = ethAccountDto.archived
+
+    override val label: String
+        get() = ethAccountDto.label
 
     override fun updateArchivedState(isArchived: Boolean): JsonSerializableAccount {
         throw UnsupportedOperationException("Cannot update label of $this")
-    }
-
-    /**
-     * Compute an address from an encoded public key.
-     *
-     * @param pubBytes an encoded (uncompressed) public key
-     * @return 20-byte address
-     */
-    private fun computeAddress(pubBytes: ByteArray): ByteArray {
-        return HashUtil.sha3omit12(pubBytes.copyOfRange(1, pubBytes.size))
     }
 
     fun signTransaction(transaction: RawTransaction, masterKey: MasterKey, chainId: Int): ByteArray {
@@ -99,11 +86,8 @@ class EthereumAccount : JsonSerializableAccount {
     fun deriveSigningKey(masterKey: MasterKey): SigningKey =
         SigningKeyImpl(deriveECKey(masterKey.toDeterministicKey(), 0))
 
-    fun withChecksummedAddress(): String =
-        Keys.toChecksumAddress(this.address)
-
     fun isAddressChecksummed(): Boolean =
-        address == this.withChecksummedAddress()
+        this.ethAccountDto.address == Keys.toChecksumAddress(this.ethAccountDto.address)
 
     companion object {
         private const val DERIVATION_PATH = "m/44'/60'/0'/0"
@@ -113,10 +97,17 @@ class EthereumAccount : JsonSerializableAccount {
         private const val ADDRESS_INDEX = 0
 
         fun deriveAccount(masterKey: DeterministicKey, accountIndex: Int, label: String): EthereumAccount {
-            val ethereumAccount = EthereumAccount(deriveECKey(masterKey, accountIndex))
-            ethereumAccount.label = label
-            ethereumAccount.isCorrect = true
-            return ethereumAccount
+            return EthereumAccount(addressKey = deriveECKey(masterKey, accountIndex), label = label)
+        }
+
+        /**
+         * Compute an address from an encoded public key.
+         *
+         * @param pubBytes an encoded (uncompressed) public key
+         * @return 20-byte address
+         */
+        private fun computeAddress(pubBytes: ByteArray): ByteArray {
+            return HashUtil.sha3omit12(pubBytes.copyOfRange(1, pubBytes.size))
         }
 
         private fun deriveECKey(masterKey: DeterministicKey, accountIndex: Int): ECKey {

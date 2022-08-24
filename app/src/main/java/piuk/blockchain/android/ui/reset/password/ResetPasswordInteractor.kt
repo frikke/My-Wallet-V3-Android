@@ -27,7 +27,7 @@ class ResetPasswordInteractor(
 ) {
 
     fun createWalletForAccount(email: String, password: String, walletName: String): Completable {
-        return payloadDataManager.createHdWallet(password, walletName, email)
+        return payloadDataManager.createHdWallet(password, walletName, email, null)
             .doOnSuccess { wallet ->
                 authPrefs.apply {
                     walletGuid = wallet.guid

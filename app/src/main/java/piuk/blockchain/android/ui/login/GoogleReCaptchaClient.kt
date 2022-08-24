@@ -5,7 +5,6 @@ import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.google.android.gms.recaptcha.Recaptcha
 import com.google.android.gms.recaptcha.RecaptchaAction
-import com.google.android.gms.recaptcha.RecaptchaActionType
 import com.google.android.gms.recaptcha.RecaptchaHandle
 import com.google.android.gms.recaptcha.RecaptchaResultData
 import piuk.blockchain.android.BuildConfig
@@ -31,10 +30,10 @@ class GoogleReCaptchaClient(private val activity: Activity, private val environm
         }
     }
 
-    fun verifyForLogin(onSuccess: (RecaptchaResultData) -> Unit, onError: (Exception) -> Unit) {
+    fun verify(verificationType: String, onSuccess: (RecaptchaResultData) -> Unit, onError: (Exception) -> Unit) {
         if (this::recaptchaHandle.isInitialized) {
             Recaptcha.getClient(activity)
-                .execute(recaptchaHandle, RecaptchaAction(RecaptchaActionType(RecaptchaActionType.LOGIN)))
+                .execute(recaptchaHandle, RecaptchaAction(verificationType))
                 .addOnSuccessListener(onSuccess)
                 .addOnFailureListener(onError)
         } else {

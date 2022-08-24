@@ -42,6 +42,11 @@ class CowboysPromoDataProvider(
             json.decodeFromString<CowboysData>(data).toDomain()
         }
 
+    fun getKycInProgressAnnouncement(): Single<PromotionStyleInfo> =
+        config.getRawJson(KEY_ANNOUNCEMENT_KYC_IN_PROGRESS).map { data ->
+            json.decodeFromString<CowboysData>(data).toDomain()
+        }
+
     fun getIdentityAnnouncement(): Single<PromotionStyleInfo> =
         config.getRawJson(KEY_ANNOUNCEMENT_IDENTITY).map { data ->
             json.decodeFromString<CowboysData>(data).toDomain()
@@ -60,11 +65,13 @@ class CowboysPromoDataProvider(
         private const val KEY_ANNOUNCEMENT_RAFFLE = "${BASE_PATH}_raffle_announcement"
         private const val KEY_INTERSTITIAL_IDENTITY = "${BASE_PATH}_verify_identity_story"
         private const val KEY_ANNOUNCEMENT_IDENTITY = "${BASE_PATH}_verify_identity_announcement"
+        private const val KEY_ANNOUNCEMENT_KYC_IN_PROGRESS = "${BASE_PATH}_user_kyc_is_under_review_announcement"
         private const val KEY_ANNOUNCEMENT_REFER = "${BASE_PATH}_refer_friends_announcement"
     }
 }
 
 enum class FlowStep {
+    EmailVerification,
     Welcome,
     Raffle,
     Verify

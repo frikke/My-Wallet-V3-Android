@@ -77,9 +77,10 @@ abstract class MviModel<S : MviState, I : MviIntent<S>>(
                 .subscribeBy(
                     onNext = { newState ->
                         _state.accept(newState)
-                    }, onError = { throwable ->
-                    throw throwable
-                }
+                    },
+                    onError = { throwable ->
+                        throw throwable
+                    }
                 )
     }
 

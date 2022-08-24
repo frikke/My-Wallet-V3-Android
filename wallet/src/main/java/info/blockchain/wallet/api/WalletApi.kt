@@ -85,7 +85,8 @@ class WalletApi(
         encryptedPayload: String,
         newChecksum: String?,
         email: String?,
-        device: String?
+        device: String?,
+        recaptchaToken: String?
     ): Call<ResponseBody> {
         val pipedAddresses = activeAddressList?.joinToString("|")
 
@@ -100,7 +101,8 @@ class WalletApi(
             email,
             device,
             null,
-            api.apiCode
+            api.apiCode,
+            recaptchaToken
         )
     }
 
@@ -135,7 +137,8 @@ class WalletApi(
             null,
             device,
             oldChecksum,
-            api.apiCode
+            api.apiCode,
+            null
         )
     }
 
