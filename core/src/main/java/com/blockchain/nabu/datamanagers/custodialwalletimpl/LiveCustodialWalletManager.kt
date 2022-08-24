@@ -356,7 +356,7 @@ class LiveCustodialWalletManager(
             }
         }
 
-    override fun isAssetSupportedForSwap(assetInfo: AssetInfo): Single<Boolean> =
+    override fun isAssetSupportedForSwapLegacy(assetInfo: AssetInfo): Single<Boolean> =
         authenticator.authenticate { sessionToken ->
             nabuService.getSwapAvailablePairs(sessionToken)
         }.map { response ->
@@ -365,6 +365,10 @@ class LiveCustodialWalletManager(
                 splitPair[0] == assetInfo.networkTicker
             } != null
         }
+
+    override fun isAssetSupportedForSwap(freshnessStrategy: FreshnessStrategy): Flow<DataResource<Boolean>> {
+        TODO("Not yet implemented")
+    }
 
     override fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList> =
         authenticator.authenticate {

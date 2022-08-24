@@ -20,6 +20,7 @@ import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.store.mapData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 internal class UserFeaturePermissionRepository(
     private val kycService: KycService,
@@ -143,6 +144,18 @@ internal class UserFeaturePermissionRepository(
                 TODO("Not Implemented Yet")
             }
         }
+    }
+
+    override fun getAccessForFeatures(
+        vararg features: Feature,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<Map<Feature, FeatureAccess>>> {
+        features.map { feature ->
+            userAccessForFeature(feature).map { access ->
+                Pair(feature, access)
+            }
+        }.zipSingles()
+            .map { mapOf(*it.toTypedArray()) }
     }
 }
 

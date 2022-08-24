@@ -320,7 +320,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         whenever(userIdentity.userAccessForFeature(Feature.DepositCrypto)).thenReturn(
             Single.just(userAccessForCryptoDeposit)
         )
-        whenever(custodialManager.isAssetSupportedForSwap(TEST_ASSET)).thenReturn(Single.just(isAssetSupportedForSwap))
+        whenever(custodialManager.isAssetSupportedForSwapLegacy(TEST_ASSET)).thenReturn(Single.just(isAssetSupportedForSwap))
     }
 }
 

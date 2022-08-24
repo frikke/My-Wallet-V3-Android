@@ -16,4 +16,9 @@ interface UserFeaturePermissionService {
         feature: Feature,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<FeatureAccess>>
+
+    fun getAccessForFeatures(
+        vararg features: Feature,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Map<Feature, FeatureAccess>>>
 }

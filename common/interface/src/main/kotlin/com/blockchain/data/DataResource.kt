@@ -14,3 +14,101 @@ sealed class DataResource<out T> {
 fun <T> List<DataResource<T>>.anyLoading() = any { it is DataResource.Loading }
 fun <T> List<DataResource<T>>.anyError() = any { it is DataResource.Error }
 fun <T> List<DataResource<T>>.getFirstError() = (first { it is DataResource.Error } as DataResource.Error)
+
+fun <T, R> List<DataResource<T>>.mapData(mapper: () -> R): DataResource<R> {
+    return when {
+        anyLoading() -> DataResource.Loading
+        anyError() -> DataResource.Error(getFirstError().error)
+        else -> {
+            DataResource.Data(mapper())
+        }
+    }
+}
+
+fun <T1, T2, R> mappedDataResourceResults(
+    r1: DataResource<T1>,
+    r2: DataResource<T2>,
+    transform: (T1, T2) -> R
+) {
+    val results = listOf(r1, r2)
+
+    when {
+        results.anyLoading() -> DataResource.Loading
+        results.anyError() -> DataResource.Error(results.getFirstError().error)
+        else -> {
+            r1 as DataResource.Data
+            r2 as DataResource.Data
+
+            DataResource.Data(transform(r1.data, r2.data))
+        }
+    }
+}
+
+fun <T1, T2, T3, R> mappedDataResourceResults(
+    r1: DataResource<T1>,
+    r2: DataResource<T2>,
+    r3: DataResource<T3>,
+    transform: (T1, T2, T3) -> R
+) {
+    val results = listOf(r1, r2, r3)
+
+    when {
+        results.anyLoading() -> DataResource.Loading
+        results.anyError() -> DataResource.Error(results.getFirstError().error)
+        else -> {
+            r1 as DataResource.Data
+            r2 as DataResource.Data
+            r3 as DataResource.Data
+
+            DataResource.Data(transform(r1.data, r2.data, r3.data))
+        }
+    }
+}
+
+fun <T1, T2, T3, T4, R> mappedDataResourceResults(
+    r1: DataResource<T1>,
+    r2: DataResource<T2>,
+    r3: DataResource<T3>,
+    r4: DataResource<T4>,
+    transform: (T1, T2, T3, T4) -> R
+) {
+    val results = listOf(r1, r2, r3, r4)
+
+    when {
+        results.anyLoading() -> DataResource.Loading
+        results.anyError() -> DataResource.Error(results.getFirstError().error)
+        else -> {
+            r1 as DataResource.Data
+            r2 as DataResource.Data
+            r3 as DataResource.Data
+            r4 as DataResource.Data
+
+            DataResource.Data(transform(r1.data, r2.data, r3.data, r4.data))
+        }
+    }
+}
+
+fun <T1, T2, T3, T4, T5, R> mappedDataResourceResults(
+    r1: DataResource<T1>,
+    r2: DataResource<T2>,
+    r3: DataResource<T3>,
+    r4: DataResource<T4>,
+    r5: DataResource<T5>,
+    transform: (T1, T2, T3, T4, T5) -> R
+) {
+    val results = listOf(r1, r2, r3, r4, r5)
+
+    when {
+        results.anyLoading() -> DataResource.Loading
+        results.anyError() -> DataResource.Error(results.getFirstError().error)
+        else -> {
+            r1 as DataResource.Data
+            r2 as DataResource.Data
+            r3 as DataResource.Data
+            r4 as DataResource.Data
+            r5 as DataResource.Data
+
+            DataResource.Data(transform(r1.data, r2.data, r3.data, r4.data, r5.data))
+        }
+    }
+}

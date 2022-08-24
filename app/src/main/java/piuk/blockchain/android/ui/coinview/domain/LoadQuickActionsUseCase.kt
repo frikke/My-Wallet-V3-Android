@@ -6,8 +6,9 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.anyError
 import com.blockchain.data.anyLoading
 import com.blockchain.data.getFirstError
+import com.blockchain.data.mapData
+import com.blockchain.data.mappedDataResourceResults
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.walletmode.WalletMode
@@ -42,9 +43,13 @@ class LoadQuickActionsUseCase(
                     userFeaturePermissionService.getAccessForFeature(Feature.Buy),
                     userFeaturePermissionService.getAccessForFeature(Feature.Sell),
                     custodialWalletManager.isCurrencyAvailableForTrading(asset.currency),
-                    custodialWalletManager.isCurrencyAvailableForTrading(asset.currency)
-                ) { kycTier, sddEligibility, buyAccess, sellAccess, isAvailableForTrading, isSupportedForSwap->
+//                    custodialWalletManager.isAssetSupportedForSwap(asset.currency)
+                ) { kycTier, sddEligibility, buyAccess, sellAccess, isAvailableForTrading ->
+                    val results = listOf(kycTier, sddEligibility)
 
+                    mappedDataResourceResults(kycTier, sddEligibility){
+
+                    }
                 }
             }
             WalletMode.NON_CUSTODIAL_ONLY -> {

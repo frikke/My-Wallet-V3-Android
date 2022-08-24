@@ -28,6 +28,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
+import org.web3j.abi.datatypes.Bool
 import java.math.BigInteger
 import java.util.Date
 
@@ -117,9 +118,15 @@ interface CustodialWalletManager {
 
     fun availableFiatCurrenciesForTrading(assetInfo: AssetInfo): Single<List<FiatCurrency>>
 
-    fun isAssetSupportedForSwap(
+    @Deprecated("use flow isAssetSupportedForSwap")
+    fun isAssetSupportedForSwapLegacy(
         assetInfo: AssetInfo
     ): Single<Boolean>
+
+    fun isAssetSupportedForSwap(
+        assetInfo: AssetInfo,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Boolean>>
 
     fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList>
 
