@@ -77,8 +77,16 @@ internal class ExchangeRatesDataManagerImpl(
                 )
             }
 
-    override fun exchangeRateToUserFiatFlow(fromAsset: Currency): Flow<DataResource<ExchangeRate>> {
-        return priceStore.getCurrentPriceForAsset(fromAsset, userFiat)
+    override fun exchangeRateToUserFiatFlow(
+        fromAsset: Currency,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<ExchangeRate>> {
+        return priceStore
+            .getCurrentPriceForAsset(
+                base = fromAsset,
+                quote = userFiat,
+                freshnessStrategy = freshnessStrategy
+            )
             .mapData {
                 ExchangeRate(
                     from = fromAsset,

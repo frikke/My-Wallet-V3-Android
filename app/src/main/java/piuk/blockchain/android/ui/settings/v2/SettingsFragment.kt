@@ -189,7 +189,7 @@ class SettingsFragment :
             if (newState.referralInfo is ReferralInfo.Data) {
                 visible()
                 onClick = {
-                    analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Origin.Profile))
+                    analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Profile))
                     navigator().goToReferralCode(newState.referralInfo)
                 }
 
