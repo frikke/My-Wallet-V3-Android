@@ -492,7 +492,7 @@ class CoinviewViewModel(
             }
 
             CoinviewIntents.LoadQuickActions -> {
-
+                loadQuickActionsData()
             }
 
             is CoinviewIntents.UpdatePriceForChartSelection -> {
@@ -723,5 +723,6 @@ class CoinviewViewModel(
 
     // //////////////////////
     // Quick actions
-
+    private fun loadQuickActionsData() {
+    }
 }
