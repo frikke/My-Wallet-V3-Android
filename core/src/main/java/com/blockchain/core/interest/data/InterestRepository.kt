@@ -42,7 +42,7 @@ import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.rx3.asObservable
+import kotlinx.coroutines.flow.onErrorReturn
 
 internal class InterestRepository(
     private val assetCatalogue: AssetCatalogue,
@@ -58,7 +58,9 @@ internal class InterestRepository(
 ) : InterestService {
 
     // balances
-    private fun getBalancesFlow(refreshStrategy: FreshnessStrategy): Flow<Map<AssetInfo, InterestAccountBalance>> {
+    private fun getBalancesFlow(
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<Map<AssetInfo, InterestAccountBalance>>> {
         return interestBalancesStore.stream(refreshStrategy)
             .mapData { mapAssetTickerWithBalance ->
                 mapAssetTickerWithBalance.mapNotNull { (assetTicker, balanceDto) ->
@@ -67,7 +69,6 @@ internal class InterestRepository(
                     }
                 }.toMap()
             }
-            .getDataOrThrow()
     }
 
     override fun getBalances(refreshStrategy: FreshnessStrategy): Observable<Map<AssetInfo, InterestAccountBalance>> {
@@ -86,8 +87,17 @@ internal class InterestRepository(
             .map { it.getOrDefault(asset, zeroBalance(asset)) }
     }
 
+    override fun getBalanceForFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<InterestAccountBalance>> {
+        return getBalancesFlow(refreshStrategy)
+            .mapData { it.getOrDefault(asset, zeroBalance(asset)) }
+    }
+
     override fun getActiveAssets(refreshStrategy: FreshnessStrategy): Flow<Set<AssetInfo>> {
         return getBalancesFlow(refreshStrategy)
+            .getDataOrThrow()
             .map { it.keys }
     }
 
