@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
+import com.blockchain.api.services.DetailedAssetInformation
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -46,4 +47,9 @@ data class CoinviewModelState(
     val isQuickActionsLoading: Boolean = false,
     val isQuickActionsError: Boolean = false,
     val quickActions: CoinviewQuickActions? = null,
+
+    // asset info
+    val isAssetInfoLoading: Boolean = false,
+    val isAssetInfoError: Boolean = false,
+    val assetInfo: DetailedAssetInformation? = null
 ) : ModelState

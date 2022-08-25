@@ -50,6 +50,11 @@ sealed interface CoinviewIntents : Intent<CoinviewModelState> {
     }
 
     /**
+     * Load asset description / website
+     */
+    object LoadAssetInfo : CoinviewIntents
+
+    /**
      * Performs price updates while chart is interactive
      */
     data class UpdatePriceForChartSelection(val entry: Entry) : CoinviewIntents {

@@ -15,24 +15,24 @@ import com.blockchain.componentlib.expandables.ExpandableItem
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewInfoState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewInfoState.Data.CoinviewInfoDescriptionState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
+import piuk.blockchain.android.ui.coinview.presentation.ValueAvailability
 
 @Composable
 fun AssetInfo(
-    data: CoinviewInfoState,
+    data: CoinviewAssetInfoState,
     onWebsiteClick: () -> Unit
 ) {
     when (data) {
-        CoinviewInfoState.Loading -> {
+        CoinviewAssetInfoState.Loading -> {
             AssetInfoLoading()
         }
 
-        CoinviewInfoState.Error -> {
+        CoinviewAssetInfoState.Error -> {
             Empty()
         }
 
-        is CoinviewInfoState.Data -> {
+        is CoinviewAssetInfoState.Data -> {
             AssetInfoData(
                 data = data,
                 onWebsiteClick = onWebsiteClick
@@ -50,7 +50,7 @@ fun AssetInfoLoading() {
 
 @Composable
 fun AssetInfoData(
-    data: CoinviewInfoState.Data,
+    data: CoinviewAssetInfoState.Data,
     onWebsiteClick: () -> Unit
 ) {
     Column(
@@ -71,7 +71,7 @@ fun AssetInfoData(
         Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
 
         when (data.description) {
-            is CoinviewInfoDescriptionState.Available -> {
+            is ValueAvailability.Available -> {
                 ExpandableItem(
                     text = data.description.value,
                     numLinesVisible = 6,
@@ -80,7 +80,7 @@ fun AssetInfoData(
                 )
             }
 
-            CoinviewInfoDescriptionState.NotAvailable -> {
+            ValueAvailability.NotAvailable -> {
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -92,32 +92,39 @@ fun AssetInfoData(
             }
         }
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+        when (data.website) {
+            is ValueAvailability.Available -> {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
 
-        SmallMinimalButton(
-            text = stringResource(R.string.coinview_asset_info_cta),
-            onClick = { /*TODO*/ }
-        )
+                SmallMinimalButton(
+                    text = stringResource(R.string.coinview_asset_info_cta),
+                    onClick = { /*TODO*/ }
+                )
+            }
 
+            ValueAvailability.NotAvailable -> {
+                Empty()
+            }
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewAssetInfo_Loading() {
-    AssetInfo(CoinviewInfoState.Loading, {})
+    AssetInfo(CoinviewAssetInfoState.Loading, {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewAssetInfo_Data() {
     AssetInfo(
-        CoinviewInfoState.Data(
+        CoinviewAssetInfoState.Data(
             assetName = "ETH",
-            description = CoinviewInfoDescriptionState.Available(
+            description = ValueAvailability.Available(
                 "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
             ),
-            website = ""
+            website = ValueAvailability.NotAvailable
         ),
         {}
     )

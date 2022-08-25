@@ -15,7 +15,8 @@ data class CoinviewViewState(
     val accounts: CoinviewAccountsState,
     val quickActionCenter: CoinviewQuickActionsCenterState,
     val recurringBuys: CoinviewRecurringBuysState,
-    val quickActionBottom: CoinviewQuickActionsBottomState
+    val quickActionBottom: CoinviewQuickActionsBottomState,
+    val assetInfo: CoinviewAssetInfoState
 ) : ViewState
 
 // Price
@@ -176,22 +177,22 @@ fun CoinviewQuickAction.toViewState(): CoinviewQuickActionState = run {
 }
 
 // Info
-sealed interface CoinviewInfoState {
-    object Loading : CoinviewInfoState
-    object Error : CoinviewInfoState
+sealed interface CoinviewAssetInfoState {
+    object Loading : CoinviewAssetInfoState
+    object Error : CoinviewAssetInfoState
     data class Data(
         val assetName: String,
-        val description: CoinviewInfoDescriptionState,
-        val website: String
-    ) : CoinviewInfoState {
-        sealed interface CoinviewInfoDescriptionState {
-            data class Available(val value: String) : CoinviewInfoDescriptionState
-            object NotAvailable : CoinviewInfoDescriptionState
-        }
-    }
+        val description: ValueAvailability,
+        val website: ValueAvailability
+    ) : CoinviewAssetInfoState
 }
 
 // misc
+sealed interface ValueAvailability {
+    data class Available(val value: String) : ValueAvailability
+    object NotAvailable : ValueAvailability
+}
+
 /**
  * View text can either come as string or resource with args
  */

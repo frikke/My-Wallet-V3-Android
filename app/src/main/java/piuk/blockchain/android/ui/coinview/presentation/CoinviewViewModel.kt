@@ -28,6 +28,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
+import piuk.blockchain.android.ui.coinview.domain.LoadAssetInfoUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetRecurringBuysUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadQuickActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
@@ -50,7 +51,8 @@ class CoinviewViewModel(
     private val getAssetPriceUseCase: GetAssetPriceUseCase,
     private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase,
     private val loadAssetRecurringBuysUseCase: LoadAssetRecurringBuysUseCase,
-    private val loadQuickActionsUseCase: LoadQuickActionsUseCase
+    private val loadQuickActionsUseCase: LoadQuickActionsUseCase,
+    private val loadAssetInfoUseCase: LoadAssetInfoUseCase
 ) : MviViewModel<
     CoinviewIntents,
     CoinviewViewState,
@@ -84,7 +86,8 @@ class CoinviewViewModel(
             accounts = reduceAccounts(this),
             quickActionCenter = reduceQuickActionsCenter(this),
             recurringBuys = reduceRecurringBuys(this),
-            quickActionBottom = reduceQuickActionsBottom(this)
+            quickActionBottom = reduceQuickActionsBottom(this),
+            assetInfo = reduceAssetInfo(this)
         )
     }
 
@@ -502,6 +505,40 @@ class CoinviewViewModel(
         }
     }
 
+    private fun reduceAssetInfo(state: CoinviewModelState): CoinviewAssetInfoState = state.run {
+        when {
+            isAssetInfoLoading && assetInfo == null -> {
+                CoinviewAssetInfoState.Loading
+            }
+
+            isAssetInfoError -> {
+                CoinviewAssetInfoState.Error
+            }
+
+            assetInfo != null -> {
+                require(asset != null) { "asset not initialized" }
+
+                CoinviewAssetInfoState.Data(
+                    assetName = asset.currency.name,
+                    description = if (assetInfo.description.isEmpty()) {
+                        ValueAvailability.NotAvailable
+                    } else {
+                        ValueAvailability.Available(value = assetInfo.description)
+                    },
+                    website = if (assetInfo.website.isEmpty()) {
+                        ValueAvailability.NotAvailable
+                    } else {
+                        ValueAvailability.Available(value = assetInfo.website)
+                    }
+                )
+            }
+
+            else -> {
+                CoinviewAssetInfoState.Loading
+            }
+        }
+    }
+
     override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntents) {
         when (intent) {
             is CoinviewIntents.LoadAllData -> {
@@ -509,6 +546,7 @@ class CoinviewViewModel(
                 onIntent(CoinviewIntents.LoadPriceData)
                 onIntent(CoinviewIntents.LoadAccountsData)
                 onIntent(CoinviewIntents.LoadRecurringBuysData)
+                onIntent(CoinviewIntents.LoadAssetInfo)
             }
 
             CoinviewIntents.LoadPriceData -> {
@@ -547,6 +585,14 @@ class CoinviewViewModel(
                     asset = modelState.asset,
                     accounts = modelState.accounts,
                     totalBalance = modelState.totalBalance
+                )
+            }
+
+            CoinviewIntents.LoadAssetInfo -> {
+                require(modelState.asset != null) { "asset not initialized" }
+
+                loadAssetInformation(
+                    asset = modelState.asset,
                 )
             }
 
@@ -812,6 +858,43 @@ class CoinviewViewModel(
                                 isQuickActionsLoading = false,
                                 isQuickActionsError = false,
                                 quickActions = dataResource.data
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // //////////////////////
+    // Asset info
+    private fun loadAssetInformation(asset: CryptoAsset) {
+        viewModelScope.launch {
+            loadAssetInfoUseCase(asset = asset.currency).collectLatest { dataResource ->
+                when (dataResource) {
+                    DataResource.Loading -> {
+                        updateState {
+                            it.copy(
+                                isAssetInfoLoading = true,
+                            )
+                        }
+                    }
+
+                    is DataResource.Error -> {
+                        updateState {
+                            it.copy(
+                                isAssetInfoLoading = false,
+                                isAssetInfoError = true,
+                            )
+                        }
+                    }
+
+                    is DataResource.Data -> {
+                        updateState {
+                            it.copy(
+                                isAssetInfoLoading = false,
+                                isAssetInfoError = false,
+                                assetInfo = dataResource.data
                             )
                         }
                     }

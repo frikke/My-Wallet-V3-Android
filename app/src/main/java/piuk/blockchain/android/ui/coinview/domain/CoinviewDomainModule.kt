@@ -32,5 +32,11 @@ val coinviewDomainModule = module {
                 custodialWalletManager = get()
             )
         }
+
+        scoped {
+            LoadAssetInfoUseCase(
+                assetService = get()
+            )
+        }
     }
 }

@@ -19,6 +19,7 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntents
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsBottomState
@@ -70,7 +71,10 @@ fun Coinview(
                 viewModel.onIntent(CoinviewIntents.ShowRecurringBuyDetail(recurringBuyId))
             },
 
-            quickActionsBottom = state.quickActionBottom
+            quickActionsBottom = state.quickActionBottom,
+
+            assetInfo = state.assetInfo,
+            onWebsiteClick = {}
         )
     }
 }
@@ -95,7 +99,10 @@ fun CoinviewScreen(
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit,
 
-    quickActionsBottom: CoinviewQuickActionsBottomState
+    quickActionsBottom: CoinviewQuickActionsBottomState,
+
+    assetInfo: CoinviewAssetInfoState,
+    onWebsiteClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         NavigationBar(
@@ -134,6 +141,11 @@ fun CoinviewScreen(
                     onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
                     onRecurringBuyItemClick = onRecurringBuyItemClick
                 )
+
+                AssetInfo(
+                    data = assetInfo,
+                    onWebsiteClick = onWebsiteClick
+                )
             }
 
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -169,7 +181,9 @@ fun PreviewCoinviewScreen() {
         recurringBuys = CoinviewRecurringBuysState.Loading,
         onRecurringBuyUpsellClick = {},
         onRecurringBuyItemClick = {},
-        quickActionsBottom = CoinviewQuickActionsBottomState.Loading
+        quickActionsBottom = CoinviewQuickActionsBottomState.Loading,
+        assetInfo = CoinviewAssetInfoState.Loading,
+        onWebsiteClick = {}
     )
 }
 
