@@ -16,7 +16,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.rx.printTime
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -72,12 +71,7 @@ class Erc20NonCustodialAccount(
                         exchangeRates = exchangeRates,
                         lastBlockNumber = latestBlockNumber,
                         account = this,
-                        supportsDescription = erc20DataManager.supportsErc20TxNote(currency),
-                        timeStampMultiplier = if (l1Network.networkTicker == CryptoCurrency.ETHER.networkTicker) {
-                            ETH_CHAIN_TX_HISTORY_MULTIPLIER
-                        } else {
-                            1
-                        }
+                        supportsDescription = erc20DataManager.supportsErc20TxNote(currency)
                     )
                 }
             }.flatMap {
