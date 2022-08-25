@@ -855,6 +855,7 @@ class MainActivity :
             binding.root,
             getString(
                 when (error.errorCode) {
+                    QrScanError.ErrorCode.ScanUnrecognized -> R.string.error_scan_unrecognized
                     QrScanError.ErrorCode.ScanFailed -> R.string.error_scan_failed_general
                     QrScanError.ErrorCode.BitPayScanFailed -> R.string.error_scan_failed_bitpay
                 }
