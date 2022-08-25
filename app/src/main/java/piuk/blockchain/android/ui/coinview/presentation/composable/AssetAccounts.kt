@@ -79,7 +79,7 @@ fun AssetAccountsData(
                             is LogoSource.Remote -> {
                                 ImageResource.Remote(url = account.logo.value, shape = CircleShape)
                             }
-                            is LogoSource.Local -> {
+                            is LogoSource.Resource -> {
                                 ImageResource.Local(
                                     id = account.logo.value,
                                     colorFilter = ColorFilter.tint(
@@ -101,7 +101,7 @@ fun AssetAccountsData(
                             is LogoSource.Remote -> {
                                 ImageResource.Remote(url = account.logo.value, shape = CircleShape)
                             }
-                            is LogoSource.Local -> {
+                            is LogoSource.Resource -> {
                                 ImageResource.Local(
                                     id = account.logo.value,
                                     colorFilter = ColorFilter.tint(Grey400),
@@ -117,9 +117,7 @@ fun AssetAccountsData(
                 }
             }
 
-            if (data.accounts.lastIndex != index) {
-                Separator()
-            }
+            Separator()
         }
     }
 }
@@ -189,7 +187,7 @@ fun PreviewAssetAccounts_Data_Simple() {
                     subtitle = SimpleValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
                     fiatBalance = "$2,000.00",
-                    logo = LogoSource.Local(R.drawable.ic_interest_account_indicator),
+                    logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
                     assetColor = "#324921"
                 ),
                 CoinviewAccountState.Available(
@@ -197,13 +195,13 @@ fun PreviewAssetAccounts_Data_Simple() {
                     subtitle = SimpleValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
                     fiatBalance = "$2,000.00",
-                    logo = LogoSource.Local(R.drawable.ic_interest_account_indicator),
+                    logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
                     assetColor = "#324921"
                 ),
                 CoinviewAccountState.Unavailable(
                     title = "Ethereum 2",
                     subtitle = SimpleValue.StringValue("ETH"),
-                    logo = LogoSource.Local(R.drawable.ic_interest_account_indicator)
+                    logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
                 )
             )
         )
@@ -223,7 +221,7 @@ fun PreviewAssetAccounts_Data_Boxed() {
                     subtitle = SimpleValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
                     fiatBalance = "$2,000.00",
-                    logo = LogoSource.Local(R.drawable.ic_interest_account_indicator),
+                    logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
                     assetColor = "#324921"
                 ),
                 CoinviewAccountState.Available(
@@ -231,13 +229,13 @@ fun PreviewAssetAccounts_Data_Boxed() {
                     subtitle = SimpleValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
                     fiatBalance = "$2,000.00",
-                    logo = LogoSource.Local(R.drawable.ic_interest_account_indicator),
+                    logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
                     assetColor = "#324921"
                 ),
                 CoinviewAccountState.Unavailable(
                     title = "Ethereum 2",
                     subtitle = SimpleValue.StringValue("ETH"),
-                    logo = LogoSource.Local(R.drawable.ic_interest_account_indicator)
+                    logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
                 )
             )
         )

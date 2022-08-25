@@ -37,8 +37,17 @@ sealed interface CoinviewIntents : Intent<CoinviewModelState> {
 
     /**
      * Load quick actions to setup the center and bottom buttons
+     *
+     * Should only load when accounts are already loaded
+     * todo(othman) remove this check once accounts are cached
+     * Should only load when balances are already loaded
+     * todo(othman) remove this check once accounts are cached
      */
-    object LoadQuickActions : CoinviewIntents
+    object LoadQuickActions : CoinviewIntents {
+        override fun isValidFor(modelState: CoinviewModelState): Boolean {
+            return modelState.accounts != null && modelState.totalBalance != null
+        }
+    }
 
     /**
      * Performs price updates while chart is interactive

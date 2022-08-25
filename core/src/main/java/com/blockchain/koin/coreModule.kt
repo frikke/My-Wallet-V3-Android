@@ -305,7 +305,8 @@ val coreModule = module {
 
         scoped<SimpleBuyService> {
             SimpleBuyRepository(
-                simpleBuyEligibilityStore = get()
+                simpleBuyEligibilityStore = get(),
+                buyPairsStore = get()
             )
         }
 

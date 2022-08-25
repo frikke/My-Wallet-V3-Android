@@ -12,6 +12,7 @@ import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.data.onErrorReturn
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
@@ -366,8 +367,16 @@ class LiveCustodialWalletManager(
             } != null
         }
 
-    override fun isAssetSupportedForSwap(freshnessStrategy: FreshnessStrategy): Flow<DataResource<Boolean>> {
-        TODO("Not yet implemented")
+    override fun isAssetSupportedForSwap(
+        assetInfo: AssetInfo,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<Boolean>> {
+        return simpleBuyService.getPairs(freshnessStrategy)
+            .mapData {
+                it.any { buyPair ->
+                    buyPair.pair.first == assetInfo.networkTicker
+                }
+            }.onErrorReturn { false }
     }
 
     override fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList> =

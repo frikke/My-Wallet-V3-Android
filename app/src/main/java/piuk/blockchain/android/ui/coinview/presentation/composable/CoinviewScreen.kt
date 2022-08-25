@@ -20,6 +20,7 @@ import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntents
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsCenterState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
@@ -57,6 +58,8 @@ fun Coinview(
 
             accounts = state.accounts,
 
+            quickActionsCenter = state.quickActionCenter,
+
             recurringBuys = state.recurringBuys,
             onRecurringBuyUpsellClick = {
                 viewModel.onIntent(CoinviewIntents.RecurringBuysUpsell)
@@ -82,40 +85,47 @@ fun CoinviewScreen(
 
     accounts: CoinviewAccountsState,
 
+    quickActionsCenter: CoinviewQuickActionsCenterState,
+
     recurringBuys: CoinviewRecurringBuysState,
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
         NavigationBar(
             title = networkTicker,
             onBackButtonClick = backOnClick
         )
 
-        AssetPrice(
-            data = price,
-            onChartEntryHighlighted = onChartEntryHighlighted,
-            resetPriceInformation = resetPriceInformation,
-            onNewTimeSpanSelected = onNewTimeSpanSelected
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+        ) {
+            AssetPrice(
+                data = price,
+                onChartEntryHighlighted = onChartEntryHighlighted,
+                resetPriceInformation = resetPriceInformation,
+                onNewTimeSpanSelected = onNewTimeSpanSelected
+            )
 
-        TotalBalance(
-            data = totalBalance
-        )
+            TotalBalance(
+                data = totalBalance
+            )
 
-        AssetAccounts(
-            data = accounts
-        )
+            AssetAccounts(
+                data = accounts
+            )
 
-        RecurringBuys(
-            data = recurringBuys,
-            onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
-            onRecurringBuyItemClick = onRecurringBuyItemClick
-        )
+            QuickActionCenter(
+                data = quickActionsCenter
+            )
+            RecurringBuys(
+                data = recurringBuys,
+                onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
+                onRecurringBuyItemClick = onRecurringBuyItemClick
+            )
+        }
     }
 }
 
@@ -138,6 +148,7 @@ fun PreviewCoinviewScreen() {
         onNewTimeSpanSelected = {},
         totalBalance = CoinviewTotalBalanceState.Loading,
         accounts = CoinviewAccountsState.Loading,
+        quickActionsCenter = CoinviewQuickActionsCenterState.Loading,
         recurringBuys = CoinviewRecurringBuysState.Loading,
         onRecurringBuyUpsellClick = {},
         onRecurringBuyItemClick = {}

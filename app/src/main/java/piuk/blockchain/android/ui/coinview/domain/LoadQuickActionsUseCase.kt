@@ -107,9 +107,12 @@ class LoadQuickActionsUseCase(
                              * Swap button will be enabled if
                              * * Balance is positive
                              */
-                            val canSwap =
-                                totalBalance.totalCryptoBalance[AssetFilter.Custodial]?.isPositive ?: false
-
+                            val assetFilter = when(accounts){
+                                is CoinviewAccounts.Universal -> AssetFilter.All
+                                is CoinviewAccounts.Custodial -> AssetFilter.Trading
+                                is CoinviewAccounts.Defi -> error("Defi unreachable here")
+                            }
+                            val canSwap = totalBalance.totalCryptoBalance[assetFilter]?.isPositive ?: false
 
                             CoinviewQuickActions(
                                 center = if (isSupportedForSwapData) {

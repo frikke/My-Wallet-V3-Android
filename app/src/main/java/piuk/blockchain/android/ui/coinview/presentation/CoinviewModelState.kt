@@ -8,6 +8,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistory
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewRecurringBuys
 
 /**
@@ -39,5 +40,10 @@ data class CoinviewModelState(
     // recurring buys
     val isRecurringBuysLoading: Boolean = false,
     val isRecurringBuysError: Boolean = false,
-    val recurringBuys: CoinviewRecurringBuys? = null
+    val recurringBuys: CoinviewRecurringBuys? = null,
+
+    // quick actions
+    val isQuickActionsLoading: Boolean = false,
+    val isQuickActionsError: Boolean = false,
+    val quickActions: CoinviewQuickActions? = null,
 ) : ModelState
