@@ -51,7 +51,7 @@ class DynamicSelfCustodyService(
                         index = 0,
                         name = accountName
                     ),
-                    pubkeys = addresses.map { address -> PubKeyInfo(address) }
+                    pubKeys = addresses.map { address -> PubKeyInfo(address) }
                 )
             )
         )
