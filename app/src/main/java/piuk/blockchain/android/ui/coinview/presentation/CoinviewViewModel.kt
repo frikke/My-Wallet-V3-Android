@@ -401,10 +401,6 @@ class CoinviewViewModel(
                 CoinviewRecurringBuysState.Loading
             }
 
-            isRecurringBuysLoading -> {
-                CoinviewRecurringBuysState.NotSupported
-            }
-
             isRecurringBuysError -> {
                 CoinviewRecurringBuysState.Error
             }
