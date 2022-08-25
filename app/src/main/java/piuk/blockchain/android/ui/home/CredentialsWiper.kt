@@ -36,14 +36,17 @@ class CredentialsWiper(
                 metadataService.reset()
                 walletOptionsState.wipe()
             }
-        }.then {
-            rxCompletable { storeWiper.wipe() }
         }.onErrorComplete()
+            .then {
+                rxCompletable { storeWiper.wipe() }
+            }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onError = {
                     Timber.e(it)
+                    // StoreWiper failed, we can't safely recover at this point
+                    throw it
                 },
                 onComplete = {
                     appUtil.logout()

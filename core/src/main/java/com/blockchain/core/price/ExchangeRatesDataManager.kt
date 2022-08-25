@@ -60,6 +60,10 @@ interface ExchangeRatesDataManager : ExchangeRates {
 
     fun exchangeRate(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate>
     fun exchangeRateToUserFiat(fromAsset: Currency): Observable<ExchangeRate>
+    fun exchangeRateToUserFiatFlow(
+        fromAsset: Currency,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<ExchangeRate>>
 
     fun getHistoricRate(fromAsset: Currency, secSinceEpoch: Long): Single<ExchangeRate>
 

@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.cowboys
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -24,14 +23,10 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.core.view.ViewCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.commit
 import coil.annotation.ExperimentalCoilApi
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.basic.ComposeColors
@@ -39,11 +34,12 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.basic.MarkdownContent
+import com.blockchain.componentlib.basic.MarkdownText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
+import com.blockchain.componentlib.system.EmbeddedFragment
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
@@ -329,7 +325,7 @@ fun EmailKycHost(
             }
         )
 
-        LegacyViewSystemFragment(
+        EmbeddedFragment(
             fragment = emailKycFragment,
             fragmentManager = fragmentManager,
             tag = KycEmailEntryFragment.javaClass.simpleName,
@@ -406,7 +402,7 @@ fun CowboysInterstitial(
             )
         }
 
-        MarkdownContent(
+        MarkdownText(
             modifier = Modifier
                 .padding(
                     start = dimensionResource(id = R.dimen.standard_margin),
@@ -431,7 +427,7 @@ fun CowboysInterstitial(
             color = ComposeColors.Light
         )
 
-        MarkdownContent(
+        MarkdownText(
             modifier = Modifier
                 .padding(
                     start = dimensionResource(id = R.dimen.standard_margin),
@@ -482,33 +478,6 @@ fun CowboysInterstitial(
     }
 }
 
-// TODO (dserrano): move this to the componentlib
-@Composable
-fun LegacyViewSystemFragment(
-    fragment: Fragment,
-    fragmentManager: FragmentManager,
-    modifier: Modifier = Modifier,
-    tag: String
-) {
-    AndroidView(
-        modifier = modifier,
-        factory = { context ->
-            FrameLayout(context).apply {
-                id = ViewCompat.generateViewId()
-            }
-        },
-        update = {
-            val fragmentAlreadyAdded = fragmentManager.findFragmentByTag(tag) != null
-
-            if (!fragmentAlreadyAdded) {
-                fragmentManager.commit {
-                    replace(it.id, fragment, tag)
-                }
-            }
-        }
-    )
-}
-
 @Preview
 @Composable
 fun CowboysInterstitial() {
@@ -539,4 +508,4 @@ fun CowboysInterstitial() {
     }
 }
 
-private class StepHasNoDataException() : Throwable()
+private class StepHasNoDataException : Throwable()

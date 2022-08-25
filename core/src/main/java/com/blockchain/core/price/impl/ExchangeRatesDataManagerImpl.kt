@@ -12,9 +12,7 @@ import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.anyError
-import com.blockchain.data.anyLoading
-import com.blockchain.data.getFirstError
+import com.blockchain.data.combineDataResources
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asObservable
@@ -28,11 +26,11 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.math.RoundingMode
-import java.util.Calendar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
+import java.math.RoundingMode
+import java.util.Calendar
 
 internal class ExchangeRatesDataManagerImpl(
     private val priceStore: AssetPriceStore,
@@ -76,6 +74,25 @@ internal class ExchangeRatesDataManagerImpl(
                     rate = it.rate
                 )
             }
+
+    override fun exchangeRateToUserFiatFlow(
+        fromAsset: Currency,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<ExchangeRate>> {
+        return priceStore
+            .getCurrentPriceForAsset(
+                base = fromAsset,
+                quote = userFiat,
+                freshnessStrategy = freshnessStrategy
+            )
+            .mapData {
+                ExchangeRate(
+                    from = fromAsset,
+                    to = userFiat,
+                    rate = it.rate
+                )
+            }
+    }
 
     override fun getLastCryptoToUserFiatRate(sourceCrypto: AssetInfo): ExchangeRate {
         val priceRate = priceStore.getCachedAssetPrice(sourceCrypto, userFiat).rate
@@ -214,38 +231,21 @@ internal class ExchangeRatesDataManagerImpl(
                 freshnessStrategy = freshnessStrategy
             )
         ) { currentPrice, yesterdayPrice ->
-            val results = listOf(currentPrice, yesterdayPrice)
-
-            when {
-                results.anyLoading() -> {
-                    DataResource.Loading
-                }
-
-                results.anyError() -> {
-                    DataResource.Error(results.getFirstError().error)
-                }
-
-                else -> {
-                    currentPrice as DataResource.Data
-                    yesterdayPrice as DataResource.Data
-
-                    DataResource.Data(
-                        Prices24HrWithDelta(
-                            delta24h = currentPrice.data.getPriceDelta(yesterdayPrice.data),
-                            previousRate = ExchangeRate(
-                                from = fromAsset,
-                                to = userFiat,
-                                rate = yesterdayPrice.data.rate
-                            ),
-                            currentRate = ExchangeRate(
-                                from = fromAsset,
-                                to = userFiat,
-                                rate = currentPrice.data.rate
-                            ),
-                            marketCap = currentPrice.data.marketCap
-                        )
-                    )
-                }
+            combineDataResources(currentPrice, yesterdayPrice){ currentPriceData, yesterdayPriceData ->
+                Prices24HrWithDelta(
+                    delta24h = currentPriceData.getPriceDelta(yesterdayPriceData),
+                    previousRate = ExchangeRate(
+                        from = fromAsset,
+                        to = userFiat,
+                        rate = yesterdayPriceData.rate
+                    ),
+                    currentRate = ExchangeRate(
+                        from = fromAsset,
+                        to = userFiat,
+                        rate = currentPriceData.rate
+                    ),
+                    marketCap = currentPriceData.marketCap
+                )
             }
         }
     }

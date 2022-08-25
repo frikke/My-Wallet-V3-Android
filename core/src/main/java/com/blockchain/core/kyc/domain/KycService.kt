@@ -2,6 +2,7 @@ package com.blockchain.core.kyc.domain
 
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.kyc.domain.model.KycTiers
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
@@ -47,7 +48,7 @@ interface KycService {
     // flow
     fun getTiers(
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
-    ): Flow<KycTiers>
+    ): Flow<DataResource<KycTiers>>
 
     fun getHighestApprovedTierLevel(
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
