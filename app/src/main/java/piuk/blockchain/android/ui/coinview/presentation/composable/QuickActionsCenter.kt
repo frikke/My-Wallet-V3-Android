@@ -15,7 +15,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsCenterState
 
 @Composable
-fun QuickActionCenter(
+fun QuickActionsCenter(
     data: CoinviewQuickActionsCenterState
 ) {
     when (data) {
@@ -23,12 +23,8 @@ fun QuickActionCenter(
             Empty()
         }
 
-        CoinviewQuickActionsCenterState.Error -> {
-            Empty()
-        }
-
         is CoinviewQuickActionsCenterState.Data -> {
-            AssetAccountsCenterData(
+            QuickActionsCenterData(
                 data = data
             )
         }
@@ -36,7 +32,7 @@ fun QuickActionCenter(
 }
 
 @Composable
-fun AssetAccountsCenterData(
+fun QuickActionsCenterData(
     data: CoinviewQuickActionsCenterState.Data
 ) {
     Column(
@@ -60,8 +56,8 @@ fun AssetAccountsCenterData(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewQuickActionCenter_Data_Enabled() {
-    QuickActionCenter(
+fun PreviewQuickActionsCenter_Data_Enabled() {
+    QuickActionsCenter(
         CoinviewQuickActionsCenterState.Data(
             center = CoinviewQuickActionState.Swap(true)
         )
@@ -70,8 +66,8 @@ fun PreviewQuickActionCenter_Data_Enabled() {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewQuickActionCenter_Data_Disabled() {
-    QuickActionCenter(
+fun PreviewQuickActionsCenter_Data_Disabled() {
+    QuickActionsCenter(
         CoinviewQuickActionsCenterState.Data(
             center = CoinviewQuickActionState.Swap(false)
         )

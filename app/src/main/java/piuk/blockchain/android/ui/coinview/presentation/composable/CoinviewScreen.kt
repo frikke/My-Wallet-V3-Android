@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.coinview.presentation.composable
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntents
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsBottomState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsCenterState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
@@ -66,7 +68,9 @@ fun Coinview(
             },
             onRecurringBuyItemClick = { recurringBuyId ->
                 viewModel.onIntent(CoinviewIntents.ShowRecurringBuyDetail(recurringBuyId))
-            }
+            },
+
+            quickActionsBottom = state.quickActionBottom
         )
     }
 }
@@ -89,7 +93,9 @@ fun CoinviewScreen(
 
     recurringBuys: CoinviewRecurringBuysState,
     onRecurringBuyUpsellClick: () -> Unit,
-    onRecurringBuyItemClick: (String) -> Unit
+    onRecurringBuyItemClick: (String) -> Unit,
+
+    quickActionsBottom: CoinviewQuickActionsBottomState
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         NavigationBar(
@@ -97,35 +103,46 @@ fun CoinviewScreen(
             onBackButtonClick = backOnClick
         )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-        ) {
-            AssetPrice(
-                data = price,
-                onChartEntryHighlighted = onChartEntryHighlighted,
-                resetPriceInformation = resetPriceInformation,
-                onNewTimeSpanSelected = onNewTimeSpanSelected
-            )
+        Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1F)
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                AssetPrice(
+                    data = price,
+                    onChartEntryHighlighted = onChartEntryHighlighted,
+                    resetPriceInformation = resetPriceInformation,
+                    onNewTimeSpanSelected = onNewTimeSpanSelected
+                )
 
-            TotalBalance(
-                data = totalBalance
-            )
+                TotalBalance(
+                    data = totalBalance
+                )
 
-            AssetAccounts(
-                data = accounts
-            )
+                AssetAccounts(
+                    data = accounts
+                )
 
-            QuickActionCenter(
-                data = quickActionsCenter
-            )
-            RecurringBuys(
-                data = recurringBuys,
-                onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
-                onRecurringBuyItemClick = onRecurringBuyItemClick
-            )
+                QuickActionsCenter(
+                    data = quickActionsCenter
+                )
+
+                RecurringBuys(
+                    data = recurringBuys,
+                    onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
+                    onRecurringBuyItemClick = onRecurringBuyItemClick
+                )
+            }
+
+            Column(modifier = Modifier.fillMaxWidth()) {
+                QuickActionsBottom(
+                    data = quickActionsBottom
+                )
+            }
         }
+
     }
 }
 
@@ -151,7 +168,8 @@ fun PreviewCoinviewScreen() {
         quickActionsCenter = CoinviewQuickActionsCenterState.Loading,
         recurringBuys = CoinviewRecurringBuysState.Loading,
         onRecurringBuyUpsellClick = {},
-        onRecurringBuyItemClick = {}
+        onRecurringBuyItemClick = {},
+        quickActionsBottom = CoinviewQuickActionsBottomState.Loading
     )
 }
 

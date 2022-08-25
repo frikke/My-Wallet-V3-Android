@@ -35,6 +35,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
@@ -458,7 +459,9 @@ class CoinviewViewModel(
             }
 
             isQuickActionsError -> {
-                CoinviewQuickActionsCenterState.Error
+                CoinviewQuickActionsCenterState.Data(
+                    center = CoinviewQuickAction.None.toViewState()
+                )
             }
 
             quickActions != null -> {
@@ -480,7 +483,10 @@ class CoinviewViewModel(
             }
 
             isQuickActionsError -> {
-                CoinviewQuickActionsBottomState.Error
+                CoinviewQuickActionsBottomState.Data(
+                    start = CoinviewQuickAction.None.toViewState(),
+                    end = CoinviewQuickAction.None.toViewState()
+                )
             }
 
             quickActions != null -> {
@@ -520,7 +526,6 @@ class CoinviewViewModel(
                 loadAccountsData(
                     asset = modelState.asset,
                 )
-
             }
 
             CoinviewIntents.LoadRecurringBuysData -> {
@@ -744,8 +749,7 @@ class CoinviewViewModel(
                     DataResource.Loading -> {
                         updateState {
                             it.copy(
-                                isRecurringBuysLoading = true,
-                                isRecurringBuysError = true
+                                isRecurringBuysLoading = true
                             )
                         }
                     }
