@@ -94,7 +94,14 @@ fun RecurringBuysError() {
 fun RecurringBuysUpsell(
     onRecurringBuyUpsellClick: () -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = AppTheme.dimensions.paddingLarge,
+                vertical = AppTheme.dimensions.paddingMedium
+            )
+    ) {
         DefaultCard(
             title = stringResource(R.string.coinview_rb_card_title),
             subtitle = stringResource(R.string.coinview_rb_card_blurb),
