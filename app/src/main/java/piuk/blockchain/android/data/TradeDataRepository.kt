@@ -6,6 +6,7 @@ import com.blockchain.api.trade.data.NextPaymentRecurringBuy
 import com.blockchain.api.trade.data.RecurringBuyResponse
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuy
@@ -57,7 +58,10 @@ class TradeDataRepository(
         asset: AssetInfo,
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<List<RecurringBuy>>> {
-        return getRecurringBuysStore.stream(freshnessStrategy)
+        return getRecurringBuysStore
+            .stream(
+                freshnessStrategy.withKey(GetRecurringBuysStore.Key(asset.networkTicker))
+            )
             .mapData {
                 recurringBuyMapper.map(it)
             }

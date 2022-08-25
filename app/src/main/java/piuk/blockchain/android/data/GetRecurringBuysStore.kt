@@ -5,33 +5,48 @@ import com.blockchain.api.trade.data.RecurringBuyResponse
 import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.nabu.Authenticator
 import com.blockchain.store.Fetcher
-import com.blockchain.store.Store
+import com.blockchain.store.KeyedStore
 import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
-import com.blockchain.storedatasource.FlushableDataSource
+import com.blockchain.storedatasource.KeyedFlushableDataSource
+import info.blockchain.balance.Currency
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 
 class GetRecurringBuysStore(
     private val authenticator: Authenticator,
     private val tradeService: TradeService
-) : Store<List<RecurringBuyResponse>> by PersistedJsonSqlDelightStoreBuilder()
-    .build(
+) : KeyedStore<GetRecurringBuysStore.Key, List<RecurringBuyResponse>> by PersistedJsonSqlDelightStoreBuilder()
+    .buildKeyed(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(
-            mapper = {
+            mapper = { key ->
                 authenticator.authenticate { tokenResponse ->
-                    tradeService.getRecurringBuysForAsset(authHeader = tokenResponse.authHeader, asset.networkTicker)
+                    tradeService.getRecurringBuysForAsset(
+                        authHeader = tokenResponse.authHeader,
+                        assetTicker = key.networkTicker
+                    )
                 }
             }
         ),
+        keySerializer = Key.serializer(),
         dataSerializer = ListSerializer(RecurringBuyResponse.serializer()),
         mediator = FreshnessMediator(Freshness.ofHours(24))
     ),
-    FlushableDataSource {
+    KeyedFlushableDataSource<GetRecurringBuysStore.Key> {
+
+    @Serializable
+    data class Key(
+        val networkTicker: String
+    )
+
+    override fun invalidate(param: Key) {
+        markAsStale(param)
+    }
 
     override fun invalidate() {
-        markAsStale()
+        markStoreAsStale()
     }
 
     companion object {
