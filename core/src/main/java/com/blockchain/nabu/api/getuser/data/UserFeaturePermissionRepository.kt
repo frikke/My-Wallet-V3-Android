@@ -8,6 +8,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.anyError
 import com.blockchain.data.anyLoading
+import com.blockchain.data.combineDataResources
 import com.blockchain.data.getFirstError
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
@@ -20,7 +21,6 @@ import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.store.mapData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 internal class UserFeaturePermissionRepository(
     private val kycService: KycService,
@@ -150,12 +150,17 @@ internal class UserFeaturePermissionRepository(
         vararg features: Feature,
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<Map<Feature, FeatureAccess>>> {
-        features.map { feature ->
-            userAccessForFeature(feature).map { access ->
-                Pair(feature, access)
+        return features
+            .map { feature ->
+                getAccessForFeature(feature = feature, freshnessStrategy = freshnessStrategy)
+                    .mapData { featureAccess -> Pair(feature, featureAccess) }
+            }.run {
+                combine(this) { featureWithAccessPairArray ->
+                    combineDataResources(featureWithAccessPairArray.toList()) {
+                        mapOf(*it.toTypedArray())
+                    }
+                }
             }
-        }.zipSingles()
-            .map { mapOf(*it.toTypedArray()) }
     }
 }
 

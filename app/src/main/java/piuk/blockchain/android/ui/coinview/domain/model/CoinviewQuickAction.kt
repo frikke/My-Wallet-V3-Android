@@ -4,7 +4,15 @@ data class CoinviewQuickActions(
     val center: CoinviewQuickAction,
     val bottomStart: CoinviewQuickAction,
     val bottomEnd: CoinviewQuickAction,
-)
+) {
+    companion object {
+        fun none() = CoinviewQuickActions(
+            center = CoinviewQuickAction.None,
+            bottomStart = CoinviewQuickAction.None,
+            bottomEnd = CoinviewQuickAction.None
+        )
+    }
+}
 
 sealed interface CoinviewQuickAction {
     val enabled: Boolean
