@@ -175,6 +175,22 @@ fun CoinviewQuickAction.toViewState(): CoinviewQuickActionState = run {
     }
 }
 
+// Info
+sealed interface CoinviewInfoState {
+    object Loading : CoinviewInfoState
+    object Error : CoinviewInfoState
+    data class Data(
+        val assetName: String,
+        val description: CoinviewInfoDescriptionState,
+        val website: String
+    ) : CoinviewInfoState {
+        sealed interface CoinviewInfoDescriptionState {
+            data class Available(val value: String) : CoinviewInfoDescriptionState
+            object NotAvailable : CoinviewInfoDescriptionState
+        }
+    }
+}
+
 // misc
 /**
  * View text can either come as string or resource with args
