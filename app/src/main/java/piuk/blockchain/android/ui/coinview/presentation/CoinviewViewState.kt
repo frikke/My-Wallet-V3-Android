@@ -157,6 +157,9 @@ sealed interface CoinviewQuickActionsState {
 }
 
 // misc
+/**
+ * View text can either come as string or resource with args
+ */
 sealed interface SimpleValue {
     data class StringValue(val value: String) : SimpleValue
     data class IntResValue(
@@ -165,6 +168,9 @@ sealed interface SimpleValue {
     ) : SimpleValue
 }
 
+/**
+ * Logo can either be Remote with a String URL - or Local with a drawable resource
+ */
 sealed interface LogoSource {
     data class Remote(val value: String) : LogoSource
     data class Local(@DrawableRes val value: Int) : LogoSource

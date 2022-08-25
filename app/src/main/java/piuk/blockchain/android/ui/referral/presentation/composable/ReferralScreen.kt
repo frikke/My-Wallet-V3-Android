@@ -31,7 +31,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.basic.MarkdownContent
+import com.blockchain.componentlib.basic.MarkdownText
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.media.AsyncMediaItem
@@ -111,7 +111,7 @@ fun ReferralScreen(
 
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
-                MarkdownContent(
+                MarkdownText(
                     style = ComposeTypographies.Title2,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
@@ -120,7 +120,7 @@ fun ReferralScreen(
 
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_margin)))
 
-                MarkdownContent(
+                MarkdownText(
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
@@ -246,7 +246,7 @@ fun SingleReferralCriteria(
         modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.standard_margin)),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        MarkdownContent(
+        MarkdownText(
             modifier = Modifier
                 .size(AppTheme.dimensions.paddingLarge)
                 .clip(CircleShape)
@@ -259,7 +259,7 @@ fun SingleReferralCriteria(
 
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
-        MarkdownContent(
+        MarkdownText(
             style = ComposeTypographies.Paragraph1,
             color = if (isCustomBackground) ComposeColors.Light else ComposeColors.Title,
             gravity = ComposeGravities.Centre,

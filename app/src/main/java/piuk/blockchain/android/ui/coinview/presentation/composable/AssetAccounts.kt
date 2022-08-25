@@ -135,7 +135,7 @@ fun AssetAccountHeader(header: CoinviewAccountsHeaderState) {
         }
 
         CoinviewAccountsHeaderState.NoHeader -> {
-            // don't show any view
+            Empty()
         }
     }
 }

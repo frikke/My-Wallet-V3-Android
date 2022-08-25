@@ -617,7 +617,7 @@ class CoinviewViewModel(
     // //////////////////////
     // Accounts
     /**
-     * Loads accounts and todo
+     * Loads accounts and total balance
      */
     private fun loadAccountsData(asset: CryptoAsset) {
         viewModelScope.launch {

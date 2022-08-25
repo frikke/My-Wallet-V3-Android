@@ -10,7 +10,7 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
 
-class MarkdownContentView @JvmOverloads constructor(
+class MarkdownTextView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -25,7 +25,7 @@ class MarkdownContentView @JvmOverloads constructor(
     override fun Content() {
         AppTheme {
             AppSurface {
-                MarkdownContent(
+                MarkdownText(
                     markdownText = markdownText,
                     style = style,
                     color = color,
