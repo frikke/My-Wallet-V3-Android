@@ -4,7 +4,6 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.AssetFilter
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
@@ -25,6 +24,7 @@ import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
@@ -70,7 +70,13 @@ class CoinviewViewModel(
     CoinviewNavigationEvent,
     CoinviewArgs>(CoinviewModelState(walletMode = walletModeService.enabledWalletMode())) {
 
+    companion object {
+        const val SNACKBAR_MESSAGE_DURATION: Long = 3000L
+    }
+
     private var loadPriceDataJob: Job? = null
+    private var accountActionsJob: Job? = null
+    private var snackbarMessageJob: Job? = null
 
     private val fiatCurrency: FiatCurrency
         get() = currencyPrefs.selectedFiatCurrency
@@ -235,7 +241,7 @@ class CoinviewViewModel(
                                 when (cvAccount) {
                                     is CoinviewAccount.Universal -> {
                                         Available(
-                                            blockchainAccount = cvAccount.account,
+                                            cvAccount = cvAccount,
                                             title = when (cvAccount.filter) {
                                                 AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
                                                 AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
@@ -287,7 +293,7 @@ class CoinviewViewModel(
                                     }
                                     is CoinviewAccount.Custodial.Trading -> {
                                         Available(
-                                            blockchainAccount = cvAccount.account,
+                                            cvAccount = cvAccount,
                                             title = labels.getDefaultCustodialWalletLabel(),
                                             subtitle = SimpleValue.IntResValue(R.string.coinview_c_available_desc),
                                             cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
@@ -298,7 +304,7 @@ class CoinviewViewModel(
                                     }
                                     is CoinviewAccount.Custodial.Interest -> {
                                         Available(
-                                            blockchainAccount = cvAccount.account,
+                                            cvAccount = cvAccount,
                                             title = labels.getDefaultInterestWalletLabel(),
                                             subtitle = SimpleValue.IntResValue(
                                                 R.string.coinview_interest_with_balance,
@@ -312,7 +318,7 @@ class CoinviewViewModel(
                                     }
                                     is CoinviewAccount.Defi -> {
                                         Available(
-                                            blockchainAccount = cvAccount.account,
+                                            cvAccount = cvAccount,
                                             title = account.label,
                                             subtitle = SimpleValue.StringValue(account.currency.displayTicker),
                                             cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
@@ -328,7 +334,7 @@ class CoinviewViewModel(
                                 when (cvAccount) {
                                     is CoinviewAccount.Universal -> {
                                         Unavailable(
-                                            blockchainAccount = cvAccount.account,
+                                            cvAccount = cvAccount,
                                             title = when (cvAccount.filter) {
                                                 AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
                                                 AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
@@ -373,7 +379,7 @@ class CoinviewViewModel(
                                     }
                                     is CoinviewAccount.Custodial.Trading -> {
                                         Unavailable(
-                                            blockchainAccount = cvAccount.account,
+                                            cvAccount = cvAccount,
                                             title = labels.getDefaultCustodialWalletLabel(),
                                             subtitle = SimpleValue.IntResValue(
                                                 R.string.coinview_c_unavailable_desc,
@@ -384,7 +390,7 @@ class CoinviewViewModel(
                                     }
                                     is CoinviewAccount.Custodial.Interest -> {
                                         Unavailable(
-                                            blockchainAccount = cvAccount.account,
+                                            cvAccount = cvAccount,
                                             title = labels.getDefaultInterestWalletLabel(),
                                             subtitle = SimpleValue.IntResValue(
                                                 R.string.coinview_interest_no_balance,
@@ -395,7 +401,7 @@ class CoinviewViewModel(
                                     }
                                     is CoinviewAccount.Defi -> {
                                         Unavailable(
-                                            blockchainAccount = cvAccount.account,
+                                            cvAccount = cvAccount,
                                             title = account.currency.name,
                                             subtitle = SimpleValue.IntResValue(R.string.coinview_nc_desc),
                                             logo = LogoSource.Remote(account.currency.logo)
@@ -559,10 +565,22 @@ class CoinviewViewModel(
         }
     }
 
-    private fun reduceSnackbarError(state: CoinviewModelState): CoinviewSnackbarErrorState = state.run {
+    private fun reduceSnackbarError(state: CoinviewModelState): CoinviewSnackbarAlertState = state.run {
         when (state.error) {
-            CoinviewError.ActionsLoadError -> CoinviewSnackbarErrorState.ActionsLoadError
-            CoinviewError.None -> CoinviewSnackbarErrorState.None
+            CoinviewError.ActionsLoadError -> CoinviewSnackbarAlertState.ActionsLoadError
+            CoinviewError.None -> CoinviewSnackbarAlertState.None
+        }.also {
+            // reset to None
+            if (it != CoinviewSnackbarAlertState.None) {
+                snackbarMessageJob?.cancel()
+                snackbarMessageJob = viewModelScope.launch {
+                    delay(SNACKBAR_MESSAGE_DURATION)
+
+                    updateState {
+                        it.copy(error = CoinviewError.None)
+                    }
+                }
+            }
         }
     }
 
@@ -643,7 +661,9 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntents.AccountSelected -> {
-                handleAccountSelected(intent.account)
+                require(modelState.asset != null) { "asset not initialized" }
+
+                handleAccountSelected(intent.account, modelState.asset)
             }
 
             CoinviewIntents.RecurringBuysUpsell -> {
@@ -817,11 +837,38 @@ class CoinviewViewModel(
         }
     }
 
-    private fun handleAccountSelected(account: BlockchainAccount) {
-        viewModelScope.launch {
+    private fun handleAccountSelected(account: CoinviewAccount, asset: CryptoAsset) {
+        accountActionsJob?.cancel()
+        accountActionsJob = viewModelScope.launch {
             getAccountActionsUseCase(account)
-                .doOnData {
-
+                .doOnData { actions ->
+                    if (getAccountActionsUseCase.hasSeenAccountExplainer(account).not()) {
+                        // show explainer
+                        navigate(
+                            CoinviewNavigationEvent.ShowAccountExplainer(
+                                cvAccount = account,
+                                networkTicker = asset.currency.networkTicker,
+                                interestRate = when (account) {
+                                    is CoinviewAccount.Universal -> {
+                                        if (account.filter == AssetFilter.Interest) {
+                                            account.interestRate
+                                        } else {
+                                            0.0
+                                        }
+                                    }
+                                    is CoinviewAccount.Custodial.Interest -> {
+                                        account.interestRate
+                                    }
+                                    else -> {
+                                        0.0
+                                    }
+                                },
+                                actions = actions
+                            )
+                        )
+                    } else {
+                        // show actions
+                    }
                 }
                 .doOnFailure {
                     updateState {

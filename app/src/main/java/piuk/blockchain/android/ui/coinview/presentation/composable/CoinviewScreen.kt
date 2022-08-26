@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -22,6 +23,7 @@ import com.blockchain.componentlib.alert.SnackbarAlert
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.github.mikephil.charting.data.Entry
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntents
@@ -29,7 +31,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsBottomState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsCenterState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewSnackbarErrorState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewSnackbarAlertState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
@@ -85,7 +87,7 @@ fun Coinview(
             assetInfo = state.assetInfo,
             onWebsiteClick = {},
 
-            snackbar = state.snackbarError
+            snackbarAlert = state.snackbarError
         )
     }
 }
@@ -103,7 +105,7 @@ fun CoinviewScreen(
     totalBalance: CoinviewTotalBalanceState,
 
     accounts: CoinviewAccountsState,
-    onAccountClick: (BlockchainAccount) -> Unit,
+    onAccountClick: (CoinviewAccount) -> Unit,
 
     quickActionsCenter: CoinviewQuickActionsCenterState,
 
@@ -116,7 +118,7 @@ fun CoinviewScreen(
     assetInfo: CoinviewAssetInfoState,
     onWebsiteClick: () -> Unit,
 
-    snackbar: CoinviewSnackbarErrorState
+    snackbarAlert: CoinviewSnackbarAlertState
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -172,11 +174,13 @@ fun CoinviewScreen(
             }
         }
 
-        if(snackbar != CoinviewSnackbarErrorState.None){
-            SnackbarAlert(
-                message = stringResource(snackbar.message),
-                type = snackbar.snackbarType
-            )
+        if(snackbarAlert != CoinviewSnackbarAlertState.None){
+            Box(modifier = Modifier.align(Alignment.BottomCenter)){
+                SnackbarAlert(
+                    message = stringResource(snackbarAlert.message),
+                    type = snackbarAlert.snackbarType
+                )
+            }
         }
     }
 }
@@ -211,7 +215,7 @@ fun PreviewCoinviewScreen() {
         assetInfo = CoinviewAssetInfoState.Loading,
         onWebsiteClick = {},
 
-        snackbar = CoinviewSnackbarErrorState.None
+        snackbarAlert = CoinviewSnackbarAlertState.None
     )
 }
 

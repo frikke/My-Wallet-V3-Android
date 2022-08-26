@@ -22,6 +22,7 @@ val coinviewDomainModule = module {
         scoped {
             GetAccountActionsUseCase(
                 assetActionsComparator = get(),
+                dashboardPrefs = get(),
                 dispatcher = Dispatchers.IO
             )
         }
