@@ -33,6 +33,8 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
         val cvAccount: CoinviewAccount
     ) : CoinviewNavigationEvent
 
+    object ShowKycUpgrade : CoinviewNavigationEvent
+
     data class ShowRecurringBuyInfo(
         val recurringBuyId: String
     ) : CoinviewNavigationEvent

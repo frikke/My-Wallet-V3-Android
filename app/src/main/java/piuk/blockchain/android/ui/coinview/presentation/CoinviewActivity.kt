@@ -16,11 +16,14 @@ import info.blockchain.balance.AssetInfo
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
+import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
+import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
+import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
@@ -31,7 +34,8 @@ class CoinviewActivity :
     NavigationRouter<CoinviewNavigationEvent>,
     HostedBottomSheet.Host,
     AccountExplainerBottomSheet.Host,
-    RecurringBuyDetailsSheet.Host {
+    RecurringBuyDetailsSheet.Host,
+    KycUpgradeNowSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -124,6 +128,10 @@ class CoinviewActivity :
                 )
             }
 
+            CoinviewNavigationEvent.ShowKycUpgrade -> {
+                showBottomSheet(KycUpgradeNowSheet.newInstance())
+            }
+
             is CoinviewNavigationEvent.ShowRecurringBuyInfo -> {
                 showBottomSheet(RecurringBuyDetailsSheet.newInstance(navigationEvent.recurringBuyId))
             }
@@ -172,6 +180,10 @@ class CoinviewActivity :
     // host calls
     override fun navigateToActionSheet(actions: Array<StateAwareAction>) {
         //        model.process(CoinViewIntent.UpdateViewState(CoinViewViewState.ShowAccountActionSheet(actions)))
+    }
+
+    override fun startKycClicked() {
+        KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, SimpleBuyActivity.KYC_STARTED)
     }
 
     override fun onRecurringBuyDeleted(asset: AssetInfo) {

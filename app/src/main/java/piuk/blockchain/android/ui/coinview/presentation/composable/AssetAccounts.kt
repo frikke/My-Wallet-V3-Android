@@ -43,7 +43,8 @@ import piuk.blockchain.android.ui.coinview.presentation.SimpleValue
 @Composable
 fun AssetAccounts(
     data: CoinviewAccountsState,
-    onAccountClick: (CoinviewAccount) -> Unit
+    onAccountClick: (CoinviewAccount) -> Unit,
+    onLockedAccountClick: () -> Unit
 ) {
     when (data) {
         CoinviewAccountsState.Loading -> {
@@ -53,7 +54,8 @@ fun AssetAccounts(
         is CoinviewAccountsState.Data -> {
             AssetAccountsData(
                 data = data,
-                onAccountClick = onAccountClick
+                onAccountClick = onAccountClick,
+                onLockedAccountClick = onLockedAccountClick
             )
         }
     }
@@ -69,7 +71,8 @@ fun AssetAccountsLoading() {
 @Composable
 fun AssetAccountsData(
     data: CoinviewAccountsState.Data,
-    onAccountClick: (CoinviewAccount) -> Unit
+    onAccountClick: (CoinviewAccount) -> Unit,
+    onLockedAccountClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -80,7 +83,7 @@ fun AssetAccountsData(
         AssetAccountHeader(header = data.header)
 
         // accounts
-        data.accounts.forEachIndexed { index, account ->
+        data.accounts.forEach { account ->
             when (account) {
                 is CoinviewAccountState.Available -> {
                     BalanceTableRow(
@@ -125,7 +128,7 @@ fun AssetAccountsData(
                         endImageResource = ImageResource.Local(
                             R.drawable.ic_lock, colorFilter = ColorFilter.tint(Grey400)
                         ),
-                        onClick = { /*todo*/ }
+                        onClick = { onLockedAccountClick() }
                     )
                 }
             }
@@ -186,7 +189,7 @@ private fun Modifier.applyStyle(style: CoinviewAccountsStyle): Modifier {
 fun PreviewAssetAccounts_Loading() {
     AssetAccounts(
         CoinviewAccountsState.Loading,
-        {}
+        {}, {}
     )
 }
 
@@ -224,7 +227,7 @@ fun PreviewAssetAccounts_Data_Simple() {
                 )
             )
         ),
-        {}
+        {}, {}
     )
 }
 
@@ -262,7 +265,7 @@ fun PreviewAssetAccounts_Data_Boxed() {
                 )
             )
         ),
-        {}
+        {}, {}
     )
 }
 
@@ -283,9 +286,8 @@ private val previewBlockchainAccount = object : BlockchainAccount {
         get() = TODO("Not yet implemented")
 }
 
-
-val previewCvAccount :CoinviewAccount = CoinviewAccount.Defi(
-    account  = previewBlockchainAccount,
+val previewCvAccount: CoinviewAccount = CoinviewAccount.Defi(
+    account = previewBlockchainAccount,
     cryptoBalance = Money.zero(CryptoCurrency.BTC),
     fiatBalance = Money.zero(CryptoCurrency.BTC),
     isEnabled = false

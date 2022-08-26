@@ -669,6 +669,12 @@ class CoinviewViewModel(
                 )
             }
 
+            CoinviewIntent.LockedAccountSelected -> {
+                navigate(
+                    CoinviewNavigationEvent.ShowKycUpgrade
+                )
+            }
+
             CoinviewIntent.RecurringBuysUpsell -> {
                 require(modelState.asset != null) { "asset not initialized" }
 

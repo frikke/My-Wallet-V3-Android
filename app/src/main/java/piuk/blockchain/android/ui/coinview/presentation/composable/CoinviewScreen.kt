@@ -72,6 +72,9 @@ fun Coinview(
             onAccountClick = { account ->
                 viewModel.onIntent(CoinviewIntent.AccountSelected(account))
             },
+            onLockedAccountClick = {
+                viewModel.onIntent(CoinviewIntent.LockedAccountSelected)
+            },
 
             quickActionsCenter = state.quickActionCenter,
 
@@ -110,6 +113,7 @@ fun CoinviewScreen(
 
     accounts: CoinviewAccountsState,
     onAccountClick: (CoinviewAccount) -> Unit,
+    onLockedAccountClick: () -> Unit,
 
     quickActionsCenter: CoinviewQuickActionsCenterState,
 
@@ -152,7 +156,8 @@ fun CoinviewScreen(
 
                     AssetAccounts(
                         data = accounts,
-                        onAccountClick = onAccountClick
+                        onAccountClick = onAccountClick ,
+                        onLockedAccountClick = onLockedAccountClick
                     )
 
                     QuickActionsCenter(
@@ -213,6 +218,7 @@ fun PreviewCoinviewScreen() {
 
         accounts = CoinviewAccountsState.Loading,
         onAccountClick = {},
+        onLockedAccountClick = {},
 
         quickActionsCenter = CoinviewQuickActionsCenterState.Loading,
 

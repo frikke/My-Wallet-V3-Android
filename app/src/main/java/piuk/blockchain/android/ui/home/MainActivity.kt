@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import com.blockchain.analytics.NotificationAppOpened
@@ -75,6 +76,7 @@ import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginSheet
 import piuk.blockchain.android.ui.auth.newlogin.presentation.SecureChannelBrowserMessageArg
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewActivity
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
@@ -1285,11 +1287,16 @@ class MainActivity :
         when (navigationEvent) {
             is PricesNavigationEvent.CoinView -> {
                 activityResultsContract.launch(
-                    CoinViewActivity.newIntent(
+//                    CoinViewActivity.newIntent(
+//                        context = this,
+//                        asset = navigationEvent.assetInfo,
+//                        originScreen = LaunchOrigin.PRICES.name,
+//                    )
+
+                        CoinviewActivity.newIntent(
                         context = this,
-                        asset = navigationEvent.assetInfo,
-                        originScreen = LaunchOrigin.PRICES.name,
-                    )
+                    asset = navigationEvent.assetInfo,
+                )
                 )
             }
         }.exhaustive
