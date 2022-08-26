@@ -19,7 +19,8 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsBott
 
 @Composable
 fun QuickActionsBottom(
-    data: CoinviewQuickActionsBottomState
+    data: CoinviewQuickActionsBottomState,
+    onQuickActionClick: (CoinviewQuickActionState) -> Unit
 ) {
     when (data) {
         CoinviewQuickActionsBottomState.Loading -> {
@@ -28,7 +29,8 @@ fun QuickActionsBottom(
 
         is CoinviewQuickActionsBottomState.Data -> {
             QuickActionBottomData(
-                data = data
+                data = data,
+                onQuickActionClick = onQuickActionClick
             )
         }
     }
@@ -67,7 +69,8 @@ fun QuickActionBottomLoading() {
 
 @Composable
 fun QuickActionBottomData(
-    data: CoinviewQuickActionsBottomState.Data
+    data: CoinviewQuickActionsBottomState.Data,
+    onQuickActionClick: (CoinviewQuickActionState) -> Unit
 ) {
     val atLeastOneButton =
         data.start !is CoinviewQuickActionState.None || data.end !is CoinviewQuickActionState.None
@@ -96,7 +99,7 @@ fun QuickActionBottomData(
                             size = AppTheme.dimensions.paddingLarge
                         ),
                         state = if (data.start.enabled) ButtonState.Enabled else ButtonState.Disabled,
-                        onClick = { /*todo*/ }
+                        onClick = { onQuickActionClick(data.start) }
                     )
                 }
 
@@ -114,7 +117,7 @@ fun QuickActionBottomData(
                             size = AppTheme.dimensions.paddingLarge
                         ),
                         state = if (data.end.enabled) ButtonState.Enabled else ButtonState.Disabled,
-                        onClick = { /*todo*/ }
+                        onClick = { onQuickActionClick(data.end) }
                     )
                 }
             }
@@ -126,7 +129,7 @@ fun QuickActionBottomData(
 @Composable
 fun PreviewQuickActionsBottom_Loading() {
     QuickActionsBottom(
-        CoinviewQuickActionsBottomState.Loading
+        CoinviewQuickActionsBottomState.Loading, {}
     )
 }
 
@@ -137,7 +140,8 @@ fun PreviewQuickActionsBottom_Data_Enabled() {
         CoinviewQuickActionsBottomState.Data(
             start = CoinviewQuickActionState.Send(true),
             end = CoinviewQuickActionState.Receive(true)
-        )
+        ),
+        {}
     )
 }
 
@@ -148,7 +152,8 @@ fun PreviewQuickActionsBottom_Data_Disabled() {
         CoinviewQuickActionsBottomState.Data(
             start = CoinviewQuickActionState.Buy(false),
             end = CoinviewQuickActionState.Sell(false)
-        )
+        ),
+        {}
     )
 }
 
@@ -159,7 +164,8 @@ fun PreviewQuickActionsBottom_Data_1None() {
         CoinviewQuickActionsBottomState.Data(
             start = CoinviewQuickActionState.None,
             end = CoinviewQuickActionState.Sell(false)
-        )
+        ),
+        {}
     )
 }
 
@@ -170,6 +176,7 @@ fun PreviewQuickActionsBottom_Data_None() {
         CoinviewQuickActionsBottomState.Data(
             start = CoinviewQuickActionState.None,
             end = CoinviewQuickActionState.None
-        )
+        ),
+        {}
     )
 }

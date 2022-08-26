@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.walletmode.WalletMode
 import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 
 sealed interface CoinviewIntents : Intent<CoinviewModelState> {
     /**
@@ -84,4 +84,6 @@ sealed interface CoinviewIntents : Intent<CoinviewModelState> {
     object RecurringBuysUpsell : CoinviewIntents
 
     data class ShowRecurringBuyDetail(val recurringBuyId: String) : CoinviewIntents
+
+    data class QuickActionSelected(val quickAction: CoinviewQuickAction) : CoinviewIntents
 }

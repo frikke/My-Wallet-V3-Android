@@ -186,6 +186,17 @@ fun CoinviewQuickAction.toViewState(): CoinviewQuickActionState = run {
     }
 }
 
+fun CoinviewQuickActionState.toModelState(): CoinviewQuickAction = run {
+    when (this) {
+        is CoinviewQuickActionState.Buy -> CoinviewQuickAction.Buy(enabled)
+        is CoinviewQuickActionState.Sell -> CoinviewQuickAction.Sell(enabled)
+        is CoinviewQuickActionState.Send -> CoinviewQuickAction.Send(enabled)
+        is CoinviewQuickActionState.Receive -> CoinviewQuickAction.Receive(enabled)
+        is CoinviewQuickActionState.Swap -> CoinviewQuickAction.Swap(enabled)
+        CoinviewQuickActionState.None -> CoinviewQuickAction.None
+    }
+}
+
 // Info
 sealed interface CoinviewAssetInfoState {
     object Loading : CoinviewAssetInfoState

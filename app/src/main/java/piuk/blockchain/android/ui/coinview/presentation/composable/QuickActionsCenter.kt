@@ -16,7 +16,8 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsCent
 
 @Composable
 fun QuickActionsCenter(
-    data: CoinviewQuickActionsCenterState
+    data: CoinviewQuickActionsCenterState,
+    onQuickActionClick: (CoinviewQuickActionState) -> Unit
 ) {
     when (data) {
         CoinviewQuickActionsCenterState.Loading -> {
@@ -25,7 +26,8 @@ fun QuickActionsCenter(
 
         is CoinviewQuickActionsCenterState.Data -> {
             QuickActionsCenterData(
-                data = data
+                data = data,
+                onQuickActionClick = onQuickActionClick
             )
         }
     }
@@ -33,7 +35,8 @@ fun QuickActionsCenter(
 
 @Composable
 fun QuickActionsCenterData(
-    data: CoinviewQuickActionsCenterState.Data
+    data: CoinviewQuickActionsCenterState.Data,
+    onQuickActionClick: (CoinviewQuickActionState) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -49,7 +52,7 @@ fun QuickActionsCenterData(
                 size = AppTheme.dimensions.paddingLarge
             ),
             state = if (data.center.enabled) ButtonState.Enabled else ButtonState.Disabled,
-            onClick = { /*todo*/ }
+            onClick = { onQuickActionClick(data.center) }
         )
     }
 }
@@ -60,7 +63,8 @@ fun PreviewQuickActionsCenter_Data_Enabled() {
     QuickActionsCenter(
         CoinviewQuickActionsCenterState.Data(
             center = CoinviewQuickActionState.Swap(true)
-        )
+        ),
+        {}
     )
 }
 
@@ -70,6 +74,7 @@ fun PreviewQuickActionsCenter_Data_Disabled() {
     QuickActionsCenter(
         CoinviewQuickActionsCenterState.Data(
             center = CoinviewQuickActionState.Swap(false)
-        )
+        ),
+        {}
     )
 }

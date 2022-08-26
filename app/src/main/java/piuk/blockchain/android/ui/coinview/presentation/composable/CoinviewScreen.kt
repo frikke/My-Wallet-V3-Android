@@ -18,7 +18,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.componentlib.alert.SnackbarAlert
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -28,6 +27,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntents
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsBottomState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsCenterState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
@@ -36,6 +36,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceStat
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
 import piuk.blockchain.android.ui.coinview.presentation.SimpleValue
+import piuk.blockchain.android.ui.coinview.presentation.toModelState
 import piuk.blockchain.android.util.getStringMaybe
 
 @Composable
@@ -83,6 +84,9 @@ fun Coinview(
             },
 
             quickActionsBottom = state.quickActionBottom,
+            onQuickActionClick = { quickAction ->
+                viewModel.onIntent(CoinviewIntents.QuickActionSelected(quickAction.toModelState()))
+            },
 
             assetInfo = state.assetInfo,
             onWebsiteClick = {},
@@ -114,6 +118,7 @@ fun CoinviewScreen(
     onRecurringBuyItemClick: (String) -> Unit,
 
     quickActionsBottom: CoinviewQuickActionsBottomState,
+    onQuickActionClick: (CoinviewQuickActionState) -> Unit,
 
     assetInfo: CoinviewAssetInfoState,
     onWebsiteClick: () -> Unit,
@@ -151,7 +156,8 @@ fun CoinviewScreen(
                     )
 
                     QuickActionsCenter(
-                        data = quickActionsCenter
+                        data = quickActionsCenter,
+                        onQuickActionClick = onQuickActionClick
                     )
 
                     RecurringBuys(
@@ -168,14 +174,15 @@ fun CoinviewScreen(
 
                 Column(modifier = Modifier.fillMaxWidth()) {
                     QuickActionsBottom(
-                        data = quickActionsBottom
+                        data = quickActionsBottom,
+                        onQuickActionClick = onQuickActionClick
                     )
                 }
             }
         }
 
-        if(snackbarAlert != CoinviewSnackbarAlertState.None){
-            Box(modifier = Modifier.align(Alignment.BottomCenter)){
+        if (snackbarAlert != CoinviewSnackbarAlertState.None) {
+            Box(modifier = Modifier.align(Alignment.BottomCenter)) {
                 SnackbarAlert(
                     message = stringResource(snackbarAlert.message),
                     type = snackbarAlert.snackbarType
@@ -208,10 +215,14 @@ fun PreviewCoinviewScreen() {
         onAccountClick = {},
 
         quickActionsCenter = CoinviewQuickActionsCenterState.Loading,
+
         recurringBuys = CoinviewRecurringBuysState.Loading,
         onRecurringBuyUpsellClick = {},
         onRecurringBuyItemClick = {},
+
         quickActionsBottom = CoinviewQuickActionsBottomState.Loading,
+        onQuickActionClick = {},
+
         assetInfo = CoinviewAssetInfoState.Loading,
         onWebsiteClick = {},
 

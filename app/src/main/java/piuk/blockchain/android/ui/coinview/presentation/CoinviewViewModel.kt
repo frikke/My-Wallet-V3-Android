@@ -673,6 +673,25 @@ class CoinviewViewModel(
             is CoinviewIntents.ShowRecurringBuyDetail -> {
                 // todo
             }
+
+            is CoinviewIntents.QuickActionSelected -> {
+                require(modelState.asset != null) { "asset not initialized" }
+
+                when (intent.quickAction) {
+                    is CoinviewQuickAction.Buy -> {
+                        navigate(
+                            CoinviewNavigationEvent.NavigateToBuy(
+                                asset = modelState.asset
+                            )
+                        )
+                    }
+                    CoinviewQuickAction.None -> TODO()
+                    is CoinviewQuickAction.Receive -> TODO()
+                    is CoinviewQuickAction.Sell -> TODO()
+                    is CoinviewQuickAction.Send -> TODO()
+                    is CoinviewQuickAction.Swap -> TODO()
+                }
+            }
         }
     }
 
