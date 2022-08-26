@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.StateAwareAction
@@ -21,6 +20,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
+import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 
@@ -29,7 +29,8 @@ class CoinviewActivity :
     KoinScopeComponent,
     NavigationRouter<CoinviewNavigationEvent>,
     HostedBottomSheet.Host,
-    AccountExplainerBottomSheet.Host {
+    AccountExplainerBottomSheet.Host,
+    RecurringBuyDetailsSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -62,7 +63,7 @@ class CoinviewActivity :
 
     override fun onResume() {
         super.onResume()
-        viewModel.onIntent(CoinviewIntents.LoadAllData)
+        viewModel.onIntent(CoinviewIntent.LoadAllData)
     }
 
     override fun onStateUpdated(state: CoinviewViewState) {
@@ -121,6 +122,10 @@ class CoinviewActivity :
                     )
                 )
             }
+
+            is CoinviewNavigationEvent.ShowRecurringBuyInfo -> {
+                showBottomSheet(RecurringBuyDetailsSheet.newInstance(navigationEvent.recurringBuyId))
+            }
         }
     }
 
@@ -158,9 +163,14 @@ class CoinviewActivity :
         //        model.process(CoinViewIntent.UpdateViewState(CoinViewViewState.ShowAccountActionSheet(actions)))
     }
 
+    override fun onRecurringBuyDeleted(asset: AssetInfo) {
+        viewModel.onIntent(CoinviewIntent.LoadRecurringBuysData)
+    }
+
     override fun onSheetClosed() {
         // n/a
     }
+
     //
     companion object {
         fun newIntent(context: Context, asset: AssetInfo): Intent {

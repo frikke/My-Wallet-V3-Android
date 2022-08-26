@@ -25,7 +25,7 @@ import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntents
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntent
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsBottomState
@@ -57,35 +57,35 @@ fun Coinview(
 
             price = state.assetPrice,
             onChartEntryHighlighted = { entry ->
-                viewModel.onIntent(CoinviewIntents.UpdatePriceForChartSelection(entry))
+                viewModel.onIntent(CoinviewIntent.UpdatePriceForChartSelection(entry))
             },
             resetPriceInformation = {
-                viewModel.onIntent(CoinviewIntents.ResetPriceSelection)
+                viewModel.onIntent(CoinviewIntent.ResetPriceSelection)
             },
             onNewTimeSpanSelected = { timeSpan ->
-                viewModel.onIntent(CoinviewIntents.NewTimeSpanSelected(timeSpan))
+                viewModel.onIntent(CoinviewIntent.NewTimeSpanSelected(timeSpan))
             },
 
             totalBalance = state.totalBalance,
 
             accounts = state.accounts,
             onAccountClick = { account ->
-                viewModel.onIntent(CoinviewIntents.AccountSelected(account))
+                viewModel.onIntent(CoinviewIntent.AccountSelected(account))
             },
 
             quickActionsCenter = state.quickActionCenter,
 
             recurringBuys = state.recurringBuys,
             onRecurringBuyUpsellClick = {
-                viewModel.onIntent(CoinviewIntents.RecurringBuysUpsell)
+                viewModel.onIntent(CoinviewIntent.RecurringBuysUpsell)
             },
             onRecurringBuyItemClick = { recurringBuyId ->
-                viewModel.onIntent(CoinviewIntents.ShowRecurringBuyDetail(recurringBuyId))
+                viewModel.onIntent(CoinviewIntent.ShowRecurringBuyDetail(recurringBuyId))
             },
 
             quickActionsBottom = state.quickActionBottom,
             onQuickActionClick = { quickAction ->
-                viewModel.onIntent(CoinviewIntents.QuickActionSelected(quickAction.toModelState()))
+                viewModel.onIntent(CoinviewIntent.QuickActionSelected(quickAction.toModelState()))
             },
 
             assetInfo = state.assetInfo,

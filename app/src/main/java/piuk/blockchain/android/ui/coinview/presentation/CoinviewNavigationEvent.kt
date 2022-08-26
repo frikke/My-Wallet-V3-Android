@@ -32,4 +32,8 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
     data class NavigateToSwap(
         val cvAccount: CoinviewAccount
     ) : CoinviewNavigationEvent
+
+    data class ShowRecurringBuyInfo(
+        val recurringBuyId: String
+    ) : CoinviewNavigationEvent
 }

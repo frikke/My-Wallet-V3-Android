@@ -64,7 +64,7 @@ class CoinviewViewModel(
 
     private val loadAssetInfoUseCase: LoadAssetInfoUseCase
 ) : MviViewModel<
-    CoinviewIntents,
+    CoinviewIntent,
     CoinviewViewState,
     CoinviewModelState,
     CoinviewNavigationEvent,
@@ -584,17 +584,17 @@ class CoinviewViewModel(
         }
     }
 
-    override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntents) {
+    override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntent) {
         when (intent) {
-            is CoinviewIntents.LoadAllData -> {
+            is CoinviewIntent.LoadAllData -> {
                 require(modelState.asset != null) { "asset not initialized" }
-                onIntent(CoinviewIntents.LoadPriceData)
-                onIntent(CoinviewIntents.LoadAccountsData)
-                onIntent(CoinviewIntents.LoadRecurringBuysData)
-                onIntent(CoinviewIntents.LoadAssetInfo)
+                onIntent(CoinviewIntent.LoadPriceData)
+                onIntent(CoinviewIntent.LoadAccountsData)
+                onIntent(CoinviewIntent.LoadRecurringBuysData)
+                onIntent(CoinviewIntent.LoadAssetInfo)
             }
 
-            CoinviewIntents.LoadPriceData -> {
+            CoinviewIntent.LoadPriceData -> {
                 require(modelState.asset != null) { "asset not initialized" }
 
                 loadPriceData(
@@ -603,7 +603,7 @@ class CoinviewViewModel(
                 )
             }
 
-            CoinviewIntents.LoadAccountsData -> {
+            CoinviewIntent.LoadAccountsData -> {
                 require(modelState.asset != null) { "asset not initialized" }
 
                 loadAccountsData(
@@ -611,7 +611,7 @@ class CoinviewViewModel(
                 )
             }
 
-            CoinviewIntents.LoadRecurringBuysData -> {
+            CoinviewIntent.LoadRecurringBuysData -> {
                 require(modelState.asset != null) { "asset not initialized" }
 
                 loadRecurringBuysData(
@@ -619,7 +619,7 @@ class CoinviewViewModel(
                 )
             }
 
-            CoinviewIntents.LoadQuickActions -> {
+            CoinviewIntent.LoadQuickActions -> {
                 require(modelState.asset != null) { "asset not initialized" }
                 require(modelState.accounts != null) { "accounts not initialized" }
                 // todo(othman) remove this check once accounts are cached
@@ -633,7 +633,7 @@ class CoinviewViewModel(
                 )
             }
 
-            CoinviewIntents.LoadAssetInfo -> {
+            CoinviewIntent.LoadAssetInfo -> {
                 require(modelState.asset != null) { "asset not initialized" }
 
                 loadAssetInformation(
@@ -641,15 +641,15 @@ class CoinviewViewModel(
                 )
             }
 
-            is CoinviewIntents.UpdatePriceForChartSelection -> {
+            is CoinviewIntent.UpdatePriceForChartSelection -> {
                 updatePriceForChartSelection(intent.entry, modelState.assetPriceHistory?.historicRates!!)
             }
 
-            is CoinviewIntents.ResetPriceSelection -> {
+            is CoinviewIntent.ResetPriceSelection -> {
                 resetPriceSelection()
             }
 
-            is CoinviewIntents.NewTimeSpanSelected -> {
+            is CoinviewIntent.NewTimeSpanSelected -> {
                 require(modelState.asset != null) { "asset not initialized" }
 
                 updateState { it.copy(requestedTimeSpan = intent.timeSpan) }
@@ -660,21 +660,25 @@ class CoinviewViewModel(
                 )
             }
 
-            is CoinviewIntents.AccountSelected -> {
+            is CoinviewIntent.AccountSelected -> {
                 require(modelState.asset != null) { "asset not initialized" }
 
                 handleAccountSelected(intent.account, modelState.asset)
             }
 
-            CoinviewIntents.RecurringBuysUpsell -> {
+            CoinviewIntent.RecurringBuysUpsell -> {
                 // todo
             }
 
-            is CoinviewIntents.ShowRecurringBuyDetail -> {
-                // todo
+            is CoinviewIntent.ShowRecurringBuyDetail -> {
+                navigate(
+                    CoinviewNavigationEvent.ShowRecurringBuyInfo(
+                        recurringBuyId = intent.recurringBuyId
+                    )
+                )
             }
 
-            is CoinviewIntents.QuickActionSelected -> {
+            is CoinviewIntent.QuickActionSelected -> {
                 require(modelState.asset != null) { "asset not initialized" }
 
                 when (intent.quickAction) {
@@ -866,7 +870,7 @@ class CoinviewViewModel(
                             }
                         }
 
-                        onIntent(CoinviewIntents.LoadQuickActions)
+                        onIntent(CoinviewIntent.LoadQuickActions)
                     }
                 }
             }
