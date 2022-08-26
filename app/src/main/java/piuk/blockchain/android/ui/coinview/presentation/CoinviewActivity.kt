@@ -21,6 +21,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
+import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 
@@ -125,6 +126,16 @@ class CoinviewActivity :
 
             is CoinviewNavigationEvent.ShowRecurringBuyInfo -> {
                 showBottomSheet(RecurringBuyDetailsSheet.newInstance(navigationEvent.recurringBuyId))
+            }
+
+            is CoinviewNavigationEvent.NavigateToRecurringBuyUpsell -> {
+                startActivity(
+                    RecurringBuyOnboardingActivity.newIntent(
+                        context = this,
+                        fromCoinView = true,
+                        assetTicker = navigationEvent.asset.currency.networkTicker
+                    )
+                )
             }
         }
     }

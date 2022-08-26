@@ -663,11 +663,18 @@ class CoinviewViewModel(
             is CoinviewIntent.AccountSelected -> {
                 require(modelState.asset != null) { "asset not initialized" }
 
-                handleAccountSelected(intent.account, modelState.asset)
+                handleAccountSelected(
+                    account = intent.account,
+                    asset = modelState.asset
+                )
             }
 
             CoinviewIntent.RecurringBuysUpsell -> {
-                // todo
+                require(modelState.asset != null) { "asset not initialized" }
+
+                navigate(
+                    CoinviewNavigationEvent.NavigateToRecurringBuyUpsell(modelState.asset)
+                )
             }
 
             is CoinviewIntent.ShowRecurringBuyDetail -> {
