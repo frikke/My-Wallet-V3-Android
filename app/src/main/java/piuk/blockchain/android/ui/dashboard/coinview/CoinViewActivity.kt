@@ -705,9 +705,12 @@ class CoinViewActivity :
                 else -> {
                     when (walletMode) {
                         WalletMode.UNIVERSAL, WalletMode.CUSTODIAL_ONLY -> {
+                            listItems.removeIf { details ->
+                                details is AssetDetailsItem.CentralCta
+                            }
+
                             val insertIndex = listItems.indexOfLast { it is AssetDetailsItem.CryptoDetailsInfo }
                                 .let { if (it == -1) 0 else it + 1 }
-
                             listItems.add(insertIndex, AssetDetailsItem.CentralCta(highestBalanceWallet))
                             updateList()
                         }
