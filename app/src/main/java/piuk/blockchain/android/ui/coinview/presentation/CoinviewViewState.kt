@@ -159,9 +159,9 @@ sealed interface CoinviewQuickActionState {
     }
 
     object None : CoinviewQuickActionState {
-        override val name = error("None action doesn't have name property")
-        override val logo = error("None action doesn't have log property")
-        override val enabled = error("None action doesn't have enabled property")
+        override val name: SimpleValue get() = error("None action doesn't have name property")
+        override val logo: LogoSource.Resource get() = error("None action doesn't have log property")
+        override val enabled: Boolean get() = error("None action doesn't have enabled property")
     }
 }
 

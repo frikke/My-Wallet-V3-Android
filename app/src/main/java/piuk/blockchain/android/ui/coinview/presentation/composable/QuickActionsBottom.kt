@@ -69,41 +69,55 @@ fun QuickActionBottomLoading() {
 fun QuickActionBottomData(
     data: CoinviewQuickActionsBottomState.Data
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Separator()
+    val atLeastOneButton =
+        data.start !is CoinviewQuickActionState.None || data.end !is CoinviewQuickActionState.None
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(AppTheme.dimensions.paddingMedium)
-        ) {
-            SecondaryButton(
-                modifier = Modifier.weight(1F),
-                text = data.start.name.value(),
-                icon = ImageResource.Local(
-                    data.start.logo.value,
-                    colorFilter = ColorFilter.tint(AppTheme.colors.background),
-                    size = AppTheme.dimensions.paddingLarge
-                ),
-                state = if (data.start.enabled) ButtonState.Enabled else ButtonState.Disabled,
-                onClick = { /*todo*/ }
-            )
+    if (atLeastOneButton) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Separator()
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
 
-            SecondaryButton(
-                modifier = Modifier.weight(1F),
-                text = data.end.name.value(),
-                icon = ImageResource.Local(
-                    data.end.logo.value,
-                    colorFilter = ColorFilter.tint(AppTheme.colors.background),
-                    size = AppTheme.dimensions.paddingLarge
-                ),
-                state = if (data.end.enabled) ButtonState.Enabled else ButtonState.Disabled,
-                onClick = { /*todo*/ }
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.paddingMedium)
+            ) {
+                val showSpacer =
+                    data.start !is CoinviewQuickActionState.None && data.end !is CoinviewQuickActionState.None
+
+                if (data.start !is CoinviewQuickActionState.None) {
+                    SecondaryButton(
+                        modifier = Modifier.weight(1F),
+                        text = data.start.name.value(),
+                        icon = ImageResource.Local(
+                            data.start.logo.value,
+                            colorFilter = ColorFilter.tint(AppTheme.colors.background),
+                            size = AppTheme.dimensions.paddingLarge
+                        ),
+                        state = if (data.start.enabled) ButtonState.Enabled else ButtonState.Disabled,
+                        onClick = { /*todo*/ }
+                    )
+                }
+
+                if (showSpacer) {
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+                }
+
+                if (data.end !is CoinviewQuickActionState.None) {
+                    SecondaryButton(
+                        modifier = Modifier.weight(1F),
+                        text = data.end.name.value(),
+                        icon = ImageResource.Local(
+                            data.end.logo.value,
+                            colorFilter = ColorFilter.tint(AppTheme.colors.background),
+                            size = AppTheme.dimensions.paddingLarge
+                        ),
+                        state = if (data.end.enabled) ButtonState.Enabled else ButtonState.Disabled,
+                        onClick = { /*todo*/ }
+                    )
+                }
+            }
         }
     }
 }
@@ -134,6 +148,28 @@ fun PreviewQuickActionsBottom_Data_Disabled() {
         CoinviewQuickActionsBottomState.Data(
             start = CoinviewQuickActionState.Buy(false),
             end = CoinviewQuickActionState.Sell(false)
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewQuickActionsBottom_Data_1None() {
+    QuickActionsBottom(
+        CoinviewQuickActionsBottomState.Data(
+            start = CoinviewQuickActionState.None,
+            end = CoinviewQuickActionState.Sell(false)
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewQuickActionsBottom_Data_None() {
+    QuickActionsBottom(
+        CoinviewQuickActionsBottomState.Data(
+            start = CoinviewQuickActionState.None,
+            end = CoinviewQuickActionState.None
         )
     )
 }
