@@ -38,22 +38,25 @@ fun QuickActionsCenterData(
     data: CoinviewQuickActionsCenterState.Data,
     onQuickActionClick: (CoinviewQuickActionState) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(AppTheme.dimensions.paddingLarge)
-    ) {
-        PrimaryButton(
-            modifier = Modifier.fillMaxWidth(),
-            text = data.center.name.value(),
-            icon = ImageResource.Local(
-                data.center.logo.value,
-                colorFilter = ColorFilter.tint(AppTheme.colors.background),
-                size = AppTheme.dimensions.paddingLarge
-            ),
-            state = if (data.center.enabled) ButtonState.Enabled else ButtonState.Disabled,
-            onClick = { onQuickActionClick(data.center) }
-        )
+    if (data.center !is CoinviewQuickActionState.None) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.paddingLarge)
+        ) {
+
+            PrimaryButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = data.center.name.value(),
+                icon = ImageResource.Local(
+                    data.center.logo.value,
+                    colorFilter = ColorFilter.tint(AppTheme.colors.background),
+                    size = AppTheme.dimensions.paddingLarge
+                ),
+                state = if (data.center.enabled) ButtonState.Enabled else ButtonState.Disabled,
+                onClick = { onQuickActionClick(data.center) }
+            )
+        }
     }
 }
 

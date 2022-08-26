@@ -685,11 +685,25 @@ class CoinviewViewModel(
                             )
                         )
                     }
-                    CoinviewQuickAction.None -> TODO()
+
+                    is CoinviewQuickAction.Sell -> {
+                        navigate(
+                            CoinviewNavigationEvent.NavigateToSell(
+                                cvAccount = modelState.actionableAccount
+                            )
+                        )
+                    }
+
                     is CoinviewQuickAction.Receive -> TODO()
-                    is CoinviewQuickAction.Sell -> TODO()
                     is CoinviewQuickAction.Send -> TODO()
-                    is CoinviewQuickAction.Swap -> TODO()
+                    is CoinviewQuickAction.Swap -> {
+                        navigate(
+                            CoinviewNavigationEvent.NavigateToSwap(
+                                cvAccount = modelState.actionableAccount
+                            )
+                        )
+                    }
+                    CoinviewQuickAction.None -> TODO()
                 }
             }
         }

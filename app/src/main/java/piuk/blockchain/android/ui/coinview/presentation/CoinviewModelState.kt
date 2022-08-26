@@ -1,11 +1,13 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
 import com.blockchain.api.services.DetailedAssetInformation
+import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.walletmode.WalletMode
 import piuk.blockchain.android.ui.coinview.domain.GetAccountActionsUseCase
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistory
@@ -56,7 +58,39 @@ data class CoinviewModelState(
 
     // errors
     val error: CoinviewError = CoinviewError.None
-) : ModelState
+) : ModelState {
+    /**
+     * Returns the first account that is:
+     *
+     * * Universal trading or defi
+     *
+     * *OR*
+     *
+     * * Cutodial trading (i.e. interest is not actionable)
+     *
+     * *OR*
+     *
+     * * Defi account
+     *
+     * *AND*
+     *
+     * * has a positive balance
+     */
+    val actionableAccount: CoinviewAccount
+        get() {
+            require(accounts != null) { "accounts not initialized" }
+
+            return accounts.accounts.firstOrNull {
+                val isUniversalTradingDefiAccount = it is CoinviewAccount.Universal &&
+                    (it.filter == AssetFilter.Trading || it.filter == AssetFilter.NonCustodial)
+                val isTradingAccount = it is CoinviewAccount.Custodial.Trading
+                val isDefiAccount = it is CoinviewAccount.Defi
+                val hasPositiveBalance = it.cryptoBalance.isPositive
+
+                (isUniversalTradingDefiAccount || isTradingAccount || isDefiAccount) && hasPositiveBalance
+            } ?: error("No actionable account found - maybe a quick action is active when it should be disabled")
+        }
+}
 
 sealed interface CoinviewError {
     /**

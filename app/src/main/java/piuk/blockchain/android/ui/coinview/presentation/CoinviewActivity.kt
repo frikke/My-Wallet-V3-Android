@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
@@ -17,6 +19,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 
 class CoinviewActivity :
     MVIActivity<CoinviewViewState>(),
@@ -77,6 +80,26 @@ class CoinviewActivity :
                     SimpleBuyActivity.newIntent(
                         context = this,
                         asset = navigationEvent.asset.currency
+                    )
+                )
+            }
+
+            is CoinviewNavigationEvent.NavigateToSell -> {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.Sell,
+                        sourceAccount = navigationEvent.cvAccount.account
+                    )
+                )
+            }
+
+            is CoinviewNavigationEvent.NavigateToSwap -> {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.Swap,
+                        sourceAccount = navigationEvent.cvAccount.account
                     )
                 )
             }

@@ -16,4 +16,12 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
     data class NavigateToBuy(
         val asset: CryptoAsset,
     ) : CoinviewNavigationEvent
+
+    data class NavigateToSell(
+        val cvAccount: CoinviewAccount
+    ) : CoinviewNavigationEvent
+
+    data class NavigateToSwap(
+        val cvAccount: CoinviewAccount
+    ) : CoinviewNavigationEvent
 }
