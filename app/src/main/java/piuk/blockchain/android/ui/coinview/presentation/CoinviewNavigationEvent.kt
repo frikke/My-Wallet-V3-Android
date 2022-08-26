@@ -21,6 +21,14 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
         val cvAccount: CoinviewAccount
     ) : CoinviewNavigationEvent
 
+    data class NavigateToSend(
+        val cvAccount: CoinviewAccount
+    ) : CoinviewNavigationEvent
+
+    data class NavigateToReceive(
+        val cvAccount: CoinviewAccount
+    ) : CoinviewNavigationEvent
+
     data class NavigateToSwap(
         val cvAccount: CoinviewAccount
     ) : CoinviewNavigationEvent

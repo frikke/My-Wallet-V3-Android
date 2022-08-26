@@ -4,9 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.NullCryptoAddress.asset
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.StateAwareAction
+import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
@@ -20,11 +22,13 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
+import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 
 class CoinviewActivity :
     MVIActivity<CoinviewViewState>(),
     KoinScopeComponent,
     NavigationRouter<CoinviewNavigationEvent>,
+    HostedBottomSheet.Host,
     AccountExplainerBottomSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
@@ -94,6 +98,20 @@ class CoinviewActivity :
                 )
             }
 
+            is CoinviewNavigationEvent.NavigateToSend -> {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.Send,
+                        sourceAccount = navigationEvent.cvAccount.account
+                    )
+                )
+            }
+
+            is CoinviewNavigationEvent.NavigateToReceive -> {
+                showBottomSheet(ReceiveDetailSheet.newInstance(navigationEvent.cvAccount.account as CryptoAccount))
+            }
+
             is CoinviewNavigationEvent.NavigateToSwap -> {
                 startActivity(
                     TransactionFlowActivity.newIntent(
@@ -140,6 +158,9 @@ class CoinviewActivity :
         //        model.process(CoinViewIntent.UpdateViewState(CoinViewViewState.ShowAccountActionSheet(actions)))
     }
 
+    override fun onSheetClosed() {
+        // n/a
+    }
     //
     companion object {
         fun newIntent(context: Context, asset: AssetInfo): Intent {

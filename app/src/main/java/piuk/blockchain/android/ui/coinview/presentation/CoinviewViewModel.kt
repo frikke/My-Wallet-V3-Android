@@ -694,8 +694,22 @@ class CoinviewViewModel(
                         )
                     }
 
-                    is CoinviewQuickAction.Receive -> TODO()
-                    is CoinviewQuickAction.Send -> TODO()
+                    is CoinviewQuickAction.Send -> {
+                        navigate(
+                            CoinviewNavigationEvent.NavigateToSend(
+                                cvAccount = modelState.actionableAccount
+                            )
+                        )
+                    }
+
+                    is CoinviewQuickAction.Receive -> {
+                        navigate(
+                            CoinviewNavigationEvent.NavigateToReceive(
+                                cvAccount = modelState.actionableAccount
+                            )
+                        )
+                    }
+
                     is CoinviewQuickAction.Swap -> {
                         navigate(
                             CoinviewNavigationEvent.NavigateToSwap(
@@ -703,7 +717,8 @@ class CoinviewViewModel(
                             )
                         )
                     }
-                    CoinviewQuickAction.None -> TODO()
+
+                    CoinviewQuickAction.None -> error("None action doesn't have an action")
                 }
             }
         }
