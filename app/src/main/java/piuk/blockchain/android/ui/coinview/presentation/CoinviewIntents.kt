@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.walletmode.WalletMode
@@ -77,7 +78,7 @@ sealed interface CoinviewIntents : Intent<CoinviewModelState> {
         }
     }
 
-    object AccountSelected : CoinviewIntents
+    data class AccountSelected(val account: BlockchainAccount) : CoinviewIntents
 
     object RecurringBuysUpsell : CoinviewIntents
 

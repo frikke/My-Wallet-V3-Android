@@ -3,7 +3,9 @@ package piuk.blockchain.android.ui.coinview.presentation
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.charts.ChartEntry
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.core.price.HistoricalTimeSpan
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
@@ -16,7 +18,9 @@ data class CoinviewViewState(
     val quickActionCenter: CoinviewQuickActionsCenterState,
     val recurringBuys: CoinviewRecurringBuysState,
     val quickActionBottom: CoinviewQuickActionsBottomState,
-    val assetInfo: CoinviewAssetInfoState
+    val assetInfo: CoinviewAssetInfoState,
+
+    val snackbarError: CoinviewSnackbarErrorState
 ) : ViewState
 
 // Price
@@ -61,7 +65,11 @@ sealed interface CoinviewAccountsState {
         val accounts: List<CoinviewAccountState>
     ) : CoinviewAccountsState {
         sealed interface CoinviewAccountState {
+            // todo find a better way to identify an account for the viewmodel without sending the whole object
+            val blockchainAccount: BlockchainAccount
+
             data class Available(
+                override val blockchainAccount: BlockchainAccount,
                 val title: String,
                 val subtitle: SimpleValue,
                 val cryptoBalance: String,
@@ -71,6 +79,7 @@ sealed interface CoinviewAccountsState {
             ) : CoinviewAccountState
 
             data class Unavailable(
+                override val blockchainAccount: BlockchainAccount,
                 val title: String,
                 val subtitle: SimpleValue,
                 val logo: LogoSource
@@ -185,6 +194,22 @@ sealed interface CoinviewAssetInfoState {
         val description: ValueAvailability,
         val website: ValueAvailability
     ) : CoinviewAssetInfoState
+}
+
+// Snackbar errors
+sealed interface CoinviewSnackbarErrorState {
+    val message: Int
+    val snackbarType: SnackbarType
+
+    object ActionsLoadError : CoinviewSnackbarErrorState {
+        override val message: Int = R.string.coinview_actions_error
+        override val snackbarType: SnackbarType = SnackbarType.Warning
+    }
+
+    object None : CoinviewSnackbarErrorState {
+        override val message: Int get() = error("None error doesn't have message property")
+        override val snackbarType: SnackbarType get() = error("None error doesn't have snackbarType property")
+    }
 }
 
 // misc

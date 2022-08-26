@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
@@ -13,6 +14,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
+import com.blockchain.data.doOnData
+import com.blockchain.data.doOnFailure
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
@@ -26,6 +29,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
+import piuk.blockchain.android.ui.coinview.domain.GetAccountActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetInfoUseCase
@@ -48,10 +52,16 @@ class CoinviewViewModel(
     private val coincore: Coincore,
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
+
     private val getAssetPriceUseCase: GetAssetPriceUseCase,
+
     private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase,
+    private val getAccountActionsUseCase: GetAccountActionsUseCase,
+
     private val loadAssetRecurringBuysUseCase: LoadAssetRecurringBuysUseCase,
+
     private val loadQuickActionsUseCase: LoadQuickActionsUseCase,
+
     private val loadAssetInfoUseCase: LoadAssetInfoUseCase
 ) : MviViewModel<
     CoinviewIntents,
@@ -87,7 +97,9 @@ class CoinviewViewModel(
             quickActionCenter = reduceQuickActionsCenter(this),
             recurringBuys = reduceRecurringBuys(this),
             quickActionBottom = reduceQuickActionsBottom(this),
-            assetInfo = reduceAssetInfo(this)
+            assetInfo = reduceAssetInfo(this),
+
+            snackbarError = reduceSnackbarError(this)
         )
     }
 
@@ -223,6 +235,7 @@ class CoinviewViewModel(
                                 when (cvAccount) {
                                     is CoinviewAccount.Universal -> {
                                         Available(
+                                            blockchainAccount = cvAccount.account,
                                             title = when (cvAccount.filter) {
                                                 AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
                                                 AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
@@ -274,6 +287,7 @@ class CoinviewViewModel(
                                     }
                                     is CoinviewAccount.Custodial.Trading -> {
                                         Available(
+                                            blockchainAccount = cvAccount.account,
                                             title = labels.getDefaultCustodialWalletLabel(),
                                             subtitle = SimpleValue.IntResValue(R.string.coinview_c_available_desc),
                                             cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
@@ -284,6 +298,7 @@ class CoinviewViewModel(
                                     }
                                     is CoinviewAccount.Custodial.Interest -> {
                                         Available(
+                                            blockchainAccount = cvAccount.account,
                                             title = labels.getDefaultInterestWalletLabel(),
                                             subtitle = SimpleValue.IntResValue(
                                                 R.string.coinview_interest_with_balance,
@@ -297,6 +312,7 @@ class CoinviewViewModel(
                                     }
                                     is CoinviewAccount.Defi -> {
                                         Available(
+                                            blockchainAccount = cvAccount.account,
                                             title = account.label,
                                             subtitle = SimpleValue.StringValue(account.currency.displayTicker),
                                             cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
@@ -312,6 +328,7 @@ class CoinviewViewModel(
                                 when (cvAccount) {
                                     is CoinviewAccount.Universal -> {
                                         Unavailable(
+                                            blockchainAccount = cvAccount.account,
                                             title = when (cvAccount.filter) {
                                                 AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
                                                 AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
@@ -356,6 +373,7 @@ class CoinviewViewModel(
                                     }
                                     is CoinviewAccount.Custodial.Trading -> {
                                         Unavailable(
+                                            blockchainAccount = cvAccount.account,
                                             title = labels.getDefaultCustodialWalletLabel(),
                                             subtitle = SimpleValue.IntResValue(
                                                 R.string.coinview_c_unavailable_desc,
@@ -366,6 +384,7 @@ class CoinviewViewModel(
                                     }
                                     is CoinviewAccount.Custodial.Interest -> {
                                         Unavailable(
+                                            blockchainAccount = cvAccount.account,
                                             title = labels.getDefaultInterestWalletLabel(),
                                             subtitle = SimpleValue.IntResValue(
                                                 R.string.coinview_interest_no_balance,
@@ -376,6 +395,7 @@ class CoinviewViewModel(
                                     }
                                     is CoinviewAccount.Defi -> {
                                         Unavailable(
+                                            blockchainAccount = cvAccount.account,
                                             title = account.currency.name,
                                             subtitle = SimpleValue.IntResValue(R.string.coinview_nc_desc),
                                             logo = LogoSource.Remote(account.currency.logo)
@@ -539,6 +559,13 @@ class CoinviewViewModel(
         }
     }
 
+    private fun reduceSnackbarError(state: CoinviewModelState): CoinviewSnackbarErrorState = state.run {
+        when (state.error) {
+            CoinviewError.ActionsLoadError -> CoinviewSnackbarErrorState.ActionsLoadError
+            CoinviewError.None -> CoinviewSnackbarErrorState.None
+        }
+    }
+
     override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntents) {
         when (intent) {
             is CoinviewIntents.LoadAllData -> {
@@ -615,8 +642,8 @@ class CoinviewViewModel(
                 )
             }
 
-            CoinviewIntents.AccountSelected -> {
-
+            is CoinviewIntents.AccountSelected -> {
+                handleAccountSelected(intent.account)
             }
 
             CoinviewIntents.RecurringBuysUpsell -> {
@@ -787,6 +814,20 @@ class CoinviewViewModel(
     private fun extractAccounts(accountsInfo: CoinviewAssetInformation.AccountsInfo) {
         updateState {
             it.copy(accounts = accountsInfo.accounts)
+        }
+    }
+
+    private fun handleAccountSelected(account: BlockchainAccount) {
+        viewModelScope.launch {
+            getAccountActionsUseCase(account)
+                .doOnData {
+
+                }
+                .doOnFailure {
+                    updateState {
+                        it.copy(error = CoinviewError.ActionsLoadError)
+                    }
+                }
         }
     }
 

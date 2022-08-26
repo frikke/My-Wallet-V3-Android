@@ -14,6 +14,24 @@ sealed class DataResource<out T> {
     data class Error(val error: Exception) : DataResource<Nothing>()
 }
 
+fun <T> DataResource<T>.doOnLoading(f: () -> Unit): DataResource<T> {
+    return also {
+        if (this is DataResource.Loading) f()
+    }
+}
+
+fun <T> DataResource<T>.doOnData(f: (T) -> Unit): DataResource<T> {
+    return also {
+        if (this is DataResource.Data) f(this.data)
+    }
+}
+
+fun <T> DataResource<T>.doOnFailure(f: (Exception) -> Unit): DataResource<T> {
+    return also {
+        if (this is DataResource.Error) f(this.error)
+    }
+}
+
 fun <T> List<DataResource<T>>.anyLoading() = any { it is DataResource.Loading }
 fun <T> List<DataResource<T>>.anyError() = any { it is DataResource.Error }
 fun <T> List<DataResource<T>>.getFirstError() = (first { it is DataResource.Error } as DataResource.Error)

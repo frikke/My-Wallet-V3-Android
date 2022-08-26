@@ -15,6 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.ActivitySummaryList
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
@@ -22,6 +27,8 @@ import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState
@@ -33,7 +40,7 @@ import piuk.blockchain.android.ui.coinview.presentation.SimpleValue
 @Composable
 fun AssetAccounts(
     data: CoinviewAccountsState,
-    onAccountClick: () -> Unit
+    onAccountClick: (BlockchainAccount) -> Unit
 ) {
     when (data) {
         CoinviewAccountsState.Loading -> {
@@ -59,7 +66,7 @@ fun AssetAccountsLoading() {
 @Composable
 fun AssetAccountsData(
     data: CoinviewAccountsState.Data,
-    onAccountClick: () -> Unit
+    onAccountClick: (BlockchainAccount) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -93,7 +100,7 @@ fun AssetAccountsData(
                             }
                         },
                         tags = emptyList(),
-                        onClick = { /*todo*/ }
+                        onClick = { onAccountClick(account.blockchainAccount) }
                     )
                 }
                 is CoinviewAccountState.Unavailable -> {
@@ -189,6 +196,7 @@ fun PreviewAssetAccounts_Data_Simple() {
             header = CoinviewAccountsHeaderState.ShowHeader(SimpleValue.StringValue("wallet & accounts")),
             accounts = listOf(
                 CoinviewAccountState.Available(
+                    blockchainAccount = previewBlockchainAccount,
                     title = "Ethereum 1",
                     subtitle = SimpleValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
@@ -197,6 +205,7 @@ fun PreviewAssetAccounts_Data_Simple() {
                     assetColor = "#324921"
                 ),
                 CoinviewAccountState.Available(
+                    blockchainAccount = previewBlockchainAccount,
                     title = "Ethereum 2",
                     subtitle = SimpleValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
@@ -205,6 +214,7 @@ fun PreviewAssetAccounts_Data_Simple() {
                     assetColor = "#324921"
                 ),
                 CoinviewAccountState.Unavailable(
+                    blockchainAccount = previewBlockchainAccount,
                     title = "Ethereum 2",
                     subtitle = SimpleValue.StringValue("ETH"),
                     logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
@@ -224,6 +234,7 @@ fun PreviewAssetAccounts_Data_Boxed() {
             header = CoinviewAccountsHeaderState.NoHeader,
             accounts = listOf(
                 CoinviewAccountState.Available(
+                    blockchainAccount = previewBlockchainAccount,
                     title = "Ethereum 1",
                     subtitle = SimpleValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
@@ -232,6 +243,7 @@ fun PreviewAssetAccounts_Data_Boxed() {
                     assetColor = "#324921"
                 ),
                 CoinviewAccountState.Available(
+                    blockchainAccount = previewBlockchainAccount,
                     title = "Ethereum 2",
                     subtitle = SimpleValue.StringValue("ETH"),
                     cryptoBalance = "0.90349281 ETH",
@@ -240,6 +252,7 @@ fun PreviewAssetAccounts_Data_Boxed() {
                     assetColor = "#324921"
                 ),
                 CoinviewAccountState.Unavailable(
+                    blockchainAccount = previewBlockchainAccount,
                     title = "Ethereum 2",
                     subtitle = SimpleValue.StringValue("ETH"),
                     logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
@@ -248,4 +261,21 @@ fun PreviewAssetAccounts_Data_Boxed() {
         ),
         {}
     )
+}
+
+private val previewBlockchainAccount = object : BlockchainAccount {
+    override val label: String
+        get() = TODO("Not yet implemented")
+    override val balance: Observable<AccountBalance>
+        get() = TODO("Not yet implemented")
+    override val activity: Single<ActivitySummaryList>
+        get() = TODO("Not yet implemented")
+    override val isFunded: Boolean
+        get() = TODO("Not yet implemented")
+    override val hasTransactions: Boolean
+        get() = TODO("Not yet implemented")
+    override val receiveAddress: Single<ReceiveAddress>
+        get() = TODO("Not yet implemented")
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = TODO("Not yet implemented")
 }

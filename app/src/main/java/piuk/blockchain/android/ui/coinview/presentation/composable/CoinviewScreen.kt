@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.coinview.presentation.composable
 
-import android.content.res.Resources
-import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.componentlib.alert.SnackbarAlert
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.github.mikephil.charting.data.Entry
@@ -28,6 +29,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsBottomState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsCenterState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewSnackbarErrorState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
@@ -64,8 +66,8 @@ fun Coinview(
             totalBalance = state.totalBalance,
 
             accounts = state.accounts,
-            onAccountClick = {
-                viewModel.onIntent(CoinviewIntents.AccountSelected)
+            onAccountClick = { account ->
+                viewModel.onIntent(CoinviewIntents.AccountSelected(account))
             },
 
             quickActionsCenter = state.quickActionCenter,
@@ -81,7 +83,9 @@ fun Coinview(
             quickActionsBottom = state.quickActionBottom,
 
             assetInfo = state.assetInfo,
-            onWebsiteClick = {}
+            onWebsiteClick = {},
+
+            snackbar = state.snackbarError
         )
     }
 }
@@ -99,7 +103,7 @@ fun CoinviewScreen(
     totalBalance: CoinviewTotalBalanceState,
 
     accounts: CoinviewAccountsState,
-    onAccountClick: () -> Unit,
+    onAccountClick: (BlockchainAccount) -> Unit,
 
     quickActionsCenter: CoinviewQuickActionsCenterState,
 
@@ -110,60 +114,70 @@ fun CoinviewScreen(
     quickActionsBottom: CoinviewQuickActionsBottomState,
 
     assetInfo: CoinviewAssetInfoState,
-    onWebsiteClick: () -> Unit
+    onWebsiteClick: () -> Unit,
+
+    snackbar: CoinviewSnackbarErrorState
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        NavigationBar(
-            title = networkTicker,
-            onBackButtonClick = backOnClick
-        )
-
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1F)
-                    .verticalScroll(rememberScrollState()),
-            ) {
-                AssetPrice(
-                    data = price,
-                    onChartEntryHighlighted = onChartEntryHighlighted,
-                    resetPriceInformation = resetPriceInformation,
-                    onNewTimeSpanSelected = onNewTimeSpanSelected
-                )
+            NavigationBar(
+                title = networkTicker,
+                onBackButtonClick = backOnClick
+            )
 
-                TotalBalance(
-                    data = totalBalance
-                )
+            Column(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1F)
+                        .verticalScroll(rememberScrollState()),
+                ) {
+                    AssetPrice(
+                        data = price,
+                        onChartEntryHighlighted = onChartEntryHighlighted,
+                        resetPriceInformation = resetPriceInformation,
+                        onNewTimeSpanSelected = onNewTimeSpanSelected
+                    )
 
-                AssetAccounts(
-                    data = accounts,
-                    onAccountClick = onAccountClick
-                )
+                    TotalBalance(
+                        data = totalBalance
+                    )
 
-                QuickActionsCenter(
-                    data = quickActionsCenter
-                )
+                    AssetAccounts(
+                        data = accounts,
+                        onAccountClick = onAccountClick
+                    )
 
-                RecurringBuys(
-                    data = recurringBuys,
-                    onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
-                    onRecurringBuyItemClick = onRecurringBuyItemClick
-                )
+                    QuickActionsCenter(
+                        data = quickActionsCenter
+                    )
 
-                AssetInfo(
-                    data = assetInfo,
-                    onWebsiteClick = onWebsiteClick
-                )
-            }
+                    RecurringBuys(
+                        data = recurringBuys,
+                        onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
+                        onRecurringBuyItemClick = onRecurringBuyItemClick
+                    )
 
-            Column(modifier = Modifier.fillMaxWidth()) {
-                QuickActionsBottom(
-                    data = quickActionsBottom
-                )
+                    AssetInfo(
+                        data = assetInfo,
+                        onWebsiteClick = onWebsiteClick
+                    )
+                }
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    QuickActionsBottom(
+                        data = quickActionsBottom
+                    )
+                }
             }
         }
 
+        if(snackbar != CoinviewSnackbarErrorState.None){
+            SnackbarAlert(
+                message = stringResource(snackbar.message),
+                type = snackbar.snackbarType
+            )
+        }
     }
 }
 
@@ -195,7 +209,9 @@ fun PreviewCoinviewScreen() {
         onRecurringBuyItemClick = {},
         quickActionsBottom = CoinviewQuickActionsBottomState.Loading,
         assetInfo = CoinviewAssetInfoState.Loading,
-        onWebsiteClick = {}
+        onWebsiteClick = {},
+
+        snackbar = CoinviewSnackbarErrorState.None
     )
 }
 
@@ -206,7 +222,7 @@ fun SimpleValue.value(): String {
         is SimpleValue.IntResValue -> stringResource(
             value,
             *(args.map {
-                when(it){
+                when (it) {
                     is Int -> {
                         LocalContext.current.getStringMaybe(it)
                     }
