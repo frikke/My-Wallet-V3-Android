@@ -615,6 +615,10 @@ class CoinviewViewModel(
                 )
             }
 
+            CoinviewIntents.AccountSelected -> {
+
+            }
+
             CoinviewIntents.RecurringBuysUpsell -> {
                 // todo
             }

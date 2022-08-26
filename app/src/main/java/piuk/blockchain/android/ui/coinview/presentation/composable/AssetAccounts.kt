@@ -32,7 +32,8 @@ import piuk.blockchain.android.ui.coinview.presentation.SimpleValue
 
 @Composable
 fun AssetAccounts(
-    data: CoinviewAccountsState
+    data: CoinviewAccountsState,
+    onAccountClick: () -> Unit
 ) {
     when (data) {
         CoinviewAccountsState.Loading -> {
@@ -41,7 +42,8 @@ fun AssetAccounts(
 
         is CoinviewAccountsState.Data -> {
             AssetAccountsData(
-                data = data
+                data = data,
+                onAccountClick = onAccountClick
             )
         }
     }
@@ -56,7 +58,8 @@ fun AssetAccountsLoading() {
 
 @Composable
 fun AssetAccountsData(
-    data: CoinviewAccountsState.Data
+    data: CoinviewAccountsState.Data,
+    onAccountClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -171,7 +174,10 @@ private fun Modifier.applyStyle(style: CoinviewAccountsStyle): Modifier {
 @Preview(showBackground = true)
 @Composable
 fun PreviewAssetAccounts_Loading() {
-    AssetAccounts(CoinviewAccountsState.Loading)
+    AssetAccounts(
+        CoinviewAccountsState.Loading,
+        {}
+    )
 }
 
 @Preview(showBackground = true)
@@ -204,7 +210,8 @@ fun PreviewAssetAccounts_Data_Simple() {
                     logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
                 )
             )
-        )
+        ),
+        {}
     )
 }
 
@@ -238,6 +245,7 @@ fun PreviewAssetAccounts_Data_Boxed() {
                     logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
                 )
             )
-        )
+        ),
+        {}
     )
 }

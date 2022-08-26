@@ -77,6 +77,8 @@ sealed interface CoinviewIntents : Intent<CoinviewModelState> {
         }
     }
 
+    object AccountSelected : CoinviewIntents
+
     object RecurringBuysUpsell : CoinviewIntents
 
     data class ShowRecurringBuyDetail(val recurringBuyId: String) : CoinviewIntents

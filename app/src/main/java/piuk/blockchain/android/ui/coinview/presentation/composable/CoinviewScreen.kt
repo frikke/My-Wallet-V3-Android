@@ -60,6 +60,9 @@ fun Coinview(
             totalBalance = state.totalBalance,
 
             accounts = state.accounts,
+            onAccountClick = {
+                viewModel.onIntent(CoinviewIntents.AccountSelected)
+            },
 
             quickActionsCenter = state.quickActionCenter,
 
@@ -92,6 +95,7 @@ fun CoinviewScreen(
     totalBalance: CoinviewTotalBalanceState,
 
     accounts: CoinviewAccountsState,
+    onAccountClick: () -> Unit,
 
     quickActionsCenter: CoinviewQuickActionsCenterState,
 
@@ -129,7 +133,8 @@ fun CoinviewScreen(
                 )
 
                 AssetAccounts(
-                    data = accounts
+                    data = accounts,
+                    onAccountClick = onAccountClick
                 )
 
                 QuickActionsCenter(
@@ -176,7 +181,10 @@ fun PreviewCoinviewScreen() {
         resetPriceInformation = {},
         onNewTimeSpanSelected = {},
         totalBalance = CoinviewTotalBalanceState.Loading,
+
         accounts = CoinviewAccountsState.Loading,
+        onAccountClick = {},
+
         quickActionsCenter = CoinviewQuickActionsCenterState.Loading,
         recurringBuys = CoinviewRecurringBuysState.Loading,
         onRecurringBuyUpsellClick = {},
