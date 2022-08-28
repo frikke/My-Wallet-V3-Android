@@ -49,19 +49,34 @@ data class GetAccountActionsUseCase(
         }
     }
 
-    fun hasSeenAccountExplainer(account: CoinviewAccount): Boolean {
+    /**
+     * @return Pair<isIntroSeen: Boolean, markAsSeen: () -> Unit>
+     */
+    fun getSeenAccountExplainerState(account: CoinviewAccount): Pair<Boolean, () -> Unit> {
         return when (account) {
             is CoinviewAccount.Universal -> {
                 when (account.filter) {
-                    AssetFilter.Trading -> dashboardPrefs.isCustodialIntroSeen
-                    AssetFilter.Interest -> dashboardPrefs.isRewardsIntroSeen
-                    AssetFilter.NonCustodial -> dashboardPrefs.isPrivateKeyIntroSeen
+                    AssetFilter.Trading -> {
+                        Pair(dashboardPrefs.isCustodialIntroSeen) { dashboardPrefs.isCustodialIntroSeen = true }
+                    }
+                    AssetFilter.Interest -> {
+                        Pair(dashboardPrefs.isRewardsIntroSeen) { dashboardPrefs.isRewardsIntroSeen = true }
+                    }
+                    AssetFilter.NonCustodial -> {
+                        Pair(dashboardPrefs.isPrivateKeyIntroSeen) { dashboardPrefs.isPrivateKeyIntroSeen = true }
+                    }
                     else -> error("account type not supported")
                 }
             }
-            is CoinviewAccount.Custodial.Interest -> dashboardPrefs.isCustodialIntroSeen
-            is CoinviewAccount.Custodial.Trading -> dashboardPrefs.isRewardsIntroSeen
-            is CoinviewAccount.Defi -> dashboardPrefs.isPrivateKeyIntroSeen
+            is CoinviewAccount.Custodial.Interest -> {
+                Pair(dashboardPrefs.isCustodialIntroSeen) { dashboardPrefs.isCustodialIntroSeen = true }
+            }
+            is CoinviewAccount.Custodial.Trading -> {
+                Pair(dashboardPrefs.isRewardsIntroSeen) { dashboardPrefs.isRewardsIntroSeen = true }
+            }
+            is CoinviewAccount.Defi -> {
+                Pair(dashboardPrefs.isPrivateKeyIntroSeen) { dashboardPrefs.isPrivateKeyIntroSeen = true }
+            }
         }
     }
 }

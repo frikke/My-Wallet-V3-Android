@@ -934,52 +934,55 @@ class CoinviewViewModel(
         accountActionsJob = viewModelScope.launch {
             getAccountActionsUseCase(account)
                 .doOnData { actions ->
-                    if (getAccountActionsUseCase.hasSeenAccountExplainer(account).not()) {
-                        // show explainer
-                        navigate(
-                            CoinviewNavigationEvent.ShowAccountExplainer(
-                                cvAccount = account,
-                                networkTicker = asset.currency.networkTicker,
-                                interestRate = when (account) {
-                                    is CoinviewAccount.Universal -> {
-                                        if (account.filter == AssetFilter.Interest) {
+                    getAccountActionsUseCase.getSeenAccountExplainerState(account).let { (hasSeen, markAsSeen) ->
+                        if (hasSeen.not()) {
+                            // show explainer
+                            navigate(
+                                CoinviewNavigationEvent.ShowAccountExplainer(
+                                    cvAccount = account,
+                                    networkTicker = asset.currency.networkTicker,
+                                    interestRate = when (account) {
+                                        is CoinviewAccount.Universal -> {
+                                            if (account.filter == AssetFilter.Interest) {
+                                                account.interestRate
+                                            } else {
+                                                0.0
+                                            }
+                                        }
+                                        is CoinviewAccount.Custodial.Interest -> {
                                             account.interestRate
-                                        } else {
+                                        }
+                                        else -> {
                                             0.0
                                         }
-                                    }
-                                    is CoinviewAccount.Custodial.Interest -> {
-                                        account.interestRate
-                                    }
-                                    else -> {
-                                        0.0
-                                    }
-                                },
-                                actions = actions
+                                    },
+                                    actions = actions
+                                )
                             )
-                        )
-                    } else {
-                        navigate(
-                            CoinviewNavigationEvent.ShowAccountActions(
-                                cvAccount = account,
-                                interestRate = when (account) {
-                                    is CoinviewAccount.Universal -> {
-                                        if (account.filter == AssetFilter.Interest) {
+                            markAsSeen()
+                        } else {
+                            navigate(
+                                CoinviewNavigationEvent.ShowAccountActions(
+                                    cvAccount = account,
+                                    interestRate = when (account) {
+                                        is CoinviewAccount.Universal -> {
+                                            if (account.filter == AssetFilter.Interest) {
+                                                account.interestRate
+                                            } else {
+                                                0.0
+                                            }
+                                        }
+                                        is CoinviewAccount.Custodial.Interest -> {
                                             account.interestRate
-                                        } else {
+                                        }
+                                        else -> {
                                             0.0
                                         }
-                                    }
-                                    is CoinviewAccount.Custodial.Interest -> {
-                                        account.interestRate
-                                    }
-                                    else -> {
-                                        0.0
-                                    }
-                                },
-                                actions = actions
+                                    },
+                                    actions = actions
+                                )
                             )
-                        )
+                        }
                     }
                 }
                 .doOnFailure {
