@@ -50,6 +50,7 @@ sealed interface CoinviewPriceState {
 sealed interface CoinviewTotalBalanceState {
     object NotSupported : CoinviewTotalBalanceState
     object Loading : CoinviewTotalBalanceState
+    object Error : CoinviewTotalBalanceState
     data class Data(
         val assetName: String,
         val totalFiatBalance: String,
@@ -60,6 +61,7 @@ sealed interface CoinviewTotalBalanceState {
 // Accounts
 sealed interface CoinviewAccountsState {
     object Loading : CoinviewAccountsState
+    object Error : CoinviewAccountsState
     data class Data(
         val style: CoinviewAccountsStyle,
         val header: CoinviewAccountsHeaderState,

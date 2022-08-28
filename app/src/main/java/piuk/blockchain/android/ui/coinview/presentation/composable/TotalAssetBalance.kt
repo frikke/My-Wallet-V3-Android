@@ -24,6 +24,10 @@ fun TotalBalance(
             TotalBalanceLoading()
         }
 
+        CoinviewTotalBalanceState.Error -> {
+            Empty()
+        }
+
         is CoinviewTotalBalanceState.Data -> {
             TotalBalanceData(
                 data = data

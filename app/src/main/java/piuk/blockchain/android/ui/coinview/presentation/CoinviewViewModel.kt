@@ -184,7 +184,7 @@ class CoinviewViewModel(
             }
 
             isTotalBalanceError -> {
-                CoinviewTotalBalanceState.NotSupported
+                CoinviewTotalBalanceState.Error
             }
 
             totalBalance != null -> {
@@ -208,6 +208,10 @@ class CoinviewViewModel(
         when {
             isAccountsLoading && accounts == null -> {
                 CoinviewAccountsState.Loading
+            }
+
+            isAccountsError -> {
+                CoinviewAccountsState.Error
             }
 
             accounts != null -> {
@@ -911,7 +915,11 @@ class CoinviewViewModel(
                                 isTotalBalanceError = true,
 
                                 isAccountsLoading = false,
-                                isAccountsError = true
+                                isAccountsError = true,
+
+                                // fail quick actions
+                                isQuickActionsLoading = false,
+                                isQuickActionsError = true,
                             )
                         }
                     }
@@ -1080,7 +1088,7 @@ class CoinviewViewModel(
                     cvAccount = account
                 )
             )
-            
+
             else -> throw IllegalStateException("Action $action is not supported in this flow")
         }
     }
