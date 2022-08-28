@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.coinview.presentation
 import androidx.lifecycle.viewModelScope
 import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
@@ -696,6 +697,33 @@ class CoinviewViewModel(
                 )
             }
 
+            is CoinviewIntent.AccountActionSelected -> {
+                require(modelState.asset != null) { "asset not initialized" }
+                require(modelState.accounts != null) { "accounts not initialized" }
+
+                val cvAccount = modelState.accounts.accounts.first { it.account == intent.account }
+
+                handleAccountActionSelected(
+                    account = cvAccount,
+                    asset = modelState.asset,
+                    action = intent.action
+                )
+            }
+
+            is CoinviewIntent.NoBalanceUpsell -> {
+                require(modelState.accounts != null) { "accounts not initialized" }
+
+                val cvAccount = modelState.accounts.accounts.first { it.account == intent.account }
+
+                navigate(
+                    CoinviewNavigationEvent.ShowNoBalanceUpsell(
+                        cvAccount,
+                        intent.action,
+                        true
+                    )
+                )
+            }
+
             CoinviewIntent.LockedAccountSelected -> {
                 navigate(
                     CoinviewNavigationEvent.ShowKycUpgrade
@@ -990,6 +1018,54 @@ class CoinviewViewModel(
                         it.copy(error = CoinviewError.ActionsLoadError)
                     }
                 }
+        }
+    }
+
+    private fun handleAccountActionSelected(
+        account: CoinviewAccount,
+        asset: CryptoAsset,
+        action: AssetAction
+    ) {
+        when (action) {
+            AssetAction.Send -> navigate(
+                CoinviewNavigationEvent.NavigateToSend(
+                    cvAccount = account
+                )
+            )
+
+            AssetAction.Receive -> navigate(
+                CoinviewNavigationEvent.NavigateToReceive(
+                    cvAccount = account
+                )
+            )
+
+            AssetAction.Sell -> navigate(
+                CoinviewNavigationEvent.NavigateToSell(
+                    cvAccount = account
+                )
+            )
+
+            AssetAction.Buy -> navigate(
+                CoinviewNavigationEvent.NavigateToBuy(
+                    asset = asset
+                )
+            )
+
+            AssetAction.Swap -> navigate(
+                CoinviewNavigationEvent.NavigateToSwap(
+                    cvAccount = account
+                )
+            )
+
+            AssetAction.ViewActivity -> navigate(
+                CoinviewNavigationEvent.NavigateToActivity(
+                    cvAccount = account
+                )
+            )
+            //            AssetAction.ViewStatement -> startViewSummary(selectedAccount)
+            //            AssetAction.InterestDeposit -> goToInterestDeposit(selectedAccount)
+            //            AssetAction.InterestWithdraw -> goToInterestWithdraw(selectedAccount)
+            else -> throw IllegalStateException("Action $action is not supported in this flow")
         }
     }
 

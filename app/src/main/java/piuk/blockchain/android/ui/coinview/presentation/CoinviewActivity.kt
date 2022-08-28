@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.koin.payloadScope
+import com.blockchain.nabu.BlockedReason
 import info.blockchain.balance.AssetInfo
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
@@ -21,14 +22,19 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewIntent
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
+import piuk.blockchain.android.ui.dashboard.coinview.interstitials.NoBalanceActionBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
+import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
+import piuk.blockchain.android.util.putAccount
 
 class CoinviewActivity :
     MVIActivity<CoinviewViewState>(),
@@ -36,6 +42,8 @@ class CoinviewActivity :
     NavigationRouter<CoinviewNavigationEvent>,
     HostedBottomSheet.Host,
     AccountExplainerBottomSheet.Host,
+    AccountActionsBottomSheet.Host,
+    InterestSummarySheet.Host,
     RecurringBuyDetailsSheet.Host,
     KycUpgradeNowSheet.Host {
 
@@ -138,6 +146,20 @@ class CoinviewActivity :
                 )
             }
 
+            is CoinviewNavigationEvent.NavigateToActivity -> {
+                goToActivityFor(navigationEvent.cvAccount.account)
+            }
+
+            is CoinviewNavigationEvent.ShowNoBalanceUpsell -> {
+                showBottomSheet(
+                    NoBalanceActionBottomSheet.newInstance(
+                        selectedAccount = navigationEvent.cvAccount.account,
+                        action = navigationEvent.action,
+                        canBuy = navigationEvent.canBuy
+                    )
+                )
+            }
+
             CoinviewNavigationEvent.ShowKycUpgrade -> {
                 showBottomSheet(KycUpgradeNowSheet.newInstance())
             }
@@ -198,6 +220,51 @@ class CoinviewActivity :
                 actions = actions.toList()
             )
         )
+    }
+
+    override fun navigateToAction(action: AssetAction, selectedAccount: BlockchainAccount, assetInfo: AssetInfo) {
+        viewModel.onIntent(
+            CoinviewIntent.AccountActionSelected(
+                account = selectedAccount,
+                action = action
+            )
+        )
+    }
+
+    override fun showBalanceUpsellSheet(item: AccountActionsBottomSheet.AssetActionItem) {
+        item.account?.let {
+            viewModel.onIntent(
+                CoinviewIntent.NoBalanceUpsell(
+                    account = item.account,
+                    action = item.action.action
+                )
+            )
+        }
+    }
+
+    override fun showSanctionsSheet(reason: BlockedReason.Sanctions) {
+        TODO("Not yet implemented")
+    }
+
+    override fun showUpgradeKycSheet() {
+        TODO("Not yet implemented")
+    }
+
+    override fun goToActivityFor(account: BlockchainAccount) {
+        val intent = Intent().apply {
+            putAccount(CoinViewActivity.ACCOUNT_FOR_ACTIVITY, account)
+        }
+
+        setResult(RESULT_OK, intent)
+        finish()
+    }
+
+    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
+        TODO("Not yet implemented")
+    }
+
+    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
+        TODO("Not yet implemented")
     }
 
     override fun startKycClicked() {

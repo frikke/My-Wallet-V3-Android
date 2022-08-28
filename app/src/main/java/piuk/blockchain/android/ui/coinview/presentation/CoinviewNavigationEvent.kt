@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
@@ -37,6 +38,16 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
 
     data class NavigateToSwap(
         val cvAccount: CoinviewAccount
+    ) : CoinviewNavigationEvent
+
+    data class NavigateToActivity(
+        val cvAccount: CoinviewAccount
+    ) : CoinviewNavigationEvent
+
+    data class ShowNoBalanceUpsell(
+        val cvAccount: CoinviewAccount,
+        val action: AssetAction,
+        val canBuy: Boolean
     ) : CoinviewNavigationEvent
 
     object ShowKycUpgrade : CoinviewNavigationEvent

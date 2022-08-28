@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
@@ -99,6 +100,19 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
     data class AccountExplainerAcknowledged(
         val account: BlockchainAccount,
         val actions: List<StateAwareAction>
+    ) : CoinviewIntent
+
+    data class AccountActionSelected(
+        val account: BlockchainAccount,
+        val action: AssetAction
+    ) : CoinviewIntent
+
+    /**
+     * When selecting e.g. withdraw with zero balance
+     */
+    data class NoBalanceUpsell(
+        val account: BlockchainAccount,
+        val action: AssetAction
     ) : CoinviewIntent
 
     /**
