@@ -23,8 +23,8 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
+import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
-import piuk.blockchain.android.ui.dashboard.coinview.CoinViewIntent
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.NoBalanceActionBottomSheet
@@ -256,11 +256,11 @@ class CoinviewActivity :
     }
 
     override fun showSanctionsSheet(reason: BlockedReason.Sanctions) {
-        TODO("Not yet implemented")
+        showBottomSheet(BlockedDueToSanctionsSheet.newInstance(reason))
     }
 
     override fun showUpgradeKycSheet() {
-        TODO("Not yet implemented")
+        showBottomSheet(KycUpgradeNowSheet.newInstance())
     }
 
     override fun goToActivityFor(account: BlockchainAccount) {
