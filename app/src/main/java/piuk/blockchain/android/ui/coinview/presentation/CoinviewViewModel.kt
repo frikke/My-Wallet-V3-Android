@@ -1068,8 +1068,19 @@ class CoinviewViewModel(
                     cvAccount = account
                 )
             )
-            //            AssetAction.InterestDeposit -> goToInterestDeposit(selectedAccount)
-            //            AssetAction.InterestWithdraw -> goToInterestWithdraw(selectedAccount)
+
+            AssetAction.InterestDeposit -> navigate(
+                CoinviewNavigationEvent.NavigateToInterestDeposit(
+                    cvAccount = account
+                )
+            )
+
+            AssetAction.InterestWithdraw -> navigate(
+                CoinviewNavigationEvent.NavigateToInterestWithdraw(
+                    cvAccount = account
+                )
+            )
+            
             else -> throw IllegalStateException("Action $action is not supported in this flow")
         }
     }

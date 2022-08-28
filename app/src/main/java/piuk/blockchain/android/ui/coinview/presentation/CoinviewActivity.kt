@@ -8,6 +8,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.StateAwareAction
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
@@ -154,6 +155,14 @@ class CoinviewActivity :
                 showBottomSheet(InterestSummarySheet.newInstance(navigationEvent.cvAccount.account as CryptoAccount))
             }
 
+            is CoinviewNavigationEvent.NavigateToInterestDeposit -> {
+                goToInterestDeposit(navigationEvent.cvAccount.account)
+            }
+
+            is CoinviewNavigationEvent.NavigateToInterestWithdraw -> {
+                goToInterestWithdraw(navigationEvent.cvAccount.account)
+            }
+
             is CoinviewNavigationEvent.ShowNoBalanceUpsell -> {
                 showBottomSheet(
                     NoBalanceActionBottomSheet.newInstance(
@@ -264,11 +273,23 @@ class CoinviewActivity :
     }
 
     override fun goToInterestDeposit(toAccount: BlockchainAccount) {
-        TODO("Not yet implemented")
+        startActivity(
+            TransactionFlowActivity.newIntent(
+                context = this,
+                action = AssetAction.InterestDeposit,
+                target = toAccount as TransactionTarget
+            )
+        )
     }
 
     override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
-        TODO("Not yet implemented")
+        startActivity(
+            TransactionFlowActivity.newIntent(
+                context = this,
+                action = AssetAction.InterestWithdraw,
+                sourceAccount = fromAccount
+            )
+        )
     }
 
     override fun startKycClicked() {
