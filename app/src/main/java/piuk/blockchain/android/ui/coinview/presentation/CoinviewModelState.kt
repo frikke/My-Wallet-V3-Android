@@ -24,6 +24,9 @@ data class CoinviewModelState(
 
     val asset: CryptoAsset? = null,
 
+    // non tradeable asset
+    val isNonTradeableAsset: Boolean = false,
+
     // price
     val isPriceDataLoading: Boolean = false,
     val isPriceDataError: Boolean = false,

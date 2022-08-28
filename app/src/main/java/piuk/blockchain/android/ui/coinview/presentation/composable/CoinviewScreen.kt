@@ -25,6 +25,7 @@ import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetTradeableState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntent
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
@@ -65,6 +66,8 @@ fun Coinview(
             onNewTimeSpanSelected = { timeSpan ->
                 viewModel.onIntent(CoinviewIntent.NewTimeSpanSelected(timeSpan))
             },
+
+            tradeable = state.tradeable,
 
             totalBalance = state.totalBalance,
 
@@ -108,6 +111,8 @@ fun CoinviewScreen(
     onChartEntryHighlighted: (Entry) -> Unit,
     resetPriceInformation: () -> Unit,
     onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit,
+
+    tradeable: CoinviewAssetTradeableState,
 
     totalBalance: CoinviewTotalBalanceState,
 
@@ -154,9 +159,13 @@ fun CoinviewScreen(
                         data = totalBalance
                     )
 
+                    NonTradeableAsset(
+                        data = tradeable
+                    )
+
                     AssetAccounts(
                         data = accounts,
-                        onAccountClick = onAccountClick ,
+                        onAccountClick = onAccountClick,
                         onLockedAccountClick = onLockedAccountClick
                     )
 
@@ -215,6 +224,8 @@ fun PreviewCoinviewScreen() {
         resetPriceInformation = {},
         onNewTimeSpanSelected = {},
         totalBalance = CoinviewTotalBalanceState.Loading,
+
+        tradeable = CoinviewAssetTradeableState.Tradeable,
 
         accounts = CoinviewAccountsState.Loading,
         onAccountClick = {},

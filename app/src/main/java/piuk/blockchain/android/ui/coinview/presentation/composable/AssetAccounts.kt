@@ -50,6 +50,10 @@ fun AssetAccounts(
     onLockedAccountClick: () -> Unit
 ) {
     when (data) {
+        CoinviewAccountsState.NotSupported -> {
+            Empty()
+        }
+
         CoinviewAccountsState.Loading -> {
             AssetAccountsLoading()
         }

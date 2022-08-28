@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.coinview.presentation
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.charts.ChartEntry
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -14,6 +13,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 data class CoinviewViewState(
     val assetName: String,
     val assetPrice: CoinviewPriceState,
+    val tradeable: CoinviewAssetTradeableState,
     val totalBalance: CoinviewTotalBalanceState,
     val accounts: CoinviewAccountsState,
     val quickActionCenter: CoinviewQuickActionsCenterState,
@@ -46,6 +46,15 @@ sealed interface CoinviewPriceState {
     }
 }
 
+// Tradeable
+sealed interface CoinviewAssetTradeableState {
+    object Tradeable : CoinviewAssetTradeableState
+    data class NonTradeable(
+        val assetName: String,
+        val assetTicker: String
+    ) : CoinviewAssetTradeableState
+}
+
 // Total balance
 sealed interface CoinviewTotalBalanceState {
     object NotSupported : CoinviewTotalBalanceState
@@ -60,6 +69,7 @@ sealed interface CoinviewTotalBalanceState {
 
 // Accounts
 sealed interface CoinviewAccountsState {
+    object NotSupported : CoinviewAccountsState
     object Loading : CoinviewAccountsState
     object Error : CoinviewAccountsState
     data class Data(
@@ -125,6 +135,7 @@ sealed interface CoinviewRecurringBuysState {
 // Quick actions
 // center
 sealed interface CoinviewQuickActionsCenterState {
+    object NotSupported : CoinviewQuickActionsCenterState
     object Loading : CoinviewQuickActionsCenterState
     data class Data(
         val center: CoinviewQuickActionState,
@@ -133,6 +144,7 @@ sealed interface CoinviewQuickActionsCenterState {
 
 // bottom
 sealed interface CoinviewQuickActionsBottomState {
+    object NotSupported : CoinviewQuickActionsBottomState
     object Loading : CoinviewQuickActionsBottomState
     data class Data(
         val start: CoinviewQuickActionState,

@@ -61,9 +61,11 @@ class LoadAssetAccountsUseCase(
                 interestRate,
                 isAddedToWatchlist
             ) { accountsData, pricesData, interestRateData, isAddedToWatchlistData ->
-                val isTradeableAsset = accountsData.any {
-                    it.account is NonCustodialAccount || it.account is CustodialTradingAccount
-                }
+//                val isTradeableAsset = accountsData.any {
+//                    it.account is NonCustodialAccount || it.account is CustodialTradingAccount
+//                }
+
+                val isTradeableAsset = false
 
                 if (isTradeableAsset) {
                     val accountsList = mapAccounts(

@@ -22,7 +22,9 @@ import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
+import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -76,7 +78,11 @@ class CoinviewViewModel(
     }
 
     private var loadPriceDataJob: Job? = null
-    private var accountActionsJob: Job? = null
+    private var loadAccountsJob: Job? = null
+    private var loadQuickActionsJob: Job? = null
+    private var loadRecurringBuyJob: Job? = null
+    private var loadAssetInfoJob: Job? = null
+    private var loadAccountActionsJob: Job? = null
     private var snackbarMessageJob: Job? = null
 
     private val fiatCurrency: FiatCurrency
@@ -98,6 +104,7 @@ class CoinviewViewModel(
     override fun reduce(state: CoinviewModelState): CoinviewViewState = state.run {
         CoinviewViewState(
             assetName = asset?.currency?.name ?: "",
+            tradeable = reduceAssetTradeable(this),
             assetPrice = reduceAssetPrice(this),
             totalBalance = reduceTotalBalance(this),
             accounts = reduceAccounts(this),
@@ -108,6 +115,19 @@ class CoinviewViewModel(
 
             snackbarError = reduceSnackbarError(this)
         )
+    }
+
+    private fun reduceAssetTradeable(state: CoinviewModelState): CoinviewAssetTradeableState = state.run {
+        if (isNonTradeableAsset) {
+            require(asset != null) { "asset not initialized" }
+
+            CoinviewAssetTradeableState.NonTradeable(
+                assetName = asset.currency.name,
+                assetTicker = asset.currency.networkTicker
+            )
+        } else {
+            CoinviewAssetTradeableState.Tradeable
+        }
     }
 
     private fun reduceAssetPrice(state: CoinviewModelState): CoinviewPriceState = state.run {
@@ -206,6 +226,10 @@ class CoinviewViewModel(
 
     private fun reduceAccounts(state: CoinviewModelState): CoinviewAccountsState = state.run {
         when {
+            isNonTradeableAsset -> {
+                CoinviewAccountsState.NotSupported
+            }
+
             isAccountsLoading && accounts == null -> {
                 CoinviewAccountsState.Loading
             }
@@ -428,7 +452,7 @@ class CoinviewViewModel(
     private fun reduceRecurringBuys(state: CoinviewModelState): CoinviewRecurringBuysState = state.run {
         when {
             // not supported for non custodial
-            walletMode == WalletMode.NON_CUSTODIAL_ONLY -> {
+            isNonTradeableAsset || walletMode == WalletMode.NON_CUSTODIAL_ONLY -> {
                 CoinviewRecurringBuysState.NotSupported
             }
 
@@ -488,6 +512,10 @@ class CoinviewViewModel(
 
     private fun reduceQuickActionsCenter(state: CoinviewModelState): CoinviewQuickActionsCenterState = state.run {
         when {
+            isNonTradeableAsset -> {
+                CoinviewQuickActionsCenterState.NotSupported
+            }
+
             isQuickActionsLoading && quickActions == null -> {
                 CoinviewQuickActionsCenterState.Loading
             }
@@ -512,6 +540,10 @@ class CoinviewViewModel(
 
     private fun reduceQuickActionsBottom(state: CoinviewModelState): CoinviewQuickActionsBottomState = state.run {
         when {
+            isNonTradeableAsset -> {
+                CoinviewQuickActionsBottomState.NotSupported
+            }
+
             isQuickActionsLoading && quickActions == null -> {
                 CoinviewQuickActionsBottomState.Loading
             }
@@ -896,7 +928,8 @@ class CoinviewViewModel(
      * Loads accounts and total balance
      */
     private fun loadAccountsData(asset: CryptoAsset) {
-        viewModelScope.launch {
+        loadAccountsJob?.cancel()
+        loadAccountsJob = viewModelScope.launch {
             loadAssetAccountsUseCase(asset = asset).collectLatest { dataResource ->
                 when (dataResource) {
                     DataResource.Loading -> {
@@ -919,7 +952,7 @@ class CoinviewViewModel(
 
                                 // fail quick actions
                                 isQuickActionsLoading = false,
-                                isQuickActionsError = true,
+                                isQuickActionsError = true
                             )
                         }
                     }
@@ -943,6 +976,24 @@ class CoinviewViewModel(
                                 }
                             }
                             is CoinviewAssetInformation.NonTradeable -> {
+                                updateState {
+                                    it.copy(
+                                        isNonTradeableAsset = true,
+
+                                        // zero asset balance
+                                        totalBalance = CoinviewAssetTotalBalance(
+                                            totalCryptoBalance = hashMapOf(
+                                                AssetFilter.All to CryptoValue.zero(asset.currency)
+                                            ),
+                                            totalFiatBalance = FiatValue.zero(fiatCurrency),
+                                        )
+                                    )
+                                }
+
+                                // cancel flows
+                                loadAccountsJob?.cancel()
+                                loadQuickActionsJob?.cancel()
+                                loadRecurringBuyJob?.cancel()
                             }
                         }
 
@@ -966,8 +1017,8 @@ class CoinviewViewModel(
     }
 
     private fun handleAccountSelected(account: CoinviewAccount, asset: CryptoAsset) {
-        accountActionsJob?.cancel()
-        accountActionsJob = viewModelScope.launch {
+        loadAccountActionsJob?.cancel()
+        loadAccountActionsJob = viewModelScope.launch {
             getAccountActionsUseCase(account)
                 .doOnData { actions ->
                     getAccountActionsUseCase.getSeenAccountExplainerState(account).let { (hasSeen, markAsSeen) ->
@@ -1096,7 +1147,8 @@ class CoinviewViewModel(
     // //////////////////////
     // Recurring buys
     private fun loadRecurringBuysData(asset: CryptoAsset) {
-        viewModelScope.launch {
+        loadRecurringBuyJob?.cancel()
+        loadRecurringBuyJob = viewModelScope.launch {
             loadAssetRecurringBuysUseCase(asset).collectLatest { dataResource ->
                 when (dataResource) {
                     DataResource.Loading -> {
@@ -1137,7 +1189,8 @@ class CoinviewViewModel(
         accounts: CoinviewAccounts,
         totalBalance: CoinviewAssetTotalBalance
     ) {
-        viewModelScope.launch {
+        loadQuickActionsJob?.cancel()
+        loadQuickActionsJob = viewModelScope.launch {
             loadQuickActionsUseCase(
                 asset = asset, accounts = accounts, totalBalance = totalBalance
             ).collectLatest { dataResource ->
@@ -1176,7 +1229,8 @@ class CoinviewViewModel(
     // //////////////////////
     // Asset info
     private fun loadAssetInformation(asset: CryptoAsset) {
-        viewModelScope.launch {
+        loadAssetInfoJob?.cancel()
+        loadAssetInfoJob = viewModelScope.launch {
             loadAssetInfoUseCase(asset = asset.currency).collectLatest { dataResource ->
                 when (dataResource) {
                     DataResource.Loading -> {
