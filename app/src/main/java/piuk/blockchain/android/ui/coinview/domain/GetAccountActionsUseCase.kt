@@ -50,7 +50,6 @@ data class GetAccountActionsUseCase(
     }
 
     fun hasSeenAccountExplainer(account: CoinviewAccount): Boolean {
-        return false
         return when (account) {
             is CoinviewAccount.Universal -> {
                 when (account.filter) {

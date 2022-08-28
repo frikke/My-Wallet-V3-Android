@@ -13,6 +13,12 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
         val actions: List<StateAwareAction>
     ) : CoinviewNavigationEvent
 
+    data class ShowAccountActions(
+        val cvAccount: CoinviewAccount,
+        val interestRate: Double,
+        val actions: List<StateAwareAction>
+    ) : CoinviewNavigationEvent
+
     data class NavigateToBuy(
         val asset: CryptoAsset,
     ) : CoinviewNavigationEvent

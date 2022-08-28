@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
@@ -20,6 +21,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
+import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
@@ -80,6 +82,14 @@ class CoinviewActivity :
                 navigateToAccountExplainer(
                     cvAccount = navigationEvent.cvAccount,
                     networkTicker = navigationEvent.networkTicker,
+                    interestRate = navigationEvent.interestRate,
+                    actions = navigationEvent.actions
+                )
+            }
+
+            is CoinviewNavigationEvent.ShowAccountActions -> {
+                navigateToAccountActions(
+                    cvAccount = navigationEvent.cvAccount,
                     interestRate = navigationEvent.interestRate,
                     actions = navigationEvent.actions
                 )
@@ -164,22 +174,30 @@ class CoinviewActivity :
         )
     }
 
-    //    private fun navigateToAccountActions(
-    //        actions: List<StateAwareAction>
-    //    ) {
-    //        showBottomSheet(
-    //            AccountExplainerBottomSheet.newInstance(
-    //                selectedAccount = cvAccount.account,
-    //                networkTicker = networkTicker,
-    //                interestRate = interestRate,
-    //                stateAwareActions = actions.toTypedArray()
-    //            )
-    //        )
-    //    }
+    private fun navigateToAccountActions(
+        cvAccount: CoinviewAccount,
+        interestRate: Double,
+        actions: List<StateAwareAction>
+    ) {
+        showBottomSheet(
+            AccountActionsBottomSheet.newInstance(
+                selectedAccount = cvAccount.account,
+                balanceFiat = cvAccount.fiatBalance,
+                balanceCrypto = cvAccount.cryptoBalance,
+                interestRate = interestRate,
+                stateAwareActions = actions.toTypedArray()
+            )
+        )
+    }
 
     // host calls
-    override fun navigateToActionSheet(actions: Array<StateAwareAction>) {
-        //        model.process(CoinViewIntent.UpdateViewState(CoinViewViewState.ShowAccountActionSheet(actions)))
+    override fun navigateToActionSheet(actions: Array<StateAwareAction>, account: BlockchainAccount) {
+        viewModel.onIntent(
+            CoinviewIntent.AccountExplainerAcknowledged(
+                account = account,
+                actions = actions.toList()
+            )
+        )
     }
 
     override fun startKycClicked() {
@@ -190,11 +208,9 @@ class CoinviewActivity :
         viewModel.onIntent(CoinviewIntent.LoadRecurringBuysData)
     }
 
-    override fun onSheetClosed() {
-        // n/a
-    }
+    override fun onSheetClosed() {}
+    // host calls/
 
-    //
     companion object {
         fun newIntent(context: Context, asset: AssetInfo): Intent {
             return Intent(context, CoinviewActivity::class.java).apply {

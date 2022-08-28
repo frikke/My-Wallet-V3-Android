@@ -669,6 +669,33 @@ class CoinviewViewModel(
                 )
             }
 
+            is CoinviewIntent.AccountExplainerAcknowledged -> {
+                require(modelState.accounts != null) { "accounts not initialized" }
+
+                val cvAccount = modelState.accounts.accounts.first { it.account == intent.account }
+                navigate(
+                    CoinviewNavigationEvent.ShowAccountActions(
+                        cvAccount = cvAccount,
+                        interestRate = when (cvAccount) {
+                            is CoinviewAccount.Universal -> {
+                                if (cvAccount.filter == AssetFilter.Interest) {
+                                    cvAccount.interestRate
+                                } else {
+                                    0.0
+                                }
+                            }
+                            is CoinviewAccount.Custodial.Interest -> {
+                                cvAccount.interestRate
+                            }
+                            else -> {
+                                0.0
+                            }
+                        },
+                        actions = intent.actions
+                    )
+                )
+            }
+
             CoinviewIntent.LockedAccountSelected -> {
                 navigate(
                     CoinviewNavigationEvent.ShowKycUpgrade
@@ -932,7 +959,27 @@ class CoinviewViewModel(
                             )
                         )
                     } else {
-                        // show actions
+                        navigate(
+                            CoinviewNavigationEvent.ShowAccountActions(
+                                cvAccount = account,
+                                interestRate = when (account) {
+                                    is CoinviewAccount.Universal -> {
+                                        if (account.filter == AssetFilter.Interest) {
+                                            account.interestRate
+                                        } else {
+                                            0.0
+                                        }
+                                    }
+                                    is CoinviewAccount.Custodial.Interest -> {
+                                        account.interestRate
+                                    }
+                                    else -> {
+                                        0.0
+                                    }
+                                },
+                                actions = actions
+                            )
+                        )
                     }
                 }
                 .doOnFailure {

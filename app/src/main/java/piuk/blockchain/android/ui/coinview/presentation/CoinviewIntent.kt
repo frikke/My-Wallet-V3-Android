@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.coinview.presentation
 
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.walletmode.WalletMode
@@ -79,13 +81,42 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
         }
     }
 
+    /**
+     * Account selected
+     * could either open an explainer sheet or the actions if the explainer was previously seen
+     * @see LockedAccountSelected
+     */
     data class AccountSelected(val account: CoinviewAccount) : CoinviewIntent
 
+    /**
+     * User confirm the account explainer - now show the account actions
+     *
+     *todo support [CoinviewAccount]
+     * So far the coinview bottom sheets are from the original implementation
+     * they also need to be refactored to suit the new one
+     * so we still need to get the account: BlockchainAccount to open the actions sheet
+     */
+    data class AccountExplainerAcknowledged(
+        val account: BlockchainAccount,
+        val actions: List<StateAwareAction>
+    ) : CoinviewIntent
+
+    /**
+     * A locked account was selected
+     * @see AccountSelected For normal account
+     */
     object LockedAccountSelected : CoinviewIntent
 
+    /**
+     * If the asset has no recurring buy configured
+     */
     object RecurringBuysUpsell : CoinviewIntent
 
     data class ShowRecurringBuyDetail(val recurringBuyId: String) : CoinviewIntent
 
+    /**
+     * User clicked on one of the quick action buttons (buy/sell/send/receive/swap)
+     * It uses [CoinviewModelState.actionableAccount] as a target account
+     */
     data class QuickActionSelected(val quickAction: CoinviewQuickAction) : CoinviewIntent
 }

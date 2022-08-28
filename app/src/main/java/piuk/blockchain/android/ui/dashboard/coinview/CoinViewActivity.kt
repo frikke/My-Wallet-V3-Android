@@ -1102,7 +1102,7 @@ class CoinViewActivity :
         adapterDelegate.notifyDataSetChanged()
     }
 
-    override fun navigateToActionSheet(actions: Array<StateAwareAction>) {
+    override fun navigateToActionSheet(actions: Array<StateAwareAction>, account: BlockchainAccount) {
         model.process(CoinViewIntent.UpdateViewState(CoinViewViewState.ShowAccountActionSheet(actions)))
     }
 
