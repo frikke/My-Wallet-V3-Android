@@ -44,6 +44,10 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
         val cvAccount: CoinviewAccount
     ) : CoinviewNavigationEvent
 
+    data class NavigateToInterestStatement(
+        val cvAccount: CoinviewAccount
+    ) : CoinviewNavigationEvent
+
     data class ShowNoBalanceUpsell(
         val cvAccount: CoinviewAccount,
         val action: AssetAction,

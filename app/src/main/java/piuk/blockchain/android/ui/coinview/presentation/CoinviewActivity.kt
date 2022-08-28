@@ -150,6 +150,10 @@ class CoinviewActivity :
                 goToActivityFor(navigationEvent.cvAccount.account)
             }
 
+            is CoinviewNavigationEvent.NavigateToInterestStatement -> {
+                showBottomSheet(InterestSummarySheet.newInstance(navigationEvent.cvAccount.account as CryptoAccount))
+            }
+
             is CoinviewNavigationEvent.ShowNoBalanceUpsell -> {
                 showBottomSheet(
                     NoBalanceActionBottomSheet.newInstance(
