@@ -18,19 +18,35 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
      * * recurring buys
      * * todo
      */
-    object LoadAllData : CoinviewIntent
+    object LoadAllData : CoinviewIntent {
+        override fun isValidFor(modelState: CoinviewModelState): Boolean {
+            return modelState.asset != null
+        }
+    }
 
     /**
      * Load asset price and chart data
      */
-    object LoadPriceData : CoinviewIntent
+    object LoadPriceData : CoinviewIntent {
+        override fun isValidFor(modelState: CoinviewModelState): Boolean {
+            return modelState.asset != null
+        }
+    }
 
-    object LoadWatchlistData : CoinviewIntent
+    object LoadWatchlistData : CoinviewIntent {
+        override fun isValidFor(modelState: CoinviewModelState): Boolean {
+            return modelState.asset != null
+        }
+    }
 
     /**
      * Load total balance and accounts
      */
-    object LoadAccountsData : CoinviewIntent
+    object LoadAccountsData : CoinviewIntent {
+        override fun isValidFor(modelState: CoinviewModelState): Boolean {
+            return modelState.asset != null
+        }
+    }
 
     /**
      * Load recurring buys / show upsell when no data (if eligible)
@@ -38,7 +54,7 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
      */
     object LoadRecurringBuysData : CoinviewIntent {
         override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.walletMode != WalletMode.NON_CUSTODIAL_ONLY
+            return modelState.asset != null && modelState.walletMode != WalletMode.NON_CUSTODIAL_ONLY
         }
     }
 
@@ -52,14 +68,18 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
      */
     object LoadQuickActions : CoinviewIntent {
         override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.accounts != null && modelState.totalBalance != null
+            return modelState.asset != null && modelState.accounts != null && modelState.totalBalance != null
         }
     }
 
     /**
      * Load asset description / website
      */
-    object LoadAssetInfo : CoinviewIntent
+    object LoadAssetInfo : CoinviewIntent {
+        override fun isValidFor(modelState: CoinviewModelState): Boolean {
+            return modelState.asset != null
+        }
+    }
 
     /**
      * Performs price updates while chart is interactive

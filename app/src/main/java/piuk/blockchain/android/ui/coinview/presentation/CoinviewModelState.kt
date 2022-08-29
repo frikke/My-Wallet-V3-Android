@@ -102,6 +102,11 @@ data class CoinviewModelState(
 
 sealed interface CoinviewError {
     /**
+     * Error that could occur when loading accounts fails
+     */
+    object AccountsLoadError : CoinviewError
+
+    /**
      * Error that could occur when loading the account actions fails
      * @see GetAccountActionsUseCase
      */

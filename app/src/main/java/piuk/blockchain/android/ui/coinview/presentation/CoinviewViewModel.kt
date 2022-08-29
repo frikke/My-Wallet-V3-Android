@@ -99,7 +99,7 @@ class CoinviewViewModel(
         (coincore[args.networkTicker] as? CryptoAsset)?.let { asset ->
             updateState {
                 it.copy(
-                    asset = asset
+//                    asset = asset
                 )
             }
         } ?: Timber.e("asset ${args.networkTicker} not found")
@@ -646,6 +646,7 @@ class CoinviewViewModel(
 
     private fun reduceSnackbarError(state: CoinviewModelState): CoinviewSnackbarAlertState = state.run {
         when (state.error) {
+            CoinviewError.AccountsLoadError -> CoinviewSnackbarAlertState.AccountsLoadError
             CoinviewError.ActionsLoadError -> CoinviewSnackbarAlertState.ActionsLoadError
             CoinviewError.WatchlistToggleError -> CoinviewSnackbarAlertState.WatchlistToggleError
             CoinviewError.None -> CoinviewSnackbarAlertState.None
@@ -1074,7 +1075,10 @@ class CoinviewViewModel(
 
                                 // fail quick actions
                                 isQuickActionsLoading = false,
-                                isQuickActionsError = true
+                                isQuickActionsError = true,
+
+                                // error
+                                error = CoinviewError.AccountsLoadError
                             )
                         }
                     }

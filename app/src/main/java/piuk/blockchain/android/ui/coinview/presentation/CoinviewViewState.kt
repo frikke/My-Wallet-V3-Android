@@ -248,6 +248,11 @@ sealed interface CoinviewSnackbarAlertState {
     val message: Int
     val snackbarType: SnackbarType
 
+    object AccountsLoadError : CoinviewSnackbarAlertState {
+        override val message: Int = R.string.coinview_wallet_load_error
+        override val snackbarType: SnackbarType = SnackbarType.Error
+    }
+
     object ActionsLoadError : CoinviewSnackbarAlertState {
         override val message: Int = R.string.coinview_actions_error
         override val snackbarType: SnackbarType = SnackbarType.Warning
