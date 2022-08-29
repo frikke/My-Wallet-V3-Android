@@ -59,7 +59,7 @@ import com.blockchain.api.services.ReferralApiService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
-import com.blockchain.api.services.WatchlistService
+import com.blockchain.api.services.WatchlistApiService
 import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
@@ -349,7 +349,7 @@ val blockchainApiModule = module {
 
     factory {
         val api = get<Retrofit>(nabuApi).create(WatchlistApi::class.java)
-        WatchlistService(
+        WatchlistApiService(
             api = api
         )
     }

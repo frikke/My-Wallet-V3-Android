@@ -36,6 +36,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewSnackbarAlertSta
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewWatchlistState
 import piuk.blockchain.android.ui.coinview.presentation.SimpleValue
 import piuk.blockchain.android.ui.coinview.presentation.toModelState
 import piuk.blockchain.android.util.getStringMaybe
@@ -68,6 +69,11 @@ fun Coinview(
             },
 
             tradeable = state.tradeable,
+
+            watchlist = state.watchlist,
+            onWatchlistClick = {
+                viewModel.onIntent(CoinviewIntent.ToggleWatchlist)
+            },
 
             totalBalance = state.totalBalance,
 
@@ -114,6 +120,9 @@ fun CoinviewScreen(
 
     tradeable: CoinviewAssetTradeableState,
 
+    watchlist: CoinviewWatchlistState,
+    onWatchlistClick: () -> Unit,
+
     totalBalance: CoinviewTotalBalanceState,
 
     accounts: CoinviewAccountsState,
@@ -156,7 +165,9 @@ fun CoinviewScreen(
                     )
 
                     TotalBalance(
-                        data = totalBalance
+                        totalBalanceData = totalBalance,
+                        watchlistData = watchlist,
+                        onWatchlistClick = onWatchlistClick
                     )
 
                     NonTradeableAsset(
@@ -223,9 +234,13 @@ fun PreviewCoinviewScreen() {
         onChartEntryHighlighted = {},
         resetPriceInformation = {},
         onNewTimeSpanSelected = {},
-        totalBalance = CoinviewTotalBalanceState.Loading,
 
         tradeable = CoinviewAssetTradeableState.Tradeable,
+
+        watchlist = CoinviewWatchlistState.Loading,
+        onWatchlistClick = {},
+
+        totalBalance = CoinviewTotalBalanceState.Loading,
 
         accounts = CoinviewAccountsState.Loading,
         onAccountClick = {},

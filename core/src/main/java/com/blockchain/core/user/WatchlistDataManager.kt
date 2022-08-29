@@ -1,7 +1,7 @@
 package com.blockchain.core.user
 
-import com.blockchain.api.services.WatchlistService
-import com.blockchain.api.watchlist.model.AssetTag
+import com.blockchain.api.services.AssetTag
+import com.blockchain.api.services.WatchlistApiService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.outcome.map
 import info.blockchain.balance.AssetCatalogue
@@ -21,7 +21,7 @@ interface WatchlistDataManager {
 
 class WatchlistDataManagerImpl(
     private val authenticator: AuthHeaderProvider,
-    private val watchlistService: WatchlistService,
+    private val watchlistService: WatchlistApiService,
     private val assetCatalogue: AssetCatalogue
 ) : WatchlistDataManager {
 
@@ -56,7 +56,7 @@ class WatchlistDataManagerImpl(
     override fun addToWatchlist(asset: Currency, tags: List<AssetTag>): Single<WatchlistInfo> =
         authenticator.getAuthHeader().flatMap { header ->
             rxSingleOutcome {
-                watchlistService.addToWatchlist(header, asset.networkTicker, tags)
+                watchlistService.addToWatchlist(header, asset.networkTicker)
                     .map { response ->
                         WatchlistInfo(
                             asset,
@@ -71,7 +71,7 @@ class WatchlistDataManagerImpl(
     override fun removeFromWatchList(asset: Currency, tags: List<AssetTag>): Completable =
         authenticator.getAuthHeader().flatMapCompletable { header ->
             rxCompletableOutcome {
-                watchlistService.removeFromWatchlist(header, asset.networkTicker, tags)
+                watchlistService.removeFromWatchlist(header, asset.networkTicker)
             }
         }
 }

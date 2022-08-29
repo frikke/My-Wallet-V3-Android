@@ -34,6 +34,11 @@ data class CoinviewModelState(
     val requestedTimeSpan: HistoricalTimeSpan? = null,
     val interactiveAssetPrice: CoinviewAssetPrice? = null,
 
+    // watchlist
+    val isWatchlistLoading: Boolean = false,
+    val isWatchlistError: Boolean = false,
+    val watchlist: Boolean? = null,
+
     // total balance
     val isTotalBalanceLoading: Boolean = false,
     val isTotalBalanceError: Boolean = false,

@@ -10,4 +10,12 @@ interface WatchlistService {
         asset: Currency,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<Boolean>>
+
+    suspend fun addToWatchlist(
+        asset: Currency
+    )
+
+    suspend fun removeFromWatchlist(
+        asset: Currency
+    )
 }

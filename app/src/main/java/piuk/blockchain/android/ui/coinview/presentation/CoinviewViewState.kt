@@ -14,6 +14,7 @@ data class CoinviewViewState(
     val assetName: String,
     val assetPrice: CoinviewPriceState,
     val tradeable: CoinviewAssetTradeableState,
+    val watchlist: CoinviewWatchlistState,
     val totalBalance: CoinviewTotalBalanceState,
     val accounts: CoinviewAccountsState,
     val quickActionCenter: CoinviewQuickActionsCenterState,
@@ -53,6 +54,16 @@ sealed interface CoinviewAssetTradeableState {
         val assetName: String,
         val assetTicker: String
     ) : CoinviewAssetTradeableState
+}
+
+// Watchlist
+sealed interface CoinviewWatchlistState {
+    object NotSupported : CoinviewWatchlistState
+    object Loading : CoinviewWatchlistState
+    object Error : CoinviewWatchlistState
+    data class Data(
+        val isInWatchlist: Boolean
+    ) : CoinviewWatchlistState
 }
 
 // Total balance

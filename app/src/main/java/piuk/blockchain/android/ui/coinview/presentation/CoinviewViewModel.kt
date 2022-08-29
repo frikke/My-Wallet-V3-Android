@@ -8,11 +8,13 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.data.DataResource
 import com.blockchain.data.doOnData
 import com.blockchain.data.doOnFailure
@@ -58,6 +60,7 @@ class CoinviewViewModel(
 
     private val getAssetPriceUseCase: GetAssetPriceUseCase,
 
+    private val watchlistService: WatchlistService,
     private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase,
     private val getAccountActionsUseCase: GetAccountActionsUseCase,
 
@@ -78,6 +81,7 @@ class CoinviewViewModel(
     }
 
     private var loadPriceDataJob: Job? = null
+    private var loadWatchlistJob: Job? = null
     private var loadAccountsJob: Job? = null
     private var loadQuickActionsJob: Job? = null
     private var loadRecurringBuyJob: Job? = null
@@ -106,6 +110,7 @@ class CoinviewViewModel(
             assetName = asset?.currency?.name ?: "",
             tradeable = reduceAssetTradeable(this),
             assetPrice = reduceAssetPrice(this),
+            watchlist = reduceWatchlist(this),
             totalBalance = reduceTotalBalance(this),
             accounts = reduceAccounts(this),
             quickActionCenter = reduceQuickActionsCenter(this),
@@ -188,6 +193,33 @@ class CoinviewViewModel(
 
             else -> {
                 CoinviewPriceState.Loading
+            }
+        }
+    }
+
+    private fun reduceWatchlist(state: CoinviewModelState): CoinviewWatchlistState = state.run {
+        when {
+            // not supported for non custodial
+            walletMode == WalletMode.NON_CUSTODIAL_ONLY -> {
+                CoinviewWatchlistState.NotSupported
+            }
+
+            isWatchlistLoading && watchlist == null -> {
+                CoinviewWatchlistState.Loading
+            }
+
+            isWatchlistError -> {
+                CoinviewWatchlistState.Error
+            }
+
+            watchlist != null -> {
+                CoinviewWatchlistState.Data(
+                    isInWatchlist = watchlist,
+                )
+            }
+
+            else -> {
+                CoinviewWatchlistState.Loading
             }
         }
     }
@@ -627,6 +659,7 @@ class CoinviewViewModel(
                 require(modelState.asset != null) { "asset not initialized" }
                 onIntent(CoinviewIntent.LoadPriceData)
                 onIntent(CoinviewIntent.LoadAccountsData)
+                onIntent(CoinviewIntent.LoadWatchlistData)
                 onIntent(CoinviewIntent.LoadRecurringBuysData)
                 onIntent(CoinviewIntent.LoadAssetInfo)
             }
@@ -637,6 +670,14 @@ class CoinviewViewModel(
                 loadPriceData(
                     asset = modelState.asset,
                     requestedTimeSpan = modelState.assetPriceHistory?.priceDetail?.timeSpan ?: defaultTimeSpan
+                )
+            }
+
+            CoinviewIntent.LoadWatchlistData -> {
+                require(modelState.asset != null) { "asset not initialized" }
+
+                loadWatchlistData(
+                    asset = modelState.asset,
                 )
             }
 
@@ -695,6 +736,17 @@ class CoinviewViewModel(
                     asset = modelState.asset,
                     requestedTimeSpan = intent.timeSpan,
                 )
+            }
+
+            CoinviewIntent.ToggleWatchlist -> {
+                require(modelState.asset != null) { "asset not initialized" }
+                require(modelState.watchlist != null) { "watchlist not initialized" }
+
+                if (modelState.watchlist) {
+                    removeFromWatchlist(modelState.asset)
+                } else {
+                    addToWatchlist(modelState.asset)
+                }
             }
 
             is CoinviewIntent.AccountSelected -> {
@@ -920,6 +972,56 @@ class CoinviewViewModel(
      */
     private fun resetPriceSelection() {
         updateState { it.copy(interactiveAssetPrice = null) }
+    }
+
+    // //////////////////////
+    // Watchlist
+    private fun loadWatchlistData(asset: CryptoAsset) {
+        loadWatchlistJob?.cancel()
+        loadWatchlistJob = viewModelScope.launch {
+            watchlistService.isAssetInWatchlist(asset.currency).collectLatest { dataResource ->
+                when (dataResource) {
+                    DataResource.Loading -> {
+                        updateState {
+                            it.copy(
+                                isWatchlistLoading = true
+                            )
+                        }
+                    }
+
+                    is DataResource.Error -> {
+                        updateState {
+                            it.copy(
+                                isWatchlistLoading = false,
+                                isWatchlistError = true
+                            )
+                        }
+                    }
+
+                    is DataResource.Data -> {
+                        updateState {
+                            it.copy(
+                                isWatchlistLoading = false,
+                                isWatchlistError = false,
+                                watchlist = dataResource.data
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun addToWatchlist(asset: CryptoAsset) {
+        viewModelScope.launch {
+            watchlistService.addToWatchlist(asset.currency)
+        }
+    }
+
+    private fun removeFromWatchlist(asset: CryptoAsset) {
+        viewModelScope.launch {
+            watchlistService.removeFromWatchlist(asset.currency)
+        }
     }
 
     // //////////////////////

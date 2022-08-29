@@ -25,6 +25,8 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
      */
     object LoadPriceData : CoinviewIntent
 
+    object LoadWatchlistData : CoinviewIntent
+
     /**
      * Load total balance and accounts
      */
@@ -79,6 +81,12 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
     data class NewTimeSpanSelected(val timeSpan: HistoricalTimeSpan) : CoinviewIntent {
         override fun isValidFor(modelState: CoinviewModelState): Boolean {
             return modelState.assetPriceHistory?.priceDetail?.timeSpan != timeSpan
+        }
+    }
+
+    object ToggleWatchlist : CoinviewIntent {
+        override fun isValidFor(modelState: CoinviewModelState): Boolean {
+            return modelState.watchlist != null && modelState.isWatchlistLoading.not()
         }
     }
 

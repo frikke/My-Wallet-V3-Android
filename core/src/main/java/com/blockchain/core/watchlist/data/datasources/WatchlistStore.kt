@@ -1,6 +1,6 @@
 package com.blockchain.core.watchlist.data.datasources
 
-import com.blockchain.api.services.WatchlistService
+import com.blockchain.api.services.WatchlistApiService
 import com.blockchain.api.watchlist.model.WatchlistDto
 import com.blockchain.nabu.Authenticator
 import com.blockchain.store.Fetcher
@@ -13,7 +13,7 @@ import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class WatchlistStore internal constructor(
     private val authenticator: Authenticator,
-    private val watchlistService: WatchlistService,
+    private val watchlistService: WatchlistApiService,
 ) : Store<WatchlistDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
