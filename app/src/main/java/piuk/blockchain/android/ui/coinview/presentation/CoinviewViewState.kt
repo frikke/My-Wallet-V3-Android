@@ -3,15 +3,17 @@ package piuk.blockchain.android.ui.coinview.presentation
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.charts.ChartEntry
+import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.core.price.HistoricalTimeSpan
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 
 data class CoinviewViewState(
-    val assetName: String,
+    val asset: CoinviewAssetState,
     val assetPrice: CoinviewPriceState,
     val tradeable: CoinviewAssetTradeableState,
     val watchlist: CoinviewWatchlistState,
@@ -24,6 +26,14 @@ data class CoinviewViewState(
 
     val snackbarError: CoinviewSnackbarAlertState
 ) : ViewState
+
+// Asset
+sealed interface CoinviewAssetState {
+    object Error : CoinviewAssetState
+    data class Data(
+        val asset: AssetInfo
+    ) : CoinviewAssetState
+}
 
 // Price
 sealed interface CoinviewPriceState {

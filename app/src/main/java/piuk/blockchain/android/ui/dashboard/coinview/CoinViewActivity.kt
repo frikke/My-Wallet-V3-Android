@@ -424,7 +424,7 @@ class CoinViewActivity :
                     endCta.gone()
                 }
             }
-            CoinViewError.MissingSelectedFiat -> { /*sss*/
+            CoinViewError.MissingSelectedFiat -> {
                 binding.noAssetError.visible()
                 BlockchainSnackbar.make(
                     binding.root, getString(R.string.coinview_fiat_missing), type = SnackbarType.Warning

@@ -21,6 +21,7 @@ import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
@@ -190,6 +191,11 @@ class CoinviewActivity :
                     )
                 )
             }
+
+            CoinviewNavigationEvent.NavigateToSupport -> {
+                startActivity(SupportCentreActivity.newIntent(this, SUPPORT_SUBJECT_NO_ASSET))
+                finish()
+            }
         }
     }
 
@@ -312,5 +318,7 @@ class CoinviewActivity :
                 )
             }
         }
+
+        private const val SUPPORT_SUBJECT_NO_ASSET = "UNKNOWN ASSET"
     }
 }

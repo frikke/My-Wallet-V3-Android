@@ -141,4 +141,6 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
      * It uses [CoinviewModelState.actionableAccount] as a target account
      */
     data class QuickActionSelected(val quickAction: CoinviewQuickAction) : CoinviewIntent
+
+    object ContactSupport : CoinviewIntent
 }

@@ -50,6 +50,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Da
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
+import timber.log.Timber
 import java.text.DecimalFormat
 
 class CoinviewViewModel(
@@ -98,16 +99,15 @@ class CoinviewViewModel(
         (coincore[args.networkTicker] as? CryptoAsset)?.let { asset ->
             updateState {
                 it.copy(
-                    asset = asset,
-                    isPriceDataLoading = true,
+                    asset = asset
                 )
             }
-        } ?: error("asset ${args.networkTicker} not found")
+        } ?: Timber.e("asset ${args.networkTicker} not found")
     }
 
     override fun reduce(state: CoinviewModelState): CoinviewViewState = state.run {
         CoinviewViewState(
-            assetName = asset?.currency?.name ?: "",
+            asset = reduceAsset(this),
             tradeable = reduceAssetTradeable(this),
             assetPrice = reduceAssetPrice(this),
             watchlist = reduceWatchlist(this),
@@ -120,6 +120,16 @@ class CoinviewViewModel(
 
             snackbarError = reduceSnackbarError(this)
         )
+    }
+
+    private fun reduceAsset(state: CoinviewModelState): CoinviewAssetState = state.run {
+        if (asset == null) {
+            CoinviewAssetState.Error
+        } else {
+            CoinviewAssetState.Data(asset.currency)
+        }
+
+        CoinviewAssetState.Error
     }
 
     private fun reduceAssetTradeable(state: CoinviewModelState): CoinviewAssetTradeableState = state.run {
@@ -880,6 +890,10 @@ class CoinviewViewModel(
 
                     CoinviewQuickAction.None -> error("None action doesn't have an action")
                 }
+            }
+
+            CoinviewIntent.ContactSupport -> {
+                navigate(CoinviewNavigationEvent.NavigateToSupport)
             }
         }
     }
