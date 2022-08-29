@@ -69,6 +69,9 @@ import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistDataManagerImpl
+import com.blockchain.core.watchlist.data.WatchlistRepository
+import com.blockchain.core.watchlist.data.datasources.WatchlistStore
+import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
@@ -574,6 +577,20 @@ val coreModule = module {
                 assetCatalogue = get()
             )
         }.bind(WatchlistDataManager::class)
+
+        scoped {
+            WatchlistRepository(
+                watchlistStore = get(),
+                assetCatalogue = get()
+            )
+        }.bind(WatchlistService::class)
+
+        scoped {
+            WatchlistStore(
+                authenticator = get(),
+                watchlistService = get()
+            )
+        }
 
         factory {
             ReferralRepository(

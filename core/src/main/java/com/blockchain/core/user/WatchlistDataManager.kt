@@ -1,7 +1,7 @@
 package com.blockchain.core.user
 
-import com.blockchain.api.services.AssetTag
 import com.blockchain.api.services.WatchlistService
+import com.blockchain.api.watchlist.model.AssetTag
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.outcome.map
 import info.blockchain.balance.AssetCatalogue
@@ -41,7 +41,7 @@ class WatchlistDataManagerImpl(
                 watchlistService.getWatchlist(header)
                     .map { response ->
                         val assetMap = mutableMapOf<Currency, List<AssetTag>>()
-                        response.assets.forEach { item ->
+                        response.items.forEach { item ->
                             assetCatalogue.fromNetworkTicker(item.asset)?.let { currency ->
                                 assetMap[currency] = item.tags.map { tagItem ->
                                     AssetTag.fromString(tagItem.tag)

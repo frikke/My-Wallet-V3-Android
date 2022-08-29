@@ -1,15 +1,15 @@
 package com.blockchain.api.services
 
 import com.blockchain.api.watchlist.WatchlistApi
-import com.blockchain.api.watchlist.data.WatchlistBody
-import com.blockchain.api.watchlist.data.WatchlistListResponse
+import com.blockchain.api.watchlist.model.WatchlistBody
+import com.blockchain.api.watchlist.model.WatchlistDto
 import com.blockchain.outcome.Outcome
 
 class WatchlistService internal constructor(
     private val api: WatchlistApi
 ) {
 
-    suspend fun getWatchlist(authHeader: String): Outcome<Exception, WatchlistListResponse> =
+    suspend fun getWatchlist(authHeader: String): Outcome<Exception, WatchlistDto> =
         api.getWatchlist(authHeader)
 
     suspend fun addToWatchlist(authHeader: String, assetTicker: String, tags: List<AssetTag>) =
