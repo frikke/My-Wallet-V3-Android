@@ -11,6 +11,7 @@ import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -39,6 +40,7 @@ class Coincore internal constructor(
     // TODO: Build an interface on PayloadDataManager/PayloadManager for 'global' crypto calls; second password etc?
     private val payloadManager: PayloadDataManager,
     private val txProcessorFactory: TxProcessorFactory,
+    private val currencyPrefs: CurrencyPrefs,
     private val defaultLabels: DefaultLabels,
     private val remoteLogger: RemoteLogger,
     private val bankService: BankService,
@@ -77,7 +79,7 @@ class Coincore internal constructor(
 
     fun allWallets(includeArchived: Boolean = false): Single<AccountGroup> =
         walletsWithFilter(includeArchived, AssetFilter.All).map { list ->
-            AllWalletsAccount(list, defaultLabels)
+            AllWalletsAccount(list, defaultLabels, currencyPrefs.selectedFiatCurrency)
         }
 
     fun allWalletsInMode(walletMode: WalletMode): Single<AccountGroup> =
@@ -90,20 +92,31 @@ class Coincore internal constructor(
     fun activeWalletsInMode(walletMode: WalletMode): Single<AccountGroup> {
         val assets = activeAssets(walletMode).asObservable().firstOrError()
         return assets.flatMap {
-            if (it.isEmpty()) Single.just(EmptyAccountGroup)
+            if (it.isEmpty()) Single.just(allWalletsGroupForAccountsAndMode(emptyList(), walletMode))
             else
-                Single.just(it).flattenAsObservable { it }.flatMapMaybe { asset ->
+                Single.just(it).flattenAsObservable { assets -> assets }.flatMapMaybe { asset ->
                     asset.accountGroup(walletMode.defaultFilter()).map { grp -> grp.accounts }
                 }.reduce { a, l -> a + l }.switchIfEmpty(Single.just(emptyList()))
-                    .map {
-                        when (walletMode) {
-                            WalletMode.UNIVERSAL -> AllWalletsAccount(it, defaultLabels)
-                            WalletMode.NON_CUSTODIAL_ONLY -> AllNonCustodialWalletsAccount(it, defaultLabels)
-                            WalletMode.CUSTODIAL_ONLY -> AllCustodialWalletsAccount(it, defaultLabels)
-                        }
+                    .map { accounts ->
+                        allWalletsGroupForAccountsAndMode(accounts, walletMode)
                     }
         }
     }
+
+    private fun allWalletsGroupForAccountsAndMode(accounts: SingleAccountList, walletMode: WalletMode) =
+        when (walletMode) {
+            WalletMode.UNIVERSAL -> AllWalletsAccount(
+                accounts,
+                defaultLabels,
+                currencyPrefs.selectedFiatCurrency
+            )
+            WalletMode.NON_CUSTODIAL_ONLY -> AllNonCustodialWalletsAccount(
+                accounts, defaultLabels, currencyPrefs.selectedFiatCurrency
+            )
+            WalletMode.CUSTODIAL_ONLY -> AllCustodialWalletsAccount(
+                accounts, defaultLabels, currencyPrefs.selectedFiatCurrency
+            )
+        }
 
     private fun walletsWithFilter(includeArchived: Boolean = false, filter: AssetFilter): Single<List<SingleAccount>> =
         Maybe.concat(
@@ -120,12 +133,12 @@ class Coincore internal constructor(
 
     private fun allCustodialWallets(): Single<AccountGroup> =
         walletsWithFilter(filter = AssetFilter.Custodial).map { list ->
-            AllCustodialWalletsAccount(list, defaultLabels)
+            AllCustodialWalletsAccount(list, defaultLabels, currencyPrefs.selectedFiatCurrency)
         }
 
     private fun allNonCustodialWallets(): Single<AccountGroup> =
         walletsWithFilter(filter = AssetFilter.NonCustodial).map { list ->
-            AllNonCustodialWalletsAccount(list, defaultLabels)
+            AllNonCustodialWalletsAccount(list, defaultLabels, currencyPrefs.selectedFiatCurrency)
         }
 
     fun walletsWithActions(

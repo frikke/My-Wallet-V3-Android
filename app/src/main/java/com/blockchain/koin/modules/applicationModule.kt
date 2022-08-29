@@ -256,6 +256,7 @@ val applicationModule = module {
                 appUtil = get(),
                 ethDataManager = get(),
                 bchDataManager = get(),
+                walletModeService = get(),
                 metadataService = get(),
                 walletOptionsState = get(),
                 nabuDataManager = get(),

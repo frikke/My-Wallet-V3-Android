@@ -698,7 +698,6 @@ class MainActivity :
     private fun renderMode(walletMode: WalletMode) {
         if (walletMode == WalletMode.UNIVERSAL)
             return
-
         val updatedDropdownIndicator =
             (toolbarBinding.navigationToolbar.startNavigationButton as? NavigationBarButton.DropdownIndicator)?.copy(
                 text = getString(walletMode.title()),

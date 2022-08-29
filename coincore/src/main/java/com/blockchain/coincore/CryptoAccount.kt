@@ -187,16 +187,22 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
      * Balance is calculated in the selected fiat currency
      */
     override val balance: Observable<AccountBalance>
-        get() = Single.just(accounts).flattenAsObservable { it }.flatMapSingle { account ->
-            account.balance.firstOrError()
-        }.reduce { a, v ->
-            AccountBalance(
-                total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
-                withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(v.withdrawable),
-                pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
-                exchangeRate = ExchangeRate.identityExchangeRate(a.exchangeRate.to)
-            )
-        }.toObservable()
+        get() =
+            if (accounts.isEmpty())
+                Observable.just(AccountBalance.zero(baseCurrency))
+            else
+                Single.just(accounts).flattenAsObservable { it }.flatMapSingle { account ->
+                    account.balance.firstOrError()
+                }.reduce { a, v ->
+                    AccountBalance(
+                        total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
+                        withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(v.withdrawable),
+                        pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
+                        exchangeRate = ExchangeRate.identityExchangeRate(a.exchangeRate.to)
+                    )
+                }.toObservable()
+
+    val baseCurrency: Currency
 }
 
 internal fun BlockchainAccount.isTrading(): Boolean =

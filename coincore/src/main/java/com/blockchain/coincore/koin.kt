@@ -110,6 +110,7 @@ val coincoreModule = module {
                 assetLoader = get(),
                 txProcessorFactory = get(),
                 defaultLabels = get(),
+                currencyPrefs = get(),
                 remoteLogger = get(),
                 bankService = get(),
                 walletModeService = get(),

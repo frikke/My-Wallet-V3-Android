@@ -21,6 +21,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.math.BigInteger
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -162,7 +163,9 @@ internal class Erc20DataManagerImpl(
         if (ethLayerTwoFeatureFlag.coEnabled()) {
             val erc20L2ActiveAssets = getSupportedNetworks().await()
                 .map { evmNetwork ->
-                    erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
+                    erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker).catch {
+                        emit(emptySet())
+                    }
                 }
 
             emitAll(

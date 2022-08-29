@@ -24,10 +24,14 @@ class WalletModeRepository(
         return WalletMode.values().firstOrNull { walletModeString == it.name } ?: defaultMode()
     }
 
+    override fun reset() {
+        _walletMode = MutableStateFlow(enabledWalletMode())
+    }
+
     private fun defaultMode(): WalletMode =
         WalletMode.CUSTODIAL_ONLY
 
-    private val _walletMode = MutableStateFlow(enabledWalletMode())
+    private var _walletMode = MutableStateFlow(enabledWalletMode())
 
     override val walletMode: Flow<WalletMode>
         get() = _walletMode
