@@ -107,5 +107,10 @@ sealed interface CoinviewError {
      */
     object ActionsLoadError : CoinviewError
 
+    /**
+     * Error that could occur when toggling watchlist fails
+     */
+    object WatchlistToggleError : CoinviewError
+
     object None : CoinviewError
 }

@@ -424,13 +424,13 @@ class CoinViewActivity :
                     endCta.gone()
                 }
             }
-            CoinViewError.MissingSelectedFiat -> {
+            CoinViewError.MissingSelectedFiat -> { /*sss*/
                 binding.noAssetError.visible()
                 BlockchainSnackbar.make(
                     binding.root, getString(R.string.coinview_fiat_missing), type = SnackbarType.Warning
                 ).show()
             }
-            CoinViewError.MissingAssetPrices -> {
+            CoinViewError.MissingAssetPrices -> { /*ss*/
                 binding.noAssetError.visible()
                 BlockchainSnackbar.make(
                     binding.root, getString(R.string.coinview_prices_missing), type = SnackbarType.Warning

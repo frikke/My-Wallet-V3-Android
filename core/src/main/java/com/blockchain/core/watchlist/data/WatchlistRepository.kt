@@ -4,16 +4,18 @@ import com.blockchain.api.services.WatchlistApiService
 import com.blockchain.api.services.WatchlistApiService.Companion.FAVOURITE_TAG
 import com.blockchain.core.watchlist.data.datasources.WatchlistStore
 import com.blockchain.core.watchlist.domain.WatchlistService
+import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.doOnData
 import com.blockchain.nabu.Authenticator
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.rx3.await
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
+import piuk.blockchain.androidcore.utils.extensions.toDataResource
 
 typealias Watchlist = List<Currency>
 
@@ -48,25 +50,35 @@ class WatchlistRepository(
         }
     }
 
-    override suspend fun addToWatchlist(asset: Currency) {
-        authenticator.authenticate {
+    override suspend fun addToWatchlist(asset: Currency): Flow<DataResource<Unit>> {
+        return authenticator.authenticate {
             rxSingleOutcome {
                 watchlistApiService.addToWatchlist(it.authHeader, asset.networkTicker)
             }
-        }.await()
-
-        // refresh store - will refresh any collectors of isAssetInWatchlist
-        getWatchlist(FreshnessStrategy.Fresh).collect()
+        }.toDataResource().doOnData {
+            // refresh store - will refresh any collectors of isAssetInWatchlist
+            getWatchlist(FreshnessStrategy.Fresh).collect()
+        }.mapData { /*Unit we don't care about return*/ }
     }
 
-    override suspend fun removeFromWatchlist(asset: Currency) {
-        authenticator.authenticate {
+    override suspend fun removeFromWatchlist(asset: Currency): Flow<DataResource<Unit>> {
+        return authenticator.authenticate {
             rxSingleOutcome {
                 watchlistApiService.removeFromWatchlist(it.authHeader, asset.networkTicker)
             }
-        }.await()
+        }.toDataResource().doOnData {
+            // refresh store - will refresh any collectors of isAssetInWatchlist
+            getWatchlist(FreshnessStrategy.Fresh).collect()
+        }.mapData { /*Unit we don't care about return*/ }
+    }
 
-        // refresh store - will refresh any collectors of isAssetInWatchlist
-        getWatchlist(FreshnessStrategy.Fresh).collect()
+    override suspend fun updateWatchlist(
+        asset: Currency,
+        toggle: WatchlistToggle
+    ): Flow<DataResource<Unit>> {
+        return when (toggle) {
+            WatchlistToggle.ADD -> addToWatchlist(asset)
+            WatchlistToggle.REMOVE -> removeFromWatchlist(asset)
+        }
     }
 }

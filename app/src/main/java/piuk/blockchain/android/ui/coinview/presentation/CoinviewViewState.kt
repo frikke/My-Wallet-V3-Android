@@ -243,6 +243,11 @@ sealed interface CoinviewSnackbarAlertState {
         override val snackbarType: SnackbarType = SnackbarType.Warning
     }
 
+    object WatchlistToggleError : CoinviewSnackbarAlertState {
+        override val message: Int = R.string.coinview_watchlist_toggle_fail
+        override val snackbarType: SnackbarType = SnackbarType.Warning
+    }
+
     object None : CoinviewSnackbarAlertState {
         override val message: Int get() = error("None error doesn't have message property")
         override val snackbarType: SnackbarType get() = error("None error doesn't have snackbarType property")

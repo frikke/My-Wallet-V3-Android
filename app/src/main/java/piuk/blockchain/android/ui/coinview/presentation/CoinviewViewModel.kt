@@ -8,13 +8,13 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.watchlist.domain.WatchlistService
+import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
 import com.blockchain.data.doOnData
 import com.blockchain.data.doOnFailure
@@ -637,6 +637,7 @@ class CoinviewViewModel(
     private fun reduceSnackbarError(state: CoinviewModelState): CoinviewSnackbarAlertState = state.run {
         when (state.error) {
             CoinviewError.ActionsLoadError -> CoinviewSnackbarAlertState.ActionsLoadError
+            CoinviewError.WatchlistToggleError -> CoinviewSnackbarAlertState.WatchlistToggleError
             CoinviewError.None -> CoinviewSnackbarAlertState.None
         }.also {
             // reset to None
@@ -742,11 +743,10 @@ class CoinviewViewModel(
                 require(modelState.asset != null) { "asset not initialized" }
                 require(modelState.watchlist != null) { "watchlist not initialized" }
 
-                if (modelState.watchlist) {
-                    removeFromWatchlist(modelState.asset)
-                } else {
-                    addToWatchlist(modelState.asset)
-                }
+                updateWatchlist(
+                    asset = modelState.asset,
+                    toggle = if (modelState.watchlist) WatchlistToggle.REMOVE else WatchlistToggle.ADD
+                )
             }
 
             is CoinviewIntent.AccountSelected -> {
@@ -1012,15 +1012,21 @@ class CoinviewViewModel(
         }
     }
 
-    private fun addToWatchlist(asset: CryptoAsset) {
+    private fun updateWatchlist(asset: CryptoAsset, toggle: WatchlistToggle) {
         viewModelScope.launch {
-            watchlistService.addToWatchlist(asset.currency)
-        }
-    }
-
-    private fun removeFromWatchlist(asset: CryptoAsset) {
-        viewModelScope.launch {
-            watchlistService.removeFromWatchlist(asset.currency)
+            watchlistService.updateWatchlist(asset = asset.currency, toggle = toggle)
+                .collectLatest { dataResource ->
+                    when (dataResource) {
+                        is DataResource.Error -> {
+                            updateState {
+                                it.copy(error = CoinviewError.WatchlistToggleError)
+                            }
+                        }
+                        else -> {
+                            /* n/a */
+                        }
+                    }
+                }
         }
     }
 

@@ -1,17 +1,20 @@
 package piuk.blockchain.androidcore.utils.extensions
 
+import com.blockchain.data.DataResource
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxCompletable
 import kotlinx.coroutines.rx3.rxMaybe
 import kotlinx.coroutines.rx3.rxSingle
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 fun <E, R : Any> rxSingleOutcome(
     context: CoroutineContext = EmptyCoroutineContext,
@@ -54,3 +57,12 @@ suspend fun Completable.awaitOutcome(): Outcome<Exception, Unit> =
     } catch (ex: Exception) {
         Outcome.Failure(ex)
     }
+
+suspend fun <T : Any> Single<T>.toDataResource(): Flow<DataResource<T>> = flow {
+    emit(DataResource.Loading)
+    try {
+        emit(DataResource.Data(await()))
+    } catch (ex: Exception) {
+        emit(DataResource.Error(ex))
+    }
+}

@@ -26,6 +26,14 @@ fun <T> DataResource<T>.doOnData(f: (T) -> Unit): DataResource<T> {
     }
 }
 
+fun <T> Flow<DataResource<T>>.doOnData(f: suspend (T) -> Unit): Flow<DataResource<T>> {
+    return map { dataResource ->
+        dataResource.also {
+            if (it is DataResource.Data) f(it.data)
+        }
+    }
+}
+
 fun <T> DataResource<T>.doOnFailure(f: (Exception) -> Unit): DataResource<T> {
     return also {
         if (this is DataResource.Error) f(this.error)

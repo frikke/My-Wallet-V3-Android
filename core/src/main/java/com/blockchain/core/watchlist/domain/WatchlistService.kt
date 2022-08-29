@@ -1,5 +1,6 @@
 package com.blockchain.core.watchlist.domain
 
+import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import info.blockchain.balance.Currency
@@ -13,9 +14,16 @@ interface WatchlistService {
 
     suspend fun addToWatchlist(
         asset: Currency
-    )
+    ) : Flow<DataResource<Unit>>
 
     suspend fun removeFromWatchlist(
         asset: Currency
-    )
+    ) : Flow<DataResource<Unit>>
+
+    suspend fun updateWatchlist(
+        asset: Currency,
+        toggle: WatchlistToggle
+    ) : Flow<DataResource<Unit>>
+
+
 }
