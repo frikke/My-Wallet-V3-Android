@@ -100,7 +100,9 @@ fun ReferralScreen(
                 if (!iconUrl.isNullOrEmpty()) {
                     AsyncMediaItem(
                         modifier = Modifier.size(dimensionResource(R.dimen.asset_icon_size_large)),
-                        url = iconUrl
+                        url = iconUrl,
+                        onErrorDrawable = R.drawable.ic_referral,
+                        onLoadingPlaceholder = R.drawable.ic_blockchain
                     )
                 } else if (backgroundUrl.isNullOrEmpty()) {
                     Image(
