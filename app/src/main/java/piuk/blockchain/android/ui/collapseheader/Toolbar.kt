@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.collapseheader
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,15 +11,16 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.clickableNoEffect
 import piuk.blockchain.android.R
 import kotlin.math.roundToInt
 
@@ -28,40 +30,40 @@ private val Elevation = 4.dp
 @Preview
 @Composable
 fun CollapsingToolbarCollapsedPreview() {
-        CollapsingToolbar(
-            progress = 0f,
-            onPrivacyTipButtonClicked = {},
-            onSettingsButtonClicked = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp)
-        )
+    CollapsingToolbar(
+        progress = 0f,
+        onPrivacyTipButtonClicked = {},
+        onSettingsButtonClicked = {},
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(54.dp)
+    )
 }
 
 @Preview
 @Composable
 fun CollapsingToolbarHalfwayPreview() {
-        CollapsingToolbar(
-            progress = 0.5f,
-            onPrivacyTipButtonClicked = {},
-            onSettingsButtonClicked = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-        )
+    CollapsingToolbar(
+        progress = 0.5f,
+        onPrivacyTipButtonClicked = {},
+        onSettingsButtonClicked = {},
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(81.dp)
+    )
 }
 
 @Preview
 @Composable
 fun CollapsingToolbarExpandedPreview() {
-        CollapsingToolbar(
-            progress = 1f,
-            onPrivacyTipButtonClicked = {},
-            onSettingsButtonClicked = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(160.dp)
-        )
+    CollapsingToolbar(
+        progress = 1f,
+        onPrivacyTipButtonClicked = {},
+        onSettingsButtonClicked = {},
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(108.dp)
+    )
 }
 
 @Composable
@@ -84,19 +86,31 @@ fun CollapsingToolbar(
                     .fillMaxSize()
             ) {
                 CollapsingToolbarLayout(progress = progress) {
-                    Text(
-                        modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
-                        style = AppTheme.typography.title3,
-                        color = Color.Black,
-                        text = "total balance: xxxx"
-                    )
+                    Box(modifier = Modifier
+                        .clickableNoEffect { onPrivacyTipButtonClicked() }
+                        .height(54.dp)
+                        .fillMaxWidth()
+                        .background(Color.Red)) {
+                        Text(
+                            modifier = Modifier.align(Alignment.Center).padding(start = dimensionResource(R.dimen.tiny_margin)),
+                            style = AppTheme.typography.title3,
+                            color = Color.Black,
+                            text = "total balance: xxxx"
+                        )
+                    }
 
-                    Text(
-                        modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
-                        style = AppTheme.typography.title3,
-                        color = Color.Black,
-                        text = "trading - defi"
-                    )
+                    Box(modifier = Modifier
+                        .clickableNoEffect { onSettingsButtonClicked() }
+                        .height(54.dp)
+                        .fillMaxWidth()
+                        .background(Color.Green)) {
+                        Text(
+                            modifier = Modifier.align(Alignment.Center).padding(start = dimensionResource(R.dimen.tiny_margin)),
+                            style = AppTheme.typography.title3,
+                            color = Color.Black,
+                            text = "trading - defi"
+                        )
+                    }
                 }
             }
         }
@@ -130,20 +144,16 @@ private fun CollapsingToolbarLayout(
             val pager = placeables[1]
 
             totalBalance.placeRelative(
-                x = totalBalance.width / 2,
+                x = constraints.maxWidth / 2 - totalBalance.width / 2, // center
                 y = lerp(
-                    start = -totalBalance.height,
-                    stop = expandedHorizontalGuideline - totalBalance.height,
+                    start = -totalBalance.height, // off the screen
+                    stop = 0,
                     fraction = progress
                 )
             )
             pager.placeRelative(
-                x = pager.width / 2,
-                y = lerp(
-                    start = collapsedHorizontalGuideline - pager.height / 2,
-                    stop = expandedHorizontalGuideline,
-                    fraction = progress
-                )
+                x = constraints.maxWidth / 2 - pager.width / 2, // center
+                y = constraints.maxHeight - pager.height, // bottom
             )
         }
     }

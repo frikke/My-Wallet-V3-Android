@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.collapseheader
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FloatExponentialDecaySpec
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateIntAsState
@@ -43,8 +44,8 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.collapseheader.states.toolbar.ToolbarState
 import piuk.blockchain.android.ui.collapseheader.states.toolbar.scrollflags.EnterAlwaysCollapsedState
 
-private val MinToolbarHeight = 96.dp
-private val MaxToolbarHeight = 176.dp
+private val MinToolbarHeight = 54.dp
+private val MaxToolbarHeight = 108.dp
 
 @Composable
 private fun rememberToolbarState(toolbarHeightRange: IntRange): ToolbarState {
@@ -55,11 +56,16 @@ private fun rememberToolbarState(toolbarHeightRange: IntRange): ToolbarState {
 
 @Composable
 fun Main() {
+    val collapsedBalanceOffset = LocalDensity.current.run { MinToolbarHeight.toPx() }
+    val allCollapsedOffset = LocalDensity.current.run { MaxToolbarHeight.toPx() }
+
     val toolbarHeightRange = with(LocalDensity.current) {
         MinToolbarHeight.roundToPx()..MaxToolbarHeight.roundToPx()
     }
     val toolbarState = rememberToolbarState(toolbarHeightRange)
     val listState = rememberLazyListState()
+
+    val coroutineScopeAnim = rememberCoroutineScope()
 
     val scope = rememberCoroutineScope()
 
@@ -84,7 +90,9 @@ fun Main() {
                                 listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
                             toolbarState.scrollOffset =
                                 toolbarState.scrollOffset - (value - (toolbarState.height + toolbarState.offset))
-                            if (toolbarState.scrollOffset == 0f) scope.coroutineContext.cancelChildren()
+                            //                            if (toolbarState.scrollOffset == 0f) scope.coroutineContext.cancelChildren()
+                            if (toolbarState.scrollTopLimitReached) scope.coroutineContext.cancelChildren()
+
                         }
                     }
                 }
@@ -119,6 +127,10 @@ fun Main() {
     val aaaaa = mutableListOf<String>()
     (0..40).forEach { aaaaa.add("dzjfzufz $it") }
 
+    var animate by remember {
+        mutableStateOf(false)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -131,7 +143,11 @@ fun Main() {
                 .graphicsLayer { translationY = toolbarState.height + toolbarState.offset }
                 .pointerInput(Unit) {
                     detectTapGestures(
-                        onPress = { scope.coroutineContext.cancelChildren() }
+                        onPress = {
+                            scope.coroutineContext.cancelChildren()
+                            coroutineScopeAnim.coroutineContext.cancelChildren()
+                            animate = false
+                        }
                     )
                 },
         ) {
@@ -151,10 +167,29 @@ fun Main() {
             }
         }
 
+        val offsetY = remember { Animatable(0f) }
+        if (animate) {
+            toolbarState.scrollOffset = offsetY.value
+            if (toolbarState.scrollOffset == allCollapsedOffset) {
+                animate = false
+            }
+        }
+
         CollapsingToolbar(
             progress = toolbarState.progress,
-            onPrivacyTipButtonClicked = { },
-            onSettingsButtonClicked = { },
+            onPrivacyTipButtonClicked = {
+                coroutineScopeAnim.launch {
+                    animate = true
+                    offsetY.snapTo(toolbarState.scrollOffset)
+                    offsetY.animateTo(
+                        targetValue = allCollapsedOffset,
+                        animationSpec = tween(
+                            durationMillis = 400
+                        )
+                    )
+                }
+            },
+            onSettingsButtonClicked = { toolbarState.scrollOffset = allCollapsedOffset },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(with(LocalDensity.current) { toolbarState.height.toDp() })
