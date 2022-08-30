@@ -24,19 +24,6 @@ import kotlin.math.roundToInt
 
 private val ContentPadding = 8.dp
 private val Elevation = 4.dp
-private val ButtonSize = 24.dp
-private const val Alpha = 0.75f
-
-private val ExpandedPadding = 1.dp
-private val CollapsedPadding = 3.dp
-
-private val ExpandedCostaRicaHeight = 20.dp
-private val CollapsedCostaRicaHeight = 16.dp
-
-private val ExpandedWildlifeHeight = 32.dp
-private val CollapsedWildlifeHeight = 24.dp
-
-private val MapHeight = CollapsedCostaRicaHeight * 2
 
 @Preview
 @Composable
@@ -84,16 +71,6 @@ fun CollapsingToolbar(
     onSettingsButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val costaRicaHeight = with(LocalDensity.current) {
-        lerp(CollapsedCostaRicaHeight.toPx(), ExpandedCostaRicaHeight.toPx(), progress).toDp()
-    }
-    val wildlifeHeight = with(LocalDensity.current) {
-        lerp(CollapsedWildlifeHeight.toPx(), ExpandedWildlifeHeight.toPx(), progress).toDp()
-    }
-    val logoPadding = with(LocalDensity.current) {
-        lerp(CollapsedPadding.toPx(), ExpandedPadding.toPx(), progress).toDp()
-    }
-
     Surface(
         color = MaterialTheme.colors.primary,
         elevation = Elevation,
@@ -155,7 +132,7 @@ private fun CollapsingToolbarLayout(
             totalBalance.placeRelative(
                 x = totalBalance.width / 2,
                 y = lerp(
-                    start = collapsedHorizontalGuideline - totalBalance.height / 2,
+                    start = -totalBalance.height,
                     stop = expandedHorizontalGuideline - totalBalance.height,
                     fraction = progress
                 )
