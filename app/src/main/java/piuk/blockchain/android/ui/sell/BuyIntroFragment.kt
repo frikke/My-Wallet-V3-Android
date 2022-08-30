@@ -36,6 +36,7 @@ import piuk.blockchain.android.databinding.BuyIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.account.HeaderDecoration
@@ -115,7 +116,7 @@ class BuyIntroFragment :
                 .subscribeBy(
                     onSuccess = { eligibility ->
                         when (val reason = (eligibility as? FeatureAccess.Blocked)?.reason) {
-                            BlockedReason.NotEligible,
+                            is BlockedReason.NotEligible -> renderBlockedDueToNotEligible(reason)
                             is BlockedReason.InsufficientTier -> renderKycUpgradeNow()
                             is BlockedReason.Sanctions -> renderBlockedDueToSanctions(reason)
                             is BlockedReason.TooManyInFlightTransactions,
@@ -213,6 +214,23 @@ class BuyIntroFragment :
                 .commitAllowingStateLoss()
         }
         binding.viewFlipper.displayedChild = ViewFlipperItem.KYC.ordinal
+    }
+
+    private fun renderBlockedDueToNotEligible(reason: BlockedReason.NotEligible) {
+        with(binding) {
+            viewFlipper.displayedChild = ViewFlipperItem.EMPTY_STATE.ordinal
+            customEmptyState.apply {
+                title = R.string.account_restricted
+                descriptionText = if (reason.message != null) {
+                    reason.message
+                } else {
+                    getString(R.string.feature_not_available)
+                }
+                icon = R.drawable.ic_wallet_intro_image
+                ctaText = R.string.contact_support
+                ctaAction = { startActivity(SupportCentreActivity.newIntent(requireContext())) }
+            }
+        }
     }
 
     private fun renderBlockedDueToSanctions(reason: BlockedReason.Sanctions) {

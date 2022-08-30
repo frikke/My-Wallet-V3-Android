@@ -1262,11 +1262,10 @@ class TransactionFlowCustomiserImpl(
         when (state.currentStep) {
             TransactionStep.ENTER_PASSWORD -> resources.getString(R.string.transfer_second_pswd_title)
             TransactionStep.FEATURE_BLOCKED -> when (state.featureBlockedReason) {
-                is BlockedReason.Sanctions -> selectTargetAddressTitle(state)
                 is BlockedReason.TooManyInFlightTransactions,
-                BlockedReason.NotEligible,
-                is BlockedReason.InsufficientTier,
-                -> resources.getString(R.string.kyc_upgrade_now_toolbar)
+                is BlockedReason.NotEligible,
+                is BlockedReason.Sanctions -> selectTargetAddressTitle(state)
+                is BlockedReason.InsufficientTier -> resources.getString(R.string.kyc_upgrade_now_toolbar)
                 null -> throw IllegalStateException(
                     "No featureBlockedReason provided for TransactionStep.FEATURE_BLOCKED, state $state"
                 )

@@ -120,7 +120,7 @@ class SellIntroFragment : ViewPagerFragment() {
                     onSuccess = { eligibility ->
                         when (val reason = (eligibility as? FeatureAccess.Blocked)?.reason) {
                             is BlockedReason.InsufficientTier -> renderNonKycedUserUi()
-                            BlockedReason.NotEligible -> renderRejectedKycedUserUi()
+                            is BlockedReason.NotEligible -> renderRejectedKycedUserUi()
                             is BlockedReason.Sanctions -> renderBlockedDueToSanctions(reason)
                             is BlockedReason.TooManyInFlightTransactions,
                             null,

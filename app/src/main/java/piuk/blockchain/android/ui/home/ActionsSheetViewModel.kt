@@ -150,7 +150,7 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
                         is BlockedReason.TooManyInFlightTransactions -> navigate(
                             ActionsSheetNavEvent.TooMayPendingBuys(reason.maxTransactions)
                         )
-                        BlockedReason.NotEligible,
+                        is BlockedReason.NotEligible,
                         is BlockedReason.Sanctions,
                         is BlockedReason.InsufficientTier ->
                             // launch Buy anyways, because this is handled in that screen

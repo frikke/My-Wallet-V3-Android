@@ -3045,6 +3045,7 @@
     <string name="processing">Processing</string>
     <string name="spend_from">Spend From</string>
     <string name="account_restricted">Account Restricted</string>
+    <string name="feature_not_available">Feature is not available.</string>
     <string name="terms_and_conditions_label">I agree to Blockchain.com’s Terms of Service</string>
     <string name="crypto_rewards">Crypto Rewards</string>
     <string name="crypto_rewards_description">Earn 1%% back in crypto rewards on all your purchases.</string>

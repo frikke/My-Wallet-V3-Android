@@ -223,7 +223,7 @@ class CoinViewInteractorTest {
         prepareQuickActionsCustodial(
             kycTier = KycTier.GOLD,
             sdd = true,
-            buyAccess = FeatureAccess.Blocked(BlockedReason.NotEligible),
+            buyAccess = FeatureAccess.Blocked(BlockedReason.NotEligible(null)),
             sellAccess = FeatureAccess.Blocked(mock()),
             availableForTrading = true,
             supportedForSwap = true
@@ -253,7 +253,7 @@ class CoinViewInteractorTest {
         prepareQuickActionsCustodial(
             kycTier = KycTier.GOLD,
             sdd = true,
-            buyAccess = FeatureAccess.Blocked(BlockedReason.NotEligible),
+            buyAccess = FeatureAccess.Blocked(BlockedReason.NotEligible(null)),
             sellAccess = FeatureAccess.Blocked(mock()),
             availableForTrading = true,
             supportedForSwap = false

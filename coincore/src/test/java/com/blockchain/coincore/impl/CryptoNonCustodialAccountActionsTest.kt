@@ -140,7 +140,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
     fun `when base actions contains swap but user not eligible for swap then Swap is unavailable`() {
         val subject = configureActionSubject(true)
 
-        configureActionTest(userAccessForSwap = FeatureAccess.Blocked(BlockedReason.NotEligible))
+        configureActionTest(userAccessForSwap = FeatureAccess.Blocked(BlockedReason.NotEligible(null)))
         subject.stateAwareActions
             .test().await().assertValue {
                 it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
@@ -176,7 +176,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
     fun `when base actions contains Sell but feature is blocked then Sell is unavailable`() {
         val subject = configureActionSubject(true)
 
-        configureActionTest(userAccessForSell = FeatureAccess.Blocked(BlockedReason.NotEligible))
+        configureActionTest(userAccessForSell = FeatureAccess.Blocked(BlockedReason.NotEligible(null)))
 
         subject.stateAwareActions.test().await().assertValue {
             it.contains(StateAwareAction(ActionState.Available, AssetAction.ViewActivity)) &&
@@ -223,7 +223,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
     fun `when base actions contains InterestDeposit but deposit crypto is blocked then InterestDeposit is unavailable`() {
         val subject = configureActionSubject(true)
 
-        configureActionTest(userAccessForCryptoDeposit = FeatureAccess.Blocked(BlockedReason.NotEligible))
+        configureActionTest(userAccessForCryptoDeposit = FeatureAccess.Blocked(BlockedReason.NotEligible(null)))
 
         subject.stateAwareActions
             .test().await().assertValue {
@@ -236,7 +236,7 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
     fun `when base actions contains InterestDeposit but interest crypto is blocked then InterestDeposit is unavailable`() {
         val subject = configureActionSubject(true)
 
-        configureActionTest(userAccessForInterestDeposit = FeatureAccess.Blocked(BlockedReason.NotEligible))
+        configureActionTest(userAccessForInterestDeposit = FeatureAccess.Blocked(BlockedReason.NotEligible(null)))
 
         subject.stateAwareActions
             .test().await().assertValue {
