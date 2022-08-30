@@ -18,6 +18,7 @@ import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
+import com.blockchain.koin.loqateFeatureFlag
 import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
@@ -58,6 +59,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_blockchain_card",
                 "Blockchain Card"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(loqateFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_loqate",
+                "Loqate"
             )
         )
     }.bind(FeatureFlag::class)

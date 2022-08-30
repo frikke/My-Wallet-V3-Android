@@ -378,7 +378,7 @@ private fun OpenEndedRow(
     ) {
         if (node.text.isNotEmpty()) {
             SimpleText(
-                modifier = Modifier.padding(vertical = 4.dp),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 text = node.text,
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Body,
@@ -458,7 +458,7 @@ private fun Header(header: QuestionnaireHeader) {
                 .align(Alignment.CenterHorizontally)
         )
         SimpleText(
-            modifier = Modifier.padding(
+            modifier = Modifier.fillMaxWidth().padding(
                 top = dimensionResource(R.dimen.standard_margin),
                 start = dimensionResource(R.dimen.standard_margin),
                 end = dimensionResource(R.dimen.standard_margin)
@@ -469,7 +469,7 @@ private fun Header(header: QuestionnaireHeader) {
             gravity = ComposeGravities.Centre
         )
         SimpleText(
-            modifier = Modifier.padding(
+            modifier = Modifier.fillMaxWidth().padding(
                 top = dimensionResource(R.dimen.tiny_margin),
                 bottom = dimensionResource(R.dimen.standard_margin),
                 start = dimensionResource(R.dimen.standard_margin),

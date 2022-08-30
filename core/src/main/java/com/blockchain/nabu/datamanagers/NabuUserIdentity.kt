@@ -85,7 +85,7 @@ class NabuUserIdentity(
 
     override fun getUserState(): Maybe<String> =
         userService.getUser().flatMapMaybe {
-            val state = it.address?.state
+            val state = it.address?.stateIso
             if (state.isNullOrEmpty()) {
                 Maybe.empty()
             } else {

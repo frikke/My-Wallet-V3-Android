@@ -410,7 +410,7 @@ class KycNavHostPresenterTest {
         city = "city",
         line1 = "line1",
         line2 = "line2",
-        state = "state",
+        stateIso = "state",
         countryCode = "regionCode",
         postCode = "postCode"
     )

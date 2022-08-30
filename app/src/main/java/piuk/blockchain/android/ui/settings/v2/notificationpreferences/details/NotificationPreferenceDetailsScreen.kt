@@ -40,6 +40,7 @@ fun NotificationPreferenceDetailsScreen(
         ) {
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = state.description,
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,

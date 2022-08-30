@@ -73,6 +73,7 @@ fun DeFiOnboardingCompleteScreen(
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(
                         R.string.defi_onboarding_complete_title,
                         stringResource(R.string.defi_wallet_name)
@@ -85,6 +86,7 @@ fun DeFiOnboardingCompleteScreen(
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.defi_onboarding_complete_description),
                     style = ComposeTypographies.Paragraph1,
                     color = ComposeColors.Title,

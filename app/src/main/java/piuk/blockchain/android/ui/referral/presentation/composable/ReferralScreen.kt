@@ -132,6 +132,7 @@ fun ReferralScreen(
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
@@ -150,6 +151,7 @@ fun ReferralScreen(
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
@@ -201,6 +203,7 @@ fun ReferralCode(
     ) {
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             style = ComposeTypographies.Title4,
             color = if (isCustomBackground) ComposeColors.Light else ComposeColors.Title,
             gravity = ComposeGravities.Centre,

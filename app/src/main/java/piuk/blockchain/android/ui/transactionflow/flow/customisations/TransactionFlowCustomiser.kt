@@ -991,7 +991,7 @@ class TransactionFlowCustomiserImpl(
                 R.string.trading_invalid_destination_amount
             )
             TransactionError.InvalidPostcode -> resources.getString(
-                R.string.kyc_postcode_error
+                R.string.address_verification_postcode_error
             )
             is TransactionError.ExecutionFailed -> resources.getString(
                 R.string.executing_transaction_error, state.sendingAsset.displayTicker

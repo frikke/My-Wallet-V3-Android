@@ -132,7 +132,6 @@ import piuk.blockchain.android.ui.dataremediation.QuestionnaireModel
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
 import piuk.blockchain.android.ui.home.ActionsSheetViewModel
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.kyc.autocomplete.PlacesClientProvider
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
@@ -733,13 +732,6 @@ val applicationModule = module {
 
         scoped {
             AssetActivityRepository()
-        }
-
-        scoped {
-            PlacesClientProvider(
-                context = get(),
-                apiKey = BuildConfig.PLACES_API_KEY,
-            )
         }
 
         factory {
