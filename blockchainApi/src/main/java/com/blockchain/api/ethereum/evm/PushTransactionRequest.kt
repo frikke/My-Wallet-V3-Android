@@ -7,8 +7,8 @@ import kotlinx.serialization.Serializable
 data class PushTransactionRequest(
     @SerialName("rawTx")
     val rawTransaction: String,
-    @SerialName("network")
-    val networkName: String,
+    @SerialName("currency")
+    val currency: String,
     @SerialName("apiCode")
     val apiCode: String
 )

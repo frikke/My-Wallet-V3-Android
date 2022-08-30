@@ -57,13 +57,11 @@ class Erc20L2StoreRepositoryTest {
 
     private val evmBalanceResponseNative = EvmBalanceResponse(
         contractAddress = "native",
-        name = "CRYPTO_NATIVE",
         amount = 3.toBigInteger()
     )
 
     private val evmBalanceResponse = EvmBalanceResponse(
         contractAddress = "contractAddress",
-        name = "CRYPTO2",
         amount = 2.toBigInteger()
     )
 
@@ -92,14 +90,14 @@ class Erc20L2StoreRepositoryTest {
     fun setUp() {
         every { erc20L2DataSource.streamData(any()) } returns flowOf(DataResource.Data(balancesResponse))
         every { erc20L2DataSource.invalidate(any()) } just Runs
-        every { assetCatalogue.assetFromL1ChainByContractAddress(l1chain = "CRYPTO2", any()) } returns cryptoCurrency
+        every { assetCatalogue.assetFromL1ChainByContractAddress(l1chain = "CRYPTO_NATIVE", any()) } returns cryptoCurrency
         every { assetCatalogue.assetInfoFromNetworkTicker(symbol = "CRYPTO_NATIVE") } returns cryptoCurrencyNative
         every { ethDataManager.accountAddress } returns "accountHash"
     }
 
     @Test
     fun `WHEN getBalances is called, THEN data should be returned`() {
-        erc20L2StoreService.getBalances(networkTicker = "CRYPTO2")
+        erc20L2StoreService.getBalances(networkTicker = "CRYPTO_NATIVE")
             .test()
             .await()
             .assertValue {
@@ -108,7 +106,7 @@ class Erc20L2StoreRepositoryTest {
 
         verify(exactly = 1) {
             assetCatalogue.assetFromL1ChainByContractAddress(
-                l1chain = "CRYPTO2",
+                l1chain = "CRYPTO_NATIVE",
                 contractAddress = "contractAddress"
             )
         }
@@ -121,7 +119,7 @@ class Erc20L2StoreRepositoryTest {
     @Test
     fun `GIVEN asset included, WHEN getBalanceFor is called, THEN erc20Balance should be returned`() {
         erc20L2StoreService.getBalanceFor(
-            networkTicker = "CRYPTO2",
+            networkTicker = "CRYPTO_NATIVE",
             asset = cryptoCurrency
         )
             .test()
@@ -148,7 +146,7 @@ class Erc20L2StoreRepositoryTest {
 
     @Test
     fun `WHEN getActiveAssets is called, THEN data-keys should be returned`() = runTest {
-        val result = erc20L2StoreService.getActiveAssets(networkTicker = "CRYPTO2").last()
+        val result = erc20L2StoreService.getActiveAssets(networkTicker = "CRYPTO_NATIVE").last()
         assertEquals(data.keys, result)
     }
 }
