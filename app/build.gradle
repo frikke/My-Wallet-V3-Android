@@ -329,6 +329,8 @@ kapt {
 }
 
 dependencies {
+    implementation "androidx.compose.ui:ui-util:1.2.0"
+
     implementation project(':notifications')
     implementation project(':sunriver') // Just for pit linking TODO: Fix that
     implementation project(':coincore')
