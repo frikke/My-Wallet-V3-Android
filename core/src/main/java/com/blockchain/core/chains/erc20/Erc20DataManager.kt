@@ -31,6 +31,7 @@ import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
+import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
 
 interface Erc20DataManager {
@@ -163,12 +164,22 @@ internal class Erc20DataManagerImpl(
         val shouldShow = evmWithoutL1BalanceFeatureFlag.coEnabled()
 
         if (ethLayerTwoFeatureFlag.coEnabled()) {
-            val erc20L2ActiveAssets = getSupportedNetworks().await()
-                .filter { evmNetwork ->
-                    // Show balances of Erc20s on EVM chains only when the user has a balance of the L1 coin or
-                    // the flag is turned on.
-                    shouldShow || l1BalanceCacheRequest.getCachedSingle(evmNetwork).await() > BigInteger.ZERO
+            val erc20L2ActiveAssets = getSupportedNetworks()
+                .flatMap { evmNetworks ->
+                    evmNetworks.map { evmNetwork ->
+                        l1BalanceCacheRequest.getCachedSingle(evmNetwork).onErrorReturn { BigInteger.ZERO }
+                            .map { balance ->
+                                Pair(evmNetwork, balance)
+                            }
+                            .filter { (_, balance) ->
+                                shouldShow || balance > BigInteger.ZERO
+                            }.toSingle()
+                            .map { (evmNetwork, _) ->
+                                evmNetwork
+                            }
+                    }.zipSingles().map { it.toSet() }
                 }
+                .await()
                 .map { evmNetwork ->
                     erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker).catch {
                         emit(emptySet())
