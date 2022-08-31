@@ -12,6 +12,7 @@ import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.koin.buyOrder
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -63,7 +64,7 @@ class BuyIntroFragment :
     private val assetResources: AssetResources by inject()
     private val analytics: Analytics by inject()
     private val userIdentity: UserIdentity by scopedInject()
-    private val buyOrdering: BuyListAccountSorting by scopedInject()
+    private val buyOrdering: BuyListAccountSorting by scopedInject(buyOrder)
 
     private val buyAdapter = BuyCryptoCurrenciesAdapter(
         assetResources = assetResources,
