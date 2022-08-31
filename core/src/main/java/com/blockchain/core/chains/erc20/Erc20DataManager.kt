@@ -97,6 +97,7 @@ internal class Erc20DataManagerImpl(
     private val erc20L2StoreService: Erc20L2StoreService,
     private val erc20L2DataSource: Erc20L2DataSource,
     private val ethLayerTwoFeatureFlag: FeatureFlag,
+    private val evmWithoutL1BalanceFeatureFlag: FeatureFlag,
 ) : Erc20DataManager {
 
     override val accountHash: String
@@ -159,9 +160,15 @@ internal class Erc20DataManagerImpl(
 
     override fun getActiveAssets(): Flow<Set<AssetInfo>> = flow {
         val erc20ActiveAssets = erc20StoreService.getActiveAssets()
+        val shouldShow = evmWithoutL1BalanceFeatureFlag.coEnabled()
 
         if (ethLayerTwoFeatureFlag.coEnabled()) {
             val erc20L2ActiveAssets = getSupportedNetworks().await()
+                .filter { evmNetwork ->
+                    // Show balances of Erc20s on EVM chains only when the user has a balance of the L1 coin or
+                    // the flag is turned on.
+                    shouldShow || l1BalanceCacheRequest.getCachedSingle(evmNetwork).await() > BigInteger.ZERO
+                }
                 .map { evmNetwork ->
                     erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker).catch {
                         emit(emptySet())
@@ -370,10 +377,11 @@ internal class Erc20DataManagerImpl(
         balance: BigInteger
     ): Observable<Erc20Balance> {
         val hasNativeTokenBalance = balance > BigInteger.ZERO
+        val shouldShow = evmWithoutL1BalanceFeatureFlag.isEnabled || hasNativeTokenBalance
         val isOnOtherEvm = evmNetwork.chainId != EthDataManager.ETH_CHAIN_ID
         return when {
             // Only load L2 balances if we have a balance of the network's native token
-            isOnOtherEvm && hasNativeTokenBalance -> {
+            isOnOtherEvm && shouldShow -> {
                 erc20L2StoreService.getBalances(networkTicker = evmNetwork.networkTicker)
                     .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
             }

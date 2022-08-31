@@ -363,7 +363,8 @@ val coreModule = module {
                 erc20DataSource = get(),
                 erc20L2StoreService = get(),
                 erc20L2DataSource = get(),
-                ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
+                ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
+                evmWithoutL1BalanceFeatureFlag = get(evmWithoutL1BalanceFeatureFlag)
             )
         }.bind(Erc20DataManager::class)
 

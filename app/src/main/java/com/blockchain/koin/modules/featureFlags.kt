@@ -17,6 +17,7 @@ import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
+import com.blockchain.koin.evmWithoutL1BalanceFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.loqateFeatureFlag
@@ -141,6 +142,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_eth_layer_two_networks",
                 "Enable Eth L2 Networks"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(evmWithoutL1BalanceFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_balance_without_l1",
+                "Load Balances Without L1 Balance"
             )
         )
     }.bind(FeatureFlag::class)
