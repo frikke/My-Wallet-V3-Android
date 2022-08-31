@@ -451,7 +451,8 @@ val applicationModule = module {
                 simpleBuyPrefs = get(),
                 onboardingPrefs = get(),
                 cardRejectionCheckFF = get(cardRejectionCheckFeatureFlag),
-                eligibilityService = get()
+                eligibilityService = get(),
+                cardPaymentAsyncFF = get(cardPaymentAsyncFeatureFlag)
             )
         }
 
