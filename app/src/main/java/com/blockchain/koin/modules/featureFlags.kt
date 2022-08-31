@@ -5,6 +5,7 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.accountUnificationFeatureFlag
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
+import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.authInterceptorFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.bindFeatureFlag
@@ -230,6 +231,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_card_rejection_check",
                 "Check Cards for tx rejection"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(assetOrderingFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_brokerage_lists_order",
+                "Enable new asset list ordering"
             )
         )
     }.bind(FeatureFlag::class)

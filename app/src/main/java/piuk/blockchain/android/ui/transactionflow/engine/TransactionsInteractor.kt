@@ -69,7 +69,9 @@ class TransactionInteractor(
     private val paymentMethodService: PaymentMethodService,
     private val currencyPrefs: CurrencyPrefs,
     private val identity: UserIdentity,
-    private val accountsSorting: AccountsSorting,
+    private val defaultAccountsSorting: AccountsSorting,
+    private val swapSourceAccountsSorting: AccountsSorting,
+    private val swapTargetAccountsSorting: AccountsSorting,
     private val linkedBanksFactory: LinkedBanksFactory,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val dismissRecorder: DismissRecorder,
@@ -171,6 +173,8 @@ class TransactionInteractor(
                 .filter { account ->
                     pairs.any { it.source == sourceAccount.currency && account.currency == it.destination }
                 }
+        }.flatMap { list ->
+            swapTargetAccountsSorting.sorter().invoke(list)
         }
 
     fun getAvailableSourceAccounts(
@@ -179,7 +183,7 @@ class TransactionInteractor(
     ): Single<SingleAccountList> =
         when (action) {
             AssetAction.Swap -> {
-                coincore.walletsWithActions(actions = setOf(action), sorter = accountsSorting.sorter())
+                coincore.walletsWithActions(actions = setOf(action), sorter = swapSourceAccountsSorting.sorter())
                     .zipWith(
                         custodialRepository.getSwapAvailablePairs()
                     ).map { (accounts, pairs) ->
@@ -193,7 +197,7 @@ class TransactionInteractor(
             AssetAction.InterestDeposit -> {
                 require(targetAccount is InterestAccount)
                 require(targetAccount is CryptoAccount)
-                coincore.walletsWithActions(actions = setOf(action), sorter = accountsSorting.sorter()).map {
+                coincore.walletsWithActions(actions = setOf(action), sorter = defaultAccountsSorting.sorter()).map {
                     it.filter { acc ->
                         acc is CryptoAccount &&
                             acc.currency == targetAccount.currency &&

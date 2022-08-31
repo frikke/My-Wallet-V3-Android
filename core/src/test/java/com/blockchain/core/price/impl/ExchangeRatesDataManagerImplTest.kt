@@ -228,6 +228,7 @@ class ExchangeRatesDataManagerImplTest {
                 price = 100.toDouble(),
                 timestampSeconds = 200000,
                 marketCap = 0.0,
+                tradingVolume24h = 0.0
             )
         )
         private val PRICE_DATA = listOf(

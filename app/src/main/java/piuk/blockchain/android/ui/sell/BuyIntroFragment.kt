@@ -10,7 +10,6 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.koin.scopedInject
@@ -23,8 +22,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -44,6 +41,7 @@ import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.ui.transfer.BuyListAccountSorting
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
 import piuk.blockchain.android.util.openUrl
 import retrofit2.HttpException
@@ -62,10 +60,10 @@ class BuyIntroFragment :
 
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val compositeDisposable = CompositeDisposable()
-    private val coincore: Coincore by scopedInject()
     private val assetResources: AssetResources by inject()
     private val analytics: Analytics by inject()
     private val userIdentity: UserIdentity by scopedInject()
+    private val buyOrdering: BuyListAccountSorting by scopedInject()
 
     private val buyAdapter = BuyCryptoCurrenciesAdapter(
         assetResources = assetResources,
@@ -156,21 +154,9 @@ class BuyIntroFragment :
                     it.source
                 }.distinct()
                     .filterIsInstance<AssetInfo>()
-            }.flatMapObservable { assets ->
-                Observable.fromIterable(assets).flatMapMaybe { asset ->
-                    coincore[asset].getPricesWith24hDeltaLegacy().map { priceDelta ->
-                        PricedAsset(
-                            asset = asset,
-                            priceHistory = PriceHistory(
-                                currentExchangeRate = priceDelta.currentRate,
-                                priceDelta = priceDelta.delta24h
-                            )
-                        )
-                    }.toMaybe().onErrorResumeNext {
-                        Maybe.empty()
-                    }
-                }
-            }.toList()
+            }.flatMap { assets ->
+                buyOrdering.sort(assets)
+            }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .trackProgress(activityIndicator.takeIf { showLoading })
@@ -324,7 +310,19 @@ data class BuyCryptoItem(
     val percentageDelta: Double
 )
 
-private data class PricedAsset(
-    val asset: AssetInfo,
-    val priceHistory: PriceHistory
-)
+sealed class PricedAsset(
+    open val asset: AssetInfo,
+    open val priceHistory: PriceHistory
+) {
+    data class NonSortedAsset(
+        override val asset: AssetInfo,
+        override val priceHistory: PriceHistory
+    ) : PricedAsset(asset, priceHistory)
+
+    data class SortedAsset(
+        override val asset: AssetInfo,
+        override val priceHistory: PriceHistory,
+        val balance: Money,
+        val tradingVolume: Double
+    ) : PricedAsset(asset, priceHistory)
+}

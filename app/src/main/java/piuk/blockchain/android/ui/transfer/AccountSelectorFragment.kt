@@ -15,6 +15,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.material.snackbar.Snackbar
@@ -35,7 +36,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         get() = _binding!!
 
     private val coincore: Coincore by scopedInject()
-    private val accountsSorting: AccountsSorting by scopedInject()
+    private val accountsSorting: AccountsSorting by scopedInject(defaultOrder)
     private val bankService: BankService by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private lateinit var introHeaderView: IntroHeaderView
@@ -90,13 +91,13 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     }
 
     override fun onResumeFragment() {
-        refreshItems(showLoader = true)
+        refreshItems()
     }
 
-    fun refreshItems(showLoader: Boolean = true) {
+    private fun refreshItems() {
         binding.accountSelectorAccountList.loadItems(
             accountsSource = accounts(),
-            showLoader = showLoader,
+            showLoader = true,
             accountsLocksSource = showWithdrawalLocks()
         )
     }

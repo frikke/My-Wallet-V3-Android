@@ -1,7 +1,13 @@
 package piuk.blockchain.android.ui.dashboard
 
+import com.blockchain.koin.assetOrderingFeatureFlag
+import com.blockchain.koin.buyOrder
 import com.blockchain.koin.cowboysPromoFeatureFlag
+import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.sellOrder
+import com.blockchain.koin.swapSourceOrder
+import com.blockchain.koin.swapTargetOrder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -20,7 +26,11 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardState
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingInteractor
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModel
 import piuk.blockchain.android.ui.transfer.AccountsSorting
-import piuk.blockchain.android.ui.transfer.DashboardAccountsSorting
+import piuk.blockchain.android.ui.transfer.BuyListAccountSorting
+import piuk.blockchain.android.ui.transfer.DefaultAccountsSorting
+import piuk.blockchain.android.ui.transfer.SellAccountsSorting
+import piuk.blockchain.android.ui.transfer.SwapSourceAccountsSorting
+import piuk.blockchain.android.ui.transfer.SwapTargetAccountsSorting
 
 val dashboardModule = module {
 
@@ -78,12 +88,49 @@ val dashboardModule = module {
             )
         }
 
-        factory {
-            DashboardAccountsSorting(
+        factory(defaultOrder) {
+            DefaultAccountsSorting(
                 dashboardPrefs = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                walletModeService = get(),
+                coincore = get()
             )
         }.bind(AccountsSorting::class)
+
+        factory(swapSourceOrder) {
+            SwapSourceAccountsSorting(
+                assetListOrderingFF = get(assetOrderingFeatureFlag),
+                dashboardAccountsSorter = get(defaultOrder),
+                sellAccountsSorting = get(sellOrder)
+            )
+        }.bind(AccountsSorting::class)
+
+        factory(swapTargetOrder) {
+            SwapTargetAccountsSorting(
+                assetListOrderingFF = get(assetOrderingFeatureFlag),
+                dashboardAccountsSorter = get(defaultOrder),
+                coincore = get(),
+                exchangeRatesDataManager = get(),
+                watchlistDataManager = get()
+            )
+        }.bind(AccountsSorting::class)
+
+        factory(sellOrder) {
+            SellAccountsSorting(
+                assetListOrderingFF = get(assetOrderingFeatureFlag),
+                dashboardAccountsSorter = get(defaultOrder),
+                coincore = get()
+            )
+        }.bind(AccountsSorting::class)
+
+        factory(buyOrder) {
+            BuyListAccountSorting(
+                assetListOrderingFF = get(assetOrderingFeatureFlag),
+                coincore = get(),
+                exchangeRatesDataManager = get(),
+                watchlistDataManager = get()
+            )
+        }
 
         factory { params ->
             DashboardOnboardingModel(

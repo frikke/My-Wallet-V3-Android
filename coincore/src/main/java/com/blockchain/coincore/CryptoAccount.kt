@@ -1,5 +1,6 @@
 package com.blockchain.coincore
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
@@ -10,6 +11,8 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigDecimal
+import java.math.BigInteger
 
 data class AccountBalance internal constructor(
     val total: Money,
@@ -44,7 +47,6 @@ data class AccountBalance internal constructor(
         }
 
         internal fun from(balance: InterestAccountBalance, rate: ExchangeRate): AccountBalance {
-
             return AccountBalance(
                 total = balance.totalBalance,
                 withdrawable = balance.actionableBalance,
@@ -59,6 +61,17 @@ data class AccountBalance internal constructor(
                 withdrawable = Money.zero(assetInfo),
                 pending = Money.zero(assetInfo),
                 exchangeRate = ExchangeRate.zeroRateExchangeRate(assetInfo)
+            )
+
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        fun testBalance(assetInfo: Currency, balance: Long) =
+            AccountBalance(
+                total = Money.fromMinor(assetInfo, BigInteger.valueOf(balance)),
+                withdrawable = Money.fromMinor(assetInfo, BigInteger.valueOf(balance)),
+                pending = Money.fromMinor(assetInfo, BigInteger.valueOf(balance)),
+                exchangeRate = ExchangeRate(
+                    BigDecimal.ONE, assetInfo, FiatCurrency.Dollars
+                )
             )
     }
 }

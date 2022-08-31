@@ -39,6 +39,8 @@ import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -131,6 +133,7 @@ class PortfolioFragment :
 
     private val announcements: AnnouncementList by scopedInject()
     private val analyticsReporter: BalanceAnalyticsReporter by scopedInject()
+    private val walletModeService: WalletModeService by scopedInject()
     private val dashboardPrefs: DashboardPrefs by inject()
     private val assetResources: AssetResources by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
@@ -650,15 +653,22 @@ class PortfolioFragment :
     }
 
     override fun onPause() {
-        // Save the sort order for use elsewhere, so that other asset lists can have the same
-        // ordering. Storing this through prefs is a bit of a hack, um, "optimisation" - we don't
-        // want to be getting all the balances every time we want to display assets in balance order.
-        // TODO This UI is due for a re-write soon, at which point this ordering should be managed better
-        dashboardPrefs.dashboardAssetOrder = theAdapter.items.filterIsInstance<DashboardAsset>()
-            .map { it.currency.displayTicker }
+        saveAssetOrderingLegacy()
+
         compositeDisposable.clear()
         rxBus.unregister(ActionEvent::class.java, actionEvent)
         super.onPause()
+    }
+
+    @Deprecated("use balances directly for sorting")
+    private fun saveAssetOrderingLegacy() {
+        // Save the sort order for use elsewhere, so that other asset lists can have the same
+        // ordering. Storing this through prefs is a bit of a hack, um, "optimisation" - we don't
+        // want to be getting all the balances every time we want to display assets in balance order.
+        if (walletModeService.enabledWalletMode() != WalletMode.CUSTODIAL_ONLY) {
+            dashboardPrefs.dashboardAssetOrder = theAdapter.items.filterIsInstance<DashboardAsset>()
+                .map { it.currency.displayTicker }
+        }
     }
 
     override fun questionnaireSubmittedSuccessfully() {
