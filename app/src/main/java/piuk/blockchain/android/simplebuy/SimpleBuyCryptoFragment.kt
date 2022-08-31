@@ -219,6 +219,58 @@ class SimpleBuyCryptoFragment :
             state = PaymentMethodsChooserState.AVAILABLE_TO_ADD
         )
 
+    override fun onCardTagClicked(cardInfo: CardRejectionState) {
+        when (cardInfo) {
+            is CardRejectionState.AlwaysRejected ->
+                showCardRejectionInfo(
+                    title = cardInfo.title.orEmpty(),
+                    description = cardInfo.description.orEmpty(),
+                    errorId = cardInfo.errorId,
+                    iconUrl = cardInfo.iconUrl.orEmpty(),
+                    statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
+                    actions = cardInfo.actions,
+                    analyticsCategories = cardInfo.analyticsCategories
+                )
+            is CardRejectionState.MaybeRejected -> showCardRejectionInfo(
+                title = cardInfo.title.orEmpty(),
+                description = cardInfo.description.orEmpty(),
+                errorId = cardInfo.errorId,
+                iconUrl = cardInfo.iconUrl.orEmpty(),
+                statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
+                actions = cardInfo.actions,
+                analyticsCategories = cardInfo.analyticsCategories
+            )
+            CardRejectionState.NotRejected -> {
+                // do nothing
+            }
+        }
+    }
+
+    private fun showCardRejectionInfo(
+        title: String?,
+        description: String?,
+        errorId: String?,
+        iconUrl: String?,
+        statusIconUrl: String?,
+        actions: List<ServerErrorAction>,
+        analyticsCategories: List<String>
+    ) {
+        navigator().showErrorInBottomSheet(
+            title = title.orEmpty(),
+            description = description.orEmpty(),
+            error = CardRejectionState.toString(),
+            serverSideUxErrorInfo = ServerSideUxErrorInfo(
+                id = errorId,
+                title = title.orEmpty(),
+                description = description.orEmpty(),
+                iconUrl = iconUrl.orEmpty(),
+                statusUrl = statusIconUrl.orEmpty(),
+                actions = actions,
+                categories = analyticsCategories
+            )
+        )
+    }
+
     private fun showPaymentMethodsBottomSheet(paymentOptions: PaymentOptions, state: PaymentMethodsChooserState) {
         showBottomSheet(
             when (state) {
@@ -796,6 +848,7 @@ class SimpleBuyCryptoFragment :
                         is CardRejectionState.AlwaysRejected -> {
                             cardState.renderAlwaysRejectedCardError()
                             btnContinue.gone()
+                            tags = emptyList()
                         }
                         is CardRejectionState.MaybeRejected -> {
                             btnError.gone()
@@ -808,6 +861,7 @@ class SimpleBuyCryptoFragment :
                             )
                         }
                         else -> {
+                            tags = emptyList()
                             btnError.gone()
                             btnContinue.visible()
                         }

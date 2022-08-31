@@ -2,7 +2,8 @@ package com.blockchain.componentlib.tag
 
 data class TagViewState(
     val value: String,
-    val type: TagType
+    val type: TagType,
+    val onClick: (() -> Unit)? = null
 )
 
 enum class TagSize {

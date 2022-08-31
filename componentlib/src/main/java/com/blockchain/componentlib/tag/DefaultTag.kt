@@ -10,7 +10,11 @@ import com.blockchain.componentlib.theme.Dark600
 import com.blockchain.componentlib.theme.Grey700
 
 @Composable
-fun DefaultTag(text: String, size: TagSize = TagSize.Primary) {
+fun DefaultTag(
+    text: String,
+    size: TagSize = TagSize.Primary,
+    onClick: (() -> Unit)?
+) {
 
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
         Color.White
@@ -29,7 +33,8 @@ fun DefaultTag(text: String, size: TagSize = TagSize.Primary) {
         size = size,
         defaultBackgroundColor = defaultBackgroundColor,
         defaultTextColor = defaultTextColor,
-        borders = true
+        borders = true,
+        onClick = onClick
     )
 }
 
@@ -38,7 +43,7 @@ fun DefaultTag(text: String, size: TagSize = TagSize.Primary) {
 fun DefaultTag_Basic() {
     AppTheme {
         AppSurface {
-            DefaultTag(text = "Default")
+            DefaultTag(text = "Default", onClick = null)
         }
     }
 }
@@ -48,7 +53,17 @@ fun DefaultTag_Basic() {
 fun DefaultTag_Dark() {
     AppTheme(darkTheme = true) {
         AppSurface {
-            DefaultTag(text = "Default")
+            DefaultTag(text = "Default", onClick = null)
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultTag_clickable() {
+    AppTheme(darkTheme = true) {
+        AppSurface {
+            DefaultTag(text = "Click me", onClick = {})
         }
     }
 }
