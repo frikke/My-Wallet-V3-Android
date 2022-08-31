@@ -1698,7 +1698,7 @@ Mientras tanto, puede vender en efectivo, intercambiar y comerciar dentro de Blo
     <string name="rewards_dashboard_item_rate_1">Ganar hasta</string>
     <string name="rewards_dashboard_item_rate_2">anualmente en su %1$s</string>
     <string name="rewards_dashboard_verify_title">Obtenga recompensas con sus criptomonedas</string>
-    <string name="rewards_dashboard_verify_label">Gane hasta un 12 %% instantáneamente cuando transfiera criptomonedas a su cuenta de recompensas.</string>
+    <string name="rewards_dashboard_verify_label">Gane hasta un 12%% al instante al transferir criptomonedas a su Rewards Account.</string>
     <string name="rewards_dashboard_verify_point_one_title">Verifique su identidad</string>
     <string name="rewards_dashboard_verify_point_two_title">Comprar criptomonedas</string>
     <string name="rewards_dashboard_verify_point_two_label">Utilice su tarjeta bancaria, de débito o de crédito para financiar cualquier compra de criptomonedas.</string>
@@ -1926,7 +1926,7 @@ Verifique su conexión a Internet y vuelva a intentarlo o comuníquese con el se
     <string name="feature_limits_header_denied_description">Actualmente tiene el nivel más alto de límites de cuenta y funciones disponibles.</string>
     <string name="feature_limits_footer">Es posible que se apliquen límites a las transacciones en ciertos bancos y emisores de tarjetas.
 
-Los límites de compra o depósito están determinados por muchos factores, entre los que se incluyen la verificación completada en su cuenta, su historial de compras, su tipo de pago y más datos.
+Los límites de compra o depósito están determinados por muchos factores, entre los que se incluyen la verificación completada en su cuenta, su historial de compras, su tipo de pago y más datos. 
 
 Obtenga más información sobre las cuentas comerciales, los límites y las funciones en nuestro <annotation link="support_center_link"> Centro de asistencia </annotation>.</string>
     <string name="feature_limits_silver_limits">Límites del Acceso Limitado</string>
@@ -2492,7 +2492,7 @@ Compre hoy criptomonedas.</string>
     <string name="no_fees_description">Sin cuotas de registro. Sin cuotas anuales. Sin tarifas de transacción.</string>
     <string name="terms_and_conditions_label">Acepto los Términos del servicio de Blockchain.com</string>
     <string name="crypto_rewards">Recompensas de criptomonedas</string>
-    <string name="crypto_rewards_description">Gane un 1 %% en recompensas de criptomonedas en todas sus compras.</string>
+    <string name="crypto_rewards_description">Gane un 1%% en recompensas de criptomonedas en todas sus compras.</string>
     <string name="legal_info_title">Cuestiones legales</string>
     <string name="continue_to_card_dashboard">Continúe para ver el panel de control de su tarjeta.</string>
     <string name="go_to_dashboard">Ir al panel de control</string>
@@ -2547,7 +2547,7 @@ Verifique su conexión a Internet y vuelva a intentarlo o póngase en contacto c
     <string name="trading_deposit_relink_bank_account">Volver a vincular cuenta bancaria</string>
     <string name="simple_buy_quote_message">Nueva cotización en %s</string>
     <string name="verify_your_address">Verifique su dirección</string>
-    <string name="verify_your_address_description">Confirme la dirección de su residencia a continuación para evitar retrasos. Podrá especificar una dirección de envío diferente más adelante.</string>
+    <string name="verify_your_address_description">Confirme la dirección de su residencia a continuación para evitar retrasos.</string>
     <string name="residential_address">Dirección de residencia</string>
     <string name="card_intro_title">Obtenga la tarjeta Visa de Blockchain.com</string>
     <string name="backup_success_title">¡Copia de seguridad completada correctamente!</string>
@@ -2580,7 +2580,7 @@ Encuentre la aplicación aquí: https://blockchainwallet.page.link/join</string>
     <string name="dashboard_onboarding_error_description">Se ha producido un error al cargar la pantalla de verificación. Vuelva a la pantalla anterior e inténtelo de nuevo.</string>
     <string name="recovery_phrase_backup_manual">Copia de seguridad manual</string>
     <string name="defi_onboarding_nav_title">Wallet DeFi</string>
-    <string name="defi_onboarding_intro_title">Presentamos Wallet DeFi</string>
+    <string name="defi_onboarding_intro_title">Presentación de %1$s</string>
     <string name="defi_onboarding_intro_description">Explore todo Web3 y DeFi en un solo lugar</string>
     <string name="defi_onboarding_intro_property1_title">Autocustodia de sus activos</string>
     <string name="defi_onboarding_intro_property1_subtitle">Las billeteras DeFi están en cadena</string>
@@ -2589,7 +2589,7 @@ Encuentre la aplicación aquí: https://blockchainwallet.page.link/join</string>
     <string name="defi_onboarding_intro_property3_title">Conéctese a las finanzas descentralizadas</string>
     <string name="defi_onboarding_intro_property3_subtitle">Inicie sesión en DApps y firme transacciones</string>
     <string name="defi_onboarding_intro_cta">Habilitar Wallet DeFi</string>
-    <string name="defi_onboarding_complete_title">¡Le damos la bienvenida a su Wallet DeFi!</string>
+    <string name="defi_onboarding_complete_title">¡Bienvenido a su %1$s!</string>
     <string name="defi_onboarding_complete_description">Su Wallet DeFi se ha creado correctamente. Su billetera DeFi es compatible con Bitcoin, Bitcoin Cash, Ethereum, |etc| y 1500 tokens.</string>
     <string name="payment_wire_transfer_subtitle_dollars">Debería llegar en 3-5 días hábiles</string>
     <string name="payment_wire_transfer_subtitle_pounds">Debería llegar el mismo día</string>
@@ -2662,7 +2662,7 @@ Si introduce un alias:
     <string name="linking_card_success_title">¡Su tarjeta ha sido vinculada correctamente!</string>
     <string name="linking_card_success_subtitle">Ahora puede usarla para comprar criptomonedas de manera fácil y segura.</string>
     <string name="trading_deposit_title_stale_balance">Saldo obsoleto</string>
-    <string name="bc_card_transactions_title">Transacciones</string>
+    <string name="bc_card_transactions_title">Transacciones recientes</string>
     <string name="bc_card_see_all">Ver todo</string>
     <string name="bc_card_terms_and_conditions_label">Entiendo y acepto los términos y condiciones del programa de tarjetas Visa de Blockchain.com, el acuerdo del titular de la tarjeta de Pathward Bank, el acuerdo de firma electrónica de Pathward Bank y la política de privacidad de Pathward Bank. También entiendo y acepto que estos términos y condiciones funcionan además de los términos y condiciones de servicio de Blockchain.com y la política de privacidad de Blockchain.com.</string>
     <string name="skip_backup_cta_skip">Sí, omitir copia de seguridad</string>
@@ -2675,34 +2675,37 @@ Si introduce un alias:
     <string name="nft_coming_soon_title">¡Próximamente!</string>
     <string name="nft_coming_soon_description">Estamos trabajando duro para respaldar sus NFT en su cartera. Le enviaremos un correo electrónico cuando sea el momento de actualizar su aplicación.</string>
     <string name="accessibility_balance">Saldo</string>
-    <string name="terminate_card_number">¿Terminar la tarjeta %1s ?</string>
-    <string name="terminate_card_warning">Una vez que se confirme, esta acción no se puede deshacer.</string>
+    <string name="terminate_card_number">¿Cancelar la tarjeta %1s?</string>
+    <string name="terminate_card_warning">Una vez confirmada, esta acción no se podrá deshacer.</string>
     <string name="bc_card_change_asset_title">Cambiar activo</string>
-    <string name="bc_card_change_asset_description">Cambiar el activo que financiará la tarjeta</string>
+    <string name="bc_card_change_asset_description">Cambie el activo que financiará la tarjeta</string>
     <string name="bc_card_add_funds_title">Añadir fondos</string>
-    <string name="bc_card_add_funds_description">Recarga tu saldo actual</string>
+    <string name="bc_card_add_funds_description">Recargue su saldo actual</string>
     <string name="select_one">Seleccione uno</string>
-    <string name="bc_card_empty_transactions_title">Sus transacciones van aquí</string>
-    <string name="bc_card_empty_transactions_description">Una vez que realice una compra con su tarjeta, esos detalles aparecerán aquí.</string>
-    <string name="bc_card_tap_here_to_refresh">Toque aquí para actualizar</string>
-    <string name="bc_card_tap_here_to_try_again">Toca aquí para volver a intentarlo</string>
+    <string name="bc_card_empty_transactions_title">Sus transacciones se muestran aquí</string>
+    <string name="bc_card_empty_transactions_description">Cuando realice una compra con su tarjeta, los detalles aparecerán aquí.</string>
+    <string name="bc_card_tap_here_to_refresh">Pulse aquí para actualizar</string>
+    <string name="bc_card_tap_here_to_try_again">Pulse aquí para volver a intentarlo</string>
     <string name="bc_card_unable_to_load_card">No se puede cargar la tarjeta</string>
     <string name="accessibility_total_balance">Saldo total</string>
     <string name="checkout_rb_weekly_title">¿Invertir semanalmente?</string>
     <string name="checkout_rb_biweekly_title">¿Invertir quincenalmente?</string>
-    <string name="checkout_rb_monthly_title">invertir mensualmente?</string>
-    <string name="checkout_rb_subtitle">Compra %1$s %2$s . Cancelar en cualquier momento.</string>
-    <string name="shortcuts">Atajos</string>
-    <string name="exchange_your_crypto">Intercambia tu cripto</string>
-    <string name="transfer_to_another_wallet">Transferir a otra billetera</string>
-    <string name="receive_to_your_wallet">Recibe en tu billetera</string>
+    <string name="checkout_rb_monthly_title">¿Invertir mensualmente?</string>
+    <string name="checkout_rb_subtitle">Compre %1$s %2$s. Cancele en cualquier momento.</string>
+    <string name="shortcuts">Accesos directos</string>
+    <string name="exchange_your_crypto">Intercambie sus criptomonedas</string>
+    <string name="transfer_to_another_wallet">Transferir a otro monedero</string>
+    <string name="receive_to_your_wallet">Recibir en su monedero</string>
     <string name="buy_crypto">Comprar criptomonedas</string>
-    <string name="defi_buy_not_supported">No admitimos la compra de criptomonedas en su billetera de clave privada en este momento. Puede comprar desde su cuenta comercial y enviar a su billetera de clave privada.</string>
-    <string name="go_to_trading">Ir a la cuenta comercial</string>
+    <string name="defi_buy_not_supported">No admitimos la compra de criptomonedas en su Private Key Wallet en este momento. Puede comprar desde su Trading Account y enviarlas a su Private Key Wallet.</string>
+    <string name="go_to_trading">Ir a la Trading Account</string>
     <string name="recurring_buy_view_rb">Ver compra recurrente</string>
-    <string name="recurring_buy_created_title">%s Compra creada</string>
-    <string name="recurring_buy_created_subtitle">Ahora comprará %1$s en %2$s %3$s . Usted puede cancelar en cualquier momento.</string>
-    <string name="top_up_trading_account">Recarga en tu Cuenta de Trading.</string>
-    <string name="use_your_card_or_cash">Use su efectivo o tarjeta</string>
+    <string name="recurring_buy_created_title">%s compra creada</string>
+    <string name="recurring_buy_created_subtitle">Ahora comprará %1$s en %2$s %3$s. Puede cancelar en cualquier momento.</string>
+    <string name="top_up_trading_account">Recarga en su Trading Account.</string>
+    <string name="use_your_card_or_cash">Use efectivo o tarjeta</string>
     <string name="fiat_to_cash">Convierta sus criptomonedas en efectivo</string>
+    <string name="rewards_to_your_cryptos">Obtener recompensas con sus criptomonedas</string>
+    <string name="recaptcha_failed">Ponga en segundo plano la aplicación y reiníciela para volver a intentarlo.</string>
+    <string name="error_scan_unrecognized">Código QR no reconocido. Los códigos QR admitidos incluyen Bitpay, Crypto Addresses y WalletConnect. Inténtalo de nuevo.</string>
 </resources>
