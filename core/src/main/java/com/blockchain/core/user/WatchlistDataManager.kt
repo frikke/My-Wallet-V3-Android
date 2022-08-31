@@ -11,6 +11,7 @@ import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
+// todo(othman) flow
 interface WatchlistDataManager {
     fun getWatchlist(): Single<Watchlist>
     fun addToWatchlist(asset: Currency, tags: List<AssetTag>): Single<WatchlistInfo>
