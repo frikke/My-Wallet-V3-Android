@@ -119,10 +119,10 @@ class CustodialTradingAccountActionsTest : KoinTest {
                 actions.map { it.action } == listOf(
                     AssetAction.ViewActivity,
                     AssetAction.Send,
+                    AssetAction.Sell,
                     AssetAction.InterestDeposit,
                     AssetAction.Swap,
                     AssetAction.Receive,
-                    AssetAction.Sell,
                     AssetAction.Buy,
                     AssetAction.InterestWithdraw
                 )

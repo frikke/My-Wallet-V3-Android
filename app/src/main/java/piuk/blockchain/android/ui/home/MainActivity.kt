@@ -538,6 +538,8 @@ class MainActivity :
             )
     }
 
+    private var launchSellAction: () -> Unit = {}
+
     override fun render(newState: MainState) {
         when (val view = newState.viewToLaunch) {
             is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
@@ -686,6 +688,24 @@ class MainActivity :
 
         renderTabs(newState.tabs, newState.currentTab)
         renderMode(newState.walletMode)
+        configSellAction(newState.tabs)
+    }
+
+    private fun configSellAction(tabs: List<NavigationItem>) {
+        launchSellAction = if (NavigationItem.BuyAndSell in tabs) {
+            {
+                launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
+            }
+        } else {
+            {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.Sell
+                    )
+                )
+            }
+        }
     }
 
     private val middleButtonBottomSheetLaunch: BottomSheetDialogFragment
@@ -1078,7 +1098,7 @@ class MainActivity :
     }
 
     override fun launchSell() {
-        launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
+        launchSellAction()
     }
 
     override fun launchBuySell(

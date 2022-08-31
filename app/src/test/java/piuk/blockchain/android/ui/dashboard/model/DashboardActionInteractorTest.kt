@@ -107,6 +107,7 @@ class DashboardActionInteractorTest {
             nftAnnouncementPrefs = nftAnnouncementPrefs,
             exchangeRates = mock(),
             walletModeBalanceCache = mock(),
+            productsEligibilityStore = mock(),
             bankService = bankService,
             referralPrefs = referralPrefs,
             cowboysFeatureFlag = cowboysFeatureFlag,

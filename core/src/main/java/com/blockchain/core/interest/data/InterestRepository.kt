@@ -107,10 +107,8 @@ internal class InterestRepository(
             .asObservable().firstOrError()
     }
 
-    override fun getAvailableAssetsForInterestFlow(
-        refreshStrategy: FreshnessStrategy
-    ): Flow<DataResource<List<AssetInfo>>> {
-        return interestAvailableAssetsStore.stream(refreshStrategy).mapData { response ->
+    override fun getAvailableAssetsForInterestFlow(): Flow<DataResource<List<AssetInfo>>> {
+        return interestAvailableAssetsStore.stream(FreshnessStrategy.Cached(false)).mapData { response ->
             response.networkTickers.mapNotNull { networkTicker ->
                 assetCatalogue.assetInfoFromNetworkTicker(networkTicker)
             }
@@ -124,10 +122,9 @@ internal class InterestRepository(
     }
 
     override fun isAssetAvailableForInterestFlow(
-        asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy
+        asset: AssetInfo
     ): Flow<DataResource<Boolean>> {
-        return getAvailableAssetsForInterestFlow(refreshStrategy)
+        return getAvailableAssetsForInterestFlow()
             .mapData { assets -> assets.contains(asset) }
     }
 

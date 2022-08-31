@@ -340,14 +340,10 @@ class LiveCustodialWalletManager(
         }
 
     override fun isAssetSupportedForSwap(assetInfo: AssetInfo): Single<Boolean> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.getSwapAvailablePairs(sessionToken)
-        }.map { response ->
-            response.firstOrNull { pair ->
-                val splitPair = pair.split("-")
-                splitPair[0] == assetInfo.networkTicker
-            } != null
-        }
+        custodialRepository.getSwapAvailablePairs()
+            .map { pairs ->
+                assetInfo.networkTicker in pairs.map { it.source.networkTicker }
+            }
 
     override fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList> =
         authenticator.authenticate {

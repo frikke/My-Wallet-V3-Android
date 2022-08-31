@@ -63,7 +63,8 @@ val dashboardModule = module {
                 settingsDataManager = get(),
                 cowboysDataProvider = get(),
                 referralService = get(),
-                cowboysPrefs = get()
+                cowboysPrefs = get(),
+                productsEligibilityStore = get()
             )
         }
 

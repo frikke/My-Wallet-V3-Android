@@ -119,6 +119,7 @@ val kycUiModule = module {
                 kycNavigator = get(),
                 kycTiersStore = get(),
                 getUserStore = get(),
+                productEligibilityStore = get(),
                 analytics = get()
             )
         }

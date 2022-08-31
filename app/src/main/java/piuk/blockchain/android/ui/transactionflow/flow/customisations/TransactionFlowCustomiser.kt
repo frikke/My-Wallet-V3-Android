@@ -1220,6 +1220,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestDeposit,
             AssetAction.FiatWithdraw,
             AssetAction.FiatDeposit,
+            AssetAction.Sell,
             -> {
                 {
                     DefaultCellDecorator()

@@ -60,6 +60,7 @@ class KycNavHostPresenterTest {
             kycTiersStore = kycTiersStore,
             getUserStore = getUserStore,
             analytics = mock(),
+            productEligibilityStore = mock(),
         )
         subject.initView(view)
     }

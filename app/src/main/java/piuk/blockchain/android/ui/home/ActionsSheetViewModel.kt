@@ -16,6 +16,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx3.await
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
@@ -29,20 +30,12 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
     ActionsSheetModelState()
 ) {
 
-    override fun viewCreated(args: ActionSheetArgs) {
-        updateState {
-            it.copy(walletMode = args.walletMode)
-        }
-    }
+    override fun viewCreated(args: ActionSheetArgs) {}
 
     override fun reduce(state: ActionsSheetModelState): ActionsSheetViewState {
         return with(state) {
             ActionsSheetViewState(
-                actions = when (walletMode) {
-                    WalletMode.CUSTODIAL_ONLY -> actionsForBrokerage()
-                    WalletMode.NON_CUSTODIAL_ONLY -> actionsForDefi()
-                    else -> emptyList()
-                },
+                actions = actions,
                 bottomItem = walletMode.takeIf { it == WalletMode.NON_CUSTODIAL_ONLY }?.let {
                     SheetAction(
                         title = R.string.common_buy,
@@ -55,26 +48,38 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
         }
     }
 
-    private fun actionsForDefi(): List<SheetAction> = listOf(
-        SheetAction(
-            title = R.string.common_swap,
-            subtitle = R.string.exchange_your_crypto,
-            icon = R.drawable.ic_sheet_menu_swap,
-            action = AssetAction.Swap,
-        ),
-        SheetAction(
-            title = R.string.common_send,
-            subtitle = R.string.transfer_to_another_wallet,
-            icon = R.drawable.ic_sheet_menu_send,
-            action = AssetAction.Send,
-        ),
-        SheetAction(
-            title = R.string.common_receive,
-            subtitle = R.string.receive_to_your_wallet,
-            icon = R.drawable.ic_sheet_menu_receive,
-            action = AssetAction.Receive,
+    private suspend fun actionsForDefi(): List<SheetAction> {
+        val sellEnabled = userIdentity.userAccessForFeature(Feature.Sell).map {
+            it is FeatureAccess.Granted
+        }.await()
+
+        return listOfNotNull(
+            SheetAction(
+                title = R.string.common_swap,
+                subtitle = R.string.exchange_your_crypto,
+                icon = R.drawable.ic_sheet_menu_swap,
+                action = AssetAction.Swap,
+            ),
+            SheetAction(
+                title = R.string.common_sell,
+                subtitle = R.string.fiat_to_cash,
+                icon = R.drawable.ic_sheet_menu_sell,
+                action = AssetAction.Sell,
+            ).takeIf { sellEnabled },
+            SheetAction(
+                title = R.string.common_send,
+                subtitle = R.string.transfer_to_another_wallet,
+                icon = R.drawable.ic_sheet_menu_send,
+                action = AssetAction.Send,
+            ),
+            SheetAction(
+                title = R.string.common_receive,
+                subtitle = R.string.receive_to_your_wallet,
+                icon = R.drawable.ic_sheet_menu_receive,
+                action = AssetAction.Receive,
+            )
         )
-    )
+    }
 
     private fun actionsForBrokerage(): List<SheetAction> = listOf(
         SheetAction(
@@ -118,6 +123,13 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
     override suspend fun handleIntent(modelState: ActionsSheetModelState, intent: ActionsSheetIntent) {
         when (intent) {
             is ActionsSheetIntent.ActionClicked -> handleActionForMode(modelState.walletMode, intent.action)
+            is ActionsSheetIntent.LoadActions -> viewModelScope.launch {
+                val actions =
+                    if (intent.walletMode == WalletMode.NON_CUSTODIAL_ONLY) actionsForDefi() else actionsForBrokerage()
+                updateState {
+                    it.copy(actions = actions, walletMode = intent.walletMode)
+                }
+            }
         }
     }
 
@@ -173,6 +185,7 @@ class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewMod
             AssetAction.Send -> navigate(ActionsSheetNavEvent.Send)
             AssetAction.Swap -> navigate(ActionsSheetNavEvent.Swap)
             AssetAction.Buy -> navigate(ActionsSheetNavEvent.TradingBuy)
+            AssetAction.Sell -> navigate(ActionsSheetNavEvent.Sell)
             else -> throw IllegalStateException("Action is not supported for Non custodial mode")
         }
     }
@@ -192,10 +205,14 @@ data class ActionSheetArgs(
     val walletMode: WalletMode,
 ) : ModelConfigArgs.ParcelableArgs
 
-data class ActionsSheetModelState(val walletMode: WalletMode = WalletMode.UNIVERSAL) : ModelState
+data class ActionsSheetModelState(
+    val walletMode: WalletMode = WalletMode.UNIVERSAL,
+    val actions: List<SheetAction> = emptyList()
+) : ModelState
 
 sealed class ActionsSheetIntent : Intent<ActionsSheetModelState> {
     class ActionClicked(val action: AssetAction) : ActionsSheetIntent()
+    class LoadActions(val walletMode: WalletMode) : ActionsSheetIntent()
 }
 
 sealed class ActionsSheetNavEvent : NavigationEvent {

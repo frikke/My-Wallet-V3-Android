@@ -40,8 +40,6 @@ class ActionsBottomSheet : ComposeModalBottomDialog(), AndroidScopeComponent {
         val walletMode = arguments?.getSerializable(WALLET_MODE) as? WalletMode ?: throw IllegalStateException(
             "Undefined wallet mode"
         )
-        viewModel.viewCreated(ActionSheetArgs(walletMode))
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.navigationEventFlow.collect {
@@ -61,6 +59,7 @@ class ActionsBottomSheet : ComposeModalBottomDialog(), AndroidScopeComponent {
                 }
             }
         }
+        viewModel.onIntent(ActionsSheetIntent.LoadActions(walletMode))
         super.onCreate(savedInstanceState)
     }
 

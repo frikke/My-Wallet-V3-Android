@@ -39,6 +39,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -204,8 +205,31 @@ class TransactionInteractor(
             AssetAction.FiatDeposit -> {
                 linkedBanksFactory.getNonWireTransferBanks().map { it }
             }
+            AssetAction.Sell -> sellSourceAccounts()
             else -> throw IllegalStateException("Source account should be preselected for action $action")
         }
+
+    private fun sellSourceAccounts(): Single<List<SingleAccount>> {
+        return supportedCryptoCurrencies().zipWith(
+            coincore.walletsWithActions(actions = setOf(AssetAction.Sell), sorter = accountsSorting.sorter())
+        ).map { (assets, accounts) ->
+            accounts.filterIsInstance<CryptoAccount>().filter { account ->
+                account.currency.networkTicker in assets.map { it.networkTicker }
+            }
+        }
+    }
+
+    private fun supportedCryptoCurrencies(): Single<List<AssetInfo>> {
+        val availableFiats =
+            rxSingle { custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency).first() }
+        return Single.zip(
+            custodialWalletManager.getSupportedBuySellCryptoCurrencies(), availableFiats
+        ) { supportedPairs, fiats ->
+            supportedPairs
+                .filter { fiats.contains(it.destination) }
+                .map { it.source.asAssetInfoOrThrow() }
+        }
+    }
 
     fun verifyAndExecute(secondPassword: String): Completable =
         transactionProcessor?.execute(secondPassword) ?: throw IllegalStateException("TxProcessor not initialised")
