@@ -8,7 +8,6 @@ import com.blockchain.walletmode.WalletMode
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistory
-import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewRecurringBuys
 
 /**
@@ -30,7 +29,5 @@ data class CoinviewModelState(
     val assetInfo: DataResource<CoinviewAssetInformation> = DataResource.Loading,
 
     // recurring buys
-    val isRecurringBuysLoading: Boolean = false,
-    val isRecurringBuysError: Boolean = false,
-    val recurringBuys: CoinviewRecurringBuys? = null
-    ) : ModelState
+    val recurringBuys: DataResource<CoinviewRecurringBuys> = DataResource.Loading
+) : ModelState

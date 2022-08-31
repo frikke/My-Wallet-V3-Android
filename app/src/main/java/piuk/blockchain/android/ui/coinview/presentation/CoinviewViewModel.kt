@@ -623,14 +623,14 @@ class CoinviewViewModel(
             loadAssetAccountsUseCase(asset = asset).collectLatest { dataResource ->
 
                 updateState {
-                    if (dataResource is DataResource.Loading && it.assetInfo is DataResource.Data) {
-                        // if data is present already - don't show loading
-                        it
-                    } else {
-                        it.copy(
-                            assetInfo = dataResource
-                        )
-                    }
+                    it.copy(
+                        assetInfo = if (dataResource is DataResource.Loading && it.assetInfo is DataResource.Data) {
+                            // if data is present already - don't show loading
+                            it.assetInfo
+                        } else {
+                            dataResource
+                        }
+                    )
                 }
             }
         }
@@ -641,34 +641,16 @@ class CoinviewViewModel(
     private fun loadRecurringBuysData(asset: CryptoAsset) {
         viewModelScope.launch {
             loadAssetRecurringBuysUseCase(asset).collectLatest { dataResource ->
-                when (dataResource) {
-                    DataResource.Loading -> {
-                        updateState {
-                            it.copy(
-                                isRecurringBuysLoading = true,
-                                isRecurringBuysError = true
-                            )
+                updateState {
+                    it.copy(
+                        recurringBuys = if (dataResource is DataResource.Loading &&
+                            it.recurringBuys is DataResource.Data
+                        ) {
+                            it.recurringBuys
+                        } else {
+                            dataResource
                         }
-                    }
-
-                    is DataResource.Error -> {
-                        updateState {
-                            it.copy(
-                                isRecurringBuysLoading = false,
-                                isRecurringBuysError = true
-                            )
-                        }
-                    }
-
-                    is DataResource.Data -> {
-                        updateState {
-                            it.copy(
-                                isRecurringBuysLoading = false,
-                                isRecurringBuysError = false,
-                                recurringBuys = dataResource.data
-                            )
-                        }
-                    }
+                    )
                 }
             }
         }
