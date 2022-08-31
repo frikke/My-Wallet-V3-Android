@@ -9,15 +9,20 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -38,6 +44,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppTheme
@@ -177,7 +184,7 @@ fun Main() {
     var shouldFlash by remember { mutableStateOf(false) }
 
     val animateDown by animateIntAsState(
-        targetValue = if (shouldFlash) 200 else 0,
+        targetValue = if (shouldFlash) 300 else 0,
         finishedListener = {
             if (shouldFlash) {
                 trading = trading.not()
@@ -185,13 +192,13 @@ fun Main() {
             }
         },
         animationSpec = tween(
-            durationMillis = 400,
+            durationMillis = 200,
             delayMillis = 0
         )
     )
 
     val aaaaa = mutableListOf<String>()
-    (0..40).forEach { aaaaa.add("dzjfzufz $it") }
+    (0..40).forEach { aaaaa.add("abc $it") }
 
     var switch by remember { mutableStateOf(true) }
     val startColor by animateColorAsState(
@@ -222,66 +229,123 @@ fun Main() {
                 )
             )
     ) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer { translationY = toolbarState.height + toolbarState.offset }
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = {
-                            scope.coroutineContext.cancelChildren()
-                            coroutineScopeAnim.coroutineContext.cancelChildren()
-                            animate = false
-                        }
-                    )
-                }
-                .background(Color.White),
-        ) {
-            items(
-                items = aaaaa,
-            ) {
-                Text(
-                    modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
-                    style = AppTheme.typography.title3,
-                    color = Color.Black,
-                    text = it
-                )
-            }
+        Box(modifier = Modifier.fillMaxSize()) {
 
-            item {
-                Spacer(Modifier.size(dimensionResource(R.dimen.standard_margin)))
-            }
-        }
-
-        if (animate) {
-            toolbarState.scrollOffset = offsetY.value
-            if (toolbarState.scrollOffset == allCollapsedOffset) {
-                animate = false
-            }
-        }
-
-        CollapsingToolbar(
-            progress = toolbarState.progress,
-            onPrivacyTipButtonClicked = {
-                coroutineScopeAnim.launch {
-                    animate = true
-                    offsetY.snapTo(toolbarState.scrollOffset)
-                    offsetY.animateTo(
-                        targetValue = allCollapsedOffset,
-                        animationSpec = tween(
-                            durationMillis = 400
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer { translationY = toolbarState.height + toolbarState.offset + 30}
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = {
+                                scope.coroutineContext.cancelChildren()
+                                coroutineScopeAnim.coroutineContext.cancelChildren()
+                                animate = false
+                            }
                         )
+                    }
+                    .background(Color(0XFFF1F2F7), RoundedCornerShape(20.dp)),
+            ) {
+                items(
+                    items = aaaaa,
+                ) {
+                    Text(
+                        modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
+                        style = AppTheme.typography.title3,
+                        color = Color.Black,
+                        text = it
                     )
                 }
-            },
-            onTradingClicked = { switch = true },
-            onDefiClicked = { switch = false },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(with(LocalDensity.current) { toolbarState.height.toDp() })
-                .graphicsLayer { translationY = toolbarState.offset }
-        )
+
+                item {
+                    Spacer(Modifier.size(dimensionResource(R.dimen.epic_margin)))
+                }
+            }
+
+            if (animate) {
+                toolbarState.scrollOffset = offsetY.value
+                if (toolbarState.scrollOffset == allCollapsedOffset) {
+                    animate = false
+                }
+            }
+
+            CollapsingToolbar(
+                progress = toolbarState.progress,
+                onPrivacyTipButtonClicked = {
+                    coroutineScopeAnim.launch {
+                        animate = true
+                        offsetY.snapTo(toolbarState.scrollOffset)
+                        offsetY.animateTo(
+                            targetValue = allCollapsedOffset,
+                            animationSpec = tween(
+                                durationMillis = 400
+                            )
+                        )
+                    }
+                },
+                onTradingClicked = {
+                    shouldFlash = true
+                    switch = true
+                },
+                onDefiClicked = {
+                    shouldFlash = true
+                    switch = false
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(with(LocalDensity.current) { toolbarState.height.toDp() })
+                    .graphicsLayer { translationY = toolbarState.offset }
+            )
+
+            // bottom navigation
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .offset {
+                        IntOffset(
+                            x = 0,
+                            y = animateDown
+                        )
+                    }
+            ) {
+                Card(
+                    elevation = 15.dp,
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(100.dp)
+                ) {
+                    Row {
+                        Spacer(Modifier.size(dimensionResource(R.dimen.large_margin)))
+
+                        Text(
+                            modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
+                            style = AppTheme.typography.title3,
+                            color = Color.Black,
+                            text = "home"
+                        )
+
+                        Text(
+                            modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
+                            style = AppTheme.typography.title3,
+                            color = Color.Black,
+                            text = "trade"
+                        )
+
+                        Text(
+                            modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
+                            style = AppTheme.typography.title3,
+                            color = Color.Black,
+                            text = if (trading) "card" else "nft"
+                        )
+
+                        Spacer(Modifier.size(dimensionResource(R.dimen.large_margin)))
+                    }
+                }
+
+                Spacer(modifier = Modifier.size(32.dp))
+
+            }
+        }
     }
 
     //    Column(

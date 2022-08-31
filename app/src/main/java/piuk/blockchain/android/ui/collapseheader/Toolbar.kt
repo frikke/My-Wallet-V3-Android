@@ -22,6 +22,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.END_DEFI
 import com.blockchain.componentlib.theme.END_TRADING
@@ -121,14 +123,11 @@ fun CollapsingToolbar(
                         .height(54.dp)
                         .fillMaxWidth()
                         /*.background(Color.Red)*/) {
-                        Text(
+                        Image(
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .padding(start = dimensionResource(R.dimen.tiny_margin)),
-                            style = AppTheme.typography.title3,
-                            color = Color.Black,
-                            text = "total balance: xxxx"
-                        )
+                            imageResource = ImageResource.Local(R.drawable.ic_total_balance_demo))
                     }
 
                     Row(
