@@ -92,6 +92,7 @@ fun OrderCardIntro(onOrderCard: () -> Unit) {
             Spacer(Modifier.size(AppTheme.dimensions.paddingLarge))
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.card_intro_title),
                 style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
@@ -101,6 +102,7 @@ fun OrderCardIntro(onOrderCard: () -> Unit) {
             Spacer(Modifier.size(AppTheme.dimensions.paddingSmall))
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.order_card_intro),
                 style = ComposeTypographies.Body1,
                 color = ComposeColors.Muted,
@@ -135,14 +137,14 @@ fun OrderCardAddressKYC(onContinue: () -> Unit, onCheckBillingAddress: () -> Uni
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = CenterHorizontally,
-            modifier = Modifier.padding(top = AppTheme.dimensions.xPaddingLarge)
+            modifier = Modifier.padding(top = AppTheme.dimensions.paddingMedium)
         ) {
             SimpleText(
                 text = stringResource(R.string.verify_your_address),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Start,
-                modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
+                modifier = Modifier.fillMaxWidth().padding(horizontal = AppTheme.dimensions.paddingLarge)
             )
 
             SimpleText(
@@ -150,13 +152,7 @@ fun OrderCardAddressKYC(onContinue: () -> Unit, onCheckBillingAddress: () -> Uni
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Start,
-                modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
-            )
-
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = AppTheme.dimensions.paddingLarge)
+                modifier = Modifier.fillMaxWidth().padding(horizontal = AppTheme.dimensions.paddingLarge)
             )
 
             if (!shortAddress.isNullOrEmpty()) {
@@ -214,7 +210,7 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Start,
-                modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
+                modifier = Modifier.fillMaxWidth().padding(horizontal = AppTheme.dimensions.paddingLarge)
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
@@ -224,7 +220,7 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Start,
-                modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
+                modifier = Modifier.fillMaxWidth().padding(horizontal = AppTheme.dimensions.paddingLarge)
             )
 
             TextInput(
@@ -281,6 +277,7 @@ fun OrderCardContent(
         )
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(id = R.string.virtual),
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
@@ -288,6 +285,7 @@ fun OrderCardContent(
         )
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(id = R.string.order_card_intro),
             style = ComposeTypographies.Paragraph1,
             color = ComposeColors.Body,
@@ -332,7 +330,7 @@ fun OrderCardContent(
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Muted,
                 gravity = ComposeGravities.Start,
-                modifier = Modifier.clickable { onSeeLegalDocuments() }
+                modifier = Modifier.fillMaxWidth().clickable { onSeeLegalDocuments() }
             )
         }
 
@@ -499,6 +497,7 @@ fun CardCreationInProgress() {
     ) {
         CircularProgressIndicator()
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.processing), style = ComposeTypographies.Title3, color = ComposeColors.Body,
             gravity = ComposeGravities.Centre
         )
@@ -531,12 +530,14 @@ fun CardCreationSuccess(onFinish: () -> Unit) {
                 modifier = Modifier.wrapContentWidth(),
             )
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.card_created),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.continue_to_card_dashboard),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
@@ -588,6 +589,7 @@ fun CardCreationFailed(errorTitle: String, errorDescription: String, onTryAgain:
                 modifier = Modifier.wrapContentWidth(),
             )
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = errorTitle,
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
@@ -595,6 +597,7 @@ fun CardCreationFailed(errorTitle: String, errorDescription: String, onTryAgain:
             )
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = errorDescription,
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,

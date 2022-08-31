@@ -132,7 +132,6 @@ import piuk.blockchain.android.ui.dataremediation.QuestionnaireModel
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
 import piuk.blockchain.android.ui.home.ActionsSheetViewModel
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.kyc.autocomplete.PlacesClientProvider
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
@@ -257,6 +256,7 @@ val applicationModule = module {
                 appUtil = get(),
                 ethDataManager = get(),
                 bchDataManager = get(),
+                walletModeService = get(),
                 metadataService = get(),
                 walletOptionsState = get(),
                 nabuDataManager = get(),
@@ -452,7 +452,8 @@ val applicationModule = module {
                 simpleBuyPrefs = get(),
                 onboardingPrefs = get(),
                 cardRejectionCheckFF = get(cardRejectionCheckFeatureFlag),
-                eligibilityService = get()
+                eligibilityService = get(),
+                cardPaymentAsyncFF = get(cardPaymentAsyncFeatureFlag)
             )
         }
 
@@ -741,13 +742,6 @@ val applicationModule = module {
 
         scoped {
             AssetActivityRepository()
-        }
-
-        scoped {
-            PlacesClientProvider(
-                context = get(),
-                apiKey = BuildConfig.PLACES_API_KEY,
-            )
         }
 
         factory {

@@ -72,6 +72,7 @@
     <string name="common_close">Close</string>
     <string name="common_next">Next</string>
     <string name="common_learn_more">Learn More</string>
+    <string name="common_no_results_found">No results found</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -241,6 +242,7 @@
     <string name="bitpay_announcement_body">With BitPay, you can now use your Blockchain wallet for purchases with supporting retailers.</string>
     <string name="transaction_failed">Transaction Failed</string>
 
+    <string name="error_scan_unrecognized">QR code not recognized. Supported QR codes include Bitpay, Crypto Addresses and WalletConnect. Please try again.</string>
     <string name="error_scan_failed_general">Scan failed. Please try again.</string>
     <string name="error_scan_failed_bitpay">Unable to retrieve BitPay invoice. Has it expired?</string>
 
@@ -789,11 +791,6 @@
 
     <string name="kyc_more_info_body">To keep using Buy &amp; Sell, you’ll need to update your profile. Once completed, you’ll also unlock higher trading limits in Swap.</string>
     <string name="kyc_more_info_cta">Update Now</string>
-    <string name="kyc_postcode_error">Postcode not valid</string>
-    <string name="kyc_enter_address">Enter your current home address.</string>
-    <string name="kyc_enter_address_manually">Enter manually -></string>
-    <string name="kyc_autocomplete_addresses_error">Failed to retrieve addresses</string>
-    <string name="kyc_autocomplete_selected_address_error">Failed to retrieve address</string>
 
     <string name="metadata_load_failure">Error loading full wallet functionality. Service might temporarily be unavailable.</string>
     <string name="dashboard_price_for_asset">Current %1$s Price</string>
@@ -3044,6 +3041,7 @@
     <string name="processing">Processing</string>
     <string name="spend_from">Spend From</string>
     <string name="account_restricted">Account Restricted</string>
+    <string name="feature_not_available">Feature is not available.</string>
     <string name="terms_and_conditions_label">I agree to Blockchain.com’s Terms of Service</string>
     <string name="crypto_rewards">Crypto Rewards</string>
     <string name="crypto_rewards_description">Earn 1%% back in crypto rewards on all your purchases.</string>
@@ -3187,4 +3185,20 @@
     <string name="go_to_trading">Go to Trading Account</string>
     <string name="use_your_card_or_cash">Use Your Cash or Card</string>
     <string name="fiat_to_cash">Convert Your Crypto to Cash</string>
+
+    <!-- Address Verification -->
+    <string name="address_verification_my_address_is_not_here">My address is not here</string>
+    <string name="address_verification_home_address">Home Address</string>
+    <string name="address_verification_apt_suite">Apt, Suite, Etc</string>
+    <string name="address_verification_city">City</string>
+    <string name="address_verification_state">State</string>
+    <string name="address_verification_zip">ZIP</string>
+    <string name="address_verification_postcode">Postcode</string>
+    <string name="address_verification_country">Country</string>
+    <string name="address_verification_postcode_error">Postcode not valid</string>
+    <string name="address_verification_addresses_count">%1$d Addresses</string>
+    <string name="address_verification_invalid_state_title">You cannot change your State</string>
+    <string name="address_verification_invalid_state_message">If you need to change your State, please contact our customer support.</string>
+
+
 </resources>

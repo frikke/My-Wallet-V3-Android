@@ -82,6 +82,9 @@ class Erc20DataManagerTest {
     private val ethLayerTwoFeatureFlag: IntegratedFeatureFlag = mock {
         on { enabled }.thenReturn(Single.just(false))
     }
+    private val evmWithoutL1BalanceFeatureFlag: IntegratedFeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
 
     private val subject = Erc20DataManagerImpl(
         ethDataManager = ethDataManager,
@@ -92,6 +95,7 @@ class Erc20DataManagerTest {
         erc20L2StoreService = erc20L2StoreService,
         erc20L2DataSource = erc20L2DataSource,
         ethLayerTwoFeatureFlag = ethLayerTwoFeatureFlag,
+        evmWithoutL1BalanceFeatureFlag = evmWithoutL1BalanceFeatureFlag
     )
 
     @Test

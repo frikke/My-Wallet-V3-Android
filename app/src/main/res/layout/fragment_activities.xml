@@ -100,11 +100,12 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/content_list"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:fadingEdge="vertical"
                 android:fadingEdgeLength="@dimen/very_small_margin"
                 android:fitsSystemWindows="true"
+                tools:itemCount="4"
                 android:requiresFadingEdge="vertical"
                 tools:listitem="@layout/dialog_activities_tx_item"
                 tools:visibility="visible" />

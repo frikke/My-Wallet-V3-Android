@@ -76,6 +76,7 @@ fun BackedUpPhraseScreen(
         ) {
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.recovery_phrase_title),
                 style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
@@ -101,6 +102,7 @@ fun BackedUpPhraseScreen(
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.recovery_phrase_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,

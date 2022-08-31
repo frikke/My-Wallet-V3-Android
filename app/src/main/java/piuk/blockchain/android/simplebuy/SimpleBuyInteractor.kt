@@ -117,6 +117,7 @@ class SimpleBuyInteractor(
     private val onboardingPrefs: OnboardingPrefs,
     private val cardRejectionCheckFF: FeatureFlag,
     private val eligibilityService: EligibilityService,
+    private val cardPaymentAsyncFF: FeatureFlag,
 ) {
 
     // Hack until we have a proper limits api.
@@ -384,12 +385,18 @@ class SimpleBuyInteractor(
     }
 
     fun pollForOrderStatus(orderId: String): Single<PollResult<BuySellOrder>> =
-        PollService(custodialWalletManager.getBuyOrder(orderId)) {
-            it.attributes != null ||
+        cardPaymentAsyncFF.enabled.flatMap { isCardPaymentAsyncEnabled ->
+            PollService(custodialWalletManager.getBuyOrder(orderId)) {
                 it.state == OrderState.FINISHED ||
-                it.state == OrderState.FAILED ||
-                it.state == OrderState.CANCELED
-        }.start(INTERVAL, RETRIES_SHORT)
+                    it.state == OrderState.FAILED ||
+                    it.state == OrderState.CANCELED ||
+                    (isCardPaymentAsyncEnabled && it.canFinishPollingForAsyncCardPayments())
+            }.start(INTERVAL, RETRIES_SHORT)
+        }
+
+    private fun BuySellOrder.canFinishPollingForAsyncCardPayments() =
+        (paymentMethodType == PaymentMethodType.PAYMENT_CARD || paymentMethodType == PaymentMethodType.GOOGLE_PAY) &&
+            attributes != null
 
     fun pollForAuthorisationUrl(orderId: String): Single<PollResult<BuySellOrder>> =
         PollService(

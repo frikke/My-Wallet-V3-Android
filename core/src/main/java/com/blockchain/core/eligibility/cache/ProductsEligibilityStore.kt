@@ -29,8 +29,12 @@ class ProductsEligibilityStore(
             }
     },
     dataSerializer = ProductsEligibilityData.serializer(),
-    mediator = FreshnessMediator(Freshness.ofSeconds(5))
+    mediator = FreshnessMediator(Freshness.ofMinutes(15))
 ) {
+    fun invalidate() {
+        markAsStale()
+    }
+
     companion object {
         private const val STORE_ID = "ProductsEligibilityStore"
     }

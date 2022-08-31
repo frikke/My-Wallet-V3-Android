@@ -1,5 +1,6 @@
 package com.blockchain.core.price
 
+import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.common.model.Seconds
@@ -97,6 +98,11 @@ interface ExchangeRatesDataManager : ExchangeRates {
         asset: Currency,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<HistoricalRateList>>
+
+    fun getCurrentAssetPrice(
+        asset: Currency,
+        fiat: Currency
+    ): Single<AssetPriceRecord>
 
     val fiatAvailableForRates: List<FiatCurrency>
 }

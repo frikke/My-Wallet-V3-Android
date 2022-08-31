@@ -119,10 +119,10 @@ class CustodialTradingAccountActionsTest : KoinTest {
                 actions.map { it.action } == listOf(
                     AssetAction.ViewActivity,
                     AssetAction.Send,
+                    AssetAction.Sell,
                     AssetAction.InterestDeposit,
                     AssetAction.Swap,
                     AssetAction.Receive,
-                    AssetAction.Sell,
                     AssetAction.Buy,
                     AssetAction.InterestWithdraw
                 )
@@ -607,14 +607,14 @@ class CustodialTradingAccountActionsTest : KoinTest {
             val buyAccess = if (buySupported) {
                 FeatureAccess.Granted()
             } else {
-                FeatureAccess.Blocked(BlockedReason.NotEligible)
+                FeatureAccess.Blocked(BlockedReason.NotEligible(null))
             }
             updated = updated.plus(Feature.Buy to buyAccess)
 
             val cryptoDepositAccess = if (cryptoDepositSupported) {
                 FeatureAccess.Granted()
             } else {
-                FeatureAccess.Blocked(BlockedReason.NotEligible)
+                FeatureAccess.Blocked(BlockedReason.NotEligible(null))
             }
 
             updated = updated.plus(Feature.DepositCrypto to cryptoDepositAccess)
@@ -622,21 +622,21 @@ class CustodialTradingAccountActionsTest : KoinTest {
             val interestDepositAccess = if (interestDepositSupported) {
                 FeatureAccess.Granted()
             } else {
-                FeatureAccess.Blocked(BlockedReason.NotEligible)
+                FeatureAccess.Blocked(BlockedReason.NotEligible(null))
             }
             updated = updated.plus(Feature.DepositInterest to interestDepositAccess)
 
             val swapAccess = if (swapAccessAvailable) {
                 FeatureAccess.Granted()
             } else {
-                FeatureAccess.Blocked(BlockedReason.NotEligible)
+                FeatureAccess.Blocked(BlockedReason.NotEligible(null))
             }
             updated = updated.plus(Feature.Swap to swapAccess)
 
             val sellAccess = if (sellEligibilityAccess) {
                 FeatureAccess.Granted()
             } else {
-                FeatureAccess.Blocked(BlockedReason.NotEligible)
+                FeatureAccess.Blocked(BlockedReason.NotEligible(null))
             }
             updated = updated.plus(Feature.Sell to sellAccess)
 

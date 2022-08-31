@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.kyc.address
 
+import com.blockchain.addressverification.ui.AddressDetails
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.domain.eligibility.EligibilityService
@@ -11,15 +12,14 @@ import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
-import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.`should be equal to`
@@ -27,8 +27,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.ui.getBlankNabuUser
-import piuk.blockchain.android.ui.kyc.address.models.AddressModel
 import piuk.blockchain.android.ui.validOfflineToken
 
 class KycHomeAddressPresenterTest {
@@ -39,7 +37,9 @@ class KycHomeAddressPresenterTest {
     private val eligibilityService: EligibilityService = mock()
     private val userService: UserService = mock()
     private val nabuUserSync: NabuUserSync = mock()
-    private val nabuToken: NabuToken = mock()
+    private val nabuToken: NabuToken = mock {
+        on { fetchNabuToken() }.thenReturn(Single.just(validOfflineToken))
+    }
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val kycTiersStore: KycTiersStore = mock()
 
@@ -71,171 +71,12 @@ class KycHomeAddressPresenterTest {
     }
 
     @Test
-    fun `onViewReady first line emitted empty should disable button`() {
-        // Arrange
-        whenever(view.address)
-            .thenReturn(Observable.just(addressModel()))
-        // Act
-        subject.onViewReady()
-        // Assert
-        verify(view).setButtonEnabled(false)
-    }
-
-    @Test
-    fun `onViewReady city emitted empty should disable button`() {
-        // Arrange
-        whenever(view.address)
-            .thenReturn(Observable.just(addressModel(firstLine = "FIRST_LINE")))
-        // Act
-        subject.onViewReady()
-        // Assert
-        verify(view).setButtonEnabled(false)
-    }
-
-    @Test
-    fun `onViewReady country emitted empty should disable button`() {
-        // Arrange
-        whenever(view.address)
-            .thenReturn(Observable.just(addressModel(firstLine = "FIRST_LINE", city = "CITY")))
-        // Act
-        subject.onViewReady()
-        // Assert
-        verify(view).setButtonEnabled(false)
-    }
-
-    @Test
-    fun `onViewReady country not US emitted complete should enable button`() {
-        // Arrange
-        whenever(view.address)
-            .thenReturn(
-                Observable.just(
-                    addressModel(firstLine = "FIRST_LINE", city = "CITY", state = "STATE", postCode = "POSTCODE")
-                )
-            )
-        // Act
-        subject.onViewReady()
-        // Assert
-        verify(view).setButtonEnabled(true)
-    }
-
-    @Test
-    fun `onViewReady country is US emitted complete should enable button`() {
-        // Arrange
-        whenever(view.address)
-            .thenReturn(
-                Observable.just(
-                    addressModel(firstLine = "FIRST_LINE", city = "CITY", state = "STATE", postCode = "POSTCODE")
-                )
-            )
-        // Act
-        subject.onViewReady()
-        // Assert
-        verify(view).setButtonEnabled(true)
-    }
-
-    @Test
-    fun `onViewReady no data to restore`() {
-        // Arrange
-        whenever(view.address).thenReturn(Observable.just(addressModel()))
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-        whenever(userService.getUser())
-            .thenReturn(Single.just(getBlankNabuUser()))
-        // Act
-        subject.onViewReady()
-        // Assert
-        verify(view, never()).restoreUiState(any(), any(), any(), any(), any(), any())
-    }
-
-    @Test
-    fun `onViewReady data already input, should not attempt to restore`() {
-        // Arrange
-        whenever(view.address).thenReturn(Observable.just(addressModel(firstLine = "FIRST_LINE")))
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-        // Act
-        subject.onViewReady()
-        // Assert
-        verify(view, never()).restoreUiState(any(), any(), any(), any(), any(), any())
-        verify(userService, never()).getUser()
-    }
-
-    @Test
-    fun `onViewReady has address to restore`() = runTest {
-        // Arrange
-        whenever(view.address)
-            .thenReturn(Observable.just(addressModel()))
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-        val firstLine = "FIRST_LINE"
-        val city = "CITY"
-        val postCode = "POST_CODE"
-        val country = "COUNTRY_CODE"
-        val countryName = "COUNTRY_NAME"
-        val address = Address(
-            line1 = firstLine,
-            line2 = null,
-            city = city,
-            state = null,
-            postCode = postCode,
-            countryCode = country
-        )
-        whenever(userService.getUser())
-            .thenReturn(Single.just(getBlankNabuUser().copy(address = address)))
-        val countryList =
-            listOf(Region.Country(country, countryName, true, emptyList()))
-        whenever(eligibilityService.getCountriesList(GetRegionScope.None))
-            .thenReturn(Outcome.Success(countryList))
-        // Act
-        subject.onViewReady()
-        // Assert
-        verify(view).restoreUiState(firstLine, null, city, null, postCode, countryName)
-    }
-
-    @Test
-    fun `onViewReady has user but no address`() {
-        // Arrange
-        whenever(view.address)
-            .thenReturn(Observable.just(addressModel()))
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-        whenever(userService.getUser())
-            .thenReturn(Single.just(getBlankNabuUser().copy(address = null)))
-        // Act
-        subject.onViewReady()
-        // Assert
-        verify(view, never()).restoreUiState(any(), any(), any(), any(), any(), any())
-    }
-
-    @Test
-    fun `onViewReady data restoration fails silently`() {
-        // Arrange
-        whenever(view.address)
-            .thenReturn(Observable.just(addressModel()))
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-        whenever(userService.getUser())
-            .thenReturn(Single.error { Throwable() })
-        // Act
-        subject.onViewReady()
-        // Assert
-        verify(view, never()).restoreUiState(any(), any(), any(), any(), any(), any())
-    }
-
-    @Test
     fun `on continue clicked all data correct, metadata fetch failure`() {
         // Arrange
         val firstLine = "1"
         val city = "2"
         val zipCode = "3"
         val countryCode = "UK"
-        whenever(view.address)
-            .thenReturn(Observable.just(addressModel(firstLine, city, zipCode, countryCode)))
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.error { Throwable() })
@@ -251,11 +92,11 @@ class KycHomeAddressPresenterTest {
             )
         ).thenReturn(Completable.complete())
         // Act
-        subject.onContinueClicked()
+        subject.onContinueClicked(null, addressModel(firstLine, city, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
-        verify(view).showErrorSnackbar(any())
+        verify(view).showErrorWhileSaving(any())
     }
 
     @Test
@@ -266,8 +107,6 @@ class KycHomeAddressPresenterTest {
         val state = "3"
         val zipCode = "4"
         val countryCode = "UK"
-        whenever(view.address)
-            .thenReturn(Observable.just(addressModel(firstLine, city, state, zipCode, countryCode)))
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
@@ -284,7 +123,7 @@ class KycHomeAddressPresenterTest {
         ).thenReturn(Completable.complete())
         givenRequestJwtAndUpdateWalletInfoSucceds()
         // Act
-        subject.onContinueClicked()
+        subject.onContinueClicked(null, addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
@@ -299,8 +138,6 @@ class KycHomeAddressPresenterTest {
         val state = "3"
         val zipCode = "4"
         val countryCode = "UK"
-        whenever(view.address)
-            .thenReturn(Observable.just(addressModel(firstLine, city, state, zipCode, countryCode)))
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
@@ -317,7 +154,7 @@ class KycHomeAddressPresenterTest {
         ).thenReturn(Completable.complete())
         givenRequestJwtAndUpdateWalletInfoSucceds()
         // Act
-        subject.onContinueClicked()
+        subject.onContinueClicked(null, addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
@@ -333,8 +170,6 @@ class KycHomeAddressPresenterTest {
         val state = "3"
         val zipCode = "4"
         val countryCode = "UK"
-        whenever(view.address)
-            .thenReturn(Observable.just(addressModel(firstLine, city, state, zipCode, countryCode)))
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
@@ -351,7 +186,7 @@ class KycHomeAddressPresenterTest {
         ).thenReturn(Completable.complete())
         givenRequestJwtAndUpdateWalletInfoSucceds()
         // Act
-        subject.onContinueClicked()
+        subject.onContinueClicked(null, addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
@@ -369,8 +204,6 @@ class KycHomeAddressPresenterTest {
         val state = "3"
         val zipCode = "4"
         val countryCode = "UK"
-        whenever(view.address)
-            .thenReturn(Observable.just(addressModel(firstLine, city, state, zipCode, countryCode)))
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
@@ -388,7 +221,7 @@ class KycHomeAddressPresenterTest {
             )
         ).thenReturn(Completable.complete())
         // Act
-        subject.onContinueClicked()
+        subject.onContinueClicked(null, addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
@@ -433,7 +266,12 @@ class KycHomeAddressPresenterTest {
             Single.just(SimplifiedDueDiligenceUserState(isVerified = true, stateFinalised = true))
         )
         // Act
-        subject.onContinueClicked(CampaignType.SimpleBuy)
+        val firstLine = "1"
+        val city = "2"
+        val state = "3"
+        val zipCode = "4"
+        val countryCode = "UK"
+        subject.onContinueClicked(CampaignType.SimpleBuy, addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
@@ -450,7 +288,12 @@ class KycHomeAddressPresenterTest {
             Single.just(SimplifiedDueDiligenceUserState(isVerified = true, stateFinalised = true))
         )
         // Act
-        subject.onContinueClicked(CampaignType.SimpleBuy)
+        val firstLine = "1"
+        val city = "2"
+        val state = "3"
+        val zipCode = "4"
+        val countryCode = "UK"
+        subject.onContinueClicked(CampaignType.SimpleBuy, addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
@@ -469,7 +312,12 @@ class KycHomeAddressPresenterTest {
             Single.just(SimplifiedDueDiligenceUserState(isVerified = true, stateFinalised = true))
         )
         // Act
-        subject.onContinueClicked(CampaignType.None)
+        val firstLine = "1"
+        val city = "2"
+        val state = "3"
+        val zipCode = "4"
+        val countryCode = "UK"
+        subject.onContinueClicked(CampaignType.None, addressModel(firstLine, city, state, zipCode, countryCode))
         // Assert
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
@@ -485,13 +333,13 @@ class KycHomeAddressPresenterTest {
         state: String = "",
         postCode: String = "",
         country: String = ""
-    ): AddressModel = AddressModel(
-        firstLine,
-        null,
-        city,
-        state,
-        postCode,
-        country
+    ): AddressDetails = AddressDetails(
+        firstLine = firstLine,
+        secondLine = null,
+        city = city,
+        postCode = postCode,
+        countryIso = country,
+        stateIso = state,
     )
 
     private fun givenRequestJwtAndUpdateWalletInfoSucceds() {
@@ -502,25 +350,15 @@ class KycHomeAddressPresenterTest {
     }
 
     private fun givenAddressCompletes() {
-        val firstLine = "1"
-        val city = "2"
-        val state = "3"
-        val zipCode = "4"
-        val countryCode = "UK"
-        whenever(view.address)
-            .thenReturn(Observable.just(addressModel(firstLine, city, state, zipCode, countryCode)))
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
         whenever(
             nabuDataManager.addAddress(
-                validOfflineToken,
-                firstLine,
-                null,
-                city,
-                state,
-                zipCode,
-                countryCode
+                any(),
+                any(),
+                anyOrNull(),
+                any(),
+                any(),
+                any(),
+                any()
             )
         ).thenReturn(Completable.complete())
     }

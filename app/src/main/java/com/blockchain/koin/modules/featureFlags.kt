@@ -5,6 +5,7 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.accountUnificationFeatureFlag
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
+import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.authInterceptorFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.bindFeatureFlag
@@ -16,8 +17,10 @@ import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
+import com.blockchain.koin.evmWithoutL1BalanceFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
+import com.blockchain.koin.loqateFeatureFlag
 import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
@@ -58,6 +61,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_blockchain_card",
                 "Blockchain Card"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(loqateFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_loqate",
+                "Loqate"
             )
         )
     }.bind(FeatureFlag::class)
@@ -130,6 +142,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_eth_layer_two_networks",
                 "Enable Eth L2 Networks"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(evmWithoutL1BalanceFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_balance_without_l1",
+                "Load Balances Without L1 Balance"
             )
         )
     }.bind(FeatureFlag::class)
@@ -220,6 +241,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_card_rejection_check",
                 "Check Cards for tx rejection"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(assetOrderingFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_brokerage_lists_order",
+                "Enable new asset list ordering"
             )
         )
     }.bind(FeatureFlag::class)

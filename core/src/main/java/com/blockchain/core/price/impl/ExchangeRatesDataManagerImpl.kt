@@ -16,6 +16,7 @@ import com.blockchain.data.combineDataResources
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asObservable
+import com.blockchain.store.firstOutcome
 import com.blockchain.store.mapData
 import com.blockchain.store.mapError
 import info.blockchain.balance.AssetCatalogue
@@ -31,12 +32,13 @@ import kotlinx.coroutines.flow.combine
 import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
 import java.math.RoundingMode
 import java.util.Calendar
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 internal class ExchangeRatesDataManagerImpl(
     private val priceStore: AssetPriceStore,
     private val assetPriceService: AssetPriceService,
     private val assetCatalogue: AssetCatalogue,
-    private val currencyPrefs: CurrencyPrefs,
+    private val currencyPrefs: CurrencyPrefs
 ) : ExchangeRatesDataManager {
 
     private val userFiat: Currency
@@ -45,6 +47,14 @@ internal class ExchangeRatesDataManagerImpl(
     override fun init(): Completable = rxCompletableOutcome {
         priceStore.warmSupportedTickersCache()
     }
+
+    override fun getCurrentAssetPrice(
+        asset: Currency,
+        fiat: Currency
+    ): Single<AssetPriceRecord> =
+        rxSingleOutcome {
+            priceStore.getCurrentPriceForAsset(asset, fiat, FreshnessStrategy.Fresh).firstOutcome()
+        }
 
     override fun exchangeRate(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate> {
         val shouldInverse = fromAsset.type == CurrencyType.FIAT && toAsset.type == CurrencyType.CRYPTO

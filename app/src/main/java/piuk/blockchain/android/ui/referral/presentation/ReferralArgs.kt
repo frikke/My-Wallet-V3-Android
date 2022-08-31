@@ -1,10 +1,9 @@
 package piuk.blockchain.android.ui.referral.presentation
 
+import android.os.Parcelable
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
-import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.referral.model.ReferralInfo
 import kotlinx.parcelize.Parcelize
-import kotlinx.parcelize.RawValue
 
 @Parcelize
 data class ReferralArgs(
@@ -13,7 +12,7 @@ data class ReferralArgs(
     val campaignId: String,
     val rewardSubtitle: String,
     val rewardTitle: String,
-    val promotionData: @RawValue PromotionStyleInfo?
+    val promotionData: ReferralPromotionStyleInfo?
 ) : ModelConfigArgs.ParcelableArgs {
 
     companion object {
@@ -21,11 +20,26 @@ data class ReferralArgs(
     }
 }
 
+@Parcelize
+class ReferralPromotionStyleInfo(
+    val title: String,
+    val message: String,
+    val iconUrl: String,
+    val backgroundUrl: String,
+) : Parcelable
+
 fun ReferralInfo.Data.mapArgs() = ReferralArgs(
     code = code,
     criteria = criteria,
     campaignId = campaignId,
     rewardSubtitle = rewardSubtitle,
     rewardTitle = rewardTitle,
-    promotionData = promotionInfo
+    promotionData = promotionInfo?.run {
+        ReferralPromotionStyleInfo(
+            title = title,
+            message = message,
+            iconUrl = iconUrl,
+            backgroundUrl = backgroundUrl
+        )
+    }
 )

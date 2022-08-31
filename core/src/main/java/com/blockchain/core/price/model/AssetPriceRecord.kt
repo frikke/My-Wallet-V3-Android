@@ -9,4 +9,5 @@ data class AssetPriceRecord(
     val rate: BigDecimal? = null,
     val fetchedAt: Millis,
     val marketCap: Double? = null,
+    val tradingVolume24h: Double? = null
 )

@@ -191,7 +191,11 @@ class SimpleBuyCryptoFragment :
             }
             .subscribe {
                 when (it) {
-                    is FiatValue -> model.process(SimpleBuyIntent.AmountUpdated(it))
+                    is FiatValue -> {
+                        preselectedAmount?.let { amount ->
+                            model.process(SimpleBuyIntent.AmountUpdated(amount))
+                        }
+                    }
                     else -> throw IllegalStateException("CryptoValue is not supported as input yet")
                 }
             }

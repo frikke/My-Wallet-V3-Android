@@ -3,13 +3,9 @@
 package piuk.blockchain.android.ui.kyc.koin
 
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.nabu.CurrentTier
-import com.blockchain.nabu.EthEligibility
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.android.ui.kyc.address.CurrentTierAdapter
-import piuk.blockchain.android.ui.kyc.address.EligibilityForFreeEthAdapter
 import piuk.blockchain.android.ui.kyc.address.KycHomeAddressNextStepDecision
 import piuk.blockchain.android.ui.kyc.address.KycHomeAddressPresenter
 import piuk.blockchain.android.ui.kyc.countryselection.KycCountrySelectionPresenter
@@ -123,6 +119,7 @@ val kycUiModule = module {
                 kycNavigator = get(),
                 kycTiersStore = get(),
                 getUserStore = get(),
+                productEligibilityStore = get(),
                 analytics = get()
             )
         }
@@ -161,17 +158,5 @@ val kycUiNabuModule = module {
                 dataRemediationService = get()
             )
         }
-
-        factory {
-            CurrentTierAdapter(
-                userService = get()
-            )
-        }.bind(CurrentTier::class)
-
-        factory {
-            EligibilityForFreeEthAdapter(
-                userService = get()
-            )
-        }.bind(EthEligibility::class)
     }
 }

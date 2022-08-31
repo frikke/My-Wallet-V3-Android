@@ -33,6 +33,7 @@ dependencies {
     implementation project(':common:domain')
     implementation project(':common-mp:utils')
     implementation project(':blockchainApi')
+    implementation project(':addressVerification')
 
     implementation Libraries.timber
     implementation Libraries.retrofit

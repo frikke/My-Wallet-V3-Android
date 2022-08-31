@@ -26,6 +26,7 @@ internal fun DynamicAsset.toAssetInfo(): AssetInfo =
             when (chain) {
                 AssetDiscoveryApiService.ETHEREUM -> CryptoCurrency.ETHER.networkTicker
                 AssetDiscoveryApiService.MATIC -> AssetDiscoveryApiService.MATIC
+                AssetDiscoveryApiService.BNB -> AssetDiscoveryApiService.BNB
                 AssetDiscoveryApiService.CELO -> AssetDiscoveryApiService.CELO
                 else -> throw IllegalStateException("Unknown l1 chain")
             }
@@ -66,16 +67,6 @@ private fun DynamicAsset.mapColour(): String =
         chainIdentifier != null -> CryptoCurrency.ETHER.colour
         else -> BLUE_600
     }
-
-internal val nonCustodialProducts = setOf(
-    DynamicAssetProducts.PrivateKey,
-    DynamicAssetProducts.DynamicSelfCustody
-)
-
-internal val custodialProducts = setOf(
-    DynamicAssetProducts.CustodialWalletBalance,
-    DynamicAssetProducts.InterestBalance,
-)
 
 private val colourLookup = mapOf(
     "BTC" to "#FF9B22",

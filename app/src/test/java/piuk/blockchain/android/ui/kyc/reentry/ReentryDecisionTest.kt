@@ -54,7 +54,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = "DE"
                 )
@@ -72,7 +72,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = "DE"
                 ),
@@ -113,7 +113,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = "DE"
                 ),
@@ -150,7 +150,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = "DE"
                 )
@@ -168,7 +168,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = ""
                 )
@@ -205,7 +205,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = "DE"
                 ),
@@ -226,7 +226,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = "DE"
                 ),

@@ -45,7 +45,9 @@ class TransactionInteractorTest {
     private val paymentMethodService: PaymentMethodService = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val identity: UserIdentity = mock()
-    private val accountsSorting: AccountsSorting = mock()
+    private val defaultAccountSorting: AccountsSorting = mock()
+    private val swapSourceAccountsSorting: AccountsSorting = mock()
+    private val swapTargetAccountsSorting: AccountsSorting = mock()
     private val linkedBanksFactory: LinkedBanksFactory = mock()
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
     private val dismissRecorder: DismissRecorder = mock()
@@ -57,20 +59,22 @@ class TransactionInteractorTest {
     @Before
     fun setUp() {
         subject = TransactionInteractor(
-            coincore,
-            addressFactory,
-            custodialRepository,
-            custodialWalletManager,
-            bankService,
-            paymentMethodService,
-            currencyPrefs,
-            identity,
-            accountsSorting,
-            linkedBanksFactory,
-            bankLinkingPrefs,
-            dismissRecorder,
-            showSendToDomainAnnouncementFeatureFlag,
-            fiatCurrenciesService
+            coincore = coincore,
+            addressFactory = addressFactory,
+            custodialRepository = custodialRepository,
+            custodialWalletManager = custodialWalletManager,
+            bankService = bankService,
+            paymentMethodService = paymentMethodService,
+            currencyPrefs = currencyPrefs,
+            identity = identity,
+            defaultAccountsSorting = defaultAccountSorting,
+            swapSourceAccountsSorting = swapSourceAccountsSorting,
+            swapTargetAccountsSorting = swapTargetAccountsSorting,
+            linkedBanksFactory = linkedBanksFactory,
+            bankLinkingPrefs = bankLinkingPrefs,
+            dismissRecorder = dismissRecorder,
+            showSendToDomainsAnnouncementFeatureFlag = showSendToDomainAnnouncementFeatureFlag,
+            fiatCurrenciesService = fiatCurrenciesService
         )
     }
 

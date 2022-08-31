@@ -25,15 +25,13 @@ internal class SwapTrendingPairsProvider(
 
     override fun getTrendingPairs(): Single<List<TrendingPair>> =
         coincore.activeWallets()
-            .map { it != EmptyAccountGroup }
+            .map { it.accounts.isNotEmpty() }
             .flatMap { useCustodial ->
                 val filter = if (useCustodial) AssetFilter.Trading else AssetFilter.NonCustodial
-
                 val assetList = makeRequiredAssetSet()
                 val accountGroups = assetList.map { asset ->
                     coincore[asset].accountGroup(filter)
                         .toSingle()
-                        .onErrorReturn { EmptyAccountGroup }
                 }
 
                 Single.zip(
@@ -57,8 +55,7 @@ internal class SwapTrendingPairsProvider(
             .toSet()
 
     private fun getAccounts(list: Array<Any>): List<CryptoAccount> =
-        list.filter { it !is EmptyAccountGroup }
-            .filterIsInstance<AccountGroup>()
+        list.filterIsInstance<AccountGroup>()
             .filter { it.accounts.isNotEmpty() }
             .map { it.selectFirstAccount() }
 

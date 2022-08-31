@@ -183,7 +183,7 @@ fun ManageCard(
                         style = ComposeTypographies.Body1,
                         color = ComposeColors.Dark,
                         gravity = ComposeGravities.Centre,
-                        modifier = Modifier.padding(top = AppTheme.dimensions.paddingLarge)
+                        modifier = Modifier.fillMaxWidth().padding(top = AppTheme.dimensions.paddingLarge)
                     )
 
                     SimpleText(
@@ -192,6 +192,7 @@ fun ManageCard(
                         color = ComposeColors.Primary,
                         gravity = ComposeGravities.Centre,
                         modifier = Modifier
+                            .fillMaxWidth()
                             .padding(vertical = AppTheme.dimensions.paddingSmall)
                             .clickable {
                                 onRefreshCardWidgetUrl()
@@ -287,7 +288,7 @@ fun ManageCard(
                         style = ComposeTypographies.Body2,
                         color = ComposeColors.Title,
                         gravity = ComposeGravities.Centre,
-                        modifier = Modifier.padding(top = AppTheme.dimensions.paddingSmall)
+                        modifier = Modifier.fillMaxWidth().padding(top = AppTheme.dimensions.paddingSmall)
                     )
 
                     SimpleText(
@@ -295,7 +296,7 @@ fun ManageCard(
                         style = ComposeTypographies.Paragraph1,
                         color = ComposeColors.Dark,
                         gravity = ComposeGravities.Centre,
-                        modifier = Modifier.padding(top = AppTheme.dimensions.paddingSmall)
+                        modifier = Modifier.fillMaxWidth().padding(top = AppTheme.dimensions.paddingSmall)
                     )
 
                     SimpleText(
@@ -304,6 +305,7 @@ fun ManageCard(
                         color = ComposeColors.Primary,
                         gravity = ComposeGravities.Centre,
                         modifier = Modifier
+                            .fillMaxWidth()
                             .padding(top = AppTheme.dimensions.paddingSmall, bottom = AppTheme.dimensions.paddingLarge)
                             .clickable {
                                 onRefreshTransactions()
@@ -578,7 +580,7 @@ fun BillingAddress(
 
         // Address line 1
         SimpleText(
-            modifier = Modifier.padding(vertical = 4.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
             text = stringResource(R.string.address_line_1),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Body,
@@ -604,7 +606,7 @@ fun BillingAddress(
 
         // Address line 2
         SimpleText(
-            modifier = Modifier.padding(vertical = 4.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
             text = stringResource(R.string.address_line_2),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Body,
@@ -630,7 +632,7 @@ fun BillingAddress(
 
         // City
         SimpleText(
-            modifier = Modifier.padding(vertical = 4.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
             text = stringResource(R.string.address_city),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Body,
@@ -662,7 +664,7 @@ fun BillingAddress(
             // State
             Column(modifier = Modifier.weight(1f)) {
                 SimpleText(
-                    modifier = Modifier.padding(vertical = 4.dp),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     text = stringResource(R.string.address_state),
                     style = ComposeTypographies.Paragraph2,
                     color = ComposeColors.Body,
@@ -685,7 +687,7 @@ fun BillingAddress(
             // Postal code
             Column(modifier = Modifier.weight(1f)) {
                 SimpleText(
-                    modifier = Modifier.padding(vertical = 4.dp),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     text = stringResource(R.string.address_zip),
                     style = ComposeTypographies.Paragraph2,
                     color = ComposeColors.Body,
@@ -837,6 +839,7 @@ fun BillingAddressUpdatedSuccess() {
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.address_update_success),
             style = ComposeTypographies.Title3,
             color = ComposeColors.Title,
@@ -846,6 +849,7 @@ fun BillingAddressUpdatedSuccess() {
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.address_update_success_description),
             style = ComposeTypographies.Paragraph1,
             color = ComposeColors.Body,
@@ -874,6 +878,7 @@ fun BillingAddressUpdatedFailed(errorTitle: String, errorDescription: String) {
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = errorTitle,
             style = ComposeTypographies.Title3,
             color = ComposeColors.Title,
@@ -883,6 +888,7 @@ fun BillingAddressUpdatedFailed(errorTitle: String, errorDescription: String) {
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = errorDescription,
             style = ComposeTypographies.Paragraph1,
             color = ComposeColors.Body,
@@ -992,6 +998,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(id = R.string.terminate_card_number, last4digits),
             style = ComposeTypographies.Body1,
             color = ComposeColors.Body,
@@ -999,6 +1006,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
         )
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.terminate_card_warning),
             style = ComposeTypographies.Caption1,
             color = ComposeColors.Muted,
@@ -1013,6 +1021,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             modifier = Modifier.fillMaxWidth(),
             label = {
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.terminate_card_confirm_description),
                     style = ComposeTypographies.Caption1,
                     color = ComposeColors.Body,
@@ -1025,6 +1034,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             },
             placeholder = {
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.terminate_card_confirmation_text),
                     style = ComposeTypographies.Body1,
                     color = ComposeColors.Muted,
@@ -1087,6 +1097,7 @@ private fun CardDetailsBottomSheetElement(
         ) {
             Column(modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingSmall)) {
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.virtual_card),
                     style = ComposeTypographies.Paragraph2,
                     color = ComposeColors.Title,
@@ -1102,6 +1113,7 @@ private fun CardDetailsBottomSheetElement(
                     else ComposeColors.Success
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = cardStatusLabel,
                     style = ComposeTypographies.Caption2,
                     color = cardStatusColor,
@@ -1115,7 +1127,7 @@ private fun CardDetailsBottomSheetElement(
             style = ComposeTypographies.Caption1,
             color = ComposeColors.Body,
             gravity = ComposeGravities.End,
-            modifier = Modifier.padding(AppTheme.dimensions.paddingMedium)
+            modifier = Modifier.fillMaxWidth().padding(AppTheme.dimensions.paddingMedium)
         )
     }
 }
@@ -1205,7 +1217,7 @@ fun AccountPicker(
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Start,
-            modifier = Modifier.padding(AppTheme.dimensions.paddingLarge)
+            modifier = Modifier.fillMaxWidth().padding(AppTheme.dimensions.paddingLarge)
         )
 
         AccountsContent(eligibleTradingAccountBalances, onAccountSelected)
@@ -1233,6 +1245,7 @@ fun AccountsContent(
         }
     } else {
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.no_accounts_eligible_for_linking),
             style = ComposeTypographies.Caption1,
             color = ComposeColors.Body,
@@ -1418,7 +1431,7 @@ fun CardTransactionDetails(cardTransaction: BlockchainCardTransaction, onCloseBo
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Start,
-            modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
+            modifier = Modifier.fillMaxWidth().padding(horizontal = AppTheme.dimensions.paddingLarge)
         )
 
         DefaultTableRow(

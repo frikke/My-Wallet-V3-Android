@@ -86,6 +86,7 @@ fun DeFiOnboardingIntroScreen(
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(
                         R.string.defi_onboarding_intro_title,
                         stringResource(R.string.defi_wallet_name)
@@ -98,6 +99,7 @@ fun DeFiOnboardingIntroScreen(
                 Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.defi_onboarding_intro_description),
                     style = ComposeTypographies.Paragraph1,
                     color = ComposeColors.Title,
@@ -169,6 +171,7 @@ fun DeFiOnboardingPropertyItem(
 
         Column {
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = title,
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Title,
@@ -178,6 +181,7 @@ fun DeFiOnboardingPropertyItem(
             Spacer(modifier = Modifier.size(AppTheme.dimensions.xxPaddingSmall))
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = subtitle,
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Muted,

@@ -83,6 +83,7 @@ fun ManualBackupScreen(
         ) {
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.manual_backup_title),
                 style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
@@ -92,6 +93,7 @@ fun ManualBackupScreen(
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.manual_backup_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,
@@ -113,6 +115,7 @@ fun ManualBackupScreen(
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.manual_backup_copy_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,

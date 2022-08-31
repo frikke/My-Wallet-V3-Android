@@ -134,32 +134,25 @@ sealed class LoginAnalytics(
                         SITE_REDIRECT to PLATFORM_WALLET,
                         REQUEST_PLATFORM to PLATFORM_WALLET,
                         UPGRADEABLE to isUpgradeable,
-                        WALLET to NestedData(
-                            mapOf(
-                                AUTH_TYPE to (accountWallet.twoFaType ?: ""),
-                                GUID_FIRST_FOUR to accountWallet.guid.take(4),
-                                HAS_CLOUD_BACKUP to accountWallet.hasCloudBackup,
-                                IS_MOBILE_SETUP to accountWallet.isMobileSetUp,
-                                LAST_MNEMONIC_BACKUP to accountWallet.lastMnemonicBackup,
-                                MOBILE_DEVICE_TYPE to accountWallet.mobileDeviceType
-                            )
-                        ),
-                        EXCHANGE to NestedData(
-                            mapOf(
-                                TWO_FA_MODE to accountWallet.accountExchange.twoFaMode,
-                                USER_ID to accountWallet.accountExchange.userId
-                            )
-                        ),
-                        NABU to NestedData(
-                            mapOf(
-                                RECOVERY_ELIGIBLE to accountWallet.nabuAccountInfo.isRecoveryEligible,
-                                USER_ID to accountWallet.nabuAccountInfo.userId
-                            )
-                        )
+                        WALLET to mapOf(
+                            AUTH_TYPE to (accountWallet.twoFaType ?: ""),
+                            GUID_FIRST_FOUR to accountWallet.guid.take(4),
+                            HAS_CLOUD_BACKUP to accountWallet.hasCloudBackup,
+                            IS_MOBILE_SETUP to accountWallet.isMobileSetUp,
+                            LAST_MNEMONIC_BACKUP to accountWallet.lastMnemonicBackup,
+                            MOBILE_DEVICE_TYPE to accountWallet.mobileDeviceType
+                        ) as Serializable,
+                        EXCHANGE to mapOf(
+                            TWO_FA_MODE to accountWallet.accountExchange.twoFaMode,
+                            USER_ID to accountWallet.accountExchange.userId
+
+                        ) as Serializable,
+                        NABU to mapOf(
+                            RECOVERY_ELIGIBLE to accountWallet.nabuAccountInfo.isRecoveryEligible,
+                            USER_ID to accountWallet.nabuAccountInfo.userId
+                        ) as Serializable
                     )
                 else -> emptyMap()
             }
-
-        private data class NestedData(val map: Map<String, Serializable>) : Serializable
     }
 }

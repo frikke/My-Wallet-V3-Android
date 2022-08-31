@@ -28,5 +28,6 @@
     <color name="sheetBackgroundColor">#FFFFFF</color>
     <color name="primary_blue_accent" />
     <color name="black" />
+    <color name="white" />
 
 </resources>
