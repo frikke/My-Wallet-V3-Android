@@ -5,6 +5,7 @@ import androidx.compose.animation.core.FloatExponentialDecaySpec
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -38,6 +41,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Blue200
+import com.blockchain.componentlib.theme.MIDDLE
+import com.blockchain.componentlib.theme.START
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
@@ -137,7 +143,6 @@ fun Main() {
                     }
                 }
 
-
                 if (available.y > 0) {
                     scope.launch {
                         animateDecay(
@@ -191,6 +196,14 @@ fun Main() {
         modifier = Modifier
             .fillMaxSize()
             .nestedScroll(nestedScrollConnection)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        START,
+                        MIDDLE
+                    )
+                )
+            )
     ) {
         LazyColumn(
             state = listState,
@@ -244,7 +257,8 @@ fun Main() {
                     )
                 }
             },
-            onSettingsButtonClicked = { toolbarState.scrollOffset = allCollapsedOffset },
+            onTradingClicked = { },
+            onDefiClicked = { },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(with(LocalDensity.current) { toolbarState.height.toDp() })

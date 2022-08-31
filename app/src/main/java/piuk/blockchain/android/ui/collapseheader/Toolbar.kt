@@ -1,11 +1,15 @@
 package piuk.blockchain.android.ui.collapseheader
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -33,7 +37,8 @@ fun CollapsingToolbarCollapsedPreview() {
     CollapsingToolbar(
         progress = 0f,
         onPrivacyTipButtonClicked = {},
-        onSettingsButtonClicked = {},
+        onTradingClicked = {},
+        onDefiClicked = {},
         modifier = Modifier
             .fillMaxWidth()
             .height(54.dp)
@@ -46,7 +51,8 @@ fun CollapsingToolbarHalfwayPreview() {
     CollapsingToolbar(
         progress = 0.5f,
         onPrivacyTipButtonClicked = {},
-        onSettingsButtonClicked = {},
+        onTradingClicked = {},
+        onDefiClicked = {},
         modifier = Modifier
             .fillMaxWidth()
             .height(81.dp)
@@ -59,7 +65,8 @@ fun CollapsingToolbarExpandedPreview() {
     CollapsingToolbar(
         progress = 1f,
         onPrivacyTipButtonClicked = {},
-        onSettingsButtonClicked = {},
+        onTradingClicked = {},
+        onDefiClicked = {},
         modifier = Modifier
             .fillMaxWidth()
             .height(108.dp)
@@ -70,11 +77,11 @@ fun CollapsingToolbarExpandedPreview() {
 fun CollapsingToolbar(
     progress: Float,
     onPrivacyTipButtonClicked: () -> Unit,
-    onSettingsButtonClicked: () -> Unit,
+    onTradingClicked: () -> Unit,
+    onDefiClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
-        color = MaterialTheme.colors.primary,
         elevation = Elevation,
         modifier = modifier
     ) {
@@ -90,25 +97,43 @@ fun CollapsingToolbar(
                         .clickableNoEffect { onPrivacyTipButtonClicked() }
                         .height(54.dp)
                         .fillMaxWidth()
-                        .background(Color.Red)) {
+                        /*.background(Color.Red)*/) {
                         Text(
-                            modifier = Modifier.align(Alignment.Center).padding(start = dimensionResource(R.dimen.tiny_margin)),
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(start = dimensionResource(R.dimen.tiny_margin)),
                             style = AppTheme.typography.title3,
                             color = Color.Black,
                             text = "total balance: xxxx"
                         )
                     }
 
-                    Box(modifier = Modifier
-                        .clickableNoEffect { onSettingsButtonClicked() }
-                        .height(54.dp)
-                        .fillMaxWidth()
-                        .background(Color.Green)) {
+                    Row(
+                        modifier = Modifier
+                            .height(54.dp)
+                            .fillMaxWidth()
+                            /*.background(Color.Green)*/,
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         Text(
-                            modifier = Modifier.align(Alignment.Center).padding(start = dimensionResource(R.dimen.tiny_margin)),
+                            modifier = Modifier
+                                .padding(start = dimensionResource(R.dimen.tiny_margin))
+                                .clickableNoEffect { onTradingClicked() },
                             style = AppTheme.typography.title3,
                             color = Color.Black,
-                            text = "trading - defi"
+                            text = "trading"
+                        )
+
+                        Spacer(modifier = Modifier.size(32.dp))
+
+                        Text(
+                            modifier = Modifier
+                                .padding(start = dimensionResource(R.dimen.tiny_margin))
+                                .clickableNoEffect { onDefiClicked() },
+                            style = AppTheme.typography.title3,
+                            color = Color.Black,
+                            text = "defi"
                         )
                     }
                 }

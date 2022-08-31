@@ -3,6 +3,13 @@ package com.blockchain.componentlib.theme
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
+val START = Color(0XFF0095)
+val MIDDLE = Color(0X2A52CE)
+val END = Color(0X21CAE0)
+
+
+
+
 val Blue700 = Color(0XFF1656B9)
 val Blue600 = Color(0XFF0C6CF2)
 val Blue400 = Color(0XFF619FF7)
