@@ -13,6 +13,10 @@ import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.core.user.Watchlist
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.MomentEvent
+import com.blockchain.logging.MomentLogger
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -37,6 +41,7 @@ class SwapTargetAccountSortingTest {
     private val coincore: Coincore = mock()
     private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
     private val watchlistDataManager: WatchlistDataManager = mock()
+    private val momentLogger: MomentLogger = mock()
 
     private lateinit var subject: SwapTargetAccountsSorting
 
@@ -131,8 +136,12 @@ class SwapTargetAccountSortingTest {
             dashboardAccountsSorter = defaultAccountsSorting,
             coincore = coincore,
             exchangeRatesDataManager = exchangeRatesDataManager,
-            watchlistDataManager = watchlistDataManager
+            watchlistDataManager = watchlistDataManager,
+            momentLogger = momentLogger
         )
+
+        doNothing().whenever(momentLogger).startEvent(any())
+        doNothing().whenever(momentLogger).endEvent(any(), any())
     }
 
     @Test
@@ -145,6 +154,7 @@ class SwapTargetAccountSortingTest {
 
         verify(defaultAccountsSorting).sorter()
         verifyNoMoreInteractions(defaultAccountsSorting)
+        verifyMomentEvents(MomentEvent.SWAP_TARGET_LIST_FF_OFF)
     }
 
     @Test
@@ -188,6 +198,8 @@ class SwapTargetAccountSortingTest {
                 it[1] == xlmCustodialAccount &&
                 it[2] == btcCustodialAccount
         }
+
+        verifyMomentEvents(MomentEvent.SWAP_TARGET_LIST_FF_ON)
     }
 
     @Test
@@ -230,6 +242,8 @@ class SwapTargetAccountSortingTest {
                 it[1] == ethCustodialAccount &&
                 it[2] == xlmCustodialAccount
         }
+
+        verifyMomentEvents(MomentEvent.SWAP_TARGET_LIST_FF_ON)
     }
 
     @Test
@@ -272,6 +286,8 @@ class SwapTargetAccountSortingTest {
                 it[1] == btcCustodialAccount &&
                 it[2] == xlmCustodialAccount
         }
+
+        verifyMomentEvents(MomentEvent.SWAP_TARGET_LIST_FF_ON)
     }
 
     @Test
@@ -314,6 +330,8 @@ class SwapTargetAccountSortingTest {
                 it[1] == ethCustodialAccount &&
                 it[2] == xlmCustodialAccount
         }
+
+        verifyMomentEvents(MomentEvent.SWAP_TARGET_LIST_FF_ON)
     }
 
     @Test
@@ -355,6 +373,8 @@ class SwapTargetAccountSortingTest {
                 it[1] == btcCustodialAccount &&
                 it[2] == ethCustodialAccount
         }
+
+        verifyMomentEvents(MomentEvent.SWAP_TARGET_LIST_FF_ON)
     }
 
     @Test
@@ -394,6 +414,8 @@ class SwapTargetAccountSortingTest {
                 it[1] == xlmCustodialAccount &&
                 it[2] == ethCustodialAccount
         }
+
+        verifyMomentEvents(MomentEvent.SWAP_TARGET_LIST_FF_ON)
     }
 
     @Test
@@ -435,6 +457,8 @@ class SwapTargetAccountSortingTest {
                 it[1] == xlmCustodialAccount &&
                 it[2] == ethCustodialAccount
         }
+
+        verifyMomentEvents(MomentEvent.SWAP_TARGET_LIST_FF_ON)
     }
 
     @Test
@@ -478,6 +502,8 @@ class SwapTargetAccountSortingTest {
                 it[1] == xlmCustodialAccount &&
                 it[2] == ethCustodialAccount
         }
+
+        verifyMomentEvents(MomentEvent.SWAP_TARGET_LIST_FF_ON)
     }
 
     private fun generateCustodialAccount(mock: CryptoCurrency, balance: Long) =
@@ -515,5 +541,11 @@ class SwapTargetAccountSortingTest {
             .thenReturn(
                 Single.just(priceRecord)
             )
+    }
+
+    private fun verifyMomentEvents(event: MomentEvent) {
+        verify(momentLogger).startEvent(event)
+        verify(momentLogger).endEvent(event)
+        verifyNoMoreInteractions(momentLogger)
     }
 }

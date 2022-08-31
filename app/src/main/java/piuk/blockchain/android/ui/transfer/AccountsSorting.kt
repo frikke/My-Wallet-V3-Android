@@ -9,6 +9,8 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.MomentEvent
+import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -29,14 +31,21 @@ interface AccountsSorting {
 class SwapSourceAccountsSorting(
     private val assetListOrderingFF: FeatureFlag,
     private val dashboardAccountsSorter: AccountsSorting,
-    private val sellAccountsSorting: SellAccountsSorting
+    private val sellAccountsSorting: SellAccountsSorting,
+    private val momentLogger: MomentLogger
 ) : AccountsSorting {
     override fun sorter(): AccountsSorter = { list ->
         assetListOrderingFF.enabled.flatMap { enabled ->
             if (enabled) {
-                sellAccountsSorting.sorter().invoke(list)
+                momentLogger.startEvent(MomentEvent.SWAP_SOURCE_LIST_FF_ON)
+                val sortedList = sellAccountsSorting.sorter().invoke(list)
+                momentLogger.endEvent(MomentEvent.SWAP_SOURCE_LIST_FF_ON)
+                return@flatMap sortedList
             } else {
-                dashboardAccountsSorter.sorter().invoke(list)
+                momentLogger.startEvent(MomentEvent.SWAP_SOURCE_LIST_FF_OFF)
+                val sortedList = dashboardAccountsSorter.sorter().invoke(list)
+                momentLogger.endEvent(MomentEvent.SWAP_SOURCE_LIST_FF_OFF)
+                return@flatMap sortedList
             }
         }
     }
@@ -47,7 +56,8 @@ class SwapTargetAccountsSorting(
     private val dashboardAccountsSorter: AccountsSorting,
     private val coincore: Coincore,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val watchlistDataManager: WatchlistDataManager
+    private val watchlistDataManager: WatchlistDataManager,
+    private val momentLogger: MomentLogger
 ) : AccountsSorting {
 
     private data class AccountInfo(
@@ -59,7 +69,8 @@ class SwapTargetAccountsSorting(
     override fun sorter(): AccountsSorter = { list ->
         assetListOrderingFF.enabled.flatMap { enabled ->
             if (enabled) {
-                Single.zip(
+                momentLogger.startEvent(MomentEvent.SWAP_TARGET_LIST_FF_ON)
+                val sortedList = Single.zip(
                     Observable.fromIterable(list).flatMapSingle { account ->
                         Single.zip(
                             account.balance.firstOrError(),
@@ -96,8 +107,14 @@ class SwapTargetAccountsSorting(
                         it.account
                     }
                 }
+
+                momentLogger.endEvent(MomentEvent.SWAP_TARGET_LIST_FF_ON)
+                return@flatMap sortedList
             } else {
-                dashboardAccountsSorter.sorter().invoke(list)
+                momentLogger.startEvent(MomentEvent.SWAP_TARGET_LIST_FF_OFF)
+                val sortedList = dashboardAccountsSorter.sorter().invoke(list)
+                momentLogger.endEvent(MomentEvent.SWAP_TARGET_LIST_FF_OFF)
+                return@flatMap sortedList
             }
         }
     }
@@ -106,12 +123,14 @@ class SwapTargetAccountsSorting(
 class SellAccountsSorting(
     private val assetListOrderingFF: FeatureFlag,
     private val dashboardAccountsSorter: AccountsSorting,
-    private val coincore: Coincore
+    private val coincore: Coincore,
+    private val momentLogger: MomentLogger
 ) : AccountsSorting {
     override fun sorter(): AccountsSorter = { accountList ->
         assetListOrderingFF.enabled.flatMap { enabled ->
             if (enabled) {
-                Observable.fromIterable(accountList).flatMap { account ->
+                momentLogger.startEvent(MomentEvent.SELL_LIST_FF_ON)
+                val sortedList = Observable.fromIterable(accountList).flatMap { account ->
                     coincore[account.currency].getPricesWith24hDeltaLegacy().flatMapObservable { prices ->
                         account.balance.map { balance ->
                             Pair(account, prices.currentRate.convert(balance.total))
@@ -134,8 +153,13 @@ class SellAccountsSorting(
 
                     Single.just(sortedGroups)
                 }
+                momentLogger.endEvent(MomentEvent.SELL_LIST_FF_ON)
+                return@flatMap sortedList
             } else {
-                dashboardAccountsSorter.sorter().invoke(accountList)
+                momentLogger.startEvent(MomentEvent.SELL_LIST_FF_OFF)
+                val sortedList = dashboardAccountsSorter.sorter().invoke(accountList)
+                momentLogger.endEvent(MomentEvent.SELL_LIST_FF_OFF)
+                return@flatMap sortedList
             }
         }
     }
@@ -145,7 +169,8 @@ class DefaultAccountsSorting(
     private val dashboardPrefs: DashboardPrefs,
     private val assetCatalogue: AssetCatalogue,
     private val walletModeService: WalletModeService,
-    private val coincore: Coincore
+    private val coincore: Coincore,
+    private val momentLogger: MomentLogger
 ) : AccountsSorting {
 
     private data class AccountData(
@@ -155,9 +180,13 @@ class DefaultAccountsSorting(
 
     override fun sorter(): AccountsSorter = { list ->
         if (walletModeService.enabledWalletMode() != WalletMode.CUSTODIAL_ONLY) {
-            universalOrdering(list)
+            momentLogger.startEvent(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
+            val sortedList = universalOrdering(list)
+            momentLogger.endEvent(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
+            sortedList
         } else {
-            Observable.fromIterable(list).flatMapSingle { account ->
+            momentLogger.startEvent(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
+            val sortedList = Observable.fromIterable(list).flatMapSingle { account ->
                 Single.zip(
                     account.balance.firstOrError(),
                     coincore[account.currency].getPricesWith24hDeltaLegacy(),
@@ -174,6 +203,8 @@ class DefaultAccountsSorting(
                             accountData.account
                         }
                 }
+            momentLogger.endEvent(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
+            sortedList
         }
     }
 
@@ -205,18 +236,25 @@ class BuyListAccountSorting(
     private val assetListOrderingFF: FeatureFlag,
     private val coincore: Coincore,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val watchlistDataManager: WatchlistDataManager
+    private val watchlistDataManager: WatchlistDataManager,
+    private val momentLogger: MomentLogger
 ) {
 
     fun sort(assets: List<AssetInfo>): Single<List<PricedAsset>> =
         // we will used the FF to act as an A/B test between ordering assets and what comes from BE
         assetListOrderingFF.enabled.flatMap { enabled ->
             if (enabled) {
-                getAssetListOrdering(assets)
+                momentLogger.startEvent(MomentEvent.BUY_LIST_ORDERING_FF_ON)
+                val sortedList = getAssetListOrdering(assets)
+                momentLogger.endEvent(MomentEvent.BUY_LIST_ORDERING_FF_ON)
+                return@flatMap sortedList
             } else {
-                Observable.fromIterable(assets).flatMapMaybe { asset ->
+                momentLogger.startEvent(MomentEvent.BUY_LIST_ORDERING_FF_OFF)
+                val sortedList = Observable.fromIterable(assets).flatMapMaybe { asset ->
                     asset.getAssetPriceInformation()
                 }.toList()
+                momentLogger.endEvent(MomentEvent.BUY_LIST_ORDERING_FF_OFF)
+                return@flatMap sortedList
             }
         }
 

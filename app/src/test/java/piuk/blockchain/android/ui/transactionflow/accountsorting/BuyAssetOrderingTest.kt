@@ -13,8 +13,12 @@ import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.core.user.Watchlist
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.MomentEvent
+import com.blockchain.logging.MomentLogger
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
@@ -36,6 +40,7 @@ class BuyAssetOrderingTest {
     private val coincore: Coincore = mock()
     private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
     private val watchlistDataManager: WatchlistDataManager = mock()
+    private val momentLogger: MomentLogger = mock()
 
     private val ethMock: CryptoCurrency = object : CryptoCurrency(
         displayTicker = "ETH",
@@ -77,8 +82,12 @@ class BuyAssetOrderingTest {
             assetListOrderingFF = assetListOrderingFF,
             coincore = coincore,
             exchangeRatesDataManager = exchangeRatesDataManager,
-            watchlistDataManager = watchlistDataManager
+            watchlistDataManager = watchlistDataManager,
+            momentLogger = momentLogger
         )
+
+        doNothing().whenever(momentLogger).startEvent(any())
+        doNothing().whenever(momentLogger).endEvent(any(), any())
     }
 
     @Test
@@ -103,6 +112,8 @@ class BuyAssetOrderingTest {
 
         verifyNoMoreInteractions(exchangeRatesDataManager)
         verifyNoMoreInteractions(watchlistDataManager)
+
+        verifyMomentEvents(MomentEvent.BUY_LIST_ORDERING_FF_OFF)
     }
 
     @Test
@@ -132,6 +143,8 @@ class BuyAssetOrderingTest {
                 it[1].asset == ethMock &&
                 it[2].asset == btcMock
         }
+
+        verifyMomentEvents(MomentEvent.BUY_LIST_ORDERING_FF_ON)
     }
 
     @Test
@@ -159,6 +172,8 @@ class BuyAssetOrderingTest {
                 it[1].asset == btcMock &&
                 it[2].asset == ethMock
         }
+
+        verifyMomentEvents(MomentEvent.BUY_LIST_ORDERING_FF_ON)
     }
 
     @Test
@@ -186,6 +201,8 @@ class BuyAssetOrderingTest {
                 it[1].asset == ethMock &&
                 it[2].asset == btcMock
         }
+
+        verifyMomentEvents(MomentEvent.BUY_LIST_ORDERING_FF_ON)
     }
 
     @Test
@@ -214,6 +231,8 @@ class BuyAssetOrderingTest {
                 it[1].asset == xlmMock &&
                 it[2].asset == btcMock
         }
+
+        verifyMomentEvents(MomentEvent.BUY_LIST_ORDERING_FF_ON)
     }
 
     @Test
@@ -237,6 +256,8 @@ class BuyAssetOrderingTest {
                 it[1].asset == btcMock &&
                 it[2].asset == ethMock
         }
+
+        verifyMomentEvents(MomentEvent.BUY_LIST_ORDERING_FF_ON)
     }
 
     @Test
@@ -266,6 +287,8 @@ class BuyAssetOrderingTest {
                 it[1].asset == xlmMock &&
                 it[2].asset == ethMock
         }
+
+        verifyMomentEvents(MomentEvent.BUY_LIST_ORDERING_FF_ON)
     }
 
     private fun setAccountForAssetWithBalanceAndTradingVolume(
@@ -303,5 +326,11 @@ class BuyAssetOrderingTest {
         private const val ONE_ETH = 1000000000000000000L
         private const val ONE_BTC = 100000000L
         private const val ONE_XLM = 10000000L
+    }
+
+    private fun verifyMomentEvents(event: MomentEvent) {
+        verify(momentLogger).startEvent(event)
+        verify(momentLogger).endEvent(event)
+        verifyNoMoreInteractions(momentLogger)
     }
 }

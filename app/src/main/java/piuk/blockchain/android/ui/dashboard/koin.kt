@@ -93,7 +93,8 @@ val dashboardModule = module {
                 dashboardPrefs = get(),
                 assetCatalogue = get(),
                 walletModeService = get(),
-                coincore = get()
+                coincore = get(),
+                momentLogger = get()
             )
         }.bind(AccountsSorting::class)
 
@@ -101,7 +102,8 @@ val dashboardModule = module {
             SwapSourceAccountsSorting(
                 assetListOrderingFF = get(assetOrderingFeatureFlag),
                 dashboardAccountsSorter = get(defaultOrder),
-                sellAccountsSorting = get(sellOrder)
+                sellAccountsSorting = get(sellOrder),
+                momentLogger = get()
             )
         }.bind(AccountsSorting::class)
 
@@ -111,7 +113,8 @@ val dashboardModule = module {
                 dashboardAccountsSorter = get(defaultOrder),
                 coincore = get(),
                 exchangeRatesDataManager = get(),
-                watchlistDataManager = get()
+                watchlistDataManager = get(),
+                momentLogger = get()
             )
         }.bind(AccountsSorting::class)
 
@@ -119,7 +122,8 @@ val dashboardModule = module {
             SellAccountsSorting(
                 assetListOrderingFF = get(assetOrderingFeatureFlag),
                 dashboardAccountsSorter = get(defaultOrder),
-                coincore = get()
+                coincore = get(),
+                momentLogger = get()
             )
         }.bind(AccountsSorting::class)
 
@@ -128,7 +132,8 @@ val dashboardModule = module {
                 assetListOrderingFF = get(assetOrderingFeatureFlag),
                 coincore = get(),
                 exchangeRatesDataManager = get(),
-                watchlistDataManager = get()
+                watchlistDataManager = get(),
+                momentLogger = get()
             )
         }
 

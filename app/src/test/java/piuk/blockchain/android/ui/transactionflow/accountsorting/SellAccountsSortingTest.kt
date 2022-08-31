@@ -8,6 +8,10 @@ import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.MomentEvent
+import com.blockchain.logging.MomentLogger
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -30,6 +34,7 @@ class SellAccountsSortingTest {
     private val assetListOrderingFF: FeatureFlag = mock()
     private val defaultAccountsSorting: DefaultAccountsSorting = mock()
     private val coincore: Coincore = mock()
+    private val momentLogger: MomentLogger = mock()
 
     private lateinit var subject: SellAccountsSorting
 
@@ -38,8 +43,12 @@ class SellAccountsSortingTest {
         subject = SellAccountsSorting(
             assetListOrderingFF = assetListOrderingFF,
             dashboardAccountsSorter = defaultAccountsSorting,
-            coincore = coincore
+            coincore = coincore,
+            momentLogger = momentLogger
         )
+
+        doNothing().whenever(momentLogger).startEvent(any())
+        doNothing().whenever(momentLogger).endEvent(any(), any())
     }
 
     @Test
@@ -52,6 +61,7 @@ class SellAccountsSortingTest {
 
         verify(defaultAccountsSorting).sorter()
         verifyNoMoreInteractions(defaultAccountsSorting)
+        verifyMomentEvents(MomentEvent.SELL_LIST_FF_OFF)
     }
 
     @Test
@@ -166,6 +176,7 @@ class SellAccountsSortingTest {
         }
 
         verifyNoMoreInteractions(defaultAccountsSorting)
+        verifyMomentEvents(MomentEvent.SELL_LIST_FF_ON)
     }
 
     @Test
@@ -336,6 +347,13 @@ class SellAccountsSortingTest {
         }
 
         verifyNoMoreInteractions(defaultAccountsSorting)
+        verifyMomentEvents(MomentEvent.SELL_LIST_FF_ON)
+    }
+
+    private fun verifyMomentEvents(event: MomentEvent) {
+        verify(momentLogger).startEvent(event)
+        verify(momentLogger).endEvent(event)
+        verifyNoMoreInteractions(momentLogger)
     }
 
     companion object {

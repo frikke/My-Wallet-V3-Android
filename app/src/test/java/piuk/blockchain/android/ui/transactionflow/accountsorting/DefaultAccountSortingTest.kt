@@ -6,9 +6,13 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.logging.MomentEvent
+import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -31,6 +35,7 @@ class DefaultAccountSortingTest {
     private val coincore: Coincore = mock()
     private val walletModeService: WalletModeService = mock()
     private val assetCatalogue: AssetCatalogue = mock()
+    private val momentLogger: MomentLogger = mock()
 
     private lateinit var subject: DefaultAccountsSorting
 
@@ -76,8 +81,12 @@ class DefaultAccountSortingTest {
             dashboardPrefs = dashboardPrefs,
             assetCatalogue = assetCatalogue,
             walletModeService = walletModeService,
-            coincore = coincore
+            coincore = coincore,
+            momentLogger = momentLogger
         )
+
+        doNothing().whenever(momentLogger).startEvent(any())
+        doNothing().whenever(momentLogger).endEvent(any(), any())
     }
 
     @Test
@@ -115,6 +124,8 @@ class DefaultAccountSortingTest {
         verifyNoMoreInteractions(dashboardPrefs)
         verifyNoMoreInteractions(assetCatalogue)
         verifyNoMoreInteractions(coincore)
+
+        verifyMomentEvents(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
     }
 
     @Test
@@ -148,6 +159,8 @@ class DefaultAccountSortingTest {
         verifyNoMoreInteractions(dashboardPrefs)
         verifyNoMoreInteractions(assetCatalogue)
         verifyNoMoreInteractions(coincore)
+
+        verifyMomentEvents(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
     }
 
     @Test
@@ -176,6 +189,8 @@ class DefaultAccountSortingTest {
         verifyNoMoreInteractions(walletModeService)
         verifyNoMoreInteractions(dashboardPrefs)
         verifyNoMoreInteractions(assetCatalogue)
+
+        verifyMomentEvents(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
     }
 
     private fun setAccountForAssetWithBalance(currency: Currency, accountBalance: Long): CryptoAccount {
@@ -200,5 +215,11 @@ class DefaultAccountSortingTest {
         whenever(coincore[currency]).thenReturn(assetMock)
 
         return singleAccount
+    }
+
+    private fun verifyMomentEvents(event: MomentEvent) {
+        verify(momentLogger).startEvent(event)
+        verify(momentLogger).endEvent(event)
+        verifyNoMoreInteractions(momentLogger)
     }
 }
