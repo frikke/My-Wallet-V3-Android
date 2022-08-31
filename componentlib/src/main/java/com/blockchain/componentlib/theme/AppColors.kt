@@ -3,9 +3,10 @@ package com.blockchain.componentlib.theme
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-val START = Color(0XFF0095)
-val MIDDLE = Color(0X2A52CE)
-val END = Color(0X21CAE0)
+val START_TRADING = Color(0XFFFF0095)
+val END_TRADING = Color(0XFF7C33B9)
+val START_DEFI = Color(0XFF6D39BD)
+val END_DEFI = Color(0XFF2878D4)
 
 
 

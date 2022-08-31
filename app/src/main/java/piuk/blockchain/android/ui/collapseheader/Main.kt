@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.collapseheader
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FloatExponentialDecaySpec
 import androidx.compose.animation.core.animateDecay
@@ -17,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,9 +41,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue200
-import com.blockchain.componentlib.theme.MIDDLE
-import com.blockchain.componentlib.theme.START
+import com.blockchain.componentlib.theme.END_DEFI
+import com.blockchain.componentlib.theme.END_TRADING
+import com.blockchain.componentlib.theme.START_DEFI
+import com.blockchain.componentlib.theme.START_TRADING
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
@@ -192,15 +193,31 @@ fun Main() {
     val aaaaa = mutableListOf<String>()
     (0..40).forEach { aaaaa.add("dzjfzufz $it") }
 
+    var switch by remember { mutableStateOf(true) }
+    val startColor by animateColorAsState(
+        targetValue = if (switch) START_TRADING else START_DEFI,
+        animationSpec = tween(
+            durationMillis = 400,
+            delayMillis = 0
+        )
+    )
+
+    val endColor by animateColorAsState(
+        targetValue = if (switch) END_TRADING else END_DEFI,
+        animationSpec = tween(
+            durationMillis = 400,
+            delayMillis = 0
+        )
+    )
     Box(
         modifier = Modifier
             .fillMaxSize()
             .nestedScroll(nestedScrollConnection)
             .background(
-                brush = Brush.verticalGradient(
+                brush = Brush.horizontalGradient(
                     colors = listOf(
-                        START,
-                        MIDDLE
+                        startColor,
+                        endColor
                     )
                 )
             )
@@ -218,7 +235,8 @@ fun Main() {
                             animate = false
                         }
                     )
-                },
+                }
+                .background(Color.White),
         ) {
             items(
                 items = aaaaa,
@@ -257,8 +275,8 @@ fun Main() {
                     )
                 }
             },
-            onTradingClicked = { },
-            onDefiClicked = { },
+            onTradingClicked = { switch = true },
+            onDefiClicked = { switch = false },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(with(LocalDensity.current) { toolbarState.height.toDp() })

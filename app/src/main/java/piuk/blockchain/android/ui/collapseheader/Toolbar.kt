@@ -11,12 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.dimensionResource
@@ -24,6 +23,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.END_DEFI
+import com.blockchain.componentlib.theme.END_TRADING
+import com.blockchain.componentlib.theme.START_DEFI
+import com.blockchain.componentlib.theme.START_TRADING
 import com.blockchain.componentlib.utils.clickableNoEffect
 import piuk.blockchain.android.R
 import kotlin.math.roundToInt
@@ -42,6 +45,14 @@ fun CollapsingToolbarCollapsedPreview() {
         modifier = Modifier
             .fillMaxWidth()
             .height(54.dp)
+            .background(
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        START_TRADING,
+                        END_TRADING
+                    )
+                )
+            )
     )
 }
 
@@ -56,6 +67,14 @@ fun CollapsingToolbarHalfwayPreview() {
         modifier = Modifier
             .fillMaxWidth()
             .height(81.dp)
+            .background(
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        START_DEFI,
+                        END_DEFI
+                    )
+                )
+            )
     )
 }
 
@@ -70,6 +89,14 @@ fun CollapsingToolbarExpandedPreview() {
         modifier = Modifier
             .fillMaxWidth()
             .height(108.dp)
+            .background(
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        START_TRADING,
+                        END_TRADING
+                    )
+                )
+            )
     )
 }
 
@@ -81,11 +108,7 @@ fun CollapsingToolbar(
     onDefiClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        elevation = Elevation,
-        modifier = modifier
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = modifier) {
             Box(
                 modifier = Modifier
                     .statusBarsPadding()
@@ -138,7 +161,6 @@ fun CollapsingToolbar(
                     }
                 }
             }
-        }
     }
 }
 
