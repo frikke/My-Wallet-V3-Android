@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.settings.v2.sheets
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.compose.ui.unit.Dp
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.basic.ComposeColors
@@ -36,8 +37,7 @@ class BackupPhraseInfoSheet : SlidingModalBottomDialog<BottomSheetBackupPhraseIn
             }
 
             backupIcon.apply {
-                image = ImageResource.Local(R.drawable.ic_lock)
-                imageSize = 48
+                image = ImageResource.Local(id = R.drawable.ic_lock, size = Dp(48f))
             }
             backupBlurb.apply {
                 text = getString(R.string.security_backup_sheet_blurb)
