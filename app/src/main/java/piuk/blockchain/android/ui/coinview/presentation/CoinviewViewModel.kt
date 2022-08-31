@@ -20,6 +20,7 @@ import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -37,7 +38,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Da
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.RecurringBuyState
-import java.text.DecimalFormat
 
 class CoinviewViewModel(
     walletModeService: WalletModeService,
@@ -404,7 +404,7 @@ class CoinviewViewModel(
             recurringBuys is DataResource.Data -> {
                 require(asset != null) { "asset not initialized" }
 
-                with(recurringBuys.data){
+                with(recurringBuys.data) {
                     if (data.isEmpty()) {
                         if (isAvailableForTrading) {
                             CoinviewRecurringBuysState.Upsell
@@ -424,7 +424,9 @@ class CoinviewViewModel(
                                         )
                                     ),
 
-                                    status = if (recurringBuy.state == com.blockchain.nabu.models.data.RecurringBuyState.ACTIVE) {
+                                    status = if (recurringBuy.state ==
+                                        com.blockchain.nabu.models.data.RecurringBuyState.ACTIVE
+                                    ) {
                                         SimpleValue.IntResValue(
                                             R.string.dashboard_recurring_buy_item_label,
                                             listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())

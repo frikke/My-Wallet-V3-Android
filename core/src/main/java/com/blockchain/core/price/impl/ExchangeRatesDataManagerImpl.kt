@@ -27,11 +27,11 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.RoundingMode
+import java.util.Calendar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
-import java.math.RoundingMode
-import java.util.Calendar
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 internal class ExchangeRatesDataManagerImpl(
@@ -241,7 +241,7 @@ internal class ExchangeRatesDataManagerImpl(
                 freshnessStrategy = freshnessStrategy
             )
         ) { currentPrice, yesterdayPrice ->
-            combineDataResources(currentPrice, yesterdayPrice){ currentPriceData, yesterdayPriceData ->
+            combineDataResources(currentPrice, yesterdayPrice) { currentPriceData, yesterdayPriceData ->
                 Prices24HrWithDelta(
                     delta24h = currentPriceData.getPriceDelta(yesterdayPriceData),
                     previousRate = ExchangeRate(

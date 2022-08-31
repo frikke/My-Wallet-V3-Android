@@ -88,10 +88,10 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.flatMapIterable
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import java.math.BigInteger
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 
 class LiveCustodialWalletManager(
     private val assetCatalogue: AssetCatalogue,

@@ -22,7 +22,7 @@ class TradeDataRepository(
     private val authenticator: Authenticator,
     private val accumulatedInPeriodMapper: Mapper<List<AccumulatedInPeriod>, Boolean>,
     private val nextPaymentRecurringBuyMapper:
-    Mapper<List<NextPaymentRecurringBuy>, List<EligibleAndNextPaymentRecurringBuy>>,
+        Mapper<List<NextPaymentRecurringBuy>, List<EligibleAndNextPaymentRecurringBuy>>,
     private val recurringBuyMapper: Mapper<List<RecurringBuyResponse>, List<RecurringBuy>>,
     private val getRecurringBuysStore: GetRecurringBuysStore
 ) : TradeDataService {

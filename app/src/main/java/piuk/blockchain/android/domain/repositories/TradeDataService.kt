@@ -9,7 +9,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 
-//todo othman(refactor store flow)
+// todo othman(refactor store flow)
 interface TradeDataService {
 
     fun isFirstTimeBuyer(): Single<Boolean>
