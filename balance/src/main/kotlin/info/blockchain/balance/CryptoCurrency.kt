@@ -151,4 +151,17 @@ open class CryptoCurrency(
         logo = "file:///android_asset/logo/matic/logo.png",
         txExplorerUrlBase = "https://www.blockchain.com/matic/tx/"
     )
+
+    object BNB : CryptoCurrency(
+        displayTicker = "BNB",
+        networkTicker = "BNB",
+        name = "Binance Coin",
+        categories = setOf(AssetCategory.NON_CUSTODIAL),
+        precisionDp = 18,
+        requiredConfirmations = 12,
+        startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
+        colour = "#F0B90B",
+        logo = "file:///android_asset/logo/bsc/logo.png",
+        txExplorerUrlBase = "https://bscscan.com/tx/"
+    )
 }

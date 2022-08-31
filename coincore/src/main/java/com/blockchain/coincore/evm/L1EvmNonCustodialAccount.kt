@@ -50,7 +50,8 @@ class L1EvmNonCustodialAccount(
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.just(
-            MaticAddress(
+            L1EvmAddress(
+                asset = currency,
                 address = address,
                 label = label
             )

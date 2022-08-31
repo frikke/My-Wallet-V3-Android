@@ -16,7 +16,6 @@ import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -24,7 +23,8 @@ import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
-internal class MaticAsset(
+internal class L1EvmAsset(
+    override val currency: AssetInfo,
     private val ethDataManager: EthDataManager,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
@@ -38,9 +38,8 @@ internal class MaticAsset(
     private val erc20address
         get() = erc20DataManager.accountHash
 
-    private val nativeNetworkTicker = CryptoCurrency.MATIC.networkTicker.removeSuffix(".MATIC")
-
-    override val currency: AssetInfo = CryptoCurrency.MATIC
+    // For example to get MATIC from MATIC.MATIC
+    private val nativeNetworkTicker = currency.networkTicker.split(".").first()
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         layerTwoFeatureFlag.enabled.flatMap { isEnabled ->
@@ -88,7 +87,8 @@ internal class MaticAsset(
                     )
                         .flatMapMaybe { isContract ->
                             Maybe.just(
-                                MaticAddress(
+                                L1EvmAddress(
+                                    asset = currency,
                                     address = address,
                                     label = label ?: address,
                                     isDomain = isDomainAddress,
@@ -106,13 +106,12 @@ internal class MaticAsset(
         formatUtils.isValidEthereumAddress(address)
 }
 
-internal class MaticAddress(
+internal class L1EvmAddress(
+    override val asset: AssetInfo,
     override val address: String,
     override val label: String = address,
     override val isDomain: Boolean = false,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
     override val amount: CryptoValue? = null,
     val isContract: Boolean = false,
-) : CryptoAddress {
-    override val asset: AssetInfo = CryptoCurrency.MATIC
-}
+) : CryptoAddress

@@ -7,6 +7,7 @@ import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.NonCustodialSupport
 import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
 import com.blockchain.coincore.erc20.Erc20Asset
+import com.blockchain.coincore.evm.L1EvmAsset
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.StandardL1Asset
@@ -18,7 +19,6 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.filterList
@@ -62,6 +63,7 @@ internal class DynamicAssetLoader(
     private val experimentalL1EvmAssets: Set<CryptoCurrency>,
     private val assetCatalogue: AssetCatalogueImpl,
     private val payloadManager: PayloadDataManager,
+    private val ethDataManager: EthDataManager,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
@@ -96,11 +98,23 @@ internal class DynamicAssetLoader(
 
     private val standardL1Assets: Set<CryptoAsset>
         get() = if (layerTwoFeatureFlag.isEnabled) {
-            nonCustodialAssets
+            nonCustodialAssets.plus(
+                experimentalL1EvmAssets.map { asset ->
+                    L1EvmAsset(
+                        currency = asset,
+                        ethDataManager = ethDataManager,
+                        erc20DataManager = erc20DataManager,
+                        feeDataManager = feeDataManager,
+                        walletPreferences = walletPreferences,
+                        labels = labels,
+                        formatUtils = formatUtils,
+                        addressResolver = ethHotWalletAddressResolver,
+                        layerTwoFeatureFlag = layerTwoFeatureFlag
+                    )
+                }
+            )
         } else {
-            nonCustodialAssets.minus { cryptoAsset ->
-                cryptoAsset.currency in experimentalL1EvmAssets
-            }
+            nonCustodialAssets
         }
 
     /*
