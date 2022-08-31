@@ -56,6 +56,8 @@ private fun rememberToolbarState(toolbarHeightRange: IntRange): ToolbarState {
 
 @Composable
 fun Main() {
+    val heightOnTop = 0F
+    val heightUntilTotalBalance = LocalDensity.current.run { MinToolbarHeight.toPx() }
     val collapsedBalanceOffset = LocalDensity.current.run { MinToolbarHeight.toPx() }
     val allCollapsedOffset = LocalDensity.current.run { MaxToolbarHeight.toPx() }
 
@@ -69,6 +71,11 @@ fun Main() {
 
     val scope = rememberCoroutineScope()
 
+    val offsetY = remember { Animatable(0f) }
+    var animate by remember {
+        mutableStateOf(false)
+    }
+
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -78,7 +85,59 @@ fun Main() {
                 return Offset(0f, toolbarState.consumed)
             }
 
+            //            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+            //                if (toolbarState.scrollOffset > 0 && toolbarState.scrollOffset < collapsedBalanceOffset) {
+            //                    coroutineScopeAnim.launch {
+            //                        animate = true
+            //                        offsetY.snapTo(toolbarState.scrollOffset)
+            //                        offsetY.animateTo(
+            //                            targetValue = collapsedBalanceOffset,
+            //                            animationSpec = tween(
+            //                                durationMillis = 400
+            //                            )
+            //                        )
+            //                    }
+            //                }
+            //                return super.onPostScroll(consumed, available, source)
+            //            }
+
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                // hide total balance if the offset is 1/2 below its height
+                if (toolbarState.scrollOffset > heightOnTop &&
+                    toolbarState.scrollOffset < collapsedBalanceOffset
+                ) {
+                    coroutineScopeAnim.launch {
+                        animate = true
+                        offsetY.snapTo(toolbarState.scrollOffset)
+                        offsetY.animateTo(
+                            targetValue = if (toolbarState.scrollOffset > heightUntilTotalBalance / 2) {
+                                collapsedBalanceOffset
+                            } else {
+                                heightOnTop
+                            },
+                            animationSpec = tween(
+                                durationMillis = 400
+                            )
+                        )
+                    }
+                }
+                // if switcher is scrolled but still visible, snap to the top of it
+                if (toolbarState.scrollOffset > heightUntilTotalBalance &&
+                    toolbarState.scrollOffset < allCollapsedOffset
+                ) {
+                    coroutineScopeAnim.launch {
+                        animate = true
+                        offsetY.snapTo(toolbarState.scrollOffset)
+                        offsetY.animateTo(
+                            targetValue = heightUntilTotalBalance,
+                            animationSpec = tween(
+                                durationMillis = 400
+                            )
+                        )
+                    }
+                }
+
+
                 if (available.y > 0) {
                     scope.launch {
                         animateDecay(
@@ -90,7 +149,8 @@ fun Main() {
                                 listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
                             toolbarState.scrollOffset =
                                 toolbarState.scrollOffset - (value - (toolbarState.height + toolbarState.offset))
-                            //                            if (toolbarState.scrollOffset == 0f) scope.coroutineContext.cancelChildren()
+                            // when flinging, stop scrolling as soon as the top is reached (switcher would already be visible)
+                            // we don't want to show total balance until user explicitly scroll again on top
                             if (toolbarState.scrollTopLimitReached) scope.coroutineContext.cancelChildren()
 
                         }
@@ -126,10 +186,6 @@ fun Main() {
 
     val aaaaa = mutableListOf<String>()
     (0..40).forEach { aaaaa.add("dzjfzufz $it") }
-
-    var animate by remember {
-        mutableStateOf(false)
-    }
 
     Box(
         modifier = Modifier
@@ -167,7 +223,6 @@ fun Main() {
             }
         }
 
-        val offsetY = remember { Animatable(0f) }
         if (animate) {
             toolbarState.scrollOffset = offsetY.value
             if (toolbarState.scrollOffset == allCollapsedOffset) {
