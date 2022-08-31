@@ -393,51 +393,53 @@ class CoinviewViewModel(
                 CoinviewRecurringBuysState.NotSupported
             }
 
-            isRecurringBuysLoading && recurringBuys == null -> {
+            recurringBuys is DataResource.Loading -> {
                 CoinviewRecurringBuysState.Loading
             }
 
-            isRecurringBuysError -> {
+            recurringBuys is DataResource.Error -> {
                 CoinviewRecurringBuysState.Error
             }
 
-            recurringBuys != null -> {
+            recurringBuys is DataResource.Data -> {
                 require(asset != null) { "asset not initialized" }
 
-                if (recurringBuys.data.isEmpty()) {
-                    if (recurringBuys.isAvailableForTrading) {
-                        CoinviewRecurringBuysState.Upsell
-                    } else {
-                        CoinviewRecurringBuysState.NotSupported
-                    }
-                } else {
-                    CoinviewRecurringBuysState.Data(
-                        recurringBuys.data.map { recurringBuy ->
-                            RecurringBuyState(
-                                id = recurringBuy.id,
-                                description = SimpleValue.IntResValue(
-                                    R.string.dashboard_recurring_buy_item_title_1,
-                                    listOf(
-                                        recurringBuy.amount.toStringWithSymbol(),
-                                        recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
-                                    )
-                                ),
-
-                                status = if (recurringBuy.state == com.blockchain.nabu.models.data.RecurringBuyState.ACTIVE) {
-                                    SimpleValue.IntResValue(
-                                        R.string.dashboard_recurring_buy_item_label,
-                                        listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
-                                    )
-                                } else {
-                                    SimpleValue.IntResValue(
-                                        R.string.dashboard_recurring_buy_item_label_error
-                                    )
-                                },
-
-                                assetColor = asset.currency.colour
-                            )
+                with(recurringBuys.data){
+                    if (data.isEmpty()) {
+                        if (isAvailableForTrading) {
+                            CoinviewRecurringBuysState.Upsell
+                        } else {
+                            CoinviewRecurringBuysState.NotSupported
                         }
-                    )
+                    } else {
+                        CoinviewRecurringBuysState.Data(
+                            data.map { recurringBuy ->
+                                RecurringBuyState(
+                                    id = recurringBuy.id,
+                                    description = SimpleValue.IntResValue(
+                                        R.string.dashboard_recurring_buy_item_title_1,
+                                        listOf(
+                                            recurringBuy.amount.toStringWithSymbol(),
+                                            recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
+                                        )
+                                    ),
+
+                                    status = if (recurringBuy.state == com.blockchain.nabu.models.data.RecurringBuyState.ACTIVE) {
+                                        SimpleValue.IntResValue(
+                                            R.string.dashboard_recurring_buy_item_label,
+                                            listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
+                                        )
+                                    } else {
+                                        SimpleValue.IntResValue(
+                                            R.string.dashboard_recurring_buy_item_label_error
+                                        )
+                                    },
+
+                                    assetColor = asset.currency.colour
+                                )
+                            }
+                        )
+                    }
                 }
             }
 
