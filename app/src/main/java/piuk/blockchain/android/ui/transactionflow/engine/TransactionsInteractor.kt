@@ -215,7 +215,7 @@ class TransactionInteractor(
 
     private fun sellSourceAccounts(): Single<List<SingleAccount>> {
         return supportedCryptoCurrencies().zipWith(
-            coincore.walletsWithActions(actions = setOf(AssetAction.Sell), sorter = accountsSorting.sorter())
+            coincore.walletsWithActions(actions = setOf(AssetAction.Sell), sorter = defaultAccountsSorting.sorter())
         ).map { (assets, accounts) ->
             accounts.filterIsInstance<CryptoAccount>().filter { account ->
                 account.currency.networkTicker in assets.map { it.networkTicker }
