@@ -1100,7 +1100,6 @@ Nota: No podrás enviar ni retirar estos fondos de tu Wallet por los siguientes 
     <string name="pin_max_strikes">%1$d intentos de PIN fallidos. Ingresa la contraseña.</string>
     <string name="recovery_passphrase_1">Frase secreta de recuperación de la clave privada</string>
     <string name="invalid_recovery_phrase_1">Frase secreta de recuperación de clave privada no válida. Intenta otra vez.</string>
-    <string name="password_disclaimer">Comprendo que Blockchain.com no puede recuperar mi contraseña por mí. Si pierdo acceso a mí Wallet, debo usar mi <annotation link="backup">frase secreta</annotation> para acceder a mis fondos.</string>
     <string name="transfer_funds_description_1">Las direcciones importadas no están respaldadas por tu frase secreta de recuperación de clave privada. Para proteger estos fondos, recomendamos transferir estos saldos a su Wallet sin custodia de Blockchain.com.</string>
     <string name="backup_subtitle">Frase secreta de recuperación de la clave privada</string>
     <string name="backup_instructions_3">1. Escribe la frase de 12 palabras de la próxima pantalla, en el orden en que aparece.</string>
@@ -1486,7 +1485,7 @@ Tus fondos estarán disponibles para retirarlos una vez que se complete la trans
     <string name="password">Contraseña</string>
     <string name="email">Tu correo electrónico</string>
     <string name="sign_up_email">Correo electrónico</string>
-    <string name="password_disclaimer_1">Comprendo que Blockchain.com nunca almacena contraseñas y, por lo tanto, no puede recuperar ni restablecer mi contraseña. Si pierdo acceso a mi billetera, debo usar mi <annotation link="backup">frase secreta de recuperación de clave privada</annotation> para acceder a mis fondos. Al crear una cuenta, aceptas los <annotation link="terms">Términos de servicio</annotation> y la <annotation link="privacy">Política de privacidad</annotation> de Blockchain.com.</string>
+    <string name="password_disclaimer">Estoy de acuerdo con los <annotation link="terms">Términos de servicio</annotation> y la <annotation link="privacy">Política de privacidad</annotation> de Blockchain.com.</string>
     <string name="new_account_title_1">Nueva cuenta</string>
     <string name="create_wallet_state">Estado</string>
     <string name="create_wallet_country">País de residencia</string>
@@ -2409,7 +2408,7 @@ Compra criptomonedas hoy.</string>
     <string name="referral_program">Programa de recomendación</string>
     <string name="common_yes">Sí</string>
     <string name="kyc_profile_submit">Enviar</string>
-    <string name="new_account_referral_code">Ingresar código de referencia</string>
+    <string name="new_account_referral_code">Ingresar código de referencia (opcional)</string>
     <string name="new_account_referral_code_invalid">Ingresa un código de referencia válido</string>
     <string name="backup_phrase_intro_title">Hagamos una copia de seguridad de tu Wallet</string>
     <string name="backup_phrase_intro_description">En las proximas pantallas vas a obtener las 12 palabras claves para recuperar tus billeteras en el futuro</string>

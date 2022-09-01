@@ -43,7 +43,6 @@ import piuk.blockchain.android.cards.StatePickerItem
 import piuk.blockchain.android.databinding.ActivityCreateWalletBinding
 import piuk.blockchain.android.ui.login.GoogleReCaptchaClient
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
-import piuk.blockchain.android.urllinks.URL_BACKUP_INFO
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import piuk.blockchain.android.util.StringUtils
@@ -295,14 +294,13 @@ class CreateWalletActivity :
 
     private fun updatePasswordDisclaimer() {
         val linksMap = mapOf<String, Uri>(
-            "backup" to Uri.parse(URL_BACKUP_INFO),
             "terms" to Uri.parse(URL_TOS_POLICY),
             "privacy" to Uri.parse(URL_PRIVACY_POLICY)
         )
 
         val disclaimerText = StringUtils.getStringWithMappedAnnotations(
             this,
-            R.string.password_disclaimer_1,
+            R.string.password_disclaimer,
             linksMap
         )
 

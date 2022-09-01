@@ -1224,7 +1224,6 @@ Not: Gelecek %1$s gün bu paraları Cüzdanınızdan Gönderemeyecek veya Çekem
     <string name="pin_max_strikes">%1$d başarısız PIN denemesi. Lütfen şifrenizi girin.</string>
     <string name="recovery_passphrase_1">Gizli Private Key Kurtarma İfadesi</string>
     <string name="invalid_recovery_phrase_1">Geçersiz Gizli Özel Anahtar Kurtarma İfadesi. Lütfen tekrar deneyin</string>
-    <string name="password_disclaimer">Blockchain.com\'un şifremi benim için kurtaramayacağını anlıyorum. Wallet cüzdanıma erişimi kaybedersem parama erişmek için <annotation link="backup">Gizli İfademi</annotation> kullanmalıyım.</string>
     <string name="transfer_funds_description_1">İçe aktarılan adresler Gizli Özel Anahtar Kurtarma İfadeniz tarafından yedeklenmez. Bu paraları güvence altına almak için, bu bakiyeleri Blockchain.com gözetimsiz Wallet cüzdanınıza aktarmanızı öneririz.
     </string>
     <string name="backup_subtitle">Gizli Özel Anahtar Kurtarma İfadesi</string>
@@ -1614,7 +1613,7 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="password">Şifre</string>
     <string name="email">E-posta Adresiniz</string>
     <string name="sign_up_email">E-posta</string>
-    <string name="password_disclaimer_1">Blockchain.com\'un şifreleri saklamadığını ve dolayısıyla şifremi kurtaramayacağını veya sıfırlayamayacağını anlıyorum. Cüzdanıma erişimi kaybedersem parama erişmek için <annotation link="backup">Gizli Özel Anahtar Kurtarma İ̇fademi</annotation> kullanmalıyım. Hesap oluşturarak Blockchain\'in <annotation link="terms">Hizmet Şartları\'nı</annotation> ve <annotation link="privacy">Gizlilik Politikası\'nı</annotation> kabul etmiş olursunuz.</string>
+    <string name="password_disclaimer">Blockchain.com\'in <annotation link="terms">Hizmet Şartları\'nı</annotation> ve <annotation link="privacy">Gizlilik Politikası\'nı</annotation> kabul ediyorum.</string>
     <string name="new_account_title_1">Yeni Hesap</string>
     <string name="create_wallet_state">Eyalet</string>
     <string name="create_wallet_country">İkamet Edilen Ülke</string>
@@ -2539,7 +2538,7 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="referral_program">Referans Programı</string>
     <string name="common_yes">Evet</string>
     <string name="kyc_profile_submit">Gönder</string>
-    <string name="new_account_referral_code">Referans kodunu girin</string>
+    <string name="new_account_referral_code">Referans kodunu girin (opsiyonlu)</string>
     <string name="new_account_referral_code_invalid">Lütfen geçerli bir referans kodu girin</string>
     <string name="backup_phrase_intro_title">Wallet\'inizi Yedekleyelim</string>
     <string name="backup_phrase_intro_description">İleride ihtiyaç duyulması halinde cüzdanlarınızı kurtarmak için kullanılacak 12 kelimeniz sonraki birkaç ekranda verilecek.</string>

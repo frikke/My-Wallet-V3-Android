@@ -197,8 +197,13 @@ class SettingsFragment :
                     isCloseable = false
                     title = announcementInfo.title
                     subtitle = announcementInfo.message
-                    backgroundResource = ImageResource.Remote(announcementInfo.backgroundUrl)
-                    iconResource = ImageResource.Remote(announcementInfo.iconUrl)
+                    if (announcementInfo.backgroundUrl.isNotEmpty()) {
+                        backgroundResource = ImageResource.Remote(announcementInfo.backgroundUrl)
+                    }
+
+                    if (announcementInfo.iconUrl.isNotEmpty()) {
+                        iconResource = ImageResource.Remote(announcementInfo.iconUrl)
+                    }
                 } ?: run {
                     // keep old functionality here if no data returned
                     title = getString(R.string.referral_program)

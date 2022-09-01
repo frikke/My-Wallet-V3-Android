@@ -571,8 +571,12 @@ class PortfolioFragment :
         visible()
         title = cardInfo.title
         subtitle = cardInfo.message
-        backgroundResource = ImageResource.Remote(cardInfo.backgroundUrl)
-        iconResource = ImageResource.Remote(cardInfo.iconUrl)
+        if (cardInfo.backgroundUrl.isNotEmpty()) {
+            backgroundResource = ImageResource.Remote(cardInfo.backgroundUrl)
+        }
+        if (cardInfo.iconUrl.isNotEmpty()) {
+            iconResource = ImageResource.Remote(cardInfo.iconUrl)
+        }
         isCloseable = isDismissable
         this.onClick = onClick
         onClose = onDismiss

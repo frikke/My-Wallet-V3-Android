@@ -1162,7 +1162,6 @@ Observação: você não poderá enviar ou retirar esses fundos de sua Wallet pe
     <string name="pin_max_strikes">%1$d tentativas de PIN com falha. Forneça a senha.</string>
     <string name="recovery_passphrase_1">Frase de recuperação de chave privada secreta</string>
     <string name="invalid_recovery_phrase_1">Frase de recuperação de chave privada secreta inválida. Tente novamente</string>
-    <string name="password_disclaimer">Entendo que Blockchain.com não pode recuperar minha senha para mim. Se eu perder o acesso à minha Wallet, devo usar minha <annotation link="backup">Frase Secreta</annotation> para acessar meus fundos.</string>
     <string name="transfer_funds_description_1">Os endereços importados não são copiados por sua frase de recuperação de chave privada secreta. Para garantir esses fundos, nós
  recomendamos transferir esses saldos para sua Blockchain.com Wallet sem custódia.</string>
     <string name="backup_subtitle">Frase de recuperação de chave privada secreta</string>
@@ -1551,7 +1550,7 @@ para explorar objetos invisíveis e possivelmente roubar fundos. Observe que ess
     <string name="password">Senha</string>
     <string name="email">Seu e-mail</string>
     <string name="sign_up_email">E-mail</string>
-    <string name="password_disclaimer_1">Entendo que a Blockchain.com nunca armazena senhas e, portanto, não pode recuperar ou redefinir minha senha. Se eu perder o acesso à minha carteira, devo usar minha <annotation link="backup"> Frase de recuperação de chave privada secreta</annotation> para acessar meus fundos. Ao criar uma conta, você concorda com os <annotation link="terms">Termos de Serviço</annotation> e <annotation link="privacy">Política de Privacidade</annotation> da Blockchain.</string>
+    <string name="password_disclaimer">Eu concordo com os <annotation link="terms">Termos de Serviço</annotation> e <annotation link="privacy">Política de Privacidade</annotation> da Blockchain.com.</string>
     <string name="new_account_title_1">Nova conta</string>
     <string name="create_wallet_state">Estado</string>
     <string name="create_wallet_country">País de residência</string>
@@ -2471,7 +2470,7 @@ Se já tiver feito isso, <annotation link="contact_support">entre em contato com
     <string name="referral_program">Programa de indicação</string>
     <string name="common_yes">Sim</string>
     <string name="kyc_profile_submit">Enviar</string>
-    <string name="new_account_referral_code">Digitar código de referência</string>
+    <string name="new_account_referral_code">Digitar código de referência (opcional)</string>
     <string name="new_account_referral_code_invalid">Digite um código de referência válido</string>
     <string name="backup_phrase_intro_title">Vamos fazer um backup de sua carteira</string>
     <string name="backup_phrase_intro_description">Nas próximas telas, você receberá suas 12 palavras para recuperar suas carteiras, se for necessário no futuro.</string>

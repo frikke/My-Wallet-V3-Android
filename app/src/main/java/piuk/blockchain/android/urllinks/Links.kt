@@ -9,14 +9,8 @@ const val URL_BLOCKCHAIN_GOLD_UNAVAILABLE_SUPPORT =
 const val URL_BLOCKCHAIN_KYC_SUPPORTED_COUNTRIES_LIST =
     "https://support.blockchain.com/hc/en-us/articles/4417197015188"
 
-const val URL_THE_PIT_LANDING_LEARN_MORE = "https://exchange.blockchain.com"
-const val URL_THE_PIT_LAUNCH_SUPPORT = "https://exchange-support.blockchain.com/hc/en-us"
-
 const val URL_TOS_POLICY = "https://blockchain.com/terms"
-const val URL_BACKUP_INFO = "https://support.blockchain.com/hc/en-us/articles/209564506-Make-a-Wallet-Backup"
 const val URL_PRIVACY_POLICY = "https://blockchain.com/privacy"
-const val URL_LEARN_MORE_REJECTED =
-    "https://support.blockchain.com/hc/articles/360018080352-Why-has-my-ID-submission-been-rejected-"
 
 const val MODULAR_TERMS_AND_CONDITIONS =
     "https://exchange.blockchain.com/legal#modulr"
