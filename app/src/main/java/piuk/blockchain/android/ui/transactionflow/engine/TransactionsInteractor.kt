@@ -19,7 +19,6 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
@@ -75,7 +74,6 @@ class TransactionInteractor(
     private val linkedBanksFactory: LinkedBanksFactory,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val dismissRecorder: DismissRecorder,
-    private val showSendToDomainsAnnouncementFeatureFlag: IntegratedFeatureFlag,
     private val fiatCurrenciesService: FiatCurrenciesService,
 ) {
     private var transactionProcessor: TransactionProcessor? = null
@@ -333,13 +331,7 @@ class TransactionInteractor(
     }
 
     fun loadSendToDomainAnnouncementPref(prefsKey: String): Single<Boolean> =
-        showSendToDomainsAnnouncementFeatureFlag.enabled.map { isEnabled ->
-            if (isEnabled) {
-                !dismissRecorder.isDismissed(prefsKey)
-            } else {
-                false
-            }
-        }
+        Single.just(!dismissRecorder.isDismissed(prefsKey))
 
     fun dismissSendToDomainAnnouncementPref(prefsKey: String): Single<Boolean> =
         Single.fromCallable {

@@ -3,8 +3,6 @@ package com.blockchain.koin.modules
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.accountUnificationFeatureFlag
-import com.blockchain.koin.appMaintenanceFeatureFlag
-import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.authInterceptorFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
@@ -13,21 +11,14 @@ import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cardRejectionCheckFeatureFlag
-import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
-import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.evmWithoutL1BalanceFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.loqateFeatureFlag
-import com.blockchain.koin.metadataMigrationFeatureFlag
-import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
-import com.blockchain.koin.quickFillButtonsFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
-import com.blockchain.koin.referralsFeatureFlag
-import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
@@ -65,42 +56,6 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(loqateFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_loqate",
-                "Loqate"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(deeplinkingFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_deeplinking_v2",
-                "Deeplinking V2"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(coinWebSocketFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_disable_ff_coin_web_socket",
-                "Coin Web Socket"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(sendToDomainsAnnouncementFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_send_to_domains_announcement",
-                "Show Send To Domains Banner"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(intercomChatFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
@@ -110,11 +65,20 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(notificationPreferencesFeatureFlag) {
+    single(loqateFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_notification_preferences_rework",
-                "Notification Preferences Rework"
+                "android_ff_loqate",
+                "Loqate"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(buyRefreshQuoteFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_buy_refresh_quote",
+                "Buy Quote refreshing on checkout screen"
             )
         )
     }.bind(FeatureFlag::class)
@@ -124,15 +88,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_new_super_app",
                 "Super App mode"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(metadataMigrationFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_account_metadata_migration",
-                "Metadata Migration"
             )
         )
     }.bind(FeatureFlag::class)
@@ -155,38 +110,11 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(appMaintenanceFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_app_maintenance",
-                "App Maintenance"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(appRatingFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_app_rating",
-                "App Rating"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(backupPhraseFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_backup_phrase",
                 "Backup Phrase Flow"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(referralsFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_referrals",
-                "Referrals"
             )
         )
     }.bind(FeatureFlag::class)
@@ -214,24 +142,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_bind",
                 "Enable BIND For LatAm Users"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(buyRefreshQuoteFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_buy_refresh_quote",
-                "Buy Quote refreshing on checkout screen"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(quickFillButtonsFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_quick_fill_buttons",
-                "Display Quick Fill buttons in Buy"
             )
         )
     }.bind(FeatureFlag::class)

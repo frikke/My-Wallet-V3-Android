@@ -198,6 +198,7 @@ class LoginAuthModelTest {
         whenever(interactor.updateMobileSetup(isMobileSetup, deviceType)).thenReturn(
             Single.just(true)
         )
+
         whenever(unifiedSignInFlag.enabled).thenReturn(Single.just(false))
 
         val testState = model.state.test()

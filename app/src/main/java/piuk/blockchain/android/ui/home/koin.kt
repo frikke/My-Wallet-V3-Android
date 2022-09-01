@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.home
 
-import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.walletmode.WalletModeService
@@ -28,8 +27,7 @@ val mainModule = module {
                 walletConnectServiceAPI = get(),
                 environmentConfig = get(),
                 remoteLogger = get(),
-                walletModeService = get(),
-                deeplinkingV2FF = get(deeplinkingFeatureFlag)
+                walletModeService = get()
             )
         }
 

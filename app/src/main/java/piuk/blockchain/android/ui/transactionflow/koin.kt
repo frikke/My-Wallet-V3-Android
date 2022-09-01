@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.transactionflow
 import android.content.Context
 import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.swapSourceOrder
 import com.blockchain.koin.swapTargetOrder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -205,7 +204,6 @@ val transactionModule = module {
                 linkedBanksFactory = payloadScope.get(),
                 bankLinkingPrefs = payloadScope.get(),
                 dismissRecorder = payloadScope.get(),
-                showSendToDomainsAnnouncementFeatureFlag = get(sendToDomainsAnnouncementFeatureFlag),
                 fiatCurrenciesService = payloadScope.get(),
             )
         }

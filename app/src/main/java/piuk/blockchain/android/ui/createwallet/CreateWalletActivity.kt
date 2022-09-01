@@ -24,9 +24,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.referralsFeatureFlag
 import com.google.android.gms.recaptcha.RecaptchaActionType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
@@ -68,8 +66,6 @@ class CreateWalletActivity :
 
     private val viewModel: CreateWalletViewModel by viewModel()
 
-    private val referralFF: FeatureFlag by inject(referralsFeatureFlag)
-
     private val environmentConfig: EnvironmentConfig by inject()
 
     private val recaptchaClient: GoogleReCaptchaClient by lazy {
@@ -106,7 +102,6 @@ class CreateWalletActivity :
             }
 
             lifecycleScope.launch {
-                if (!referralFF.coEnabled()) return@launch
                 referralLayout.visible()
                 referralCode.doAfterTextChanged {
                     viewModel.onIntent(CreateWalletIntent.ReferralInputChanged(it?.toString().orEmpty()))

@@ -90,7 +90,6 @@ class MainModelTest {
             },
             walletConnectServiceAPI = walletConnectServiceAPI,
             interactor = interactor,
-            deeplinkingV2FF = mock(),
         )
     }
 

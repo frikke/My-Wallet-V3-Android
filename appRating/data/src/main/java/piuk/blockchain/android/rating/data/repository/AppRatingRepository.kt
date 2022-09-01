@@ -2,7 +2,6 @@ package piuk.blockchain.android.rating.data.repository
 
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.BankService
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.doOnFailure
@@ -33,9 +32,6 @@ internal class AppRatingRepository(
     private val defaultThreshold: Int,
     private val appRatingApi: AppRatingApi,
     private val appRatingPrefs: AppRatingPrefs,
-
-    private val appRatingFF: FeatureFlag,
-
     // prerequisites verification
     private val userIdentity: UserIdentity,
     private val currencyPrefs: CurrencyPrefs,
@@ -66,9 +62,6 @@ internal class AppRatingRepository(
     override suspend fun shouldShowRating(): Boolean {
         return try {
             when {
-                // FF enabled
-                isFFEnabled().not() -> false
-
                 // have not rated before
                 appRatingPrefs.completed -> false
 
@@ -92,8 +85,6 @@ internal class AppRatingRepository(
             false
         }
     }
-
-    private suspend fun isFFEnabled(): Boolean = appRatingFF.enabled.await()
 
     private suspend fun isKycGold(): Boolean = userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD)).await()
 
