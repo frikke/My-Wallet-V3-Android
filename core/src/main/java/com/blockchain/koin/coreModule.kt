@@ -24,6 +24,7 @@ import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2Store
 import com.blockchain.core.chains.erc20.data.store.Erc20Store
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.common.caching.StoreWiperImpl
@@ -316,6 +317,12 @@ val coreModule = module {
             )
         }.bind(EthMessageSigner::class)
 
+        scoped {
+            L1BalanceStore(
+                ethDataManager = get()
+            )
+        }
+
         scoped<Erc20DataSource> {
             Erc20Store(
                 erc20Service = get(),
@@ -357,6 +364,7 @@ val coreModule = module {
         scoped {
             Erc20DataManagerImpl(
                 ethDataManager = get(),
+                l1BalanceStore = get(),
                 historyCallCache = get(),
                 assetCatalogue = get(),
                 erc20StoreService = get(),

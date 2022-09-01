@@ -11,6 +11,7 @@ import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
@@ -20,12 +21,11 @@ import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 internal class L1EvmAsset(
     override val currency: AssetInfo,
-    private val ethDataManager: EthDataManager,
+    private val l1BalanceStore: L1BalanceStore,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
@@ -62,17 +62,17 @@ internal class L1EvmAsset(
 
     private fun getNonCustodialAccount(evmNetwork: EvmNetwork): L1EvmNonCustodialAccount =
         L1EvmNonCustodialAccount(
-            currency,
-            ethDataManager,
-            erc20DataManager,
-            erc20address,
-            feeDataManager,
-            labels.getDefaultNonCustodialWalletLabel(),
-            exchangeRates,
-            walletPreferences,
-            custodialManager,
-            addressResolver,
-            evmNetwork
+            asset = currency,
+            l1BalanceStore = l1BalanceStore,
+            erc20DataManager = erc20DataManager,
+            address = erc20address,
+            fees = feeDataManager,
+            label = labels.getDefaultNonCustodialWalletLabel(),
+            exchangeRates = exchangeRates,
+            walletPreferences = walletPreferences,
+            custodialWalletManager = custodialManager,
+            addressResolver = addressResolver,
+            l1Network = evmNetwork
         )
 
     @CommonCode("Exists in EthAsset")
