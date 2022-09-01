@@ -17,6 +17,8 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.user.WatchlistDataManager
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -42,6 +44,7 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -159,11 +162,11 @@ class CoinViewInteractorTest {
         val asset: CryptoAsset = mock {
             on { currency }.thenReturn(mock())
         }
-        whenever(tradeDataService.getRecurringBuysForAssetLegacy(asset.currency)).thenReturn(Single.just(emptyList()))
+        whenever(tradeDataService.getRecurringBuysForAsset(asset.currency, FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(emptyList())))
         whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(asset.currency)).thenReturn(Single.just(true))
-        val test = subject.loadRecurringBuys(asset.currency).test()
+        val test = subject.loadRecurringBuys(asset.currency).test().await()
         test.assertValue(Pair(emptyList(), true))
-        verify(tradeDataService).getRecurringBuysForAssetLegacy(asset.currency)
+        verify(tradeDataService).getRecurringBuysForAsset(asset.currency, FreshnessStrategy.Fresh)
     }
 
     private fun prepareQuickActionsCustodial(

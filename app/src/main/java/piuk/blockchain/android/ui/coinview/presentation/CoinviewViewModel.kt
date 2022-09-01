@@ -97,7 +97,7 @@ class CoinviewViewModel(
 
                 // intervalName will be empty if user is interacting with the chart
 
-                require(asset != null) { "asset not initialized" }
+                check(asset != null) { "asset not initialized" }
 
                 with(assetPriceHistory.data) {
                     CoinviewPriceState.Data(
@@ -156,10 +156,10 @@ class CoinviewViewModel(
             }
 
             assetInfo is DataResource.Data && assetInfo.data is CoinviewAssetInformation.AccountsInfo -> {
-                require(asset != null) { "asset not initialized" }
+                check(asset != null) { "asset not initialized" }
 
                 with(assetInfo.data as CoinviewAssetInformation.AccountsInfo) {
-                    require(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
+                    check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
 
                     CoinviewTotalBalanceState.Data(
                         assetName = asset.currency.name,
@@ -182,7 +182,7 @@ class CoinviewViewModel(
             }
 
             assetInfo is DataResource.Data && assetInfo.data is CoinviewAssetInformation.AccountsInfo -> {
-                require(asset != null) { "asset not initialized" }
+                check(asset != null) { "asset not initialized" }
 
                 with(assetInfo.data as CoinviewAssetInformation.AccountsInfo) {
                     CoinviewAccountsState.Data(
@@ -402,17 +402,19 @@ class CoinviewViewModel(
             }
 
             recurringBuys is DataResource.Data -> {
-                require(asset != null) { "asset not initialized" }
+                check(asset != null) { "asset not initialized" }
 
                 with(recurringBuys.data) {
-                    if (data.isEmpty()) {
-                        if (isAvailableForTrading) {
+                    when {
+                        data.isEmpty() && isAvailableForTrading -> {
                             CoinviewRecurringBuysState.Upsell
-                        } else {
+                        }
+
+                        data.isEmpty() && isAvailableForTrading.not() -> {
                             CoinviewRecurringBuysState.NotSupported
                         }
-                    } else {
-                        CoinviewRecurringBuysState.Data(
+
+                        else -> CoinviewRecurringBuysState.Data(
                             data.map { recurringBuy ->
                                 RecurringBuyState(
                                     id = recurringBuy.id,
@@ -454,14 +456,14 @@ class CoinviewViewModel(
     override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntents) {
         when (intent) {
             is CoinviewIntents.LoadAllData -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
                 onIntent(CoinviewIntents.LoadPriceData)
                 onIntent(CoinviewIntents.LoadAccountsData)
                 onIntent(CoinviewIntents.LoadRecurringBuysData)
             }
 
             CoinviewIntents.LoadPriceData -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
 
                 loadPriceData(
                     asset = modelState.asset,
@@ -471,7 +473,7 @@ class CoinviewViewModel(
             }
 
             CoinviewIntents.LoadAccountsData -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
 
                 loadAccountsData(
                     asset = modelState.asset,
@@ -479,7 +481,7 @@ class CoinviewViewModel(
             }
 
             CoinviewIntents.LoadRecurringBuysData -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
 
                 loadRecurringBuysData(
                     asset = modelState.asset,
@@ -487,7 +489,7 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntents.UpdatePriceForChartSelection -> {
-                require(modelState.assetPriceHistory is DataResource.Data) { "price data not initialized" }
+                check(modelState.assetPriceHistory is DataResource.Data) { "price data not initialized" }
 
                 updatePriceForChartSelection(
                     entry = intent.entry,
@@ -500,7 +502,7 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntents.NewTimeSpanSelected -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
 
                 updateState { it.copy(requestedTimeSpan = intent.timeSpan) }
 

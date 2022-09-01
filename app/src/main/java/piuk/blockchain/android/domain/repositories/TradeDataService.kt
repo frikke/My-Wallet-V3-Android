@@ -16,8 +16,6 @@ interface TradeDataService {
 
     fun getEligibilityAndNextPaymentDate(): Single<List<EligibleAndNextPaymentRecurringBuy>>
 
-    fun getRecurringBuysForAssetLegacy(asset: AssetInfo): Single<List<RecurringBuy>>
-
     fun getRecurringBuysForAsset(
         asset: AssetInfo,
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)

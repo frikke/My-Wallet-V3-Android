@@ -45,15 +45,6 @@ class TradeDataRepository(
         }
     }
 
-    override fun getRecurringBuysForAssetLegacy(asset: AssetInfo): Single<List<RecurringBuy>> {
-        return authenticator.authenticate { tokenResponse ->
-            tradeService.getRecurringBuysForAsset(authHeader = tokenResponse.authHeader, asset.networkTicker)
-                .map {
-                    recurringBuyMapper.map(it)
-                }
-        }
-    }
-
     override fun getRecurringBuysForAsset(
         asset: AssetInfo,
         freshnessStrategy: FreshnessStrategy
