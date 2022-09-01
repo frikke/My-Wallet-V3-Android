@@ -124,6 +124,9 @@
             android:theme="@style/AppTheme.MainActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
+            android:name=".ui.superapp.dashboard.SuperAppDashboardActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
             android:name=".ui.scan.QrScanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
@@ -175,9 +178,6 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="com.blockchain.presentation.onboarding.DeFiOnboardingActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
-            android:name=".ui.collapseheader.CollaplseActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name="com.blockchain.presentation.backup.BackupPhraseActivity"

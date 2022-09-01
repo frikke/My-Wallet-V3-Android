@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.collapseheader
+package piuk.blockchain.android.ui.superapp.dashboard.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,9 +32,6 @@ import com.blockchain.componentlib.theme.START_TRADING
 import com.blockchain.componentlib.utils.clickableNoEffect
 import piuk.blockchain.android.R
 import kotlin.math.roundToInt
-
-private val ContentPadding = 8.dp
-private val Elevation = 4.dp
 
 @Preview
 @Composable
@@ -114,7 +111,6 @@ fun CollapsingToolbar(
             Box(
                 modifier = Modifier
                     .statusBarsPadding()
-                    .padding(horizontal = ContentPadding)
                     .fillMaxSize()
             ) {
                 CollapsingToolbarLayout(progress = progress) {
@@ -182,10 +178,6 @@ private fun CollapsingToolbarLayout(
             width = constraints.maxWidth,
             height = constraints.maxHeight
         ) {
-
-            val expandedHorizontalGuideline = (constraints.maxHeight * 0.4f).roundToInt()
-            val collapsedHorizontalGuideline = (constraints.maxHeight * 0.5f).roundToInt()
-
             val totalBalance = placeables[0]
             val pager = placeables[1]
 

@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.collapseheader
+package piuk.blockchain.android.ui.superapp.dashboard
 
 import android.content.Context
 import android.content.Intent
@@ -23,8 +23,9 @@ import com.blockchain.componentlib.theme.AppTheme
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
+import piuk.blockchain.android.ui.superapp.dashboard.composable.SuperAppDashboard
 
-class CollaplseActivity : BlockchainActivity() {
+class SuperAppDashboardActivity : BlockchainActivity() {
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
@@ -32,7 +33,7 @@ class CollaplseActivity : BlockchainActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            Main()
+            SuperAppDashboard()
         }
     }
 
@@ -40,7 +41,7 @@ class CollaplseActivity : BlockchainActivity() {
         fun newIntent(
             context: Context,
         ): Intent =
-            Intent(context, CollaplseActivity::class.java)
+            Intent(context, SuperAppDashboardActivity::class.java)
     }
 
 }

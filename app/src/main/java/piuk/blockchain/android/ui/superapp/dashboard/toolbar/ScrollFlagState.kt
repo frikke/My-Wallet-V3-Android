@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.collapseheader.states.toolbar
+package piuk.blockchain.android.ui.superapp.dashboard.toolbar
 
 abstract class ScrollFlagState(heightRange: IntRange) : ToolbarState {
 

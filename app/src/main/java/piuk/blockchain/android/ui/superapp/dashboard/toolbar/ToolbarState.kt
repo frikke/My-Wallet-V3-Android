@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.collapseheader.states.toolbar
+package piuk.blockchain.android.ui.superapp.dashboard.toolbar
 
 import androidx.compose.runtime.Stable
 

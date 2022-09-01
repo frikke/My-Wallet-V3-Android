@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.collapseheader
+package piuk.blockchain.android.ui.superapp.dashboard.composable
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
@@ -55,8 +55,8 @@ import com.blockchain.componentlib.theme.START_TRADING
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.collapseheader.states.toolbar.ToolbarState
-import piuk.blockchain.android.ui.collapseheader.states.toolbar.scrollflags.EnterAlwaysCollapsedState
+import piuk.blockchain.android.ui.superapp.dashboard.toolbar.EnterAlwaysCollapsedState
+import piuk.blockchain.android.ui.superapp.dashboard.toolbar.ToolbarState
 
 private val MinToolbarHeight = 54.dp
 private val MaxToolbarHeight = 108.dp
@@ -69,7 +69,7 @@ private fun rememberToolbarState(toolbarHeightRange: IntRange): ToolbarState {
 }
 
 @Composable
-fun Main() {
+fun SuperAppDashboard() {
     val heightOnTop = 0F
     val heightUntilTotalBalance = LocalDensity.current.run { MinToolbarHeight.toPx() }
     val collapsedBalanceOffset = LocalDensity.current.run { MinToolbarHeight.toPx() }
@@ -435,5 +435,5 @@ fun Main() {
 @Preview
 @Composable
 fun PreviewMain() {
-    Main()
+    SuperAppDashboard()
 }

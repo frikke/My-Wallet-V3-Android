@@ -1,32 +1,36 @@
-package piuk.blockchain.android.ui.collapseheader.states.toolbar.scrollflags
+package piuk.blockchain.android.ui.superapp.dashboard.toolbar
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.mapSaver
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
-import piuk.blockchain.android.ui.collapseheader.states.toolbar.FixedScrollFlagState
 
-class ExitUntilCollapsedState(
+class EnterAlwaysCollapsedState(
     heightRange: IntRange,
     scrollOffset: Float = 0f
-) : FixedScrollFlagState(heightRange) {
+) : ScrollFlagState(heightRange) {
 
     override var _scrollOffset by mutableStateOf(
-        value = scrollOffset.coerceIn(0f, rangeDifference.toFloat()),
+        value = scrollOffset.coerceIn(0f, maxHeight.toFloat()),
         policy = structuralEqualityPolicy()
     )
+
+    override val offset: Float
+        get() = if (scrollOffset > rangeDifference) {
+            -(scrollOffset - rangeDifference).coerceIn(0f, minHeight.toFloat())
+        } else 0f
 
     override var scrollOffset: Float
         get() = _scrollOffset
         set(value) {
-            if (scrollTopLimitReached) {
-                val oldOffset = _scrollOffset
-                _scrollOffset = value.coerceIn(0f, rangeDifference.toFloat())
-                _consumed = oldOffset - _scrollOffset
+            val oldOffset = _scrollOffset
+            _scrollOffset = if (scrollTopLimitReached) {
+                value.coerceIn(0f, maxHeight.toFloat())
             } else {
-                _consumed = 0f
+                value.coerceIn(rangeDifference.toFloat(), maxHeight.toFloat())
             }
+            _consumed = oldOffset - _scrollOffset
         }
 
     companion object {
@@ -45,7 +49,7 @@ class ExitUntilCollapsedState(
                     )
                 },
                 restore = {
-                    ExitUntilCollapsedState(
+                    EnterAlwaysCollapsedState(
                         heightRange = (it[minHeightKey] as Int)..(it[maxHeightKey] as Int),
                         scrollOffset = it[scrollOffsetKey] as Float,
                     )
