@@ -265,6 +265,9 @@ class PortfolioFragment :
 
         val cryptoAssets = newState.displayableAssets.filterNot { it is BrokearageFiatAsset }.sortedWith(
             compareByDescending<DashboardAsset> { it.fiatBalance?.toBigInteger() }
+                .thenByDescending {
+                    it.currency.index
+                }
                 .thenBy { it.currency.name }
         )
 
