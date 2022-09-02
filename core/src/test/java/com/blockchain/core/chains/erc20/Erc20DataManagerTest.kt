@@ -5,12 +5,14 @@ import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
-import com.blockchain.outcome.Outcome
+import com.blockchain.data.DataResource
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -22,7 +24,6 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Completable
@@ -31,6 +32,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.TestScheduler
 import java.math.BigInteger
+import kotlinx.coroutines.flow.flowOf
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -71,7 +73,9 @@ class Erc20DataManagerTest {
                 )
             )
         )
-        coEvery { getBalance() } returns Outcome.Success(BigInteger.ZERO)
+    }
+    private val l1BalanceStore: L1BalanceStore = mock {
+        on { stream(any()) }.thenReturn(flowOf(DataResource.Data(BigInteger.ZERO)))
     }
     private val historyCallCache: Erc20HistoryCallCache = mock()
     private val assetCatalogue: AssetCatalogue = mockk()
@@ -88,6 +92,7 @@ class Erc20DataManagerTest {
 
     private val subject = Erc20DataManagerImpl(
         ethDataManager = ethDataManager,
+        l1BalanceStore = l1BalanceStore,
         historyCallCache = historyCallCache,
         assetCatalogue = assetCatalogue,
         erc20StoreService = erc20StoreService,
@@ -114,7 +119,7 @@ class Erc20DataManagerTest {
 
         val ethBalance = 1001.toBigInteger()
 
-        coEvery { ethDataManager.getBalance() } returns Outcome.Success(ethBalance)
+        whenever(l1BalanceStore.stream(any())).thenReturn(flowOf(DataResource.Data(ethBalance)))
         every { ethDataManager.supportedNetworks } returns Single.just(setOf(EthDataManager.ethChain))
         every { assetCatalogue.fromNetworkTicker(EthDataManager.ethChain.networkTicker) } returns CryptoCurrency.ETHER
 

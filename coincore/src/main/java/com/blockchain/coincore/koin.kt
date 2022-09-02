@@ -73,6 +73,7 @@ val coincoreModule = module {
         scoped {
             EthAsset(
                 ethDataManager = get(),
+                l1BalanceStore = get(),
                 feeDataManager = get(),
                 walletPrefs = get(),
                 labels = get(),
@@ -114,7 +115,7 @@ val coincoreModule = module {
                 experimentalL1EvmAssets = experimentalL1EvmAssetList(), // Only Matic ATM
                 assetCatalogue = get(),
                 payloadManager = get(),
-                ethDataManager = get(),
+                l1BalanceStore = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
                 tradingService = get(),
