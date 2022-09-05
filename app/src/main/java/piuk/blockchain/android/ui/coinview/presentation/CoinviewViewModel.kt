@@ -20,7 +20,6 @@ import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
-import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -40,7 +39,6 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.RecurringBuyState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
 import java.text.DecimalFormat
 
@@ -462,51 +460,47 @@ class CoinviewViewModel(
     }
 
     private fun reduceQuickActionsCenter(state: CoinviewModelState): CoinviewQuickActionsCenterState = state.run {
-        when {
-            isQuickActionsLoading && quickActions == null -> {
+        when (quickActions) {
+            DataResource.Loading -> {
                 CoinviewQuickActionsCenterState.Loading
             }
 
-            isQuickActionsError -> {
+            is DataResource.Error -> {
                 CoinviewQuickActionsCenterState.Data(
                     center = CoinviewQuickAction.None.toViewState()
                 )
             }
 
-            quickActions != null -> {
-                CoinviewQuickActionsCenterState.Data(
-                    center = quickActions.center.toViewState()
-                )
-            }
-
-            else -> {
-                CoinviewQuickActionsCenterState.Loading
+            is DataResource.Data -> {
+                with(quickActions.data) {
+                    CoinviewQuickActionsCenterState.Data(
+                        center = center.toViewState()
+                    )
+                }
             }
         }
     }
 
     private fun reduceQuickActionsBottom(state: CoinviewModelState): CoinviewQuickActionsBottomState = state.run {
-        when {
-            isQuickActionsLoading && quickActions == null -> {
+        when (quickActions) {
+            DataResource.Loading -> {
                 CoinviewQuickActionsBottomState.Loading
             }
 
-            isQuickActionsError -> {
+            is DataResource.Error -> {
                 CoinviewQuickActionsBottomState.Data(
                     start = CoinviewQuickAction.None.toViewState(),
                     end = CoinviewQuickAction.None.toViewState()
                 )
             }
 
-            quickActions != null -> {
-                CoinviewQuickActionsBottomState.Data(
-                    start = quickActions.bottomStart.toViewState(),
-                    end = quickActions.bottomEnd.toViewState()
-                )
-            }
-
-            else -> {
-                CoinviewQuickActionsBottomState.Loading
+            is DataResource.Data -> {
+                with(quickActions.data) {
+                    CoinviewQuickActionsBottomState.Data(
+                        start = bottomStart.toViewState(),
+                        end = bottomEnd.toViewState()
+                    )
+                }
             }
         }
     }
@@ -546,17 +540,13 @@ class CoinviewViewModel(
                 )
             }
 
-            CoinviewIntents.LoadQuickActions -> {
-                require(modelState.asset != null) { "asset not initialized" }
-                require(modelState.accounts != null) { "accounts not initialized" }
-                // todo(othman) remove this check once accounts are cached
-                require(modelState.totalBalance != null) { "balances not initialized" }
-                // todo(othman) remove this check once accounts are cached
+            is CoinviewIntents.LoadQuickActions -> {
+                check(modelState.asset != null) { "asset not initialized" }
 
                 loadQuickActionsData(
                     asset = modelState.asset,
-                    accounts = modelState.accounts,
-                    totalBalance = modelState.totalBalance
+                    accounts = intent.accounts,
+                    totalBalance = intent.totalBalance
                 )
             }
 
@@ -711,8 +701,17 @@ class CoinviewViewModel(
                     )
                 }
 
-
-                //onIntent(CoinviewIntents.LoadQuickActions)
+                // get quick actions
+                if (dataResource is DataResource.Data && dataResource.data is CoinviewAssetInformation.AccountsInfo) {
+                    with(dataResource.data as CoinviewAssetInformation.AccountsInfo) {
+                        onIntent(
+                            CoinviewIntents.LoadQuickActions(
+                                accounts = accounts,
+                                totalBalance = totalBalance
+                            )
+                        )
+                    }
+                }
             }
         }
     }
@@ -721,7 +720,7 @@ class CoinviewViewModel(
     // Recurring buys
     private fun loadRecurringBuysData(asset: CryptoAsset) {
         viewModelScope.launch {
-            loadAssetRecurringBuysUseCase(asset).collectLatest { dataResource ->
+            loadAssetRecurringBuysUseCase(asset = asset).collectLatest { dataResource ->
                 updateState {
                     it.copy(
                         recurringBuys = if (dataResource is DataResource.Loading &&
@@ -746,35 +745,20 @@ class CoinviewViewModel(
     ) {
         viewModelScope.launch {
             loadQuickActionsUseCase(
-                asset = asset, accounts = accounts, totalBalance = totalBalance
+                asset = asset,
+                accounts = accounts,
+                totalBalance = totalBalance
             ).collectLatest { dataResource ->
-                when (dataResource) {
-                    DataResource.Loading -> {
-                        updateState {
-                            it.copy(
-                                isQuickActionsLoading = true,
-                            )
+                updateState {
+                    it.copy(
+                        quickActions = if (dataResource is DataResource.Loading &&
+                            it.quickActions is DataResource.Data
+                        ) {
+                            it.quickActions
+                        } else {
+                            dataResource
                         }
-                    }
-
-                    is DataResource.Error -> {
-                        updateState {
-                            it.copy(
-                                isQuickActionsLoading = false,
-                                isQuickActionsError = true,
-                            )
-                        }
-                    }
-
-                    is DataResource.Data -> {
-                        updateState {
-                            it.copy(
-                                isQuickActionsLoading = false,
-                                isQuickActionsError = false,
-                                quickActions = dataResource.data
-                            )
-                        }
-                    }
+                    )
                 }
             }
         }
