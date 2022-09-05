@@ -2,6 +2,8 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
@@ -103,9 +105,15 @@ interface CustodialWalletManager {
 
     fun getCustodialAccountAddress(asset: Currency): Single<String>
 
-    fun isCurrencyAvailableForTrading(
+    @Deprecated("use flow isCurrencyAvailableForTrading")
+    fun isCurrencyAvailableForTradingLegacy(
         assetInfo: AssetInfo
     ): Single<Boolean>
+
+    fun isCurrencyAvailableForTrading(
+        assetInfo: AssetInfo,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Boolean>>
 
     fun availableFiatCurrenciesForTrading(assetInfo: AssetInfo): Single<List<FiatCurrency>>
 

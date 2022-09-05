@@ -43,7 +43,7 @@ class CoinviewActivity :
 
     override fun onResume() {
         super.onResume()
-        viewModel.onIntent(CoinviewIntents.LoadData)
+        viewModel.onIntent(CoinviewIntents.LoadAllData)
     }
 
     companion object {

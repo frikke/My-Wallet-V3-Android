@@ -12,9 +12,7 @@ import com.blockchain.core.price.model.AssetPriceNotFoundException
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.anyError
-import com.blockchain.data.anyLoading
-import com.blockchain.data.getFirstError
+import com.blockchain.data.combineDataResources
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asObservable
@@ -243,38 +241,21 @@ internal class ExchangeRatesDataManagerImpl(
                 freshnessStrategy = freshnessStrategy
             )
         ) { currentPrice, yesterdayPrice ->
-            val results = listOf(currentPrice, yesterdayPrice)
-
-            when {
-                results.anyLoading() -> {
-                    DataResource.Loading
-                }
-
-                results.anyError() -> {
-                    DataResource.Error(results.getFirstError().error)
-                }
-
-                else -> {
-                    currentPrice as DataResource.Data
-                    yesterdayPrice as DataResource.Data
-
-                    DataResource.Data(
-                        Prices24HrWithDelta(
-                            delta24h = currentPrice.data.getPriceDelta(yesterdayPrice.data),
-                            previousRate = ExchangeRate(
-                                from = fromAsset,
-                                to = userFiat,
-                                rate = yesterdayPrice.data.rate
-                            ),
-                            currentRate = ExchangeRate(
-                                from = fromAsset,
-                                to = userFiat,
-                                rate = currentPrice.data.rate
-                            ),
-                            marketCap = currentPrice.data.marketCap
-                        )
-                    )
-                }
+            combineDataResources(currentPrice, yesterdayPrice) { currentPriceData, yesterdayPriceData ->
+                Prices24HrWithDelta(
+                    delta24h = currentPriceData.getPriceDelta(yesterdayPriceData),
+                    previousRate = ExchangeRate(
+                        from = fromAsset,
+                        to = userFiat,
+                        rate = yesterdayPriceData.rate
+                    ),
+                    currentRate = ExchangeRate(
+                        from = fromAsset,
+                        to = userFiat,
+                        rate = currentPriceData.rate
+                    ),
+                    marketCap = currentPriceData.marketCap
+                )
             }
         }
     }

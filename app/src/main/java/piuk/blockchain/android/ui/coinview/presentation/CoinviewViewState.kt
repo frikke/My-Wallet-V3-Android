@@ -10,7 +10,8 @@ data class CoinviewViewState(
     val assetName: String,
     val assetPrice: CoinviewPriceState,
     val totalBalance: CoinviewTotalBalanceState,
-    val accounts: CoinviewAccountsState
+    val accounts: CoinviewAccountsState,
+    val recurringBuys: CoinviewRecurringBuysState
 ) : ViewState
 
 // Price
@@ -85,6 +86,25 @@ enum class CoinviewAccountsStyle {
     Simple, Boxed
 }
 
+// Recurring buys
+sealed interface CoinviewRecurringBuysState {
+    object NotSupported : CoinviewRecurringBuysState
+    object Loading : CoinviewRecurringBuysState
+    object Error : CoinviewRecurringBuysState
+    object Upsell : CoinviewRecurringBuysState
+    data class Data(
+        val recurringBuys: List<RecurringBuyState>
+    ) : CoinviewRecurringBuysState {
+        data class RecurringBuyState(
+            val id: String,
+            val description: SimpleValue,
+            val status: SimpleValue,
+            val assetColor: String
+        )
+    }
+}
+
+// misc
 /**
  * View text can either come as string or resource with args
  */
@@ -92,7 +112,7 @@ sealed interface SimpleValue {
     data class StringValue(val value: String) : SimpleValue
     data class IntResValue(
         @StringRes val value: Int,
-        val args: List<String> = emptyList()
+        val args: List<Any> = emptyList()
     ) : SimpleValue
 }
 

@@ -70,6 +70,7 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CardProviderActivator
 import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
+import piuk.blockchain.android.data.GetRecurringBuysStore
 import piuk.blockchain.android.data.Mapper
 import piuk.blockchain.android.data.RecurringBuyResponseToRecurringBuyMapper
 import piuk.blockchain.android.data.TradeDataRepository
@@ -531,7 +532,15 @@ val applicationModule = module {
                 authenticator = get(),
                 accumulatedInPeriodMapper = GetAccumulatedInPeriodToIsFirstTimeBuyerMapper(),
                 nextPaymentRecurringBuyMapper = GetNextPaymentDateListToFrequencyDateMapper(),
-                recurringBuyMapper = get()
+                recurringBuyMapper = get(),
+                getRecurringBuysStore = get()
+            )
+        }
+
+        scoped {
+            GetRecurringBuysStore(
+                authenticator = get(),
+                tradeService = get()
             )
         }
 

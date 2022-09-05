@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -24,8 +25,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
+import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
+import piuk.blockchain.android.ui.coinview.domain.LoadAssetRecurringBuysUseCase
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
@@ -34,6 +37,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistor
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.RecurringBuyState
 
 class CoinviewViewModel(
     walletModeService: WalletModeService,
@@ -41,7 +45,8 @@ class CoinviewViewModel(
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
     private val getAssetPriceUseCase: GetAssetPriceUseCase,
-    private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase
+    private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase,
+    private val loadAssetRecurringBuysUseCase: LoadAssetRecurringBuysUseCase
 ) : MviViewModel<
     CoinviewIntents,
     CoinviewViewState,
@@ -71,7 +76,8 @@ class CoinviewViewModel(
             assetName = asset?.currency?.name ?: "",
             assetPrice = reduceAssetPrice(this),
             totalBalance = reduceTotalBalance(this),
-            accounts = reduceAccounts(this)
+            accounts = reduceAccounts(this),
+            recurringBuys = reduceRecurringBuys(this)
         )
     }
 
@@ -91,7 +97,7 @@ class CoinviewViewModel(
 
                 // intervalName will be empty if user is interacting with the chart
 
-                require(asset != null) { "asset not initialized" }
+                check(asset != null) { "asset not initialized" }
 
                 with(assetPriceHistory.data) {
                     CoinviewPriceState.Data(
@@ -150,10 +156,10 @@ class CoinviewViewModel(
             }
 
             assetInfo is DataResource.Data && assetInfo.data is CoinviewAssetInformation.AccountsInfo -> {
-                require(asset != null) { "asset not initialized" }
+                check(asset != null) { "asset not initialized" }
 
                 with(assetInfo.data as CoinviewAssetInformation.AccountsInfo) {
-                    require(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
+                    check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
 
                     CoinviewTotalBalanceState.Data(
                         assetName = asset.currency.name,
@@ -176,7 +182,7 @@ class CoinviewViewModel(
             }
 
             assetInfo is DataResource.Data && assetInfo.data is CoinviewAssetInformation.AccountsInfo -> {
-                require(asset != null) { "asset not initialized" }
+                check(asset != null) { "asset not initialized" }
 
                 with(assetInfo.data as CoinviewAssetInformation.AccountsInfo) {
                     CoinviewAccountsState.Data(
@@ -380,22 +386,110 @@ class CoinviewViewModel(
         }
     }
 
+    private fun reduceRecurringBuys(state: CoinviewModelState): CoinviewRecurringBuysState = state.run {
+        when {
+            // not supported for non custodial
+            walletMode == WalletMode.NON_CUSTODIAL_ONLY -> {
+                CoinviewRecurringBuysState.NotSupported
+            }
+
+            recurringBuys is DataResource.Loading -> {
+                CoinviewRecurringBuysState.Loading
+            }
+
+            recurringBuys is DataResource.Error -> {
+                CoinviewRecurringBuysState.Error
+            }
+
+            recurringBuys is DataResource.Data -> {
+                check(asset != null) { "asset not initialized" }
+
+                with(recurringBuys.data) {
+                    when {
+                        data.isEmpty() && isAvailableForTrading -> {
+                            CoinviewRecurringBuysState.Upsell
+                        }
+
+                        data.isEmpty() && isAvailableForTrading.not() -> {
+                            CoinviewRecurringBuysState.NotSupported
+                        }
+
+                        else -> CoinviewRecurringBuysState.Data(
+                            data.map { recurringBuy ->
+                                RecurringBuyState(
+                                    id = recurringBuy.id,
+                                    description = SimpleValue.IntResValue(
+                                        R.string.dashboard_recurring_buy_item_title_1,
+                                        listOf(
+                                            recurringBuy.amount.toStringWithSymbol(),
+                                            recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
+                                        )
+                                    ),
+
+                                    status = if (recurringBuy.state ==
+                                        com.blockchain.nabu.models.data.RecurringBuyState.ACTIVE
+                                    ) {
+                                        SimpleValue.IntResValue(
+                                            R.string.dashboard_recurring_buy_item_label,
+                                            listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
+                                        )
+                                    } else {
+                                        SimpleValue.IntResValue(
+                                            R.string.dashboard_recurring_buy_item_label_error
+                                        )
+                                    },
+
+                                    assetColor = asset.currency.colour
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+
+            else -> {
+                CoinviewRecurringBuysState.Loading
+            }
+        }
+    }
+
     override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntents) {
         when (intent) {
-            is CoinviewIntents.LoadData -> {
-                require(modelState.asset != null) { "asset not initialized" }
+            is CoinviewIntents.LoadAllData -> {
+                check(modelState.asset != null) { "asset not initialized" }
+                onIntent(CoinviewIntents.LoadPriceData)
+                onIntent(CoinviewIntents.LoadAccountsData)
+                onIntent(CoinviewIntents.LoadRecurringBuysData)
+            }
+
+            CoinviewIntents.LoadPriceData -> {
+                check(modelState.asset != null) { "asset not initialized" }
+
                 loadPriceData(
                     asset = modelState.asset,
                     requestedTimeSpan = (modelState.assetPriceHistory as? DataResource.Data)
                         ?.data?.priceDetail?.timeSpan ?: defaultTimeSpan
                 )
+            }
+
+            CoinviewIntents.LoadAccountsData -> {
+                check(modelState.asset != null) { "asset not initialized" }
+
                 loadAccountsData(
                     asset = modelState.asset,
                 )
             }
 
+            CoinviewIntents.LoadRecurringBuysData -> {
+                check(modelState.asset != null) { "asset not initialized" }
+
+                loadRecurringBuysData(
+                    asset = modelState.asset,
+                )
+            }
+
             is CoinviewIntents.UpdatePriceForChartSelection -> {
-                require(modelState.assetPriceHistory is DataResource.Data) { "price data not initialized" }
+                check(modelState.assetPriceHistory is DataResource.Data) { "price data not initialized" }
 
                 updatePriceForChartSelection(
                     entry = intent.entry,
@@ -408,7 +502,7 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntents.NewTimeSpanSelected -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
 
                 updateState { it.copy(requestedTimeSpan = intent.timeSpan) }
 
@@ -416,6 +510,14 @@ class CoinviewViewModel(
                     asset = modelState.asset,
                     requestedTimeSpan = intent.timeSpan,
                 )
+            }
+
+            CoinviewIntents.RecurringBuysUpsell -> {
+                // todo
+            }
+
+            is CoinviewIntents.ShowRecurringBuyDetail -> {
+                // todo
             }
         }
     }
@@ -527,14 +629,34 @@ class CoinviewViewModel(
             loadAssetAccountsUseCase(asset = asset).collectLatest { dataResource ->
 
                 updateState {
-                    if (dataResource is DataResource.Loading && it.assetInfo is DataResource.Data) {
-                        // if data is present already - don't show loading
-                        it
-                    } else {
-                        it.copy(
-                            assetInfo = dataResource
-                        )
-                    }
+                    it.copy(
+                        assetInfo = if (dataResource is DataResource.Loading && it.assetInfo is DataResource.Data) {
+                            // if data is present already - don't show loading
+                            it.assetInfo
+                        } else {
+                            dataResource
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    // //////////////////////
+    // Recurring buys
+    private fun loadRecurringBuysData(asset: CryptoAsset) {
+        viewModelScope.launch {
+            loadAssetRecurringBuysUseCase(asset).collectLatest { dataResource ->
+                updateState {
+                    it.copy(
+                        recurringBuys = if (dataResource is DataResource.Loading &&
+                            it.recurringBuys is DataResource.Data
+                        ) {
+                            it.recurringBuys
+                        } else {
+                            dataResource
+                        }
+                    )
                 }
             }
         }

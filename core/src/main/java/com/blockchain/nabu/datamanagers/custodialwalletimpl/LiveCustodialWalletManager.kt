@@ -7,7 +7,10 @@ import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
+import com.blockchain.core.buy.BuyPairsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
@@ -95,6 +98,7 @@ class LiveCustodialWalletManager(
     private val nabuService: NabuService,
     private val authenticator: Authenticator,
     private val pairsCache: BuyPairsCache,
+    private val buyPairsStore: BuyPairsStore,
     private val transactionsCache: TransactionsCache,
     private val buyOrdersCache: BuyOrdersCache,
     private val swapOrdersCache: SwapTransactionsCache,
@@ -319,7 +323,7 @@ class LiveCustodialWalletManager(
             response.address
         }
 
-    override fun isCurrencyAvailableForTrading(assetInfo: AssetInfo): Single<Boolean> {
+    override fun isCurrencyAvailableForTradingLegacy(assetInfo: AssetInfo): Single<Boolean> {
         val tradingCurrency = fiatCurrenciesService.selectedTradingCurrency
         return pairsCache.pairs().map {
             it.pairs.firstOrNull { buyPair ->
@@ -327,6 +331,20 @@ class LiveCustodialWalletManager(
                 pair.first() == assetInfo.networkTicker && pair.last() == tradingCurrency.networkTicker
             } != null
         }.onErrorReturn { false }
+    }
+
+    override fun isCurrencyAvailableForTrading(
+        assetInfo: AssetInfo,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<Boolean>> {
+        val tradingCurrency = fiatCurrenciesService.selectedTradingCurrency
+        return buyPairsStore.stream(freshnessStrategy)
+            .mapData {
+                it.pairs.firstOrNull { buyPair ->
+                    val pair = buyPair.pair.split("-")
+                    pair.first() == assetInfo.networkTicker && pair.last() == tradingCurrency.networkTicker
+                } != null
+            }
     }
 
     override fun availableFiatCurrenciesForTrading(assetInfo: AssetInfo): Single<List<FiatCurrency>> =

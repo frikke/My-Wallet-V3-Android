@@ -17,5 +17,12 @@ val coinviewDomainModule = module {
                 currencyPrefs = get()
             )
         }
+
+        scoped {
+            LoadAssetRecurringBuysUseCase(
+                tradeDataService = get(),
+                custodialWalletManager = get()
+            )
+        }
     }
 }

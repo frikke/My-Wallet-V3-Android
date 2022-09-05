@@ -17,6 +17,8 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.user.WatchlistDataManager
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -42,6 +44,7 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -159,11 +162,11 @@ class CoinViewInteractorTest {
         val asset: CryptoAsset = mock {
             on { currency }.thenReturn(mock())
         }
-        whenever(tradeDataService.getRecurringBuysForAsset(asset.currency)).thenReturn(Single.just(emptyList()))
-        whenever(custodialWalletManager.isCurrencyAvailableForTrading(asset.currency)).thenReturn(Single.just(true))
-        val test = subject.loadRecurringBuys(asset.currency).test()
+        whenever(tradeDataService.getRecurringBuysForAsset(asset.currency, FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(emptyList())))
+        whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(asset.currency)).thenReturn(Single.just(true))
+        val test = subject.loadRecurringBuys(asset.currency).test().await()
         test.assertValue(Pair(emptyList(), true))
-        verify(tradeDataService).getRecurringBuysForAsset(asset.currency)
+        verify(tradeDataService).getRecurringBuysForAsset(asset.currency, FreshnessStrategy.Fresh)
     }
 
     private fun prepareQuickActionsCustodial(
@@ -180,7 +183,7 @@ class CoinViewInteractorTest {
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(sdd))
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(buyAccess))
         whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(sellAccess))
-        whenever(custodialWalletManager.isCurrencyAvailableForTrading(CryptoCurrency.BTC)).thenReturn(
+        whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(CryptoCurrency.BTC)).thenReturn(
             Single.just(availableForTrading)
         )
         whenever(custodialWalletManager.isAssetSupportedForSwap(CryptoCurrency.BTC)).thenReturn(
@@ -423,7 +426,7 @@ class CoinViewInteractorTest {
     @Test
     fun `when buy is granted and asset is supported for trading, canBuy should be true`() {
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted()))
-        whenever(custodialWalletManager.isCurrencyAvailableForTrading(any()))
+        whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(any()))
             .thenReturn(Single.just(true))
 
         val currency: AssetInfo = mock()
@@ -438,7 +441,7 @@ class CoinViewInteractorTest {
         }
 
         verify(identity).userAccessForFeature(Feature.Buy)
-        verify(custodialWalletManager).isCurrencyAvailableForTrading(currency)
+        verify(custodialWalletManager).isCurrencyAvailableForTradingLegacy(currency)
 
         verifyNoMoreInteractions(identity)
     }
@@ -446,7 +449,7 @@ class CoinViewInteractorTest {
     @Test
     fun `when buy is granted and asset is not supported for trading, canBuy should be false`() {
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted()))
-        whenever(custodialWalletManager.isCurrencyAvailableForTrading(any()))
+        whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(any()))
             .thenReturn(Single.just(false))
 
         val currency: AssetInfo = mock()
@@ -461,7 +464,7 @@ class CoinViewInteractorTest {
         }
 
         verify(identity).userAccessForFeature(Feature.Buy)
-        verify(custodialWalletManager).isCurrencyAvailableForTrading(currency)
+        verify(custodialWalletManager).isCurrencyAvailableForTradingLegacy(currency)
 
         verifyNoMoreInteractions(identity)
     }

@@ -20,6 +20,7 @@ import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntents
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
@@ -54,7 +55,15 @@ fun Coinview(
 
             totalBalance = state.totalBalance,
 
-            accounts = state.accounts
+            accounts = state.accounts,
+
+            recurringBuys = state.recurringBuys,
+            onRecurringBuyUpsellClick = {
+                viewModel.onIntent(CoinviewIntents.RecurringBuysUpsell)
+            },
+            onRecurringBuyItemClick = { recurringBuyId ->
+                viewModel.onIntent(CoinviewIntents.ShowRecurringBuyDetail(recurringBuyId))
+            }
         )
     }
 }
@@ -71,7 +80,11 @@ fun CoinviewScreen(
 
     totalBalance: CoinviewTotalBalanceState,
 
-    accounts: CoinviewAccountsState
+    accounts: CoinviewAccountsState,
+
+    recurringBuys: CoinviewRecurringBuysState,
+    onRecurringBuyUpsellClick: () -> Unit,
+    onRecurringBuyItemClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -97,6 +110,12 @@ fun CoinviewScreen(
         AssetAccounts(
             data = accounts
         )
+
+        RecurringBuys(
+            data = recurringBuys,
+            onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
+            onRecurringBuyItemClick = onRecurringBuyItemClick
+        )
     }
 }
 
@@ -118,7 +137,10 @@ fun PreviewCoinviewScreen() {
         resetPriceInformation = {},
         onNewTimeSpanSelected = {},
         totalBalance = CoinviewTotalBalanceState.Loading,
-        accounts = CoinviewAccountsState.Loading
+        accounts = CoinviewAccountsState.Loading,
+        recurringBuys = CoinviewRecurringBuysState.Loading,
+        onRecurringBuyUpsellClick = {},
+        onRecurringBuyItemClick = {}
     )
 }
 

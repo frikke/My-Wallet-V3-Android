@@ -111,6 +111,7 @@ val nabuModule = module {
                 currencyPrefs = get(),
                 buyOrdersCache = get(),
                 pairsCache = get(),
+                buyPairsStore = get(),
                 swapOrdersCache = get(),
                 paymentMethodsEligibilityStore = get(),
                 fiatCurrenciesService = get()
