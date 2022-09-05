@@ -6,18 +6,22 @@ import androidx.compose.animation.core.FloatExponentialDecaySpec
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -47,6 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.END_DEFI
 import com.blockchain.componentlib.theme.END_TRADING
@@ -74,6 +79,7 @@ fun SuperAppDashboard() {
     val heightUntilTotalBalance = LocalDensity.current.run { MinToolbarHeight.toPx() }
     val collapsedBalanceOffset = LocalDensity.current.run { MinToolbarHeight.toPx() }
     val allCollapsedOffset = LocalDensity.current.run { MaxToolbarHeight.toPx() }
+    val sbHeight = LocalDensity.current.run { WindowInsets.statusBars.asPaddingValues().calculateTopPadding().toPx() }
 
     val toolbarHeightRange = with(LocalDensity.current) {
         MinToolbarHeight.roundToPx()..MaxToolbarHeight.roundToPx()
@@ -99,57 +105,41 @@ fun SuperAppDashboard() {
                 return Offset(0f, toolbarState.consumed)
             }
 
-            //            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
-            //                if (toolbarState.scrollOffset > 0 && toolbarState.scrollOffset < collapsedBalanceOffset) {
-            //                    coroutineScopeAnim.launch {
-            //                        animate = true
-            //                        offsetY.snapTo(toolbarState.scrollOffset)
-            //                        offsetY.animateTo(
-            //                            targetValue = collapsedBalanceOffset,
-            //                            animationSpec = tween(
-            //                                durationMillis = 400
-            //                            )
-            //                        )
-            //                    }
-            //                }
-            //                return super.onPostScroll(consumed, available, source)
-            //            }
-
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                // hide total balance if the offset is 1/2 below its height
-                if (toolbarState.scrollOffset > heightOnTop &&
-                    toolbarState.scrollOffset < collapsedBalanceOffset
-                ) {
-                    coroutineScopeAnim.launch {
-                        animate = true
-                        offsetY.snapTo(toolbarState.scrollOffset)
-                        offsetY.animateTo(
-                            targetValue = if (toolbarState.scrollOffset > heightUntilTotalBalance / 2) {
-                                collapsedBalanceOffset
-                            } else {
-                                heightOnTop
-                            },
-                            animationSpec = tween(
-                                durationMillis = 400
-                            )
-                        )
-                    }
-                }
-                // if switcher is scrolled but still visible, snap to the top of it
-                if (toolbarState.scrollOffset > heightUntilTotalBalance &&
-                    toolbarState.scrollOffset < allCollapsedOffset
-                ) {
-                    coroutineScopeAnim.launch {
-                        animate = true
-                        offsetY.snapTo(toolbarState.scrollOffset)
-                        offsetY.animateTo(
-                            targetValue = heightUntilTotalBalance,
-                            animationSpec = tween(
-                                durationMillis = 400
-                            )
-                        )
-                    }
-                }
+//                // hide total balance if the offset is 1/2 below its height
+//                if (toolbarState.scrollOffset > heightOnTop &&
+//                    toolbarState.scrollOffset < collapsedBalanceOffset
+//                ) {
+//                    coroutineScopeAnim.launch {
+//                        animate = true
+//                        offsetY.snapTo(toolbarState.scrollOffset)
+//                        offsetY.animateTo(
+//                            targetValue = if (toolbarState.scrollOffset > heightUntilTotalBalance / 2) {
+//                                collapsedBalanceOffset
+//                            } else {
+//                                heightOnTop
+//                            },
+//                            animationSpec = tween(
+//                                durationMillis = 400
+//                            )
+//                        )
+//                    }
+//                }
+//                // if switcher is scrolled but still visible, snap to the top of it
+//                if (toolbarState.scrollOffset > heightUntilTotalBalance &&
+//                    toolbarState.scrollOffset < allCollapsedOffset
+//                ) {
+//                    coroutineScopeAnim.launch {
+//                        animate = true
+//                        offsetY.snapTo(toolbarState.scrollOffset)
+//                        offsetY.animateTo(
+//                            targetValue = heightUntilTotalBalance,
+//                            animationSpec = tween(
+//                                durationMillis = 400
+//                            )
+//                        )
+//                    }
+//                }
 
                 if (available.y > 0) {
                     scope.launch {
@@ -235,7 +225,7 @@ fun SuperAppDashboard() {
                 state = listState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .graphicsLayer { translationY = toolbarState.height + toolbarState.offset + 30}
+                    .graphicsLayer { translationY = toolbarState.height + toolbarState.offset  }
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onPress = {
@@ -314,28 +304,23 @@ fun SuperAppDashboard() {
                     contentColor = Color.White,
                     shape = RoundedCornerShape(100.dp)
                 ) {
-                    Row {
+                    Row(modifier = Modifier.padding(vertical = 8.dp)) {
                         Spacer(Modifier.size(dimensionResource(R.dimen.large_margin)))
 
-                        Text(
-                            modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
-                            style = AppTheme.typography.title3,
-                            color = Color.Black,
-                            text = "home"
+                        com.blockchain.componentlib.basic.Image(
+                            imageResource = ImageResource.Local(R.drawable.ic_tab_home_demo)
                         )
 
-                        Text(
-                            modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
-                            style = AppTheme.typography.title3,
-                            color = Color.Black,
-                            text = "trade"
+                        Spacer(modifier = Modifier.size(24.dp))
+
+                        com.blockchain.componentlib.basic.Image(
+                            imageResource = ImageResource.Local(R.drawable.ic_tab_itemtrade)
                         )
 
-                        Text(
-                            modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
-                            style = AppTheme.typography.title3,
-                            color = Color.Black,
-                            text = if (trading) "card" else "nft"
+                        Spacer(modifier = Modifier.size(24.dp))
+
+                        com.blockchain.componentlib.basic.Image(
+                            imageResource = ImageResource.Local(R.drawable.ic_tab_item_card)
                         )
 
                         Spacer(Modifier.size(dimensionResource(R.dimen.large_margin)))
@@ -347,89 +332,6 @@ fun SuperAppDashboard() {
             }
         }
     }
-
-    //    Column(
-    //        modifier = Modifier
-    //            .fillMaxSize()
-    //            .background(Color.Red),
-    //        horizontalAlignment = Alignment.CenterHorizontally
-    //    ) {
-    //        Row {
-    //            Text(
-    //                modifier = Modifier
-    //                    .padding(start = dimensionResource(R.dimen.tiny_margin))
-    //                    .clickableNoEffect {
-    //                        shouldFlash = true
-    //                    },
-    //                style = AppTheme.typography.title3,
-    //                color = Color.Black,
-    //                text = "TRADING"
-    //            )
-    //
-    //            Spacer(modifier = Modifier.size(32.dp))
-    //
-    //            Text(
-    //                modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
-    //                style = AppTheme.typography.title3,
-    //                color = Color.Black,
-    //                text = "DEFI"
-    //            )
-    //        }
-    //
-    //        Box(modifier = Modifier.fillMaxSize()) {
-    //            Column(
-    //                modifier = Modifier
-    //                    .fillMaxWidth()
-    //                    .verticalScroll(rememberScrollState())
-    //            ) {
-    //                (0..40).forEach {
-    //                    Text(
-    //                        modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
-    //                        style = AppTheme.typography.title3,
-    //                        color = Color.Black,
-    //                        text = "txt $it"
-    //                    )
-    //                }
-    //            }
-    //
-    //            Box(modifier = Modifier
-    //                .align(Alignment.BottomCenter)
-    //                .offset {
-    //                    IntOffset(
-    //                        x = 0,
-    //                        animateDown
-    //                    )
-    //                }) {
-    //                Row(
-    //                    modifier = Modifier
-    //                        .padding(20.dp)
-    //                        .background(Color.Cyan)
-    //
-    //                ) {
-    //                    Text(
-    //                        modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
-    //                        style = AppTheme.typography.title3,
-    //                        color = Color.Black,
-    //                        text = "home"
-    //                    )
-    //
-    //                    Text(
-    //                        modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
-    //                        style = AppTheme.typography.title3,
-    //                        color = Color.Black,
-    //                        text = "trade"
-    //                    )
-    //
-    //                    Text(
-    //                        modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
-    //                        style = AppTheme.typography.title3,
-    //                        color = Color.Black,
-    //                        text = if(trading) "card" else "nft"
-    //                    )
-    //                }
-    //            }
-    //        }
-    //    }
 }
 
 @Preview
