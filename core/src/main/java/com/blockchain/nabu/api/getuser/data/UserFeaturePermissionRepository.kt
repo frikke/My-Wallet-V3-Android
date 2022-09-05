@@ -6,10 +6,7 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.sdd.domain.SddService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.anyError
-import com.blockchain.data.anyLoading
 import com.blockchain.data.combineDataResources
-import com.blockchain.data.getFirstError
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
@@ -68,40 +65,26 @@ internal class UserFeaturePermissionRepository(
                     eligibilityService.getProductEligibility(EligibleProduct.BUY),
                     simpleBuyService.getEligibility()
                 ) { buyEligibility, simpleBuyEligibility ->
-                    val results = listOf(buyEligibility, simpleBuyEligibility)
+                    combineDataResources(
+                        buyEligibility,
+                        simpleBuyEligibility
+                    ) { buyEligibilityData, simpleBuyEligibilityData ->
+                        when {
+                            buyEligibilityData.toFeatureAccess() !is FeatureAccess.Granted -> {
+                                buyEligibilityData.toFeatureAccess()
+                            }
 
-                    when {
-                        results.anyLoading() -> {
-                            DataResource.Loading
-                        }
+                            simpleBuyEligibilityData.isPendingDepositThresholdReached.not() -> {
+                                FeatureAccess.Granted()
+                            }
 
-                        results.anyError() -> {
-                            DataResource.Error(results.getFirstError().error)
-                        }
-
-                        else -> {
-                            buyEligibility as DataResource.Data
-                            simpleBuyEligibility as DataResource.Data
-
-                            DataResource.Data(
-                                when {
-                                    buyEligibility.data.toFeatureAccess() !is FeatureAccess.Granted -> {
-                                        buyEligibility.data.toFeatureAccess()
-                                    }
-
-                                    simpleBuyEligibility.data.isPendingDepositThresholdReached.not() -> {
-                                        FeatureAccess.Granted()
-                                    }
-
-                                    else -> {
-                                        FeatureAccess.Blocked(
-                                            BlockedReason.TooManyInFlightTransactions(
-                                                simpleBuyEligibility.data.maxPendingDepositSimpleBuyTrades
-                                            )
-                                        )
-                                    }
-                                }
-                            )
+                            else -> {
+                                FeatureAccess.Blocked(
+                                    BlockedReason.TooManyInFlightTransactions(
+                                        simpleBuyEligibilityData.maxPendingDepositSimpleBuyTrades
+                                    )
+                                )
+                            }
                         }
                     }
                 }
