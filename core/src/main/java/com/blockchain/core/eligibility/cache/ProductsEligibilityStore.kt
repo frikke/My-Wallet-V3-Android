@@ -29,8 +29,12 @@ class ProductsEligibilityStore(
             }
     },
     dataSerializer = ProductsEligibilityData.serializer(),
-    mediator = FreshnessMediator(Freshness.DURATION_1_HOUR) // todo (othman) increase once all calls are flow
+    mediator = FreshnessMediator(Freshness.ofMinutes(15))
 ) {
+    fun invalidate() {
+        markAsStale()
+    }
+
     companion object {
         private const val STORE_ID = "ProductsEligibilityStore"
     }

@@ -71,7 +71,6 @@ fun BalanceTableRowLarge(
                     .align(Alignment.CenterVertically)
                     .padding(end = dimensionResource(R.dimen.medium_margin))
                     .size(dimensionResource(R.dimen.standard_margin)),
-                coilImageBuilderScope = null
             )
         },
         contentBottom = {

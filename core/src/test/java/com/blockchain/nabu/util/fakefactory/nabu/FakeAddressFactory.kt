@@ -7,7 +7,7 @@ object FakeAddressFactory {
         line1 = "132 Seafield Street",
         line2 = null,
         city = "Llwynmawr",
-        state = null,
+        stateIso = null,
         postCode = "LL20 3WR",
         countryCode = ""
     )

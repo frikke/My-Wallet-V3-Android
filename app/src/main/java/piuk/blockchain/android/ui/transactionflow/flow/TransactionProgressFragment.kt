@@ -306,7 +306,7 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
             )
             TransactionError.InvalidPostcode -> Pair(
                 getString(
-                    R.string.kyc_postcode_error
+                    R.string.address_verification_postcode_error
                 ),
                 INVALID_POSTCODE
             )

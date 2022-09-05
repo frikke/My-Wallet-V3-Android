@@ -158,7 +158,7 @@ class NabuServiceTest {
             addressToAdd.line1!!,
             addressToAdd.line2,
             addressToAdd.city!!,
-            addressToAdd.state,
+            addressToAdd.stateIso,
             addressToAdd.postCode!!,
             addressToAdd.countryCode!!
         ).test().waitForCompletionWithoutErrors()

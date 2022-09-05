@@ -4,7 +4,6 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.api.referral.data.ReferralResponse
 import com.blockchain.api.services.ReferralApiService
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.Authenticator
 import com.blockchain.outcome.Outcome
@@ -49,16 +48,13 @@ class ReferralRepositoryTest {
         on { selectedFiatCurrency } doReturn mockFiat
     }
 
-    private val featureFlag: IntegratedFeatureFlag = mock()
-
     private val referralApiService: ReferralApiService = mock()
 
     private lateinit var referralRepository: ReferralRepository
 
     @Before
     fun setUp() = runBlocking {
-        whenever(featureFlag.coEnabled()).doReturn(true)
-        referralRepository = ReferralRepository(authenticator, referralApiService, currencyPrefs, featureFlag)
+        referralRepository = ReferralRepository(authenticator, referralApiService, currencyPrefs)
     }
 
     @Test
@@ -89,16 +85,6 @@ class ReferralRepositoryTest {
         val result = referralRepository.fetchReferralData()
 
         assertEquals(Outcome.Success(ReferralInfo.NotAvailable), result)
-    }
-
-    @Test
-    fun `should fetch referral info not available when feature flag disabled`() = runBlocking {
-        whenever(featureFlag.coEnabled()).doReturn(false)
-
-        val result = referralRepository.fetchReferralData()
-
-        assertEquals(Outcome.Success(ReferralInfo.NotAvailable), result)
-        verifyNoMoreInteractions(referralApiService)
     }
 
     @Test
@@ -158,17 +144,6 @@ class ReferralRepositoryTest {
 
         verify(referralApiService).associateReferralCode(AUTH, REF_CODE)
         assertEquals(Outcome.Success(Unit), result)
-    }
-
-    @Test
-    fun `should not send request when feature disabled`() = runBlocking {
-        whenever(featureFlag.coEnabled()).doReturn(false)
-
-        val result = referralRepository.associateReferralCodeIfPresent(REF_CODE)
-
-        assertEquals(Outcome.Success(Unit), result)
-        verifyNoMoreInteractions(authenticator)
-        verifyNoMoreInteractions(referralApiService)
     }
 
     @Test

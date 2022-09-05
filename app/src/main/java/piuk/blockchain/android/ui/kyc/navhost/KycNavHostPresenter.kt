@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.kyc.navhost
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.KYCAnalyticsEvents
+import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
@@ -28,6 +29,7 @@ class KycNavHostPresenter(
     private val reentryDecision: ReentryDecision,
     private val kycNavigator: KycNavigator,
     private val kycTiersStore: KycTiersStore,
+    private val productEligibilityStore: ProductsEligibilityStore,
     private val getUserStore: GetUserStore,
     private val analytics: Analytics,
 ) : BaseKycPresenter<KycNavHostView>(nabuToken) {
@@ -35,6 +37,7 @@ class KycNavHostPresenter(
     override fun onViewReady() {
         kycTiersStore.invalidate()
         getUserStore.invalidate()
+        productEligibilityStore.invalidate()
 
         compositeDisposable +=
             userService.getUser()
@@ -110,6 +113,5 @@ internal fun NabuUser.toProfileModel(): ProfileModel = ProfileModel(
     firstName = firstName ?: throw IllegalStateException("First Name is null"),
     lastName = lastName ?: throw IllegalStateException("Last Name is null"),
     countryCode = address?.countryCode ?: throw IllegalStateException("Country Code is null"),
-    stateName = address?.state,
-    stateCode = address?.state
+    stateCode = address?.stateIso
 )

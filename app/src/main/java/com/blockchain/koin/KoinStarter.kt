@@ -1,6 +1,7 @@
 package com.blockchain.koin
 
 import android.app.Application
+import com.blockchain.addressverification.koin.addressVerificationModule
 import com.blockchain.analytics.data.koin.analyticsModule
 import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
@@ -57,7 +58,6 @@ import piuk.blockchain.android.ui.educational.walletmodes.educationalWalletModes
 import piuk.blockchain.android.ui.home.mainModule
 import piuk.blockchain.android.ui.interest.domain.interestDashboardDomainModule
 import piuk.blockchain.android.ui.interest.presentation.interestDashboardPresentationModule
-import piuk.blockchain.android.ui.kyc.autocomplete.kycAutocompleteModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiNabuModule
 import piuk.blockchain.android.ui.launcher.loader.loaderModule
@@ -128,7 +128,6 @@ object KoinStarter {
                     sunriverModule,
                     walletModule,
                     xlmModule,
-                    kycAutocompleteModule,
                     mainModule,
                     redesignSettingsModule,
                     remoteFeatureFlagsModule,
@@ -140,6 +139,7 @@ object KoinStarter {
                     storeCachesPersistedJsonSqlDelightModule,
                     blockchainCardModule,
                     interestDashboardDomainModule, interestDashboardPresentationModule,
+                    addressVerificationModule,
                     appMaintenanceDataModule, appMaintenanceDomainModule, appMaintenancePresentationModule,
                     bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule,
                     referralPresentationModule,

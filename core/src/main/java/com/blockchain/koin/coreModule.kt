@@ -28,6 +28,7 @@ import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2Store
 import com.blockchain.core.chains.erc20.data.store.Erc20Store
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.common.caching.StoreWiperImpl
@@ -103,6 +104,7 @@ import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
+import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -141,7 +143,6 @@ import piuk.blockchain.androidcore.utils.EncryptedPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.UUIDGenerator
-import java.util.UUID
 
 val coreModule = module {
 
@@ -353,6 +354,12 @@ val coreModule = module {
             )
         }.bind(EthMessageSigner::class)
 
+        scoped {
+            L1BalanceStore(
+                ethDataManager = get()
+            )
+        }
+
         scoped<Erc20DataSource> {
             Erc20Store(
                 erc20Service = get(),
@@ -394,13 +401,15 @@ val coreModule = module {
         scoped {
             Erc20DataManagerImpl(
                 ethDataManager = get(),
+                l1BalanceStore = get(),
                 historyCallCache = get(),
                 assetCatalogue = get(),
                 erc20StoreService = get(),
                 erc20DataSource = get(),
                 erc20L2StoreService = get(),
                 erc20L2DataSource = get(),
-                ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
+                ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
+                evmWithoutL1BalanceFeatureFlag = get(evmWithoutL1BalanceFeatureFlag)
             )
         }.bind(Erc20DataManager::class)
 
@@ -577,7 +586,6 @@ val coreModule = module {
                 authenticator = get(),
                 referralApi = get(),
                 currencyPrefs = get(),
-                referralFlag = get(referralsFeatureFlag)
             )
         }.bind(ReferralService::class)
 
@@ -702,4 +710,4 @@ val coreModule = module {
 }
 
 fun experimentalL1EvmAssetList(): Set<CryptoCurrency> =
-    setOf(CryptoCurrency.MATIC)
+    setOf(CryptoCurrency.MATIC, CryptoCurrency.BNB)

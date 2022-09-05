@@ -2,14 +2,12 @@ package piuk.blockchain.android.ui.launcher
 
 import android.content.Intent
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,9 +32,6 @@ class LauncherPresenterTest {
     private val encryptedPrefs: EncryptedPrefs = mock()
 
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase = mock()
-    private val appMaintenanceFF: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(true))
-    }
 
     private val subject = LauncherPresenter(
         appUtil,
@@ -44,7 +39,6 @@ class LauncherPresenterTest {
         environmentConfig,
         authPrefs,
         getAppMaintenanceConfigUseCase,
-        appMaintenanceFF,
         sessionPrefs,
         securityPrefs,
         referralPrefs,

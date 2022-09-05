@@ -55,4 +55,9 @@
         <item name="cornerSizeBottomRight">0dp</item>
         <item name="cornerSizeBottomLeft">0dp</item>
     </style>
+
+    <style name="CircularProgressIndicator" parent="Widget.MaterialComponents.CircularProgressIndicator.ExtraSmall">
+        <item name="indicatorColor">@color/primary_blue_accent</item>
+        <item name="trackColor">@color/paletteBaseLight</item>
+    </style>
 </resources>

@@ -72,6 +72,7 @@
     <string name="common_close">Close</string>
     <string name="common_next">Next</string>
     <string name="common_learn_more">Learn More</string>
+    <string name="common_no_results_found">No results found</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -209,15 +210,13 @@
     <string name="restoring_wallet">Restoring wallet.</string>
     <string name="password">Password</string>
     <string name="email">Your Email</string>
-    <string name="password_disclaimer">I understand that Blockchain.com cannot recover my password for me. If I lose access to my Wallet, I must use my <annotation link="backup">Secret Phrase</annotation> to access my funds.</string>
     <string name="you_agree_terms_of_service">By creating an account, you agree to Blockchain’s <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
     <string name="sign_up_email">Email</string>
     <string name="new_account_title">Create an Account</string>
-    <string name="password_disclaimer_1">I understand that Blockchain.com never stores passwords and therefore cannot recover or reset my password. If I lose access to my wallet, I must use my <annotation link="backup">Secret Private Key Recovery Phrase</annotation> to access my funds. By creating an account, you agree to Blockchain’s <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
-    >
+    <string name="password_disclaimer">I agree to Blockchain.com’s <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
     <string name="new_account_cta_text">Next</string>
     <string name="new_account_title_1">New Account</string>
-    <string name="new_account_referral_code">Enter referral code</string>
+    <string name="new_account_referral_code">Enter referral code (optional)</string>
     <string name="new_account_referral_code_invalid">Please enter a valid referral code</string>
     <string name="create_wallet_state">State</string>
     <string name="create_wallet_country">Country of Residence</string>
@@ -241,6 +240,7 @@
     <string name="bitpay_announcement_body">With BitPay, you can now use your Blockchain wallet for purchases with supporting retailers.</string>
     <string name="transaction_failed">Transaction Failed</string>
 
+    <string name="error_scan_unrecognized">QR code not recognized. Supported QR codes include Bitpay, Crypto Addresses and WalletConnect. Please try again.</string>
     <string name="error_scan_failed_general">Scan failed. Please try again.</string>
     <string name="error_scan_failed_bitpay">Unable to retrieve BitPay invoice. Has it expired?</string>
 
@@ -789,11 +789,6 @@
 
     <string name="kyc_more_info_body">To keep using Buy &amp; Sell, you’ll need to update your profile. Once completed, you’ll also unlock higher trading limits in Swap.</string>
     <string name="kyc_more_info_cta">Update Now</string>
-    <string name="kyc_postcode_error">Postcode not valid</string>
-    <string name="kyc_enter_address">Enter your current home address.</string>
-    <string name="kyc_enter_address_manually">Enter manually -></string>
-    <string name="kyc_autocomplete_addresses_error">Failed to retrieve addresses</string>
-    <string name="kyc_autocomplete_selected_address_error">Failed to retrieve address</string>
 
     <string name="metadata_load_failure">Error loading full wallet functionality. Service might temporarily be unavailable.</string>
     <string name="dashboard_price_for_asset">Current %1$s Price</string>
@@ -3044,6 +3039,7 @@
     <string name="processing">Processing</string>
     <string name="spend_from">Spend From</string>
     <string name="account_restricted">Account Restricted</string>
+    <string name="feature_not_available">Feature is not available.</string>
     <string name="terms_and_conditions_label">I agree to Blockchain.com’s Terms of Service</string>
     <string name="crypto_rewards">Crypto Rewards</string>
     <string name="crypto_rewards_description">Earn 1%% back in crypto rewards on all your purchases.</string>
@@ -3101,7 +3097,7 @@
     <string name="merchant">Merchant</string>
     <string name="type">Type</string>
     <string name="state">State</string>
-    <string name="transaction_details">Transaction Details</string>
+    <string name="transaction_details_title">Card Transaction</string>
     <string name="bc_card_transaction_pending">Pending</string>
     <string name="bc_card_transaction_cancelled">Cancelled</string>
     <string name="bc_card_transaction_declined">Declined</string>
@@ -3111,7 +3107,7 @@
     <string name="ssn_title">SSN or Individual Tax ID #</string>
     <string name="ssn_hint">XXXXXXXXX</string>
     <string name="bc_card_locked">Locked</string>
-    <string name="bc_card_transactions_title">Recent Transactions</string>
+    <string name="bc_card_transactions_title">Recent Activity</string>
     <string name="bc_card_see_all">See All</string>
     <string name="bc_card_terms_and_conditions_label">I understand and accept the terms and conditions of the Blockchain.com Visa Card Program, the Pathward Bank Cardholder Agreement, the Pathward Bank E-Sign Agreement and the Pathward Bank Privacy Policy. I also understand and accept that these terms operate in addition to the Blockchain.com Terms of Service and Blockchain.com Privacy Policy.</string>
     <string name="bc_card_transaction_payment">Payment</string>
@@ -3126,6 +3122,12 @@
     <string name="bc_card_tap_here_to_refresh">Tap here to refresh</string>
     <string name="bc_card_tap_here_to_try_again">Tap here to try again</string>
     <string name="bc_card_unable_to_load_card">Unable to load card</string>
+    <string name="bc_card_transaction_status">Status</string>
+    <string name="bc_card_transaction_payment_method">Payment Method</string>
+    <string name="bc_card_transaction_fee">Blockchain.com Fee</string>
+    <string name="bc_card_transaction_original_amount">Total %1$s</string>
+    <string name="bc_card_dashboard_legal_disclaimer">This Blockchain.com Visa® Card is issued by Pathward, N.A., Member FDIC, pursuant to a license from Visa U.S.A. Inc. Blockchain.com Visa card can be used everywhere Visa debit cards are accepted.</string>
+    <string name="bc_card_transaction_refund_title">Refund by %1$s</string>
 
     <!--  Sanctions  -->
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>
@@ -3187,4 +3189,20 @@
     <string name="go_to_trading">Go to Trading Account</string>
     <string name="use_your_card_or_cash">Use Your Cash or Card</string>
     <string name="fiat_to_cash">Convert Your Crypto to Cash</string>
+
+    <!-- Address Verification -->
+    <string name="address_verification_my_address_is_not_here">My address is not here</string>
+    <string name="address_verification_home_address">Home Address</string>
+    <string name="address_verification_apt_suite">Apt, Suite, Etc</string>
+    <string name="address_verification_city">City</string>
+    <string name="address_verification_state">State</string>
+    <string name="address_verification_zip">ZIP</string>
+    <string name="address_verification_postcode">Postcode</string>
+    <string name="address_verification_country">Country</string>
+    <string name="address_verification_postcode_error">Postcode not valid</string>
+    <string name="address_verification_addresses_count">%1$d Addresses</string>
+    <string name="address_verification_invalid_state_title">You cannot change your State</string>
+    <string name="address_verification_invalid_state_message">If you need to change your State, please contact our customer support.</string>
+
+
 </resources>

@@ -63,7 +63,6 @@ class KycProfilePresenter(
                         lastName = view.lastName,
                         countryCode = view.countryCode,
                         stateCode = view.stateCode,
-                        stateName = view.stateName
                     ).run { view.continueSignUp(this) }
                 },
                 onError = {

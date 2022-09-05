@@ -143,7 +143,7 @@ fun Separator() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(AppTheme.dimensions.xxxPaddingSmall)
+            .height(AppTheme.dimensions.borderSmall)
             .background(AppTheme.colors.medium)
     )
 }
@@ -156,7 +156,7 @@ private fun Modifier.applyStyle(style: CoinviewAccountsStyle): Modifier {
                 padding(AppTheme.dimensions.paddingMedium)
             }.run {
                 border(
-                    width = AppTheme.dimensions.xxxPaddingSmall,
+                    width = AppTheme.dimensions.borderSmall,
                     color = AppTheme.colors.medium,
                     shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
                 )

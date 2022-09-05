@@ -207,11 +207,12 @@
                 android:layout_marginTop="@dimen/standard_margin"
                 android:layout_marginEnd="@dimen/standard_margin"
                 android:layout_marginBottom="@dimen/small_margin"
+                android:paddingBottom="@dimen/very_small_margin"
                 android:lineSpacingExtra="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/wallet_terms_checkbox"
                 app:layout_constraintTop_toBottomOf="@id/referral_layout"
-                tools:text="@string/password_disclaimer_1" />
+                tools:text="@string/password_disclaimer" />
 
             <Button
                 android:id="@+id/command_next"

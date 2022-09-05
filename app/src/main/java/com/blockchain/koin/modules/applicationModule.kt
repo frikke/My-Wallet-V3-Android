@@ -15,13 +15,11 @@ import com.blockchain.core.Database
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
-import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cardRejectionCheckFeatureFlag
-import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
@@ -29,7 +27,6 @@ import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.quickFillButtonsFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -57,6 +54,7 @@ import com.squareup.sqldelight.db.SqlDriver
 import exchange.ExchangeLinking
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -132,7 +130,6 @@ import piuk.blockchain.android.ui.dataremediation.QuestionnaireModel
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
 import piuk.blockchain.android.ui.home.ActionsSheetViewModel
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.kyc.autocomplete.PlacesClientProvider
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
@@ -169,7 +166,6 @@ import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
-import java.io.File
 
 val applicationModule = module {
 
@@ -257,6 +253,7 @@ val applicationModule = module {
                 appUtil = get(),
                 ethDataManager = get(),
                 bchDataManager = get(),
+                walletModeService = get(),
                 metadataService = get(),
                 walletOptionsState = get(),
                 nabuDataManager = get(),
@@ -448,11 +445,11 @@ val applicationModule = module {
                 cardService = get(),
                 paymentMethodService = get(),
                 paymentsRepository = get(),
-                quickFillButtonsFeatureFlag = get(quickFillButtonsFeatureFlag),
                 simpleBuyPrefs = get(),
                 onboardingPrefs = get(),
                 cardRejectionCheckFF = get(cardRejectionCheckFeatureFlag),
-                eligibilityService = get()
+                eligibilityService = get(),
+                cardPaymentAsyncFF = get(cardPaymentAsyncFeatureFlag)
             )
         }
 
@@ -667,7 +664,6 @@ val applicationModule = module {
             GlobalEventHandler(
                 application = get(),
                 walletConnectServiceAPI = get(),
-                deeplinkFeatureFlag = get(deeplinkingFeatureFlag),
                 deeplinkRedirector = get(),
                 destinationArgs = get(),
                 notificationManager = get(),
@@ -741,13 +737,6 @@ val applicationModule = module {
 
         scoped {
             AssetActivityRepository()
-        }
-
-        scoped {
-            PlacesClientProvider(
-                context = get(),
-                apiKey = BuildConfig.PLACES_API_KEY,
-            )
         }
 
         factory {
@@ -844,7 +833,6 @@ val applicationModule = module {
             envSettings = get(),
             authPrefs = get(),
             getAppMaintenanceConfigUseCase = get(),
-            appMaintenanceFF = get(appMaintenanceFeatureFlag),
             sessionPrefs = get(),
             securityPrefs = get(),
             referralPrefs = get(),

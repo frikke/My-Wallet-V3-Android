@@ -2,6 +2,7 @@ package com.blockchain.blockchaincard.viewmodel
 
 import androidx.navigation.NavHostController
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.ui.BlockchainCardHostFragment
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -122,7 +123,9 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.SeeBillingAddress -> {
-                destination = BlockchainCardDestination.BillingAddressDestination
+                val fragmentManager = (navController.context as? BlockchainActivity)?.supportFragmentManager
+                val fragmentOld = fragmentManager?.fragments?.first { it is BlockchainCardHostFragment }
+                (fragmentOld as BlockchainCardHostFragment).startKycAddressVerification(navigationEvent.address)
             }
 
             is BlockchainCardNavigationEvent.SeeSupport -> {
@@ -221,7 +224,7 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     object SeePersonalDetails : BlockchainCardNavigationEvent()
 
-    object SeeBillingAddress : BlockchainCardNavigationEvent()
+    data class SeeBillingAddress(val address: BlockchainCardAddress) : BlockchainCardNavigationEvent()
 
     object SeeSupport : BlockchainCardNavigationEvent()
 

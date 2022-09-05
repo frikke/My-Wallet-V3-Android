@@ -54,11 +54,11 @@ sealed class FeatureAccess {
     data class Blocked(val reason: BlockedReason) : FeatureAccess()
 
     fun isBlockedDueToEligibility(): Boolean =
-        this is Blocked && reason == BlockedReason.NotEligible
+        this is Blocked && reason is BlockedReason.NotEligible
 }
 
 sealed class BlockedReason : Serializable {
-    object NotEligible : BlockedReason()
+    data class NotEligible(val message: String?) : BlockedReason()
     sealed class InsufficientTier : BlockedReason() {
         object Tier2Required : InsufficientTier()
         object Tier1TradeLimitExceeded : InsufficientTier()

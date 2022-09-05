@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.theme.AppSurface
+import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun TagsRow(
@@ -19,15 +22,31 @@ fun TagsRow(
     ) {
         tags.forEachIndexed { index, tag ->
             when (tag.type) {
-                is TagType.Default -> DefaultTag(text = tag.value, size = tag.type.size)
-                is TagType.InfoAlt -> InfoAltTag(text = tag.value, size = tag.type.size)
-                is TagType.Success -> SuccessTag(text = tag.value, size = tag.type.size)
-                is TagType.Warning -> WarningTag(text = tag.value, size = tag.type.size)
-                is TagType.Error -> ErrorTag(text = tag.value, size = tag.type.size)
+                is TagType.Default -> DefaultTag(text = tag.value, size = tag.type.size, onClick = tag.onClick)
+                is TagType.InfoAlt -> InfoAltTag(text = tag.value, size = tag.type.size, onClick = tag.onClick)
+                is TagType.Success -> SuccessTag(text = tag.value, size = tag.type.size, onClick = tag.onClick)
+                is TagType.Warning -> WarningTag(text = tag.value, size = tag.type.size, onClick = tag.onClick)
+                is TagType.Error -> ErrorTag(text = tag.value, size = tag.type.size, onClick = tag.onClick)
             }
             if (index != tags.lastIndex) {
                 Spacer(modifier = Modifier.width(8.dp))
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun TagRowWithHelp() {
+    AppSurface {
+        AppTheme {
+            TagsRow(
+                tags = listOf(
+                    TagViewState("Warning", TagType.Warning()),
+                    TagViewState("Success", TagType.Success()),
+                    TagViewState("Error", TagType.Error())
+                )
+            )
         }
     }
 }

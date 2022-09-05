@@ -19,13 +19,12 @@ import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.system.CircularProgressDrawable
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.referralsFeatureFlag
 import com.google.android.gms.recaptcha.RecaptchaActionType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
@@ -40,10 +39,8 @@ import piuk.blockchain.android.cards.PickerItemListener
 import piuk.blockchain.android.cards.SearchPickerItemBottomSheet
 import piuk.blockchain.android.cards.StatePickerItem
 import piuk.blockchain.android.databinding.ActivityCreateWalletBinding
-import piuk.blockchain.android.ui.customviews.CircularProgressDrawable
 import piuk.blockchain.android.ui.login.GoogleReCaptchaClient
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
-import piuk.blockchain.android.urllinks.URL_BACKUP_INFO
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import piuk.blockchain.android.util.StringUtils
@@ -68,8 +65,6 @@ class CreateWalletActivity :
         get() = binding.toolbar
 
     private val viewModel: CreateWalletViewModel by viewModel()
-
-    private val referralFF: FeatureFlag by inject(referralsFeatureFlag)
 
     private val environmentConfig: EnvironmentConfig by inject()
 
@@ -107,7 +102,6 @@ class CreateWalletActivity :
             }
 
             lifecycleScope.launch {
-                if (!referralFF.coEnabled()) return@launch
                 referralLayout.visible()
                 referralCode.doAfterTextChanged {
                     viewModel.onIntent(CreateWalletIntent.ReferralInputChanged(it?.toString().orEmpty()))
@@ -295,14 +289,13 @@ class CreateWalletActivity :
 
     private fun updatePasswordDisclaimer() {
         val linksMap = mapOf<String, Uri>(
-            "backup" to Uri.parse(URL_BACKUP_INFO),
             "terms" to Uri.parse(URL_TOS_POLICY),
             "privacy" to Uri.parse(URL_PRIVACY_POLICY)
         )
 
         val disclaimerText = StringUtils.getStringWithMappedAnnotations(
             this,
-            R.string.password_disclaimer_1,
+            R.string.password_disclaimer,
             linksMap
         )
 

@@ -65,26 +65,28 @@
 
             <com.blockchain.componentlib.basic.SimpleTextView
                 android:id="@+id/card_input_alert"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/standard_margin"
                 android:layout_marginTop="@dimen/tiny_margin"
                 android:layout_marginEnd="@dimen/standard_margin"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/card_input_form"
                 tools:visibility="visible" />
 
             <com.blockchain.componentlib.basic.SimpleTextView
                 android:id="@+id/card_input_alert_info"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/standard_margin"
                 android:layout_marginTop="@dimen/smallest_margin"
                 android:layout_marginEnd="@dimen/standard_margin"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/card_input_alert"
                 tools:visibility="visible" />

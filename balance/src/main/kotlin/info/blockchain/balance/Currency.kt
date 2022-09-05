@@ -18,6 +18,9 @@ interface Currency {
     // token price start times in epoch-seconds. null if charting not supported
     val startDate: Long?
     val type: CurrencyType
+
+    val index: Int
+        get() = DEFAULT_ASSET_ORDER_INDEX
 }
 
 enum class CurrencyType {
@@ -35,3 +38,4 @@ fun Currency.asAssetInfoOrThrow(): AssetInfo {
         "Currency is $networkTicker of type $type is not a asset info currency"
     )
 }
+private const val DEFAULT_ASSET_ORDER_INDEX = 0

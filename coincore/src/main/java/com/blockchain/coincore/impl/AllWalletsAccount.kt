@@ -3,10 +3,12 @@ package com.blockchain.coincore.impl
 import com.blockchain.coincore.MultipleCurrenciesAccountGroup
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.Currency
 
 class AllWalletsAccount internal constructor(
     override val accounts: SingleAccountList,
-    private val labels: DefaultLabels
+    private val labels: DefaultLabels,
+    override val baseCurrency: Currency
 ) : MultipleCurrenciesAccountGroup {
 
     override val label: String
@@ -15,7 +17,8 @@ class AllWalletsAccount internal constructor(
 
 class AllCustodialWalletsAccount internal constructor(
     override val accounts: SingleAccountList,
-    private val labels: DefaultLabels
+    private val labels: DefaultLabels,
+    override val baseCurrency: Currency
 ) : MultipleCurrenciesAccountGroup {
     override val label: String
         get() = labels.getAllCustodialWalletsLabel()
@@ -23,7 +26,8 @@ class AllCustodialWalletsAccount internal constructor(
 
 class AllNonCustodialWalletsAccount internal constructor(
     override val accounts: SingleAccountList,
-    private val labels: DefaultLabels
+    private val labels: DefaultLabels,
+    override val baseCurrency: Currency
 ) : MultipleCurrenciesAccountGroup {
     override val label: String
         get() = labels.getAllNonCustodialWalletsLabel()

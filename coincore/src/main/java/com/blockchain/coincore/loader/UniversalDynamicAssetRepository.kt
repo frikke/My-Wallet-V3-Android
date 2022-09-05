@@ -2,6 +2,7 @@ package com.blockchain.coincore.loader
 
 import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.DynamicAsset
+import com.blockchain.api.services.DynamicAssetProducts
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 
@@ -29,5 +30,12 @@ class UniversalDynamicAssetRepository(
 }
 
 private fun DynamicAsset.supportsAnyCustodialOrNonCustodialProducts(): Boolean {
-    return this.products.intersect(nonCustodialProducts + custodialProducts).isNotEmpty()
+    return this.products.intersect(
+        setOf(
+            DynamicAssetProducts.PrivateKey,
+            DynamicAssetProducts.DynamicSelfCustody,
+            DynamicAssetProducts.CustodialWalletBalance,
+            DynamicAssetProducts.InterestBalance
+        )
+    ).isNotEmpty()
 }

@@ -7,6 +7,7 @@ import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.NonCustodialSupport
 import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
 import com.blockchain.coincore.erc20.Erc20Asset
+import com.blockchain.coincore.evm.L1EvmAsset
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.StandardL1Asset
@@ -15,10 +16,10 @@ import com.blockchain.coincore.selfcustody.StxAsset
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -62,6 +63,7 @@ internal class DynamicAssetLoader(
     private val experimentalL1EvmAssets: Set<CryptoCurrency>,
     private val assetCatalogue: AssetCatalogueImpl,
     private val payloadManager: PayloadDataManager,
+    private val l1BalanceStore: L1BalanceStore,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
@@ -96,11 +98,23 @@ internal class DynamicAssetLoader(
 
     private val standardL1Assets: Set<CryptoAsset>
         get() = if (layerTwoFeatureFlag.isEnabled) {
-            nonCustodialAssets
+            nonCustodialAssets.plus(
+                experimentalL1EvmAssets.map { asset ->
+                    L1EvmAsset(
+                        currency = asset,
+                        l1BalanceStore = l1BalanceStore,
+                        erc20DataManager = erc20DataManager,
+                        feeDataManager = feeDataManager,
+                        walletPreferences = walletPreferences,
+                        labels = labels,
+                        formatUtils = formatUtils,
+                        addressResolver = ethHotWalletAddressResolver,
+                        layerTwoFeatureFlag = layerTwoFeatureFlag
+                    )
+                }
+            )
         } else {
-            nonCustodialAssets.minus { cryptoAsset ->
-                cryptoAsset.currency in experimentalL1EvmAssets
-            }
+            nonCustodialAssets
         }
 
     /*

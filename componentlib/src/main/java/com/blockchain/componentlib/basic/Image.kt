@@ -1,6 +1,5 @@
 package com.blockchain.componentlib.basic
 
-import android.graphics.drawable.ColorDrawable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -13,7 +12,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -21,7 +19,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -30,16 +27,8 @@ import com.blockchain.componentlib.theme.AppTheme
 fun Image(
     imageResource: ImageResource,
     modifier: Modifier = Modifier,
-    contentScale: ContentScale = ContentScale.Fit,
-    coilImageBuilderScope: (ImageRequest.Builder.() -> Unit)? = null,
+    contentScale: ContentScale = ContentScale.Fit
 ) {
-    val placeholderColor = AppTheme.colors.light.toArgb()
-
-    val defaultBuilderScope: ImageRequest.Builder.() -> Unit = {
-        crossfade(true)
-        placeholder(ColorDrawable(placeholderColor))
-    }
-
     val defaultShape: Shape = CircleShape
 
     when (imageResource) {
@@ -57,22 +46,18 @@ fun Image(
             androidx.compose.foundation.Image(
                 painter = rememberAsyncImagePainter(imageResource.bitmap),
                 contentDescription = imageResource.contentDescription,
-                modifier = imageResource.shape?.let {
-                    Modifier
-                        .size(dimensionResource(R.dimen.large_margin))
-                        .clip(it)
-                } ?: modifier,
+                modifier = modifier
+                    .run { imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_margin)) }
+                    .run { imageResource.shape?.let { clip(it) } ?: clip(defaultShape) },
                 contentScale = contentScale,
             )
         is ImageResource.Remote ->
             androidx.compose.foundation.Image(
                 painter = rememberAsyncImagePainter(imageResource.url),
                 contentDescription = imageResource.contentDescription,
-                modifier = imageResource.shape?.let {
-                    Modifier
-                        .size(dimensionResource(R.dimen.large_margin))
-                        .clip(it)
-                } ?: modifier,
+                modifier = modifier
+                    .run { imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_margin)) }
+                    .run { imageResource.shape?.let { clip(it) } ?: clip(defaultShape) },
                 contentScale = contentScale
             )
         is ImageResource.LocalWithBackground -> {
@@ -120,7 +105,9 @@ fun Image(
                             color = tintColor,
                             shape = imageResource.shape ?: defaultShape
                         )
-                        .size(dimensionResource(R.dimen.large_margin)),
+                        .run {
+                            imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_margin))
+                        }
                 )
                 androidx.compose.foundation.Image(
                     painter = painterResource(imageResource.id),

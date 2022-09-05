@@ -6,17 +6,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.ui.BlockchainCardHostFragment
 import com.blockchain.blockchaincard.ui.composables.BlockchainCardNavHost
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import info.blockchain.balance.AssetInfo
+import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 
@@ -90,5 +92,22 @@ class BlockchainCardFragment : BlockchainCardHostFragment() {
                 action = AssetAction.FiatDeposit
             )
         )
+    }
+
+    override fun startKycAddressVerification(address: BlockchainCardAddress) {
+        val fragment = BlockchainCardKycAddressVerificationFragment.newInstance(address)
+        requireActivity().supportFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
+            .replace(((view as ViewGroup).parent as View).id, fragment, fragment::class.simpleName)
+            .addToBackStack(fragment::class.simpleName)
+            .commitAllowingStateLoss()
+    }
+
+    override fun updateKycAddress(address: BlockchainCardAddress) {
+        if (modelArgs is BlockchainCardArgs.CardArgs) {
+            manageCardViewModel.onIntent(BlockchainCardIntent.UpdateBillingAddress(address))
+        } else {
+            orderCardViewModel.onIntent(BlockchainCardIntent.UpdateBillingAddress(address))
+        }
     }
 }

@@ -26,6 +26,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistInfo
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.extensions.minus
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -35,6 +36,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.store.asSingle
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
@@ -83,7 +85,7 @@ class CoinViewInteractor(
 
     fun loadRecurringBuys(asset: AssetInfo): Single<Pair<List<RecurringBuy>, Boolean>> =
         Single.zip(
-            tradeDataService.getRecurringBuysForAssetLegacy(asset),
+            tradeDataService.getRecurringBuysForAsset(asset, FreshnessStrategy.Fresh).asSingle(),
             custodialWalletManager.isCurrencyAvailableForTradingLegacy(asset)
         ) { rbList, isSupportedPair ->
             Pair(rbList, isSupportedPair)

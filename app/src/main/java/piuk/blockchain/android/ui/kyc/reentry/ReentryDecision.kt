@@ -49,7 +49,7 @@ class ReentryDecisionKycNavigator(
             }
             ReentryPoint.CountrySelection -> KycNavXmlDirections.actionStartCountrySelection()
             ReentryPoint.Profile -> KycNavXmlDirections.actionStartProfile(
-                user.requireCountryCode(), user.address?.state ?: "", user.address?.state ?: ""
+                user.requireCountryCode(), user.address?.stateIso ?: "", user.address?.stateIso ?: ""
             )
             ReentryPoint.Address -> {
                 KycNavXmlDirections.actionStartAutocompleteAddressEntry(user.toProfileModel())

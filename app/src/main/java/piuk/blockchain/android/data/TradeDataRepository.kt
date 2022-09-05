@@ -22,7 +22,7 @@ class TradeDataRepository(
     private val authenticator: Authenticator,
     private val accumulatedInPeriodMapper: Mapper<List<AccumulatedInPeriod>, Boolean>,
     private val nextPaymentRecurringBuyMapper:
-    Mapper<List<NextPaymentRecurringBuy>, List<EligibleAndNextPaymentRecurringBuy>>,
+        Mapper<List<NextPaymentRecurringBuy>, List<EligibleAndNextPaymentRecurringBuy>>,
     private val recurringBuyMapper: Mapper<List<RecurringBuyResponse>, List<RecurringBuy>>,
     private val getRecurringBuysStore: GetRecurringBuysStore
 ) : TradeDataService {
@@ -41,15 +41,6 @@ class TradeDataRepository(
             tradeService.getNextPaymentDate(authHeader = tokenResponse.authHeader)
                 .map {
                     nextPaymentRecurringBuyMapper.map(it.nextPayments)
-                }
-        }
-    }
-
-    override fun getRecurringBuysForAssetLegacy(asset: AssetInfo): Single<List<RecurringBuy>> {
-        return authenticator.authenticate { tokenResponse ->
-            tradeService.getRecurringBuysForAsset(authHeader = tokenResponse.authHeader, asset.networkTicker)
-                .map {
-                    recurringBuyMapper.map(it)
                 }
         }
     }

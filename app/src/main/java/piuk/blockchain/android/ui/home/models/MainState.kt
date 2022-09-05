@@ -27,10 +27,7 @@ data class MainState(
     val tabs: List<NavigationItem> = emptyList(),
     val walletMode: WalletMode = WalletMode.UNIVERSAL,
     val referral: ReferralState = ReferralState(ReferralInfo.NotAvailable)
-) : MviState {
-    val hasMiddleButton: Boolean
-        get() = walletMode != WalletMode.NON_CUSTODIAL_ONLY
-}
+) : MviState
 
 sealed class ViewToLaunch {
     object None : ViewToLaunch()

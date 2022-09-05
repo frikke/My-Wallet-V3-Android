@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.Flow
 import org.web3j.abi.datatypes.Bool
 import java.math.BigInteger
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
 
 enum class OrderState {
     UNKNOWN,
@@ -106,7 +107,7 @@ interface CustodialWalletManager {
 
     fun getCustodialAccountAddress(asset: Currency): Single<String>
 
-    @Deprecated("use isCurrencyAvailableForTradingFlow - remove when CoinView is migrated")
+    @Deprecated("use flow isCurrencyAvailableForTrading - remove when CoinView is migrated")
     fun isCurrencyAvailableForTradingLegacy(
         assetInfo: AssetInfo
     ): Single<Boolean>

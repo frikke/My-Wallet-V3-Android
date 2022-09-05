@@ -27,9 +27,11 @@ object GetAssetPriceUseCase {
                 val lastPrice = historicRatesData.lastOrNull()?.rate ?: 0.0
                 val difference = lastPrice - firstPrice
 
-                val percentChange =
-                    if (timeSpan == HistoricalTimeSpan.DAY) pricesData.delta24h
-                    else (difference / firstPrice) * 100
+                val percentChange = if (timeSpan == HistoricalTimeSpan.DAY) {
+                    pricesData.delta24h
+                } else {
+                    (difference / firstPrice) * 100
+                }
 
                 val changeDifference = Money.fromMajor(fiatCurrency, difference.toBigDecimal())
 

@@ -439,9 +439,4 @@
         <item name="android:layout_height">1dp</item>
         <item name="android:background">?android:attr/listDivider</item>
     </style>
-
-    <style name="CircularProgressIndicator" parent="Widget.MaterialComponents.CircularProgressIndicator.ExtraSmall">
-        <item name="indicatorColor">@color/blue_600</item>
-        <item name="trackColor">@color/grey_000</item>
-    </style>
 </resources>

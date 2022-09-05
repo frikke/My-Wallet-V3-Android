@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.launcher
 import android.content.Intent
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SecurityPrefs
@@ -44,7 +43,6 @@ class LauncherPresenter internal constructor(
     private val envSettings: EnvironmentConfig,
     private val authPrefs: AuthPrefs,
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
-    private val appMaintenanceFF: FeatureFlag,
     private val sessionPrefs: SessionPrefs,
     private val securityPrefs: SecurityPrefs,
     private val referralPrefs: ReferralPrefs,
@@ -52,37 +50,28 @@ class LauncherPresenter internal constructor(
 ) : MvpPresenter<LauncherView>() {
 
     override fun onViewCreated() {
-        appMaintenanceFF.enabled.subscribe { enabled ->
-            if (enabled) {
-                // check app maintenance status
-                rxSingle { getAppMaintenanceConfigUseCase() }.subscribeBy(
-                    onSuccess = { status ->
-                        when (status) {
-                            AppMaintenanceStatus.NonActionable.Unknown,
-                            AppMaintenanceStatus.NonActionable.AllClear -> {
-                                extractDataAndStart()
-                            }
-
-                            else -> {
-                                view?.onAppMaintenance()
-                            }
-                        }
-                    },
-                    onError = {
-                        Timber.e("Cannot get maintenance config, $it")
+        // check app maintenance status
+        rxSingle { getAppMaintenanceConfigUseCase() }.subscribeBy(
+            onSuccess = { status ->
+                when (status) {
+                    AppMaintenanceStatus.NonActionable.Unknown,
+                    AppMaintenanceStatus.NonActionable.AllClear -> {
                         extractDataAndStart()
                     }
-                )
+
+                    else -> {
+                        view?.onAppMaintenance()
+                    }
+                }
+            },
+            onError = {
+                Timber.e("Cannot get maintenance config, $it")
+                extractDataAndStart()
             }
-        }
+        )
     }
 
     override fun onViewAttached() {
-        appMaintenanceFF.enabled.subscribe { enabled ->
-            if (!enabled) {
-                extractDataAndStart()
-            }
-        }
     }
 
     fun resumeAppFlow() {

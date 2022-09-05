@@ -60,6 +60,7 @@ class KycNavHostPresenterTest {
             kycTiersStore = kycTiersStore,
             getUserStore = getUserStore,
             analytics = mock(),
+            productEligibilityStore = mock(),
         )
         subject.initView(view)
     }
@@ -410,7 +411,7 @@ class KycNavHostPresenterTest {
         city = "city",
         line1 = "line1",
         line2 = "line2",
-        state = "state",
+        stateIso = "state",
         countryCode = "regionCode",
         postCode = "postCode"
     )

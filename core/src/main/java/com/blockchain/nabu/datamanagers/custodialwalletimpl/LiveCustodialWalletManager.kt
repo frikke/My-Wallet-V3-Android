@@ -89,10 +89,10 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.flatMapIterable
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import java.math.BigInteger
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 
 class LiveCustodialWalletManager(
     private val assetCatalogue: AssetCatalogue,
@@ -358,14 +358,10 @@ class LiveCustodialWalletManager(
         }
 
     override fun isAssetSupportedForSwapLegacy(assetInfo: AssetInfo): Single<Boolean> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.getSwapAvailablePairs(sessionToken)
-        }.map { response ->
-            response.firstOrNull { pair ->
-                val splitPair = pair.split("-")
-                splitPair[0] == assetInfo.networkTicker
-            } != null
-        }
+        custodialRepository.getSwapAvailablePairs()
+            .map { pairs ->
+                assetInfo.networkTicker in pairs.map { it.source.networkTicker }
+            }
 
     override fun isAssetSupportedForSwap(
         assetInfo: AssetInfo,

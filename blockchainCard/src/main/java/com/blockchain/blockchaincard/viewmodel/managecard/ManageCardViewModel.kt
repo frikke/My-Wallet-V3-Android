@@ -286,8 +286,8 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         .doOnFailure {
                             Timber.e("Unable to get states: $it")
                         }
+                    navigate(BlockchainCardNavigationEvent.SeeBillingAddress(address))
                 }
-                navigate(BlockchainCardNavigationEvent.SeeBillingAddress)
             }
 
             is BlockchainCardIntent.UpdateBillingAddress -> {

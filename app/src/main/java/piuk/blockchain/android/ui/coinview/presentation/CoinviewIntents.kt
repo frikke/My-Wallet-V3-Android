@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.coinview.presentation
 
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 import com.github.mikephil.charting.data.Entry
 
@@ -54,7 +55,7 @@ sealed interface CoinviewIntents : Intent<CoinviewModelState> {
      */
     data class UpdatePriceForChartSelection(val entry: Entry) : CoinviewIntents {
         override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.assetPriceHistory?.historicRates?.isNotEmpty() ?: false
+            return (modelState.assetPriceHistory as? DataResource.Data)?.data?.historicRates?.isNotEmpty() ?: false
         }
     }
 
@@ -68,7 +69,7 @@ sealed interface CoinviewIntents : Intent<CoinviewModelState> {
      */
     data class NewTimeSpanSelected(val timeSpan: HistoricalTimeSpan) : CoinviewIntents {
         override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.assetPriceHistory?.priceDetail?.timeSpan != timeSpan
+            return (modelState.assetPriceHistory as? DataResource.Data)?.data?.priceDetail?.timeSpan != timeSpan
         }
     }
 

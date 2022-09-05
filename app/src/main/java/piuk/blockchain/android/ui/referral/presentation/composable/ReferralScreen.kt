@@ -40,8 +40,8 @@ import com.blockchain.componentlib.theme.Blue000
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.CowboysDark
 import com.blockchain.componentlib.theme.UltraLight
-import com.blockchain.domain.common.model.PromotionStyleInfo
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.referral.presentation.ReferralPromotionStyleInfo
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
@@ -54,7 +54,7 @@ fun ReferralScreen(
     onBackPressed: () -> Unit,
     copyToClipboard: (String) -> Unit,
     shareCode: (String) -> Unit,
-    promotionData: PromotionStyleInfo?
+    promotionData: ReferralPromotionStyleInfo?
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         val backgroundUrl = promotionData?.backgroundUrl
@@ -100,7 +100,9 @@ fun ReferralScreen(
                 if (!iconUrl.isNullOrEmpty()) {
                     AsyncMediaItem(
                         modifier = Modifier.size(dimensionResource(R.dimen.asset_icon_size_large)),
-                        url = iconUrl
+                        url = iconUrl,
+                        onErrorDrawable = R.drawable.ic_referral,
+                        onLoadingPlaceholder = R.drawable.ic_blockchain
                     )
                 } else if (backgroundUrl.isNullOrEmpty()) {
                     Image(
@@ -130,6 +132,7 @@ fun ReferralScreen(
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
@@ -148,6 +151,7 @@ fun ReferralScreen(
                 Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
@@ -199,6 +203,7 @@ fun ReferralCode(
     ) {
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             style = ComposeTypographies.Title4,
             color = if (isCustomBackground) ComposeColors.Light else ComposeColors.Title,
             gravity = ComposeGravities.Centre,
@@ -310,16 +315,13 @@ fun PreviewReferralScreenPromotion() {
         onBackPressed = {},
         copyToClipboard = {},
         shareCode = {},
-        promotionData = PromotionStyleInfo(
+        promotionData = ReferralPromotionStyleInfo(
             "cowboys referral title",
             message = "cowboys referral message",
             iconUrl = "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com" +
                 "/o/tickets.png?alt=media&token=b3fa42b6-55a7-4680-ba63-9d08657c0da3",
-            headerUrl = "",
             backgroundUrl = "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com" +
                 "/o/prescott.png?alt=media&token=443cc5cb-0f04-4e46-9712-a052b2437fa1",
-            foregroundColorScheme = emptyList(),
-            actions = emptyList()
         )
     )
 }
