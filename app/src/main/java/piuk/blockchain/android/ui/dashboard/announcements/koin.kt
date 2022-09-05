@@ -52,7 +52,8 @@ val dashboardAnnouncementsModule = module {
         factory {
             AnnouncementConfigAdapterImpl(
                 config = get(),
-                json = get()
+                json = get(),
+                userIdentity = get()
             )
         }.bind(AnnouncementConfigAdapter::class)
 

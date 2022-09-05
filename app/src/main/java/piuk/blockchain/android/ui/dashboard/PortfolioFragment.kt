@@ -11,8 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.UiThread
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.analytics.events.AnalyticsEvents
@@ -23,10 +21,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.card.CustomBackgroundCard
 import com.blockchain.componentlib.card.CustomBackgroundCardView
-import com.blockchain.componentlib.theme.AppSurface
-import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -957,20 +952,4 @@ class PortfolioFragment :
 
 internal class SafeLayoutManager(context: Context) : LinearLayoutManager(context) {
     override fun supportsPredictiveItemAnimations() = false
-}
-
-@Preview
-@Composable
-fun CustomBackgroundCard_Basic() {
-    AppTheme {
-        AppSurface {
-            CustomBackgroundCard(
-                title = "Title",
-                subtitle = "Subtitle",
-                iconResource = ImageResource.Local(R.drawable.ic_temp_cowboys_icon),
-                backgroundResource = ImageResource.Local(R.drawable.ic_temp_cowboys_header),
-                isCloseable = false
-            )
-        }
-    }
 }
