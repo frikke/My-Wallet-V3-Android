@@ -24,6 +24,7 @@ import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.superapp.dashboard.composable.SuperAppDashboard
+import piuk.blockchain.android.ui.superapp2.SuperAppDashboard2
 
 class SuperAppDashboardActivity : BlockchainActivity() {
     override val alwaysDisableScreenshots: Boolean
@@ -33,7 +34,7 @@ class SuperAppDashboardActivity : BlockchainActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            SuperAppDashboard()
+            SuperAppDashboard2()
         }
     }
 
