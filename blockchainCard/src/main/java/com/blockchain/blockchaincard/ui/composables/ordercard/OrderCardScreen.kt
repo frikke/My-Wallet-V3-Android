@@ -133,7 +133,12 @@ private fun OrderCardIntroPreview() {
 }
 
 @Composable
-fun OrderCardAddressKYC(onContinue: () -> Unit, onCheckBillingAddress: () -> Unit, shortAddress: String?) {
+fun OrderCardAddressKYC(
+    onContinue: () -> Unit,
+    onCheckBillingAddress: () -> Unit,
+    shortAddress: String?,
+    isAddressLoading: Boolean
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = CenterHorizontally,
@@ -144,7 +149,9 @@ fun OrderCardAddressKYC(onContinue: () -> Unit, onCheckBillingAddress: () -> Uni
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Start,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = AppTheme.dimensions.paddingLarge)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = AppTheme.dimensions.paddingLarge)
             )
 
             SimpleText(
@@ -152,10 +159,12 @@ fun OrderCardAddressKYC(onContinue: () -> Unit, onCheckBillingAddress: () -> Uni
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Start,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = AppTheme.dimensions.paddingLarge)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = AppTheme.dimensions.paddingLarge)
             )
 
-            if (!shortAddress.isNullOrEmpty()) {
+            if (!isAddressLoading) {
                 DefaultTableRow(
                     primaryText = stringResource(R.string.residential_address),
                     secondaryText = shortAddress,
@@ -189,7 +198,8 @@ private fun OrderCardAddressKYCPreview() {
     OrderCardAddressKYC(
         onContinue = {},
         onCheckBillingAddress = {},
-        shortAddress = "123 Main St, New York, NY 10001"
+        shortAddress = "123 Main St, New York, NY 10001",
+        isAddressLoading = false
     )
 }
 
@@ -210,7 +220,9 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Start,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = AppTheme.dimensions.paddingLarge)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = AppTheme.dimensions.paddingLarge)
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
@@ -220,7 +232,9 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Start,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = AppTheme.dimensions.paddingLarge)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = AppTheme.dimensions.paddingLarge)
             )
 
             TextInput(
@@ -330,7 +344,9 @@ fun OrderCardContent(
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Muted,
                 gravity = ComposeGravities.Start,
-                modifier = Modifier.fillMaxWidth().clickable { onSeeLegalDocuments() }
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onSeeLegalDocuments() }
             )
         }
 

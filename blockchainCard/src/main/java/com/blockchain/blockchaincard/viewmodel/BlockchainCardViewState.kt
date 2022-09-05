@@ -28,4 +28,5 @@ data class BlockchainCardViewState(
     val legalDocuments: List<BlockchainCardLegalDocument>? = null,
     val isLegalDocReviewComplete: Boolean = false,
     val singleLegalDocumentToSee: BlockchainCardLegalDocument? = null,
+    val isAddressLoading: Boolean = true,
 ) : ViewState

@@ -2,6 +2,7 @@ package com.blockchain.blockchaincard.ui
 
 import androidx.fragment.app.Fragment
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.blockchaincard.viewmodel.managecard.ManageCardViewModel
@@ -19,7 +20,6 @@ abstract class BlockchainCardHostFragment : Fragment(), AndroidScopeComponent {
     override val scope: Scope = payloadScope
 
     val orderCardViewModel: OrderCardViewModel by viewModel()
-
     val manageCardViewModel: ManageCardViewModel by viewModel()
 
     val modelArgs: ModelConfigArgs by lazy {
@@ -42,4 +42,8 @@ abstract class BlockchainCardHostFragment : Fragment(), AndroidScopeComponent {
     abstract fun startBuy(asset: AssetInfo)
 
     abstract fun startDeposit(account: FiatAccount)
+
+    abstract fun startKycAddressVerification(address: BlockchainCardAddress)
+
+    abstract fun updateKycAddress(address: BlockchainCardAddress)
 }

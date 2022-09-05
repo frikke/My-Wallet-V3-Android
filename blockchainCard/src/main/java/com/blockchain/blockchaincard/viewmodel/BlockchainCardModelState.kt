@@ -28,6 +28,7 @@ data class BlockchainCardModelState(
     val legalDocuments: List<BlockchainCardLegalDocument>? = null,
     val isLegalDocReviewComplete: Boolean = false,
     val singleLegalDocumentToSee: BlockchainCardLegalDocument? = null,
+    val isAddressLoading: Boolean = false,
 ) : ModelState
 
 sealed class BlockchainCardErrorState {

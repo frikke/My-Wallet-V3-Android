@@ -94,7 +94,8 @@ fun BlockchainCardNavHost(
                     OrderCardAddressKYC(
                         onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardSSNAddress) },
                         onCheckBillingAddress = { viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress) },
-                        shortAddress = state.residentialAddress?.getShortAddress()
+                        shortAddress = state.residentialAddress?.getShortAddress(),
+                        isAddressLoading = state.isAddressLoading
                     )
                 }
             }
