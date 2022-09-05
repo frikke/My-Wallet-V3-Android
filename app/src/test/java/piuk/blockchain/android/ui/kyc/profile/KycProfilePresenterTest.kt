@@ -26,6 +26,7 @@ import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import java.util.Locale
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import org.amshove.kluent.`should throw`
@@ -36,7 +37,6 @@ import piuk.blockchain.android.ui.validOfflineToken
 import piuk.blockchain.android.util.StringUtils
 import retrofit2.HttpException
 import retrofit2.Response
-import java.util.Locale
 
 class KycProfilePresenterTest {
 

@@ -103,7 +103,6 @@ internal class UserFeaturePermissionRepository(
                                 }
                             )
                         }
-
                     }
                 }
             }
@@ -186,13 +185,12 @@ private fun ProductEligibility.toFeatureAccess(): FeatureAccess {
                     BlockedReason.Sanctions.Unknown(reason.message)
                 }
                 is ProductNotEligibleReason.Unknown -> {
-                    BlockedReason.NotEligible
+                    BlockedReason.NotEligible(reason.message)
                 }
                 null -> {
-                    BlockedReason.NotEligible
+                    BlockedReason.NotEligible(null)
                 }
             }
         )
     }
 }
-

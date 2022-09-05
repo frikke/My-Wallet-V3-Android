@@ -20,6 +20,7 @@ import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -40,7 +41,6 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Da
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Unavailable
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountsHeaderState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState.Data.CoinviewRecurringBuyState
-import java.text.DecimalFormat
 
 class CoinviewViewModel(
     walletModeService: WalletModeService,

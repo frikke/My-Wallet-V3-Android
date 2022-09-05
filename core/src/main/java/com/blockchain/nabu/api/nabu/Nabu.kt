@@ -1,5 +1,7 @@
 package com.blockchain.nabu.api.nabu
 
+import com.blockchain.core.sdd.domain.model.SddEligibilityDto
+import com.blockchain.core.sdd.domain.model.SddStatusDto
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
@@ -16,8 +18,6 @@ import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocumentsResponse
 import com.blockchain.nabu.models.responses.nabu.VeriffToken
-import com.blockchain.core.sdd.domain.model.SddEligibilityDto
-import com.blockchain.core.sdd.domain.model.SddStatusDto
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuyOrderListResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse

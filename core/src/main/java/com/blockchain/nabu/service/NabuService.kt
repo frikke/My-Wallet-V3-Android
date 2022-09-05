@@ -1,5 +1,7 @@
 package com.blockchain.nabu.service
 
+import com.blockchain.core.sdd.domain.model.SddEligibilityDto
+import com.blockchain.core.sdd.domain.model.SddStatusDto
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.api.nabu.Nabu
@@ -18,8 +20,6 @@ import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
-import com.blockchain.core.sdd.domain.model.SddEligibilityDto
-import com.blockchain.core.sdd.domain.model.SddStatusDto
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.ConfirmOrderRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder

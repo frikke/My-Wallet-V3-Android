@@ -12,7 +12,6 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.store.mapData
-import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -98,16 +97,20 @@ class LoadQuickActionsUseCase(
                              * when trying to buy with low tier upgrading to gold will be requested
                              */
                             val buyAccess = featuresAccessData[Feature.Buy]
-                            val canBuy = isAvailableForTradingData && (
-                                buyAccess is FeatureAccess.Granted ||
-                                    (buyAccess is FeatureAccess.Blocked && buyAccess.reason is BlockedReason.InsufficientTier)
-                                )
+                            val canBuy = isAvailableForTradingData &&
+                                (
+                                    buyAccess is FeatureAccess.Granted ||
+                                        (
+                                            buyAccess is FeatureAccess.Blocked &&
+                                                buyAccess.reason is BlockedReason.InsufficientTier
+                                            )
+                                    )
 
                             /**
                              * Swap button will be enabled if
                              * * Balance is positive
                              */
-                            val assetFilter = when(accounts){
+                            val assetFilter = when (accounts) {
                                 is CoinviewAccounts.Universal -> AssetFilter.All
                                 is CoinviewAccounts.Custodial -> AssetFilter.Trading
                                 is CoinviewAccounts.Defi -> error("Defi unreachable here")

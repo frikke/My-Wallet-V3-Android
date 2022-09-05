@@ -99,17 +99,15 @@ val nabuModule = module {
             )
         }
 
-          scoped<UserFeaturePermissionService> {
-              UserFeaturePermissionRepository(
-                  kycService = get(),
-                  interestService = get(),
-                  sddService = get(),
-                  eligibilityService = get(),
-                  simpleBuyService = get()
+        scoped<UserFeaturePermissionService> {
+            UserFeaturePermissionRepository(
+                kycService = get(),
+                interestService = get(),
+                sddService = get(),
+                eligibilityService = get(),
+                simpleBuyService = get()
             )
         }
-
-
 
         factory {
             LiveCustodialWalletManager(
