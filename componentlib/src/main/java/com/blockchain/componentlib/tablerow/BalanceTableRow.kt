@@ -29,7 +29,7 @@ import com.blockchain.componentlib.theme.AppTheme
 fun BalanceTableRow(
     titleStart: AnnotatedString,
     titleEnd: AnnotatedString? = null,
-    bodyStart: AnnotatedString,
+    bodyStart: AnnotatedString? = null,
     bodyEnd: AnnotatedString? = null,
     startImageResource: ImageResource,
     endImageResource: ImageResource = ImageResource.None,
@@ -80,14 +80,16 @@ fun BalanceTableRow(
                     Row(
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text(
-                            text = bodyStart,
-                            style = AppTheme.typography.paragraph1,
-                            modifier = Modifier
-                                .wrapContentSize()
-                                .align(Alignment.CenterVertically),
-                            color = AppTheme.colors.body
-                        )
+                        bodyStart?.let {
+                            Text(
+                                text = bodyStart,
+                                style = AppTheme.typography.paragraph1,
+                                modifier = Modifier
+                                    .wrapContentSize()
+                                    .align(Alignment.CenterVertically),
+                                color = AppTheme.colors.body
+                            )
+                        }
                         if (isInlineTags) {
                             TagsRow(
                                 tags = tags,

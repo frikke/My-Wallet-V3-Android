@@ -2529,7 +2529,7 @@ Encuentra la aplicación aquí: https://blockchainwallet.page.link/join</string>
     <string name="merchant">Comerciante</string>
     <string name="type">Tipo</string>
     <string name="state">Estado</string>
-    <string name="transaction_details">Detalles de la transacción</string>
+    <string name="transaction_details_title">Detalles de la transacción</string>
     <string name="bc_card_transaction_pending">Pendiente</string>
     <string name="bc_card_transaction_cancelled">Cancelada</string>
     <string name="bc_card_transaction_declined">Rechazada</string>

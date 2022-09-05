@@ -2602,7 +2602,7 @@ Vous trouverez l\'appli ici : https://blockchainwallet.page.link/join</string>
     <string name="merchant">Marchand</string>
     <string name="type">Type</string>
     <string name="state">État</string>
-    <string name="transaction_details">Détails de la transaction</string>
+    <string name="transaction_details_title">Détails de la transaction</string>
     <string name="bc_card_transaction_pending">En attente</string>
     <string name="bc_card_transaction_cancelled">Annulée</string>
     <string name="bc_card_transaction_declined">Refusée</string>

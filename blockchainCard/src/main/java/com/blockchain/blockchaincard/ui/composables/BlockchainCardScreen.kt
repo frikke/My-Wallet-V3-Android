@@ -379,22 +379,16 @@ fun BlockchainCardNavHost(
             }
 
             bottomSheet(BlockchainCardDestination.TransactionDetailsDestination) {
-                state?.selectedCardTransaction?.let { transaction ->
-                    CardTransactionDetails(
-                        cardTransaction = transaction,
-                        onCloseBottomSheet = {
-                            viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
-                        }
-                    )
-                }
-            }
-
-            bottomSheet(BlockchainCardDestination.TransactionDetailsDestination) {
-                state?.selectedCardTransaction?.let { transaction ->
-                    CardTransactionDetails(
-                        cardTransaction = transaction,
-                        onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
-                    )
+                state?.let { state ->
+                    if (state.selectedCardTransaction != null && state.card != null) {
+                        CardTransactionDetails(
+                            cardTransaction = state.selectedCardTransaction,
+                            onCloseBottomSheet = {
+                                viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
+                            },
+                            last4digits = state.card.last4
+                        )
+                    }
                 }
             }
 

@@ -2660,7 +2660,7 @@ Uygulama linki: https://blockchainwallet.page.link/join</string>
     <string name="merchant">Ticari</string>
     <string name="type">Yaz</string>
     <string name="state">Eyalet</string>
-    <string name="transaction_details">İşlem Detayları</string>
+    <string name="transaction_details_title">İşlem Detayları</string>
     <string name="bc_card_transaction_pending">Beklemede</string>
     <string name="bc_card_transaction_cancelled">İ̇ptal Edildi</string>
     <string name="bc_card_transaction_declined">Reddedildi</string>

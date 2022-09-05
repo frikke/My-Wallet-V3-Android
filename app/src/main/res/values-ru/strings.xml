@@ -2621,7 +2621,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="merchant">Торговец</string>
     <string name="type">Тип</string>
     <string name="state">Штат</string>
-    <string name="transaction_details">Данные транзакции</string>
+    <string name="transaction_details_title">Данные транзакции</string>
     <string name="bc_card_transaction_pending">В ожидании</string>
     <string name="bc_card_transaction_cancelled">Отменена</string>
     <string name="bc_card_transaction_declined">Отклонена</string>
