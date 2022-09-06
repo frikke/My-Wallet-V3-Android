@@ -40,6 +40,7 @@ class SuperAppDashboardActivity : BlockchainActivity() {
         setContent {
             val systemUiController = rememberSystemUiController()
             systemUiController.setStatusBarColor(Color.Transparent)
+            systemUiController.setNavigationBarColor(Color.Transparent)
 
             SuperAppDashboard2()
         }
