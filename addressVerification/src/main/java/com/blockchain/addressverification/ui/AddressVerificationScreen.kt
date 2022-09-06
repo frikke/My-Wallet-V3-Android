@@ -58,24 +58,6 @@ fun AddressVerificationScreen(
             .padding(AppTheme.dimensions.paddingLarge)
             .fillMaxWidth()
     ) {
-        OutlinedTextInput(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = AppTheme.dimensions.paddingMedium),
-            value = state.mainLineInput,
-            label = stringResource(R.string.address_verification_home_address),
-            onValueChange = {
-                onIntent(AddressVerificationIntent.MainLineInputChanged(it))
-            },
-            singleLine = true,
-            placeholder = stringResource(R.string.address_verification_home_address),
-            focusedTrailingIcon = ImageResource.Local(R.drawable.ic_close_circle),
-            unfocusedTrailingIcon = ImageResource.None,
-            onTrailingIconClicked = {
-                onIntent(AddressVerificationIntent.MainLineInputChanged(TextFieldValue("")))
-            },
-        )
-
         when (state.step) {
             AddressVerificationStep.SEARCH -> SearchStep(state, onIntent)
             AddressVerificationStep.DETAILS -> DetailsStep(state, onIntent)
@@ -88,6 +70,27 @@ private fun ColumnScope.SearchStep(
     state: AddressVerificationState,
     onIntent: (AddressVerificationIntent) -> Unit,
 ) {
+    val searchInputIcon =
+        if (state.searchInput.text.isNotEmpty()) ImageResource.Local(R.drawable.ic_close_circle)
+        else ImageResource.None
+    OutlinedTextInput(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = AppTheme.dimensions.paddingMedium),
+        value = state.searchInput,
+        label = stringResource(R.string.address_verification_home_address),
+        onValueChange = {
+            onIntent(AddressVerificationIntent.SearchInputChanged(it))
+        },
+        singleLine = true,
+        placeholder = stringResource(R.string.address_verification_home_address),
+        focusedTrailingIcon = searchInputIcon,
+        unfocusedTrailingIcon = searchInputIcon,
+        onTrailingIconClicked = {
+            onIntent(AddressVerificationIntent.SearchInputChanged(TextFieldValue("")))
+        },
+    )
+
     Box {
         if (state.isSearchLoading) {
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -96,7 +99,7 @@ private fun ColumnScope.SearchStep(
         }
 
         val suggestions = state.results
-        if (!state.areResultsHidden) {
+        if (state.showManualOverride) {
             Column {
                 SimpleText(
                     modifier = Modifier
@@ -164,6 +167,25 @@ private fun ColumnScope.DetailsStep(
     state: AddressVerificationState,
     onIntent: (AddressVerificationIntent) -> Unit,
 ) {
+    OutlinedTextInput(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = AppTheme.dimensions.paddingMedium),
+        value = state.mainLineInput,
+        label = stringResource(R.string.address_verification_home_address),
+        onValueChange = {
+            onIntent(AddressVerificationIntent.MainLineInputChanged(it))
+        },
+        singleLine = true,
+        placeholder = stringResource(R.string.address_verification_home_address),
+        state = if (state.isMainLineInputEnabled) {
+            TextInputState.Default(null)
+        } else {
+            // TODO(labreu): Check if we want to show an explainer text as to why the user cannot change the address
+            TextInputState.Disabled(null)
+        }
+    )
+
     OutlinedTextInput(
         modifier = Modifier
             .fillMaxWidth()
@@ -369,12 +391,15 @@ fun PreviewSearchScreen() {
 
     val state = AddressVerificationState(
         step = AddressVerificationStep.SEARCH,
-        mainLineInput = TextFieldValue("1330 River"),
+        searchInput = TextFieldValue("1330 River"),
         areResultsHidden = false,
+        showManualOverride = false,
         results = suggestions,
         isSearchLoading = true,
         loadingAddressDetails = suggestions[2],
         error = null,
+        mainLineInput = "",
+        isMainLineInputEnabled = true,
         secondLineInput = "",
         cityInput = "",
         isShowingStateInput = false,
@@ -396,12 +421,15 @@ fun PreviewSearchScreen() {
 fun PreviewSearchScreenEmptyState() {
     val state = AddressVerificationState(
         step = AddressVerificationStep.SEARCH,
-        mainLineInput = TextFieldValue("1330 River"),
+        searchInput = TextFieldValue("1330 River"),
         areResultsHidden = false,
+        showManualOverride = true,
         results = emptyList(),
         isSearchLoading = false,
         loadingAddressDetails = null,
         error = null,
+        mainLineInput = "",
+        isMainLineInputEnabled = true,
         secondLineInput = "",
         cityInput = "",
         isShowingStateInput = false,
@@ -423,12 +451,15 @@ fun PreviewSearchScreenEmptyState() {
 fun PreviewDetailsScreen() {
     val state = AddressVerificationState(
         step = AddressVerificationStep.DETAILS,
-        mainLineInput = TextFieldValue("1330 River"),
+        searchInput = TextFieldValue("1330 River"),
         areResultsHidden = false,
+        showManualOverride = true,
         results = emptyList(),
         isSearchLoading = false,
         loadingAddressDetails = null,
         error = null,
+        mainLineInput = "1330 River",
+        isMainLineInputEnabled = true,
         secondLineInput = "10 West",
         cityInput = "Brooklyn",
         isShowingStateInput = true,

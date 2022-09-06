@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.addressverification.R
@@ -36,6 +38,8 @@ class AddressVerificationFragment :
         )
     }
 
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
+
     private val argCountryIso: CountryIso by lazy {
         arguments?.getString(ARG_COUNTRY_ISO)!!
     }
@@ -48,12 +52,21 @@ class AddressVerificationFragment :
         arguments?.getParcelable(ARG_PREFILLED_ADDRESS)
     }
 
+    private val argAllowManualOverride: Boolean by lazy {
+        arguments?.getBoolean(ARG_ALLOW_MANUAL_OVERRIDE) ?: false
+    }
+
     override val scope: Scope = payloadScope
 
     private val viewModel: AddressVerificationModel by viewModel()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        bindViewModel(viewModel, this, Args(argCountryIso, argStateIso, argPrefilledAddress))
+        bindViewModel(viewModel, this, Args(argCountryIso, argStateIso, argPrefilledAddress, argAllowManualOverride))
+
+        onBackPressedCallback = requireActivity().onBackPressedDispatcher.addCallback(owner = this) {
+            viewModel.onIntent(AddressVerificationIntent.BackClicked)
+        }
+
         return ComposeView(requireContext()).apply {
             setContent {
                 AddressVerificationScreen(viewState = viewModel.viewState, onIntent = viewModel::onIntent)
@@ -92,6 +105,10 @@ class AddressVerificationFragment :
     override fun route(navigationEvent: Navigation) {
         when (navigationEvent) {
             is Navigation.FinishSuccessfully -> host.addressVerifiedSuccessfully(navigationEvent.address)
+            Navigation.Back -> {
+                onBackPressedCallback.remove()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
         }
     }
 
@@ -99,24 +116,29 @@ class AddressVerificationFragment :
         private const val ARG_COUNTRY_ISO = "ARG_COUNTRY_ISO"
         private const val ARG_STATE_ISO = "ARG_STATE_ISO"
         private const val ARG_PREFILLED_ADDRESS = "ARG_PREFILLED_ADDRESS"
+        private const val ARG_ALLOW_MANUAL_OVERRIDE = "ARG_ALLOW_MANUAL_OVERRIDE"
 
         fun newInstance(
             countryIso: CountryIso,
-            stateIso: StateIso?
+            stateIso: StateIso?,
+            allowManualOverride: Boolean,
         ): AddressVerificationFragment = AddressVerificationFragment().apply {
             arguments = Bundle().apply {
                 putString(ARG_COUNTRY_ISO, countryIso)
                 putString(ARG_STATE_ISO, stateIso)
+                putBoolean(ARG_ALLOW_MANUAL_OVERRIDE, allowManualOverride)
             }
         }
 
         fun newInstanceEditMode(
-            address: AddressDetails
+            address: AddressDetails,
+            allowManualOverride: Boolean,
         ): AddressVerificationFragment = AddressVerificationFragment().apply {
             arguments = Bundle().apply {
                 putString(ARG_COUNTRY_ISO, address.countryIso)
                 putString(ARG_STATE_ISO, address.stateIso)
                 putParcelable(ARG_PREFILLED_ADDRESS, address)
+                putBoolean(ARG_ALLOW_MANUAL_OVERRIDE, allowManualOverride)
             }
         }
     }

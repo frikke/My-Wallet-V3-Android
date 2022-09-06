@@ -2,16 +2,9 @@ apply from: rootProject.file('gradle/local/common-feature-android-presentation.g
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'kotlin-parcelize'
 
-final buildProperties = new BuildProperties(file('secrets.properties'), file('secretsDefaults.properties'))
-
 android {
     buildTypes {
-        debug {
-            buildConfigField "String", "PLACES_API_KEY", "\"${buildProperties.secrets['stagingGooglePlacesApiKey']}\""\
-        }
         release {
-            buildConfigField "String", "PLACES_API_KEY", "\"${buildProperties.secrets['prodGooglePlacesApiKey']}\""
-
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -61,8 +54,6 @@ dependencies {
     // TODO(aromano): TEMP while Google doesn't fix https://issuetracker.google.com/issues/227767363
     debugImplementation "androidx.customview:customview:1.2.0-alpha01"
     debugImplementation "androidx.customview:customview-poolingcontainer:1.0.0-alpha01"
-
-    implementation Libraries.googlePlaces
 
     // test
     testImplementation Libraries.junit
