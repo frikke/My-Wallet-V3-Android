@@ -131,13 +131,13 @@ class KycRepositoryTest {
     }
 
     @Test
-    fun `GIVEN only BRONZE is verified, WHEN getHighestApprovedKycTierLegacy is called, BRONZE should be returned`() =
+    fun `GIVEN only BRONZE is verified, WHEN getHighestApprovedKycTier is called, BRONZE should be returned`() =
         runTest {
             val mockTiers = createMockTiers(silverState = "NONE", goldState = "NONE")
             every { kycTiersStore.stream(any()) } returns flowOf(DataResource.Data(mockTiers))
 
             val tierLevel = kycService.getHighestApprovedTierLevel().last()
-            assertEquals(KycTier.BRONZE, tierLevel)
+            assertEquals(DataResource.Data(KycTier.BRONZE), tierLevel)
         }
 
     @Test
@@ -158,7 +158,7 @@ class KycRepositoryTest {
             every { kycTiersStore.stream(any()) } returns flowOf(DataResource.Data(mockTiers))
 
             val tierLevel = kycService.getHighestApprovedTierLevel().last()
-            assertEquals(KycTier.SILVER, tierLevel)
+            assertEquals(DataResource.Data(KycTier.SILVER), tierLevel)
         }
 
     @Test
@@ -179,7 +179,7 @@ class KycRepositoryTest {
             every { kycTiersStore.stream(any()) } returns flowOf(DataResource.Data(mockTiers))
 
             val tierLevel = kycService.getHighestApprovedTierLevel().last()
-            assertEquals(KycTier.GOLD, tierLevel)
+            assertEquals(DataResource.Data(KycTier.GOLD), tierLevel)
         }
 
     @Test
