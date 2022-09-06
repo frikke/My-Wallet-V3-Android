@@ -53,6 +53,18 @@
             app:argType="string" />
     </fragment>
     <fragment
+        android:id="@+id/kycAutocompleteAddressFragment"
+        android:name="piuk.blockchain.android.ui.kyc.autocomplete.KycAutocompleteAddressFragment"
+        android:label="KycAutocompleteAddressFragment"
+        tools:layout="@layout/fragment_kyc_autocomplete">
+        <action
+            android:id="@+id/action_kycAutocompleteAddressFragment_to_kycHomeAddressFragment"
+            app:destination="@id/kycHomeAddressFragment" />
+        <argument
+            android:name="profileModel"
+            app:argType="piuk.blockchain.android.ui.kyc.address.models.OldProfileModel" />
+    </fragment>
+    <fragment
         android:id="@+id/kycInvalidCountryFragment"
         android:name="piuk.blockchain.android.ui.kyc.invalidcountry.KycInvalidCountryFragment"
         android:label="KycInvalidCountryFragment"
@@ -60,6 +72,20 @@
         <argument
             android:name="countryDisplayModel"
             app:argType="piuk.blockchain.android.ui.kyc.countryselection.util.CountryDisplayModel" />
+    </fragment>
+    <fragment
+        android:id="@+id/kycHomeAddressFragment"
+        android:name="piuk.blockchain.android.ui.kyc.address.KycOldHomeAddressFragment"
+        android:label="KycHomeAddress"
+        tools:layout="@layout/fragment_kyc_home_address">
+        <action
+            android:id="@+id/action_kycHomeAddressFragment_to_kycQuestionnaireFragment"
+            app:destination="@id/kycQuestionnaireFragment"
+            app:popUpTo="@id/kyc_nav.xml"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="profileModel"
+            app:argType="piuk.blockchain.android.ui.kyc.address.models.OldProfileModel" />
     </fragment>
     <fragment
         android:id="@+id/kycAddressVerificationFragment"
@@ -223,6 +249,11 @@
     <action
         android:id="@+id/action_startAutocompleteAddressEntry"
         app:destination="@id/kycAddressVerificationFragment"
+        app:popUpTo="@id/kyc_nav.xml"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_startOldAutocompleteAddressEntry"
+        app:destination="@id/kycAutocompleteAddressFragment"
         app:popUpTo="@id/kyc_nav.xml"
         app:popUpToInclusive="true" />
     <action

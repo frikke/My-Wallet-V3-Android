@@ -3204,5 +3204,11 @@
     <string name="address_verification_invalid_state_title">You cannot change your State</string>
     <string name="address_verification_invalid_state_message">If you need to change your State, please contact our customer support.</string>
 
+    <string name="kyc_enter_address">Enter your current home address.</string>
+    <string name="kyc_enter_address_manually">Enter manually -></string>
+    <string name="kyc_postcode_error">Postcode not valid</string>
+    <string name="kyc_autocomplete_addresses_error">Failed to retrieve addresses</string>
+    <string name="kyc_autocomplete_selected_address_error">Failed to retrieve address</string>
+
 
 </resources>

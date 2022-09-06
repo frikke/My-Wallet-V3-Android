@@ -8,6 +8,7 @@ import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.KycNavXmlDirections
+import piuk.blockchain.android.ui.kyc.navhost.toOldProfileModel
 import piuk.blockchain.android.ui.kyc.navhost.toProfileModel
 
 interface ReentryDecision {
@@ -53,6 +54,9 @@ class ReentryDecisionKycNavigator(
             )
             ReentryPoint.Address -> {
                 KycNavXmlDirections.actionStartAutocompleteAddressEntry(user.toProfileModel())
+            }
+            ReentryPoint.OldAddress -> {
+                KycNavXmlDirections.actionStartOldAutocompleteAddressEntry(user.toOldProfileModel())
             }
             is ReentryPoint.Questionnaire ->
                 KycNavXmlDirections.actionStartQuestionnaireEntry(reentryPoint.questionnaire, user.requireCountryCode())
