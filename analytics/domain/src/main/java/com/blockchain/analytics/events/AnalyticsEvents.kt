@@ -295,7 +295,12 @@ enum class AnalyticsNames(val eventName: String) {
     COWBOYS_VERIFY_INTERSTITIAL_VIEWED("Cowboys Verify Identity Interstitial Viewed"),
     COWBOYS_VERIFY_INTERSTITIAL_CLOSED("Cowboys Verify Identity Interstitial Closed"),
     COWBOYS_VERIFY_INTERSTITIAL_CTA_CLICKED("Cowboys Verify Identity Interstitial Verify ID Clicked"),
-    COWBOYS_REFER_FRIEND_ANNOUNCEMENT_CLICKED("Cowboys Refer Friends Announcement Clicked")
+    COWBOYS_REFER_FRIEND_ANNOUNCEMENT_CLICKED("Cowboys Refer Friends Announcement Clicked"),
+    MVP_SWITCHED_TO_DEFI("Switched to DeFi"),
+    MVP_SWITCHED_TO_TRADING("Switched to Trading"),
+    MVP_SELECTED_NFT_TAB("Selected NFT Tab"),
+    MVP_DEFI_BUY_SELECTED("QAS DeFi Buy"),
+    MVP_DEFI_BUY_SWITCH_TO_TRADING("QAS DeFi Buy Switched to Trading")
     ;
 }
 

@@ -7,6 +7,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeReporter
+import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeReporterImpl
 import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionViewModel
 import piuk.blockchain.android.ui.home.models.ActionsSheetInteractor
 import piuk.blockchain.android.ui.home.models.ActionsSheetModel
@@ -77,6 +79,12 @@ val mainModule = module {
             )
         }
     }
+
+    factory {
+        WalletModeReporterImpl(
+            userAnalytics = get()
+        )
+    }.bind(WalletModeReporter::class)
 
     single {
         WalletModeRepository(
