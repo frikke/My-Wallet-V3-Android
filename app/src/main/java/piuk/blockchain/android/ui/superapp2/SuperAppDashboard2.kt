@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.superapp2
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -42,6 +45,11 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.END_DEFI
+import com.blockchain.componentlib.theme.END_TRADING
+import com.blockchain.componentlib.theme.START_DEFI
+import com.blockchain.componentlib.theme.START_TRADING
+import com.blockchain.componentlib.utils.clickableNoEffect
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.superapp.dashboard.composable.BottomNavigationC
 import piuk.blockchain.android.ui.superapp.dashboard.composable.NavigationGraph
@@ -98,12 +106,45 @@ fun SuperAppDashboard2() {
         }
     }
 
+    // list y
     var headerBottomY by remember {
         mutableStateOf(0F)
     }
+    //
+
+    // background color
+    var switch by remember { mutableStateOf(true) }
+    val startColor by animateColorAsState(
+        targetValue = if (switch) START_TRADING else START_DEFI,
+        animationSpec = tween(
+            durationMillis = 400,
+            delayMillis = 0
+        )
+    )
+
+    val endColor by animateColorAsState(
+        targetValue = if (switch) END_TRADING else END_DEFI,
+        animationSpec = tween(
+            durationMillis = 400,
+            delayMillis = 0
+        )
+    )
+    //
+
     val navController = rememberNavController()
 
-    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+    ConstraintLayout(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        startColor,
+                        endColor
+                    )
+                )
+            )
+    ) {
         val (statusBar, navBar, content, nav) = createRefs()
 
         Column(
@@ -143,7 +184,7 @@ fun SuperAppDashboard2() {
                     modifier = Modifier
                         .height(54.dp)
                         .fillMaxWidth()
-                        .background(Color.Red)
+                    /*.background(Color.Red)*/
                 ) {
                     com.blockchain.componentlib.basic.Image(
                         modifier = Modifier
@@ -157,13 +198,14 @@ fun SuperAppDashboard2() {
                     modifier = Modifier
                         .height(54.dp)
                         .fillMaxWidth()
-                        .background(Color.Green),
+                    /*.background(Color.Green)*/,
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
                         modifier = Modifier
-                            .padding(start = dimensionResource(R.dimen.tiny_margin)),
+                            .padding(start = dimensionResource(R.dimen.tiny_margin))
+                            .clickableNoEffect { switch = true },
                         style = AppTheme.typography.title3,
                         color = Color.Black,
                         text = "trading"
@@ -173,7 +215,8 @@ fun SuperAppDashboard2() {
 
                     Text(
                         modifier = Modifier
-                            .padding(start = dimensionResource(R.dimen.tiny_margin)),
+                            .padding(start = dimensionResource(R.dimen.tiny_margin))
+                            .clickableNoEffect { switch = false },
                         style = AppTheme.typography.title3,
                         color = Color.Black,
                         text = "defi"
@@ -229,7 +272,14 @@ fun SuperAppDashboard2() {
 
                 .fillMaxWidth()
                 .height(statusBarHeight)
-                .background(Color.Blue.copy(alpha = 0.5F))
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(
+                            startColor,
+                            endColor
+                        )
+                    )
+                )
         )
 
         // nav bar
