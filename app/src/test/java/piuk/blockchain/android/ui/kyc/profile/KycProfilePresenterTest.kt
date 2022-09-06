@@ -17,7 +17,6 @@ import com.blockchain.nabu.models.responses.tokenresponse.toNabuOfflineToken
 import com.blockchain.nabu.util.toISO8601DateString
 import com.blockchain.testutils.date
 import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -44,9 +43,7 @@ class KycProfilePresenterTest {
     private val view: KycProfileView = mock()
     private val nabuDataManager: NabuDataManager = mock()
     private val userService: UserService = mock()
-    private val getUserStore: GetUserStore = mock() {
-        on { markAsStale() }.doReturn(Unit)
-    }
+    private val getUserStore: GetUserStore = mock()
     private val stringUtils: StringUtils = mock()
     private val nabuToken: NabuToken = mock()
 
