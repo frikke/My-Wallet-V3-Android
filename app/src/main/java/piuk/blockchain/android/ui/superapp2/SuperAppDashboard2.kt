@@ -31,6 +31,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
@@ -50,31 +51,40 @@ private fun rememberToolbarState(toolbarHeightRange: IntRange): ToolbarState {
 
 @Composable
 fun SuperAppDashboard2() {
-    var heightIs by remember {
-        mutableStateOf(0)
-    }
+    //    var heightIs by remember {
+    //        mutableStateOf(0)
+    //    }
+
+    val minHeight = LocalDensity.current.run { 54.dp.toPx() }
+    val maxHeight = LocalDensity.current.run { 108.dp.toPx() }
 
     val listState = rememberLazyListState()
 
-    var toolbarState = rememberToolbarState(54..108)
+    var toolbarState = rememberToolbarState(minHeight.toInt()..maxHeight.toInt())
 
-
-//    if (heightIs > 0) {
-//        println("-----  heightIs ${heightIs}")
-//        toolbarState = rememberToolbarState((heightIs / 2)..(heightIs))
-//    }
+    //    if (heightIs > 0) {
+    //        println("-----  heightIs ${heightIs}")
+    //        toolbarState = rememberToolbarState((heightIs / 2)..(heightIs))
+    //    }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-//                if (::toolbarState.isInitialized) {
-                    toolbarState.scrollOffset = toolbarState.scrollOffset - available.y
-                    return Offset(0f, toolbarState.consumed)
-//                }
+                //                if (::toolbarState.isInitialized) {
+                toolbarState.scrollTopLimitReached =
+                    listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
 
-//                return super.onPreScroll(available, source)
+                toolbarState.scrollOffset = toolbarState.scrollOffset - available.y
+                return Offset(0f, toolbarState.consumed)
+                //                }
+
+                //                return super.onPreScroll(available, source)
             }
         }
+    }
+
+    var headerBottomY by remember {
+        mutableStateOf(0F)
     }
 
     Column(
@@ -83,7 +93,14 @@ fun SuperAppDashboard2() {
             .nestedScroll(nestedScrollConnection)
     ) {
 
-        ///////
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(25.dp)
+                .background(Color.Blue.copy(alpha = 0.5F))
+        )
+
+        /////// header
         ///////
         ///////
         ///////
@@ -92,13 +109,14 @@ fun SuperAppDashboard2() {
         Column(modifier = Modifier
             .fillMaxWidth()
             .graphicsLayer {
-//                if (::toolbarState.isInitialized) {
-                translationY = toolbarState.height + toolbarState.offset
-//                }
+                //                if (::toolbarState.isInitialized) {
+                translationY =  toolbarState.scrollOffset
+                headerBottomY = translationY - toolbarState.scrollOffset
+                //                }
             }
             .onGloballyPositioned { coordinates ->
-                println("-----  coordinates.size.height ${coordinates.size.height}")
-                heightIs = coordinates.size.height
+                //                println("-----  coordinates.size.height ${coordinates.size.height}")
+                //                heightIs = coordinates.size.height
             }
         ) {
             Box(
@@ -143,7 +161,7 @@ fun SuperAppDashboard2() {
             }
         }
 
-        ////////
+        //////// content
         ////////
         ////////
         ////////
@@ -156,9 +174,9 @@ fun SuperAppDashboard2() {
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
-//                    if (::toolbarState.isInitialized) {
-                        translationY = toolbarState.height + toolbarState.offset
-//                    }
+                    //                    if (::toolbarState.isInitialized) {
+                    translationY = toolbarState.height + toolbarState.offset
+                    //                    }
                 }
                 //                .pointerInput(Unit) {
                 //                    detectTapGestures(
