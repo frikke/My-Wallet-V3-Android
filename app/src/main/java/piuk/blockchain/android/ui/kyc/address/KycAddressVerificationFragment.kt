@@ -61,7 +61,9 @@ class KycAddressVerificationFragment :
             childFragmentManager.beginTransaction()
                 .add(
                     R.id.fragment_container,
-                    AddressVerificationFragment.newInstance(profileModel.countryCode, profileModel.stateCode)
+                    AddressVerificationFragment.newInstance(
+                        profileModel.countryCode, profileModel.stateCode, allowManualOverride = true
+                    )
                 ).commitAllowingStateLoss()
         }
     }
