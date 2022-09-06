@@ -17,9 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.theme.AppTheme
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
@@ -33,7 +35,12 @@ class SuperAppDashboardActivity : BlockchainActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
+            val systemUiController = rememberSystemUiController()
+            systemUiController.setStatusBarColor(Color.Transparent)
+
             SuperAppDashboard2()
         }
     }

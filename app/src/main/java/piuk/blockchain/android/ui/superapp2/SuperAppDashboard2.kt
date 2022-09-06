@@ -34,6 +34,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
 import piuk.blockchain.android.R
@@ -87,122 +88,139 @@ fun SuperAppDashboard2() {
         mutableStateOf(0F)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(nestedScrollConnection)
-    ) {
+    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+        val (statusBar, content) = createRefs()
+
+        Column(
+            modifier = Modifier
+                .constrainAs(content) {
+                    start.linkTo(parent.start)
+                    top.linkTo(statusBar.bottom)
+                    end.linkTo(parent.end)
+                }
+
+                .fillMaxSize()
+                .nestedScroll(nestedScrollConnection)
+        ) {
+
+            /////// header
+            ///////
+            ///////
+            ///////
+            ///////
+            ///////
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    //                if (::toolbarState.isInitialized) {
+                    translationY = -toolbarState.scrollOffset
+                    headerBottomY = -toolbarState.scrollOffset
+                    //                }
+                }
+                .onGloballyPositioned { coordinates ->
+                    //                println("-----  coordinates.size.height ${coordinates.size.height}")
+                    //                heightIs = coordinates.size.height
+                }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .height(54.dp)
+                        .fillMaxWidth()
+                        .background(Color.Red)
+                ) {
+                    com.blockchain.componentlib.basic.Image(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(start = dimensionResource(R.dimen.tiny_margin)),
+                        imageResource = ImageResource.Local(R.drawable.ic_total_balance_demo)
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .height(54.dp)
+                        .fillMaxWidth()
+                        .background(Color.Green),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(start = dimensionResource(R.dimen.tiny_margin)),
+                        style = AppTheme.typography.title3,
+                        color = Color.Black,
+                        text = "trading"
+                    )
+
+                    Spacer(modifier = Modifier.size(32.dp))
+
+                    Text(
+                        modifier = Modifier
+                            .padding(start = dimensionResource(R.dimen.tiny_margin)),
+                        style = AppTheme.typography.title3,
+                        color = Color.Black,
+                        text = "defi"
+                    )
+                }
+            }
+
+            //////// content
+            ////////
+            ////////
+            ////////
+            ////////
+            val aaaaa = mutableListOf<String>()
+            (0..40).forEach { aaaaa.add("abc $it") }
+
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        //                    if (::toolbarState.isInitialized) {
+                        translationY = headerBottomY
+                        //                    }
+                    }
+                    //                .pointerInput(Unit) {
+                    //                    detectTapGestures(
+                    //                        onPress = {
+                    //                            scope.coroutineContext.cancelChildren()
+                    //                            coroutineScopeAnim.coroutineContext.cancelChildren()
+                    //                            animate = false
+                    //                        }
+                    //                    )
+                    //                }
+                    .background(Color(0XFFF1F2F7), RoundedCornerShape(20.dp)),
+            ) {
+                items(
+                    items = aaaaa,
+                ) {
+                    Text(
+                        modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
+                        style = AppTheme.typography.title3,
+                        color = Color.Black,
+                        text = it
+                    )
+                }
+
+                item {
+                    Spacer(Modifier.size(dimensionResource(R.dimen.epic_margin)))
+                }
+            }
+        }
 
         Box(
             modifier = Modifier
+                .constrainAs(statusBar) {
+                    start.linkTo(parent.start)
+                    top.linkTo(parent.top)
+                    end.linkTo(parent.end)
+                }
+
                 .fillMaxWidth()
                 .height(25.dp)
                 .background(Color.Blue.copy(alpha = 0.5F))
         )
-
-        /////// header
-        ///////
-        ///////
-        ///////
-        ///////
-        ///////
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .graphicsLayer {
-                //                if (::toolbarState.isInitialized) {
-                translationY =  toolbarState.scrollOffset
-                headerBottomY = translationY - toolbarState.scrollOffset
-                //                }
-            }
-            .onGloballyPositioned { coordinates ->
-                //                println("-----  coordinates.size.height ${coordinates.size.height}")
-                //                heightIs = coordinates.size.height
-            }
-        ) {
-            Box(
-                modifier = Modifier
-                    .height(54.dp)
-                    .fillMaxWidth()
-                    .background(Color.Red)
-            ) {
-                com.blockchain.componentlib.basic.Image(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(start = dimensionResource(R.dimen.tiny_margin)),
-                    imageResource = ImageResource.Local(R.drawable.ic_total_balance_demo)
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .height(54.dp)
-                    .fillMaxWidth()
-                    .background(Color.Green),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(start = dimensionResource(R.dimen.tiny_margin)),
-                    style = AppTheme.typography.title3,
-                    color = Color.Black,
-                    text = "trading"
-                )
-
-                Spacer(modifier = Modifier.size(32.dp))
-
-                Text(
-                    modifier = Modifier
-                        .padding(start = dimensionResource(R.dimen.tiny_margin)),
-                    style = AppTheme.typography.title3,
-                    color = Color.Black,
-                    text = "defi"
-                )
-            }
-        }
-
-        //////// content
-        ////////
-        ////////
-        ////////
-        ////////
-        val aaaaa = mutableListOf<String>()
-        (0..40).forEach { aaaaa.add("abc $it") }
-
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer {
-                    //                    if (::toolbarState.isInitialized) {
-                    translationY = toolbarState.height + toolbarState.offset
-                    //                    }
-                }
-                //                .pointerInput(Unit) {
-                //                    detectTapGestures(
-                //                        onPress = {
-                //                            scope.coroutineContext.cancelChildren()
-                //                            coroutineScopeAnim.coroutineContext.cancelChildren()
-                //                            animate = false
-                //                        }
-                //                    )
-                //                }
-                .background(Color(0XFFF1F2F7), RoundedCornerShape(20.dp)),
-        ) {
-            items(
-                items = aaaaa,
-            ) {
-                Text(
-                    modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
-                    style = AppTheme.typography.title3,
-                    color = Color.Black,
-                    text = it
-                )
-            }
-
-            item {
-                Spacer(Modifier.size(dimensionResource(R.dimen.epic_margin)))
-            }
-        }
     }
+
 }
