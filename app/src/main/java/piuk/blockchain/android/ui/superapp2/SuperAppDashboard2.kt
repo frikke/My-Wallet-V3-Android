@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.superapp2
 
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,14 +33,22 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.navigation.compose.rememberNavController
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.superapp.dashboard.composable.BottomNavigationC
+import piuk.blockchain.android.ui.superapp.dashboard.composable.CollapsingToolbar
+import piuk.blockchain.android.ui.superapp.dashboard.composable.NavigationGraph
 import piuk.blockchain.android.ui.superapp.dashboard.toolbar.EnterAlwaysCollapsedState
 import piuk.blockchain.android.ui.superapp.dashboard.toolbar.ToolbarState
 
@@ -67,13 +78,20 @@ fun SuperAppDashboard2() {
     //        println("-----  heightIs ${heightIs}")
     //        toolbarState = rememberToolbarState((heightIs / 2)..(heightIs))
     //    }
+    var firstVisibleItemIndex by remember {
+        mutableStateOf(0)
+    }
+
+    var firstVisibleItemScrollOffset by remember {
+        mutableStateOf(0)
+    }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 //                if (::toolbarState.isInitialized) {
                 toolbarState.scrollTopLimitReached =
-                    listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
+                    firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
 
                 toolbarState.scrollOffset = toolbarState.scrollOffset - available.y
                 return Offset(0f, toolbarState.consumed)
@@ -87,9 +105,10 @@ fun SuperAppDashboard2() {
     var headerBottomY by remember {
         mutableStateOf(0F)
     }
+    val navController = rememberNavController()
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-        val (statusBar, content) = createRefs()
+        val (statusBar, content, nav) = createRefs()
 
         Column(
             modifier = Modifier
@@ -169,44 +188,61 @@ fun SuperAppDashboard2() {
             ////////
             ////////
             ////////
-            val aaaaa = mutableListOf<String>()
-            (0..40).forEach { aaaaa.add("abc $it") }
-
-            LazyColumn(
-                state = listState,
+            NavigationGraph(
                 modifier = Modifier
                     .fillMaxSize()
-                    .graphicsLayer {
-                        //                    if (::toolbarState.isInitialized) {
-                        translationY = headerBottomY
-                        //                    }
+                    .graphicsLayer {   translationY = headerBottomY
                     }
-                    //                .pointerInput(Unit) {
-                    //                    detectTapGestures(
-                    //                        onPress = {
-                    //                            scope.coroutineContext.cancelChildren()
-                    //                            coroutineScopeAnim.coroutineContext.cancelChildren()
-                    //                            animate = false
-                    //                        }
-                    //                    )
-                    //                }
-                    .background(Color(0XFFF1F2F7), RoundedCornerShape(20.dp)),
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = {
+                            }
+                        )
+                    },
+                navController = navController
             ) {
-                items(
-                    items = aaaaa,
-                ) {
-                    Text(
-                        modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
-                        style = AppTheme.typography.title3,
-                        color = Color.Black,
-                        text = it
-                    )
-                }
-
-                item {
-                    Spacer(Modifier.size(dimensionResource(R.dimen.epic_margin)))
-                }
+                firstVisibleItemIndex = it.first
+                firstVisibleItemScrollOffset = it.second
             }
+
+//            val aaaaa = mutableListOf<String>()
+//            (0..40).forEach { aaaaa.add("abc $it") }
+//
+//            LazyColumn(
+//                state = listState,
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .graphicsLayer {
+//                        //                    if (::toolbarState.isInitialized) {
+//                        translationY = headerBottomY
+//                        //                    }
+//                    }
+//                    //                .pointerInput(Unit) {
+//                    //                    detectTapGestures(
+//                    //                        onPress = {
+//                    //                            scope.coroutineContext.cancelChildren()
+//                    //                            coroutineScopeAnim.coroutineContext.cancelChildren()
+//                    //                            animate = false
+//                    //                        }
+//                    //                    )
+//                    //                }
+//                    .background(Color(0XFFF1F2F7), RoundedCornerShape(20.dp)),
+//            ) {
+//                items(
+//                    items = aaaaa,
+//                ) {
+//                    Text(
+//                        modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
+//                        style = AppTheme.typography.title3,
+//                        color = Color.Black,
+//                        text = it
+//                    )
+//                }
+//
+//                item {
+//                    Spacer(Modifier.size(dimensionResource(R.dimen.epic_margin)))
+//                }
+//            }
         }
 
         Box(
@@ -221,6 +257,23 @@ fun SuperAppDashboard2() {
                 .height(25.dp)
                 .background(Color.Blue.copy(alpha = 0.5F))
         )
+
+        BottomNavigationC(
+            modifier = Modifier
+                .constrainAs(nav) {
+                    start.linkTo(parent.start)
+                    bottom.linkTo(parent.bottom)
+                    end.linkTo(parent.end)
+                },
+            navController
+        ) {
+//            navItem = it
+
+            //                toolbarState.scrollTopLimitReached =
+            //                    listState().firstVisibleItemIndex == 0 && listState().firstVisibleItemScrollOffset == 0
+            //                toolbarState.scrollOffset =
+            //                    toolbarState.scrollOffset - (0 - (toolbarState.height + toolbarState.offset))
+        }
     }
 
 }
