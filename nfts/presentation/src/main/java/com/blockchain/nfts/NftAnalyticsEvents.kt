@@ -10,6 +10,6 @@ sealed class NftAnalyticsEvents(
 ) : AnalyticsEvent {
 
     object ScreenViewed : NftAnalyticsEvents(
-        event = AnalyticsNames.MVP_SELECTED_NFT_TAB.eventName
+        event = AnalyticsNames.WALLET_NFT_VIEWED.eventName
     )
 }

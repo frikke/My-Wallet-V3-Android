@@ -273,6 +273,7 @@ enum class AnalyticsNames(val eventName: String) {
     WALLET_HOME_VIEWED("Wallet Home Viewed"),
     WALLET_PRICES_VIEWED("Wallet Prices Viewed"),
     WALLET_REWARDS_VIEWED("Wallet Rewards Viewed"),
+    WALLET_NFT_VIEWED("Wallet NFT Viewed"),
     REFERRAL_PROGRAM_CLICKED("Wallet Referral Program Clicked"),
     REFERRAL_VIEW_REFERRAL("View referrals page"),
     REFERRAL_CODE_FILLED("Referral Code Filled"),
@@ -298,7 +299,6 @@ enum class AnalyticsNames(val eventName: String) {
     COWBOYS_REFER_FRIEND_ANNOUNCEMENT_CLICKED("Cowboys Refer Friends Announcement Clicked"),
     MVP_SWITCHED_TO_DEFI("Switched to DeFi"),
     MVP_SWITCHED_TO_TRADING("Switched to Trading"),
-    MVP_SELECTED_NFT_TAB("Selected NFT Tab"),
     MVP_DEFI_BUY_SELECTED("QAS DeFi Buy"),
     MVP_DEFI_BUY_SWITCH_TO_TRADING("QAS DeFi Buy Switched to Trading")
     ;
