@@ -115,6 +115,11 @@ class CoinViewInteractor(
 
                     val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
 
+                    val hasBalance = when (walletMode) {
+                        WalletMode.UNIVERSAL -> totalCryptoBalance[AssetFilter.All]?.isPositive ?: false
+                        WalletMode.CUSTODIAL_ONLY -> totalCryptoBalance[AssetFilter.Trading]?.isPositive ?: false
+                        WalletMode.NON_CUSTODIAL_ONLY -> error("NON_CUSTODIAL_ONLY unreachable here")
+                    }
                     /**
                      * Sell button will be enabled if
                      * * Sell access is [FeatureAccess.Granted]
@@ -129,7 +134,8 @@ class CoinViewInteractor(
                      */
                     val canSell = sellAccess is FeatureAccess.Granted &&
                         isSupportedPair &&
-                        (kycTier == KycTier.GOLD || sddEligible)
+                        (kycTier == KycTier.GOLD || sddEligible) &&
+                        hasBalance
 
                     /**
                      * Buy button will be enabled if
@@ -153,11 +159,7 @@ class CoinViewInteractor(
                      * Swap button will be enabled if
                      * * Balance is positive
                      */
-                    val canSwap = when (walletMode) {
-                        WalletMode.UNIVERSAL -> totalCryptoBalance[AssetFilter.All]?.isPositive ?: false
-                        WalletMode.CUSTODIAL_ONLY -> totalCryptoBalance[AssetFilter.Custodial]?.isPositive ?: false
-                        WalletMode.NON_CUSTODIAL_ONLY -> error("NON_CUSTODIAL_ONLY unreachable here")
-                    }
+                    val canSwap = hasBalance
 
                     custodialAccount?.let {
                         QuickActionData(

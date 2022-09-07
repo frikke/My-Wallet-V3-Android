@@ -205,7 +205,7 @@ class CoinViewInteractorTest {
         val account: CustodialTradingAccount = mock()
 
         val totalCryptoBalance = hashMapOf(
-            AssetFilter.Custodial to CryptoValue.fromMajor(CryptoCurrency.BTC, BigDecimal.TEN)
+            AssetFilter.Trading to CryptoValue.fromMajor(CryptoCurrency.BTC, BigDecimal.TEN)
         )
 
         val asset: CryptoAsset = mock {
