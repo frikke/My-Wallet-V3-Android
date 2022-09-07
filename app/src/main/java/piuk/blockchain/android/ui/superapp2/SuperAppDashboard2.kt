@@ -6,11 +6,8 @@ import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,10 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,16 +46,18 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.END_DEFI
 import com.blockchain.componentlib.theme.END_TRADING
 import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
 import com.blockchain.componentlib.utils.clickableNoEffect
+import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
+import org.json.zip.JSONzip.end
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.superapp.dashboard.composable.BottomNavigationC
+import piuk.blockchain.android.ui.superapp.dashboard.composable.ModeSwitcher
 import piuk.blockchain.android.ui.superapp.dashboard.composable.NavigationGraph
 import piuk.blockchain.android.ui.superapp.dashboard.toolbar.EnterAlwaysCollapsedState
 import piuk.blockchain.android.ui.superapp.dashboard.toolbar.ToolbarState
@@ -203,8 +200,6 @@ fun SuperAppDashboard2() {
     switcherAlpha = (1 - (toolbarState.scrollOffset - minHeight) / minHeight).coerceIn(0F, 1F)
     //
 
-
-
     // bottomnav animation
     var trading by remember {
         mutableStateOf(true)
@@ -275,6 +270,9 @@ fun SuperAppDashboard2() {
                     //                heightIs = coordinates.size.height
                 }
             ) {
+                /////// balance
+                ///////
+                ///////
                 Box(
                     modifier = Modifier
                         .height(54.dp)
@@ -302,123 +300,142 @@ fun SuperAppDashboard2() {
                     )
                 }
 
-                Row(
-                    modifier = Modifier
+                /////// mode tabs
+                ///////
+                ///////
+                ModeSwitcher(
+                    Modifier
                         .height(54.dp)
                         .fillMaxWidth()
-                        .alpha(switcherAlpha)
-                    /*.background(Color.Green)*/,
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .padding(start = dimensionResource(R.dimen.tiny_margin))
-                            .clickableNoEffect {
-                                shouldFlash = true
-                                switch = true
-                            },
-                        style = AppTheme.typography.title3,
-                        color = Color.Black,
-                        text = "trading"
-                    )
-
-                    Spacer(modifier = Modifier.size(32.dp))
-
-                    Text(
-                        modifier = Modifier
-                            .padding(start = dimensionResource(R.dimen.tiny_margin))
-                            .clickableNoEffect {
-                                shouldFlash = true
-                                switch = false
-                            },
-                        style = AppTheme.typography.title3,
-                        color = Color.Black,
-                        text = "defi"
-                    )
-                }
-            }
-
-            //////// content
-            ////////
-            ////////
-            ////////
-            ////////
-            NavigationGraph(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        translationY = headerBottomY
-                    }
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onPress = {
-                                //                                scope.coroutineContext.cancelChildren()
-                                coroutineScopeAnim.coroutineContext.cancelChildren()
-                                animate = false
-                            }
-                        )
+                        .alpha(switcherAlpha),
+                    {
+                        shouldFlash = true
+                        switch = true
                     },
-                navController = navController
-            ) {
-                firstVisibleItemIndex = it.first
-                firstVisibleItemScrollOffset = it.second
-            }
+                    {
+                        shouldFlash = true
+                        switch = false
+                    }
+                )
+
+//            }
+            //                Row(
+            //                    modifier = Modifier
+            //                        .height(54.dp)
+            //                        .fillMaxWidth()
+            //                        .alpha(switcherAlpha)
+            //                    /*.background(Color.Green)*/,
+            //                    verticalAlignment = Alignment.CenterVertically,
+            //                    horizontalArrangement = Arrangement.Center
+            //                ) {
+            //                    Text(
+            //                        modifier = Modifier
+            //                            .padding(start = dimensionResource(R.dimen.tiny_margin))
+            //                            .clickableNoEffect {
+            //                                shouldFlash = true
+            //                                switch = true
+            //                            },
+            //                        style = AppTheme.typography.title3,
+            //                        color = Color.Black,
+            //                        text = "trading"
+            //                    )
+            //
+            //                    Spacer(modifier = Modifier.size(32.dp))
+            //
+            //                    Text(
+            //                        modifier = Modifier
+            //                            .padding(start = dimensionResource(R.dimen.tiny_margin))
+            //                            .clickableNoEffect {
+            //                                shouldFlash = true
+            //                                switch = false
+            //                            },
+            //                        style = AppTheme.typography.title3,
+            //                        color = Color.Black,
+            //                        text = "defi"
+            //                    )
+            //                }
         }
 
-        BottomNavigationC(
+        //////// content
+        ////////
+        ////////
+        ////////
+        ////////
+        NavigationGraph(
             modifier = Modifier
-                .wrapContentSize()
-                .padding(34.dp)
-                .constrainAs(nav) {
-                    start.linkTo(parent.start)
-                    bottom.linkTo(navBar.top)
-                    end.linkTo(parent.end)
+                .fillMaxSize()
+                .graphicsLayer {
+                    translationY = headerBottomY
                 }
-                .offset {
-                    IntOffset(
-                        x = 0,
-                        y = animateDown
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onPress = {
+                            //                                scope.coroutineContext.cancelChildren()
+                            coroutineScopeAnim.coroutineContext.cancelChildren()
+                            animate = false
+                        }
                     )
                 },
-            navController
+            navController = navController
         ) {
+            firstVisibleItemIndex = it.first
+            firstVisibleItemScrollOffset = it.second
         }
-
-        // status bar
-        val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-        Box(
-            modifier = Modifier
-                .constrainAs(statusBar) {
-                    start.linkTo(parent.start)
-                    top.linkTo(parent.top)
-                    end.linkTo(parent.end)
-                }
-
-                .fillMaxWidth()
-                .height(statusBarHeight)
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            startColor,
-                            endColor
-                        )
-                    )
-                )
-        )
-
-        // nav bar
-        val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-        Box(
-            modifier = Modifier
-                .constrainAs(navBar) {
-                    start.linkTo(parent.start)
-                    bottom.linkTo(parent.bottom)
-                    end.linkTo(parent.end)
-                }
-                .fillMaxWidth()
-                .height(navBarHeight)
-                .background(Color.Blue.copy(alpha = 0.5F))
-        )
     }
+
+    BottomNavigationC(
+        modifier = Modifier
+            .wrapContentSize()
+            .padding(34.dp)
+            .constrainAs(nav) {
+                start.linkTo(parent.start)
+                bottom.linkTo(navBar.top)
+                end.linkTo(parent.end)
+            }
+            .offset {
+                IntOffset(
+                    x = 0,
+                    y = animateDown
+                )
+            },
+        navController
+    ) {
+    }
+
+    // status bar
+    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    Box(
+        modifier = Modifier
+            .constrainAs(statusBar) {
+                start.linkTo(parent.start)
+                top.linkTo(parent.top)
+                end.linkTo(parent.end)
+            }
+
+            .fillMaxWidth()
+            .height(statusBarHeight)
+//            .background(
+//                brush = Brush.horizontalGradient(
+//                    colors = listOf(
+//                        startColor,
+//                        endColor
+//                    )
+//                )
+//            )
+    )
+
+    // nav bar
+    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    Box(
+        modifier = Modifier
+            .constrainAs(navBar) {
+                start.linkTo(parent.start)
+                bottom.linkTo(parent.bottom)
+                end.linkTo(parent.end)
+            }
+            .fillMaxWidth()
+            .height(navBarHeight)
+            .background(Color.Blue.copy(alpha = 0.5F))
+    )
+}
 }
