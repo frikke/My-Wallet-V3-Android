@@ -5,16 +5,31 @@ import androidx.core.content.edit
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
+@OptIn(DelicateCoroutinesApi::class)
 class WalletModeRepository(
     private val sharedPreferences: SharedPreferences,
     private val featureFlag: IntegratedFeatureFlag,
 ) : WalletModeService {
+    private var walletModesEnabled = false
+
+    init {
+        GlobalScope.launch {
+            while (true) {
+                walletModesEnabled = featureFlag.coEnabled()
+                delay(ONE_HOUR_MILLIS)
+            }
+        }
+    }
 
     override fun enabledWalletMode(): WalletMode {
-        if (!featureFlag.isEnabled)
+        if (!walletModesEnabled)
             return WalletMode.UNIVERSAL
 
         val walletModeString = sharedPreferences.getString(
@@ -46,3 +61,4 @@ class WalletModeRepository(
 }
 
 private const val WALLET_MODE = "WALLET_MODE"
+private const val ONE_HOUR_MILLIS = 3600000L
