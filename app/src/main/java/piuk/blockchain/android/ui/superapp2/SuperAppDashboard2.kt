@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.superapp2
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -15,10 +16,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +41,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -73,8 +76,6 @@ fun SuperAppDashboard2() {
 
     val minHeight = LocalDensity.current.run { 54.dp.toPx() }
     val maxHeight = LocalDensity.current.run { 108.dp.toPx() }
-
-    val listState = rememberLazyListState()
 
     var toolbarState = rememberToolbarState(minHeight.toInt()..maxHeight.toInt())
 
@@ -131,6 +132,27 @@ fun SuperAppDashboard2() {
     )
     //
 
+    // bottomnav animation
+    var trading by remember {
+        mutableStateOf(true)
+    }
+
+    var shouldFlash by remember { mutableStateOf(false) }
+    val animateDown by animateIntAsState(
+        targetValue = if (shouldFlash) 300 else 0,
+        finishedListener = {
+            if (shouldFlash) {
+                trading = trading.not()
+                shouldFlash = false
+            }
+        },
+        animationSpec = tween(
+            durationMillis = 200,
+            delayMillis = 0
+        )
+    )
+    //
+
     val navController = rememberNavController()
 
     ConstraintLayout(
@@ -147,7 +169,7 @@ fun SuperAppDashboard2() {
     ) {
         val (statusBar, navBar, content, nav) = createRefs()
 
-        Column(
+        Box(
             modifier = Modifier
                 .constrainAs(content) {
                     start.linkTo(parent.start)
@@ -172,7 +194,7 @@ fun SuperAppDashboard2() {
                 .graphicsLayer {
                     //                if (::toolbarState.isInitialized) {
                     translationY = -toolbarState.scrollOffset
-                    headerBottomY = -toolbarState.scrollOffset
+                    headerBottomY = -toolbarState.scrollOffset + maxHeight
                     //                }
                 }
                 .onGloballyPositioned { coordinates ->
@@ -205,7 +227,10 @@ fun SuperAppDashboard2() {
                     Text(
                         modifier = Modifier
                             .padding(start = dimensionResource(R.dimen.tiny_margin))
-                            .clickableNoEffect { switch = true },
+                            .clickableNoEffect {
+                                shouldFlash = true
+                                switch = true
+                            },
                         style = AppTheme.typography.title3,
                         color = Color.Black,
                         text = "trading"
@@ -216,7 +241,10 @@ fun SuperAppDashboard2() {
                     Text(
                         modifier = Modifier
                             .padding(start = dimensionResource(R.dimen.tiny_margin))
-                            .clickableNoEffect { switch = false },
+                            .clickableNoEffect {
+                                shouldFlash = true
+                                switch = false
+                            },
                         style = AppTheme.typography.title3,
                         color = Color.Black,
                         text = "defi"
@@ -250,11 +278,18 @@ fun SuperAppDashboard2() {
 
         BottomNavigationC(
             modifier = Modifier
-                .padding(20.dp)
+                .wrapContentSize()
+                .padding(34.dp)
                 .constrainAs(nav) {
                     start.linkTo(parent.start)
                     bottom.linkTo(navBar.top)
                     end.linkTo(parent.end)
+                }
+                .offset {
+                    IntOffset(
+                        x = 0,
+                        y = animateDown
+                    )
                 },
             navController
         ) {
@@ -291,7 +326,6 @@ fun SuperAppDashboard2() {
                     bottom.linkTo(parent.bottom)
                     end.linkTo(parent.end)
                 }
-
                 .fillMaxWidth()
                 .height(navBarHeight)
                 .background(Color.Blue.copy(alpha = 0.5F))

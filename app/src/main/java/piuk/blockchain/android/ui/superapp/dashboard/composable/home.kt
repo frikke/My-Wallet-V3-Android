@@ -32,7 +32,7 @@ fun HomeScreen(modifier: Modifier = Modifier, indexedChanged: (Pair<Int, Int>) -
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Yellow)
+//            .background(Color.Yellow)
             .wrapContentSize(Alignment.Center)
     ) {
         val aaaaa = mutableListOf<String>()
@@ -51,7 +51,7 @@ fun HomeScreen(modifier: Modifier = Modifier, indexedChanged: (Pair<Int, Int>) -
                 //                                    }
                 //                                )
                 //                            }
-                .background(Color(0XFFF1F2F7), RoundedCornerShape(20.dp)),
+                .background(Color(0XFFF1F2F7), RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
         ) {
             items(
                 items = aaaaa,
@@ -82,7 +82,7 @@ fun CardScreen(modifier: Modifier = Modifier, indexedChanged: (Pair<Int, Int>) -
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Blue)
+//            .background(Color.Blue)
             .wrapContentSize(Alignment.Center)
     ) {
         val aaaaa = mutableListOf<String>()
@@ -101,7 +101,7 @@ fun CardScreen(modifier: Modifier = Modifier, indexedChanged: (Pair<Int, Int>) -
                 //                                    }
                 //                                )
                 //                            }
-                .background(Color(0XFFF1F2F7), RoundedCornerShape(20.dp)),
+                .background(Color(0XFFF1F2F7), RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
         ) {
             items(
                 items = aaaaa,
