@@ -32,6 +32,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -190,6 +191,20 @@ fun SuperAppDashboard2() {
     )
     //
 
+    // header alpha
+    var balanceAlpha by remember {
+        mutableStateOf(1F)
+    }
+    balanceAlpha = (1 - (toolbarState.scrollOffset + (toolbarState.scrollOffset * 0.3F)) / minHeight).coerceIn(0F, 1F)
+
+    var switcherAlpha by remember {
+        mutableStateOf(1F)
+    }
+    switcherAlpha = (1 - (toolbarState.scrollOffset - minHeight) / minHeight).coerceIn(0F, 1F)
+    //
+
+
+
     // bottomnav animation
     var trading by remember {
         mutableStateOf(true)
@@ -264,6 +279,7 @@ fun SuperAppDashboard2() {
                     modifier = Modifier
                         .height(54.dp)
                         .fillMaxWidth()
+                        .alpha(balanceAlpha)
                     /*.background(Color.Red)*/
                 ) {
                     com.blockchain.componentlib.basic.Image(
@@ -290,6 +306,7 @@ fun SuperAppDashboard2() {
                     modifier = Modifier
                         .height(54.dp)
                         .fillMaxWidth()
+                        .alpha(switcherAlpha)
                     /*.background(Color.Green)*/,
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
