@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.superapp.dashboard.composable
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,16 +29,23 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.launch
 
 @Composable
-fun ModeSwitcher(modifier: Modifier = Modifier, onTradingClick: () -> Unit, onDefiClick: () -> Unit) {
+fun ModeSwitcher(
+    modifier: Modifier = Modifier,
+    onTradingClick: () -> Unit,
+    onDefiClick: () -> Unit
+) {
     val modes = listOf("Trading", "DeFi")
 
     val coroutineScopeAnim = rememberCoroutineScope()
 
-    var tradingEnabled by remember {
-        mutableStateOf(true)
+    var mode by remember {
+        mutableStateOf("Trading")
+    }
+
+    var selectedMode by remember {
+        mutableStateOf("Trading")
     }
 
     var maxIndicatorWidth = 16F
@@ -47,23 +53,26 @@ fun ModeSwitcher(modifier: Modifier = Modifier, onTradingClick: () -> Unit, onDe
     Row(modifier = modifier.fillMaxWidth()) {
         Spacer(modifier = Modifier.weight(1F))
 
-        var width = remember { Animatable(16F) }
+        var width = remember { Animatable(0F) }
 
-        LaunchedEffect(tradingEnabled) {
+        LaunchedEffect(mode) {
+            width.snapTo(maxIndicatorWidth - width.value)
+            selectedMode = mode
             width.animateTo(
-                targetValue = if (tradingEnabled) 16F else 0F,
+                targetValue = 16F,
                 animationSpec = tween(
                     durationMillis = 400
                 )
             )
         }
 
+
         Column(
             modifier = Modifier
                 .fillMaxHeight()
                 .clickableNoEffect {
                     coroutineScopeAnim.coroutineContext.cancelChildren()
-                    tradingEnabled = true
+                    mode = "Trading"
                     onTradingClick()
                     //                    coroutineScopeAnim.launch {
                     //                        width.animateTo(
@@ -92,9 +101,9 @@ fun ModeSwitcher(modifier: Modifier = Modifier, onTradingClick: () -> Unit, onDe
             Box(
                 modifier = Modifier
                     .height(4.dp)
-                    .width(width.value.dp)
+                    .width(if(selectedMode == "Trading") width.value.dp else (maxIndicatorWidth - width.value).dp)
                     .background(
-                        color = Color.White.copy(alpha = width.value / maxIndicatorWidth),
+                        color = Color.White.copy(alpha = if(selectedMode == "Trading")(width.value / maxIndicatorWidth) else 1 - (width.value / maxIndicatorWidth)),
                         shape = RoundedCornerShape(24.dp)
                     )
             )
@@ -107,7 +116,7 @@ fun ModeSwitcher(modifier: Modifier = Modifier, onTradingClick: () -> Unit, onDe
                 .fillMaxHeight()
                 .clickableNoEffect {
                     coroutineScopeAnim.coroutineContext.cancelChildren()
-                    tradingEnabled = false
+                    mode = "DeFi"
                     onDefiClick()
                 },
             verticalArrangement = Arrangement.Center,
@@ -128,9 +137,9 @@ fun ModeSwitcher(modifier: Modifier = Modifier, onTradingClick: () -> Unit, onDe
             Box(
                 modifier = Modifier
                     .height(4.dp)
-                    .width((maxIndicatorWidth - width.value).dp)
+                    .width(if(selectedMode == "DeFi") width.value.dp else (maxIndicatorWidth - width.value).dp)
                     .background(
-                        color = Color.White.copy(alpha = 1 - (width.value / maxIndicatorWidth)),
+                        color = Color.White.copy(alpha = if(selectedMode == "DeFi")(width.value / maxIndicatorWidth) else 1 - (width.value / maxIndicatorWidth)),
                         shape = RoundedCornerShape(24.dp)
                     )
             )
