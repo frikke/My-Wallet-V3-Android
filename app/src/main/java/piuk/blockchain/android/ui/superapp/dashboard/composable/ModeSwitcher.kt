@@ -33,32 +33,32 @@ import kotlinx.coroutines.cancelChildren
 @Composable
 fun ModeSwitcher(
     modifier: Modifier = Modifier,
-    onTradingClick: () -> Unit,
-    onDefiClick: () -> Unit
+    modes: List<String>,
+    onModeClicked: (String) -> Unit
 ) {
-    val modes = listOf("Trading", "DeFi")
 
-    val coroutineScopeAnim = rememberCoroutineScope()
+    val coroutineScopeAnimation = rememberCoroutineScope()
 
-    var mode by remember {
-        mutableStateOf("Trading")
+    var modeTrigger by remember {
+        mutableStateOf(modes.first())
     }
 
     var selectedMode by remember {
-        mutableStateOf("Trading")
+        mutableStateOf(modes.first())
+    }
+    var previousSelectedMode by remember {
+        mutableStateOf(modes.first())
     }
 
-    var maxIndicatorWidth = 16F
+    val fullIndicatorWidth = 16F
 
     Row(modifier = modifier.fillMaxWidth()) {
-        Spacer(modifier = Modifier.weight(1F))
-
-        var width = remember { Animatable(0F) }
-
-        LaunchedEffect(mode) {
-            width.snapTo(maxIndicatorWidth - width.value)
-            selectedMode = mode
-            width.animateTo(
+        val indicatorWidth = remember { Animatable(fullIndicatorWidth) }
+        LaunchedEffect(modeTrigger) {
+            indicatorWidth.snapTo(fullIndicatorWidth - indicatorWidth.value)
+            previousSelectedMode = selectedMode
+            selectedMode = modeTrigger
+            indicatorWidth.animateTo(
                 targetValue = 16F,
                 animationSpec = tween(
                     durationMillis = 400
@@ -66,83 +66,79 @@ fun ModeSwitcher(
             )
         }
 
-
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .clickableNoEffect {
-                    coroutineScopeAnim.coroutineContext.cancelChildren()
-                    mode = "Trading"
-                    onTradingClick()
-                    //                    coroutineScopeAnim.launch {
-                    //                        width.animateTo(
-                    //                            targetValue = if (tradingEnabled) 16F else 0F,
-                    //                            animationSpec = tween(
-                    //                                durationMillis = 400
-                    //                            )
-                    //                        )
-                    //                    }
-                },
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                modifier = Modifier,
-                //                                        .padding(start = dimensionResource(R.dimen.tiny_margin)),
-                //                                        .clickableNoEffect {
-                //                                            shouldFlash = true
-                //                                            switch = true
-                //                                        },
-                style = AppTheme.typography.title3,
-                //                                    color = Color.Black,
-                text = "Trading"
-            )
-
-            Box(
-                modifier = Modifier
-                    .height(4.dp)
-                    .width(if(selectedMode == "Trading") width.value.dp else (maxIndicatorWidth - width.value).dp)
-                    .background(
-                        color = Color.White.copy(alpha = if(selectedMode == "Trading")(width.value / maxIndicatorWidth) else 1 - (width.value / maxIndicatorWidth)),
-                        shape = RoundedCornerShape(24.dp)
-                    )
+        val textAlpha = remember { Animatable(1F) }
+        LaunchedEffect(modeTrigger) {
+            textAlpha.snapTo(1F - textAlpha.value + 0.6F)
+            textAlpha.animateTo(
+                targetValue = 1F,
+                animationSpec = tween(
+                    durationMillis = 400
+                )
             )
         }
 
-        Spacer(modifier = Modifier.size(32.dp))
+        Spacer(modifier = Modifier.weight(1F))
 
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .clickableNoEffect {
-                    coroutineScopeAnim.coroutineContext.cancelChildren()
-                    mode = "DeFi"
-                    onDefiClick()
-                },
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                modifier = Modifier,
-                //                                        .padding(start = dimensionResource(R.dimen.tiny_margin)),
-                //                                        .clickableNoEffect {
-                //                                            shouldFlash = true
-                //                                            switch = true
-                //                                        },
-                style = AppTheme.typography.title3,
-                //                                    color = Color.Black,
-                text = "DeFi"
-            )
-
-            Box(
+        modes.forEachIndexed { index, mode ->
+            Column(
                 modifier = Modifier
-                    .height(4.dp)
-                    .width(if(selectedMode == "DeFi") width.value.dp else (maxIndicatorWidth - width.value).dp)
-                    .background(
-                        color = Color.White.copy(alpha = if(selectedMode == "DeFi")(width.value / maxIndicatorWidth) else 1 - (width.value / maxIndicatorWidth)),
-                        shape = RoundedCornerShape(24.dp)
-                    )
-            )
+                    .fillMaxHeight()
+                    .clickableNoEffect {
+                        coroutineScopeAnimation.coroutineContext.cancelChildren()
+                        modeTrigger = mode
+                        onModeClicked(mode)
+                    },
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier,
+                    style = AppTheme.typography.title3,
+                    color = Color.White.copy(
+                        alpha = if (selectedMode == mode) {
+                            textAlpha.value
+                        } else {
+                            1F - textAlpha.value + 0.6F
+                        }
+                    ),
+                    text = mode
+                )
+
+                Box(
+                    modifier = Modifier
+                        .height(4.dp)
+                        .width(
+                            if (mode == selectedMode || mode == previousSelectedMode) {
+                                if (selectedMode == mode) {
+                                    indicatorWidth.value.dp
+                                } else {
+                                    (fullIndicatorWidth - indicatorWidth.value).dp
+                                }
+                            } else {
+                                0.dp
+                            }
+                        )
+                        .background(
+                            color = Color.White.copy(
+                                alpha = if (mode == selectedMode || mode == previousSelectedMode) {
+                                    if (selectedMode == mode) {
+                                        indicatorWidth.value / fullIndicatorWidth
+                                    } else {
+                                        1 - (indicatorWidth.value / fullIndicatorWidth)
+                                    }
+                                } else {
+                                    0F
+                                }
+
+                            ),
+                            shape = RoundedCornerShape(24.dp)
+                        )
+                )
+            }
+
+            if (modes.lastIndex != index) {
+                Spacer(modifier = Modifier.size(32.dp))
+            }
         }
 
         Spacer(modifier = Modifier.weight(1F))

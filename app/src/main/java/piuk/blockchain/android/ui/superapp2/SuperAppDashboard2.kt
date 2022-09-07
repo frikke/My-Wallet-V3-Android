@@ -51,10 +51,8 @@ import com.blockchain.componentlib.theme.END_TRADING
 import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
 import com.blockchain.componentlib.utils.clickableNoEffect
-import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
-import org.json.zip.JSONzip.end
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.superapp.dashboard.composable.BottomNavigationC
 import piuk.blockchain.android.ui.superapp.dashboard.composable.ModeSwitcher
@@ -304,18 +302,20 @@ fun SuperAppDashboard2() {
                 ///////
                 ///////
                 ModeSwitcher(
-                    Modifier
+                    modifier = Modifier
                         .height(54.dp)
                         .fillMaxWidth()
                         .alpha(switcherAlpha),
-                    {
-                        shouldFlash = true
-                        switch = true
+                    modes = listOf("Trading", "DeFi"),
+                    onModeClicked = {
+                        if(it == "Trading"){
+                            shouldFlash = true
+                            switch = true
+                        } else if(it == "DeFi"){
+                            shouldFlash = true
+                            switch = false
+                        }
                     },
-                    {
-                        shouldFlash = true
-                        switch = false
-                    }
                 )
 
 //            }
