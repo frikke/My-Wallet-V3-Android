@@ -114,6 +114,7 @@ sealed interface AssetDetailsItem {
     )
 
     data class CentralCta(
+        val enabled: Boolean,
         val account: BlockchainAccount,
     ) : AssetDetailsItem
 
