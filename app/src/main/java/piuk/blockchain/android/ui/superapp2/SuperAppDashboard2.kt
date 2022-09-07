@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.superapp2
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -26,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -42,6 +44,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -53,6 +56,8 @@ import com.blockchain.componentlib.theme.END_TRADING
 import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
 import com.blockchain.componentlib.utils.clickableNoEffect
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.superapp.dashboard.composable.BottomNavigationC
 import piuk.blockchain.android.ui.superapp.dashboard.composable.NavigationGraph
@@ -86,10 +91,24 @@ fun SuperAppDashboard2() {
     var firstVisibleItemIndex by remember {
         mutableStateOf(0)
     }
-
     var firstVisibleItemScrollOffset by remember {
         mutableStateOf(0)
     }
+
+    // snaps
+    val coroutineScopeAnim = rememberCoroutineScope()
+    val offsetY = remember { Animatable(0f) }
+    var animate by remember {
+        mutableStateOf(false)
+    }
+
+    if (animate) {
+        toolbarState.scrollOffset = offsetY.value
+        if (toolbarState.scrollOffset == maxHeight) {
+            animate = false
+        }
+    }
+    //
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -103,6 +122,45 @@ fun SuperAppDashboard2() {
                 //                }
 
                 //                return super.onPreScroll(available, source)
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                // hide total balance if the offset is 1/2 below its height
+                if (toolbarState.scrollOffset > 0F &&
+                    toolbarState.scrollOffset < minHeight
+                ) {
+                    coroutineScopeAnim.launch {
+                        animate = true
+                        offsetY.snapTo(toolbarState.scrollOffset)
+                        offsetY.animateTo(
+                            targetValue = if (toolbarState.scrollOffset > minHeight / 2) {
+                                minHeight
+                            } else {
+                                0F
+                            },
+                            animationSpec = tween(
+                                durationMillis = 400
+                            )
+                        )
+                    }
+                }
+                // if switcher is scrolled but still visible, snap to the top of it
+                if (toolbarState.scrollOffset > minHeight &&
+                    toolbarState.scrollOffset < maxHeight
+                ) {
+                    coroutineScopeAnim.launch {
+                        animate = true
+                        offsetY.snapTo(toolbarState.scrollOffset)
+                        offsetY.animateTo(
+                            targetValue = minHeight,
+                            animationSpec = tween(
+                                durationMillis = 400
+                            )
+                        )
+                    }
+                }
+
+                return super.onPostFling(consumed, available)
             }
         }
     }
@@ -211,7 +269,19 @@ fun SuperAppDashboard2() {
                     com.blockchain.componentlib.basic.Image(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .padding(start = dimensionResource(R.dimen.tiny_margin)),
+                            .padding(start = dimensionResource(R.dimen.tiny_margin))
+                            .clickableNoEffect {
+                                coroutineScopeAnim.launch {
+                                    animate = true
+                                    offsetY.snapTo(toolbarState.scrollOffset)
+                                    offsetY.animateTo(
+                                        targetValue = maxHeight,
+                                        animationSpec = tween(
+                                            durationMillis = 400
+                                        )
+                                    )
+                                }
+                            },
                         imageResource = ImageResource.Local(R.drawable.ic_total_balance_demo)
                     )
                 }
@@ -266,6 +336,9 @@ fun SuperAppDashboard2() {
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onPress = {
+                                //                                scope.coroutineContext.cancelChildren()
+                                coroutineScopeAnim.coroutineContext.cancelChildren()
+                                animate = false
                             }
                         )
                     },
