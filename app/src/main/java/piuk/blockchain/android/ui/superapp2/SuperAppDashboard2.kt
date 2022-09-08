@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.superapp2
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -30,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -107,9 +107,8 @@ fun SuperAppDashboard2() {
     //
 
     // refresh
-    var enableRefresh by remember {
-        mutableStateOf(false)
-    }
+    var isRefreshing by remember { mutableStateOf(false) }
+    var enableRefresh by remember { mutableStateOf(false) }
     //
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -217,10 +216,18 @@ fun SuperAppDashboard2() {
     //
 
     // header alpha
-    var balanceAlpha by remember {
+    val balanceLoadingAlpha by animateFloatAsState(
+        targetValue = if (isRefreshing) 0F else 1F,
+        animationSpec = tween(
+            durationMillis = 400,
+            delayMillis = 0
+        )
+    )
+    var balanceScrollAlpha by remember {
         mutableStateOf(1F)
     }
-    balanceAlpha = (1 - (toolbarState.scrollOffset + (toolbarState.scrollOffset * 0.3F)) / minHeight).coerceIn(0F, 1F)
+    balanceScrollAlpha =
+        (1 - (toolbarState.scrollOffset + (toolbarState.scrollOffset * 0.3F)) / minHeight).coerceIn(0F, 1F)
 
     var switcherAlpha by remember {
         mutableStateOf(1F)
@@ -305,7 +312,7 @@ fun SuperAppDashboard2() {
                     modifier = Modifier
                         .height(54.dp)
                         .fillMaxWidth()
-                        .alpha(balanceAlpha)
+                        .alpha(if (isRefreshing) balanceLoadingAlpha else balanceScrollAlpha)
                     /*.background(Color.Red)*/
                 ) {
                     com.blockchain.componentlib.basic.Image(
@@ -370,11 +377,29 @@ fun SuperAppDashboard2() {
                         )
                     },
                 navController = navController,
-                enableRefresh = enableRefresh
-            ) {
-                firstVisibleItemIndex = it.first
-                firstVisibleItemScrollOffset = it.second
-            }
+                enableRefresh = enableRefresh, indexedChanged = {
+                    firstVisibleItemIndex = it.first
+                    firstVisibleItemScrollOffset = it.second
+                },
+                refreshStarted = {
+                    isRefreshing = true
+                },
+                refreshComplete = {
+                    coroutineScopeAnim.launch {
+                        if (toolbarState.scrollOffset < minHeight) {
+                            animate = true
+                            offsetY.snapTo(toolbarState.scrollOffset)
+                            offsetY.animateTo(
+                                targetValue = minHeight,
+                                animationSpec = tween(
+                                    durationMillis = 400
+                                )
+                            )
+                        }
+                        isRefreshing = false
+                    }
+                }
+            )
         }
 
         BottomNavigationC(

@@ -30,7 +30,13 @@ import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, indexedChanged: (Pair<Int, Int>) -> Unit, enableRefresh: Boolean) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    indexedChanged: (Pair<Int, Int>) -> Unit,
+    enableRefresh: Boolean,
+    refreshStarted: () -> Unit,
+    refreshComplete: () -> Unit
+) {
     val listState = rememberLazyListState()
 
     indexedChanged(Pair(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset))
@@ -46,8 +52,10 @@ fun HomeScreen(modifier: Modifier = Modifier, indexedChanged: (Pair<Int, Int>) -
         onRefresh = {
             isRefreshing = true
             scope.launch {
+                refreshStarted()
                 delay(2000)
                 isRefreshing = false
+                refreshComplete()
             }
         },
     ) {
@@ -114,7 +122,7 @@ fun CardScreen(modifier: Modifier = Modifier, indexedChanged: (Pair<Int, Int>) -
         onRefresh = {
             isRefreshing = true
             scope.launch {
-                delay(2000)
+                delay(5000)
                 isRefreshing = false
             }
         },
