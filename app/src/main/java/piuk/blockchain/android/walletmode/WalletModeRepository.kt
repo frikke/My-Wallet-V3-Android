@@ -18,11 +18,16 @@ class WalletModeRepository(
     private val featureFlag: IntegratedFeatureFlag,
 ) : WalletModeService {
     private var walletModesEnabled = false
+    private var _walletMode: MutableStateFlow<WalletMode> = MutableStateFlow(WalletMode.UNIVERSAL)
 
     init {
         GlobalScope.launch {
             while (true) {
                 walletModesEnabled = featureFlag.coEnabled()
+                /**
+                 * If its universal then update to the enabled.
+                 */
+                _walletMode.compareAndSet(WalletMode.UNIVERSAL, enabledWalletMode())
                 delay(ONE_HOUR_MILLIS)
             }
         }
@@ -45,8 +50,6 @@ class WalletModeRepository(
 
     private fun defaultMode(): WalletMode =
         WalletMode.CUSTODIAL_ONLY
-
-    private var _walletMode = MutableStateFlow(enabledWalletMode())
 
     override val walletMode: Flow<WalletMode>
         get() = _walletMode
