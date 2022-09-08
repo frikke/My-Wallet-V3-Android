@@ -106,6 +106,11 @@ fun SuperAppDashboard2() {
     }
     //
 
+    // refresh
+    var enableRefresh by remember {
+        mutableStateOf(false)
+    }
+    //
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -114,10 +119,22 @@ fun SuperAppDashboard2() {
                     firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
 
                 toolbarState.scrollOffset = toolbarState.scrollOffset - available.y
-                return Offset(0f, toolbarState.consumed)
-                //                }
 
-                //                return super.onPreScroll(available, source)
+                println("----- enableRefresh: ${enableRefresh}")
+                println("----- toolbarState.scrollOffset: ${toolbarState.scrollOffset}")
+                println("----- firstVisibleItemIndex: ${firstVisibleItemIndex}")
+                println("----- firstVisibleItemScrollOffset: ${firstVisibleItemScrollOffset}")
+                println(".")
+                println(".")
+                println(".")
+
+                if (toolbarState.scrollTopLimitReached.not()) {
+                    enableRefresh = false
+                } else if (enableRefresh.not()) {
+                    enableRefresh = toolbarState.scrollOffset < minHeight && toolbarState.scrollTopLimitReached
+                }
+
+                return Offset(0f, toolbarState.consumed)
             }
 
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
@@ -156,6 +173,19 @@ fun SuperAppDashboard2() {
                     }
                 }
 
+                enableRefresh = false
+                //                println("----- minHeight: $minHeight")
+                //                println("----- maxHeight: $maxHeight")
+                //                println("----- toolbarState.scrollOffset: ${toolbarState.scrollOffset}")
+                //                println("----- firstVisibleItemIndex: $firstVisibleItemIndex")
+                //                println("----- firstVisibleItemScrollOffset: $firstVisibleItemScrollOffset")
+                //                if (
+                //                    firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
+                //                ) {
+                //                    enableRefresh = true
+                //                } else {
+                //                    enableRefresh = false
+                //                }
                 return super.onPostFling(consumed, available)
             }
         }
@@ -308,134 +338,88 @@ fun SuperAppDashboard2() {
                         .alpha(switcherAlpha),
                     modes = listOf("Trading", "DeFi"),
                     onModeClicked = {
-                        if(it == "Trading"){
+                        if (it == "Trading") {
                             shouldFlash = true
                             switch = true
-                        } else if(it == "DeFi"){
+                        } else if (it == "DeFi") {
                             shouldFlash = true
                             switch = false
                         }
                     },
                 )
+            }
 
-//            }
-            //                Row(
-            //                    modifier = Modifier
-            //                        .height(54.dp)
-            //                        .fillMaxWidth()
-            //                        .alpha(switcherAlpha)
-            //                    /*.background(Color.Green)*/,
-            //                    verticalAlignment = Alignment.CenterVertically,
-            //                    horizontalArrangement = Arrangement.Center
-            //                ) {
-            //                    Text(
-            //                        modifier = Modifier
-            //                            .padding(start = dimensionResource(R.dimen.tiny_margin))
-            //                            .clickableNoEffect {
-            //                                shouldFlash = true
-            //                                switch = true
-            //                            },
-            //                        style = AppTheme.typography.title3,
-            //                        color = Color.Black,
-            //                        text = "trading"
-            //                    )
-            //
-            //                    Spacer(modifier = Modifier.size(32.dp))
-            //
-            //                    Text(
-            //                        modifier = Modifier
-            //                            .padding(start = dimensionResource(R.dimen.tiny_margin))
-            //                            .clickableNoEffect {
-            //                                shouldFlash = true
-            //                                switch = false
-            //                            },
-            //                        style = AppTheme.typography.title3,
-            //                        color = Color.Black,
-            //                        text = "defi"
-            //                    )
-            //                }
+            //////// content
+            ////////
+            ////////
+            ////////
+            ////////
+            NavigationGraph(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        translationY = headerBottomY
+                    }
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = {
+                                //                                scope.coroutineContext.cancelChildren()
+                                coroutineScopeAnim.coroutineContext.cancelChildren()
+                                animate = false
+                            }
+                        )
+                    },
+                navController = navController,
+                enableRefresh = enableRefresh
+            ) {
+                firstVisibleItemIndex = it.first
+                firstVisibleItemScrollOffset = it.second
+            }
         }
 
-        //////// content
-        ////////
-        ////////
-        ////////
-        ////////
-        NavigationGraph(
+        BottomNavigationC(
             modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer {
-                    translationY = headerBottomY
+                .wrapContentSize()
+                .padding(34.dp)
+                .constrainAs(nav) {
+                    start.linkTo(parent.start)
+                    bottom.linkTo(navBar.top)
+                    end.linkTo(parent.end)
                 }
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = {
-                            //                                scope.coroutineContext.cancelChildren()
-                            coroutineScopeAnim.coroutineContext.cancelChildren()
-                            animate = false
-                        }
+                .offset {
+                    IntOffset(
+                        x = 0,
+                        y = animateDown
                     )
                 },
-            navController = navController
+            navController
         ) {
-            firstVisibleItemIndex = it.first
-            firstVisibleItemScrollOffset = it.second
         }
+
+        // status bar
+        val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+        Box(
+            modifier = Modifier
+                .constrainAs(statusBar) {
+                    start.linkTo(parent.start)
+                    top.linkTo(parent.top)
+                    end.linkTo(parent.end)
+                }
+                .fillMaxWidth()
+                .height(statusBarHeight)
+        )
+
+        // nav bar
+        val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+        Box(
+            modifier = Modifier
+                .constrainAs(navBar) {
+                    start.linkTo(parent.start)
+                    bottom.linkTo(parent.bottom)
+                    end.linkTo(parent.end)
+                }
+                .fillMaxWidth()
+                .height(navBarHeight)
+        )
     }
-
-    BottomNavigationC(
-        modifier = Modifier
-            .wrapContentSize()
-            .padding(34.dp)
-            .constrainAs(nav) {
-                start.linkTo(parent.start)
-                bottom.linkTo(navBar.top)
-                end.linkTo(parent.end)
-            }
-            .offset {
-                IntOffset(
-                    x = 0,
-                    y = animateDown
-                )
-            },
-        navController
-    ) {
-    }
-
-    // status bar
-    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    Box(
-        modifier = Modifier
-            .constrainAs(statusBar) {
-                start.linkTo(parent.start)
-                top.linkTo(parent.top)
-                end.linkTo(parent.end)
-            }
-
-            .fillMaxWidth()
-            .height(statusBarHeight)
-//            .background(
-//                brush = Brush.horizontalGradient(
-//                    colors = listOf(
-//                        startColor,
-//                        endColor
-//                    )
-//                )
-//            )
-    )
-
-    // nav bar
-    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    Box(
-        modifier = Modifier
-            .constrainAs(navBar) {
-                start.linkTo(parent.start)
-                bottom.linkTo(parent.bottom)
-                end.linkTo(parent.end)
-            }
-            .fillMaxWidth()
-            .height(navBarHeight)
-            .background(Color.Blue.copy(alpha = 0.5F))
-    )
-}
 }

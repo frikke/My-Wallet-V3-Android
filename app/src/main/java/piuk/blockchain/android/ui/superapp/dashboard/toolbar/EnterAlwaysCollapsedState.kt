@@ -24,7 +24,7 @@ class EnterAlwaysCollapsedState(
     override var scrollOffset: Float
         get() = _scrollOffset
         set(value) {
-            println("-----  scrollOffset value ${value}")
+//            println("-----  scrollOffset value ${value}")
 
             val oldOffset = _scrollOffset
             _scrollOffset = if (scrollTopLimitReached) {
@@ -32,7 +32,7 @@ class EnterAlwaysCollapsedState(
             } else {
                 value.coerceIn(rangeDifference.toFloat(), maxHeight.toFloat())
             }
-            println("-----  scrollOffset _consumed ${_consumed}")
+//            println("-----  scrollOffset _consumed ${_consumed}")
             _consumed = oldOffset - _scrollOffset
         }
 
