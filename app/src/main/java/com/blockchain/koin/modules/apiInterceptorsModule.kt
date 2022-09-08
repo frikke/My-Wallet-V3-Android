@@ -5,9 +5,11 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.authInterceptorFeatureFlag
 import com.blockchain.network.modules.OkHttpAuthInterceptor
 import com.blockchain.network.modules.OkHttpInterceptors
+import com.blockchain.network.modules.OkHttpLoggingInterceptors
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import java.util.UUID
+import okhttp3.Interceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
@@ -22,7 +24,6 @@ import piuk.blockchain.androidcore.utils.SessionPrefs
 val apiInterceptorsModule = module {
 
     single {
-        val env: EnvironmentConfig = get()
         val versionName = BuildConfig.VERSION_NAME.removeSuffix(BuildConfig.VERSION_NAME_SUFFIX)
         OkHttpInterceptors(
             mutableListOf(
@@ -30,7 +31,14 @@ val apiInterceptorsModule = module {
                 UserAgentInterceptor(versionName, Build.VERSION.RELEASE),
                 DeviceIdInterceptor(prefs = lazy { get<SessionPrefs>() }, get()),
                 RequestIdInterceptor { UUID.randomUUID().toString() }
-            ).apply {
+            )
+        )
+    }
+
+    single {
+        val env: EnvironmentConfig = get()
+        OkHttpLoggingInterceptors(
+            mutableListOf<Interceptor>().apply {
                 // add for staging and alpha debugs
                 if (env.isRunningInDebugMode()) {
                     add(StethoInterceptor())
