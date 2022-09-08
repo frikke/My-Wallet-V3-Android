@@ -8,15 +8,27 @@ import android.net.Uri
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.text.SpannedString
 import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.text.style.UnderlineSpan
 import android.view.View
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.content.ContextCompat
+import com.blockchain.componentlib.theme.AppTheme
 
 class StringUtils(private val context: Context) {
 
@@ -35,6 +47,71 @@ class StringUtils(private val context: Context) {
 
     companion object {
         private const val EMPTY_SPACE = " "
+        const val TAG_URL = "link"
+
+        @Composable
+        fun Spanned.toAnnotatedString(
+            linksMap: Map<String, String>? = null
+        ): AnnotatedString {
+            val primaryColor = AppTheme.colors.primary
+            return remember {
+                buildAnnotatedString {
+                    val rawText = this@toAnnotatedString
+                    append(rawText.toString())
+
+                    for (span in rawText.getSpans(0, rawText.length, Any::class.java)) {
+                        val start = rawText.getSpanStart(span)
+                        val end = rawText.getSpanEnd(span)
+                        when (span) {
+                            is StyleSpan -> when (span.style) {
+                                Typeface.BOLD -> addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, end)
+                                Typeface.ITALIC -> addStyle(SpanStyle(fontStyle = FontStyle.Italic), start, end)
+                                Typeface.BOLD_ITALIC -> addStyle(
+                                    SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic), start, end
+                                )
+                            }
+                            is UnderlineSpan -> addStyle(
+                                SpanStyle(textDecoration = TextDecoration.Underline), start, end
+                            )
+                            is ForegroundColorSpan -> addStyle(
+                                SpanStyle(color = Color(span.foregroundColor)), start, end
+                            )
+                            is android.text.Annotation -> {
+                                val url = linksMap?.get(span.value)
+                                if (span.key == "link" && url != null) {
+                                    addStringAnnotation(
+                                        tag = TAG_URL,
+                                        annotation = url,
+                                        start = start,
+                                        end = end
+                                    )
+                                    addStyle(SpanStyle(color = primaryColor), start, end)
+                                }
+                                if (span.key == "font" && span.value == "bold") {
+                                    addStyle(
+                                        SpanStyle(fontWeight = FontWeight.Bold),
+                                        start,
+                                        end
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        @Composable
+        fun getAnnotatedStringWithMappedAnnotations(
+            context: Context,
+            @StringRes stringId: Int,
+            linksMap: Map<String, String>
+        ): AnnotatedString {
+            val text = context.getText(stringId)
+            val rawText = text as? SpannedString ?: return AnnotatedString(text.toString())
+
+            return rawText.toAnnotatedString(linksMap)
+        }
 
         fun getStringWithMappedAnnotations(
             context: Context,

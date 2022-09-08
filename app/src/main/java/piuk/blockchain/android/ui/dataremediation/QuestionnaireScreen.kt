@@ -443,7 +443,10 @@ private fun SelectionRow(
         if (node.isParentSingleSelection) {
             Radio(state = if (node.isChecked) RadioButtonState.Selected else RadioButtonState.Unselected)
         } else {
-            Checkbox(state = if (node.isChecked) CheckboxState.Checked else CheckboxState.Unchecked)
+            Checkbox(
+                modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
+                state = if (node.isChecked) CheckboxState.Checked else CheckboxState.Unchecked
+            )
         }
     }
 }

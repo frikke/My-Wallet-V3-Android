@@ -1614,7 +1614,6 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="password">Palavra-passe</string>
     <string name="email">O seu e-mail</string>
     <string name="sign_up_email">E-mail</string>
-    <string name="password_disclaimer_1">Compreendo que a Blockchain.com nunca armazena palavras-passe, portanto, não pode recuperar ou repor a minha palavra-passe. Se eu perder o acesso à minha carteira, devo utilizar a minha <annotation link="backup">Frase Secreta de Recuperação de Chave Privada</annotation> para aceder aos meus fundos. Ao criar uma conta, concorda com os <annotation link="terms">Termos de Serviço</annotation> e <annotation link="privacy">Política de Privacidade</annotation> da Blockchain.com.</string>
     <string name="new_account_title_1">Nova conta</string>
     <string name="create_wallet_state">Estado</string>
     <string name="create_wallet_country">País de residência</string>

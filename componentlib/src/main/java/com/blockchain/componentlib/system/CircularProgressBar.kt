@@ -35,14 +35,14 @@ fun CircularProgressBar(
         fontStyle.lineHeight.toDp()
     }
 
-    var boxModifier = modifier
-
-    if (text != null) {
-        boxModifier = modifier.size(textHeight)
+    val boxModifier = if (text != null) {
+        Modifier.size(textHeight)
+    } else {
+        Modifier
     }
 
-    Row(horizontalArrangement = Arrangement.Center) {
-        Box(modifier = boxModifier) {
+    Row(modifier = modifier, horizontalArrangement = Arrangement.Center) {
+        Box(boxModifier) {
             CircularProgressIndicator(
                 color = backgroundColor,
                 progress = 1f

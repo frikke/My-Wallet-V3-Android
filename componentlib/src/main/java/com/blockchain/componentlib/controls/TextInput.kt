@@ -283,22 +283,6 @@ fun TextInput(
 
 @Preview
 @Composable
-fun TextInput_Preview() {
-    AppTheme {
-        AppSurface {
-            TextInput(
-                value = "",
-                label = "Home Address",
-                onValueChange = {},
-                placeholder = "ASDASD",
-                trailingIcon = ImageResource.Local(R.drawable.ic_search),
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
 fun TextInput_Error_Preview() {
     AppTheme {
         AppSurface {
@@ -306,9 +290,51 @@ fun TextInput_Error_Preview() {
                 value = "",
                 label = "Home Address",
                 onValueChange = {},
-                placeholder = "ASDASD",
+                placeholder = "Placeholder text",
                 trailingIcon = ImageResource.Local(R.drawable.ic_search),
                 state = TextInputState.Error("Test Error Message")
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun TextInput_Disabled_Preview() {
+    AppTheme {
+        AppSurface {
+            TextInput(
+                value = "Input",
+                onValueChange = {},
+                state = TextInputState.Disabled("Test Disabled message")
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun TextInput_Success_Preview() {
+    AppTheme {
+        AppSurface {
+            TextInput(
+                value = "Input",
+                onValueChange = {},
+                state = TextInputState.Success("Test Disabled message")
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun TextInput_Preview() {
+    AppTheme {
+        AppSurface {
+            TextInput(
+                value = "Input",
+                onValueChange = {},
+                state = TextInputState.Default()
             )
         }
     }

@@ -216,10 +216,18 @@
     <string name="password_disclaimer">I agree to Blockchain.com’s <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
     <string name="new_account_cta_text">Next</string>
     <string name="new_account_title_1">New Account</string>
+    <string name="new_account_referral_code_label">Have a referral code?</string>
     <string name="new_account_referral_code">Enter referral code (optional)</string>
     <string name="new_account_referral_code_invalid">Please enter a valid referral code</string>
     <string name="create_wallet_state">State</string>
     <string name="create_wallet_country">Country of Residence</string>
+    <string name="create_wallet_create_account">Create Account</string>
+    <string name="create_wallet_step_1_header">Let’s Get Started.</string>
+    <string name="create_wallet_step_1_subheader">What country do you live in?</string>
+    <string name="create_wallet_step_2_header">Create Your Account.</string>
+    <string name="create_wallet_step_2_subheader">Enter your email and create a password</string>
+    <string name="create_wallet_email_hint">your@email.com</string>
+    <string name="create_wallet_password_hint">Minimum 8 characters</string>
     <string name="strength_weak">Weak</string>
     <string name="strength_medium">Regular</string>
     <string name="strength_normal">Good</string>
