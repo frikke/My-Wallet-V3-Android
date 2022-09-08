@@ -181,8 +181,7 @@ class Coincore internal constructor(
                         .filterNot { account -> account.currency == sourceAccount.currency }
                         .filter { cryptoAccount ->
                             sourceAccount.isTargetAvailableForSwap(
-                                target = cryptoAccount,
-                                enabledWalletMode = walletModeService.enabledWalletMode()
+                                target = cryptoAccount
                             )
                         }
                 }
@@ -209,14 +208,9 @@ class Coincore internal constructor(
      * In any other case, swap is only allowed to same Type accounts
      */
     private fun SingleAccount.isTargetAvailableForSwap(
-        target: CryptoAccount,
-        enabledWalletMode: WalletMode,
-    ): Boolean {
-        return if (enabledWalletMode == WalletMode.UNIVERSAL) {
-            if (isTrading()) target.isTrading() else true
-        } else
-            this.isSameType(target)
-    }
+        target: CryptoAccount
+    ): Boolean =
+        if (isTrading()) target.isTrading() else true
 
     fun findAccountByAddress(
         asset: AssetInfo,
