@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -88,6 +89,7 @@ import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.utils.fromIso8601ToUtc
+import com.blockchain.utils.getMonthName
 import com.blockchain.utils.toFormattedDateTime
 import com.blockchain.utils.toLocalTime
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -108,6 +110,7 @@ fun ManageCard(
     onManageCardDetails: () -> Unit,
     onFundingAccountClicked: () -> Unit,
     onRefreshBalance: () -> Unit,
+    onSeeAllTransactions: () -> Unit,
     onSeeTransactionDetails: (BlockchainCardTransaction) -> Unit,
     onRefreshTransactions: () -> Unit,
     onRefreshCardWidgetUrl: () -> Unit
@@ -267,21 +270,23 @@ fun ManageCard(
                     style = ComposeTypographies.Title3,
                     color = ComposeColors.Title,
                     gravity = ComposeGravities.Start,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.wrapContentWidth(),
+                    isMultiline = false
                 )
 
-                // TODO (labreu): disabled for MVP
-                /*Spacer(modifier = Modifier.weight(1f))
+                if (transactionList != null && transactionList.isNotEmpty()) {
+                    Spacer(modifier = Modifier.weight(1f))
 
-                MinimalButton(
-                    text = stringResource(R.string.bc_card_see_all),
-                    onClick = {},
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .weight(1f),
-                    minHeight = 16.dp,
-                    shape = AppTheme.shapes.extraLarge
-                )*/
+                    MinimalButton(
+                        text = stringResource(R.string.bc_card_see_all),
+                        onClick = onSeeAllTransactions,
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .weight(1f),
+                        minHeight = 16.dp,
+                        shape = AppTheme.shapes.extraLarge
+                    )
+                }
             }
 
             when {
@@ -334,9 +339,7 @@ fun ManageCard(
                 else -> {
                     CardTransactionList(
                         transactionList = transactionList,
-                        onSeeTransactionDetails = onSeeTransactionDetails,
-                        onRefreshTransactions = onRefreshTransactions,
-                        isTransactionListRefreshing = isTransactionListRefreshing
+                        onSeeTransactionDetails = onSeeTransactionDetails
                     )
                 }
             }
@@ -366,6 +369,7 @@ private fun PreviewManageCard() {
         onManageCardDetails = {},
         onFundingAccountClicked = {},
         onRefreshBalance = {},
+        onSeeAllTransactions = {},
         onSeeTransactionDetails = {},
         onRefreshTransactions = {},
         onRefreshCardWidgetUrl = {}
@@ -441,9 +445,7 @@ private fun PreviewManageCardDetails() {
 @Composable
 fun CardTransactionList(
     transactionList: List<BlockchainCardTransaction>,
-    onSeeTransactionDetails: (transaction: BlockchainCardTransaction) -> Unit,
-    onRefreshTransactions: () -> Unit,
-    isTransactionListRefreshing: Boolean,
+    onSeeTransactionDetails: (transaction: BlockchainCardTransaction) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -451,27 +453,22 @@ fun CardTransactionList(
         elevation = 0.dp,
         shape = RoundedCornerShape(20.dp)
     ) {
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isRefreshing = isTransactionListRefreshing),
-            onRefresh = onRefreshTransactions
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                transactionList.forEachIndexed { index, transaction ->
-                    CardTransactionItem(
-                        merchantName = transaction.merchantName,
-                        timestamp = transaction.userTransactionTime,
-                        amount = transaction.originalAmount.toStringWithSymbol(),
-                        state = transaction.state,
-                        isRefund = transaction.type == BlockchainCardTransactionType.REFUND,
-                        onClick = { onSeeTransactionDetails(transaction) }
-                    )
-                    if (index < transactionList.lastIndex)
-                        HorizontalDivider(modifier = Modifier.fillMaxWidth())
-                }
+            transactionList.forEachIndexed { index, transaction ->
+                CardTransactionItem(
+                    merchantName = transaction.merchantName,
+                    timestamp = transaction.userTransactionTime,
+                    amount = transaction.originalAmount.toStringWithSymbol(),
+                    state = transaction.state,
+                    isRefund = transaction.type == BlockchainCardTransactionType.REFUND,
+                    onClick = { onSeeTransactionDetails(transaction) }
+                )
+                if (index < transactionList.lastIndex)
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
             }
         }
     }
@@ -534,6 +531,223 @@ fun PreviewCardTransactionList() {
 
     CardTransactionList(
         transactionList = transactionList,
+        onSeeTransactionDetails = {}
+    )
+}
+
+@Composable
+fun CardTransactionHistory(
+    pendingTransactions: List<BlockchainCardTransaction>,
+    completedTransactionsGroupedByMonth: Map<String?, List<BlockchainCardTransaction>>,
+    onSeeTransactionDetails: (transaction: BlockchainCardTransaction) -> Unit,
+    onRefreshTransactions: () -> Unit,
+    isTransactionListRefreshing: Boolean,
+) {
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing = isTransactionListRefreshing),
+        onRefresh = onRefreshTransactions
+    ) {
+        LazyColumn(
+            modifier = Modifier.padding(AppTheme.dimensions.paddingLarge),
+            verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.paddingLarge)
+        ) {
+            if (pendingTransactions.isNotEmpty()) {
+                item {
+                    SimpleText(
+                        text = stringResource(id = R.string.bc_card_transaction_pending),
+                        style = ComposeTypographies.Body2,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Start
+                    )
+
+                    Spacer(modifier = Modifier.height(AppTheme.dimensions.paddingSmall))
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        border = BorderStroke(1.dp, Grey000),
+                        elevation = 0.dp,
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                        ) {
+                            pendingTransactions.forEachIndexed { index, transaction ->
+                                CardTransactionItem(
+                                    merchantName = transaction.merchantName,
+                                    timestamp = transaction.userTransactionTime,
+                                    amount = transaction.originalAmount.toStringWithSymbol(),
+                                    state = transaction.state,
+                                    isRefund = transaction.type == BlockchainCardTransactionType.REFUND,
+                                    onClick = { onSeeTransactionDetails(transaction) }
+                                )
+                                if (index < pendingTransactions.lastIndex)
+                                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (completedTransactionsGroupedByMonth.isNotEmpty()) {
+                completedTransactionsGroupedByMonth.forEach { (month, transactions) ->
+                    if (month != null) {
+                        item {
+                            SimpleText(
+                                text = month,
+                                style = ComposeTypographies.Body2,
+                                color = ComposeColors.Body,
+                                gravity = ComposeGravities.Start
+                            )
+
+                            Spacer(modifier = Modifier.height(AppTheme.dimensions.paddingSmall))
+
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                border = BorderStroke(1.dp, Grey000),
+                                elevation = 0.dp,
+                                shape = RoundedCornerShape(20.dp)
+                            ) {
+                                Column {
+                                    transactions.forEachIndexed { index, transaction ->
+                                        CardTransactionItem(
+                                            merchantName = transaction.merchantName,
+                                            timestamp = transaction.userTransactionTime,
+                                            amount = transaction.originalAmount.toStringWithSymbol(),
+                                            state = transaction.state,
+                                            isRefund = transaction.type == BlockchainCardTransactionType.REFUND,
+                                            onClick = { onSeeTransactionDetails(transaction) }
+                                        )
+
+                                        if (index < transactions.lastIndex)
+                                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCardTransactionHistory() {
+
+    val transactionList = listOf(
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-06-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.PAYMENT,
+            state = BlockchainCardTransactionState.COMPLETED,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        ),
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-06-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.PAYMENT,
+            state = BlockchainCardTransactionState.DECLINED,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        ),
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-07-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.REFUND,
+            state = BlockchainCardTransactionState.COMPLETED,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        ),
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-07-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.PAYMENT,
+            state = BlockchainCardTransactionState.COMPLETED,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        ),
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-07-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.PAYMENT,
+            state = BlockchainCardTransactionState.PENDING,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        ),
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-07-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.PAYMENT,
+            state = BlockchainCardTransactionState.PENDING,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        )
+    )
+
+    val pendingTransactions = transactionList.filter {
+        it.state == BlockchainCardTransactionState.PENDING
+    }
+    val completedTransactionsGroupedByMonth = transactionList.filter {
+        it.state != BlockchainCardTransactionState.PENDING
+    }.groupBy {
+        it.userTransactionTime.fromIso8601ToUtc()?.getMonthName()
+    }
+
+    CardTransactionHistory(
+        pendingTransactions = pendingTransactions,
+        completedTransactionsGroupedByMonth = completedTransactionsGroupedByMonth,
         onSeeTransactionDetails = {},
         onRefreshTransactions = { /*TODO*/ },
         isTransactionListRefreshing = false
@@ -568,7 +782,7 @@ fun CardTransactionItem(
             iconTintColour = R.color.paletteBaseTextTitle,
             alpha = 1F
         )
-    } else if (state == BlockchainCardTransactionState.DECLINED) {
+    } else if (state == BlockchainCardTransactionState.DECLINED || state == BlockchainCardTransactionState.CANCELLED) {
         transactionTitle = buildAnnotatedString { append(merchantName) }
         transactionAmount = buildAnnotatedString {
             withStyle(style = SpanStyle(textDecoration = TextDecoration.LineThrough)) {
@@ -577,11 +791,11 @@ fun CardTransactionItem(
         }
         transactionTimestamp = buildAnnotatedString {
             withStyle(style = SpanStyle(color = AppTheme.colors.error)) {
-                append(stringResource(id = R.string.bc_card_transaction_declined))
+                append(stringResource(id = state.getStringResource()))
             }
         }
         transactionIcon = ImageResource.LocalWithBackground(
-            R.drawable.ic_plus,
+            R.drawable.ic_minus,
             backgroundColour = R.color.paletteBaseLight,
             iconTintColour = R.color.paletteBaseTextTitle,
             alpha = 1F
@@ -725,6 +939,7 @@ fun CardTransactionDetails(
         Card(
             modifier = Modifier.fillMaxWidth(),
             border = BorderStroke(1.dp, Grey000),
+            shape = RoundedCornerShape(6.dp),
             elevation = 0.dp
         ) {
             Row(
@@ -753,6 +968,7 @@ fun CardTransactionDetails(
         Card(
             modifier = Modifier.fillMaxWidth(),
             border = BorderStroke(1.dp, Grey000),
+            shape = RoundedCornerShape(6.dp),
             elevation = 0.dp
         ) {
             Column(
@@ -1591,7 +1807,7 @@ private fun CardDetailsBottomSheetElement(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewCardDetailsBottomSheetElement() {
-    CardDetailsBottomSheetElement(BlockchainCardStatus.ACTIVE, "***3458",)
+    CardDetailsBottomSheetElement(BlockchainCardStatus.ACTIVE, "***3458")
 }
 
 @Composable
@@ -1796,6 +2012,7 @@ fun CryptoAccountItem(
         startImageResource = ImageResource.Remote(
             url = currencyLogo,
             contentDescription = null,
+            shape = RoundedCornerShape(2.dp)
         ),
         endImageResource = endImageResource,
         tags = emptyList(),
@@ -1818,6 +2035,7 @@ fun FiatAccountItem(
         startImageResource = ImageResource.Remote(
             url = currencyLogo,
             contentDescription = null,
+            shape = RoundedCornerShape(2.dp)
         ),
         endImageResource = endImageResource,
         tags = emptyList(),

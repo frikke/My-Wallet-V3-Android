@@ -27,11 +27,10 @@ import com.google.accompanist.drawablepainter.rememberDrawablePainter
 @Composable
 fun Image(
     imageResource: ImageResource,
+    defaultShape: Shape = CircleShape,
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Fit
 ) {
-    val defaultShape: Shape = CircleShape
-
     when (imageResource) {
         is ImageResource.Local ->
             androidx.compose.foundation.Image(
@@ -141,7 +140,7 @@ fun Image_Local_24() {
         AppSurface {
             Image(
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain, ""),
-                Modifier.size(dimensionResource(R.dimen.standard_margin)),
+                modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)),
             )
         }
     }

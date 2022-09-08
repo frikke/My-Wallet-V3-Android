@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
@@ -772,9 +774,9 @@ class SimpleBuyCryptoFragment :
             primaryText = paymentMethod.fiatCurrency.name
             secondaryText = paymentMethod.limits.max.toStringWithSymbol()
             startImageResource = if (paymentMethod.fiatCurrency.logo.isNotEmpty()) {
-                ImageResource.Remote(paymentMethod.fiatCurrency.logo)
+                ImageResource.Remote(paymentMethod.fiatCurrency.logo, shape = RoundedCornerShape(2.dp))
             } else {
-                ImageResource.Local(R.drawable.ic_default_asset_logo)
+                ImageResource.Local(R.drawable.ic_default_asset_logo, shape = RoundedCornerShape(2.dp))
             }
         }
     }
