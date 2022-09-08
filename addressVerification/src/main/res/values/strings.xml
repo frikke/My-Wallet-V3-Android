@@ -3,6 +3,7 @@
     <string name="common_no_results_found" />
     <string name="common_error" />
     <string name="common_save" />
+    <string name="common_retry" />
     <string name="contact_support" />
     <string name="address_verification_my_address_is_not_here" />
     <string name="address_verification_home_address" />

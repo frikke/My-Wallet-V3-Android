@@ -1,6 +1,7 @@
 package com.blockchain.componentlib.basic
 
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.ColorFilter
@@ -30,6 +31,13 @@ sealed class ImageResource {
 
     class LocalWithResolvedBitmap(
         val bitmap: Bitmap,
+        override val contentDescription: String? = null,
+        override val shape: Shape? = null,
+        override val size: Dp? = null,
+    ) : ImageResource()
+
+    class LocalWithResolvedDrawable(
+        val drawable: Drawable,
         override val contentDescription: String? = null,
         override val shape: Shape? = null,
         override val size: Dp? = null,

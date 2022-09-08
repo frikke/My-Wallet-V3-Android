@@ -116,6 +116,7 @@ object Versions {
     const val swipeRefresh = "0.25.0"
     const val pager = "0.25.0"
     const val pagerIndicators = "0.25.0"
+    const val drawablePainter = "0.25.0"
 
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
@@ -331,6 +332,8 @@ object Libraries {
     const val accompanistPager = "com.google.accompanist:accompanist-pager:${Versions.pager}"
     const val accompanistPagerIndicators =
         "com.google.accompanist:accompanist-pager-indicators:${Versions.pagerIndicators}"
+    const val accompanistDrawablePainter =
+        "com.google.accompanist:accompanist-drawablepainter:${Versions.drawablePainter}"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"
