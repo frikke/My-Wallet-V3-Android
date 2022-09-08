@@ -5,7 +5,6 @@ import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.api.referral.data.ReferralResponse
 import com.blockchain.api.services.ReferralApiService
 import com.blockchain.domain.referral.model.ReferralInfo
-import com.blockchain.nabu.Authenticator
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.doReturn
@@ -14,7 +13,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
-import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -36,10 +34,6 @@ class ReferralRepositoryTest {
         promotion = null
     )
 
-    private val authenticator: Authenticator = mock {
-        on { getAuthHeader() } doReturn Single.just(AUTH)
-    }
-
     private val mockFiat: FiatCurrency = mock {
         on { networkTicker } doReturn FIAT
     }
@@ -54,12 +48,12 @@ class ReferralRepositoryTest {
 
     @Before
     fun setUp() = runBlocking {
-        referralRepository = ReferralRepository(authenticator, referralApiService, currencyPrefs)
+        referralRepository = ReferralRepository(referralApiService, currencyPrefs)
     }
 
     @Test
     fun `should fetch available referral info`() = runBlocking {
-        whenever(referralApiService.getReferralCode(AUTH, FIAT))
+        whenever(referralApiService.getReferralCode(FIAT))
             .doReturn(Outcome.Success(referralResponse))
 
         val expectedData = ReferralInfo.Data(
@@ -79,7 +73,7 @@ class ReferralRepositoryTest {
 
     @Test
     fun `should fetch referral info not available`() = runBlocking {
-        whenever(referralApiService.getReferralCode(AUTH, FIAT))
+        whenever(referralApiService.getReferralCode(FIAT))
             .doReturn(Outcome.Success(null))
 
         val result = referralRepository.fetchReferralData()
@@ -93,7 +87,7 @@ class ReferralRepositoryTest {
             on { getErrorStatusCode() } doReturn NabuErrorStatusCodes.InternalServerError
         }
 
-        whenever(referralApiService.getReferralCode(AUTH, FIAT))
+        whenever(referralApiService.getReferralCode(FIAT))
             .doReturn(Outcome.Failure(apiError))
 
         val result = referralRepository.fetchReferralData()
@@ -138,11 +132,11 @@ class ReferralRepositoryTest {
 
     @Test
     fun `should send validated referral code`() = runBlocking {
-        whenever(referralApiService.associateReferralCode(AUTH, REF_CODE)).doReturn(Outcome.Success(Unit))
+        whenever(referralApiService.associateReferralCode(REF_CODE)).doReturn(Outcome.Success(Unit))
 
         val result = referralRepository.associateReferralCodeIfPresent(REF_CODE)
 
-        verify(referralApiService).associateReferralCode(AUTH, REF_CODE)
+        verify(referralApiService).associateReferralCode(REF_CODE)
         assertEquals(Outcome.Success(Unit), result)
     }
 
@@ -152,7 +146,6 @@ class ReferralRepositoryTest {
         val result = referralRepository.associateReferralCodeIfPresent(null)
 
         assertEquals(Outcome.Success(Unit), result)
-        verifyNoMoreInteractions(authenticator)
         verifyNoMoreInteractions(referralApiService)
     }
 }

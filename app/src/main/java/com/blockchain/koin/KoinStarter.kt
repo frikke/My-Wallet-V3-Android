@@ -112,7 +112,6 @@ object KoinStarter {
 
                     coinviewPresentationModule, coinviewDomainModule,
                     internalFeatureFlagsModule,
-                    authenticationModule,
                     kycUiModule,
                     kycUiNabuModule,
                     loginUiModule,

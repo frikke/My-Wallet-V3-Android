@@ -237,10 +237,6 @@ val applicationModule = module {
 
         factory {
             KycStatusHelper(
-                eligibilityService = get(),
-                userService = get(),
-                nabuToken = get(),
-                settingsDataManager = get(),
                 kycService = get()
             )
         }
@@ -530,7 +526,6 @@ val applicationModule = module {
         factory<TradeDataService> {
             TradeDataRepository(
                 tradeService = get(),
-                authenticator = get(),
                 accumulatedInPeriodMapper = GetAccumulatedInPeriodToIsFirstTimeBuyerMapper(),
                 nextPaymentRecurringBuyMapper = GetNextPaymentDateListToFrequencyDateMapper(),
                 recurringBuyMapper = get(),
@@ -540,7 +535,6 @@ val applicationModule = module {
 
         scoped {
             GetRecurringBuysStore(
-                authenticator = get(),
                 tradeService = get()
             )
         }

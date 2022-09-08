@@ -1,21 +1,19 @@
 package piuk.blockchain.android.ui.kyc.status
 
-import com.blockchain.nabu.NabuToken
 import com.blockchain.notifications.NotificationTokenManager
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.kyc.BaseKycPresenter
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import timber.log.Timber
 
 class KycStatusPresenter(
-    nabuToken: NabuToken,
     private val kycStatusHelper: KycStatusHelper,
     private val notificationTokenManager: NotificationTokenManager
-) : BaseKycPresenter<KycStatusView>(nabuToken) {
+) : BasePresenter<KycStatusView>() {
 
     override fun onViewReady() {
         compositeDisposable +=

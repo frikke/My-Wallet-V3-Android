@@ -7,7 +7,6 @@ import com.blockchain.api.trade.data.RecurringBuyResponse
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.store.mapData
@@ -19,7 +18,6 @@ import piuk.blockchain.android.domain.repositories.TradeDataService
 
 class TradeDataRepository(
     private val tradeService: TradeService,
-    private val authenticator: Authenticator,
     private val accumulatedInPeriodMapper: Mapper<List<AccumulatedInPeriod>, Boolean>,
     private val nextPaymentRecurringBuyMapper:
         Mapper<List<NextPaymentRecurringBuy>, List<EligibleAndNextPaymentRecurringBuy>>,
@@ -27,23 +25,17 @@ class TradeDataRepository(
     private val getRecurringBuysStore: GetRecurringBuysStore
 ) : TradeDataService {
 
-    override fun isFirstTimeBuyer(): Single<Boolean> {
-        return authenticator.authenticate { tokenResponse ->
-            tradeService.isFirstTimeBuyer(authHeader = tokenResponse.authHeader)
-                .map {
-                    accumulatedInPeriodMapper.map(it.tradesAccumulated)
-                }
-        }
-    }
+    override fun isFirstTimeBuyer(): Single<Boolean> =
+        tradeService.isFirstTimeBuyer()
+            .map {
+                accumulatedInPeriodMapper.map(it.tradesAccumulated)
+            }
 
-    override fun getEligibilityAndNextPaymentDate(): Single<List<EligibleAndNextPaymentRecurringBuy>> {
-        return authenticator.authenticate { tokenResponse ->
-            tradeService.getNextPaymentDate(authHeader = tokenResponse.authHeader)
-                .map {
-                    nextPaymentRecurringBuyMapper.map(it.nextPayments)
-                }
-        }
-    }
+    override fun getEligibilityAndNextPaymentDate(): Single<List<EligibleAndNextPaymentRecurringBuy>> =
+        tradeService.getNextPaymentDate()
+            .map {
+                nextPaymentRecurringBuyMapper.map(it.nextPayments)
+            }
 
     override fun getRecurringBuysForAsset(
         asset: AssetInfo,
@@ -58,18 +50,12 @@ class TradeDataRepository(
             }
     }
 
-    override fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy> {
-        return authenticator.authenticate { tokenResponse ->
-            tradeService.getRecurringBuyForId(authHeader = tokenResponse.authHeader, recurringBuyId)
-                .map {
-                    recurringBuyMapper.map(it).first()
-                }
-        }
-    }
+    override fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy> =
+        tradeService.getRecurringBuyForId(recurringBuyId)
+            .map {
+                recurringBuyMapper.map(it).first()
+            }
 
-    override fun cancelRecurringBuy(recurringBuyId: String): Completable {
-        return authenticator.authenticateCompletable { tokenResponse ->
-            tradeService.cancelRecurringBuy(tokenResponse.authHeader, recurringBuyId)
-        }
-    }
+    override fun cancelRecurringBuy(recurringBuyId: String): Completable =
+        tradeService.cancelRecurringBuy(recurringBuyId)
 }

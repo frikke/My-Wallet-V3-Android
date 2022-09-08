@@ -10,24 +10,17 @@ class AddressVerificationApiService(
 ) {
 
     suspend fun getAutocompleteAddresses(
-        authToken: String,
         searchQuery: String,
         countryIso: String?,
         stateIso: String?,
         containerId: String?,
     ): Outcome<Exception, AutocompleteAddressResponse> = api.getAutocompleteAddresses(
-        authToken,
         searchQuery,
         countryIso,
         stateIso,
         containerId
     )
 
-    suspend fun getCompleteAddress(
-        authToken: String,
-        id: String
-    ): Outcome<Exception, CompleteAddressDto> = api.getCompleteAddress(
-        authToken,
-        id
-    )
+    suspend fun getCompleteAddress(id: String): Outcome<Exception, CompleteAddressDto> =
+        api.getCompleteAddress(id)
 }

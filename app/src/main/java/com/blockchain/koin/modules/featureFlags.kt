@@ -4,7 +4,6 @@ import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.accountUnificationFeatureFlag
 import com.blockchain.koin.assetOrderingFeatureFlag
-import com.blockchain.koin.authInterceptorFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.bindFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
@@ -160,15 +159,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_brokerage_lists_order",
                 "Enable new asset list ordering"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(authInterceptorFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_auth_interceptor",
-                "Auth Interceptor"
             )
         )
     }.bind(FeatureFlag::class)

@@ -8,8 +8,8 @@ import io.reactivex.rxjava3.core.Single
 class CustodialBalanceService internal constructor(
     private val custodialBalanceApi: CustodialBalanceApi
 ) {
-    fun getTradingBalanceForAllAssets(authHeader: String): Single<Map<String, TradingBalanceResponseDto>> =
+    fun getTradingBalanceForAllAssets(): Single<Map<String, TradingBalanceResponseDto>> =
         custodialBalanceApi
-            .tradingBalanceForAllAssets(authHeader)
+            .tradingBalanceForAllAssets()
             .wrapErrorMessage()
 }

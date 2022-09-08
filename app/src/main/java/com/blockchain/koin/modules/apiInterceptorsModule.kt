@@ -2,7 +2,6 @@ package com.blockchain.koin.modules
 
 import android.os.Build
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.koin.authInterceptorFeatureFlag
 import com.blockchain.network.modules.OkHttpAuthInterceptor
 import com.blockchain.network.modules.OkHttpInterceptors
 import com.blockchain.network.modules.OkHttpLoggingInterceptors
@@ -54,9 +53,7 @@ val apiInterceptorsModule = module {
 
     single {
         OkHttpAuthInterceptor(
-            AuthInterceptor(
-                authInterceptorFeatureFlag = get(authInterceptorFeatureFlag),
-            )
+            AuthInterceptor()
         )
     }
 }

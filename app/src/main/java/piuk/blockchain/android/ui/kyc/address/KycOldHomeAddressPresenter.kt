@@ -7,7 +7,6 @@ import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.extensions.exhaustive
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -26,7 +25,7 @@ import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.sdd.SDDAnalytics
-import piuk.blockchain.android.ui.kyc.BaseKycPresenter
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.address.models.AddressModel
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
@@ -34,7 +33,6 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 class KycOldHomeAddressPresenter(
-    nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
     private val eligibilityService: EligibilityService,
     private val userService: UserService,
@@ -43,15 +41,12 @@ class KycOldHomeAddressPresenter(
     private val custodialWalletManager: CustodialWalletManager,
     private val analytics: Analytics,
     private val kycTiersStore: KycTiersStore,
-) : BaseKycPresenter<KycOldHomeAddressView>(nabuToken) {
+) : BasePresenter<KycOldHomeAddressView>() {
 
     val countryCodeSingle: Single<SortedMap<String, String>> by unsafeLazy {
-        fetchOfflineToken
-            .flatMap {
-                rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
-                    eligibilityService.getCountriesList(GetRegionScope.None)
-                }.subscribeOn(Schedulers.io())
-            }
+        rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+            eligibilityService.getCountriesList(GetRegionScope.None)
+        }.subscribeOn(Schedulers.io())
             .map { list ->
                 list.associateBy({ it.name }, { it.countryCode })
                     .toSortedMap()
@@ -201,9 +196,8 @@ class KycOldHomeAddressPresenter(
             campaignType == CampaignType.SimpleBuy
     }
 
-    private fun addAddress(address: AddressModel): Completable = fetchOfflineToken.flatMapCompletable {
+    private fun addAddress(address: AddressModel): Completable =
         nabuDataManager.addAddress(
-            it,
             address.firstLine,
             address.secondLine,
             address.city,
@@ -211,7 +205,6 @@ class KycOldHomeAddressPresenter(
             address.postCode,
             address.country
         ).subscribeOn(Schedulers.io())
-    }
 
     private fun getCountryName(countryCode: String): Maybe<String> = countryCodeSingle
         .map { it.entries.first { (_, value) -> value == countryCode }.key }

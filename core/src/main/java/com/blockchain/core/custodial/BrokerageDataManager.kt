@@ -10,7 +10,6 @@ import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.custodial.models.QuoteFee
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.Product
 import info.blockchain.balance.Money
@@ -18,7 +17,6 @@ import io.reactivex.rxjava3.core.Single
 import java.time.ZonedDateTime
 
 class BrokerageDataManager(
-    private val authenticator: Authenticator,
     private val brokerageService: BrokerageService
 ) {
 
@@ -29,19 +27,15 @@ class BrokerageDataManager(
         paymentMethodId: String?,
         product: Product
     ): Single<BrokerageQuote> =
-        authenticator.authenticate { tokenResponse ->
-            brokerageService.fetchQuote(
-                authHeader = tokenResponse.authHeader,
-                inputValue = amount.toBigInteger().toString(),
-                paymentMethod = paymentMethodType.name,
-                paymentMethodId = paymentMethodId,
-                pair = listOf(pair.source.networkTicker, pair.destination.networkTicker).joinToString("-"),
-                profile = product.toProfileRequestString()
-            )
+        brokerageService.fetchQuote(
+            inputValue = amount.toBigInteger().toString(),
+            paymentMethod = paymentMethodType.name,
+            paymentMethodId = paymentMethodId,
+            pair = listOf(pair.source.networkTicker, pair.destination.networkTicker).joinToString("-"),
+            profile = product.toProfileRequestString()
+        ).map { response ->
+            response.toDomainModel(pair)
         }
-            .map { response ->
-                response.toDomainModel(pair)
-            }
 }
 
 private fun BrokerageQuoteResponse.toDomainModel(pair: CurrencyPair): BrokerageQuote =

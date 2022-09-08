@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
-import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycLimits
@@ -49,7 +48,6 @@ class AnnouncementQueriesTest {
     private val googlePayManager: GooglePayManager = mock()
     private val googlePayEnabledFlag: FeatureFlag = mock()
     private val paymentMethodsService: PaymentMethodsService = mock()
-    private val authenticator: AuthHeaderProvider = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
     private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
@@ -72,7 +70,6 @@ class AnnouncementQueriesTest {
                 googlePayManager = googlePayManager,
                 googlePayEnabledFlag = googlePayEnabledFlag,
                 paymentMethodsService = paymentMethodsService,
-                authenticator = authenticator,
                 fiatCurrenciesService = fiatCurrenciesService,
                 exchangeRatesDataManager = exchangeRatesDataManager,
                 currencyPrefs = currencyPrefs
@@ -351,14 +348,12 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `when google pay feature flag disabled then return false`() {
-        val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(false))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                authToken, FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, null, true
             )
         ).thenReturn(
             Single.just(
@@ -383,14 +378,12 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `when goggle pay not a supported payment method then return false`() {
-        val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                authToken, FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, null, true
             )
         ).thenReturn(Single.just(emptyList()))
 
@@ -401,14 +394,12 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `when google pay not supported by device then return false`() {
-        val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(false))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                authToken, FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, null, true
             )
         ).thenReturn(
             Single.just(
@@ -433,14 +424,12 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `when google pay flag enabled and a supported payment method and supported by device then return true`() {
-        val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                authToken, FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, null, true
             )
         ).thenReturn(
             Single.just(

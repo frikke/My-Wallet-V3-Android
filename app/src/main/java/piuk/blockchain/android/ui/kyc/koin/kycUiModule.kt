@@ -60,7 +60,6 @@ val kycUiModule = module {
 
         factory {
             KycProfilePresenter(
-                nabuToken = get(),
                 nabuDataManager = get(),
                 userService = get(),
                 stringUtils = get(),
@@ -69,7 +68,6 @@ val kycUiModule = module {
 
         factory {
             KycHomeAddressPresenter(
-                nabuToken = get(),
                 nabuDataManager = get(),
                 eligibilityService = get(),
                 userService = get(),
@@ -83,7 +81,6 @@ val kycUiModule = module {
 
         factory {
             KycOldHomeAddressPresenter(
-                nabuToken = get(),
                 nabuDataManager = get(),
                 eligibilityService = get(),
                 userService = get(),
@@ -112,7 +109,6 @@ val kycUiModule = module {
 
         factory {
             VeriffSplashPresenter(
-                nabuToken = get(),
                 nabuDataManager = get(),
                 kycTiersStore = get(),
                 analytics = get(),
@@ -122,7 +118,6 @@ val kycUiModule = module {
 
         factory {
             KycStatusPresenter(
-                nabuToken = get(),
                 kycStatusHelper = get(),
                 notificationTokenManager = get()
             )
@@ -130,7 +125,6 @@ val kycUiModule = module {
 
         factory {
             KycNavHostPresenter(
-                nabuToken = get(),
                 userService = get(),
                 reentryDecision = get(),
                 kycNavigator = get(),
