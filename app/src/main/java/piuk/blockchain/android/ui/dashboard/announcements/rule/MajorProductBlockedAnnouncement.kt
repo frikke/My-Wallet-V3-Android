@@ -89,6 +89,7 @@ class MajorProductBlockedAnnouncement(
         filter {
             when (it) {
                 ProductNotEligibleReason.InsufficientTier.Tier1TradeLimitExceeded,
+                ProductNotEligibleReason.InsufficientTier.Tier1Required,
                 ProductNotEligibleReason.InsufficientTier.Tier2Required,
                 is ProductNotEligibleReason.InsufficientTier.Unknown -> false
                 ProductNotEligibleReason.Sanctions.RussiaEU5,
