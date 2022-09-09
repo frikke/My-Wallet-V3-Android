@@ -25,7 +25,7 @@ import retrofit2.Response
 class WalletApiTest {
     private val walletExplorerEndpoints: WalletExplorerEndpoints = mock()
     private val api: ApiCode = mock()
-    private val subject: WalletApi = WalletApi(walletExplorerEndpoints, api)
+    private val subject: WalletApi = WalletApi(walletExplorerEndpoints, api, "")
 
     @Test
     fun `get encrypted payload`() {

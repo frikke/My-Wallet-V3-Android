@@ -8,7 +8,6 @@ import io.reactivex.rxjava3.core.Single
 class BrokerageService internal constructor(private val api: BrokerageApi) {
 
     fun fetchQuote(
-        authHeader: String,
         pair: String,
         inputValue: String,
         profile: String,
@@ -16,7 +15,6 @@ class BrokerageService internal constructor(private val api: BrokerageApi) {
         paymentMethodId: String?
     ): Single<BrokerageQuoteResponse> =
         api.fetchQuote(
-            authorization = authHeader,
             quoteRequestBody = QuoteRequestBody(
                 inputValue = inputValue,
                 profile = profile,

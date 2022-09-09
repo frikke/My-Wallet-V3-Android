@@ -85,41 +85,32 @@ internal interface Nabu {
     @PUT(NABU_USERS_CURRENT)
     fun createBasicUser(
         @Body basicUser: NabuBasicUser,
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Completable
 
     @GET(NABU_USERS_CURRENT)
-    fun getUser(
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Single<NabuUser>
+    fun getUser(): Single<NabuUser>
 
     @GET(NABU_AIRDROP_CENTRE)
-    fun getAirdropCampaignStatus(
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Single<AirdropStatusList>
+    fun getAirdropCampaignStatus(): Single<AirdropStatusList>
 
     @PUT(NABU_UPDATE_WALLET_INFO)
     fun updateWalletInformation(
         @Body jwt: NabuJwt,
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Single<NabuUser>
 
     @GET("$NABU_SUPPORTED_DOCUMENTS/{countryCode}")
     fun getSupportedDocuments(
         @Path("countryCode") countryCode: String,
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Single<SupportedDocumentsResponse>
 
     @PUT(NABU_PUT_ADDRESS)
     fun addAddress(
         @Body address: AddAddressRequest,
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Completable
 
     @POST(NABU_RECORD_COUNTRY)
     fun recordSelectedCountry(
         @Body recordCountryRequest: RecordCountryRequest,
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Completable
 
     /**
@@ -128,14 +119,11 @@ internal interface Nabu {
      */
 
     @GET(NABU_VERIFF_TOKEN)
-    fun startVeriffSession(
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Single<VeriffToken>
+    fun startVeriffSession(): Single<VeriffToken>
 
     @POST(NABU_SUBMIT_VERIFICATION)
     fun submitVerification(
         @Body applicantIdRequest: ApplicantIdRequest,
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Completable
 
     @AuthenticationNotRequired
@@ -165,12 +153,10 @@ internal interface Nabu {
     fun registerCampaign(
         @Body campaignRequest: RegisterCampaignRequest,
         @Header("X-CAMPAIGN") campaignHeader: String,
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Completable
 
     @PUT(NABU_FETCH_EXCHANGE_ADDRESS_FOR_WALLET)
     fun fetchExchangeSendAddress(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body currency: SendToExchangeAddressRequest
     ): Single<SendToExchangeAddressResponse>
 
@@ -179,9 +165,7 @@ internal interface Nabu {
     fun isSDDEligible(): Single<SddEligibilityDto>
 
     @GET(SDD_VERIFIED)
-    fun isSDDVerified(
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Single<SddStatusDto>
+    fun isSDDVerified(): Single<SddStatusDto>
 
     @AuthenticationNotRequired
     @GET(NABU_SIMPLE_BUY_PAIRS)
@@ -191,7 +175,6 @@ internal interface Nabu {
 
     @GET(NABU_SIMPLE_BUY_TRANSACTIONS)
     fun getTransactions(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("product") product: String,
         @Query("limit") limit: Int = 100,
         @Query("currency") currency: String? = null,
@@ -200,20 +183,17 @@ internal interface Nabu {
 
     @PUT(NABU_SIMPLE_BUY_ACCOUNT_DETAILS)
     fun getSimpleBuyBankAccountDetails(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body currency: SimpleBuyCurrency
     ): Single<BankAccountResponse>
 
     @GET(NABU_SIMPLE_BUY_ELIGIBILITY)
     fun isEligibleForSimpleBuy(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("fiatCurrency") fiatCurrency: String?,
         @Query("methods") methods: String = "BANK_ACCOUNT,PAYMENT_CARD"
     ): Single<SimpleBuyEligibilityDto>
 
     @POST(NABU_SIMPLE_BUY_ORDERS)
     fun createOrder(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("action") action: String?,
         @Body order: CustodialWalletOrder,
         @Query("localisedError") localisedError: String?
@@ -221,7 +201,6 @@ internal interface Nabu {
 
     @GET(NABU_TRADES_WITHDRAW_FEES_AND_LIMITS)
     fun getWithdrawFeeAndLimits(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("product") product: String,
         @Query("paymentMethod") type: String
     ): Single<FeesResponse>
@@ -229,63 +208,51 @@ internal interface Nabu {
     @Headers("blockchain-origin: simplebuy")
     @POST(NABU_SIMPLE_BUY_WITHDRAW_ORDER)
     fun withdrawOrder(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body withdrawRequestBody: WithdrawRequestBody
     ): Completable
 
     @POST(NABU_DEPOSIT_ORDER)
     fun createDepositOrder(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body depositRequestBody: DepositRequestBody
     ): Completable
 
     @POST("$NABU_UPDATE_ORDER/{id}")
     fun updateOrder(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("id") id: String,
         @Body body: UpdateSwapOrderBody
     ): Completable
 
     @GET(NABU_SWAP_ORDER)
-    fun getSwapOrders(
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Single<List<CustodialOrderResponse>>
+    fun getSwapOrders(): Single<List<CustodialOrderResponse>>
 
     @GET(NABU_SWAP_PAIRS)
-    fun getSwapAvailablePairs(
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Single<List<String>>
+    fun getSwapAvailablePairs(): Single<List<String>>
 
     @GET(NABU_SIMPLE_BUY_ORDERS)
     fun getOrders(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("pendingOnly") pendingOnly: Boolean,
         @Query("localisedError") localisedError: String?
     ): Single<BuyOrderListResponse>
 
     @POST(NABU_WITHDRAW_LOCKS_CHECK)
     fun getWithdrawalLocksCheck(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body withdrawLocksCheckRequestBody: WithdrawLocksCheckRequestBody
     ): Single<WithdrawLocksCheckResponse>
 
     @DELETE("$NABU_SIMPLE_BUY_ORDERS/{orderId}")
     fun deleteBuyOrder(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("orderId") orderId: String,
         @Query("localisedError") localisedError: String?
     ): Completable
 
     @GET("$NABU_SIMPLE_BUY_ORDERS/{orderId}")
     fun getBuyOrder(
-        @Header("authorization") authHeader: String, // FLAG_AUTH_REMOVAL
         @Path("orderId") orderId: String,
         @Query("localisedError") localisedError: String?
     ): Single<BuySellOrderResponse>
 
     @POST("$NABU_SIMPLE_BUY_ORDERS/{orderId}")
     fun confirmOrder(
-        @Header("authorization") authHeader: String, // FLAG_AUTH_REMOVAL
         @Path("orderId") orderId: String,
         @Body confirmBody: ConfirmOrderRequestBody,
         @Query("localisedError") localisedError: String?
@@ -293,40 +260,33 @@ internal interface Nabu {
 
     @GET(NABU_ELIGIBLE_PAYMENT_METHODS)
     fun getPaymentMethodsForSimpleBuy(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("currency") currency: String,
         @Query("tier") tier: Int?,
         @Query("eligibleOnly") eligibleOnly: Boolean
     ): Single<List<PaymentMethodResponse>>
 
     @GET(NABU_CARD_ACQUIRERS)
-    fun getCardAcquirers(
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Single<List<PaymentCardAcquirerResponse>>
+    fun getCardAcquirers(): Single<List<PaymentCardAcquirerResponse>>
 
     @Headers("blockchain-origin: simplebuy")
     @POST(NABU_SIMPLE_BUY_BALANCE_TRANSFER)
     fun transferFunds(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body request: TransferRequest
     ): Single<TransferFundsResponse>
 
     @POST(NABU_QUOTES)
     fun fetchQuote(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body quoteRequest: QuoteRequest
     ): Single<QuoteResponse>
 
     @POST(NABU_SWAP_ORDER)
     fun createCustodialOrder(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body order: CreateOrderRequest,
         @Query("localisedError") localisedError: String?
     ): Single<CustodialOrderResponse>
 
     @GET(NABU_LIMITS)
     fun fetchLimits(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("currency") currency: String,
         @Query("product") product: String,
         @Query("minor") useMinor: Boolean = true,
@@ -336,31 +296,26 @@ internal interface Nabu {
 
     @GET(NABU_SWAP_ACTIVITY)
     fun fetchSwapActivity(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("limit") limit: Int = 50
     ): Single<List<CustodialOrderResponse>>
 
     @POST(NABU_TRANSFER)
     fun executeTransfer(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body body: ProductTransferRequestBody
     ): Completable
 
     @POST(NABU_RECURRING_BUY_CREATE)
     fun createRecurringBuy(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Body recurringBuyBody: RecurringBuyRequestBody
     ): Single<RecurringBuyResponse>
 
     @GET(NABU_RECURRING_BUY_LIST)
     fun getRecurringBuyById(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("id") recurringBuyId: String
     ): Single<List<RecurringBuyResponse>>
 
     @DELETE("$NABU_RECURRING_BUY/{id}/cancel")
     fun cancelRecurringBuy(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("id") id: String
     ): Completable
 }

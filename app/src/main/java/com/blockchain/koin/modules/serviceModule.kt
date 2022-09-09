@@ -38,7 +38,8 @@ val serviceModule = module {
     factory {
         WalletApi(
             explorerInstance = get(),
-            api = get()
+            api = get(),
+            captchaSiteKey = getProperty("site-key")
         )
     }
 

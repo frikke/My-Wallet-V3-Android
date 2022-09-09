@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,7 +45,8 @@ fun BalanceTableRow(
                 imageResource = startImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .size(dimensionResource(R.dimen.standard_margin))
+                    .size(dimensionResource(R.dimen.standard_margin)),
+                defaultShape = RoundedCornerShape(2.dp)
             )
         },
         content = {

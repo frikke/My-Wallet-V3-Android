@@ -20,7 +20,6 @@ import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.preferences.CurrencyPrefs
@@ -53,7 +52,6 @@ internal class InterestRepository(
     private val interestRateStore: InterestRateStore,
     private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore,
     private val currencyPrefs: CurrencyPrefs,
-    private val authenticator: Authenticator,
     private val interestApiService: InterestApiService
 ) : InterestService {
 
@@ -248,10 +246,8 @@ internal class InterestRepository(
 
     // address
     override fun getAddress(asset: AssetInfo): Single<String> {
-        return authenticator.authenticate { sessionToken ->
-            interestApiService.getAddress(sessionToken.authHeader, asset.networkTicker)
-                .map { interestAddressResponse -> interestAddressResponse.address }
-        }
+        return interestApiService.getAddress(asset.networkTicker)
+            .map { interestAddressResponse -> interestAddressResponse.address }
     }
 
     // activity
@@ -284,16 +280,13 @@ internal class InterestRepository(
 
     // withdrawal
     override fun withdraw(asset: AssetInfo, amount: Money, address: String): Completable {
-        return authenticator.authenticateCompletable { sessionToken ->
-            interestApiService.performWithdrawal(
-                authHeader = sessionToken.authHeader,
-                body = InterestWithdrawalBodyDto(
-                    withdrawalAddress = address,
-                    amount = amount.toBigInteger().toString(),
-                    currency = asset.networkTicker
-                )
+        return interestApiService.performWithdrawal(
+            body = InterestWithdrawalBodyDto(
+                withdrawalAddress = address,
+                amount = amount.toBigInteger().toString(),
+                currency = asset.networkTicker
             )
-        }
+        )
     }
 
     companion object {

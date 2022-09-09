@@ -57,6 +57,13 @@ fun ButtonContentSmall(
                         )
                         Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
                     }
+                    is ImageResource.LocalWithResolvedDrawable -> {
+                        Image(
+                            imageResource = icon,
+                            modifier = Modifier.size(dimensionResource(R.dimen.size_standard)),
+                        )
+                        Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
+                    }
                     is ImageResource.LocalWithBackground -> {
                         Image(
                             imageResource = icon,

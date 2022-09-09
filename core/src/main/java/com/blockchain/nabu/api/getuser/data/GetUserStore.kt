@@ -1,7 +1,6 @@
 package com.blockchain.nabu.api.getuser.data
 
 import com.blockchain.logging.DigitalTrust
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.NabuUserReporter
 import com.blockchain.nabu.datamanagers.WalletReporter
 import com.blockchain.nabu.models.responses.nabu.KycState
@@ -20,7 +19,6 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class GetUserStore(
     private val nabuService: NabuService,
-    private val authenticator: Authenticator,
     private val userReporter: NabuUserReporter,
     private val trust: DigitalTrust,
     private val walletReporter: WalletReporter,
@@ -30,15 +28,13 @@ class GetUserStore(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(
             mapper = {
-                authenticator.authenticate { tokenResponse ->
-                    nabuService.getUser(tokenResponse)
-                        .doOnSuccess { user ->
-                            userReporter.reportUserId(user.id)
-                            userReporter.reportUser(user)
-                            trust.setUserId(user.id)
-                            walletReporter.reportWalletGuid(payloadDataManager.guid)
-                        }
-                }
+                nabuService.getUser()
+                    .doOnSuccess { user ->
+                        userReporter.reportUserId(user.id)
+                        userReporter.reportUser(user)
+                        trust.setUserId(user.id)
+                        walletReporter.reportWalletGuid(payloadDataManager.guid)
+                    }
             }
         ),
         dataSerializer = NabuUser.serializer(),

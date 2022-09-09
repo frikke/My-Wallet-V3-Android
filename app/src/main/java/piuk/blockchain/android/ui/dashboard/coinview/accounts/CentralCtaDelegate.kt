@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.ButtonState
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewCentralCtasBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -41,6 +42,7 @@ private class CentralCtaViewHolder(
             swapCta.apply {
                 text = context.getString(R.string.common_swap)
                 icon = ImageResource.Local(R.drawable.ic_cta_swap)
+                buttonState = if (item.enabled) ButtonState.Enabled else ButtonState.Disabled
                 onClick = { swapOnClick(item.account) }
             }
         }

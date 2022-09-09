@@ -91,10 +91,9 @@ class NabuServiceTest {
         val firstName = "FIRST_NAME"
         val lastName = "LAST_NAME"
         val dateOfBirth = "12-12-1234"
-        val sessionToken = FakeNabuSessionTokenFactory.any
 
         whenever(
-            nabu.createBasicUser(NabuBasicUser(firstName, lastName, dateOfBirth), sessionToken.authHeader)
+            nabu.createBasicUser(NabuBasicUser(firstName, lastName, dateOfBirth))
         ).thenReturn(
             Completable.complete()
         )
@@ -103,22 +102,20 @@ class NabuServiceTest {
             firstName,
             lastName,
             dateOfBirth,
-            sessionToken
         ).test().waitForCompletionWithoutErrors()
     }
 
     @Test
     fun getUser() {
-        val sessionToken = FakeNabuSessionTokenFactory.any
         val expectedUser = FakeNabuUserFactory.satoshi
 
         whenever(
-            nabu.getUser(sessionToken.authHeader)
+            nabu.getUser()
         ).thenReturn(
             Single.just(expectedUser)
         )
 
-        subject.getUser(sessionToken).test()
+        subject.getUser().test()
             .waitForCompletionWithoutErrors()
             .assertValue {
                 it == expectedUser
@@ -127,15 +124,14 @@ class NabuServiceTest {
 
     @Test
     fun updateWalletInformation() {
-        val sessionToken = FakeNabuSessionTokenFactory.any
         val expectedUser = FakeNabuUserFactory.satoshi
 
         whenever(
-            nabu.updateWalletInformation(NabuJwt(jwt), sessionToken.authHeader)
+            nabu.updateWalletInformation(NabuJwt(jwt))
         ).thenReturn(
             Single.just(expectedUser)
         )
-        subject.updateWalletInformation(sessionToken, jwt).test()
+        subject.updateWalletInformation(jwt).test()
             .waitForCompletionWithoutErrors()
             .assertValue {
                 it == expectedUser
@@ -145,16 +141,14 @@ class NabuServiceTest {
     @Test
     fun addAddress() {
         val addressToAdd = FakeAddressFactory.any
-        val sessionToken = FakeNabuSessionTokenFactory.any
 
         whenever(
-            nabu.addAddress(AddAddressRequest(addressToAdd), sessionToken.authHeader)
+            nabu.addAddress(AddAddressRequest(addressToAdd))
         ).thenReturn(
             Completable.complete()
         )
 
         subject.addAddress(
-            sessionToken,
             addressToAdd.line1!!,
             addressToAdd.line2,
             addressToAdd.city!!,
@@ -170,19 +164,15 @@ class NabuServiceTest {
         val state = "US-AL"
         val notifyWhenAvailable = true
 
-        val sessionToken = FakeNabuSessionTokenFactory.any
-
         whenever(
             nabu.recordSelectedCountry(
-                RecordCountryRequest(jwt, countryCode, notifyWhenAvailable, state),
-                sessionToken.authHeader
+                RecordCountryRequest(jwt, countryCode, notifyWhenAvailable, state)
             )
         ).thenReturn(
             Completable.complete()
         )
 
         subject.recordCountrySelection(
-            sessionToken,
             jwt,
             countryCode,
             state,
@@ -193,17 +183,15 @@ class NabuServiceTest {
     @Test
     fun getSupportedDocuments() {
         val countryCode = "US"
-        val sessionToken = FakeNabuSessionTokenFactory.any
         val expectedDocuments = arrayListOf(SupportedDocuments.DRIVING_LICENCE, SupportedDocuments.PASSPORT)
 
         whenever(
-            nabu.getSupportedDocuments(countryCode, sessionToken.authHeader)
+            nabu.getSupportedDocuments(countryCode)
         ).thenReturn(
             Single.just(SupportedDocumentsResponse(countryCode, expectedDocuments))
         )
 
         subject.getSupportedDocuments(
-            sessionToken,
             countryCode
         ).test().waitForCompletionWithoutErrors().assertValue {
             it == expectedDocuments
@@ -228,7 +216,6 @@ class NabuServiceTest {
 
     @Test
     fun `register for campaign`() {
-        val sessionToken = FakeNabuSessionTokenFactory.any
         val campaignName = "name"
         val campaignRequest = RegisterCampaignRequest(
             mapOf("key" to "value"),
@@ -236,13 +223,12 @@ class NabuServiceTest {
         )
 
         whenever(
-            nabu.registerCampaign(campaignRequest, campaignName, sessionToken.authHeader)
+            nabu.registerCampaign(campaignRequest, campaignName)
         ).thenReturn(
             Completable.complete()
         )
 
         subject.registerCampaign(
-            sessionToken,
             campaignRequest,
             campaignName
         ).test().waitForCompletionWithoutErrors()

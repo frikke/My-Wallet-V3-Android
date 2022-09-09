@@ -711,7 +711,13 @@ class CoinViewActivity :
 
                             val insertIndex = listItems.indexOfLast { it is AssetDetailsItem.CryptoDetailsInfo }
                                 .let { if (it == -1) 0 else it + 1 }
-                            listItems.add(insertIndex, AssetDetailsItem.CentralCta(highestBalanceWallet))
+                            listItems.add(
+                                insertIndex,
+                                AssetDetailsItem.CentralCta(
+                                    enabled = middleAction.enabled,
+                                    account = highestBalanceWallet
+                                )
+                            )
                             updateList()
                         }
 

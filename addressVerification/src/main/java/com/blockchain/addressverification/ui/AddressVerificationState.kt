@@ -10,17 +10,19 @@ import com.blockchain.domain.common.model.StateIso
 data class AddressVerificationModelState(
     // Common
     val step: AddressVerificationStep = AddressVerificationStep.SEARCH,
-    val mainLineInput: TextFieldValue = TextFieldValue(""),
+    val searchInput: TextFieldValue = TextFieldValue(""),
     val container: AutocompleteAddress? = null,
     val isSearchLoading: Boolean = false,
     val error: AddressVerificationError? = null,
 
     // Search
     val areResultsHidden: Boolean = true,
+    val showManualOverride: Boolean = false,
     val results: List<AutocompleteAddress> = emptyList(),
     val loadingAddressDetails: AutocompleteAddress? = null,
 
     // Details
+    val mainLineInput: String = "",
     val secondLineInput: String = "",
 
     val cityInput: String = "",
@@ -39,16 +41,19 @@ data class AddressVerificationModelState(
 data class AddressVerificationState(
     // Common
     val step: AddressVerificationStep,
-    val mainLineInput: TextFieldValue,
+    val searchInput: TextFieldValue,
     val isSearchLoading: Boolean,
     val error: AddressVerificationError?,
 
     // Search
     val areResultsHidden: Boolean,
+    val showManualOverride: Boolean,
     val results: List<AutocompleteAddress>,
     val loadingAddressDetails: AutocompleteAddress?,
 
     // Details
+    val mainLineInput: String,
+    val isMainLineInputEnabled: Boolean,
     val secondLineInput: String,
 
     val cityInput: String,

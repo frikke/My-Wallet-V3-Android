@@ -22,15 +22,15 @@ import coil.compose.rememberAsyncImagePainter
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
 
 @Composable
 fun Image(
     imageResource: ImageResource,
+    defaultShape: Shape = CircleShape,
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Fit
 ) {
-    val defaultShape: Shape = CircleShape
-
     when (imageResource) {
         is ImageResource.Local ->
             androidx.compose.foundation.Image(
@@ -49,6 +49,17 @@ fun Image(
                 modifier = modifier
                     .run { imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_margin)) }
                     .run { imageResource.shape?.let { clip(it) } ?: clip(defaultShape) },
+                contentScale = contentScale,
+            )
+        is ImageResource.LocalWithResolvedDrawable ->
+            androidx.compose.foundation.Image(
+                painter = rememberDrawablePainter(imageResource.drawable),
+                contentDescription = imageResource.contentDescription,
+                modifier = imageResource.shape?.let {
+                    Modifier
+                        .size(dimensionResource(R.dimen.large_margin))
+                        .clip(it)
+                } ?: modifier,
                 contentScale = contentScale,
             )
         is ImageResource.Remote ->
@@ -129,7 +140,7 @@ fun Image_Local_24() {
         AppSurface {
             Image(
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain, ""),
-                Modifier.size(dimensionResource(R.dimen.standard_margin)),
+                modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)),
             )
         }
     }

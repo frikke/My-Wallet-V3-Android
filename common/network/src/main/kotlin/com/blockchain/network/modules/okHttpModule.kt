@@ -21,7 +21,7 @@ private fun cache(dir: File): Cache =
     Cache(dir, HTTP_CACHE_SIZE)
 
 val okHttpModule = module {
-    single {
+    factory {
         val appInfo: AppInfo = get()
         val builder = OkHttpClient.Builder()
             .connectionSpecs(listOf(ConnectionSpec.MODERN_TLS))
@@ -53,11 +53,17 @@ val okHttpModule = module {
     single(authOkHttpClient) {
         val builder: OkHttpClient.Builder = get()
         builder.addInterceptor(get<OkHttpAuthInterceptor>())
+        get<OkHttpLoggingInterceptors>().forEach {
+            builder.addInterceptor(it)
+        }
         builder.build()
     }
 
     single {
         val builder: OkHttpClient.Builder = get()
+        get<OkHttpLoggingInterceptors>().forEach {
+            builder.addInterceptor(it)
+        }
         builder.build()
     }
 }

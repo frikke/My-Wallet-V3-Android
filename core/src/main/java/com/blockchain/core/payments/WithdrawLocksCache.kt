@@ -3,13 +3,11 @@ package com.blockchain.core.payments
 import com.blockchain.api.services.CollateralLocks
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.core.common.caching.TimedCacheRequest
-import com.blockchain.nabu.Authenticator
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 
 class WithdrawLocksCache(
-    private val authenticator: Authenticator,
     private val paymentsService: PaymentsService,
     private val currencyPrefs: CurrencyPrefs,
 ) {
@@ -17,12 +15,9 @@ class WithdrawLocksCache(
         get() = currencyPrefs.selectedFiatCurrency
 
     private val refresh: () -> Single<CollateralLocks> = {
-        authenticator.authenticate { token ->
-            paymentsService.getWithdrawalLocks(
-                token.authHeader,
-                currency.networkTicker
-            )
-        }
+        paymentsService.getWithdrawalLocks(
+            currency.networkTicker
+        )
     }
 
     private val cache = TimedCacheRequest(

@@ -1,6 +1,5 @@
 package com.blockchain.core.buy.data.dataresources
 
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.store.Fetcher
@@ -11,16 +10,13 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.FlushableDataSource
 
 class SimpleBuyEligibilityStore(
-    private val nabuService: NabuService,
-    private val authenticator: Authenticator
+    private val nabuService: NabuService
 ) : Store<SimpleBuyEligibilityDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(
             mapper = {
-                authenticator.authenticate {
-                    nabuService.isEligibleForSimpleBuy(it)
-                }
+                nabuService.isEligibleForSimpleBuy()
             }
         ),
         dataSerializer = SimpleBuyEligibilityDto.serializer(),

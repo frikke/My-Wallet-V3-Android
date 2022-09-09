@@ -1,16 +1,14 @@
 package piuk.blockchain.android.ui.kyc.splash
 
-import com.blockchain.nabu.NabuToken
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.ui.kyc.BaseKycPresenter
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import timber.log.Timber
 
 class KycSplashPresenter(
-    nabuToken: NabuToken,
     private val kycNavigator: KycNavigator
-) : BaseKycPresenter<KycSplashView>(nabuToken) {
+) : BasePresenter<KycSplashView>() {
 
     override fun onViewReady() {}
 

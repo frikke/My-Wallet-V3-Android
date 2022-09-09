@@ -1,6 +1,7 @@
 package com.blockchain.blockchaincard.viewmodel.managecard
 
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
+import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardErrorState
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
@@ -15,6 +16,8 @@ import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.fold
+import com.blockchain.utils.fromIso8601ToUtc
+import com.blockchain.utils.getMonthName
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import timber.log.Timber
@@ -51,7 +54,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
         linkedAccountBalance = state.linkedAccountBalance,
         residentialAddress = state.residentialAddress,
         userFirstAndLastName = state.userFirstAndLastName,
-        transactionList = state.transactionList,
+        shortTransactionList = state.shortTransactionList,
+        pendingTransactions = state.pendingTransactions,
+        completedTransactionsGroupedByMonth = state.completedTransactionsGroupedByMonth,
         selectedCardTransaction = state.selectedCardTransaction,
         isTransactionListRefreshing = state.isTransactionListRefreshing,
         countryStateList = state.countryStateList,
@@ -349,7 +354,24 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 blockchainCardRepository.getTransactions().fold(
                     onSuccess = { transactions ->
                         Timber.d("Transactions loaded: $transactions")
-                        updateState { it.copy(transactionList = transactions, isTransactionListRefreshing = false) }
+
+                        val pendingTransactions = transactions.filter {
+                            it.state == BlockchainCardTransactionState.PENDING
+                        }
+                        val completedTransactionsGroupedByMonth = transactions.filter {
+                            it.state != BlockchainCardTransactionState.PENDING
+                        }.groupBy {
+                            it.userTransactionTime.fromIso8601ToUtc()?.getMonthName()
+                        }
+
+                        updateState {
+                            it.copy(
+                                shortTransactionList = transactions.take(4), // We only display the first 4
+                                pendingTransactions = pendingTransactions,
+                                completedTransactionsGroupedByMonth = completedTransactionsGroupedByMonth,
+                                isTransactionListRefreshing = false
+                            )
+                        }
                     },
                     onFailure = { error ->
                         Timber.e("Unable to get transactions: $error")
@@ -361,6 +383,12 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             is BlockchainCardIntent.RefreshTransactions -> {
                 updateState { it.copy(isTransactionListRefreshing = true) }
                 onIntent(BlockchainCardIntent.LoadTransactions)
+            }
+
+            is BlockchainCardIntent.SeeAllTransactions -> {
+                if (modelState.pendingTransactions != null && modelState.completedTransactionsGroupedByMonth != null) {
+                    navigate(BlockchainCardNavigationEvent.SeeAllTransactions)
+                }
             }
 
             is BlockchainCardIntent.SeeTransactionDetails -> {

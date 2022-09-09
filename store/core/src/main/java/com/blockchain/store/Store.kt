@@ -24,8 +24,7 @@ typealias StoreId = String
  * ) : Store<List<CardResponse>, PaymentMethodsError> by SqlDelightBackedStoreBuilder().build(
  *     storeId = "LinkedCardsStore",
  *     fetcher = Fetcher.ofOutcome {
- *         val authToken = authenticator.getAuthHeader().await()
- *         paymentMethodsService.getCards(authToken)
+ *         paymentMethodsService.getCards()
  *     },
  *     dataSerializer = ListSerializer(CardResponse.serializer()),
  *     freshness = Freshness.ofMinutes(5L)

@@ -129,3 +129,14 @@ fun String.toZonedDateTime(): ZonedDateTime =
     )
 
 private const val SECONDS_OF_DAY: Long = 86400
+
+/**
+ * Takes a [Date] object and returns a string with the full month name, ie 'June'
+ *
+ * @param locale The current [Locale].
+ * @return The month's name.
+ */
+fun Date.getMonthName(locale: Locale = Locale.getDefault()): String {
+    val dateTimeFormat = SimpleDateFormat("MMMM", locale)
+    return dateTimeFormat.format(this)
+}

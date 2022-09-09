@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.dashboard.announcements
 import androidx.annotation.VisibleForTesting
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
-import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.core.kyc.domain.KycService
@@ -49,7 +48,6 @@ class AnnouncementQueries(
     private val googlePayManager: GooglePayManager,
     private val googlePayEnabledFlag: FeatureFlag,
     private val paymentMethodsService: PaymentMethodsService,
-    private val authenticator: AuthHeaderProvider,
     private val fiatCurrenciesService: FiatCurrenciesService,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val currencyPrefs: CurrencyPrefs
@@ -135,25 +133,22 @@ class AnnouncementQueries(
         }
 
     fun isGooglePayAvailable(): Single<Boolean> =
-        authenticator.getAuthHeader().flatMap { authToken ->
-            Single.zip(
-                paymentMethodsService.getAvailablePaymentMethodsTypes(
-                    authorization = authToken,
-                    currency = fiatCurrenciesService.selectedTradingCurrency.networkTicker,
-                    tier = null,
-                    eligibleOnly = true
-                ).map { list ->
-                    list.any { response ->
-                        response.mobilePayment?.any { payment ->
-                            payment.equals(PaymentMethodResponse.GOOGLE_PAY, true)
-                        } ?: false
-                    }
-                },
-                googlePayEnabledFlag.enabled,
-                checkGooglePayAvailability()
-            ) { gPayPaymentMethodAvailable, gPayFlagEnabled, gPayAvailableOnDevice ->
-                return@zip gPayPaymentMethodAvailable && gPayFlagEnabled && gPayAvailableOnDevice
-            }
+        Single.zip(
+            paymentMethodsService.getAvailablePaymentMethodsTypes(
+                currency = fiatCurrenciesService.selectedTradingCurrency.networkTicker,
+                tier = null,
+                eligibleOnly = true
+            ).map { list ->
+                list.any { response ->
+                    response.mobilePayment?.any { payment ->
+                        payment.equals(PaymentMethodResponse.GOOGLE_PAY, true)
+                    } ?: false
+                }
+            },
+            googlePayEnabledFlag.enabled,
+            checkGooglePayAvailability()
+        ) { gPayPaymentMethodAvailable, gPayFlagEnabled, gPayAvailableOnDevice ->
+            return@zip gPayPaymentMethodAvailable && gPayFlagEnabled && gPayAvailableOnDevice
         }.map { enabled ->
             return@map enabled
         }

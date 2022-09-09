@@ -4,6 +4,7 @@ import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.dataremediation.model.QuestionnaireNode
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
@@ -12,7 +13,9 @@ import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.outcome.Outcome
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
+import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
@@ -22,6 +25,9 @@ class ReentryDecisionTest {
 
     private val dataRemediationService: DataRemediationService = mockk {
         coEvery { getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION) } returns Outcome.Success(null)
+    }
+    private val loqateFeatureFlag: FeatureFlag = mockk {
+        every { enabled } returns Single.just(false)
     }
 
     @Test
@@ -80,7 +86,7 @@ class ReentryDecisionTest {
                 firstName = "A",
                 lastName = "B"
             )
-        ) `should be` ReentryPoint.Address
+        ) `should be` ReentryPoint.OldAddress
     }
 
     @Test
@@ -238,7 +244,7 @@ class ReentryDecisionTest {
     }
 
     private fun whereNext(user: NabuUser) =
-        TiersReentryDecision(dataRemediationService).findReentryPoint(user).blockingGet()
+        TiersReentryDecision(dataRemediationService, loqateFeatureFlag).findReentryPoint(user).blockingGet()
 
     private fun createdNabuUser(
         selected: Int = 1,

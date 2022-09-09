@@ -21,6 +21,7 @@ import com.blockchain.blockchaincard.ui.composables.managecard.AccountPicker
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddress
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddressUpdated
 import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionDetails
+import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionHistory
 import com.blockchain.blockchaincard.ui.composables.managecard.FundingAccountActionChooser
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCardDetails
@@ -217,7 +218,7 @@ fun BlockchainCardNavHost(
                             linkedAccountBalance = state.linkedAccountBalance,
                             isBalanceLoading = state.isLinkedAccountBalanceLoading,
                             isTransactionListRefreshing = state.isTransactionListRefreshing,
-                            transactionList = state.transactionList,
+                            transactionList = state.shortTransactionList,
                             onManageCardDetails = {
                                 viewModel.onIntent(BlockchainCardIntent.ManageCardDetails)
                             },
@@ -226,6 +227,9 @@ fun BlockchainCardNavHost(
                             },
                             onRefreshBalance = {
                                 viewModel.onIntent(BlockchainCardIntent.LoadLinkedAccount)
+                            },
+                            onSeeAllTransactions = {
+                                viewModel.onIntent(BlockchainCardIntent.SeeAllTransactions)
                             },
                             onSeeTransactionDetails = { transaction ->
                                 viewModel.onIntent(BlockchainCardIntent.SeeTransactionDetails(transaction))
@@ -375,6 +379,24 @@ fun BlockchainCardNavHost(
                             viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
                         }
                     )
+                }
+            }
+
+            composable(BlockchainCardDestination.AllTransactionsDestination) {
+                state?.let { state ->
+                    if (state.pendingTransactions != null && state.completedTransactionsGroupedByMonth != null) {
+                        CardTransactionHistory(
+                            pendingTransactions = state.pendingTransactions,
+                            completedTransactionsGroupedByMonth = state.completedTransactionsGroupedByMonth,
+                            onSeeTransactionDetails = { transaction ->
+                                viewModel.onIntent(BlockchainCardIntent.SeeTransactionDetails(transaction))
+                            },
+                            onRefreshTransactions = {
+                                viewModel.onIntent(BlockchainCardIntent.RefreshTransactions)
+                            },
+                            isTransactionListRefreshing = state.isTransactionListRefreshing,
+                        )
+                    }
                 }
             }
 

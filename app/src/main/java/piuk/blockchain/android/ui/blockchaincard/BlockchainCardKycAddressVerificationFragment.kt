@@ -35,7 +35,10 @@ class BlockchainCardKycAddressVerificationFragment : Fragment(), AddressVerifica
             childFragmentManager.beginTransaction()
                 .add(
                     R.id.fragment_container,
-                    AddressVerificationFragment.newInstanceEditMode(address.toAddressVerificationModel())
+                    AddressVerificationFragment.newInstanceEditMode(
+                        address.toAddressVerificationModel(),
+                        allowManualOverride = false
+                    )
                 ).commitAllowingStateLoss()
         }
     }

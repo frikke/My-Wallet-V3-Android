@@ -1,4 +1,4 @@
-package com.blockchain.addressverification.ui
+package piuk.blockchain.android.ui.kyc.autocomplete
 
 import android.content.Context
 import com.google.android.libraries.places.api.Places

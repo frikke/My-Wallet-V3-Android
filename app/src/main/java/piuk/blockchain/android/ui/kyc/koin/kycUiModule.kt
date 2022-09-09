@@ -2,12 +2,14 @@
 
 package piuk.blockchain.android.ui.kyc.koin
 
+import com.blockchain.koin.loqateFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.kyc.address.KycHomeAddressNextStepDecision
 import piuk.blockchain.android.ui.kyc.address.KycHomeAddressPresenter
+import piuk.blockchain.android.ui.kyc.address.KycOldHomeAddressPresenter
 import piuk.blockchain.android.ui.kyc.countryselection.KycCountrySelectionPresenter
 import piuk.blockchain.android.ui.kyc.invalidcountry.KycInvalidCountryPresenter
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsInteractor
@@ -30,7 +32,8 @@ val kycUiModule = module {
 
         factory {
             TiersReentryDecision(
-                dataRemediationService = get()
+                dataRemediationService = get(),
+                loqateFeatureFlag = get(loqateFeatureFlag),
             )
         }.bind(ReentryDecision::class)
 
@@ -57,7 +60,6 @@ val kycUiModule = module {
 
         factory {
             KycProfilePresenter(
-                nabuToken = get(),
                 nabuDataManager = get(),
                 userService = get(),
                 getUserStore = get(),
@@ -67,7 +69,19 @@ val kycUiModule = module {
 
         factory {
             KycHomeAddressPresenter(
-                nabuToken = get(),
+                nabuDataManager = get(),
+                eligibilityService = get(),
+                userService = get(),
+                nabuUserSync = get(),
+                custodialWalletManager = get(),
+                kycNextStepDecision = get(),
+                analytics = get(),
+                kycTiersStore = get(),
+            )
+        }
+
+        factory {
+            KycOldHomeAddressPresenter(
                 nabuDataManager = get(),
                 eligibilityService = get(),
                 userService = get(),
@@ -96,7 +110,6 @@ val kycUiModule = module {
 
         factory {
             VeriffSplashPresenter(
-                nabuToken = get(),
                 nabuDataManager = get(),
                 kycTiersStore = get(),
                 analytics = get(),
@@ -106,7 +119,6 @@ val kycUiModule = module {
 
         factory {
             KycStatusPresenter(
-                nabuToken = get(),
                 kycStatusHelper = get(),
                 notificationTokenManager = get()
             )
@@ -114,7 +126,6 @@ val kycUiModule = module {
 
         factory {
             KycNavHostPresenter(
-                nabuToken = get(),
                 userService = get(),
                 reentryDecision = get(),
                 kycNavigator = get(),
