@@ -30,6 +30,7 @@ enum class ReasonNotEligibleTypeResponse {
 
 enum class ReasonNotEligibleReasonResponse {
     // INSUFFICIENT_TIER:
+    TIER_1_REQUIRED,
     TIER_2_REQUIRED,
     TIER_1_TRADE_LIMIT,
 
