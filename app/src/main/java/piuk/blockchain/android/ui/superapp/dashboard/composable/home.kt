@@ -27,25 +27,29 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.web3j.abi.datatypes.Bool
 import piuk.blockchain.android.R
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    indexedChanged: (Pair<Int, Int>) -> Unit,
+    indexedChanged: (Triple<Int, Int, Boolean>) -> Unit,
     enableRefresh: Boolean,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit
 ) {
-    val listState = rememberLazyListState()
-
-    indexedChanged(Pair(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset))
-
     var isRefreshing by remember {
         mutableStateOf(false)
     }
+    val listState = rememberLazyListState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
+
     val scope = rememberCoroutineScope()
+
+    indexedChanged(
+        Triple(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset, swipeRefreshState.isSwipeInProgress)
+    )
+
     SwipeRefreshWithoutOverscroll(
         state = swipeRefreshState,
         swipeEnabled = enableRefresh,
@@ -103,12 +107,12 @@ fun HomeScreen(
 }
 
 @Composable
-fun CardScreen(modifier: Modifier = Modifier, indexedChanged: (Pair<Int, Int>) -> Unit, enableRefresh: Boolean) {
+fun CardScreen(modifier: Modifier = Modifier, indexedChanged: (Triple<Int, Int, Boolean>) -> Unit, enableRefresh: Boolean) {
     val listState = rememberLazyListState()
 
     println("----- listState.firstVisibleItemIndex CardScreen ${listState.firstVisibleItemIndex}")
 
-    indexedChanged(Pair(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset))
+    indexedChanged(Triple(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset, false))
 
     var isRefreshing by remember {
         mutableStateOf(false)

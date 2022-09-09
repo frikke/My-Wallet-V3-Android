@@ -90,6 +90,9 @@ fun SuperAppDashboard2() {
     var firstVisibleItemScrollOffset by remember {
         mutableStateOf(0)
     }
+    var isSwipeInProgress by remember {
+        mutableStateOf(false)
+    }
 
     // snaps
     val coroutineScopeAnim = rememberCoroutineScope()
@@ -113,27 +116,44 @@ fun SuperAppDashboard2() {
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                //                if (::toolbarState.isInitialized) {
-                toolbarState.scrollTopLimitReached =
-                    firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
 
-                toolbarState.scrollOffset = toolbarState.scrollOffset - available.y
-
+                println("----- available.y: ${available.y}")
                 println("----- enableRefresh: ${enableRefresh}")
-                println("----- toolbarState.scrollOffset: ${toolbarState.scrollOffset}")
                 println("----- firstVisibleItemIndex: ${firstVisibleItemIndex}")
                 println("----- firstVisibleItemScrollOffset: ${firstVisibleItemScrollOffset}")
-                println(".")
-                println(".")
-                println(".")
+                println("----- isSwipeInProgress: ${isSwipeInProgress}")
+                println("---")
 
-                if (toolbarState.scrollTopLimitReached.not()) {
-                    enableRefresh = false
-                } else if (enableRefresh.not()) {
-                    enableRefresh = toolbarState.scrollOffset < minHeight && toolbarState.scrollTopLimitReached
+                if (isSwipeInProgress) {
+                    toolbarState.isInteractingWithPullToRefresh = true
+                    return Offset.Zero
+                } else {
+                    toolbarState.scrollTopLimitReached =
+                        firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
+
+                    toolbarState.scrollOffset = toolbarState.scrollOffset - available.y
+
+                    println("----- enableRefresh: ${enableRefresh}")
+                    println("----- toolbarState.scrollOffset available.y: ${available.y}")
+                    println("----- toolbarState.scrollOffset ssss: ${toolbarState.scrollOffset}")
+                    println("----- firstVisibleItemIndex: ${firstVisibleItemIndex}")
+                    println("----- firstVisibleItemScrollOffset: ${firstVisibleItemScrollOffset}")
+                    println(".")
+                    println(".")
+                    println(".")
+
+                    if(toolbarState.scrollOffset == maxHeight) {
+                        toolbarState.isInteractingWithPullToRefresh = false
+                    }
+
+                    if (toolbarState.scrollTopLimitReached.not()) {
+                        enableRefresh = false
+                    } else if (enableRefresh.not()) {
+                        enableRefresh = toolbarState.scrollOffset < minHeight && toolbarState.scrollTopLimitReached
+                    }
+
+                    return Offset(0f, toolbarState.consumed)
                 }
-
-                return Offset(0f, toolbarState.consumed)
             }
 
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
@@ -173,6 +193,7 @@ fun SuperAppDashboard2() {
                 }
 
                 enableRefresh = false
+                toolbarState.isInteractingWithPullToRefresh = false
                 //                println("----- minHeight: $minHeight")
                 //                println("----- maxHeight: $maxHeight")
                 //                println("----- toolbarState.scrollOffset: ${toolbarState.scrollOffset}")
@@ -380,6 +401,7 @@ fun SuperAppDashboard2() {
                 enableRefresh = enableRefresh, indexedChanged = {
                     firstVisibleItemIndex = it.first
                     firstVisibleItemScrollOffset = it.second
+                    isSwipeInProgress = it.third
                 },
                 refreshStarted = {
                     isRefreshing = true

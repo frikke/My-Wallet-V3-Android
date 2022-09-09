@@ -26,13 +26,16 @@ fun NavigationGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     enableRefresh: Boolean,
-    indexedChanged: (Pair<Int, Int>) -> Unit,
+    indexedChanged: (Triple<Int, Int, Boolean>) -> Unit,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit
 ) {
     NavHost(navController, startDestination = BottomNavItem.Home.screen_route) {
         composable(BottomNavItem.Home.screen_route) {
-            HomeScreen(modifier, indexedChanged, enableRefresh, refreshStarted, refreshComplete)
+            HomeScreen(
+                modifier = modifier, indexedChanged = indexedChanged, enableRefresh = enableRefresh,
+                 refreshStarted = refreshStarted, refreshComplete = refreshComplete
+            )
         }
         composable(BottomNavItem.Card.screen_route) {
             CardScreen(modifier, indexedChanged, enableRefresh)

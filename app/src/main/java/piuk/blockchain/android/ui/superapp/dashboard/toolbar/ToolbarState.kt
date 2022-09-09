@@ -10,4 +10,5 @@ interface ToolbarState {
     val consumed: Float
     var scrollTopLimitReached: Boolean
     var scrollOffset: Float
+    var isInteractingWithPullToRefresh: Boolean
 }
