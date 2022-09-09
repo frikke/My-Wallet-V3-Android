@@ -57,11 +57,11 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.superapp.dashboard.composable.BottomNavigationC
 import piuk.blockchain.android.ui.superapp.dashboard.composable.ModeSwitcher
 import piuk.blockchain.android.ui.superapp.dashboard.composable.NavigationGraph
-import piuk.blockchain.android.ui.superapp.dashboard.toolbar.EnterAlwaysCollapsedState
-import piuk.blockchain.android.ui.superapp.dashboard.toolbar.ToolbarState
+import piuk.blockchain.android.ui.multiapp.toolbar.EnterAlwaysCollapsedState
+import piuk.blockchain.android.ui.multiapp.toolbar.CollapsingToolbarState
 
 @Composable
-private fun rememberToolbarState(toolbarHeightRange: IntRange): ToolbarState {
+private fun rememberToolbarState(toolbarHeightRange: IntRange): CollapsingToolbarState {
     return rememberSaveable(saver = EnterAlwaysCollapsedState.Saver) {
         EnterAlwaysCollapsedState(toolbarHeightRange)
     }
@@ -70,7 +70,7 @@ private fun rememberToolbarState(toolbarHeightRange: IntRange): ToolbarState {
 //lateinit var toolbarState: EnterAlwaysCollapsedState
 
 @Composable
-fun SuperAppDashboard2() {
+fun MultiAppDashboard() {
     //    var heightIs by remember {
     //        mutableStateOf(0)
     //    }

@@ -1,47 +1,47 @@
-package piuk.blockchain.android.ui.superapp2
+package piuk.blockchain.android.ui.multiapp.toolbar
 
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 
-@Stable
-class ScrollState(
-    val heightRange: IntRange,
-    scrollOffset: Float = 0F,
-) {
+class EnterAlwaysCollapsedState(
+    heightRange: IntRange,
+    scrollOffset: Float = 0f
+) : CollapsingToolbarState {
+
+    init {
+        require(heightRange.first >= 0 && heightRange.last >= heightRange.first) {
+            "first range is lower than last"
+        }
+    }
+
     private val minHeight = heightRange.first
     private val maxHeight = heightRange.last
     private val rangeDifference = maxHeight - minHeight
+
+    private var _consumed: Float = 0f
+    override val consumed: Float
+        get() = _consumed
+
+    override var scrollTopLimitReached: Boolean = true
+
+    override var isInteractingWithPullToRefresh: Boolean = false
 
     private var _scrollOffset by mutableStateOf(
         value = scrollOffset.coerceIn(0f, maxHeight.toFloat()),
         policy = structuralEqualityPolicy()
     )
-
-    private var _consumed: Float = 0f
-    val consumed = _consumed
-
-    var scrollTopLimitReached: Boolean = true
-
-    //    private val offset: Float
-    //        get() = if (scrollOffset > rangeDifference) {
-    //            -(scrollOffset - rangeDifference).coerceIn(0f, minHeight.toFloat())
-    //        } else 0f
-
-    var scrollOffset: Float
+    override var scrollOffset: Float
         get() = _scrollOffset
         set(value) {
             val oldOffset = _scrollOffset
-            _scrollOffset = if (scrollTopLimitReached) {
+            _scrollOffset = if (scrollTopLimitReached || isInteractingWithPullToRefresh) {
                 value.coerceIn(0f, maxHeight.toFloat())
             } else {
                 value.coerceIn(rangeDifference.toFloat(), maxHeight.toFloat())
             }
-//            println("-----  scrollOffset _consumed ${_consumed}")
-//            println("-----  scrollOffset _scrollOffset ${_scrollOffset}")
             _consumed = oldOffset - _scrollOffset
         }
 
@@ -57,11 +57,11 @@ class ScrollState(
                     mapOf(
                         minHeightKey to it.minHeight,
                         maxHeightKey to it.maxHeight,
-                        scrollOffsetKey to it.scrollOffset,
+                        scrollOffsetKey to it.scrollOffset
                     )
                 },
                 restore = {
-                    ScrollState(
+                    EnterAlwaysCollapsedState(
                         heightRange = (it[minHeightKey] as Int)..(it[maxHeightKey] as Int),
                         scrollOffset = it[scrollOffsetKey] as Float,
                     )

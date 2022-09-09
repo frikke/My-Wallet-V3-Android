@@ -2,11 +2,8 @@ package piuk.blockchain.android.ui.superapp.dashboard.composable
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FloatExponentialDecaySpec
-import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -16,8 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -40,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -58,16 +52,15 @@ import com.blockchain.componentlib.theme.END_TRADING
 import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
 import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.superapp.dashboard.toolbar.EnterAlwaysCollapsedState
-import piuk.blockchain.android.ui.superapp.dashboard.toolbar.ToolbarState
+import piuk.blockchain.android.ui.multiapp.toolbar.EnterAlwaysCollapsedState
+import piuk.blockchain.android.ui.multiapp.toolbar.CollapsingToolbarState
 
 private val MinToolbarHeight = 54.dp
 private val MaxToolbarHeight = 108.dp
 
 @Composable
-private fun rememberToolbarState(toolbarHeightRange: IntRange): ToolbarState {
+private fun rememberToolbarState(toolbarHeightRange: IntRange): CollapsingToolbarState {
     return rememberSaveable(saver = EnterAlwaysCollapsedState.Saver) {
         EnterAlwaysCollapsedState(toolbarHeightRange)
     }
@@ -141,24 +134,24 @@ fun SuperAppDashboard() {
 //                    }
 //                }
 
-                if (available.y > 0) {
-                    scope.launch {
-                        animateDecay(
-                            initialValue = toolbarState.height + toolbarState.offset,
-                            initialVelocity = available.y,
-                            animationSpec = FloatExponentialDecaySpec()
-                        ) { value, velocity ->
-                            toolbarState.scrollTopLimitReached =
-                                listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
-                            toolbarState.scrollOffset =
-                                toolbarState.scrollOffset - (value - (toolbarState.height + toolbarState.offset))
-                            // when flinging, stop scrolling as soon as the top is reached (switcher would already be visible)
-                            // we don't want to show total balance until user explicitly scroll again on top
-                            if (toolbarState.scrollTopLimitReached) scope.coroutineContext.cancelChildren()
-
-                        }
-                    }
-                }
+//                if (available.y > 0) {
+//                    scope.launch {
+//                        animateDecay(
+//                            initialValue = toolbarState.height + toolbarState.offset,
+//                            initialVelocity = available.y,
+//                            animationSpec = FloatExponentialDecaySpec()
+//                        ) { value, velocity ->
+//                            toolbarState.scrollTopLimitReached =
+//                                listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
+//                            toolbarState.scrollOffset =
+//                                toolbarState.scrollOffset - (value - (toolbarState.height + toolbarState.offset))
+//                            // when flinging, stop scrolling as soon as the top is reached (switcher would already be visible)
+//                            // we don't want to show total balance until user explicitly scroll again on top
+//                            if (toolbarState.scrollTopLimitReached) scope.coroutineContext.cancelChildren()
+//
+//                        }
+//                    }
+//                }
 
                 return super.onPostFling(consumed, available)
             }
@@ -225,7 +218,7 @@ fun SuperAppDashboard() {
                 state = listState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .graphicsLayer { translationY = toolbarState.height + toolbarState.offset  }
+//                    .graphicsLayer { translationY = toolbarState.height + toolbarState.offset  }
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onPress = {
@@ -260,33 +253,33 @@ fun SuperAppDashboard() {
                 }
             }
 
-            CollapsingToolbar(
-                progress = toolbarState.progress,
-                onPrivacyTipButtonClicked = {
-                    coroutineScopeAnim.launch {
-                        animate = true
-                        offsetY.snapTo(toolbarState.scrollOffset)
-                        offsetY.animateTo(
-                            targetValue = allCollapsedOffset,
-                            animationSpec = tween(
-                                durationMillis = 400
-                            )
-                        )
-                    }
-                },
-                onTradingClicked = {
-                    shouldFlash = true
-                    switch = true
-                },
-                onDefiClicked = {
-                    shouldFlash = true
-                    switch = false
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(with(LocalDensity.current) { toolbarState.height.toDp() })
-                    .graphicsLayer { translationY = toolbarState.offset }
-            )
+//            CollapsingToolbar(
+//                progress = toolbarState.progress,
+//                onPrivacyTipButtonClicked = {
+//                    coroutineScopeAnim.launch {
+//                        animate = true
+//                        offsetY.snapTo(toolbarState.scrollOffset)
+//                        offsetY.animateTo(
+//                            targetValue = allCollapsedOffset,
+//                            animationSpec = tween(
+//                                durationMillis = 400
+//                            )
+//                        )
+//                    }
+//                },
+//                onTradingClicked = {
+//                    shouldFlash = true
+//                    switch = true
+//                },
+//                onDefiClicked = {
+//                    shouldFlash = true
+//                    switch = false
+//                },
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(with(LocalDensity.current) { toolbarState.height.toDp() })
+//                    .graphicsLayer { translationY = toolbarState.offset }
+//            )
 
             // bottom navigation
             Column(
