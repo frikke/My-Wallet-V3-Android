@@ -81,9 +81,9 @@ class CoinviewViewModel(
             assetPrice = reduceAssetPrice(this),
             totalBalance = reduceTotalBalance(this),
             accounts = reduceAccounts(this),
-            quickActionCenter = reduceQuickActionsCenter(this),
+            centerQuickAction = reduceCenterQuickActions(this),
             recurringBuys = reduceRecurringBuys(this),
-            quickActionBottom = reduceQuickActionsBottom(this)
+            bottomQuickAction = reduceBottomQuickActions(this)
         )
     }
 
@@ -459,21 +459,21 @@ class CoinviewViewModel(
         }
     }
 
-    private fun reduceQuickActionsCenter(state: CoinviewModelState): CoinviewQuickActionsCenterState = state.run {
+    private fun reduceCenterQuickActions(state: CoinviewModelState): CoinviewCenterQuickActionsState = state.run {
         when (quickActions) {
             DataResource.Loading -> {
-                CoinviewQuickActionsCenterState.Loading
+                CoinviewCenterQuickActionsState.Loading
             }
 
             is DataResource.Error -> {
-                CoinviewQuickActionsCenterState.Data(
+                CoinviewCenterQuickActionsState.Data(
                     center = CoinviewQuickAction.None.toViewState()
                 )
             }
 
             is DataResource.Data -> {
                 with(quickActions.data) {
-                    CoinviewQuickActionsCenterState.Data(
+                    CoinviewCenterQuickActionsState.Data(
                         center = center.toViewState()
                     )
                 }
@@ -481,14 +481,14 @@ class CoinviewViewModel(
         }
     }
 
-    private fun reduceQuickActionsBottom(state: CoinviewModelState): CoinviewQuickActionsBottomState = state.run {
+    private fun reduceBottomQuickActions(state: CoinviewModelState): CoinviewBottomQuickActionsState = state.run {
         when (quickActions) {
             DataResource.Loading -> {
-                CoinviewQuickActionsBottomState.Loading
+                CoinviewBottomQuickActionsState.Loading
             }
 
             is DataResource.Error -> {
-                CoinviewQuickActionsBottomState.Data(
+                CoinviewBottomQuickActionsState.Data(
                     start = CoinviewQuickAction.None.toViewState(),
                     end = CoinviewQuickAction.None.toViewState()
                 )
@@ -496,7 +496,7 @@ class CoinviewViewModel(
 
             is DataResource.Data -> {
                 with(quickActions.data) {
-                    CoinviewQuickActionsBottomState.Data(
+                    CoinviewBottomQuickActionsState.Data(
                         start = bottomStart.toViewState(),
                         end = bottomEnd.toViewState()
                     )

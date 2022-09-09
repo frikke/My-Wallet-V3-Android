@@ -13,9 +13,9 @@ data class CoinviewViewState(
     val assetPrice: CoinviewPriceState,
     val totalBalance: CoinviewTotalBalanceState,
     val accounts: CoinviewAccountsState,
-    val quickActionCenter: CoinviewQuickActionsCenterState,
+    val centerQuickAction: CoinviewCenterQuickActionsState,
     val recurringBuys: CoinviewRecurringBuysState,
-    val quickActionBottom: CoinviewQuickActionsBottomState
+    val bottomQuickAction: CoinviewBottomQuickActionsState
 ) : ViewState
 
 // Price
@@ -111,20 +111,20 @@ sealed interface CoinviewRecurringBuysState {
 
 // Quick actions
 // center
-sealed interface CoinviewQuickActionsCenterState {
-    object Loading : CoinviewQuickActionsCenterState
+sealed interface CoinviewCenterQuickActionsState {
+    object Loading : CoinviewCenterQuickActionsState
     data class Data(
         val center: CoinviewQuickActionState,
-    ) : CoinviewQuickActionsCenterState
+    ) : CoinviewCenterQuickActionsState
 }
 
 // bottom
-sealed interface CoinviewQuickActionsBottomState {
-    object Loading : CoinviewQuickActionsBottomState
+sealed interface CoinviewBottomQuickActionsState {
+    object Loading : CoinviewBottomQuickActionsState
     data class Data(
         val start: CoinviewQuickActionState,
         val end: CoinviewQuickActionState
-    ) : CoinviewQuickActionsBottomState
+    ) : CoinviewBottomQuickActionsState
 }
 
 sealed interface CoinviewQuickActionState {

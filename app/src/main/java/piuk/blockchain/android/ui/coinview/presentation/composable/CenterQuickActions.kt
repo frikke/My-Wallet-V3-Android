@@ -11,20 +11,20 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewCenterQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsCenterState
 
 @Composable
-fun QuickActionsCenter(
-    data: CoinviewQuickActionsCenterState
+fun CenterQuickActions(
+    data: CoinviewCenterQuickActionsState
 ) {
     when (data) {
-        CoinviewQuickActionsCenterState.Loading -> {
+        CoinviewCenterQuickActionsState.Loading -> {
             Empty()
         }
 
-        is CoinviewQuickActionsCenterState.Data -> {
-            QuickActionsCenterData(
+        is CoinviewCenterQuickActionsState.Data -> {
+            CenterQuickActionsData(
                 data = data
             )
         }
@@ -32,8 +32,8 @@ fun QuickActionsCenter(
 }
 
 @Composable
-fun QuickActionsCenterData(
-    data: CoinviewQuickActionsCenterState.Data
+fun CenterQuickActionsData(
+    data: CoinviewCenterQuickActionsState.Data
 ) {
     Column(
         modifier = Modifier
@@ -56,9 +56,9 @@ fun QuickActionsCenterData(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewQuickActionsCenter_Data_Enabled() {
-    QuickActionsCenter(
-        CoinviewQuickActionsCenterState.Data(
+fun PreviewCenterQuickActions_Data_Enabled() {
+    CenterQuickActions(
+        CoinviewCenterQuickActionsState.Data(
             center = CoinviewQuickActionState.Swap(true)
         )
     )
@@ -66,9 +66,9 @@ fun PreviewQuickActionsCenter_Data_Enabled() {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewQuickActionsCenter_Data_Disabled() {
-    QuickActionsCenter(
-        CoinviewQuickActionsCenterState.Data(
+fun PreviewCenterQuickActions_Data_Disabled() {
+    CenterQuickActions(
+        CoinviewCenterQuickActionsState.Data(
             center = CoinviewQuickActionState.Swap(false)
         )
     )

@@ -19,10 +19,10 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewBottomQuickActionsState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewCenterQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntents
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsBottomState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsCenterState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
@@ -60,7 +60,7 @@ fun Coinview(
 
             accounts = state.accounts,
 
-            quickActionsCenter = state.quickActionCenter,
+            quickActionsCenter = state.centerQuickAction,
 
             recurringBuys = state.recurringBuys,
             onRecurringBuyUpsellClick = {
@@ -70,7 +70,7 @@ fun Coinview(
                 viewModel.onIntent(CoinviewIntents.ShowRecurringBuyDetail(recurringBuyId))
             },
 
-            quickActionsBottom = state.quickActionBottom
+            quickActionsBottom = state.bottomQuickAction
         )
     }
 }
@@ -89,13 +89,13 @@ fun CoinviewScreen(
 
     accounts: CoinviewAccountsState,
 
-    quickActionsCenter: CoinviewQuickActionsCenterState,
+    quickActionsCenter: CoinviewCenterQuickActionsState,
 
     recurringBuys: CoinviewRecurringBuysState,
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit,
 
-    quickActionsBottom: CoinviewQuickActionsBottomState
+    quickActionsBottom: CoinviewBottomQuickActionsState
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         NavigationBar(
@@ -125,7 +125,7 @@ fun CoinviewScreen(
                     data = accounts
                 )
 
-                QuickActionsCenter(
+                CenterQuickActions(
                     data = quickActionsCenter
                 )
 
@@ -137,7 +137,7 @@ fun CoinviewScreen(
             }
 
             Column(modifier = Modifier.fillMaxWidth()) {
-                QuickActionsBottom(
+                BottomQuickActions(
                     data = quickActionsBottom
                 )
             }
@@ -164,11 +164,11 @@ fun PreviewCoinviewScreen() {
         onNewTimeSpanSelected = {},
         totalBalance = CoinviewTotalBalanceState.Loading,
         accounts = CoinviewAccountsState.Loading,
-        quickActionsCenter = CoinviewQuickActionsCenterState.Loading,
+        quickActionsCenter = CoinviewCenterQuickActionsState.Loading,
         recurringBuys = CoinviewRecurringBuysState.Loading,
         onRecurringBuyUpsellClick = {},
         onRecurringBuyItemClick = {},
-        quickActionsBottom = CoinviewQuickActionsBottomState.Loading
+        quickActionsBottom = CoinviewBottomQuickActionsState.Loading
     )
 }
 

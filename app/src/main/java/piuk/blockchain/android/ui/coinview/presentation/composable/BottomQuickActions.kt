@@ -14,20 +14,20 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.theme.AppTheme
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewBottomQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsBottomState
 
 @Composable
-fun QuickActionsBottom(
-    data: CoinviewQuickActionsBottomState
+fun BottomQuickActions(
+    data: CoinviewBottomQuickActionsState
 ) {
     when (data) {
-        CoinviewQuickActionsBottomState.Loading -> {
-            QuickActionBottomLoading()
+        CoinviewBottomQuickActionsState.Loading -> {
+            BottomQuickActionLoading()
         }
 
-        is CoinviewQuickActionsBottomState.Data -> {
-            QuickActionBottomData(
+        is CoinviewBottomQuickActionsState.Data -> {
+            BottomQuickActionData(
                 data = data
             )
         }
@@ -35,7 +35,7 @@ fun QuickActionsBottom(
 }
 
 @Composable
-fun QuickActionBottomLoading() {
+fun BottomQuickActionLoading() {
     Column(modifier = Modifier.fillMaxWidth()) {
         Separator()
 
@@ -66,8 +66,8 @@ fun QuickActionBottomLoading() {
 }
 
 @Composable
-fun QuickActionBottomData(
-    data: CoinviewQuickActionsBottomState.Data
+fun BottomQuickActionData(
+    data: CoinviewBottomQuickActionsState.Data
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Separator()
@@ -110,17 +110,17 @@ fun QuickActionBottomData(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewQuickActionsBottom_Loading() {
-    QuickActionsBottom(
-        CoinviewQuickActionsBottomState.Loading
+fun PreviewBottomQuickActions_Loading() {
+    BottomQuickActions(
+        CoinviewBottomQuickActionsState.Loading
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewQuickActionsBottom_Data_Enabled() {
-    QuickActionsBottom(
-        CoinviewQuickActionsBottomState.Data(
+fun PreviewBottomQuickActions_Data_Enabled() {
+    BottomQuickActions(
+        CoinviewBottomQuickActionsState.Data(
             start = CoinviewQuickActionState.Send(true),
             end = CoinviewQuickActionState.Receive(true)
         )
@@ -129,9 +129,9 @@ fun PreviewQuickActionsBottom_Data_Enabled() {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewQuickActionsBottom_Data_Disabled() {
-    QuickActionsBottom(
-        CoinviewQuickActionsBottomState.Data(
+fun PreviewBottomQuickActions_Data_Disabled() {
+    BottomQuickActions(
+        CoinviewBottomQuickActionsState.Data(
             start = CoinviewQuickActionState.Buy(false),
             end = CoinviewQuickActionState.Sell(false)
         )

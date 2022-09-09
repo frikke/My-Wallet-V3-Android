@@ -66,6 +66,14 @@ class LoadQuickActionsUseCase(
                             featuresAccessData,
                             isAvailableForTradingData,
                             isSupportedForSwapData ->
+
+                            val assetFilter = when (accounts) {
+                                is CoinviewAccounts.Universal -> AssetFilter.All
+                                is CoinviewAccounts.Custodial -> AssetFilter.Trading
+                                is CoinviewAccounts.Defi -> error("Defi unreachable here")
+                            }
+                            val hasBalance = totalBalance.totalCryptoBalance[assetFilter]?.isPositive ?: false
+
                             /**
                              * Sell button will be enabled if
                              * * Sell access is [FeatureAccess.Granted]
@@ -81,7 +89,8 @@ class LoadQuickActionsUseCase(
                             val sellAccess = featuresAccessData[Feature.Sell]
                             val canSell = sellAccess is FeatureAccess.Granted &&
                                 isAvailableForTradingData &&
-                                (kycTierData == KycTier.GOLD || sddEligibilityData)
+                                (kycTierData == KycTier.GOLD || sddEligibilityData) &&
+                                hasBalance
 
                             /**
                              * Buy button will be enabled if
@@ -110,12 +119,7 @@ class LoadQuickActionsUseCase(
                              * Swap button will be enabled if
                              * * Balance is positive
                              */
-                            val assetFilter = when (accounts) {
-                                is CoinviewAccounts.Universal -> AssetFilter.All
-                                is CoinviewAccounts.Custodial -> AssetFilter.Trading
-                                is CoinviewAccounts.Defi -> error("Defi unreachable here")
-                            }
-                            val canSwap = totalBalance.totalCryptoBalance[assetFilter]?.isPositive ?: false
+                            val canSwap = hasBalance
 
                             CoinviewQuickActions(
                                 center = if (isSupportedForSwapData) {
