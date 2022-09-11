@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
 import org.web3j.abi.TypeEncoder
@@ -185,18 +186,22 @@ internal class Erc20DataManagerImpl(
 
                 combine(evmNetworksWithBalances) { pairsEvmNetworkWithBalance: Array<Pair<EvmNetwork, BigInteger>> ->
                     pairsEvmNetworkWithBalance
-                        .filter { (evmNetwork, balance) ->
+                        .filter { (_, balance) ->
                             shouldShow || balance > BigInteger.ZERO
                         }
-                        .map { (evmNetwork, balance) -> evmNetwork }
+                        .map { (evmNetwork, _) -> evmNetwork }
                 }.map {
                     it.map { evmNetwork ->
                         erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
                             .catch { emit(emptySet()) }
                     }
                 }.flatMapMerge {
-                    combine(it) {
-                        it.reduce { acc, set -> acc.plus(set).toSet() }
+                    if (it.isNotEmpty()) {
+                        combine(it) { assets ->
+                            assets.reduce { acc, set -> acc.plus(set).toSet() }
+                        }
+                    } else {
+                        flowOf(emptySet())
                     }
                 }
             }

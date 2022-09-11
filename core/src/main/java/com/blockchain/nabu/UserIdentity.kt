@@ -58,6 +58,7 @@ sealed class FeatureAccess {
 sealed class BlockedReason : Serializable {
     data class NotEligible(val message: String?) : BlockedReason()
     sealed class InsufficientTier : BlockedReason() {
+        object Tier1Required : InsufficientTier()
         object Tier2Required : InsufficientTier()
         object Tier1TradeLimitExceeded : InsufficientTier()
         data class Unknown(val message: String) : InsufficientTier()

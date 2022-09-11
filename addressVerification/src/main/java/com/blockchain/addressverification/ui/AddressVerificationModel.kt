@@ -285,6 +285,7 @@ class AddressVerificationModel(
                             mainLineInput = mainLine.ifEmpty { autocompleteAddress.title },
                             cityInput = result.city.orEmpty(),
                             postCodeInput = result.postalCode.orEmpty(),
+                            showPostcodeError = false,
                         )
                     }
                 }

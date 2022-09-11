@@ -179,6 +179,8 @@ private fun ProductEligibility.toFeatureAccess(): FeatureAccess =
         when (val reason = reasonNotEligible) {
             ProductNotEligibleReason.InsufficientTier.Tier1TradeLimitExceeded ->
                 BlockedReason.InsufficientTier.Tier1TradeLimitExceeded
+            ProductNotEligibleReason.InsufficientTier.Tier1Required ->
+                BlockedReason.InsufficientTier.Tier1Required
             ProductNotEligibleReason.InsufficientTier.Tier2Required ->
                 BlockedReason.InsufficientTier.Tier2Required
             is ProductNotEligibleReason.InsufficientTier.Unknown ->
