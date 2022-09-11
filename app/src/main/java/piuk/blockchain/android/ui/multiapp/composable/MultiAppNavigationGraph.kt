@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.superapp.dashboard.composable
+package piuk.blockchain.android.ui.multiapp.composable
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -20,31 +20,53 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.blockchain.componentlib.basic.ImageResource
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.multiapp.bottomnav.BottomNavItem
 
 @Composable
-fun NavigationGraph(
+fun MultiAppNavigationGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     enableRefresh: Boolean,
-    indexedChanged: (Triple<Int, Int, Boolean>) -> Unit,
+    updateScrollInfo: (ListStateInfo) -> Unit,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit
 ) {
     NavHost(navController, startDestination = BottomNavItem.Home.screen_route) {
         composable(BottomNavItem.Home.screen_route) {
-            HomeScreen(
-                modifier = modifier, indexedChanged = indexedChanged, enableRefresh = enableRefresh,
-                 refreshStarted = refreshStarted, refreshComplete = refreshComplete
+            DemoScreen(
+                modifier = modifier,
+                tag = "Home",
+                updateScrollInfo = updateScrollInfo,
+                isPullToRefreshEnabled = enableRefresh,
+                refreshStarted = refreshStarted,
+                refreshComplete = refreshComplete
+            )
+        }
+        composable(BottomNavItem.Trade.screen_route) {
+            DemoScreen(
+                modifier = modifier,
+                tag = "Trade",
+                updateScrollInfo = updateScrollInfo,
+                isPullToRefreshEnabled = enableRefresh,
+                refreshStarted = refreshStarted,
+                refreshComplete = refreshComplete
             )
         }
         composable(BottomNavItem.Card.screen_route) {
-            CardScreen(modifier, indexedChanged, enableRefresh)
+            DemoScreen(
+                modifier = modifier,
+                tag = "Card",
+                updateScrollInfo = updateScrollInfo,
+                isPullToRefreshEnabled = enableRefresh,
+                refreshStarted = refreshStarted,
+                refreshComplete = refreshComplete
+            )
         }
     }
 }
 
 @Composable
-fun BottomNavigationC(
+fun MultiAppBottomNavigation(
     modifier: Modifier = Modifier,
     navController: NavController,
     onSelected: (BottomNavItem) -> Unit
@@ -87,33 +109,6 @@ fun BottomNavigationC(
                 )
 
                 Spacer(Modifier.size(dimensionResource(R.dimen.large_margin)))
-
-                //                BottomNavigationItem(
-                //                    icon = { Icon(painterResource(id = item.icon), contentDescription = item.title) },
-                //                    label = {
-                //                        Text(
-                //                            text = item.title,
-                //                            fontSize = 9.sp
-                //                        )
-                //                    },
-                //                    selectedContentColor = Color.Black,
-                //                    unselectedContentColor = Color.Black.copy(0.4f),
-                //                    alwaysShowLabel = true,
-                //                    selected = currentRoute == item.screen_route,
-                //                    onClick = {
-                //                        onSelected(item)
-                //                        navController.navigate(item.screen_route) {
-                //
-                //                            navController.graph.startDestinationRoute?.let { screen_route ->
-                //                                popUpTo(screen_route) {
-                //                                    saveState = true
-                //                                }
-                //                            }
-                //                            launchSingleTop = true
-                //                            restoreState = true
-                //                        }
-                //                    }
-                //                )
             }
         }
     }

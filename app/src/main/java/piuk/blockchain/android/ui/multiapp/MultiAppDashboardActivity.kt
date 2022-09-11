@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import piuk.blockchain.android.ui.superapp2.MultiAppDashboard
+import piuk.blockchain.android.ui.multiapp.composable.MultiAppDashboard
 
 class MultiAppDashboardActivity : BlockchainActivity() {
     override val alwaysDisableScreenshots: Boolean

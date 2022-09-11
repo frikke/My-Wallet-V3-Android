@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.superapp2
+package piuk.blockchain.android.ui.multiapp.composable
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
@@ -26,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
@@ -37,43 +36,34 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.compose.rememberNavController
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.END_DEFI
 import com.blockchain.componentlib.theme.END_TRADING
 import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
-import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.multiapp.composable.ModeSwitcher
-import piuk.blockchain.android.ui.multiapp.composable.TotalBalance
 import piuk.blockchain.android.ui.multiapp.toolbar.CollapsingToolbarState
 import piuk.blockchain.android.ui.multiapp.toolbar.EnterAlwaysCollapsedState
-import piuk.blockchain.android.ui.superapp.dashboard.composable.BottomNavigationC
-import piuk.blockchain.android.ui.superapp.dashboard.composable.NavigationGraph
 
 @Composable
-private fun rememberToolbarState(min: Int, max: Int): CollapsingToolbarState {
+private fun rememberToolbarState(): CollapsingToolbarState {
     return rememberSaveable(saver = EnterAlwaysCollapsedState.Saver) {
-        EnterAlwaysCollapsedState(min, max)
+        // initialize with minHeight:0 maxHeight:0
+        // the size will be calculated at runtime after drawing to get the real view heights
+        EnterAlwaysCollapsedState(0, 0)
     }
 }
 
-//lateinit var toolbarState: EnterAlwaysCollapsedState
+val modes = listOf("Trading", "DeFi")
 
 @Composable
 fun MultiAppDashboard() {
-    //    var heightIs by remember {
-    //        mutableStateOf(0)
-    //    }
-
     var balanceSectionHeight by remember {
         mutableStateOf(0)
     }
@@ -81,81 +71,68 @@ fun MultiAppDashboard() {
         mutableStateOf(0)
     }
 
-    var toolbarState = rememberToolbarState(0, 1)
+    val toolbarState = rememberToolbarState()
 
-    //    if (heightIs > 0) {
-    //        println("-----  heightIs ${heightIs}")
-    //        toolbarState = rememberToolbarState((heightIs / 2)..(heightIs))
-    //    }
-    var firstVisibleItemIndex by remember {
-        mutableStateOf(0)
-    }
-    var firstVisibleItemScrollOffset by remember {
-        mutableStateOf(0)
-    }
-    var isSwipeInProgress by remember {
+    /**
+     * if the screen is currently trying pull to refresh
+     * i.e. is pulling and seeing the loading indicator
+     * (refreshing is not triggered yet at this point, just the interaction swipe up and down)
+     */
+    var isPullToRefreshSwipeInProgress by remember {
         mutableStateOf(false)
     }
 
-    // snaps
-    val coroutineScopeAnim = rememberCoroutineScope()
+    // //////////////////////////////////////////////
+    // snap header views depending on scroll position
+    val coroutineScopeSnaps = rememberCoroutineScope()
     val offsetY = remember { Animatable(0f) }
-    var animate by remember {
-        mutableStateOf(false)
-    }
+    var animateSnap by remember { mutableStateOf(false) }
 
-    if (animate) {
+    if (animateSnap) {
         toolbarState.scrollOffset = offsetY.value
         if (toolbarState.scrollOffset == toolbarState.fullHeight) {
-            animate = false
+            animateSnap = false
         }
     }
-    //
+    // //////////////////////////////////////////////
 
-    // refresh
+    // //////////////////////////////////////////////
+    // pull to refresh
     var isRefreshing by remember { mutableStateOf(false) }
-    var enableRefresh by remember { mutableStateOf(false) }
-    //
+
+    /**
+     * pull to refresh needs to be enabled/disabled based on scroll position
+     * because it also consumes nested scroll events
+     */
+    var enablePullToRefresh by remember { mutableStateOf(false) }
+    // //////////////////////////////////////////////
+
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
 
-                println("----- available.y: ${available.y}")
-                println("----- enableRefresh: ${enableRefresh}")
-                println("----- firstVisibleItemIndex: ${firstVisibleItemIndex}")
-                println("----- firstVisibleItemScrollOffset: ${firstVisibleItemScrollOffset}")
-                println("----- isSwipeInProgress: ${isSwipeInProgress}")
-                println("---")
-
-                if (isSwipeInProgress) {
+                if (isPullToRefreshSwipeInProgress) {
                     toolbarState.isInteractingWithPullToRefresh = true
+                    // let pull to refresh consume the scroll
                     return Offset.Zero
                 } else {
-                    toolbarState.scrollTopLimitReached =
-                        firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
-
                     toolbarState.scrollOffset = toolbarState.scrollOffset - available.y
 
-                    println("----- enableRefresh: ${enableRefresh}")
-                    println("----- toolbarState.scrollOffset available.y: ${available.y}")
-                    println("----- toolbarState.scrollOffset ssss: ${toolbarState.scrollOffset}")
-                    println("----- firstVisibleItemIndex: ${firstVisibleItemIndex}")
-                    println("----- firstVisibleItemScrollOffset: ${firstVisibleItemScrollOffset}")
-                    println(".")
-                    println(".")
-                    println(".")
-
                     if (toolbarState.scrollOffset == toolbarState.fullHeight) {
+                        // disable pull to refresh when user scrolls past the full header
+                        // to be able to lock again at the ModeSwitcher level
                         toolbarState.isInteractingWithPullToRefresh = false
                     }
 
                     if (toolbarState.scrollTopLimitReached.not()) {
-                        enableRefresh = false
-                    } else if (enableRefresh.not()) {
+                        // if the current screen is not scrolled all the way to the top
+                        // disable pull to refresh so this nested scroll can consume all the events
+                        enablePullToRefresh = false
+                    } else if (enablePullToRefresh.not()) {
+                        val pullToRefreshEnabledThreshold =
+                            toolbarState.scrollOffset < (toolbarState.collapsedHeight / 2)
 
-                        enableRefresh =
-                            toolbarState.scrollOffset < (toolbarState.collapsedHeight / 2) && toolbarState.scrollTopLimitReached
-                        println("----- aa enableRefresh: ${enableRefresh}")
+                        enablePullToRefresh = pullToRefreshEnabledThreshold && toolbarState.scrollTopLimitReached
                     }
 
                     return Offset(0f, toolbarState.consumed)
@@ -167,8 +144,8 @@ fun MultiAppDashboard() {
                 if (toolbarState.scrollOffset > 0F &&
                     toolbarState.scrollOffset < toolbarState.collapsedHeight
                 ) {
-                    coroutineScopeAnim.launch {
-                        animate = true
+                    coroutineScopeSnaps.launch {
+                        animateSnap = true
                         offsetY.snapTo(toolbarState.scrollOffset)
                         offsetY.animateTo(
                             targetValue = if (toolbarState.scrollOffset > toolbarState.collapsedHeight / 2) {
@@ -186,8 +163,8 @@ fun MultiAppDashboard() {
                 if (toolbarState.scrollOffset > toolbarState.collapsedHeight &&
                     toolbarState.scrollOffset < toolbarState.fullHeight
                 ) {
-                    coroutineScopeAnim.launch {
-                        animate = true
+                    coroutineScopeSnaps.launch {
+                        animateSnap = true
                         offsetY.snapTo(toolbarState.scrollOffset)
                         offsetY.animateTo(
                             targetValue = toolbarState.collapsedHeight,
@@ -198,50 +175,34 @@ fun MultiAppDashboard() {
                     }
                 }
 
-                enableRefresh = false
+                enablePullToRefresh = false
                 toolbarState.isInteractingWithPullToRefresh = false
-                //                println("----- minHeight: $minHeight")
-                //                println("----- maxHeight: $maxHeight")
-                //                println("----- toolbarState.scrollOffset: ${toolbarState.scrollOffset}")
-                //                println("----- firstVisibleItemIndex: $firstVisibleItemIndex")
-                //                println("----- firstVisibleItemScrollOffset: $firstVisibleItemScrollOffset")
-                //                if (
-                //                    firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
-                //                ) {
-                //                    enableRefresh = true
-                //                } else {
-                //                    enableRefresh = false
-                //                }
+
                 return super.onPostFling(consumed, available)
             }
         }
     }
 
-    // list y
-    var headerBottomY by remember {
-        mutableStateOf(0F)
-    }
-    //
-
+    // //////////////////////////////////////////////
     // background color
-    var switch by remember { mutableStateOf(true) }
-    val startColor by animateColorAsState(
-        targetValue = if (switch) START_TRADING else START_DEFI,
+    var selectedMode by remember { mutableStateOf(modes.first()) }
+    val backgroundStartColor by animateColorAsState(
+        targetValue = if (selectedMode == modes.first()) START_TRADING else START_DEFI,
         animationSpec = tween(
             durationMillis = 400,
             delayMillis = 0
         )
     )
-
-    val endColor by animateColorAsState(
-        targetValue = if (switch) END_TRADING else END_DEFI,
+    val backgroundEndColor by animateColorAsState(
+        targetValue = if (selectedMode == modes.first()) END_TRADING else END_DEFI,
         animationSpec = tween(
             durationMillis = 400,
             delayMillis = 0
         )
     )
-    //
+    // //////////////////////////////////////////////
 
+    // //////////////////////////////////////////////
     // header alpha
     val balanceLoadingAlpha by animateFloatAsState(
         targetValue = if (isRefreshing) 0F else 1F,
@@ -250,27 +211,21 @@ fun MultiAppDashboard() {
             delayMillis = 0
         )
     )
-    var balanceScrollAlpha by remember {
-        mutableStateOf(1F)
-    }
+    var balanceScrollAlpha by remember { mutableStateOf(1F) }
     balanceScrollAlpha =
         (1 - (toolbarState.scrollOffset + (toolbarState.scrollOffset * 0.3F)) / toolbarState.collapsedHeight)
             .coerceIn(0F, 1F)
 
-    var switcherAlpha by remember {
-        mutableStateOf(1F)
-    }
-    switcherAlpha =
-        (1 - (toolbarState.scrollOffset - toolbarState.collapsedHeight) / (toolbarState.fullHeight - toolbarState.collapsedHeight)).coerceIn(0F, 1F)
-    println("----- switcherAlpha: ${switcherAlpha}")
+    var switcherScrollAlpha by remember { mutableStateOf(1F) }
+    switcherScrollAlpha =
+        (1 - (toolbarState.scrollOffset - toolbarState.collapsedHeight) / (toolbarState.fullHeight - toolbarState.collapsedHeight)).coerceIn(
+            0F, 1F
+        )
+    // //////////////////////////////////////////////
 
-    //
-
+    // //////////////////////////////////////////////
     // bottomnav animation
-    var trading by remember {
-        mutableStateOf(true)
-    }
-
+    var trading by remember { mutableStateOf(true) }
     var shouldFlash by remember { mutableStateOf(false) }
     val animateDown by animateIntAsState(
         targetValue = if (shouldFlash) 300 else 0,
@@ -285,18 +240,17 @@ fun MultiAppDashboard() {
             delayMillis = 0
         )
     )
-    //
+    // //////////////////////////////////////////////
 
     val navController = rememberNavController()
-
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.horizontalGradient(
                     colors = listOf(
-                        startColor,
-                        endColor
+                        backgroundStartColor,
+                        backgroundEndColor
                     )
                 )
             )
@@ -318,11 +272,6 @@ fun MultiAppDashboard() {
         ) {
 
             /////// header
-            ///////
-            ///////
-            ///////
-            ///////
-            ///////
             if (balanceSectionHeight > 0 && tabsSectionHeight > 0) {
                 toolbarState.updateHeight(balanceSectionHeight, (balanceSectionHeight + tabsSectionHeight))
             }
@@ -330,55 +279,43 @@ fun MultiAppDashboard() {
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
-                    //                if (::toolbarState.isInitialized) {
                     translationY = -toolbarState.scrollOffset
-                    //                }
                 }
             ) {
                 /////// balance
-                ///////
-                ///////
                 TotalBalance(
                     modifier = Modifier
-                    .fillMaxWidth()
-                    .alpha(if (isRefreshing) balanceLoadingAlpha else balanceScrollAlpha)
-                    .onGloballyPositioned { coordinates ->
-                        println("---- aa balanceSectionHeight ${coordinates.size.height}")
-                        balanceSectionHeight = coordinates.size.height
-                    },
+                        .fillMaxWidth()
+                        .alpha(if (isRefreshing) balanceLoadingAlpha else balanceScrollAlpha)
+                        .onGloballyPositioned { coordinates ->
+                            balanceSectionHeight = coordinates.size.height
+                        },
                     balance = "$278,666.12"
                 )
 
                 /////// mode tabs
-                ///////
-                ///////
                 ModeSwitcher(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .alpha(switcherAlpha)
+                        .alpha(switcherScrollAlpha)
                         .onGloballyPositioned { coordinates ->
-                            println("---- aa tabsSectionHeight ${coordinates.size.height}")
                             tabsSectionHeight = coordinates.size.height
                         },
-                    modes = listOf("Trading", "DeFi"),
+                    modes = modes,
                     onModeClicked = {
-                        if (it == "Trading") {
+                        if (it == modes[0]) {
                             shouldFlash = true
-                            switch = true
-                        } else if (it == "DeFi") {
+                            selectedMode = modes[0]
+                        } else if (it == modes[1]) {
                             shouldFlash = true
-                            switch = false
+                            selectedMode = modes[1]
                         }
                     },
                 )
             }
 
             //////// content
-            ////////
-            ////////
-            ////////
-            ////////
-            NavigationGraph(
+            MultiAppNavigationGraph(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
@@ -387,26 +324,24 @@ fun MultiAppDashboard() {
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onPress = {
-                                //                                scope.coroutineContext.cancelChildren()
-                                coroutineScopeAnim.coroutineContext.cancelChildren()
-                                animate = false
+                                coroutineScopeSnaps.coroutineContext.cancelChildren()
+                                animateSnap = false
                             }
                         )
                     },
                 navController = navController,
-                enableRefresh = enableRefresh,
-                indexedChanged = {
-                    firstVisibleItemIndex = it.first
-                    firstVisibleItemScrollOffset = it.second
-                    isSwipeInProgress = it.third
+                enableRefresh = enablePullToRefresh,
+                updateScrollInfo = { (firstVisibleItemIndex, firstVisibleItemScrollOffset, isSwipeInProgress) ->
+                    toolbarState.scrollTopLimitReached = firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
+                    isPullToRefreshSwipeInProgress = isSwipeInProgress
                 },
                 refreshStarted = {
                     isRefreshing = true
                 },
                 refreshComplete = {
-                    coroutineScopeAnim.launch {
+                    coroutineScopeSnaps.launch {
                         if (toolbarState.scrollOffset < toolbarState.collapsedHeight) {
-                            animate = true
+                            animateSnap = true
                             offsetY.snapTo(toolbarState.scrollOffset)
                             offsetY.animateTo(
                                 targetValue = toolbarState.collapsedHeight,
@@ -421,7 +356,8 @@ fun MultiAppDashboard() {
             )
         }
 
-        BottomNavigationC(
+        //////// bottom nav
+        MultiAppBottomNavigation(
             modifier = Modifier
                 .wrapContentSize()
                 .padding(34.dp)
@@ -439,6 +375,9 @@ fun MultiAppDashboard() {
             navController
         ) {
         }
+
+        // we have to reserve spaces for the statusbar and nav bar because the screen can draw on them
+        // so we can have custom gradient status bar
 
         // status bar
         val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
