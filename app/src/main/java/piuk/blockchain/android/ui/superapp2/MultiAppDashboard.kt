@@ -50,15 +50,14 @@ import com.blockchain.componentlib.theme.END_DEFI
 import com.blockchain.componentlib.theme.END_TRADING
 import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
-import com.blockchain.componentlib.utils.clickableNoEffect
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.multiapp.toolbar.CollapsingToolbarState
+import piuk.blockchain.android.ui.multiapp.toolbar.EnterAlwaysCollapsedState
 import piuk.blockchain.android.ui.superapp.dashboard.composable.BottomNavigationC
 import piuk.blockchain.android.ui.superapp.dashboard.composable.ModeSwitcher
 import piuk.blockchain.android.ui.superapp.dashboard.composable.NavigationGraph
-import piuk.blockchain.android.ui.multiapp.toolbar.EnterAlwaysCollapsedState
-import piuk.blockchain.android.ui.multiapp.toolbar.CollapsingToolbarState
 
 @Composable
 private fun rememberToolbarState(toolbarHeightRange: IntRange): CollapsingToolbarState {
@@ -75,10 +74,14 @@ fun MultiAppDashboard() {
     //        mutableStateOf(0)
     //    }
 
-    val minHeight = LocalDensity.current.run { 54.dp.toPx() }
-    val maxHeight = LocalDensity.current.run { 108.dp.toPx() }
+    var balanceSectionHeight by remember {
+        mutableStateOf(0)
+    }
+    var tabsSectionHeight by remember {
+        mutableStateOf(0)
+    }
 
-    var toolbarState = rememberToolbarState(minHeight.toInt()..maxHeight.toInt())
+    var toolbarState = rememberToolbarState(0..1)
 
     //    if (heightIs > 0) {
     //        println("-----  heightIs ${heightIs}")
@@ -103,7 +106,7 @@ fun MultiAppDashboard() {
 
     if (animate) {
         toolbarState.scrollOffset = offsetY.value
-        if (toolbarState.scrollOffset == maxHeight) {
+        if (toolbarState.scrollOffset == toolbarState.fullHeight) {
             animate = false
         }
     }
@@ -142,14 +145,17 @@ fun MultiAppDashboard() {
                     println(".")
                     println(".")
 
-                    if(toolbarState.scrollOffset == maxHeight) {
+                    if (toolbarState.scrollOffset == toolbarState.fullHeight) {
                         toolbarState.isInteractingWithPullToRefresh = false
                     }
 
                     if (toolbarState.scrollTopLimitReached.not()) {
                         enableRefresh = false
                     } else if (enableRefresh.not()) {
-                        enableRefresh = toolbarState.scrollOffset < minHeight && toolbarState.scrollTopLimitReached
+
+                        enableRefresh = toolbarState.scrollOffset < (toolbarState.collapsedHeight / 2) && toolbarState.scrollTopLimitReached
+                        println("----- aa enableRefresh: ${enableRefresh}")
+
                     }
 
                     return Offset(0f, toolbarState.consumed)
@@ -159,14 +165,14 @@ fun MultiAppDashboard() {
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
                 // hide total balance if the offset is 1/2 below its height
                 if (toolbarState.scrollOffset > 0F &&
-                    toolbarState.scrollOffset < minHeight
+                    toolbarState.scrollOffset < toolbarState.collapsedHeight
                 ) {
                     coroutineScopeAnim.launch {
                         animate = true
                         offsetY.snapTo(toolbarState.scrollOffset)
                         offsetY.animateTo(
-                            targetValue = if (toolbarState.scrollOffset > minHeight / 2) {
-                                minHeight
+                            targetValue = if (toolbarState.scrollOffset > toolbarState.collapsedHeight / 2) {
+                                toolbarState.collapsedHeight
                             } else {
                                 0F
                             },
@@ -177,14 +183,14 @@ fun MultiAppDashboard() {
                     }
                 }
                 // if switcher is scrolled but still visible, snap to the top of it
-                if (toolbarState.scrollOffset > minHeight &&
-                    toolbarState.scrollOffset < maxHeight
+                if (toolbarState.scrollOffset > toolbarState.collapsedHeight &&
+                    toolbarState.scrollOffset < toolbarState.fullHeight
                 ) {
                     coroutineScopeAnim.launch {
                         animate = true
                         offsetY.snapTo(toolbarState.scrollOffset)
                         offsetY.animateTo(
-                            targetValue = minHeight,
+                            targetValue = toolbarState.collapsedHeight,
                             animationSpec = tween(
                                 durationMillis = 400
                             )
@@ -248,12 +254,12 @@ fun MultiAppDashboard() {
         mutableStateOf(1F)
     }
     balanceScrollAlpha =
-        (1 - (toolbarState.scrollOffset + (toolbarState.scrollOffset * 0.3F)) / minHeight).coerceIn(0F, 1F)
+        (1 - (toolbarState.scrollOffset + (toolbarState.scrollOffset * 0.3F)) / toolbarState.collapsedHeight).coerceIn(0F, 1F)
 
     var switcherAlpha by remember {
         mutableStateOf(1F)
     }
-    switcherAlpha = (1 - (toolbarState.scrollOffset - minHeight) / minHeight).coerceIn(0F, 1F)
+    switcherAlpha = (1 - (toolbarState.scrollOffset - toolbarState.collapsedHeight) / toolbarState.collapsedHeight).coerceIn(0F, 1F)
     //
 
     // bottomnav animation
@@ -313,17 +319,16 @@ fun MultiAppDashboard() {
             ///////
             ///////
             ///////
+            if (balanceSectionHeight > 0 && tabsSectionHeight > 0) {
+                toolbarState.updateHeight(balanceSectionHeight..(balanceSectionHeight + tabsSectionHeight))
+            }
+
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
                     //                if (::toolbarState.isInitialized) {
                     translationY = -toolbarState.scrollOffset
-                    headerBottomY = -toolbarState.scrollOffset + maxHeight
                     //                }
-                }
-                .onGloballyPositioned { coordinates ->
-                    //                println("-----  coordinates.size.height ${coordinates.size.height}")
-                    //                heightIs = coordinates.size.height
                 }
             ) {
                 /////// balance
@@ -334,24 +339,16 @@ fun MultiAppDashboard() {
                         .height(54.dp)
                         .fillMaxWidth()
                         .alpha(if (isRefreshing) balanceLoadingAlpha else balanceScrollAlpha)
+                        .onGloballyPositioned { coordinates ->
+                            println("---- aa balanceSectionHeight ${coordinates.size.height}")
+                            balanceSectionHeight = coordinates.size.height
+                        }
                     /*.background(Color.Red)*/
                 ) {
                     com.blockchain.componentlib.basic.Image(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .padding(start = dimensionResource(R.dimen.tiny_margin))
-                            .clickableNoEffect {
-                                coroutineScopeAnim.launch {
-                                    animate = true
-                                    offsetY.snapTo(toolbarState.scrollOffset)
-                                    offsetY.animateTo(
-                                        targetValue = maxHeight,
-                                        animationSpec = tween(
-                                            durationMillis = 400
-                                        )
-                                    )
-                                }
-                            },
+                            .padding(start = dimensionResource(R.dimen.tiny_margin)),
                         imageResource = ImageResource.Local(R.drawable.ic_total_balance_demo)
                     )
                 }
@@ -363,7 +360,11 @@ fun MultiAppDashboard() {
                     modifier = Modifier
                         .height(54.dp)
                         .fillMaxWidth()
-                        .alpha(switcherAlpha),
+                        .alpha(switcherAlpha)
+                        .onGloballyPositioned { coordinates ->
+                            println("---- aa tabsSectionHeight ${coordinates.size.height}")
+                            tabsSectionHeight = coordinates.size.height
+                        },
                     modes = listOf("Trading", "DeFi"),
                     onModeClicked = {
                         if (it == "Trading") {
@@ -386,7 +387,7 @@ fun MultiAppDashboard() {
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
-                        translationY = headerBottomY
+                        translationY = -toolbarState.scrollOffset + toolbarState.fullHeight
                     }
                     .pointerInput(Unit) {
                         detectTapGestures(
@@ -398,7 +399,8 @@ fun MultiAppDashboard() {
                         )
                     },
                 navController = navController,
-                enableRefresh = enableRefresh, indexedChanged = {
+                enableRefresh = enableRefresh,
+                indexedChanged = {
                     firstVisibleItemIndex = it.first
                     firstVisibleItemScrollOffset = it.second
                     isSwipeInProgress = it.third
@@ -408,11 +410,11 @@ fun MultiAppDashboard() {
                 },
                 refreshComplete = {
                     coroutineScopeAnim.launch {
-                        if (toolbarState.scrollOffset < minHeight) {
+                        if (toolbarState.scrollOffset < toolbarState.collapsedHeight) {
                             animate = true
                             offsetY.snapTo(toolbarState.scrollOffset)
                             offsetY.animateTo(
-                                targetValue = minHeight,
+                                targetValue = toolbarState.collapsedHeight,
                                 animationSpec = tween(
                                     durationMillis = 400
                                 )

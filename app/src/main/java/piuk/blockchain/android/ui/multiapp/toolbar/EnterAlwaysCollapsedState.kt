@@ -7,19 +7,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 
 class EnterAlwaysCollapsedState(
-    heightRange: IntRange,
+    var heightRange: IntRange,
     scrollOffset: Float = 0f
 ) : CollapsingToolbarState {
 
-    init {
-        require(heightRange.first >= 0 && heightRange.last >= heightRange.first) {
-            "first range is lower than last"
-        }
+//    init {
+//        require(heightRange.first >= 0 && heightRange.last >= heightRange.first) {
+//            "first range is lower than last"
+//        }
+//    }
+
+   override fun updateHeight(heightRange2: IntRange){
+        heightRange = heightRange2
     }
 
-    private val minHeight = heightRange.first
-    private val maxHeight = heightRange.last
-    private val rangeDifference = maxHeight - minHeight
+    private val minHeight get() = heightRange.first
+    override val collapsedHeight: Float
+        get() = minHeight.toFloat()
+
+    private val maxHeight get() = heightRange.last
+    override val fullHeight: Float
+        get() = maxHeight.toFloat()
+
+    private val rangeDifference get() = maxHeight - minHeight
 
     private var _consumed: Float = 0f
     override val consumed: Float
