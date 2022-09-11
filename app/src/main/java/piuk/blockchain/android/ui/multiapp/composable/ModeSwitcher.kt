@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.superapp.dashboard.composable
+package piuk.blockchain.android.ui.multiapp.composable
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
@@ -36,43 +37,40 @@ fun ModeSwitcher(
     modes: List<String>,
     onModeClicked: (String) -> Unit
 ) {
-
+    val animationDuration = 400
     val coroutineScopeAnimation = rememberCoroutineScope()
 
-    var modeTrigger by remember {
-        mutableStateOf(modes.first())
-    }
+    var modeTrigger by remember { mutableStateOf(modes.first()) }
 
-    var selectedMode by remember {
-        mutableStateOf(modes.first())
-    }
-    var previousSelectedMode by remember {
-        mutableStateOf(modes.first())
-    }
+    var selectedMode by remember { mutableStateOf(modes.first()) }
+    var previousSelectedMode by remember { mutableStateOf(modes.first()) }
 
-    val fullIndicatorWidth = 16F
+    val fullIndicatorWidthPx = 16F
+
+    val fullTextAlpha = 1F
+    val minTextAlpha = 0.6F
 
     Row(modifier = modifier.fillMaxWidth()) {
-        val indicatorWidth = remember { Animatable(fullIndicatorWidth) }
+        val animatableIndicatorWidthPx = remember { Animatable(fullIndicatorWidthPx) }
         LaunchedEffect(modeTrigger) {
-            indicatorWidth.snapTo(fullIndicatorWidth - indicatorWidth.value)
+            animatableIndicatorWidthPx.snapTo(fullIndicatorWidthPx - animatableIndicatorWidthPx.value)
             previousSelectedMode = selectedMode
             selectedMode = modeTrigger
-            indicatorWidth.animateTo(
-                targetValue = 16F,
+            animatableIndicatorWidthPx.animateTo(
+                targetValue = fullIndicatorWidthPx,
                 animationSpec = tween(
-                    durationMillis = 400
+                    durationMillis = animationDuration
                 )
             )
         }
 
-        val textAlpha = remember { Animatable(1F) }
+        val textAlpha = remember { Animatable(fullTextAlpha) }
         LaunchedEffect(modeTrigger) {
-            textAlpha.snapTo(1F - textAlpha.value + 0.6F)
+            textAlpha.snapTo(fullTextAlpha - textAlpha.value + minTextAlpha)
             textAlpha.animateTo(
-                targetValue = 1F,
+                targetValue = fullTextAlpha,
                 animationSpec = tween(
-                    durationMillis = 400
+                    durationMillis = animationDuration
                 )
             )
         }
@@ -82,7 +80,6 @@ fun ModeSwitcher(
         modes.forEachIndexed { index, mode ->
             Column(
                 modifier = Modifier
-                    .fillMaxHeight()
                     .clickableNoEffect {
                         coroutineScopeAnimation.coroutineContext.cancelChildren()
                         modeTrigger = mode
@@ -91,14 +88,16 @@ fun ModeSwitcher(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+
                 Text(
                     modifier = Modifier,
                     style = AppTheme.typography.title3,
-                    color = Color.White.copy(
+                    color = AppTheme.colors.background.copy(
                         alpha = if (selectedMode == mode) {
                             textAlpha.value
                         } else {
-                            1F - textAlpha.value + 0.6F
+                            fullTextAlpha - textAlpha.value + minTextAlpha
                         }
                     ),
                     text = mode
@@ -106,41 +105,49 @@ fun ModeSwitcher(
 
                 Box(
                     modifier = Modifier
-                        .height(4.dp)
+                        .height(AppTheme.dimensions.xPaddingSmall)
                         .width(
                             if (mode == selectedMode || mode == previousSelectedMode) {
                                 if (selectedMode == mode) {
-                                    indicatorWidth.value.dp
+                                    animatableIndicatorWidthPx.value.dp
                                 } else {
-                                    (fullIndicatorWidth - indicatorWidth.value).dp
+                                    (fullIndicatorWidthPx - animatableIndicatorWidthPx.value).dp
                                 }
                             } else {
                                 0.dp
                             }
                         )
                         .background(
-                            color = Color.White.copy(
+                            color = AppTheme.colors.background.copy(
                                 alpha = if (mode == selectedMode || mode == previousSelectedMode) {
                                     if (selectedMode == mode) {
-                                        indicatorWidth.value / fullIndicatorWidth
+                                        animatableIndicatorWidthPx.value / fullIndicatorWidthPx
                                     } else {
-                                        1 - (indicatorWidth.value / fullIndicatorWidth)
+                                        1 - (animatableIndicatorWidthPx.value / fullIndicatorWidthPx)
                                     }
                                 } else {
                                     0F
                                 }
 
                             ),
-                            shape = RoundedCornerShape(24.dp)
+                            shape = RoundedCornerShape(AppTheme.dimensions.paddingLarge)
                         )
                 )
+
+                Spacer(modifier = Modifier.size(12.dp))
             }
 
             if (modes.lastIndex != index) {
-                Spacer(modifier = Modifier.size(32.dp))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.xPaddingLarge))
             }
         }
 
         Spacer(modifier = Modifier.weight(1F))
     }
+}
+
+@Preview
+@Composable
+fun PreviewModeSwitcher() {
+    ModeSwitcher(modes = listOf("Trading", "DeFi"), onModeClicked = {})
 }

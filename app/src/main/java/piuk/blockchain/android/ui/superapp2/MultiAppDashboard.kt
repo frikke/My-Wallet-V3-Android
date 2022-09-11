@@ -37,7 +37,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
@@ -53,16 +52,17 @@ import com.blockchain.componentlib.theme.START_TRADING
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.multiapp.composable.ModeSwitcher
+import piuk.blockchain.android.ui.multiapp.composable.TotalBalance
 import piuk.blockchain.android.ui.multiapp.toolbar.CollapsingToolbarState
 import piuk.blockchain.android.ui.multiapp.toolbar.EnterAlwaysCollapsedState
 import piuk.blockchain.android.ui.superapp.dashboard.composable.BottomNavigationC
-import piuk.blockchain.android.ui.superapp.dashboard.composable.ModeSwitcher
 import piuk.blockchain.android.ui.superapp.dashboard.composable.NavigationGraph
 
 @Composable
-private fun rememberToolbarState(toolbarHeightRange: IntRange): CollapsingToolbarState {
+private fun rememberToolbarState(min: Int, max: Int): CollapsingToolbarState {
     return rememberSaveable(saver = EnterAlwaysCollapsedState.Saver) {
-        EnterAlwaysCollapsedState(toolbarHeightRange)
+        EnterAlwaysCollapsedState(min, max)
     }
 }
 
@@ -81,7 +81,7 @@ fun MultiAppDashboard() {
         mutableStateOf(0)
     }
 
-    var toolbarState = rememberToolbarState(0..1)
+    var toolbarState = rememberToolbarState(0, 1)
 
     //    if (heightIs > 0) {
     //        println("-----  heightIs ${heightIs}")
@@ -153,9 +153,9 @@ fun MultiAppDashboard() {
                         enableRefresh = false
                     } else if (enableRefresh.not()) {
 
-                        enableRefresh = toolbarState.scrollOffset < (toolbarState.collapsedHeight / 2) && toolbarState.scrollTopLimitReached
+                        enableRefresh =
+                            toolbarState.scrollOffset < (toolbarState.collapsedHeight / 2) && toolbarState.scrollTopLimitReached
                         println("----- aa enableRefresh: ${enableRefresh}")
-
                     }
 
                     return Offset(0f, toolbarState.consumed)
@@ -254,12 +254,16 @@ fun MultiAppDashboard() {
         mutableStateOf(1F)
     }
     balanceScrollAlpha =
-        (1 - (toolbarState.scrollOffset + (toolbarState.scrollOffset * 0.3F)) / toolbarState.collapsedHeight).coerceIn(0F, 1F)
+        (1 - (toolbarState.scrollOffset + (toolbarState.scrollOffset * 0.3F)) / toolbarState.collapsedHeight)
+            .coerceIn(0F, 1F)
 
     var switcherAlpha by remember {
         mutableStateOf(1F)
     }
-    switcherAlpha = (1 - (toolbarState.scrollOffset - toolbarState.collapsedHeight) / toolbarState.collapsedHeight).coerceIn(0F, 1F)
+    switcherAlpha =
+        (1 - (toolbarState.scrollOffset - toolbarState.collapsedHeight) / (toolbarState.fullHeight - toolbarState.collapsedHeight)).coerceIn(0F, 1F)
+    println("----- switcherAlpha: ${switcherAlpha}")
+
     //
 
     // bottomnav animation
@@ -320,7 +324,7 @@ fun MultiAppDashboard() {
             ///////
             ///////
             if (balanceSectionHeight > 0 && tabsSectionHeight > 0) {
-                toolbarState.updateHeight(balanceSectionHeight..(balanceSectionHeight + tabsSectionHeight))
+                toolbarState.updateHeight(balanceSectionHeight, (balanceSectionHeight + tabsSectionHeight))
             }
 
             Column(modifier = Modifier
@@ -334,31 +338,22 @@ fun MultiAppDashboard() {
                 /////// balance
                 ///////
                 ///////
-                Box(
+                TotalBalance(
                     modifier = Modifier
-                        .height(54.dp)
-                        .fillMaxWidth()
-                        .alpha(if (isRefreshing) balanceLoadingAlpha else balanceScrollAlpha)
-                        .onGloballyPositioned { coordinates ->
-                            println("---- aa balanceSectionHeight ${coordinates.size.height}")
-                            balanceSectionHeight = coordinates.size.height
-                        }
-                    /*.background(Color.Red)*/
-                ) {
-                    com.blockchain.componentlib.basic.Image(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .padding(start = dimensionResource(R.dimen.tiny_margin)),
-                        imageResource = ImageResource.Local(R.drawable.ic_total_balance_demo)
-                    )
-                }
+                    .fillMaxWidth()
+                    .alpha(if (isRefreshing) balanceLoadingAlpha else balanceScrollAlpha)
+                    .onGloballyPositioned { coordinates ->
+                        println("---- aa balanceSectionHeight ${coordinates.size.height}")
+                        balanceSectionHeight = coordinates.size.height
+                    },
+                    balance = "$278,666.12"
+                )
 
                 /////// mode tabs
                 ///////
                 ///////
                 ModeSwitcher(
                     modifier = Modifier
-                        .height(54.dp)
                         .fillMaxWidth()
                         .alpha(switcherAlpha)
                         .onGloballyPositioned { coordinates ->

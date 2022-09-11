@@ -9,5 +9,5 @@ interface CollapsingToolbarState {
     var scrollOffset: Float
     var isInteractingWithPullToRefresh: Boolean
 
-    fun updateHeight(heightRange2: IntRange)
+    fun updateHeight(newMinHeight: Int, newMaxHeight: Int)
 }

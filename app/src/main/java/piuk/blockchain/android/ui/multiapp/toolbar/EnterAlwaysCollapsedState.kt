@@ -7,29 +7,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 
 class EnterAlwaysCollapsedState(
-    var heightRange: IntRange,
+    var initialMinHeight: Int, var initialMaxHeight: Int,
     scrollOffset: Float = 0f
 ) : CollapsingToolbarState {
 
-//    init {
-//        require(heightRange.first >= 0 && heightRange.last >= heightRange.first) {
-//            "first range is lower than last"
-//        }
-//    }
+    //    init {
+    //        require(heightRange.first >= 0 && heightRange.last >= heightRange.first) {
+    //            "first range is lower than last"
+    //        }
+    //    }
 
-   override fun updateHeight(heightRange2: IntRange){
-        heightRange = heightRange2
+    override fun updateHeight(newMinHeight: Int, newMaxHeight: Int) {
+        initialMinHeight = newMinHeight
+        initialMaxHeight = newMaxHeight
     }
 
-    private val minHeight get() = heightRange.first
+    private val minHeight get() = initialMinHeight
     override val collapsedHeight: Float
         get() = minHeight.toFloat()
 
-    private val maxHeight get() = heightRange.last
+    private val maxHeight get() = initialMaxHeight
     override val fullHeight: Float
         get() = maxHeight.toFloat()
-
-    private val rangeDifference get() = maxHeight - minHeight
 
     private var _consumed: Float = 0f
     override val consumed: Float
@@ -50,7 +49,7 @@ class EnterAlwaysCollapsedState(
             _scrollOffset = if (scrollTopLimitReached || isInteractingWithPullToRefresh) {
                 value.coerceIn(0f, maxHeight.toFloat())
             } else {
-                value.coerceIn(rangeDifference.toFloat(), maxHeight.toFloat())
+                value.coerceIn(minHeight.toFloat(), maxHeight.toFloat())
             }
             _consumed = oldOffset - _scrollOffset
         }
@@ -72,7 +71,8 @@ class EnterAlwaysCollapsedState(
                 },
                 restore = {
                     EnterAlwaysCollapsedState(
-                        heightRange = (it[minHeightKey] as Int)..(it[maxHeightKey] as Int),
+                        initialMinHeight = it[minHeightKey] as Int,
+                        initialMaxHeight = it[maxHeightKey] as Int,
                         scrollOffset = it[scrollOffsetKey] as Float,
                     )
                 }
