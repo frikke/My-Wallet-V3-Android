@@ -601,7 +601,6 @@ val coreModule = module {
         )
     }.bind(DynamicAssetsDataManager::class)
 
-
     single {
         AssetInformationStore(
             discoveryService = get()

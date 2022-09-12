@@ -39,12 +39,12 @@ fun BottomQuickActionLoading() {
     Column(modifier = Modifier.fillMaxWidth()) {
         Separator()
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.paddingMedium)
+                .padding(AppTheme.dimensions.smallSpacing)
         ) {
             SecondaryButton(
                 modifier = Modifier.weight(1F),
@@ -53,7 +53,7 @@ fun BottomQuickActionLoading() {
                 onClick = {}
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
             SecondaryButton(
                 modifier = Modifier.weight(1F),
@@ -72,12 +72,12 @@ fun BottomQuickActionData(
     Column(modifier = Modifier.fillMaxWidth()) {
         Separator()
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.paddingMedium)
+                .padding(AppTheme.dimensions.smallSpacing)
         ) {
             SecondaryButton(
                 modifier = Modifier.weight(1F),
@@ -85,13 +85,13 @@ fun BottomQuickActionData(
                 icon = ImageResource.Local(
                     data.start.logo.value,
                     colorFilter = ColorFilter.tint(AppTheme.colors.background),
-                    size = AppTheme.dimensions.paddingLarge
+                    size = AppTheme.dimensions.standardSpacing
                 ),
                 state = if (data.start.enabled) ButtonState.Enabled else ButtonState.Disabled,
                 onClick = { /*todo*/ }
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
             SecondaryButton(
                 modifier = Modifier.weight(1F),
@@ -99,7 +99,7 @@ fun BottomQuickActionData(
                 icon = ImageResource.Local(
                     data.end.logo.value,
                     colorFilter = ColorFilter.tint(AppTheme.colors.background),
-                    size = AppTheme.dimensions.paddingLarge
+                    size = AppTheme.dimensions.standardSpacing
                 ),
                 state = if (data.end.enabled) ButtonState.Enabled else ButtonState.Disabled,
                 onClick = { /*todo*/ }

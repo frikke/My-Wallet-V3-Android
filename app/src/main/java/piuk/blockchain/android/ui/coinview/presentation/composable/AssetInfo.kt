@@ -16,7 +16,6 @@ import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
-import piuk.blockchain.android.ui.coinview.presentation.ValueAvailability
 
 @Composable
 fun AssetInfo(
@@ -56,55 +55,45 @@ fun AssetInfoData(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(AppTheme.dimensions.paddingLarge)
+            .padding(AppTheme.dimensions.smallSpacing)
     ) {
 
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = AppTheme.dimensions.xPaddingSmall),
+                .padding(vertical = AppTheme.dimensions.smallestSpacing),
             text = stringResource(R.string.coinview_about_asset, data.assetName),
             style = AppTheme.typography.body2,
             color = AppTheme.colors.title,
         )
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-        when (data.description) {
-            is ValueAvailability.Available -> {
-                ExpandableItem(
-                    text = data.description.value,
-                    numLinesVisible = 6,
-                    textButtonToExpand = stringResource(R.string.coinview_expandable_button),
-                    textButtonToCollapse = stringResource(R.string.coinview_collapsable_button)
-                )
-            }
-
-            ValueAvailability.NotAvailable -> {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = AppTheme.dimensions.xPaddingSmall),
-                    text = stringResource(R.string.coinview_no_asset_description),
-                    style = AppTheme.typography.paragraph1,
-                    color = AppTheme.colors.body,
-                )
-            }
+        data.description?.let { description ->
+            ExpandableItem(
+                text = description,
+                numLinesVisible = 6,
+                textButtonToExpand = stringResource(R.string.coinview_expandable_button),
+                textButtonToCollapse = stringResource(R.string.coinview_collapsable_button)
+            )
+        } ?: kotlin.run {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = AppTheme.dimensions.smallestSpacing),
+                text = stringResource(R.string.coinview_no_asset_description),
+                style = AppTheme.typography.paragraph1,
+                color = AppTheme.colors.body,
+            )
         }
 
-        when (data.website) {
-            is ValueAvailability.Available -> {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+        data.website?.let {
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-                SmallMinimalButton(
-                    text = stringResource(R.string.coinview_asset_info_cta),
-                    onClick = { /*TODO*/ }
-                )
-            }
-
-            ValueAvailability.NotAvailable -> {
-                Empty()
-            }
+            SmallMinimalButton(
+                text = stringResource(R.string.coinview_asset_info_cta),
+                onClick = onWebsiteClick
+            )
         }
     }
 }
@@ -121,10 +110,13 @@ fun PreviewAssetInfo_Data() {
     AssetInfo(
         CoinviewAssetInfoState.Data(
             assetName = "ETH",
-            description = ValueAvailability.Available(
-                "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
-            ),
-            website = ValueAvailability.NotAvailable
+            description = """Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has 
+                |been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of 
+                |type and scrambled it to make a type specimen book. It has survived not only five centuries, but also 
+                |the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s 
+                |with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop 
+                |publishing software like Aldus PageMaker including versions of Lorem Ipsum.""".trimMargin(),
+            website = null
         ),
         {}
     )

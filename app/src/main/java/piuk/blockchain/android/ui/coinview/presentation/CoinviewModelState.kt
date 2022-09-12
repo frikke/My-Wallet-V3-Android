@@ -6,7 +6,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
-import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetDetail
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistory
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
@@ -27,8 +27,8 @@ data class CoinviewModelState(
     val requestedTimeSpan: HistoricalTimeSpan? = null,
     val interactiveAssetPrice: CoinviewAssetPrice? = null,
 
-    // asset info (accounts/non tradeable)
-    val assetInfo: DataResource<CoinviewAssetInformation> = DataResource.Loading,
+    // asset detail (accounts/non tradeable)
+    val assetDetail: DataResource<CoinviewAssetDetail> = DataResource.Loading,
 
     // recurring buys
     val recurringBuys: DataResource<CoinviewRecurringBuys> = DataResource.Loading,
@@ -37,7 +37,5 @@ data class CoinviewModelState(
     val quickActions: DataResource<CoinviewQuickActions> = DataResource.Loading,
 
     // asset info
-    val isAssetInfoLoading: Boolean = false,
-    val isAssetInfoError: Boolean = false,
-    val assetInfso: DetailedAssetInformation? = null
+    val assetInfo: DataResource<DetailedAssetInformation> = DataResource.Loading,
 ) : ModelState

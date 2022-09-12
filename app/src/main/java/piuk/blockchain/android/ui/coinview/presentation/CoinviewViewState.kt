@@ -182,15 +182,9 @@ sealed interface CoinviewAssetInfoState {
     object Error : CoinviewAssetInfoState
     data class Data(
         val assetName: String,
-        val description: ValueAvailability,
-        val website: ValueAvailability
+        val description: String?,
+        val website: String?
     ) : CoinviewAssetInfoState
-}
-
-// misc
-sealed interface ValueAvailability {
-    data class Available(val value: String) : ValueAvailability
-    object NotAvailable : ValueAvailability
 }
 
 /**

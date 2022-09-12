@@ -19,9 +19,9 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewBottomQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewCenterQuickActionsState
-import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntents
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
@@ -74,7 +74,7 @@ fun Coinview(
             quickActionsBottom = state.bottomQuickAction,
 
             assetInfo = state.assetInfo,
-            onWebsiteClick = {}
+            onWebsiteClick = { /*todo*/ }
         )
     }
 }
@@ -99,7 +99,7 @@ fun CoinviewScreen(
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit,
 
-    quickActionsBottom: CoinviewBottomQuickActionsState ,
+    quickActionsBottom: CoinviewBottomQuickActionsState,
 
     assetInfo: CoinviewAssetInfoState,
     onWebsiteClick: () -> Unit

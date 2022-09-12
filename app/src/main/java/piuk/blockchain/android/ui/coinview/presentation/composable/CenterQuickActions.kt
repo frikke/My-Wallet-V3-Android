@@ -38,7 +38,7 @@ fun CenterQuickActionsData(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(AppTheme.dimensions.paddingLarge)
+            .padding(AppTheme.dimensions.standardSpacing)
     ) {
         PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
@@ -46,7 +46,7 @@ fun CenterQuickActionsData(
             icon = ImageResource.Local(
                 data.center.logo.value,
                 colorFilter = ColorFilter.tint(AppTheme.colors.background),
-                size = AppTheme.dimensions.paddingLarge
+                size = AppTheme.dimensions.standardSpacing
             ),
             state = if (data.center.enabled) ButtonState.Enabled else ButtonState.Disabled,
             onClick = { /*todo*/ }

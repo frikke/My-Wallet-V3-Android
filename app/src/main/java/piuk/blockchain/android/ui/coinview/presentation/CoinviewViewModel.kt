@@ -33,7 +33,7 @@ import piuk.blockchain.android.ui.coinview.domain.LoadAssetRecurringBuysUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadQuickActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
-import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetDetail
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistory
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
@@ -156,18 +156,18 @@ class CoinviewViewModel(
                 CoinviewTotalBalanceState.NotSupported
             }
 
-            assetInfo is DataResource.Loading -> {
+            assetDetail is DataResource.Loading -> {
                 CoinviewTotalBalanceState.Loading
             }
 
-            assetInfo is DataResource.Error -> {
+            assetDetail is DataResource.Error -> {
                 CoinviewTotalBalanceState.NotSupported
             }
 
-            assetInfo is DataResource.Data && assetInfo.data is CoinviewAssetInformation.AccountsInfo -> {
+            assetDetail is DataResource.Data && assetDetail.data is CoinviewAssetDetail.Tradeable -> {
                 check(asset != null) { "asset not initialized" }
 
-                with(assetInfo.data as CoinviewAssetInformation.AccountsInfo) {
+                with(assetDetail.data as CoinviewAssetDetail.Tradeable) {
                     check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
 
                     CoinviewTotalBalanceState.Data(
@@ -186,14 +186,14 @@ class CoinviewViewModel(
 
     private fun reduceAccounts(state: CoinviewModelState): CoinviewAccountsState = state.run {
         when {
-            assetInfo is DataResource.Loading -> {
+            assetDetail is DataResource.Loading -> {
                 CoinviewAccountsState.Loading
             }
 
-            assetInfo is DataResource.Data && assetInfo.data is CoinviewAssetInformation.AccountsInfo -> {
+            assetDetail is DataResource.Data && assetDetail.data is CoinviewAssetDetail.Tradeable -> {
                 check(asset != null) { "asset not initialized" }
 
-                with(assetInfo.data as CoinviewAssetInformation.AccountsInfo) {
+                with(assetDetail.data as CoinviewAssetDetail.Tradeable) {
                     CoinviewAccountsState.Data(
                         style = when (accounts) {
                             is CoinviewAccounts.Universal,
@@ -509,35 +509,25 @@ class CoinviewViewModel(
     }
 
     private fun reduceAssetInfo(state: CoinviewModelState): CoinviewAssetInfoState = state.run {
-        when {
-            isAssetInfoLoading && assetInfo == null -> {
+        when (assetInfo) {
+            DataResource.Loading -> {
                 CoinviewAssetInfoState.Loading
             }
 
-            isAssetInfoError -> {
+            is DataResource.Error -> {
                 CoinviewAssetInfoState.Error
             }
 
-            assetInfo != null -> {
+            is DataResource.Data -> {
                 require(asset != null) { "asset not initialized" }
 
-                CoinviewAssetInfoState.Data(
-                    assetName = asset.currency.name,
-                    description = if (assetInfo.description.isEmpty()) {
-                        ValueAvailability.NotAvailable
-                    } else {
-                        ValueAvailability.Available(value = assetInfo.description)
-                    },
-                    website = if (assetInfo.website.isEmpty()) {
-                        ValueAvailability.NotAvailable
-                    } else {
-                        ValueAvailability.Available(value = assetInfo.website)
-                    }
-                )
-            }
-
-            else -> {
-                CoinviewAssetInfoState.Loading
+                with(assetInfo.data) {
+                    CoinviewAssetInfoState.Data(
+                        assetName = asset.currency.name,
+                        description = if (description.isEmpty().not()) description else null,
+                        website = if (website.isEmpty().not()) website else null,
+                    )
+                }
             }
         }
     }
@@ -738,9 +728,9 @@ class CoinviewViewModel(
 
                 updateState {
                     it.copy(
-                        assetInfo = if (dataResource is DataResource.Loading && it.assetInfo is DataResource.Data) {
+                        assetDetail = if (dataResource is DataResource.Loading && it.assetDetail is DataResource.Data) {
                             // if data is present already - don't show loading
-                            it.assetInfo
+                            it.assetDetail
                         } else {
                             dataResource
                         }
@@ -748,8 +738,8 @@ class CoinviewViewModel(
                 }
 
                 // get quick actions
-                if (dataResource is DataResource.Data && dataResource.data is CoinviewAssetInformation.AccountsInfo) {
-                    with(dataResource.data as CoinviewAssetInformation.AccountsInfo) {
+                if (dataResource is DataResource.Data && dataResource.data is CoinviewAssetDetail.Tradeable) {
+                    with(dataResource.data as CoinviewAssetDetail.Tradeable) {
                         onIntent(
                             CoinviewIntents.LoadQuickActions(
                                 accounts = accounts,
@@ -815,33 +805,16 @@ class CoinviewViewModel(
     private fun loadAssetInformation(asset: CryptoAsset) {
         viewModelScope.launch {
             loadAssetInfoUseCase(asset = asset.currency).collectLatest { dataResource ->
-                when (dataResource) {
-                    DataResource.Loading -> {
-                        updateState {
-                            it.copy(
-                                isAssetInfoLoading = true,
-                            )
+                updateState {
+                    it.copy(
+                        assetInfo = if (dataResource is DataResource.Loading &&
+                            it.assetInfo is DataResource.Data
+                        ) {
+                            it.assetInfo
+                        } else {
+                            dataResource
                         }
-                    }
-
-                    is DataResource.Error -> {
-                        updateState {
-                            it.copy(
-                                isAssetInfoLoading = false,
-                                isAssetInfoError = true,
-                            )
-                        }
-                    }
-
-                    is DataResource.Data -> {
-                        updateState {
-                            it.copy(
-                                isAssetInfoLoading = false,
-                                isAssetInfoError = false,
-                                assetInfo = dataResource.data
-                            )
-                        }
-                    }
+                    )
                 }
             }
         }

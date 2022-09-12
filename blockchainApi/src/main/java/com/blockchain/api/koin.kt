@@ -141,7 +141,7 @@ val blockchainApiModule = module {
     }
 
     // *****
-    ///BaseJson
+    // /BaseJson
     @OptIn(ExperimentalSerializationApi::class)
     single {
         Json {
