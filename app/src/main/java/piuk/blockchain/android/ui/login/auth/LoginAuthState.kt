@@ -24,7 +24,6 @@ enum class AuthStatus {
     Submit2FA,
     UpdateMobileSetup,
     Complete,
-    AskForAccountUnification,
     PairingFailed,
     InvalidPassword,
     Invalid2FACode,

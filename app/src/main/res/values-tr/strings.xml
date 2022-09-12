@@ -1860,17 +1860,6 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="kyc_autocomplete_selected_address_error">Adres alınamadı</string>
     <string name="min_with_value">En az %1$s</string>
     <string name="max_with_value">En fazla %1$s</string>
-    <string name="unification_sheet_title">Hesabı Yükselt</string>
-    <string name="unification_sheet_later_cta">Bunu daha sonra yapacağım</string>
-    <string name="unification_sheet_now_cta">Hesabımı Yükselt</string>
-    <string name="unification_sheet_header">Birleştirilmiş Blockchain Hesabına Yükselt</string>
-    <string name="unification_sheet_blurb">Tüm Blockchain.com hesaplarınıza tek girişle erişim yapabilecek düzeye yükseltmek ister misiniz?</string>
-    <string name="unification_sheet_item_one_title">Tüm Hesaplar için Tek Giriş</string>
-    <string name="unification_sheet_item_one_blurb">Blockchain.com Wallet hesabınıza ve Exchange\'e tek girişle kolayca erişin.</string>
-    <string name="unification_sheet_item_two_title">Hesaplar Arasında Daha Fazla Güvenlik</string>
-    <string name="unification_sheet_item_two_blurb">Tüm Blockchain.com ürünlerindeki yatırımlarınızı güvenceye alın.</string>
-    <string name="unification_sheet_item_three_title">Ücretsiz Blockchain.com Wallet</string>
-    <string name="unification_sheet_item_three_blurb">Kripto paranızla daha da fazlasını gerçekleştirmek için ücretsiz bir Wallet hesabı oluşturun.</string>
     <string name="app_maintenance_cta_update_later">Bunu Daha Sonra Yapacağım</string>
     <string name="preview_buy">Alış Önizlemesi</string>
     <string name="tx_enter_amount_sell_cta">Satış Önizlemesi</string>

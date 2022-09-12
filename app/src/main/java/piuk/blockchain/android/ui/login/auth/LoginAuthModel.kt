@@ -161,14 +161,11 @@ class LoginAuthModel(
     }
 
     private fun updateAccount(isMobileSetup: Boolean, deviceType: Int, shouldRequestUpgrade: Boolean) =
+        // SSO - if [shouldRequestUpgrade] then user is eligible to have an Exchange account with the same email
         interactor.updateMobileSetup(isMobileSetup, deviceType)
             .subscribeBy(
-                onSuccess = { flagEnabled ->
-                    if (shouldRequestUpgrade && flagEnabled) {
-                        process(LoginAuthIntents.ShowAccountUnification)
-                    } else {
-                        process(LoginAuthIntents.ShowAuthComplete)
-                    }
+                onComplete = {
+                    process(LoginAuthIntents.ShowAuthComplete)
                 },
                 onError = { throwable ->
                     process(LoginAuthIntents.ShowError(throwable))

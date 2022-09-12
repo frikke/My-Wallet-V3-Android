@@ -2,7 +2,6 @@ package com.blockchain.koin.modules
 
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.accountUnificationFeatureFlag
 import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.bindFeatureFlag
@@ -27,15 +26,6 @@ import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
-
-    single(accountUnificationFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_sso_account_unification",
-                "SSO Account Unification"
-            )
-        )
-    }.bind(FeatureFlag::class)
 
     single(googlePayFeatureFlag) {
         IntegratedFeatureFlag(

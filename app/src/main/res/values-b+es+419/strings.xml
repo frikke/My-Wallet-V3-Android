@@ -1731,17 +1731,6 @@ Tu %1$s estará disponible en tu cuenta \"%2$s\" en el plazo de 2 días.</string
     <string name="kyc_autocomplete_selected_address_error">Error al recuperar la dirección</string>
     <string name="min_with_value">Mín. de %1$s</string>
     <string name="max_with_value">Máx. de %1$s</string>
-    <string name="unification_sheet_title">Actualizar cuenta</string>
-    <string name="unification_sheet_later_cta">Lo haré más tarde</string>
-    <string name="unification_sheet_now_cta">Actualizar mi cuenta</string>
-    <string name="unification_sheet_header">Pasar a una cuenta de Blockchain.com unificada</string>
-    <string name="unification_sheet_blurb">¿Quisieras pasarte a un plan con un solo inicio de sesión para todas tus cuentas de Blockchain.com?</string>
-    <string name="unification_sheet_item_one_title">Un inicio de sesión para todas las cuentas</string>
-    <string name="unification_sheet_item_one_blurb">Accede fácilmente a tu Wallet de Blockchain.com y Exchange con un solo inicio de sesión.</string>
-    <string name="unification_sheet_item_two_title">Mayor seguridad entre las cuentas</string>
-    <string name="unification_sheet_item_two_blurb">Asegura tus inversiones dentro de todos los productos de Blockchain.com.</string>
-    <string name="unification_sheet_item_three_title">Wallet gratuita de Blockchain.com</string>
-    <string name="unification_sheet_item_three_blurb">Crea una cuenta gratuita de Wallet para poder hacer más cosas con tus criptomonedas.</string>
     <string name="app_maintenance_cta_update_later">Lo haré más tarde</string>
     <string name="preview_buy">Vista previa de compra</string>
     <string name="tx_enter_amount_sell_cta">Vista previa de venta</string>

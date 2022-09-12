@@ -2422,19 +2422,6 @@
     <string name="receive_network_alert_title">%1$s on %2$s Network</string>
     <string name="receive_network_alert_subtitle">Please receive %1$s on the %2$s Network for this address only. We cannot recover lost funds.</string>
 
-    <!-- Account Unification -->
-    <string name="unification_sheet_title">Upgrade Account</string>
-    <string name="unification_sheet_later_cta">I\'ll Do This Later</string>
-    <string name="unification_sheet_now_cta">Upgrade My Account</string>
-    <string name="unification_sheet_header">Upgrade to a Unified Blockchain Account</string>
-    <string name="unification_sheet_blurb">Would you like to upgrade to a single login for all your Blockchain.com accounts?</string>
-    <string name="unification_sheet_item_one_title">One Login for All Accounts</string>
-    <string name="unification_sheet_item_one_blurb">Easily access your Blockchain.com Wallet and the Exchange with a single login.</string>
-    <string name="unification_sheet_item_two_title">Greater Security Across Accounts</string>
-    <string name="unification_sheet_item_two_blurb">Secure your investments across all Blockchain.com products.</string>
-    <string name="unification_sheet_item_three_title">Free Blockchain.com Wallet</string>
-    <string name="unification_sheet_item_three_blurb">Create a free Wallet account to do even more with your crypto.</string>
-
     <!-- Funds locks !-->
     <string name="funds_locked_warning_title">On Hold</string>
 

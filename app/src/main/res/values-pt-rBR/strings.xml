@@ -1792,17 +1792,6 @@ Seus %1$s estarão disponíveis em sua conta \"%2$s\" dentro de 2 dias.</string>
     <string name="kyc_autocomplete_selected_address_error">Falha ao recuperar o endereço</string>
     <string name="min_with_value">%1$s mín</string>
     <string name="max_with_value">%1$s máx</string>
-    <string name="unification_sheet_title">Atualizar conta</string>
-    <string name="unification_sheet_later_cta">Farei isso mais tarde</string>
-    <string name="unification_sheet_now_cta">Atualizar minha conta</string>
-    <string name="unification_sheet_header">Atualize para uma conta Blockchain unificada</string>
-    <string name="unification_sheet_blurb">Gostaria de atualizar para um único login para todas as suas contas Blockchain.com?</string>
-    <string name="unification_sheet_item_one_title">Um login para todas as contas</string>
-    <string name="unification_sheet_item_one_blurb">Acesse facilmente sua Blockchain.com Wallet e o Exchange com um único login.</string>
-    <string name="unification_sheet_item_two_title">Maior segurança entre as contas</string>
-    <string name="unification_sheet_item_two_blurb">Proteja seus investimentos em todos os produtos Blockchain.com.</string>
-    <string name="unification_sheet_item_three_title">Blockchain.com Wallet gratuita</string>
-    <string name="unification_sheet_item_three_blurb">Crie uma conta Wallet gratuita para fazer ainda mais com sua criptomoeda.</string>
     <string name="app_maintenance_cta_update_later">Farei isso mais tarde</string>
     <string name="preview_buy">Visualizar compra</string>
     <string name="tx_enter_amount_sell_cta">Visualizar venda</string>

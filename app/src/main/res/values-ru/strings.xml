@@ -1818,17 +1818,6 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="kyc_autocomplete_selected_address_error">Не удалось получить адрес</string>
     <string name="min_with_value">Минимум %1$s</string>
     <string name="max_with_value">Максимум %1$s</string>
-    <string name="unification_sheet_title">Обновить аккаунт</string>
-    <string name="unification_sheet_later_cta">Я сделаю это позже</string>
-    <string name="unification_sheet_now_cta">Обновить мой аккаунт</string>
-    <string name="unification_sheet_header">Обновление до единого аккаунта Blockchain</string>
-    <string name="unification_sheet_blurb">Хотите перейти на единый вход для всех своих аккаунтов Blockchain.com?</string>
-    <string name="unification_sheet_item_one_title">Один вход для всех аккаунтов</string>
-    <string name="unification_sheet_item_one_blurb">Легко получайте доступ к своему Blockchain.com Wallet и Exchange с помощью единого входа в систему.</string>
-    <string name="unification_sheet_item_two_title">Повышенная безопасность аккаунтов</string>
-    <string name="unification_sheet_item_two_blurb">Защитите свои инвестиции во всех продуктах Blockchain.com.</string>
-    <string name="unification_sheet_item_three_title">Бесплатный Blockchain.com Wallet</string>
-    <string name="unification_sheet_item_three_blurb">Создайте бесплатный аккаунт Кошелька, чтобы использовать криптовалюту еще разнообразнее.</string>
     <string name="app_maintenance_cta_update_later">Я сделаю это позже</string>
     <string name="preview_buy">Предварительный просмотр покупки</string>
     <string name="tx_enter_amount_sell_cta">Предварительный просмотр продажи</string>

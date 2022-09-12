@@ -1860,17 +1860,6 @@ Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com 
     <string name="kyc_autocomplete_selected_address_error">Falha ao recuperar o endereço</string>
     <string name="min_with_value">%1$s Mín</string>
     <string name="max_with_value">%1$s Máx</string>
-    <string name="unification_sheet_title">Atualizar conta</string>
-    <string name="unification_sheet_later_cta">Farei isso mais tarde</string>
-    <string name="unification_sheet_now_cta">Atualize a minha conta</string>
-    <string name="unification_sheet_header">Atualizar para uma Conta Blockchain Unificada</string>
-    <string name="unification_sheet_blurb">Gostaria de atualizar para um único login para todas as suas contas Blockchain.com?</string>
-    <string name="unification_sheet_item_one_title">Um login para todas as contas</string>
-    <string name="unification_sheet_item_one_blurb">Aceda facilmente à sua Blockchain.com Wallet e ao Exchange com uma autenticação única.</string>
-    <string name="unification_sheet_item_two_title">Maior Segurança em Todas as Contas</string>
-    <string name="unification_sheet_item_two_blurb">Proteja seus investimentos em todos os produtos Blockchain.com.</string>
-    <string name="unification_sheet_item_three_title">Blockchain.com Wallet grátis</string>
-    <string name="unification_sheet_item_three_blurb">Crie uma conta Carteira gratuita para fazer ainda mais com a sua criptografia.</string>
     <string name="app_maintenance_cta_update_later">Vou Fazer Isto Mais Tarde.</string>
     <string name="preview_buy">Pré-visualização da Compra</string>
     <string name="tx_enter_amount_sell_cta">Pré-visualização da Venda</string>

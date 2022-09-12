@@ -165,14 +165,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/auth_scroll_view" />
 
-    <com.blockchain.signin.UnifiedSignInWebView
-        android:id="@+id/unified_sign_in_webview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white"
-        android:visibility="gone"
-        tools:visibility="gone" />
-
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
