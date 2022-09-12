@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.theme.AppTheme
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.multiapp.bottomnav.BottomNavItem
 
@@ -83,7 +84,7 @@ fun MultiAppBottomNavigation(
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
-            Spacer(Modifier.size(dimensionResource(R.dimen.large_margin)))
+            Spacer(Modifier.size(AppTheme.dimensions.largeSpacing))
 
             navigationItem.forEach { item ->
 
@@ -104,7 +105,7 @@ fun MultiAppBottomNavigation(
                     imageResource = ImageResource.Local(item.icon)
                 )
 
-                Spacer(Modifier.size(dimensionResource(R.dimen.large_margin)))
+                Spacer(Modifier.size(AppTheme.dimensions.largeSpacing))
             }
         }
     }
