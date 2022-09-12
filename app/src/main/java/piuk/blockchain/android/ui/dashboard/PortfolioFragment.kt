@@ -105,7 +105,6 @@ import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.v2.BankLinkingHost
-import piuk.blockchain.android.ui.multiapp.MultiAppDashboardActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
@@ -335,8 +334,10 @@ class PortfolioFragment :
             }
             is DashboardNavigationAction.Coinview -> {
                 activityResultsContract.launch(
-                    MultiAppDashboardActivity.newIntent(
+                    CoinViewActivity.newIntent(
                         context = requireContext(),
+                        asset = navigationAction.asset,
+                        originScreen = LaunchOrigin.HOME.name,
                     )
                 )
                 model.process(DashboardIntent.ResetNavigation)

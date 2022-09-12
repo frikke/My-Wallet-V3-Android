@@ -243,9 +243,10 @@ fun MultiAppContainer() {
 
     var switcherScrollAlpha by remember { mutableStateOf(1F) }
     switcherScrollAlpha =
-        (1 -
-            (toolbarState.scrollOffset - toolbarState.collapsedHeight) /
-            (toolbarState.fullHeight - toolbarState.collapsedHeight)
+        (
+            1 -
+                (toolbarState.scrollOffset - toolbarState.collapsedHeight) /
+                (toolbarState.fullHeight - toolbarState.collapsedHeight)
             ).coerceIn(0F, 1F)
     // //////////////////////////////////////////////
 
