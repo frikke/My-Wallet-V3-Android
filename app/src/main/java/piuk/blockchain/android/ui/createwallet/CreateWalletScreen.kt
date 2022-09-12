@@ -52,11 +52,8 @@ import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.navigation.NavigationBar
-import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Blue400
-import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.utils.collectAsStateLifecycleAware
 import com.blockchain.domain.eligibility.model.Region
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -109,16 +106,6 @@ fun CreateWalletScreen(
             NavigationBar(
                 title = "",
                 onBackButtonClick = { onIntent(CreateWalletIntent.BackClicked) },
-                navigationBarButtons = listOf(
-                    NavigationBarButton.Text(
-                        stringResource(R.string.common_next),
-                        if (state.nextButtonState == ButtonState.Enabled) Blue600 else Blue400
-                    ) {
-                        if (state.nextButtonState == ButtonState.Enabled) {
-                            onIntent(CreateWalletIntent.NextClicked)
-                        }
-                    }
-                )
             )
 
             when (state.step) {
