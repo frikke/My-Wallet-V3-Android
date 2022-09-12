@@ -112,6 +112,7 @@ class PricesViewModel(
                 updateState {
                     modelState.copy(
                         isLoadingData = true,
+                        filterBy = "",
                         data = emptyList()
                     )
                 }
