@@ -25,7 +25,7 @@ fun EducationalWalletModeDefiScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(AppTheme.dimensions.paddingLarge)
+            .padding(AppTheme.dimensions.standardSpacing)
     ) {
         Column(
             modifier = Modifier
@@ -38,7 +38,7 @@ fun EducationalWalletModeDefiScreen() {
                 imageResource = ImageResource.Local(R.drawable.ic_educational_wallet_defi)
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
             Text(
                 text = stringResource(R.string.educational_wallet_mode_defi_title),
@@ -47,7 +47,7 @@ fun EducationalWalletModeDefiScreen() {
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
             Text(
                 text = stringResource(R.string.educational_wallet_mode_defi_description),
@@ -63,7 +63,7 @@ fun EducationalWalletModeDefiScreen() {
                 .weight(0.6F),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
             EducationalWalletModeSecureTag(
                 text = stringResource(R.string.educational_wallet_mode_defi_secure_tag),

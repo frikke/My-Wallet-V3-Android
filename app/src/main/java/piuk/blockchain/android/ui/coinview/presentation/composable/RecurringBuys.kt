@@ -75,8 +75,8 @@ fun RecurringBuysError() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = AppTheme.dimensions.paddingLarge,
-                    vertical = AppTheme.dimensions.paddingMedium
+                    horizontal = AppTheme.dimensions.standardSpacing,
+                    vertical = AppTheme.dimensions.smallSpacing
                 )
         ) {
             CardAlert(
@@ -98,8 +98,8 @@ fun RecurringBuysUpsell(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = AppTheme.dimensions.paddingLarge,
-                vertical = AppTheme.dimensions.paddingMedium
+                horizontal = AppTheme.dimensions.standardSpacing,
+                vertical = AppTheme.dimensions.smallSpacing
             )
     ) {
         DefaultCard(

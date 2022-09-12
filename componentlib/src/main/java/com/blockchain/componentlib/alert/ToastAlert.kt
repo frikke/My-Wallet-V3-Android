@@ -40,8 +40,8 @@ fun ToastAlert(
             .background(backgroundColor)
             .wrapContentWidth()
             .padding(
-                horizontal = dimensionResource(R.dimen.standard_margin),
-                vertical = dimensionResource(R.dimen.very_small_margin)
+                horizontal = dimensionResource(R.dimen.standard_spacing),
+                vertical = dimensionResource(R.dimen.very_small_spacing)
             )
     ) {
         val composeImage =

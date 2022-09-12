@@ -73,7 +73,7 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
                     color = Grey100,
                     shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiSmall))
                 )
-                .background(color = Color.White, shape = RoundedCornerShape(dimensionResource(R.dimen.tiny_margin)))
+                .background(color = Color.White, shape = RoundedCornerShape(dimensionResource(R.dimen.tiny_spacing)))
                 .run {
                     if (hidable) {
                         pointerInteropFilter {
@@ -86,12 +86,12 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
                     } else this
                 },
             contentPadding = PaddingValues(
-                horizontal = dimensionResource(R.dimen.small_margin),
-                vertical = dimensionResource(R.dimen.small_margin)
+                horizontal = dimensionResource(R.dimen.small_spacing),
+                vertical = dimensionResource(R.dimen.small_spacing)
             ),
             columns = GridCells.Fixed(count = COLUMN_COUNT),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.standard_margin)),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.smallest_margin))
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.standard_spacing)),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.smallest_spacing))
         ) {
             itemsIndexed(
                 items = mnemonic,
@@ -133,14 +133,14 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
 fun MnemonicWord(index: Int, word: String) {
     Row {
         Text(
-            modifier = Modifier.width(dimensionResource(R.dimen.standard_margin)),
+            modifier = Modifier.width(dimensionResource(R.dimen.standard_spacing)),
             text = index.toString(),
             style = AppTheme.typography.paragraphMono,
             color = Grey400,
             textAlign = TextAlign.End
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
 
         Text(
             text = word,

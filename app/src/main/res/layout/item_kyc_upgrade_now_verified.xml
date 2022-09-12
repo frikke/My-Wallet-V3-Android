@@ -5,8 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingStart="@dimen/standard_margin"
-    android:paddingEnd="@dimen/standard_margin"
+    android:paddingStart="@dimen/standard_spacing"
+    android:paddingEnd="@dimen/standard_spacing"
     >
 
     <androidx.cardview.widget.CardView
@@ -64,7 +64,7 @@
 
             <com.blockchain.componentlib.button.PrimaryButtonView
                 android:id="@+id/cta_button"
-                android:layout_margin="@dimen/standard_margin"
+                android:layout_margin="@dimen/standard_spacing"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 />

@@ -73,14 +73,14 @@ fun DefaultTableRow(
                 imageResource = startImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .size(dimensionResource(R.dimen.standard_margin))
+                    .size(dimensionResource(R.dimen.standard_spacing))
             )
         },
         content = {
             val startPadding = if (startImageResource != ImageResource.None) {
-                dimensionResource(R.dimen.medium_margin)
+                dimensionResource(R.dimen.medium_spacing)
             } else {
-                dimensionResource(R.dimen.zero_margin)
+                dimensionResource(R.dimen.zero_spacing)
             }
             Column(
                 modifier = Modifier
@@ -122,8 +122,8 @@ fun DefaultTableRow(
                     Image(
                         imageResource = endImageResource,
                         modifier = Modifier.requiredSizeIn(
-                            maxWidth = dimensionResource(R.dimen.standard_margin),
-                            maxHeight = dimensionResource(R.dimen.standard_margin),
+                            maxWidth = dimensionResource(R.dimen.standard_spacing),
+                            maxHeight = dimensionResource(R.dimen.standard_spacing),
                         ),
                     )
                 }
@@ -140,7 +140,7 @@ fun DefaultTableRow(
                         color = AppTheme.colors.body,
                         modifier = Modifier
                             .padding(
-                                top = dimensionResource(R.dimen.smallest_margin),
+                                top = dimensionResource(R.dimen.smallest_spacing),
                                 bottom = if (tags.isNullOrEmpty()) 0.dp else 8.dp
                             )
                     )

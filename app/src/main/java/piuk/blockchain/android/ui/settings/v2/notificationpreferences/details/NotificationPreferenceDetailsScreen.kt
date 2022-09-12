@@ -35,7 +35,7 @@ fun NotificationPreferenceDetailsScreen(
     ) {
         Column(
             modifier = Modifier
-                .padding(AppTheme.dimensions.paddingLarge),
+                .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.Start
         ) {
 
@@ -50,9 +50,9 @@ fun NotificationPreferenceDetailsScreen(
 
         Spacer(
             modifier = Modifier.padding(
-                start = dimensionResource(id = R.dimen.standard_margin),
-                end = dimensionResource(id = R.dimen.standard_margin),
-                bottom = dimensionResource(id = R.dimen.standard_margin)
+                start = dimensionResource(id = R.dimen.standard_spacing),
+                end = dimensionResource(id = R.dimen.standard_spacing),
+                bottom = dimensionResource(id = R.dimen.standard_spacing)
             )
         )
 

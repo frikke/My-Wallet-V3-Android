@@ -16,7 +16,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -142,8 +141,8 @@ fun CreateWalletScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        horizontal = AppTheme.dimensions.paddingMedium,
-                        vertical = AppTheme.dimensions.paddingLarge,
+                        horizontal = AppTheme.dimensions.smallSpacing,
+                        vertical = AppTheme.dimensions.standardSpacing,
                     ),
                 text = stringResource(ctaText),
                 state = state.nextButtonState,
@@ -165,7 +164,7 @@ private fun RegionAndReferralStep(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.paddingMedium),
+            .padding(horizontal = AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
@@ -173,12 +172,12 @@ private fun RegionAndReferralStep(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                modifier = Modifier.padding(top = AppTheme.dimensions.xxPaddingLarge),
+                modifier = Modifier.padding(top = AppTheme.dimensions.hugeSpacing),
                 imageResource = ImageResource.Local(R.drawable.ic_world_blue),
             )
         }
         SimpleText(
-            modifier = Modifier.padding(top = AppTheme.dimensions.paddingLarge),
+            modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
             text = stringResource(R.string.create_wallet_step_1_header),
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
@@ -186,8 +185,8 @@ private fun RegionAndReferralStep(
         )
         SimpleText(
             modifier = Modifier.padding(
-                top = AppTheme.dimensions.paddingSmall,
-                bottom = AppTheme.dimensions.paddingLarge
+                top = AppTheme.dimensions.tinySpacing,
+                bottom = AppTheme.dimensions.standardSpacing
             ),
             text = stringResource(R.string.create_wallet_step_1_subheader),
             style = ComposeTypographies.Paragraph1,
@@ -291,7 +290,7 @@ private fun RegionAndReferralStep(
         OutlinedTextInput(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = AppTheme.dimensions.paddingLarge),
+                .padding(top = AppTheme.dimensions.standardSpacing),
             value = state.referralCodeInput,
             label = stringResource(R.string.new_account_referral_code_label),
             placeholder = stringResource(R.string.new_account_referral_code),
@@ -318,7 +317,7 @@ private fun EmailAndPasswordStep(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.paddingMedium),
+            .padding(horizontal = AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val emailFocusRequester = FocusRequester()
@@ -332,7 +331,7 @@ private fun EmailAndPasswordStep(
         }
 
         SimpleText(
-            modifier = Modifier.padding(top = AppTheme.dimensions.paddingLarge),
+            modifier = Modifier.padding(top = AppTheme.dimensions.standardSpacing),
             text = stringResource(R.string.create_wallet_step_2_header),
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
@@ -340,7 +339,7 @@ private fun EmailAndPasswordStep(
         )
         SimpleText(
             modifier = Modifier.padding(
-                top = AppTheme.dimensions.paddingSmall, bottom = AppTheme.dimensions.paddingLarge
+                top = AppTheme.dimensions.tinySpacing, bottom = AppTheme.dimensions.standardSpacing
             ),
             text = stringResource(R.string.create_wallet_step_2_subheader),
             style = ComposeTypographies.Paragraph1,
@@ -382,7 +381,7 @@ private fun EmailAndPasswordStep(
         OutlinedTextInput(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = AppTheme.dimensions.paddingLarge)
+                .padding(top = AppTheme.dimensions.standardSpacing)
                 .focusRequester(passwordFocusRequester),
             value = state.passwordInput,
             label = stringResource(R.string.password),
@@ -411,9 +410,9 @@ private fun EmailAndPasswordStep(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        top = AppTheme.dimensions.xPaddingSmall,
-                        start = AppTheme.dimensions.paddingSmall,
-                        end = AppTheme.dimensions.paddingSmall,
+                        top = AppTheme.dimensions.smallestSpacing,
+                        start = AppTheme.dimensions.tinySpacing,
+                        end = AppTheme.dimensions.tinySpacing,
                     ),
                 factory = { context ->
                     PasswordStrengthView(context, null)
@@ -427,7 +426,7 @@ private fun EmailAndPasswordStep(
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(top = AppTheme.dimensions.paddingLarge),
+                .padding(top = AppTheme.dimensions.standardSpacing),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Checkbox(
@@ -448,7 +447,7 @@ private fun EmailAndPasswordStep(
                 linksMap
             )
             SimpleText(
-                modifier = Modifier.padding(start = AppTheme.dimensions.paddingSmall),
+                modifier = Modifier.padding(start = AppTheme.dimensions.tinySpacing),
                 text = disclaimerText,
                 style = ComposeTypographies.Micro2,
                 color = ComposeColors.Title,

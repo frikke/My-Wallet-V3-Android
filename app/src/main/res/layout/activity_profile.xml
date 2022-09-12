@@ -37,7 +37,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center"
-            android:layout_marginTop="@dimen/large_margin"
+            android:layout_marginTop="@dimen/large_spacing"
             tools:visibility="visible" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>

@@ -47,7 +47,7 @@ fun Image(
                 painter = rememberAsyncImagePainter(imageResource.bitmap),
                 contentDescription = imageResource.contentDescription,
                 modifier = modifier
-                    .run { imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_margin)) }
+                    .run { imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_spacing)) }
                     .run { imageResource.shape?.let { clip(it) } ?: clip(defaultShape) },
                 contentScale = contentScale,
             )
@@ -57,7 +57,7 @@ fun Image(
                 contentDescription = imageResource.contentDescription,
                 modifier = imageResource.shape?.let {
                     Modifier
-                        .size(dimensionResource(R.dimen.large_margin))
+                        .size(dimensionResource(R.dimen.large_spacing))
                         .clip(it)
                 } ?: modifier,
                 contentScale = contentScale,
@@ -67,7 +67,7 @@ fun Image(
                 painter = rememberAsyncImagePainter(imageResource.url),
                 contentDescription = imageResource.contentDescription,
                 modifier = modifier
-                    .run { imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_margin)) }
+                    .run { imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_spacing)) }
                     .run { imageResource.shape?.let { clip(it) } ?: clip(defaultShape) },
                 contentScale = contentScale
             )
@@ -79,7 +79,7 @@ fun Image(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = modifier.run {
-                    imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_margin))
+                    imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_spacing))
                 }
             ) {
                 Box(
@@ -90,7 +90,7 @@ fun Image(
                             shape = imageResource.shape ?: defaultShape
                         )
                         .run {
-                            imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_margin))
+                            imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_spacing))
                         }
                 )
                 androidx.compose.foundation.Image(
@@ -107,7 +107,7 @@ fun Image(
             val tintColor = Color(android.graphics.Color.parseColor(imageResource.backgroundColour))
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = modifier.size(dimensionResource(R.dimen.large_margin))
+                modifier = modifier.size(dimensionResource(R.dimen.large_spacing))
             ) {
                 Box(
                     modifier = Modifier
@@ -117,7 +117,7 @@ fun Image(
                             shape = imageResource.shape ?: defaultShape
                         )
                         .run {
-                            imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_margin))
+                            imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_spacing))
                         }
                 )
                 androidx.compose.foundation.Image(
@@ -140,7 +140,7 @@ fun Image_Local_24() {
         AppSurface {
             Image(
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain, ""),
-                modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)),
+                modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)),
             )
         }
     }

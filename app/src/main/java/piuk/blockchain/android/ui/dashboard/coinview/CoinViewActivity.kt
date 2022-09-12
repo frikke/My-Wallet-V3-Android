@@ -186,10 +186,10 @@ class CoinViewActivity :
                 if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
                     foreground = getDrawable(R.drawable.rounded_view_grey_100_border_16_radius)
                     setMargins(
-                        start = resources.getDimensionPixelSize(R.dimen.small_margin),
-                        top = resources.getDimensionPixelSize(R.dimen.small_margin),
-                        end = resources.getDimensionPixelSize(R.dimen.small_margin),
-                        bottom = resources.getDimensionPixelSize(R.dimen.standard_margin),
+                        start = resources.getDimensionPixelSize(R.dimen.small_spacing),
+                        top = resources.getDimensionPixelSize(R.dimen.small_spacing),
+                        end = resources.getDimensionPixelSize(R.dimen.small_spacing),
+                        bottom = resources.getDimensionPixelSize(R.dimen.standard_spacing),
                     )
                 }
 

@@ -5,10 +5,10 @@
     android:id="@+id/confirmation_item_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="@dimen/standard_margin"
-    android:paddingTop="@dimen/very_small_margin"
-    android:paddingEnd="@dimen/standard_margin"
-    android:paddingBottom="@dimen/very_small_margin">
+    android:paddingStart="@dimen/standard_spacing"
+    android:paddingTop="@dimen/very_small_spacing"
+    android:paddingEnd="@dimen/standard_spacing"
+    android:paddingBottom="@dimen/very_small_spacing">
 
     <com.blockchain.componentlib.system.CircularProgressBarView
         android:id="@+id/confirmation_countdown_progress"

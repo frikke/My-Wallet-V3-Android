@@ -33,13 +33,13 @@ fun PreferenceLoadingError(onRetryClicked: () -> Unit, onBackClicked: () -> Unit
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = dimensionResource(id = R.dimen.epic_margin))
+            .padding(top = dimensionResource(id = R.dimen.epic_spacing))
     ) {
 
         Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(AppTheme.dimensions.paddingLarge)
+                .padding(AppTheme.dimensions.standardSpacing)
         ) {
 
             SimpleText(
@@ -62,7 +62,7 @@ fun PreferenceLoadingError(onRetryClicked: () -> Unit, onBackClicked: () -> Unit
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(AppTheme.dimensions.paddingLarge),
+                .padding(AppTheme.dimensions.standardSpacing),
         ) {
             PrimaryButton(
                 text = stringResource(id = R.string.retry),
@@ -70,7 +70,7 @@ fun PreferenceLoadingError(onRetryClicked: () -> Unit, onBackClicked: () -> Unit
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(Modifier.size(AppTheme.dimensions.paddingSmall))
+            Spacer(Modifier.size(AppTheme.dimensions.tinySpacing))
 
             MinimalButton(
                 text = stringResource(id = R.string.settings_notification_error_back),

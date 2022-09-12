@@ -57,7 +57,7 @@ fun DefaultCard(
     ) {
         Surface(
             modifier = Modifier
-                .padding(dimensionResource(R.dimen.medium_margin))
+                .padding(dimensionResource(R.dimen.medium_spacing))
                 .background(backgroundColor)
                 .clip(AppTheme.shapes.small)
 
@@ -68,7 +68,7 @@ fun DefaultCard(
                 Row {
                     Image(
                         modifier = Modifier
-                            .size(dimensionResource(R.dimen.large_margin)),
+                            .size(dimensionResource(R.dimen.large_spacing)),
                         imageResource = iconResource
                     )
                     Spacer(
@@ -82,7 +82,7 @@ fun DefaultCard(
 
                 Text(
                     modifier = Modifier
-                        .padding(top = dimensionResource(R.dimen.very_small_margin)),
+                        .padding(top = dimensionResource(R.dimen.very_small_spacing)),
                     text = title,
                     style = AppTheme.typography.title3,
                     color = AppTheme.colors.title
@@ -90,7 +90,7 @@ fun DefaultCard(
 
                 Text(
                     modifier = Modifier
-                        .padding(top = dimensionResource(R.dimen.tiny_margin)),
+                        .padding(top = dimensionResource(R.dimen.tiny_spacing)),
                     text = subtitle,
                     style = AppTheme.typography.paragraph1,
                     color = AppTheme.colors.title
@@ -100,7 +100,7 @@ fun DefaultCard(
                     when (callToActionButton.type) {
                         ButtonType.Primary -> PrimaryButton(
                             modifier = Modifier
-                                .padding(top = dimensionResource(R.dimen.very_small_margin))
+                                .padding(top = dimensionResource(R.dimen.very_small_spacing))
                                 .fillMaxWidth(),
                             defaultBackgroundColor = callToActionButton.backgroundColor,
                             text = callToActionButton.text,
@@ -109,7 +109,7 @@ fun DefaultCard(
                         )
                         ButtonType.Secondary -> SecondaryButton(
                             modifier = Modifier
-                                .padding(top = dimensionResource(R.dimen.very_small_margin))
+                                .padding(top = dimensionResource(R.dimen.very_small_spacing))
                                 .fillMaxWidth(),
                             text = callToActionButton.text,
                             onClick = callToActionButton.onClick,
@@ -117,7 +117,7 @@ fun DefaultCard(
                         )
                         ButtonType.Minimal -> MinimalButton(
                             modifier = Modifier
-                                .padding(top = dimensionResource(R.dimen.very_small_margin))
+                                .padding(top = dimensionResource(R.dimen.very_small_spacing))
                                 .fillMaxWidth(),
                             text = callToActionButton.text,
                             onClick = callToActionButton.onClick,

@@ -24,14 +24,14 @@ fun NftComingSoonScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(AppTheme.dimensions.paddingMedium),
+            .padding(AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.weight(0.6F))
 
         Image(ImageResource.Local(R.drawable.ic_nft_hero))
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
         Text(
             text = stringResource(R.string.nft_coming_soon_title),
@@ -40,7 +40,7 @@ fun NftComingSoonScreen() {
             color = AppTheme.colors.title,
         )
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         Text(
             text = stringResource(R.string.nft_coming_soon_description),

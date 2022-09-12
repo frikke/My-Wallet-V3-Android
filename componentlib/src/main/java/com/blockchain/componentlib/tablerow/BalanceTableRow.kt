@@ -45,21 +45,21 @@ fun BalanceTableRow(
                 imageResource = startImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .size(dimensionResource(R.dimen.standard_margin)),
+                    .size(dimensionResource(R.dimen.standard_spacing)),
                 defaultShape = RoundedCornerShape(2.dp)
             )
         },
         content = {
             val startPadding = if (startImageResource != ImageResource.None) {
-                dimensionResource(R.dimen.medium_margin)
+                dimensionResource(R.dimen.medium_spacing)
             } else {
-                dimensionResource(R.dimen.zero_margin)
+                dimensionResource(R.dimen.zero_spacing)
             }
 
             val endPadding = if (endImageResource != ImageResource.None) {
-                dimensionResource(R.dimen.medium_margin)
+                dimensionResource(R.dimen.medium_spacing)
             } else {
-                dimensionResource(R.dimen.zero_margin)
+                dimensionResource(R.dimen.zero_spacing)
             }
             Column(
                 modifier = Modifier
@@ -115,8 +115,8 @@ fun BalanceTableRow(
                 Image(
                     imageResource = endImageResource,
                     modifier = Modifier.requiredSizeIn(
-                        maxWidth = dimensionResource(R.dimen.standard_margin),
-                        maxHeight = dimensionResource(R.dimen.standard_margin),
+                        maxWidth = dimensionResource(R.dimen.standard_spacing),
+                        maxHeight = dimensionResource(R.dimen.standard_spacing),
                     ),
                 )
             }

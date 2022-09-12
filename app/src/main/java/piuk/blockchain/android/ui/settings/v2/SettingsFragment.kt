@@ -176,8 +176,8 @@ class SettingsFragment :
                         playAnimation()
                     },
                     LinearLayoutCompat.LayoutParams(
-                        resources.getDimensionPixelOffset(R.dimen.xlarge_margin),
-                        resources.getDimensionPixelOffset(R.dimen.xlarge_margin)
+                        resources.getDimensionPixelOffset(R.dimen.xlarge_spacing),
+                        resources.getDimensionPixelOffset(R.dimen.xlarge_spacing)
                     ).apply {
                         gravity = Gravity.CENTER
                     }
@@ -343,8 +343,8 @@ class SettingsFragment :
                                     MATCH_PARENT,
                                     WRAP_CONTENT,
                                 ).apply {
-                                    marginStart = resources.getDimensionPixelOffset(R.dimen.standard_margin)
-                                    marginEnd = resources.getDimensionPixelOffset(R.dimen.standard_margin)
+                                    marginStart = resources.getDimensionPixelOffset(R.dimen.standard_spacing)
+                                    marginEnd = resources.getDimensionPixelOffset(R.dimen.standard_spacing)
                                 }
                             )
                         }

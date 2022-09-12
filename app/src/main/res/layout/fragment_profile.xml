@@ -11,7 +11,7 @@
         android:id="@+id/user_initials"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/xlarge_margin"
+        android:layout_marginTop="@dimen/xlarge_spacing"
         android:background="@drawable/bkgd_profile_circle_empty"
         android:gravity="center"
         android:textColor="@color/purple_700"
@@ -26,7 +26,7 @@
         android:id="@+id/div_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/huge_margin"
+        android:layout_marginTop="@dimen/huge_spacing"
         app:layout_constraintTop_toBottomOf="@+id/user_initials" />
 
     <com.blockchain.componentlib.tablerow.DefaultTableRowView
@@ -41,8 +41,8 @@
         style="@style/TextAppearance.Blockchain.Caption1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/tiny_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/tiny_spacing"
         app:layout_constraintTop_toBottomOf="@id/name_row"
         tools:text="Need to update your name? Contact support" />
 
@@ -50,7 +50,7 @@
         android:id="@+id/div_2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginTop="@dimen/small_spacing"
         app:layout_constraintTop_toBottomOf="@+id/contact_support" />
 
     <com.blockchain.componentlib.tablerow.DefaultTableRowView

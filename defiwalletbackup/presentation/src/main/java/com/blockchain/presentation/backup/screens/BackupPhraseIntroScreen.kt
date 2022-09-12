@@ -84,15 +84,15 @@ fun BackupPhraseIntroScreen(
             title = stringResource(R.string.backup_phrase_title_secure_wallet), onBackButtonClick = backOnClick
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_spacing)))
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_margin),
-                    end = dimensionResource(id = R.dimen.standard_margin),
-                    bottom = dimensionResource(id = R.dimen.standard_margin)
+                    start = dimensionResource(id = R.dimen.standard_spacing),
+                    end = dimensionResource(id = R.dimen.standard_spacing),
+                    bottom = dimensionResource(id = R.dimen.standard_spacing)
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -127,7 +127,7 @@ fun BackupPhraseIntroScreen(
             )
 
             if (showSkipBackup) {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
                 MinimalButton(
                     modifier = Modifier.fillMaxWidth(),
@@ -148,7 +148,7 @@ fun BackupPhraseIntroScreenDescription() {
     ) {
         Image(imageResource = ImageResource.Local(R.drawable.ic_padlock))
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.standard_margin)))
+        Spacer(Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
         Text(
             text = stringResource(R.string.backup_phrase_intro_title),
@@ -157,7 +157,7 @@ fun BackupPhraseIntroScreenDescription() {
             color = Grey900
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+        Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
 
         Text(
             text = stringResource(R.string.backup_phrase_intro_description),
@@ -187,8 +187,8 @@ fun BackupPhraseIntroAcknowledgmentItem(
                 shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiMedium))
             )
             .padding(
-                horizontal = dimensionResource(R.dimen.very_small_margin),
-                vertical = dimensionResource(R.dimen.small_margin)
+                horizontal = dimensionResource(R.dimen.very_small_spacing),
+                vertical = dimensionResource(R.dimen.small_spacing)
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -198,7 +198,7 @@ fun BackupPhraseIntroAcknowledgmentItem(
             style = AppTheme.typography.caption1
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
         NoPaddingRadio(
             state = if (isChecked) RadioButtonState.Selected else RadioButtonState.Unselected,
@@ -227,7 +227,7 @@ fun BackupPhraseIntroAcknowledgments(@StringRes acknowledgments: List<Int>, allC
             }
 
             if (index != acknowledgments.lastIndex) {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
             }
         }
     }

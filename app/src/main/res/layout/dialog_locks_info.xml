@@ -10,7 +10,7 @@
         android:id="@+id/clock"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/close"
@@ -21,7 +21,7 @@
         style="@style/TextAppearance.Blockchain.Title3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_spacing"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,12 +32,12 @@
         android:id="@+id/close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/very_small_margin"
-        android:layout_marginEnd="@dimen/very_small_margin"
+        android:layout_marginTop="@dimen/very_small_spacing"
+        android:layout_marginEnd="@dimen/very_small_spacing"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:padding="@dimen/very_small_margin"
+        android:padding="@dimen/very_small_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_close" />
@@ -47,7 +47,7 @@
         style="@style/TextAppearance.Blockchain.Paragraph1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="@dimen/standard_margin"
+        android:layout_margin="@dimen/standard_spacing"
         android:text="@string/funds_locked_summary_text"
         android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@id/title" />
@@ -56,7 +56,7 @@
         android:id="@+id/sep1"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_spacing"
         android:background="@color/grey_000"
         app:layout_constraintTop_toBottomOf="@+id/text" />
 
@@ -65,8 +65,8 @@
         style="@style/TextAppearance.Blockchain.Paragraph1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/small_spacing"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sep1"
         tools:text="@string/funds_locked_summary_available_send" />
@@ -76,8 +76,8 @@
         style="@style/TextAppearance.Blockchain.Paragraph2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/small_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/small_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sep1"
         tools:text="$100" />
@@ -86,7 +86,7 @@
         android:id="@+id/sep2"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginTop="@dimen/small_spacing"
         android:background="@color/grey_000"
         app:layout_constraintTop_toBottomOf="@+id/available_title" />
 
@@ -94,8 +94,8 @@
         android:id="@+id/see_details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginHorizontal="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/standard_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sep2" />
@@ -104,9 +104,9 @@
         android:id="@+id/ok_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/small_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
+        android:layout_marginHorizontal="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/small_spacing"
+        android:layout_marginBottom="@dimen/standard_spacing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/see_details" />
 

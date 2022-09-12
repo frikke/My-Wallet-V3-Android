@@ -81,7 +81,7 @@ fun OrderCardIntro(onOrderCard: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = CenterHorizontally,
-            modifier = Modifier.padding(AppTheme.dimensions.xPaddingLarge)
+            modifier = Modifier.padding(AppTheme.dimensions.largeSpacing)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.card_intro),
@@ -90,7 +90,7 @@ fun OrderCardIntro(onOrderCard: () -> Unit) {
                 contentScale = ContentScale.FillWidth
             )
 
-            Spacer(Modifier.size(AppTheme.dimensions.paddingLarge))
+            Spacer(Modifier.size(AppTheme.dimensions.standardSpacing))
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
@@ -100,7 +100,7 @@ fun OrderCardIntro(onOrderCard: () -> Unit) {
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(Modifier.size(AppTheme.dimensions.paddingSmall))
+            Spacer(Modifier.size(AppTheme.dimensions.tinySpacing))
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),
@@ -114,7 +114,7 @@ fun OrderCardIntro(onOrderCard: () -> Unit) {
         Column(
             Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.paddingLarge)
+                .padding(AppTheme.dimensions.standardSpacing)
                 .align(Alignment.BottomCenter),
             horizontalAlignment = CenterHorizontally
         ) {
@@ -143,7 +143,7 @@ fun OrderCardAddressKYC(
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = CenterHorizontally,
-            modifier = Modifier.padding(top = AppTheme.dimensions.paddingMedium)
+            modifier = Modifier.padding(top = AppTheme.dimensions.smallSpacing)
         ) {
             SimpleText(
                 text = stringResource(R.string.verify_your_address),
@@ -152,7 +152,7 @@ fun OrderCardAddressKYC(
                 gravity = ComposeGravities.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = AppTheme.dimensions.paddingLarge)
+                    .padding(horizontal = AppTheme.dimensions.standardSpacing)
             )
 
             SimpleText(
@@ -162,7 +162,7 @@ fun OrderCardAddressKYC(
                 gravity = ComposeGravities.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = AppTheme.dimensions.paddingLarge)
+                    .padding(horizontal = AppTheme.dimensions.standardSpacing)
             )
 
             if (!isAddressLoading) {
@@ -179,7 +179,7 @@ fun OrderCardAddressKYC(
         Column(
             Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.paddingLarge)
+                .padding(AppTheme.dimensions.standardSpacing)
                 .align(Alignment.BottomCenter),
             horizontalAlignment = CenterHorizontally
         ) {
@@ -214,7 +214,7 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
 
         Column(
             horizontalAlignment = CenterHorizontally,
-            modifier = Modifier.padding(top = AppTheme.dimensions.xPaddingLarge)
+            modifier = Modifier.padding(top = AppTheme.dimensions.largeSpacing)
         ) {
             SimpleText(
                 text = stringResource(R.string.verify_your_identity),
@@ -223,10 +223,10 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
                 gravity = ComposeGravities.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = AppTheme.dimensions.paddingLarge)
+                    .padding(horizontal = AppTheme.dimensions.standardSpacing)
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
             SimpleText(
                 text = stringResource(R.string.verify_your_identity_description),
@@ -235,7 +235,7 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
                 gravity = ComposeGravities.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = AppTheme.dimensions.paddingLarge)
+                    .padding(horizontal = AppTheme.dimensions.standardSpacing)
             )
 
             TextInput(
@@ -245,8 +245,8 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
                 onValueChange = { if (it.length <= SSN_LENGTH) ssn = it },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.padding(
-                    horizontal = AppTheme.dimensions.paddingMedium,
-                    vertical = AppTheme.dimensions.paddingLarge
+                    horizontal = AppTheme.dimensions.smallSpacing,
+                    vertical = AppTheme.dimensions.standardSpacing
                 ),
             )
         }
@@ -254,7 +254,7 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
         Column(
             Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.paddingLarge)
+                .padding(AppTheme.dimensions.standardSpacing)
                 .align(Alignment.BottomCenter),
             horizontalAlignment = CenterHorizontally
         ) {
@@ -284,7 +284,7 @@ fun OrderCardContent(
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
-        modifier = Modifier.padding(AppTheme.dimensions.paddingLarge)
+        modifier = Modifier.padding(AppTheme.dimensions.standardSpacing)
     ) {
         Image(
             painter = painterResource(id = R.drawable.card_front),
@@ -313,7 +313,7 @@ fun OrderCardContent(
             state = ButtonState.Enabled,
             modifier = Modifier
                 .padding(
-                    vertical = AppTheme.dimensions.xPaddingLarge
+                    vertical = AppTheme.dimensions.largeSpacing
                 )
                 .wrapContentWidth()
         )
@@ -323,11 +323,11 @@ fun OrderCardContent(
         Row(
             modifier = Modifier
                 .wrapContentHeight()
-                .padding(bottom = AppTheme.dimensions.xPaddingLarge),
+                .padding(bottom = AppTheme.dimensions.largeSpacing),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
-                modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
+                modifier = Modifier.padding(dimensionResource(R.dimen.very_small_spacing)),
                 state = termsAndConditionsCheckboxState.value,
                 onCheckChanged = { checked ->
                     if (checked) {
@@ -538,7 +538,7 @@ fun CardCreationSuccess(onFinish: () -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(AppTheme.dimensions.xxxPaddingLarge),
+                .padding(AppTheme.dimensions.xHugeSpacing),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = CenterHorizontally
         ) {
@@ -566,7 +566,7 @@ fun CardCreationSuccess(onFinish: () -> Unit) {
         Column(
             Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.paddingLarge)
+                .padding(AppTheme.dimensions.standardSpacing)
                 .align(Alignment.BottomCenter),
             horizontalAlignment = CenterHorizontally
         ) {
@@ -597,7 +597,7 @@ fun CardCreationFailed(errorTitle: String, errorDescription: String, onTryAgain:
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(AppTheme.dimensions.paddingLarge),
+                .padding(AppTheme.dimensions.standardSpacing),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = CenterHorizontally
         ) {
@@ -626,7 +626,7 @@ fun CardCreationFailed(errorTitle: String, errorDescription: String, onTryAgain:
         Column(
             Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.paddingLarge)
+                .padding(AppTheme.dimensions.standardSpacing)
                 .align(Alignment.BottomCenter),
             horizontalAlignment = CenterHorizontally
         ) {
@@ -665,7 +665,7 @@ fun LegalDocumentsViewer(
         horizontalAlignment = CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = AppTheme.dimensions.paddingSmall)
+            .padding(top = AppTheme.dimensions.tinySpacing)
     ) {
 
         var currentDocumentIndex by remember { mutableStateOf(0) }
@@ -675,7 +675,7 @@ fun LegalDocumentsViewer(
         Webview(
             url = currentDocument.url,
             modifier = Modifier
-                .padding(AppTheme.dimensions.paddingMedium)
+                .padding(AppTheme.dimensions.smallSpacing)
                 .weight(0.9f),
             onPageLoaded = { onLegalDocSeen(currentDocument.name) }
         )
@@ -687,7 +687,7 @@ fun LegalDocumentsViewer(
                 state = ButtonState.Enabled,
                 onClick = { currentDocumentIndex++ },
                 modifier = Modifier
-                    .padding(AppTheme.dimensions.paddingLarge)
+                    .padding(AppTheme.dimensions.standardSpacing)
                     .fillMaxWidth()
                     .weight(0.1f)
             )
@@ -697,7 +697,7 @@ fun LegalDocumentsViewer(
                 state = ButtonState.Enabled,
                 onClick = onFinish,
                 modifier = Modifier
-                    .padding(AppTheme.dimensions.paddingLarge)
+                    .padding(AppTheme.dimensions.standardSpacing)
                     .fillMaxWidth()
                     .weight(0.1f)
             )
@@ -714,6 +714,6 @@ fun LegalDocument(legalDocument: BlockchainCardLegalDocument) {
     Webview(
         url = legalDocument.url,
         modifier = Modifier
-            .padding(top = AppTheme.dimensions.paddingMedium)
+            .padding(top = AppTheme.dimensions.smallSpacing)
     )
 }

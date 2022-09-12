@@ -41,7 +41,7 @@ fun TableRowText(
             overflow = TextOverflow.Ellipsis
         )
         if (endText != null) {
-            Spacer(Modifier.size(width = AppTheme.dimensions.xxxPaddingLarge, height = 0.dp))
+            Spacer(Modifier.size(width = AppTheme.dimensions.xHugeSpacing, height = 0.dp))
             Text(
                 text = endText,
                 style = textStyle,

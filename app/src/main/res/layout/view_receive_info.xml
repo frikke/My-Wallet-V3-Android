@@ -7,13 +7,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/rounded_view_grey_border"
-    android:padding="@dimen/very_small_margin">
+    android:padding="@dimen/very_small_spacing">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/info_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/tiny_margin"
+        android:padding="@dimen/tiny_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_close_circle_grey" />

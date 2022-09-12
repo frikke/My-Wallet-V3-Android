@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bkgd_status_expired"
     android:orientation="horizontal"
-    android:padding="@dimen/smallest_margin">
+    android:padding="@dimen/smallest_spacing">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/icon"
@@ -15,7 +15,7 @@
         android:layout_height="14dp"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="5dp"
-        android:layout_marginTop="@dimen/smallest_margin"
+        android:layout_marginTop="@dimen/smallest_spacing"
         android:layout_marginEnd="10dp"
         android:src="@drawable/ic_information"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,8 +26,8 @@
         style="@style/Text.Standard.12"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/small_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/small_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@+id/icon"

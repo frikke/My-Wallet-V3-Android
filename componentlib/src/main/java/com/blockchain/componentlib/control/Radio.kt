@@ -138,7 +138,7 @@ private fun Radio(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple(
                             bounded = false,
-                            radius = dimensionResource(R.dimen.standard_margin),
+                            radius = dimensionResource(R.dimen.standard_spacing),
                         ),
                     ) {
                         onSelectedChanged(
@@ -153,8 +153,8 @@ private fun Radio(
                     this
                 }
             }
-            .padding(dimensionResource(if (withPadding) R.dimen.very_small_margin else R.dimen.zero_margin))
-            .size(dimensionResource(R.dimen.standard_margin))
+            .padding(dimensionResource(if (withPadding) R.dimen.very_small_spacing else R.dimen.zero_spacing))
+            .size(dimensionResource(R.dimen.standard_spacing))
             .background(
                 color = animateColorAsState(targetValue = radioFillColor).value,
                 shape = CircleShape,

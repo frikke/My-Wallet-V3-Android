@@ -133,7 +133,7 @@ fun ManageCard(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = AppTheme.dimensions.paddingSmall)
+            .padding(top = AppTheme.dimensions.tinySpacing)
             .verticalScroll(rememberScrollState())
     ) {
         Column(
@@ -141,7 +141,7 @@ fun ManageCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = AppTheme.dimensions.paddingMedium
+                    horizontal = AppTheme.dimensions.smallSpacing
                 )
         ) {
 
@@ -176,8 +176,8 @@ fun ManageCard(
                 null -> {
                     CircularProgressIndicator(
                         modifier = Modifier.padding(
-                            horizontal = AppTheme.dimensions.paddingMedium,
-                            vertical = AppTheme.dimensions.xxxPaddingLarge
+                            horizontal = AppTheme.dimensions.smallSpacing,
+                            vertical = AppTheme.dimensions.xHugeSpacing
                         )
                     )
                 }
@@ -190,7 +190,7 @@ fun ManageCard(
                         gravity = ComposeGravities.Centre,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = AppTheme.dimensions.paddingLarge)
+                            .padding(top = AppTheme.dimensions.standardSpacing)
                     )
 
                     SimpleText(
@@ -200,7 +200,7 @@ fun ManageCard(
                         gravity = ComposeGravities.Centre,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = AppTheme.dimensions.paddingSmall)
+                            .padding(vertical = AppTheme.dimensions.tinySpacing)
                             .clickable {
                                 onRefreshCardWidgetUrl()
                             }
@@ -213,7 +213,7 @@ fun ManageCard(
                         disableScrolling = true,
                         modifier = Modifier
                             .padding(
-                                top = AppTheme.dimensions.paddingMedium
+                                top = AppTheme.dimensions.smallSpacing
                             )
                             .requiredHeight(355.dp)
                             .requiredWidth(200.dp)
@@ -221,7 +221,7 @@ fun ManageCard(
                 }
             }
 
-            Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+            Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -230,7 +230,7 @@ fun ManageCard(
                 backgroundColor = UltraLight
             ) {
                 if (linkedAccountBalance != null)
-                    Column(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium)) {
+                    Column(modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)) {
                         SimpleText(
                             text = stringResource(id = R.string.bc_card_transaction_payment_method),
                             style = ComposeTypographies.Paragraph1,
@@ -238,7 +238,7 @@ fun ManageCard(
                             gravity = ComposeGravities.Start
                         )
 
-                        Spacer(modifier = Modifier.height(AppTheme.dimensions.paddingSmall))
+                        Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
 
                         FundingAccount(
                             accountBalance = linkedAccountBalance,
@@ -254,14 +254,14 @@ fun ManageCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    AppTheme.dimensions.paddingMedium
+                    AppTheme.dimensions.smallSpacing
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = AppTheme.dimensions.paddingMedium),
+                    .padding(vertical = AppTheme.dimensions.smallSpacing),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
@@ -300,7 +300,7 @@ fun ManageCard(
                         contentDescription = stringResource(R.string.recent_purchases_here),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = AppTheme.dimensions.paddingLarge),
+                            .padding(top = AppTheme.dimensions.standardSpacing),
                     )
 
                     SimpleText(
@@ -310,7 +310,7 @@ fun ManageCard(
                         gravity = ComposeGravities.Centre,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = AppTheme.dimensions.paddingSmall)
+                            .padding(top = AppTheme.dimensions.tinySpacing)
                     )
 
                     SimpleText(
@@ -320,7 +320,7 @@ fun ManageCard(
                         gravity = ComposeGravities.Centre,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = AppTheme.dimensions.paddingSmall)
+                            .padding(top = AppTheme.dimensions.tinySpacing)
                     )
 
                     SimpleText(
@@ -330,7 +330,10 @@ fun ManageCard(
                         gravity = ComposeGravities.Centre,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = AppTheme.dimensions.paddingSmall, bottom = AppTheme.dimensions.paddingLarge)
+                            .padding(
+                                top = AppTheme.dimensions.tinySpacing,
+                                bottom = AppTheme.dimensions.standardSpacing
+                            )
                             .clickable {
                                 onRefreshTransactions()
                             }
@@ -344,7 +347,7 @@ fun ManageCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(AppTheme.dimensions.paddingMedium))
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
 
             SimpleText(
                 text = stringResource(R.string.bc_card_dashboard_legal_disclaimer),
@@ -404,8 +407,8 @@ fun ManageCardDetails(
             cardStatus = cardStatus,
             last4digits = last4digits,
             modifier = Modifier.padding(
-                AppTheme.dimensions.paddingLarge,
-                AppTheme.dimensions.paddingMedium
+                AppTheme.dimensions.standardSpacing,
+                AppTheme.dimensions.smallSpacing
             )
         )
 
@@ -548,8 +551,8 @@ fun CardTransactionHistory(
         onRefresh = onRefreshTransactions
     ) {
         LazyColumn(
-            modifier = Modifier.padding(AppTheme.dimensions.paddingLarge),
-            verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.paddingLarge)
+            modifier = Modifier.padding(AppTheme.dimensions.standardSpacing),
+            verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.standardSpacing)
         ) {
             if (pendingTransactions.isNotEmpty()) {
                 item {
@@ -560,7 +563,7 @@ fun CardTransactionHistory(
                         gravity = ComposeGravities.Start
                     )
 
-                    Spacer(modifier = Modifier.height(AppTheme.dimensions.paddingSmall))
+                    Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
 
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -601,7 +604,7 @@ fun CardTransactionHistory(
                                 gravity = ComposeGravities.Start
                             )
 
-                            Spacer(modifier = Modifier.height(AppTheme.dimensions.paddingSmall))
+                            Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
 
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
@@ -844,7 +847,7 @@ fun CardTransactionDetails(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.paddingLarge),
+            .padding(horizontal = AppTheme.dimensions.standardSpacing),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
@@ -899,7 +902,7 @@ fun CardTransactionDetails(
             shouldShowDivider = true
         )
 
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
 
         // Transaction Amount
         SimpleText(
@@ -911,7 +914,7 @@ fun CardTransactionDetails(
                 .fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
 
         // Merchant Name
         SimpleText(
@@ -933,7 +936,7 @@ fun CardTransactionDetails(
                 .fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
 
         // Transaction Status
         Card(
@@ -944,7 +947,7 @@ fun CardTransactionDetails(
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.padding(AppTheme.dimensions.paddingMedium)
+                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
             ) {
                 SimpleText(
                     text = stringResource(R.string.bc_card_transaction_status),
@@ -962,7 +965,7 @@ fun CardTransactionDetails(
             }
         }
 
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
 
         // Other Transaction details
         Card(
@@ -980,7 +983,7 @@ fun CardTransactionDetails(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(AppTheme.dimensions.paddingMedium)
+                        .padding(AppTheme.dimensions.smallSpacing)
                 ) {
                     SimpleText(
                         text = stringResource(id = R.string.card),
@@ -1007,7 +1010,7 @@ fun CardTransactionDetails(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(AppTheme.dimensions.paddingMedium)
+                        .padding(AppTheme.dimensions.smallSpacing)
                 ) {
                     SimpleText(
                         text = stringResource(R.string.bc_card_transaction_payment_method),
@@ -1030,7 +1033,7 @@ fun CardTransactionDetails(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(AppTheme.dimensions.paddingMedium)
+                        .padding(AppTheme.dimensions.smallSpacing)
                 ) {
                     SimpleText(
                         text = stringResource(R.string.bc_card_transaction_fee),
@@ -1053,7 +1056,7 @@ fun CardTransactionDetails(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(AppTheme.dimensions.paddingMedium)
+                        .padding(AppTheme.dimensions.smallSpacing)
                 ) {
                     SimpleText(
                         text = stringResource(
@@ -1177,8 +1180,8 @@ fun PersonalDetails(
             CircularProgressIndicator(
                 modifier = Modifier
                     .padding(
-                        horizontal = AppTheme.dimensions.paddingMedium,
-                        vertical = AppTheme.dimensions.xxxPaddingLarge
+                        horizontal = AppTheme.dimensions.smallSpacing,
+                        vertical = AppTheme.dimensions.xHugeSpacing
                     )
                     .align(Alignment.CenterHorizontally)
             )
@@ -1204,7 +1207,7 @@ fun BillingAddress(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
             .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.paddingMedium)
+            .padding(horizontal = AppTheme.dimensions.smallSpacing)
     ) {
         var addressLine1 by remember {
             mutableStateOf(address.line1)
@@ -1264,7 +1267,7 @@ fun BillingAddress(
                 unfocusedBorderColor = Grey000
             )
         )
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         // Address line 2
         SimpleText(
@@ -1292,7 +1295,7 @@ fun BillingAddress(
                 unfocusedBorderColor = Grey000
             )
         )
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         // City
         SimpleText(
@@ -1320,7 +1323,7 @@ fun BillingAddress(
                 unfocusedBorderColor = Grey000
             )
         )
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         // State & Zip
         Row(
@@ -1350,7 +1353,7 @@ fun BillingAddress(
                 }
             }
 
-            Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+            Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
             // Postal code
             Column(modifier = Modifier.weight(1f)) {
@@ -1380,7 +1383,7 @@ fun BillingAddress(
                 )
             }
         }
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         val isFormValid = (
             addressLine1.isNotEmpty() &&
@@ -1397,10 +1400,10 @@ fun BillingAddress(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_margin),
-                    top = AppTheme.dimensions.paddingSmall,
-                    end = dimensionResource(id = R.dimen.standard_margin),
-                    bottom = dimensionResource(id = R.dimen.standard_margin)
+                    start = dimensionResource(id = R.dimen.standard_spacing),
+                    top = AppTheme.dimensions.tinySpacing,
+                    end = dimensionResource(id = R.dimen.standard_spacing),
+                    bottom = dimensionResource(id = R.dimen.standard_spacing)
                 ),
             onClick = {
                 onUpdateAddress(
@@ -1446,7 +1449,7 @@ fun BillingAddressUpdated(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.paddingMedium),
+            .padding(horizontal = AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Header
@@ -1456,7 +1459,7 @@ fun BillingAddressUpdated(
             shouldShowDivider = false
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xxxPaddingLarge))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xHugeSpacing))
 
         if (success) {
             BillingAddressUpdatedSuccess()
@@ -1474,17 +1477,17 @@ fun BillingAddressUpdated(
             BillingAddressUpdatedFailed(errorTitle, errorDescription)
         }
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xxxPaddingLarge))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xHugeSpacing))
 
         PrimaryButton(
             text = stringResource(id = R.string.common_confirm),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_margin),
-                    top = AppTheme.dimensions.paddingSmall,
-                    end = dimensionResource(id = R.dimen.standard_margin),
-                    bottom = dimensionResource(id = R.dimen.standard_margin)
+                    start = dimensionResource(id = R.dimen.standard_spacing),
+                    top = AppTheme.dimensions.tinySpacing,
+                    end = dimensionResource(id = R.dimen.standard_spacing),
+                    bottom = dimensionResource(id = R.dimen.standard_spacing)
                 ),
             onClick = onDismiss,
         )
@@ -1506,7 +1509,7 @@ fun BillingAddressUpdatedSuccess() {
             modifier = Modifier.wrapContentWidth(),
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         SimpleText(
             modifier = Modifier.fillMaxWidth(),
@@ -1516,7 +1519,7 @@ fun BillingAddressUpdatedSuccess() {
             gravity = ComposeGravities.Centre
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         SimpleText(
             modifier = Modifier.fillMaxWidth(),
@@ -1545,7 +1548,7 @@ fun BillingAddressUpdatedFailed(errorTitle: String, errorDescription: String) {
                 .size(74.dp),
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         SimpleText(
             modifier = Modifier.fillMaxWidth(),
@@ -1555,7 +1558,7 @@ fun BillingAddressUpdatedFailed(errorTitle: String, errorDescription: String) {
             gravity = ComposeGravities.Centre
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         SimpleText(
             modifier = Modifier.fillMaxWidth(),
@@ -1618,7 +1621,7 @@ fun Support(
             onClick = onClickContactSupport,
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.smallSpacing))
 
         // Close card
         DestructivePrimaryButton(
@@ -1626,10 +1629,10 @@ fun Support(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_margin),
-                    top = AppTheme.dimensions.paddingSmall,
-                    end = dimensionResource(id = R.dimen.standard_margin),
-                    bottom = dimensionResource(id = R.dimen.standard_margin)
+                    start = dimensionResource(id = R.dimen.standard_spacing),
+                    top = AppTheme.dimensions.tinySpacing,
+                    end = dimensionResource(id = R.dimen.standard_spacing),
+                    bottom = dimensionResource(id = R.dimen.standard_spacing)
                 ),
             onClick = onCloseCard,
         )
@@ -1647,7 +1650,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.paddingMedium),
+            .padding(horizontal = AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Header
@@ -1657,7 +1660,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             shouldShowDivider = false
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingLarge))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.standardSpacing))
 
         Image(
             painter = painterResource(id = R.drawable.credit_card_failed),
@@ -1665,7 +1668,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             modifier = Modifier.wrapContentWidth(),
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.smallSpacing))
 
         SimpleText(
             modifier = Modifier.fillMaxWidth(),
@@ -1683,7 +1686,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             gravity = ComposeGravities.Centre
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.smallSpacing))
 
         var closeCardConfirmationText by remember { mutableStateOf("") }
 
@@ -1721,7 +1724,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             )
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingLarge))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.standardSpacing))
 
         // Close card
         DestructivePrimaryButton(
@@ -1729,10 +1732,10 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_margin),
-                    top = AppTheme.dimensions.paddingSmall,
-                    end = dimensionResource(id = R.dimen.standard_margin),
-                    bottom = dimensionResource(id = R.dimen.standard_margin)
+                    start = dimensionResource(id = R.dimen.standard_spacing),
+                    top = AppTheme.dimensions.tinySpacing,
+                    end = dimensionResource(id = R.dimen.standard_spacing),
+                    bottom = dimensionResource(id = R.dimen.standard_spacing)
                 ),
             onClick = onConfirmCloseCard,
             state = if (closeCardConfirmationText == stringResource(R.string.terminate_card_confirmation_text))
@@ -1762,10 +1765,10 @@ private fun CardDetailsBottomSheetElement(
             .background(UltraLight)
     ) {
         Row(
-            modifier = Modifier.padding(AppTheme.dimensions.paddingMedium),
+            modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
             verticalAlignment = Alignment.Top
         ) {
-            Column(modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingSmall)) {
+            Column(modifier = Modifier.padding(horizontal = AppTheme.dimensions.tinySpacing)) {
                 SimpleText(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.virtual_card),
@@ -1799,7 +1802,7 @@ private fun CardDetailsBottomSheetElement(
             gravity = ComposeGravities.End,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.paddingMedium)
+                .padding(AppTheme.dimensions.smallSpacing)
         )
     }
 }
@@ -1814,13 +1817,13 @@ private fun PreviewCardDetailsBottomSheetElement() {
 fun FundingAccountActionChooser(onAddFunds: () -> Unit, onChangeAsset: () -> Unit, onClose: () -> Unit) {
     Column(
         modifier = Modifier
-            .padding(horizontal = AppTheme.dimensions.paddingLarge)
+            .padding(horizontal = AppTheme.dimensions.standardSpacing)
             .fillMaxWidth()
     ) {
 
         SheetHeader(onClosePress = onClose, title = stringResource(R.string.select_one))
 
-        Spacer(modifier = Modifier.padding(vertical = AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.padding(vertical = AppTheme.dimensions.smallSpacing))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -1839,7 +1842,7 @@ fun FundingAccountActionChooser(onAddFunds: () -> Unit, onChangeAsset: () -> Uni
             )
         }
 
-        Spacer(modifier = Modifier.padding(vertical = AppTheme.dimensions.xPaddingSmall))
+        Spacer(modifier = Modifier.padding(vertical = AppTheme.dimensions.smallestSpacing))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -1891,7 +1894,7 @@ fun AccountPicker(
             gravity = ComposeGravities.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.paddingLarge)
+                .padding(AppTheme.dimensions.standardSpacing)
         )
 
         AccountsContent(eligibleTradingAccountBalances, onAccountSelected)
@@ -2049,6 +2052,6 @@ fun SupportPage() {
     Webview(
         url = "https://www.blockchain.com/faq",
         modifier = Modifier
-            .padding(top = AppTheme.dimensions.paddingMedium)
+            .padding(top = AppTheme.dimensions.smallSpacing)
     )
 }

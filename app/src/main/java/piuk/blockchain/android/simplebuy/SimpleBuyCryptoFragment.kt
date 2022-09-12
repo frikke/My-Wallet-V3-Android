@@ -385,7 +385,7 @@ class SimpleBuyCryptoFragment :
                                                 quickFillButtonData.quickFillButtons.indexOf(item)
                                             )
                                         },
-                                        modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_margin))
+                                        modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_spacing))
                                     )
                                 }
                             )

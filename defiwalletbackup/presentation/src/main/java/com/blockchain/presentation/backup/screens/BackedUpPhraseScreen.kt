@@ -66,12 +66,12 @@ fun BackedUpPhraseScreen(
     ) {
         NavigationBar(title = stringResource(R.string.backup_phrase_title_secure_wallet), onBackButtonClick = null)
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_spacing)))
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_margin)),
+                .padding(dimensionResource(id = R.dimen.standard_spacing)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -83,15 +83,15 @@ fun BackedUpPhraseScreen(
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
             BackupStatus(BackUpStatus.BACKED_UP)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
 
             HidableMnemonic(mnemonic = mnemonic)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
             CopyMnemonicCta(
                 copyState = copyState,
@@ -99,7 +99,7 @@ fun BackedUpPhraseScreen(
                 mnemonicCopied = mnemonicCopied
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
             SimpleText(
                 modifier = Modifier.fillMaxWidth(),

@@ -272,8 +272,8 @@ fun TextInput(
                 modifier = Modifier
                     .background(Color.Transparent)
                     .padding(
-                        start = dimensionResource(R.dimen.medium_margin),
-                        end = dimensionResource(R.dimen.medium_margin),
+                        start = dimensionResource(R.dimen.medium_spacing),
+                        end = dimensionResource(R.dimen.medium_spacing),
                         top = 8.dp
                     )
             )
@@ -593,8 +593,8 @@ fun OutlinedTextInput(
                 modifier = Modifier
                     .background(Color.Transparent)
                     .padding(
-                        start = dimensionResource(R.dimen.medium_margin),
-                        end = dimensionResource(R.dimen.medium_margin),
+                        start = dimensionResource(R.dimen.medium_spacing),
+                        end = dimensionResource(R.dimen.medium_spacing),
                         top = 8.dp
                     )
             )

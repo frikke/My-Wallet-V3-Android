@@ -29,7 +29,7 @@ fun BalanceSectionHeader(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.padding(AppTheme.dimensions.paddingLarge),
+        modifier = modifier.padding(AppTheme.dimensions.standardSpacing),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {

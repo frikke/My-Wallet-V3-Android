@@ -14,7 +14,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/add_new_button"
         android:textAlignment="center"
-        android:layout_margin="@dimen/xhuge_margin"
+        android:layout_margin="@dimen/xhuge_spacing"
         android:text="@string/yapily_empty_blurb"/>
 
     <androidx.appcompat.widget.AppCompatButton
@@ -26,7 +26,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         style="@style/CtaButton.NoMargin.White"
-        android:layout_margin="@dimen/xlarge_margin"
+        android:layout_margin="@dimen/xlarge_spacing"
         android:text="@string/yapily_empty_cta"
         />
 

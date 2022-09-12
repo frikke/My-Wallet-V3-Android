@@ -76,7 +76,7 @@ fun ReferralScreen(
 
             Box(
                 modifier = Modifier
-                    .padding(dimensionResource(R.dimen.standard_margin))
+                    .padding(dimensionResource(R.dimen.standard_spacing))
                     .clickable(true, onClick = onBackPressed)
             ) {
                 Image(
@@ -90,9 +90,9 @@ fun ReferralScreen(
                     .fillMaxWidth()
                     .weight(weight = 1f, fill = false)
                     .padding(
-                        start = dimensionResource(R.dimen.standard_margin),
-                        end = dimensionResource(R.dimen.standard_margin),
-                        bottom = dimensionResource(R.dimen.medium_margin),
+                        start = dimensionResource(R.dimen.standard_spacing),
+                        end = dimensionResource(R.dimen.standard_spacing),
+                        bottom = dimensionResource(R.dimen.medium_spacing),
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -111,7 +111,7 @@ fun ReferralScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
                 MarkdownText(
                     style = ComposeTypographies.Title2,
@@ -120,7 +120,7 @@ fun ReferralScreen(
                     markdownText = promotionData?.title ?: rewardTitle
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_spacing)))
 
                 MarkdownText(
                     style = ComposeTypographies.Paragraph1,
@@ -129,7 +129,7 @@ fun ReferralScreen(
                     markdownText = promotionData?.message ?: rewardSubtitle
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
                 SimpleText(
                     modifier = Modifier.fillMaxWidth(),
@@ -139,7 +139,7 @@ fun ReferralScreen(
                     text = stringResource(R.string.referral_code_title),
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
 
                 ReferralCode(
                     code = code,
@@ -148,7 +148,7 @@ fun ReferralScreen(
                     isCustomBackground = !backgroundUrl.isNullOrEmpty()
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
                 SimpleText(
                     modifier = Modifier.fillMaxWidth(),
@@ -158,24 +158,24 @@ fun ReferralScreen(
                     text = stringResource(R.string.referral_criteria_title),
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
                 ReferralCriteria(
                     criteria = criteria,
                     isCustomBackground = !backgroundUrl.isNullOrEmpty()
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_spacing)))
             }
 
             PrimaryButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        start = dimensionResource(id = R.dimen.standard_margin),
-                        end = dimensionResource(id = R.dimen.standard_margin),
-                        top = dimensionResource(id = R.dimen.tiny_margin),
-                        bottom = dimensionResource(id = R.dimen.medium_margin)
+                        start = dimensionResource(id = R.dimen.standard_spacing),
+                        end = dimensionResource(id = R.dimen.standard_spacing),
+                        top = dimensionResource(id = R.dimen.tiny_spacing),
+                        bottom = dimensionResource(id = R.dimen.medium_spacing)
                     ),
                 text = stringResource(R.string.common_share),
                 onClick = { shareCode(code) }
@@ -195,8 +195,8 @@ fun ReferralCode(
         modifier = Modifier
             .background(if (isCustomBackground) CowboysDark else UltraLight)
             .padding(
-                top = dimensionResource(R.dimen.standard_margin),
-                bottom = dimensionResource(R.dimen.standard_margin)
+                top = dimensionResource(R.dimen.standard_spacing),
+                bottom = dimensionResource(R.dimen.standard_spacing)
             )
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -210,7 +210,7 @@ fun ReferralCode(
             text = code
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
 
         Text(
             modifier = Modifier
@@ -228,7 +228,7 @@ fun ReferralCriteria(criteria: List<String>, isCustomBackground: Boolean) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = dimensionResource(R.dimen.large_margin)
+                horizontal = dimensionResource(R.dimen.large_spacing)
             )
     ) {
         criteria.forEachIndexed { index, value ->
@@ -248,12 +248,12 @@ fun SingleReferralCriteria(
     isCustomBackground: Boolean
 ) {
     Row(
-        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.standard_margin)),
+        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.standard_spacing)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         MarkdownText(
             modifier = Modifier
-                .size(AppTheme.dimensions.paddingLarge)
+                .size(AppTheme.dimensions.standardSpacing)
                 .clip(CircleShape)
                 .background(Blue000),
             style = ComposeTypographies.Body2,
@@ -262,7 +262,7 @@ fun SingleReferralCriteria(
             gravity = ComposeGravities.Centre
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
         MarkdownText(
             style = ComposeTypographies.Paragraph1,
@@ -278,7 +278,7 @@ fun ReferralCriteriaSeparator() {
     Box(
         modifier = Modifier
             .padding(horizontal = 34.dp) // padding: 24 + (text width: 24 / 2) - (this view width / 2) -> 24 + 12 - 2
-            .size(height = AppTheme.dimensions.paddingSmall, width = AppTheme.dimensions.xPaddingSmall)
+            .size(height = AppTheme.dimensions.tinySpacing, width = AppTheme.dimensions.smallestSpacing)
             .background(Blue000)
     )
 }

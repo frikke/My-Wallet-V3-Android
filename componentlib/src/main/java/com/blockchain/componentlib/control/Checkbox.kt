@@ -94,7 +94,7 @@ fun Checkbox(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple(
                             bounded = false,
-                            radius = dimensionResource(R.dimen.standard_margin),
+                            radius = dimensionResource(R.dimen.standard_spacing),
                         ),
                     ) {
                         onCheckChanged(
@@ -109,10 +109,10 @@ fun Checkbox(
                     this
                 }
             }
-            .size(dimensionResource(R.dimen.standard_margin))
+            .size(dimensionResource(R.dimen.standard_spacing))
             .background(
                 color = animateColorAsState(targetValue = checkboxBorderColor).value,
-                shape = RoundedCornerShape(dimensionResource(R.dimen.smallest_margin)),
+                shape = RoundedCornerShape(dimensionResource(R.dimen.smallest_spacing)),
             )
             .padding(2.dp)
             .background(

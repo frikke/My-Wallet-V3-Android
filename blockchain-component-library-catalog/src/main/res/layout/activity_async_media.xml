@@ -15,7 +15,7 @@
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/very_small_margin"
+            android:layout_marginBottom="@dimen/very_small_spacing"
             android:text="Video mp4"
             android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
 
@@ -27,7 +27,7 @@
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/very_small_margin"
+            android:layout_marginBottom="@dimen/very_small_spacing"
             android:text="GIF"
             android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
 
@@ -39,7 +39,7 @@
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/very_small_margin"
+            android:layout_marginBottom="@dimen/very_small_spacing"
             android:text="PNG"
             android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
 
@@ -51,7 +51,7 @@
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/very_small_margin"
+            android:layout_marginBottom="@dimen/very_small_spacing"
             android:text="JPG"
             android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
 
@@ -63,7 +63,7 @@
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/very_small_margin"
+            android:layout_marginBottom="@dimen/very_small_spacing"
             android:text="LOTTIE"
             android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
 
@@ -75,7 +75,7 @@
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/very_small_margin"
+            android:layout_marginBottom="@dimen/very_small_spacing"
             android:text="SVG"
             android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
 

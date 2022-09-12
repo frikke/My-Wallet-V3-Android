@@ -147,7 +147,7 @@ fun LinkWithAliasScreen(
     continueClicked: (String) -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.standard_margin))
+        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.standard_spacing))
     ) {
         Header(
             alias = viewState.alias,
@@ -270,7 +270,7 @@ fun Header(
             text = stringResource(id = R.string.bank_alias_types),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = dimensionResource(id = R.dimen.smallest_margin)),
+                .padding(vertical = dimensionResource(id = R.dimen.smallest_spacing)),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Body,
             gravity = ComposeGravities.Start
@@ -315,7 +315,7 @@ fun Footer(
                             start.linkTo(image.end)
                             end.linkTo(parent.end)
                         }
-                        .padding(start = dimensionResource(id = R.dimen.medium_margin))
+                        .padding(start = dimensionResource(id = R.dimen.medium_spacing))
                         .fillMaxWidth()
                 )
 
@@ -330,7 +330,7 @@ fun Footer(
                             start.linkTo(image.end)
                             end.linkTo(parent.end)
                         }
-                        .padding(start = dimensionResource(id = R.dimen.medium_margin))
+                        .padding(start = dimensionResource(id = R.dimen.medium_spacing))
                         .fillMaxWidth()
                 )
             }
@@ -343,8 +343,8 @@ fun Footer(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    top = dimensionResource(id = R.dimen.large_margin),
-                    bottom = dimensionResource(id = R.dimen.tiny_margin)
+                    top = dimensionResource(id = R.dimen.large_spacing),
+                    bottom = dimensionResource(id = R.dimen.tiny_spacing)
                 )
         )
     }
@@ -383,7 +383,7 @@ fun BankInfoItem(
                     top.linkTo(parent.top)
                     start.linkTo(parent.start)
                 }
-                .padding(vertical = dimensionResource(id = R.dimen.small_margin))
+                .padding(vertical = dimensionResource(id = R.dimen.small_spacing))
         )
 
         Text(
@@ -401,9 +401,9 @@ fun BankInfoItem(
                     width = Dimension.fillToConstraints
                 }
                 .padding(
-                    start = dimensionResource(id = R.dimen.small_margin),
-                    top = dimensionResource(id = R.dimen.small_margin),
-                    bottom = dimensionResource(id = R.dimen.small_margin)
+                    start = dimensionResource(id = R.dimen.small_spacing),
+                    top = dimensionResource(id = R.dimen.small_spacing),
+                    bottom = dimensionResource(id = R.dimen.small_spacing)
                 )
         )
 

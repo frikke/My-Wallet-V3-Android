@@ -406,7 +406,7 @@ class EnterAmountFragment :
     private fun configureCtaButton() {
         val layoutParams: ViewGroup.MarginLayoutParams =
             binding.amountSheetCtaButton.layoutParams as ViewGroup.MarginLayoutParams
-        layoutParams.bottomMargin = resources.getDimension(R.dimen.standard_margin).toInt()
+        layoutParams.bottomMargin = resources.getDimension(R.dimen.standard_spacing).toInt()
         binding.amountSheetCtaButton.layoutParams = layoutParams
     }
 
