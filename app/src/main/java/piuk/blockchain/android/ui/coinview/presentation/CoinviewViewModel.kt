@@ -10,6 +10,7 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.preferences.CurrencyPrefs
@@ -28,7 +29,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
-import piuk.blockchain.android.ui.coinview.domain.LoadAssetInfoUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetRecurringBuysUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadQuickActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
@@ -52,7 +52,7 @@ class CoinviewViewModel(
     private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase,
     private val loadAssetRecurringBuysUseCase: LoadAssetRecurringBuysUseCase,
     private val loadQuickActionsUseCase: LoadQuickActionsUseCase,
-    private val loadAssetInfoUseCase: LoadAssetInfoUseCase
+    private val assetService: AssetService
 ) : MviViewModel<
     CoinviewIntents,
     CoinviewViewState,
@@ -579,7 +579,7 @@ class CoinviewViewModel(
             }
 
             CoinviewIntents.LoadAssetInfo -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
 
                 loadAssetInformation(
                     asset = modelState.asset,
@@ -804,7 +804,7 @@ class CoinviewViewModel(
     // Asset info
     private fun loadAssetInformation(asset: CryptoAsset) {
         viewModelScope.launch {
-            loadAssetInfoUseCase(asset = asset.currency).collectLatest { dataResource ->
+            assetService.getAssetInformation(asset = asset.currency).collectLatest { dataResource ->
                 updateState {
                     it.copy(
                         assetInfo = if (dataResource is DataResource.Loading &&
