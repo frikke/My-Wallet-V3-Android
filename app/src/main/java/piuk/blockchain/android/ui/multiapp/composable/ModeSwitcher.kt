@@ -88,7 +88,7 @@ fun ModeSwitcher(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
                 Text(
                     modifier = Modifier,
@@ -105,7 +105,7 @@ fun ModeSwitcher(
 
                 Box(
                     modifier = Modifier
-                        .height(AppTheme.dimensions.xPaddingSmall)
+                        .height(AppTheme.dimensions.smallestSpacing)
                         .width(
                             if (mode == selectedMode || mode == previousSelectedMode) {
                                 if (selectedMode == mode) {
@@ -130,7 +130,7 @@ fun ModeSwitcher(
                                 }
 
                             ),
-                            shape = RoundedCornerShape(AppTheme.dimensions.paddingLarge)
+                            shape = RoundedCornerShape(AppTheme.dimensions.standardSpacing)
                         )
                 )
 
@@ -138,7 +138,7 @@ fun ModeSwitcher(
             }
 
             if (modes.lastIndex != index) {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.xPaddingLarge))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
             }
         }
 

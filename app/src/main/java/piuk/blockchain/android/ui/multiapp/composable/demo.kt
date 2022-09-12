@@ -95,7 +95,7 @@ fun DemoScreen(
                     items = aaaaa,
                 ) {
                     Text(
-                        modifier = Modifier.padding(dimensionResource(R.dimen.very_small_margin)),
+                        modifier = Modifier.padding(20.dp),
                         style = AppTheme.typography.title3,
                         color = Color.Black,
                         text = it
@@ -103,7 +103,7 @@ fun DemoScreen(
                 }
 
                 item {
-                    Spacer(Modifier.size(dimensionResource(R.dimen.epic_margin)))
+                    Spacer(Modifier.size(70.dp))
                 }
             }
         }
