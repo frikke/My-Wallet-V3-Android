@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.controls
 
+import android.view.KeyEvent.ACTION_DOWN
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,10 +23,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -117,6 +124,7 @@ fun TextInput(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun TextInput(
     modifier: Modifier = Modifier,
@@ -199,6 +207,7 @@ fun TextInput(
         value
     }
     Column {
+        val focusManager = LocalFocusManager.current
         TextField(
             value = newTextFieldValue,
             onValueChange = { newValue ->
@@ -215,6 +224,14 @@ fun TextInput(
             },
             modifier = modifier
                 .fillMaxWidth(1f)
+                .onPreviewKeyEvent { keyEvent ->
+                    if (keyEvent.key == Key.Tab && keyEvent.nativeKeyEvent.action == ACTION_DOWN) {
+                        focusManager.moveFocus(FocusDirection.Next)
+                        true
+                    } else {
+                        false
+                    }
+                }
                 .onFocusChanged { focusState ->
                     onFocusChanged.invoke(focusState)
                 },
@@ -408,6 +425,7 @@ fun OutlinedTextInput(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun OutlinedTextInput(
     modifier: Modifier = Modifier,
@@ -495,6 +513,7 @@ fun OutlinedTextInput(
     }
 
     Column(modifier = modifier) {
+        val focusManager = LocalFocusManager.current
         Box(
             modifier = Modifier
                 .border(BorderStroke(1.dp, borderColor), RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp))
@@ -525,6 +544,14 @@ fun OutlinedTextInput(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .onPreviewKeyEvent { keyEvent ->
+                        if (keyEvent.key == Key.Tab && keyEvent.nativeKeyEvent.action == ACTION_DOWN) {
+                            focusManager.moveFocus(FocusDirection.Next)
+                            true
+                        } else {
+                            false
+                        }
+                    }
                     .onFocusChanged { focusState ->
                         onFocusChanged.invoke(focusState)
                         hasFocus.value = focusState.isFocused
