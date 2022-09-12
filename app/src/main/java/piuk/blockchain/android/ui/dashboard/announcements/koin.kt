@@ -52,7 +52,8 @@ val dashboardAnnouncementsModule = module {
         factory {
             AnnouncementConfigAdapterImpl(
                 config = get(),
-                json = get()
+                json = get(),
+                userIdentity = get()
             )
         }.bind(AnnouncementConfigAdapter::class)
 
@@ -68,7 +69,6 @@ val dashboardAnnouncementsModule = module {
                 googlePayManager = get(),
                 googlePayEnabledFlag = get(googlePayFeatureFlag),
                 paymentMethodsService = get(),
-                authenticator = get(),
                 fiatCurrenciesService = get(),
                 exchangeRatesDataManager = get(),
                 currencyPrefs = get()

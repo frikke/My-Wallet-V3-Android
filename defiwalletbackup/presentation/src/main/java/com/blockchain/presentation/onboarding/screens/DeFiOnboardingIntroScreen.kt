@@ -75,7 +75,7 @@ fun DeFiOnboardingIntroScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(AppTheme.dimensions.paddingMedium),
+                    .padding(AppTheme.dimensions.smallSpacing),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
@@ -83,9 +83,10 @@ fun DeFiOnboardingIntroScreen(
 
                 Image(ImageResource.Local(R.drawable.ic_defi_onboarding))
 
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(
                         R.string.defi_onboarding_intro_title,
                         stringResource(R.string.defi_wallet_name)
@@ -95,9 +96,10 @@ fun DeFiOnboardingIntroScreen(
                     gravity = ComposeGravities.Centre
                 )
 
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.defi_onboarding_intro_description),
                     style = ComposeTypographies.Paragraph1,
                     color = ComposeColors.Title,
@@ -151,8 +153,8 @@ fun DeFiOnboardingPropertyItem(
             )
             .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
             .padding(
-                horizontal = AppTheme.dimensions.paddingMedium,
-                vertical = dimensionResource(R.dimen.very_small_margin) // todo (othman) use AppTheme.dimensions
+                horizontal = AppTheme.dimensions.smallSpacing,
+                vertical = dimensionResource(R.dimen.very_small_spacing)
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -165,19 +167,21 @@ fun DeFiOnboardingPropertyItem(
             text = number.toString(),
         )
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
         Column {
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = title,
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Start
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.xxPaddingSmall))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.composeSmallestSpacing))
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = subtitle,
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Muted,
@@ -198,7 +202,7 @@ fun DeFiOnboardingProperties(properties: List<DeFiProperty>) {
             )
 
             if (index != properties.lastIndex) {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
             }
         }
     }

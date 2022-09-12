@@ -1,6 +1,5 @@
 package com.blockchain.nabu.metadata
 
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
@@ -8,7 +7,6 @@ import com.blockchain.metadata.load
 import com.blockchain.metadata.save
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.mapToBlockchainCredentialsMetadata
-import com.blockchain.nabu.models.responses.tokenresponse.mapToLegacyCredentials
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import piuk.blockchain.androidcore.utils.extensions.thenMaybe
@@ -16,7 +14,6 @@ import timber.log.Timber
 
 class AccountCredentialsMetadata(
     private val metadataRepository: MetadataRepository,
-    private val accountMetadataMigrationFF: FeatureFlag,
     private val remoteLogger: RemoteLogger
 ) {
     private var loadMetadataMaybe: Maybe<CredentialMetadata>? = null
@@ -84,13 +81,7 @@ class AccountCredentialsMetadata(
     }
 
     fun save(tokenResponse: NabuOfflineToken): Completable {
-        return accountMetadataMigrationFF.enabled.flatMapCompletable { enabled ->
-            if (enabled) {
-                saveMetadata(tokenResponse)
-            } else {
-                saveLegacyMetadata(tokenResponse)
-            }
-        }
+        return saveMetadata(tokenResponse)
     }
 
     private fun saveMetadata(tokenResponse: NabuOfflineToken): Completable {
@@ -98,14 +89,6 @@ class AccountCredentialsMetadata(
         return metadataRepository.save(
             metadata,
             MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
-        )
-    }
-
-    private fun saveLegacyMetadata(tokenResponse: NabuOfflineToken): Completable {
-        val metadata = tokenResponse.mapToLegacyCredentials()
-        return metadataRepository.save(
-            metadata,
-            MetadataEntry.NABU_LEGACY_CREDENTIALS
         )
     }
 

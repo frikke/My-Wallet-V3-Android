@@ -134,7 +134,7 @@ fun AssetPriceError() {
         modifier = Modifier
             .fillMaxWidth()
             .height(240.dp)
-            .padding(AppTheme.dimensions.paddingLarge),
+            .padding(AppTheme.dimensions.standardSpacing),
         contentAlignment = Alignment.Center
     ) {
         CardAlert(

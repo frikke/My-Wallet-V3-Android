@@ -72,16 +72,17 @@ fun RecoveryPhraseScreen(
             onBackButtonClick = backOnClick
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_spacing)))
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_margin)),
+                .padding(dimensionResource(id = R.dimen.standard_spacing)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.recovery_phrase_title),
                 style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
@@ -89,18 +90,19 @@ fun RecoveryPhraseScreen(
             )
 
             if (backupStatus == BackUpStatus.NO_BACKUP) {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
                 BackupStatus(backupStatus)
             }
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
 
             Mnemonic(mnemonic = mnemonic)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.recovery_phrase_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,
@@ -116,7 +118,7 @@ fun RecoveryPhraseScreen(
                 onClick = backUpCloudOnClick
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
             SecondaryButton(
                 modifier = Modifier.fillMaxWidth(),

@@ -22,6 +22,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.koin.scopedInject
+import com.blockchain.koin.sellOrder
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -89,7 +90,7 @@ class SellIntroFragment : ViewPagerFragment() {
     private val eligibilityProvider: SimpleBuyEligibilityProvider by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val analytics: Analytics by inject()
-    private val accountsSorting: AccountsSorting by scopedInject()
+    private val accountsSorting: AccountsSorting by scopedInject(sellOrder)
     private val userIdentity: UserIdentity by scopedInject()
     private val compositeDisposable = CompositeDisposable()
 
@@ -120,7 +121,7 @@ class SellIntroFragment : ViewPagerFragment() {
                     onSuccess = { eligibility ->
                         when (val reason = (eligibility as? FeatureAccess.Blocked)?.reason) {
                             is BlockedReason.InsufficientTier -> renderNonKycedUserUi()
-                            BlockedReason.NotEligible -> renderRejectedKycedUserUi()
+                            is BlockedReason.NotEligible -> renderRejectedKycedUserUi()
                             is BlockedReason.Sanctions -> renderBlockedDueToSanctions(reason)
                             is BlockedReason.TooManyInFlightTransactions,
                             null,

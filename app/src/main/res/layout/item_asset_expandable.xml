@@ -10,9 +10,9 @@
         android:id="@+id/icon"
         android:layout_width="@dimen/asset_icon_size"
         android:layout_height="@dimen/asset_icon_size"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/standard_spacing"
+        android:layout_marginBottom="@dimen/standard_spacing"
         android:importantForAccessibility="no"
         tools:srcCompat="@drawable/ic_default_asset_logo"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,7 +49,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/wallet_list"
         app:srcCompat="@drawable/collapse_animated"
-        android:layout_margin="@dimen/standard_margin"/>
+        android:layout_margin="@dimen/standard_spacing"/>
 
     <View
         android:id="@+id/header_separator"
@@ -69,7 +69,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/header_separator"
         app:layout_constraintEnd_toEndOf="parent"
-        android:paddingStart="@dimen/standard_margin"
+        android:paddingStart="@dimen/standard_spacing"
         android:visibility="gone"
         tools:visibility="visible" />
 

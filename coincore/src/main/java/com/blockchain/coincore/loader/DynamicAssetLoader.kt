@@ -7,6 +7,7 @@ import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.NonCustodialSupport
 import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
 import com.blockchain.coincore.erc20.Erc20Asset
+import com.blockchain.coincore.evm.L1EvmAsset
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.StandardL1Asset
@@ -15,10 +16,10 @@ import com.blockchain.coincore.selfcustody.StxAsset
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -37,6 +38,7 @@ import info.blockchain.balance.isCustodialOnly
 import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -44,8 +46,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx3.await
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.filterList
@@ -62,6 +64,7 @@ internal class DynamicAssetLoader(
     private val experimentalL1EvmAssets: Set<CryptoCurrency>,
     private val assetCatalogue: AssetCatalogueImpl,
     private val payloadManager: PayloadDataManager,
+    private val l1BalanceStore: L1BalanceStore,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
@@ -94,12 +97,34 @@ internal class DynamicAssetLoader(
             assetMap[currency] = it
         }
 
-    private val standardL1Assets: Set<CryptoAsset>
-        get() = if (layerTwoFeatureFlag.isEnabled) {
-            nonCustodialAssets
-        } else {
-            nonCustodialAssets.minus { cryptoAsset ->
-                cryptoAsset.currency in experimentalL1EvmAssets
+    private val enabledEvmL1Assets: Single<Set<CryptoAsset>>
+        get() {
+            return Singles.zip(
+                layerTwoFeatureFlag.enabled,
+                erc20DataManager.getSupportedNetworks()
+            ).map { (isEnabled, evmNetworks) ->
+                if (isEnabled) {
+                    experimentalL1EvmAssets.filter { evmAsset ->
+                        evmNetworks.find {
+                            it.networkTicker == evmAsset.networkTicker ||
+                                it.networkTicker == evmAsset.displayTicker
+                        } != null
+                    }.map { asset ->
+                        L1EvmAsset(
+                            currency = asset,
+                            l1BalanceStore = l1BalanceStore,
+                            erc20DataManager = erc20DataManager,
+                            feeDataManager = feeDataManager,
+                            walletPreferences = walletPreferences,
+                            labels = labels,
+                            formatUtils = formatUtils,
+                            addressResolver = ethHotWalletAddressResolver,
+                            layerTwoFeatureFlag = layerTwoFeatureFlag
+                        )
+                    }.toSet()
+                } else {
+                    emptySet()
+                }
             }
         }
 
@@ -115,15 +140,18 @@ internal class DynamicAssetLoader(
     * Every asset loads the corresponding accounts, based on what it supports.
     * */
     override fun initAndPreload(): Completable {
-        return assetCatalogue.initialise()
+        return Singles.zip(
+            assetCatalogue.initialise(),
+            enabledEvmL1Assets
+        )
             .doOnSubscribe { remoteLogger.logEvent("Coincore init started") }
-            .flatMap { supportedAssets ->
-                initNonCustodialAssets(standardL1Assets).toSingle {
+            .flatMap { (supportedAssets, supportedEvmL1Assets) ->
+                initNonCustodialAssets(nonCustodialAssets.plus(supportedEvmL1Assets)).toSingle {
                     loadErc20AndCustodialAssets(
                         allAssets = supportedAssets
                     )
                 }.map { loadedAssets ->
-                    standardL1Assets + loadedAssets
+                    nonCustodialAssets + supportedEvmL1Assets + loadedAssets
                 }
             }
             .doOnSuccess { assetList ->
@@ -218,16 +246,21 @@ internal class DynamicAssetLoader(
             .mapList { loadErc20Asset(it) }
             .catch { emit(emptyList()) }
 
-        val standardL1Assets = standardL1Assets.toList()
-
         val selfCustodialAssetsFlow = loadSelfCustodialAssets()
-            .filterList { it.currency.networkTicker !in standardL1Assets.map { asset -> asset.currency.networkTicker } }
+            .filterList {
+                it.currency.networkTicker !in nonCustodialAssets.toList().map { asset -> asset.currency.networkTicker }
+            }
             .catch { emit(emptyList()) }
+
+        val enabledL1AssetsFlow = flow {
+            val evmAssets = enabledEvmL1Assets.await()
+            emit(nonCustodialAssets.plus(evmAssets.toSet()))
+        }
 
         return combine(
             activePKWErc20sFlow,
             selfCustodialAssetsFlow,
-            flowOf(standardL1Assets)
+            enabledL1AssetsFlow
         ) { activePKWErc20s, dynamicSelfCustodyAssets, standardAssets ->
             activePKWErc20s + dynamicSelfCustodyAssets + standardAssets
         }

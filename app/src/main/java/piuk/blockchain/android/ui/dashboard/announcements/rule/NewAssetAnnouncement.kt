@@ -32,7 +32,7 @@ class NewAssetAnnouncement(
         get() = "new_asset"
 
     override val associatedWalletModes: List<WalletMode>
-        get() = listOf(WalletMode.NON_CUSTODIAL_ONLY)
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
 
     override fun shouldShow(): Single<Boolean> =
         announcementQueries.getAssetFromCatalogue()

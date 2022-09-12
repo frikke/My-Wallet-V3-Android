@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.kyc.navhost
 import com.blockchain.analytics.Analytics
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.Address
@@ -28,14 +27,12 @@ import piuk.blockchain.android.ui.getBlankNabuUser
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecisionKycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryPoint
-import piuk.blockchain.android.ui.validOfflineToken
 
 class KycNavHostPresenterTest {
 
     private lateinit var subject: KycNavHostPresenter
     private val view: KycNavHostView = mock()
     private val userService: UserService = mock()
-    private val nabuToken: NabuToken = mock()
     private val analytics: Analytics = mock()
     private val reentryDecision: ReentryDecision = mock()
     private val kycTiersStore: KycTiersStore = mock()
@@ -51,7 +48,6 @@ class KycNavHostPresenterTest {
     @Before
     fun setUp() {
         subject = KycNavHostPresenter(
-            nabuToken = nabuToken,
             userService = userService,
             reentryDecision = reentryDecision,
             kycNavigator = ReentryDecisionKycNavigator(
@@ -60,6 +56,7 @@ class KycNavHostPresenterTest {
             kycTiersStore = kycTiersStore,
             getUserStore = getUserStore,
             analytics = mock(),
+            productEligibilityStore = mock(),
         )
         subject.initView(view)
     }
@@ -68,7 +65,6 @@ class KycNavHostPresenterTest {
     fun `onViewReady should invalidate stores`() {
         // Arrange - throw an exception just to have definitions,
         // won't be checked in this test
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.error { Throwable() })
         whenever(userService.getUser()).thenReturn(Single.error { Throwable() })
         // Act
         subject.onViewReady()
@@ -105,7 +101,6 @@ class KycNavHostPresenterTest {
         // Arrange
         givenReentryDecision(ReentryPoint.CountrySelection)
         whenever(view.campaignType).thenReturn(CampaignType.Swap)
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
         whenever(userService.getUser())
             .thenReturn(
                 Single.just(
@@ -145,7 +140,6 @@ class KycNavHostPresenterTest {
         // Arrange
         givenReentryDecision(ReentryPoint.CountrySelection)
         whenever(view.campaignType).thenReturn(CampaignType.Resubmission)
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
         whenever(userService.getUser())
             .thenReturn(
                 Single.just(
@@ -185,7 +179,6 @@ class KycNavHostPresenterTest {
         // Arrange
         givenReentryDecision(ReentryPoint.CountrySelection)
         whenever(view.campaignType).thenReturn(CampaignType.Swap)
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
         whenever(userService.getUser())
             .thenReturn(
                 Single.just(
@@ -225,7 +218,6 @@ class KycNavHostPresenterTest {
     fun `onViewReady, should redirect to address`() {
         // Arrange
         givenReentryDecision(ReentryPoint.Address)
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
 
         val nabuUser = NabuUser(
             id = "id",
@@ -265,7 +257,6 @@ class KycNavHostPresenterTest {
     fun `onViewReady, should redirect to phone entry`() {
         // Arrange
         givenReentryDecision(ReentryPoint.MobileEntry)
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
 
         val nabuUser = NabuUser(
             id = "id",
@@ -302,7 +293,6 @@ class KycNavHostPresenterTest {
     fun `onViewReady, when user is a tier 1, should not redirect to phone entry`() {
         // Arrange
         givenReentryDecision(ReentryPoint.MobileEntry)
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
 
         val nabuUser = NabuUser(
             id = "id",
@@ -339,7 +329,6 @@ class KycNavHostPresenterTest {
     fun `onViewReady, should redirect to Onfido`() {
         // Arrange
         givenReentryDecision(ReentryPoint.Veriff)
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
 
         val nabuUser = NabuUser(
             id = "id",
@@ -375,7 +364,6 @@ class KycNavHostPresenterTest {
     @Test
     fun `onViewReady, should redirect to KYC status page`() {
         // Arrange
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
         val nabuUser = NabuUser(
             id = "id",
             firstName = "firstName",
@@ -410,7 +398,7 @@ class KycNavHostPresenterTest {
         city = "city",
         line1 = "line1",
         line2 = "line2",
-        state = "state",
+        stateIso = "state",
         countryCode = "regionCode",
         postCode = "postCode"
     )

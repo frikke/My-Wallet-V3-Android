@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/AnnounceCardStyle"
-    android:layout_marginTop="@dimen/small_margin"
-    android:layout_marginBottom="@dimen/tiny_margin">
+    android:layout_marginTop="@dimen/small_spacing"
+    android:layout_marginBottom="@dimen/tiny_spacing">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/card_container"
@@ -20,8 +20,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1"
-            android:layout_marginTop="@dimen/standard_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginTop="@dimen/standard_spacing"
+            android:layout_marginEnd="@dimen/standard_spacing"
             android:src="@drawable/ic_clear_white_24dp"
             app:tint="@color/primary_grey"
             tools:ignore="RtlHardcoded" />
@@ -35,8 +35,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/msg_title"
             app:layout_constraintHorizontal_bias="0"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/standard_margin"
+            android:layout_marginStart="@dimen/standard_spacing"
+            android:layout_marginTop="@dimen/standard_spacing"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_blockchain_logo"
@@ -52,9 +52,9 @@
             app:layout_constraintTop_toBottomOf="@+id/icon"
             app:layout_constraintBottom_toTopOf="@+id/msg_body"
             app:layout_constraintHorizontal_bias="0"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/small_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginStart="@dimen/standard_spacing"
+            android:layout_marginTop="@dimen/small_spacing"
+            android:layout_marginEnd="@dimen/standard_spacing"
             tools:text="Welcome To Blockchain" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -68,10 +68,10 @@
             app:layout_constraintTop_toBottomOf="@+id/msg_title"
             app:layout_constraintBottom_toTopOf="@+id/btn_cta1"
             app:layout_constraintHorizontal_bias="0"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/tiny_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
-            android:layout_marginBottom="@dimen/standard_margin"
+            android:layout_marginStart="@dimen/standard_spacing"
+            android:layout_marginTop="@dimen/tiny_spacing"
+            android:layout_marginEnd="@dimen/standard_spacing"
+            android:layout_marginBottom="@dimen/standard_spacing"
             tools:text="Here are a few tips to get your account up and running, we'll also help you make sure everything is secure." />
 
 
@@ -79,9 +79,9 @@
             android:id="@+id/btn_cta1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/small_margin"
-            android:layout_marginBottom="@dimen/small_margin"
+            android:layout_marginHorizontal="@dimen/standard_spacing"
+            android:layout_marginTop="@dimen/small_spacing"
+            android:layout_marginBottom="@dimen/small_spacing"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/msg_body"
@@ -97,7 +97,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btn_cta1"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="@dimen/standard_margin"
+            android:layout_marginBottom="@dimen/standard_spacing"
             tools:text="Maybe Later" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

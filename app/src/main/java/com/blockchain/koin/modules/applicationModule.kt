@@ -15,13 +15,11 @@ import com.blockchain.core.Database
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
-import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cardRejectionCheckFeatureFlag
-import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
@@ -29,7 +27,6 @@ import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.quickFillButtonsFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -73,6 +70,7 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CardProviderActivator
 import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
+import piuk.blockchain.android.data.GetRecurringBuysStore
 import piuk.blockchain.android.data.Mapper
 import piuk.blockchain.android.data.RecurringBuyResponseToRecurringBuyMapper
 import piuk.blockchain.android.data.TradeDataRepository
@@ -239,10 +237,6 @@ val applicationModule = module {
 
         factory {
             KycStatusHelper(
-                eligibilityService = get(),
-                userService = get(),
-                nabuToken = get(),
-                settingsDataManager = get(),
                 kycService = get()
             )
         }
@@ -448,11 +442,11 @@ val applicationModule = module {
                 cardService = get(),
                 paymentMethodService = get(),
                 paymentsRepository = get(),
-                quickFillButtonsFeatureFlag = get(quickFillButtonsFeatureFlag),
                 simpleBuyPrefs = get(),
                 onboardingPrefs = get(),
                 cardRejectionCheckFF = get(cardRejectionCheckFeatureFlag),
-                eligibilityService = get()
+                eligibilityService = get(),
+                cardPaymentAsyncFF = get(cardPaymentAsyncFeatureFlag)
             )
         }
 
@@ -532,10 +526,16 @@ val applicationModule = module {
         factory<TradeDataService> {
             TradeDataRepository(
                 tradeService = get(),
-                authenticator = get(),
                 accumulatedInPeriodMapper = GetAccumulatedInPeriodToIsFirstTimeBuyerMapper(),
                 nextPaymentRecurringBuyMapper = GetNextPaymentDateListToFrequencyDateMapper(),
-                recurringBuyMapper = get()
+                recurringBuyMapper = get(),
+                getRecurringBuysStore = get()
+            )
+        }
+
+        scoped {
+            GetRecurringBuysStore(
+                tradeService = get()
             )
         }
 
@@ -659,7 +659,6 @@ val applicationModule = module {
             GlobalEventHandler(
                 application = get(),
                 walletConnectServiceAPI = get(),
-                deeplinkFeatureFlag = get(deeplinkingFeatureFlag),
                 deeplinkRedirector = get(),
                 destinationArgs = get(),
                 notificationManager = get(),
@@ -836,7 +835,6 @@ val applicationModule = module {
             envSettings = get(),
             authPrefs = get(),
             getAppMaintenanceConfigUseCase = get(),
-            appMaintenanceFF = get(appMaintenanceFeatureFlag),
             sessionPrefs = get(),
             securityPrefs = get(),
             referralPrefs = get(),

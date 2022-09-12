@@ -176,8 +176,8 @@ class SettingsFragment :
                         playAnimation()
                     },
                     LinearLayoutCompat.LayoutParams(
-                        resources.getDimensionPixelOffset(R.dimen.xlarge_margin),
-                        resources.getDimensionPixelOffset(R.dimen.xlarge_margin)
+                        resources.getDimensionPixelOffset(R.dimen.xlarge_spacing),
+                        resources.getDimensionPixelOffset(R.dimen.xlarge_spacing)
                     ).apply {
                         gravity = Gravity.CENTER
                     }
@@ -197,8 +197,13 @@ class SettingsFragment :
                     isCloseable = false
                     title = announcementInfo.title
                     subtitle = announcementInfo.message
-                    backgroundResource = ImageResource.Remote(announcementInfo.backgroundUrl)
-                    iconResource = ImageResource.Remote(announcementInfo.iconUrl)
+                    if (announcementInfo.backgroundUrl.isNotEmpty()) {
+                        backgroundResource = ImageResource.Remote(announcementInfo.backgroundUrl)
+                    }
+
+                    if (announcementInfo.iconUrl.isNotEmpty()) {
+                        iconResource = ImageResource.Remote(announcementInfo.iconUrl)
+                    }
                 } ?: run {
                     // keep old functionality here if no data returned
                     title = getString(R.string.referral_program)
@@ -338,8 +343,8 @@ class SettingsFragment :
                                     MATCH_PARENT,
                                     WRAP_CONTENT,
                                 ).apply {
-                                    marginStart = resources.getDimensionPixelOffset(R.dimen.standard_margin)
-                                    marginEnd = resources.getDimensionPixelOffset(R.dimen.standard_margin)
+                                    marginStart = resources.getDimensionPixelOffset(R.dimen.standard_spacing)
+                                    marginEnd = resources.getDimensionPixelOffset(R.dimen.standard_spacing)
                                 }
                             )
                         }

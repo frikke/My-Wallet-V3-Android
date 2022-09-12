@@ -8,5 +8,21 @@ val coinviewDomainModule = module {
         scoped {
             GetAssetPriceUseCase
         }
+
+        scoped {
+            LoadAssetAccountsUseCase(
+                walletModeService = get(),
+                interestService = get(),
+                watchlistDataManager = get(),
+                currencyPrefs = get()
+            )
+        }
+
+        scoped {
+            LoadAssetRecurringBuysUseCase(
+                tradeDataService = get(),
+                custodialWalletManager = get()
+            )
+        }
     }
 }

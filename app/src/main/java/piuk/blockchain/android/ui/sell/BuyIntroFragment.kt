@@ -10,9 +10,9 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.koin.buyOrder
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -23,8 +23,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -36,6 +34,7 @@ import piuk.blockchain.android.databinding.BuyIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.account.HeaderDecoration
@@ -43,6 +42,7 @@ import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.ui.transfer.BuyListAccountSorting
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
 import piuk.blockchain.android.util.openUrl
 import retrofit2.HttpException
@@ -61,10 +61,10 @@ class BuyIntroFragment :
 
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val compositeDisposable = CompositeDisposable()
-    private val coincore: Coincore by scopedInject()
     private val assetResources: AssetResources by inject()
     private val analytics: Analytics by inject()
     private val userIdentity: UserIdentity by scopedInject()
+    private val buyOrdering: BuyListAccountSorting by scopedInject(buyOrder)
 
     private val buyAdapter = BuyCryptoCurrenciesAdapter(
         assetResources = assetResources,
@@ -115,7 +115,7 @@ class BuyIntroFragment :
                 .subscribeBy(
                     onSuccess = { eligibility ->
                         when (val reason = (eligibility as? FeatureAccess.Blocked)?.reason) {
-                            BlockedReason.NotEligible,
+                            is BlockedReason.NotEligible -> renderBlockedDueToNotEligible(reason)
                             is BlockedReason.InsufficientTier -> renderKycUpgradeNow()
                             is BlockedReason.Sanctions -> renderBlockedDueToSanctions(reason)
                             is BlockedReason.TooManyInFlightTransactions,
@@ -155,21 +155,9 @@ class BuyIntroFragment :
                     it.source
                 }.distinct()
                     .filterIsInstance<AssetInfo>()
-            }.flatMapObservable { assets ->
-                Observable.fromIterable(assets).flatMapMaybe { asset ->
-                    coincore[asset].getPricesWith24hDeltaLegacy().map { priceDelta ->
-                        PricedAsset(
-                            asset = asset,
-                            priceHistory = PriceHistory(
-                                currentExchangeRate = priceDelta.currentRate,
-                                priceDelta = priceDelta.delta24h
-                            )
-                        )
-                    }.toMaybe().onErrorResumeNext {
-                        Maybe.empty()
-                    }
-                }
-            }.toList()
+            }.flatMap { assets ->
+                buyOrdering.sort(assets)
+            }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .trackProgress(activityIndicator.takeIf { showLoading })
@@ -213,6 +201,23 @@ class BuyIntroFragment :
                 .commitAllowingStateLoss()
         }
         binding.viewFlipper.displayedChild = ViewFlipperItem.KYC.ordinal
+    }
+
+    private fun renderBlockedDueToNotEligible(reason: BlockedReason.NotEligible) {
+        with(binding) {
+            viewFlipper.displayedChild = ViewFlipperItem.EMPTY_STATE.ordinal
+            customEmptyState.apply {
+                title = R.string.account_restricted
+                descriptionText = if (reason.message != null) {
+                    reason.message
+                } else {
+                    getString(R.string.feature_not_available)
+                }
+                icon = R.drawable.ic_wallet_intro_image
+                ctaText = R.string.contact_support
+                ctaAction = { startActivity(SupportCentreActivity.newIntent(requireContext())) }
+            }
+        }
     }
 
     private fun renderBlockedDueToSanctions(reason: BlockedReason.Sanctions) {
@@ -306,7 +311,19 @@ data class BuyCryptoItem(
     val percentageDelta: Double
 )
 
-private data class PricedAsset(
-    val asset: AssetInfo,
-    val priceHistory: PriceHistory
-)
+sealed class PricedAsset(
+    open val asset: AssetInfo,
+    open val priceHistory: PriceHistory
+) {
+    data class NonSortedAsset(
+        override val asset: AssetInfo,
+        override val priceHistory: PriceHistory
+    ) : PricedAsset(asset, priceHistory)
+
+    data class SortedAsset(
+        override val asset: AssetInfo,
+        override val priceHistory: PriceHistory,
+        val balance: Money,
+        val tradingVolume: Double
+    ) : PricedAsset(asset, priceHistory)
+}

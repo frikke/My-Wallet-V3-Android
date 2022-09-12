@@ -7,7 +7,6 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.await
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.koin.java.KoinJavaComponent.inject
 
 class IntegratedFeatureFlag(private val remoteFlag: FeatureFlag) : FeatureFlag by remoteFlag, KoinComponent {
 

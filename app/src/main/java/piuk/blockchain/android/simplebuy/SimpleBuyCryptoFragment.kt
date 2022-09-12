@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,9 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
@@ -215,6 +218,58 @@ class SimpleBuyCryptoFragment :
             state = PaymentMethodsChooserState.AVAILABLE_TO_ADD
         )
 
+    override fun onCardTagClicked(cardInfo: CardRejectionState) {
+        when (cardInfo) {
+            is CardRejectionState.AlwaysRejected ->
+                showCardRejectionInfo(
+                    title = cardInfo.title.orEmpty(),
+                    description = cardInfo.description.orEmpty(),
+                    errorId = cardInfo.errorId,
+                    iconUrl = cardInfo.iconUrl.orEmpty(),
+                    statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
+                    actions = cardInfo.actions,
+                    analyticsCategories = cardInfo.analyticsCategories
+                )
+            is CardRejectionState.MaybeRejected -> showCardRejectionInfo(
+                title = cardInfo.title.orEmpty(),
+                description = cardInfo.description.orEmpty(),
+                errorId = cardInfo.errorId,
+                iconUrl = cardInfo.iconUrl.orEmpty(),
+                statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
+                actions = cardInfo.actions,
+                analyticsCategories = cardInfo.analyticsCategories
+            )
+            CardRejectionState.NotRejected -> {
+                // do nothing
+            }
+        }
+    }
+
+    private fun showCardRejectionInfo(
+        title: String?,
+        description: String?,
+        errorId: String?,
+        iconUrl: String?,
+        statusIconUrl: String?,
+        actions: List<ServerErrorAction>,
+        analyticsCategories: List<String>
+    ) {
+        navigator().showErrorInBottomSheet(
+            title = title.orEmpty(),
+            description = description.orEmpty(),
+            error = CardRejectionState.toString(),
+            serverSideUxErrorInfo = ServerSideUxErrorInfo(
+                id = errorId,
+                title = title.orEmpty(),
+                description = description.orEmpty(),
+                iconUrl = iconUrl.orEmpty(),
+                statusUrl = statusIconUrl.orEmpty(),
+                actions = actions,
+                categories = analyticsCategories
+            )
+        )
+    }
+
     private fun showPaymentMethodsBottomSheet(paymentOptions: PaymentOptions, state: PaymentMethodsChooserState) {
         showBottomSheet(
             when (state) {
@@ -330,7 +385,7 @@ class SimpleBuyCryptoFragment :
                                                 quickFillButtonData.quickFillButtons.indexOf(item)
                                             )
                                         },
-                                        modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_margin))
+                                        modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_spacing))
                                     )
                                 }
                             )
@@ -719,9 +774,9 @@ class SimpleBuyCryptoFragment :
             primaryText = paymentMethod.fiatCurrency.name
             secondaryText = paymentMethod.limits.max.toStringWithSymbol()
             startImageResource = if (paymentMethod.fiatCurrency.logo.isNotEmpty()) {
-                ImageResource.Remote(paymentMethod.fiatCurrency.logo)
+                ImageResource.Remote(paymentMethod.fiatCurrency.logo, shape = RoundedCornerShape(2.dp))
             } else {
-                ImageResource.Local(R.drawable.ic_default_asset_logo)
+                ImageResource.Local(R.drawable.ic_default_asset_logo, shape = RoundedCornerShape(2.dp))
             }
         }
     }
@@ -792,6 +847,7 @@ class SimpleBuyCryptoFragment :
                         is CardRejectionState.AlwaysRejected -> {
                             cardState.renderAlwaysRejectedCardError()
                             btnContinue.gone()
+                            tags = emptyList()
                         }
                         is CardRejectionState.MaybeRejected -> {
                             btnError.gone()
@@ -804,6 +860,7 @@ class SimpleBuyCryptoFragment :
                             )
                         }
                         else -> {
+                            tags = emptyList()
                             btnError.gone()
                             btnContinue.visible()
                         }
@@ -1304,6 +1361,17 @@ fun RecurringBuyFrequency.toHumanReadableRecurringBuy(context: Context): String 
         RecurringBuyFrequency.BI_WEEKLY -> context.getString(R.string.recurring_buy_bi_weekly_1)
         RecurringBuyFrequency.MONTHLY -> context.getString(R.string.recurring_buy_monthly_1)
         else -> context.getString(R.string.common_unknown)
+    }
+}
+
+@StringRes fun RecurringBuyFrequency.toHumanReadableRecurringBuy(): Int {
+    return when (this) {
+        RecurringBuyFrequency.ONE_TIME -> R.string.recurring_buy_one_time_selector
+        RecurringBuyFrequency.DAILY -> R.string.recurring_buy_daily_1
+        RecurringBuyFrequency.WEEKLY -> R.string.recurring_buy_weekly_1
+        RecurringBuyFrequency.BI_WEEKLY -> R.string.recurring_buy_bi_weekly_1
+        RecurringBuyFrequency.MONTHLY -> R.string.recurring_buy_monthly_1
+        else -> R.string.common_unknown
     }
 }
 

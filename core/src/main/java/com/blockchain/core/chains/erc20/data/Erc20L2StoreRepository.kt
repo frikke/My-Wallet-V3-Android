@@ -36,7 +36,7 @@ internal class Erc20L2StoreRepository(
                 it.addresses.firstOrNull { it.address == ethDataManager.accountAddress }
                     ?.balances?.mapNotNull { balance ->
                         val asset = if (balance.contractAddress == NonCustodialEvmService.NATIVE_IDENTIFIER) {
-                            assetCatalogue.assetInfoFromNetworkTicker(balance.name)
+                            assetCatalogue.assetInfoFromNetworkTicker(networkTicker)
                         } else {
                             assetCatalogue.assetFromL1ChainByContractAddress(
                                 networkTicker,

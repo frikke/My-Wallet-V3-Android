@@ -1,8 +1,6 @@
 package piuk.blockchain.android.ui.kyc.invalidcountry
 
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
-import com.blockchain.nabu.models.responses.tokenresponse.toNabuOfflineToken
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -31,9 +29,8 @@ class KycInvalidCountryPresenter(
 
     private fun recordCountryCode(notifyMe: Boolean): Completable =
         createUserAndStoreInMetadata()
-            .flatMapCompletable { (jwt, offlineToken) ->
+            .flatMapCompletable { jwt ->
                 nabuDataManager.recordCountrySelection(
-                    offlineToken,
                     jwt,
                     view.displayModel.countryCode,
                     view.displayModel.state,
@@ -48,16 +45,9 @@ class KycInvalidCountryPresenter(
             .doOnSubscribe { view.showProgressDialog() }
             .doOnTerminate { view.dismissProgressDialog() }
 
-    private fun createUserAndStoreInMetadata(): Single<Pair<String, NabuOfflineToken>> =
+    private fun createUserAndStoreInMetadata(): Single<String> =
         nabuDataManager.requestJwt()
             .subscribeOn(Schedulers.io())
-            .flatMap { jwt ->
-                nabuDataManager.getAuthToken(jwt)
-                    .subscribeOn(Schedulers.io())
-                    .flatMap { tokenResponse ->
-                        Single.just(jwt to tokenResponse.toNabuOfflineToken())
-                    }
-            }
 
     internal fun onProgressCancelled() {
         // Clear outbound requests

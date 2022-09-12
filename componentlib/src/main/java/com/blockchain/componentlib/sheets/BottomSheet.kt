@@ -133,7 +133,7 @@ private fun BottomSheet(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColor, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_margin))),
+            .background(backgroundColor, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(
@@ -141,13 +141,13 @@ private fun BottomSheet(
             onClosePress = onCloseClick,
             shouldShowDivider = shouldShowHeaderDivider
         )
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
+        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
         if (headerImageResource != null) {
             Image(
                 imageResource = headerImageResource,
                 modifier = Modifier.size(dimensionResource(R.dimen.size_huge))
             )
-            Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
+            Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
         }
 
         if (!showTitleInHeader) {
@@ -158,15 +158,15 @@ private fun BottomSheet(
             )
         }
         if (subtitle.isNotEmpty()) {
-            Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+            Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
             Text(
                 text = subtitle,
                 style = AppTheme.typography.paragraph1,
                 textAlign = subtitleAlign,
                 color = AppTheme.colors.title,
                 modifier = Modifier.padding(
-                    start = dimensionResource(R.dimen.standard_margin),
-                    end = dimensionResource(R.dimen.standard_margin)
+                    start = dimensionResource(R.dimen.standard_spacing),
+                    end = dimensionResource(R.dimen.standard_spacing)
                 )
             )
         }
@@ -174,9 +174,9 @@ private fun BottomSheet(
         Spacer(
             Modifier.size(
                 if (buttonsContent == null)
-                    dimensionResource(R.dimen.small_margin)
+                    dimensionResource(R.dimen.small_spacing)
                 else
-                    dimensionResource(R.dimen.standard_margin)
+                    dimensionResource(R.dimen.standard_spacing)
             )
         )
 
@@ -185,11 +185,11 @@ private fun BottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(horizontal = dimensionResource(R.dimen.standard_margin)),
+                    .padding(horizontal = dimensionResource(R.dimen.standard_spacing)),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 content = buttonsContent
             )
-            Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
+            Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
         }
     }
 }

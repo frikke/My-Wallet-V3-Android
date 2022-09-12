@@ -46,20 +46,20 @@ fun PriceListItem(
                 ),
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_margin))
+                    .size(dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing))
                     .clip(CircleShape)
             )
         },
 
         content = {
-            dimensionResource(com.blockchain.componentlib.R.dimen.medium_margin)
+            dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(
-                        start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_margin),
+                        start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing),
                         end = dimensionResource(
-                            id = R.dimen.tiny_margin
+                            id = R.dimen.tiny_spacing
                         )
                     )
             ) {
@@ -87,7 +87,7 @@ fun PriceListItem(
                     )
                     Text(
                         modifier = Modifier
-                            .padding(horizontal = dimensionResource(id = R.dimen.tiny_margin))
+                            .padding(horizontal = dimensionResource(id = R.dimen.tiny_spacing))
                             .semantics {
                                 this.contentDescription = "$access24hChange " +
                                     if (priceItem.hasError) {
@@ -115,8 +115,8 @@ fun PriceListItem(
             Image(
                 imageResource = ImageResource.Local(R.drawable.ic_chevron_end),
                 modifier = Modifier.requiredSizeIn(
-                    maxWidth = dimensionResource(com.blockchain.componentlib.R.dimen.standard_margin),
-                    maxHeight = dimensionResource(com.blockchain.componentlib.R.dimen.standard_margin),
+                    maxWidth = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
+                    maxHeight = dimensionResource(com.blockchain.componentlib.R.dimen.standard_spacing),
                 ),
             )
         },

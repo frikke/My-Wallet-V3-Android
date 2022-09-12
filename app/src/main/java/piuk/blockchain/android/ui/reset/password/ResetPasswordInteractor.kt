@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.reset.password
 
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.metadata.MetadataService
@@ -22,7 +21,6 @@ class ResetPasswordInteractor(
     private val nabuDataManager: NabuDataManager,
     private val metadataService: MetadataService,
     private val metadataRepository: MetadataRepository,
-    private val accountMetadataFF: FeatureFlag,
     private val walletStatusPrefs: WalletStatusPrefs
 ) {
 
@@ -42,37 +40,25 @@ class ResetPasswordInteractor(
     }
 
     fun recoverAccount(userId: String, recoveryToken: String): Completable =
-        accountMetadataFF.enabled.flatMapCompletable { enabled ->
-            if (enabled) {
-                nabuDataManager.recoverBlockchainAccount(userId, recoveryToken)
-            } else {
-                nabuDataManager.recoverLegacyAccount(userId, recoveryToken)
-            }.flatMapCompletable { metadata ->
-                metadataService.attemptMetadataSetup().then {
-                    when {
-                        metadata is NabuLegacyCredentialsMetadata && metadata.isValid() -> {
+        nabuDataManager.recoverBlockchainAccount(userId, recoveryToken).flatMapCompletable { metadata ->
+            metadataService.attemptMetadataSetup().then {
+                when {
+                    metadata is BlockchainAccountCredentialsMetadata && metadata.isValid() -> {
+                        metadataRepository.save(
+                            metadata,
+                            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
+                        ).then {
                             metadataRepository.save(
-                                metadata,
+                                // double-bang is safe here as isValid() checks for nulls
+                                NabuLegacyCredentialsMetadata(
+                                    metadata.userId!!,
+                                    metadata.lifetimeToken!!
+                                ),
                                 MetadataEntry.NABU_LEGACY_CREDENTIALS
                             )
                         }
-                        metadata is BlockchainAccountCredentialsMetadata && metadata.isValid() -> {
-                            metadataRepository.save(
-                                metadata,
-                                MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
-                            ).then {
-                                metadataRepository.save(
-                                    // double-bang is safe here as isValid() checks for nulls
-                                    NabuLegacyCredentialsMetadata(
-                                        metadata.userId!!,
-                                        metadata.lifetimeToken!!
-                                    ),
-                                    MetadataEntry.NABU_LEGACY_CREDENTIALS
-                                )
-                            }
-                        }
-                        else -> Completable.complete()
                     }
+                    else -> Completable.complete()
                 }
             }
         }

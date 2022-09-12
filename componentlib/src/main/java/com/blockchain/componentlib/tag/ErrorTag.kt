@@ -11,7 +11,7 @@ import com.blockchain.componentlib.theme.Red400
 import com.blockchain.componentlib.theme.Red600
 
 @Composable
-fun ErrorTag(text: String, size: TagSize = TagSize.Primary) {
+fun ErrorTag(text: String, size: TagSize = TagSize.Primary, onClick: (() -> Unit)?) {
 
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
         Red100
@@ -29,7 +29,8 @@ fun ErrorTag(text: String, size: TagSize = TagSize.Primary) {
         text = text,
         size = size,
         defaultBackgroundColor = defaultBackgroundColor,
-        defaultTextColor = defaultTextColor
+        defaultTextColor = defaultTextColor,
+        onClick = onClick
     )
 }
 
@@ -38,7 +39,7 @@ fun ErrorTag(text: String, size: TagSize = TagSize.Primary) {
 fun ErrorTag_Basic() {
     AppTheme {
         AppSurface {
-            ErrorTag(text = "Default")
+            ErrorTag(text = "Default", onClick = null)
         }
     }
 }
@@ -48,7 +49,7 @@ fun ErrorTag_Basic() {
 fun ErrorTag_Dark() {
     AppTheme(darkTheme = true) {
         AppSurface {
-            ErrorTag(text = "Default")
+            ErrorTag(text = "Default", onClick = null)
         }
     }
 }

@@ -78,14 +78,14 @@ private fun LiveTabLayoutItem(
         Row(modifier) {
             Box(
                 modifier = Modifier
-                    .size(dimensionResource(R.dimen.smallest_margin))
+                    .size(dimensionResource(R.dimen.smallest_spacing))
                     .background(
                         color = if (isSelected) Green600 else Grey400,
                         shape = CircleShape
                     )
                     .align(Alignment.CenterVertically)
             )
-            Spacer(Modifier.width(dimensionResource(R.dimen.minuscule_margin)))
+            Spacer(Modifier.width(dimensionResource(R.dimen.minuscule_spacing)))
             TabLayoutItem(
                 itemName = itemName,
                 isSelected = isSelected,

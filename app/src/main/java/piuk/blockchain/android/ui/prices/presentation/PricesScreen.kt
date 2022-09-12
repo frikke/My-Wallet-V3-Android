@@ -35,10 +35,10 @@ fun PricesScreen(
                 Column {
                     Box(
                         modifier = Modifier.padding(
-                            start = AppTheme.dimensions.paddingLarge,
-                            top = AppTheme.dimensions.paddingSmall,
-                            end = AppTheme.dimensions.paddingLarge,
-                            bottom = AppTheme.dimensions.paddingMedium
+                            start = AppTheme.dimensions.standardSpacing,
+                            top = AppTheme.dimensions.tinySpacing,
+                            end = AppTheme.dimensions.standardSpacing,
+                            bottom = AppTheme.dimensions.smallSpacing
                         )
                     ) {
                         Search(
@@ -58,7 +58,7 @@ fun PricesScreen(
                         }
 
                         item {
-                            Spacer(Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                            Spacer(Modifier.size(dimensionResource(R.dimen.standard_spacing)))
                         }
                     }
                 }

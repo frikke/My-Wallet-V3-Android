@@ -3,6 +3,7 @@ package piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vi
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Dp
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleImageView
 import piuk.blockchain.blockchain_component_library_catalog.R
@@ -18,7 +19,6 @@ class SimpleImageViewActivity : AppCompatActivity() {
                 id = R.drawable.ic_blockchain,
                 contentDescription = ""
             )
-            imageSize = 24
             scaleType = ContentScale.Fit
         }
 
@@ -27,18 +27,19 @@ class SimpleImageViewActivity : AppCompatActivity() {
                 id = R.drawable.ic_blockchain,
                 iconTintColour = R.color.colorPrimary,
                 backgroundColour = R.color.black,
-                contentDescription = ""
+                contentDescription = "",
+                size = Dp(32f),
+                iconSize = Dp(24f)
             )
-            imageSize = 24
             scaleType = ContentScale.Fit
         }
 
         findViewById<SimpleImageView>(R.id.remote_image_view).apply {
             image = ImageResource.Remote(
                 url = "https://cloudfront-us-east-1.images.arcpublishing.com/coindesk/XA6KIXE6FBFM5EWSA25JI5YAU4.jpg",
-                contentDescription = ""
+                contentDescription = "",
+                size = Dp(32f),
             )
-            imageSize = 24
             scaleType = ContentScale.Fit
         }
     }

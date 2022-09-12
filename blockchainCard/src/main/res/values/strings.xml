@@ -111,7 +111,7 @@
     <string name="date"></string>
     <string name="type"></string>
     <string name="state"></string>
-    <string name="transaction_details"></string>
+    <string name="transaction_details_title"></string>
     <string name="bc_card_transaction_pending"></string>
     <string name="bc_card_transaction_cancelled"></string>
     <string name="bc_card_transaction_declined"></string>
@@ -139,4 +139,10 @@
     <string name="bc_card_tap_here_to_refresh"></string>
     <string name="bc_card_tap_here_to_try_again"></string>
     <string name="bc_card_unable_to_load_card"></string>
+    <string name="bc_card_transaction_status"></string>
+    <string name="bc_card_transaction_payment_method"></string>
+    <string name="bc_card_transaction_fee"></string>
+    <string name="bc_card_transaction_original_amount"></string>
+    <string name="bc_card_dashboard_legal_disclaimer"></string>
+    <string name="bc_card_transaction_refund_title"></string>
 </resources>

@@ -1,5 +1,6 @@
 package com.blockchain.coincore
 
+import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.AllCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllNonCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
@@ -165,7 +166,7 @@ class Coincore internal constructor(
     ): Single<SingleAccountList> {
         val sameCurrencyTransactionTargets = get(sourceAccount.currency).transactionTargets(sourceAccount)
         return when (action) {
-            AssetAction.Sell -> allWallets().map { it.accounts }.map { it.filterIsInstance<FiatAccount>() }
+            AssetAction.Sell -> allFiats()
             AssetAction.Send -> sameCurrencyTransactionTargets
             AssetAction.InterestDeposit -> sameCurrencyTransactionTargets.map {
                 it.filterIsInstance<CryptoInterestAccount>()
@@ -180,8 +181,7 @@ class Coincore internal constructor(
                         .filterNot { account -> account.currency == sourceAccount.currency }
                         .filter { cryptoAccount ->
                             sourceAccount.isTargetAvailableForSwap(
-                                target = cryptoAccount,
-                                enabledWalletMode = walletModeService.enabledWalletMode()
+                                target = cryptoAccount
                             )
                         }
                 }
@@ -189,19 +189,28 @@ class Coincore internal constructor(
         }
     }
 
+    private fun allFiats() = assetLoader.activeAssets(WalletMode.CUSTODIAL_ONLY).asObservable().firstOrError()
+        .flatMap {
+            val fiats = it.filterIsInstance<FiatAsset>()
+            if (fiats.isEmpty())
+                return@flatMap Single.just(emptyList())
+
+            Maybe.concat(
+                it.filterIsInstance<FiatAsset>().map { asset ->
+                    asset.accountGroup(AssetFilter.Custodial).map { grp -> grp.accounts }
+                }
+            ).reduce { a, l -> a + l }
+                .toSingle()
+        }
+
     /**
      * When wallet is in Universal mode, you can swap from Trading to Trading, from PK to PK and from PK to Trading
      * In any other case, swap is only allowed to same Type accounts
      */
     private fun SingleAccount.isTargetAvailableForSwap(
-        target: CryptoAccount,
-        enabledWalletMode: WalletMode,
-    ): Boolean {
-        return if (enabledWalletMode == WalletMode.UNIVERSAL) {
-            if (isTrading()) target.isTrading() else true
-        } else
-            this.isSameType(target)
-    }
+        target: CryptoAccount
+    ): Boolean =
+        if (isTrading()) target.isTrading() else true
 
     fun findAccountByAddress(
         asset: AssetInfo,

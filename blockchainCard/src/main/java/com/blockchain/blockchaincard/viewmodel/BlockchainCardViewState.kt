@@ -20,7 +20,9 @@ data class BlockchainCardViewState(
     val eligibleTradingAccountBalances: List<AccountBalance> = mutableStateListOf(),
     val residentialAddress: BlockchainCardAddress? = null,
     val userFirstAndLastName: String? = null,
-    val transactionList: List<BlockchainCardTransaction>? = null,
+    val shortTransactionList: List<BlockchainCardTransaction>? = null,
+    val pendingTransactions: List<BlockchainCardTransaction>? = null,
+    val completedTransactionsGroupedByMonth: Map<String?, List<BlockchainCardTransaction>>? = null,
     val selectedCardTransaction: BlockchainCardTransaction? = null,
     val ssn: String? = null,
     val countryStateList: List<Region.State>? = null,
@@ -28,4 +30,5 @@ data class BlockchainCardViewState(
     val legalDocuments: List<BlockchainCardLegalDocument>? = null,
     val isLegalDocReviewComplete: Boolean = false,
     val singleLegalDocumentToSee: BlockchainCardLegalDocument? = null,
+    val isAddressLoading: Boolean = true,
 ) : ViewState

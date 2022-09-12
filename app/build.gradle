@@ -344,7 +344,6 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':common:network')
     implementation project(':common:domain')
-    implementation project(':common-view')
     implementation project(':payments:checkoutcom')
     implementation project(':payments:stripe')
     implementation project(':payments:googlepay')
@@ -358,6 +357,7 @@ dependencies {
     implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':store:caches:inmemory')
     implementation project(':blockchainCard')
+    implementation project(':addressVerification')
 
     implementation project(':appMaintenance:data')
     implementation project(':appMaintenance:domain')

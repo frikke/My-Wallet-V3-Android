@@ -30,6 +30,8 @@ class AnalyticsNabuUserReporterImpl(
         nabuUser.insertedAt?.let {
             userAnalytics.logUserProperty(UserProperty(UserAnalytics.KYC_CREATION_DATE, it))
         }
+
+        userAnalytics.logUserProperty(UserProperty(UserAnalytics.COWBOYS_USER, nabuUser.isCowboysUser.toString()))
     }
 }
 

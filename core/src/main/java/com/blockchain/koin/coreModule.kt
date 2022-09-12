@@ -8,6 +8,7 @@ import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
+import com.blockchain.core.buy.BuyPairsStore
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
@@ -24,6 +25,7 @@ import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2Store
 import com.blockchain.core.chains.erc20.data.store.Erc20Store
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.common.caching.StoreWiperImpl
@@ -157,7 +159,6 @@ val coreModule = module {
 
         factory<DataRemediationService> {
             DataRemediationRepository(
-                authenticator = get(),
                 api = get(),
             )
         }
@@ -165,7 +166,6 @@ val coreModule = module {
         scoped {
             TradingStore(
                 balanceService = get(),
-                authenticator = get()
             )
         }
 
@@ -179,7 +179,6 @@ val coreModule = module {
         scoped {
             BrokerageDataManager(
                 brokerageService = get(),
-                authenticator = get()
             )
         }
 
@@ -188,13 +187,11 @@ val coreModule = module {
                 limitsService = get(),
                 exchangeRatesDataManager = get(),
                 assetCatalogue = get(),
-                authenticator = get()
             )
         }.bind(LimitsDataManager::class)
 
         factory {
             ProductsEligibilityStore(
-                authenticator = get(),
                 productEligibilityApi = get()
             )
         }
@@ -208,7 +205,6 @@ val coreModule = module {
 
         scoped {
             FiatCurrenciesRepository(
-                authenticator = get(),
                 getUserStore = get(),
                 userService = get(),
                 assetCatalogue = get(),
@@ -221,28 +217,24 @@ val coreModule = module {
         scoped {
             InterestBalancesStore(
                 interestApiService = get(),
-                authenticator = get()
             )
         }
 
         scoped {
             InterestAvailableAssetsStore(
                 interestApiService = get(),
-                authenticator = get()
             )
         }
 
         scoped {
             InterestEligibilityStore(
                 interestApiService = get(),
-                authenticator = get()
             )
         }
 
         scoped {
             InterestLimitsStore(
                 interestApiService = get(),
-                authenticator = get(),
                 currencyPrefs = get()
             )
         }
@@ -250,7 +242,6 @@ val coreModule = module {
         scoped {
             InterestRateStore(
                 interestApiService = get(),
-                authenticator = get()
             )
         }
 
@@ -264,7 +255,6 @@ val coreModule = module {
                 interestRateStore = get(),
                 paymentTransactionHistoryStore = get(),
                 currencyPrefs = get(),
-                authenticator = get(),
                 interestApiService = get()
             )
         }
@@ -274,28 +264,29 @@ val coreModule = module {
         }
 
         scoped {
+            BuyPairsStore(nabuService = get())
+        }
+
+        scoped {
             TransactionsCache(
                 nabuService = get(),
-                authenticator = get()
             )
         }
 
         scoped {
             PaymentTransactionHistoryStore(
                 nabuService = get(),
-                authenticator = get()
             )
         }
 
         scoped {
             SwapTransactionsCache(
                 nabuService = get(),
-                authenticator = get()
             )
         }
 
         scoped {
-            BuyOrdersCache(authenticator = get(), nabuService = get())
+            BuyOrdersCache(nabuService = get())
         }
 
         factory {
@@ -315,6 +306,12 @@ val coreModule = module {
                 nonCustodialEvmService = get()
             )
         }.bind(EthMessageSigner::class)
+
+        scoped {
+            L1BalanceStore(
+                ethDataManager = get()
+            )
+        }
 
         scoped<Erc20DataSource> {
             Erc20Store(
@@ -357,13 +354,15 @@ val coreModule = module {
         scoped {
             Erc20DataManagerImpl(
                 ethDataManager = get(),
+                l1BalanceStore = get(),
                 historyCallCache = get(),
                 assetCatalogue = get(),
                 erc20StoreService = get(),
                 erc20DataSource = get(),
                 erc20L2StoreService = get(),
                 erc20L2DataSource = get(),
-                ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
+                ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
+                evmWithoutL1BalanceFeatureFlag = get(evmWithoutL1BalanceFeatureFlag)
             )
         }.bind(Erc20DataManager::class)
 
@@ -478,28 +477,24 @@ val coreModule = module {
         scoped {
             NabuUserDataManagerImpl(
                 nabuUserService = get(),
-                authenticator = get(),
                 kycService = get()
             )
         }.bind(NabuUserDataManager::class)
 
         scoped {
             LinkedCardsStore(
-                authenticator = get(),
                 paymentMethodsService = get()
             )
         }
 
         scoped {
             PaymentMethodsEligibilityStore(
-                authenticator = get(),
                 paymentMethodsService = get()
             )
         }
 
         scoped {
             WithdrawLocksCache(
-                authenticator = get(),
                 paymentsService = get(),
                 currencyPrefs = get()
             )
@@ -511,7 +506,6 @@ val coreModule = module {
                 paymentMethodsService = get(),
                 tradingService = get(),
                 simpleBuyPrefs = get(),
-                authenticator = get(),
                 googlePayManager = get(),
                 environmentConfig = get(),
                 withdrawLocksCache = get(),
@@ -529,7 +523,6 @@ val coreModule = module {
 
         scoped {
             WatchlistDataManagerImpl(
-                authenticator = get(),
                 watchlistService = get(),
                 assetCatalogue = get()
             )
@@ -537,10 +530,8 @@ val coreModule = module {
 
         factory {
             ReferralRepository(
-                authenticator = get(),
                 referralApi = get(),
                 currencyPrefs = get(),
-                referralFlag = get(referralsFeatureFlag)
             )
         }.bind(ReferralService::class)
 
@@ -665,4 +656,4 @@ val coreModule = module {
 }
 
 fun experimentalL1EvmAssetList(): Set<CryptoCurrency> =
-    setOf(CryptoCurrency.MATIC)
+    setOf(CryptoCurrency.MATIC, CryptoCurrency.BNB)

@@ -4,7 +4,6 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -45,11 +44,12 @@ class TransactionInteractorTest {
     private val paymentMethodService: PaymentMethodService = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val identity: UserIdentity = mock()
-    private val accountsSorting: AccountsSorting = mock()
+    private val defaultAccountSorting: AccountsSorting = mock()
+    private val swapSourceAccountsSorting: AccountsSorting = mock()
+    private val swapTargetAccountsSorting: AccountsSorting = mock()
     private val linkedBanksFactory: LinkedBanksFactory = mock()
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
     private val dismissRecorder: DismissRecorder = mock()
-    private val showSendToDomainAnnouncementFeatureFlag: IntegratedFeatureFlag = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
 
     private lateinit var subject: TransactionInteractor
@@ -57,20 +57,21 @@ class TransactionInteractorTest {
     @Before
     fun setUp() {
         subject = TransactionInteractor(
-            coincore,
-            addressFactory,
-            custodialRepository,
-            custodialWalletManager,
-            bankService,
-            paymentMethodService,
-            currencyPrefs,
-            identity,
-            accountsSorting,
-            linkedBanksFactory,
-            bankLinkingPrefs,
-            dismissRecorder,
-            showSendToDomainAnnouncementFeatureFlag,
-            fiatCurrenciesService
+            coincore = coincore,
+            addressFactory = addressFactory,
+            custodialRepository = custodialRepository,
+            custodialWalletManager = custodialWalletManager,
+            bankService = bankService,
+            paymentMethodService = paymentMethodService,
+            currencyPrefs = currencyPrefs,
+            identity = identity,
+            defaultAccountsSorting = defaultAccountSorting,
+            swapSourceAccountsSorting = swapSourceAccountsSorting,
+            swapTargetAccountsSorting = swapTargetAccountsSorting,
+            linkedBanksFactory = linkedBanksFactory,
+            bankLinkingPrefs = bankLinkingPrefs,
+            dismissRecorder = dismissRecorder,
+            fiatCurrenciesService = fiatCurrenciesService
         )
     }
 

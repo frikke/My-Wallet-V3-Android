@@ -28,7 +28,7 @@ fun Slider(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier
-            .padding(horizontal = dimensionResource(R.dimen.medium_margin)),
+            .padding(horizontal = dimensionResource(R.dimen.medium_spacing)),
         enabled = enabled,
         steps = 0,
         colors = SliderDefaults.colors(

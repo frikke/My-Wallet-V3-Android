@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.settings.v2
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -10,9 +9,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.updateToolbar
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.appRatingFeatureFlag
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAboutAppBinding
 import piuk.blockchain.android.rating.presentaion.AppRatingFragment
@@ -20,7 +16,6 @@ import piuk.blockchain.android.rating.presentaion.AppRatingTriggerSource
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
-import timber.log.Timber
 
 class AboutAppFragment : Fragment(), SettingsScreen {
 
@@ -32,8 +27,6 @@ class AboutAppFragment : Fragment(), SettingsScreen {
         (activity as? SettingsNavigator) ?: throw IllegalStateException(
             "Parent must implement SettingsNavigator"
         )
-
-    private val appRatingFF: FeatureFlag by inject(appRatingFeatureFlag)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,13 +59,7 @@ class AboutAppFragment : Fragment(), SettingsScreen {
             rateOption.apply {
                 primaryText = getString(R.string.about_app_rate_app)
                 onClick = {
-                    appRatingFF.enabled.subscribe { enabled ->
-                        if (enabled) {
-                            showAppRating()
-                        } else {
-                            goToPlayStore()
-                        }
-                    }
+                    showAppRating()
                 }
             }
             termsOption.apply {
@@ -89,22 +76,6 @@ class AboutAppFragment : Fragment(), SettingsScreen {
     private fun showAppRating() {
         AppRatingFragment.newInstance(AppRatingTriggerSource.DASHBOARD)
             .show(childFragmentManager, AppRatingFragment.TAG)
-    }
-
-    private fun goToPlayStore() {
-        val flags = Intent.FLAG_ACTIVITY_NO_HISTORY or
-            Intent.FLAG_ACTIVITY_MULTIPLE_TASK or Intent.FLAG_ACTIVITY_NEW_DOCUMENT
-        try {
-            Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("market://details?id=${requireActivity().packageName}")
-            ).let {
-                it.addFlags(flags)
-                startActivity(it)
-            }
-        } catch (e: ActivityNotFoundException) {
-            Timber.e(e, "Google Play Store not found")
-        }
     }
 
     private fun onTermsOfServiceClicked() {

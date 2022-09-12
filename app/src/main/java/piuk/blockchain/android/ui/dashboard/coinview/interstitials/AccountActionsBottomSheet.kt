@@ -103,7 +103,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_margin))),
+                            .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         SheetHeader(

@@ -33,6 +33,7 @@ dependencies {
     implementation project(':common:domain')
     implementation project(':common-mp:utils')
     implementation project(':blockchainApi')
+    implementation project(':addressVerification')
 
     implementation Libraries.timber
     implementation Libraries.retrofit
@@ -50,9 +51,19 @@ dependencies {
     implementation Libraries.accompanistNavigationMaterial
     implementation Libraries.accompanistSwipeRefresh
 
+    implementation "androidx.fragment:fragment-ktx:1.5.2"
+
+    // TODO(aromano): TEMP while Google doesn't fix https://issuetracker.google.com/issues/227767363
+    debugImplementation "androidx.customview:customview:1.2.0-alpha01"
+    debugImplementation "androidx.customview:customview-poolingcontainer:1.0.0-alpha01"
+
     // test
     testImplementation Libraries.junit
     testImplementation Libraries.kotlinTest
     testImplementation Libraries.mockk
     testImplementation Libraries.kotlinCoroutinesTest
+
+    // TODO(aromano): TEMP while Google doesn't fix https://issuetracker.google.com/issues/227767363
+    debugImplementation "androidx.customview:customview:1.2.0-alpha01"
+    debugImplementation "androidx.customview:customview-poolingcontainer:1.0.0"
 }

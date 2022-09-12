@@ -7,7 +7,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -15,30 +14,24 @@ internal interface TradeApi {
 
     @GET("trades/accumulated")
     fun isFirstTimeBuyer(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("products") products: String? = "SIMPLEBUY"
     ): Single<AccumulatedInPeriodResponse>
 
     @GET("recurring-buy/next-payment")
-    fun getNextPaymentDate(
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Single<NextPaymentRecurringBuyResponse>
+    fun getNextPaymentDate(): Single<NextPaymentRecurringBuyResponse>
 
     @GET("recurring-buy/list")
     fun getRecurringBuysForAsset(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("currency") assetTicker: String? = null
     ): Single<List<RecurringBuyResponse>>
 
     @GET("recurring-buy/list")
     fun getRecurringBuyById(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("id") recurringBuyId: String
     ): Single<List<RecurringBuyResponse>>
 
     @DELETE("recurring-buy/{id}/cancel")
     fun cancelRecurringBuy(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Path("id") id: String
     ): Completable
 }

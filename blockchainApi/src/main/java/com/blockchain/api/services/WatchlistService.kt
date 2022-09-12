@@ -9,21 +9,19 @@ class WatchlistService internal constructor(
     private val api: WatchlistApi
 ) {
 
-    suspend fun getWatchlist(authHeader: String): Outcome<Exception, WatchlistListResponse> =
-        api.getWatchlist(authHeader)
+    suspend fun getWatchlist(): Outcome<Exception, WatchlistListResponse> =
+        api.getWatchlist()
 
-    suspend fun addToWatchlist(authHeader: String, assetTicker: String, tags: List<AssetTag>) =
+    suspend fun addToWatchlist(assetTicker: String, tags: List<AssetTag>) =
         api.addToWatchlist(
-            authorization = authHeader,
             body = WatchlistBody(
                 asset = assetTicker,
                 tags = tags.map { it.tagName }
             )
         )
 
-    suspend fun removeFromWatchlist(authHeader: String, assetTicker: String, tags: List<AssetTag>) =
+    suspend fun removeFromWatchlist(assetTicker: String, tags: List<AssetTag>) =
         api.removeFromWatchlist(
-            authorization = authHeader,
             body = WatchlistBody(
                 asset = assetTicker,
                 tags = tags.map { it.tagName }

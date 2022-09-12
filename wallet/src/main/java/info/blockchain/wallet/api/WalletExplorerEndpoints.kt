@@ -122,7 +122,8 @@ interface WalletExplorerEndpoints {
         @Field("device") device: String?,
         @Field("old_checksum") old_checksum: String?,
         @Field("api_code") apiCode: String,
-        @Field("captcha") recaptchaToken: String?
+        @Field("captcha") recaptchaToken: String?,
+        @Field("siteKey") siteKey: String?
     ): Call<ResponseBody>
 
     @FormUrlEncoded

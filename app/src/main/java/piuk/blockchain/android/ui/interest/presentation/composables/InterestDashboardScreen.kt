@@ -51,8 +51,8 @@ fun InterestDashboardScreen(
                     } else {
                         Box(
                             modifier = Modifier.padding(
-                                start = dimensionResource(R.dimen.standard_margin),
-                                end = dimensionResource(R.dimen.standard_margin)
+                                start = dimensionResource(R.dimen.standard_spacing),
+                                end = dimensionResource(R.dimen.standard_spacing)
                             )
                         ) {
                             Search(
@@ -74,7 +74,7 @@ fun InterestDashboardScreen(
                             }
 
                             item {
-                                Spacer(Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                                Spacer(Modifier.size(dimensionResource(R.dimen.standard_spacing)))
                             }
                         }
                     }

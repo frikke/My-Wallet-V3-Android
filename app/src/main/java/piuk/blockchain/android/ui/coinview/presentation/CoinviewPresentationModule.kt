@@ -8,9 +8,13 @@ val coinviewPresentationModule = module {
     scope(payloadScopeQualifier) {
         viewModel {
             CoinviewViewModel(
+                walletModeService = get(),
                 coincore = get(),
                 currencyPrefs = get(),
-                getAssetPriceUseCase = get()
+                labels = get(),
+                getAssetPriceUseCase = get(),
+                loadAssetAccountsUseCase = get(),
+                loadAssetRecurringBuysUseCase = get()
             )
         }
     }

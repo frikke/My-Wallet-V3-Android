@@ -46,6 +46,7 @@ dependencies {
     implementation Libraries.composeLottie
     implementation Libraries.exoPlayer
     implementation Libraries.accompanistSystemUi
+    implementation Libraries.accompanistDrawablePainter
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.koin
     implementation Libraries.koinAndroid

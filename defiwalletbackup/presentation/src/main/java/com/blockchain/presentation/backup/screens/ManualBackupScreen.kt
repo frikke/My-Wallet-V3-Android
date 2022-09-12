@@ -73,36 +73,38 @@ fun ManualBackupScreen(
             onBackButtonClick = backOnClick
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_spacing)))
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_margin)),
+                .padding(dimensionResource(id = R.dimen.standard_spacing)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.manual_backup_title),
                 style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.manual_backup_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
             Mnemonic(mnemonic = mnemonic)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
             CopyMnemonicCta(
                 copyState = copyState,
@@ -110,9 +112,10 @@ fun ManualBackupScreen(
                 mnemonicCopied = mnemonicCopied
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.manual_backup_copy_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,

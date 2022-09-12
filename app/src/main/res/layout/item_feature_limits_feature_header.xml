@@ -4,14 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/feature_limits_header"
-    android:paddingTop="@dimen/tiny_margin"
-    android:paddingBottom="@dimen/tiny_margin">
+    android:paddingTop="@dimen/tiny_spacing"
+    android:paddingBottom="@dimen/tiny_spacing">
 
     <TextView
         style="@style/Text.Semibold.12"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
         android:text="@string/feature_limits_your_limits_and_features"
         />
 

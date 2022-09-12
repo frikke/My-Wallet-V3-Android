@@ -36,8 +36,8 @@ fun Balance(
         Column(
             modifier = Modifier
                 .padding(
-                    horizontal = dimensionResource(R.dimen.standard_margin),
-                    vertical = dimensionResource(R.dimen.medium_margin)
+                    horizontal = dimensionResource(R.dimen.standard_spacing),
+                    vertical = dimensionResource(R.dimen.medium_spacing)
                 )
                 .fillMaxWidth()
         ) {
@@ -62,10 +62,10 @@ fun Balance(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .padding(
-                            top = dimensionResource(R.dimen.tiny_margin),
-                            start = dimensionResource(R.dimen.medium_margin)
+                            top = dimensionResource(R.dimen.tiny_spacing),
+                            start = dimensionResource(R.dimen.medium_spacing)
                         )
-                        .size(dimensionResource(R.dimen.large_margin)),
+                        .size(dimensionResource(R.dimen.large_spacing)),
                     imageResource = endIcon
                 )
             }

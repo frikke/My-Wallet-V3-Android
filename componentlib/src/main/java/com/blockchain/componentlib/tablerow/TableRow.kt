@@ -65,8 +65,8 @@ fun TableRow(
 ) {
     TableRow(
         paddingValues = PaddingValues(
-            horizontal = dimensionResource(R.dimen.standard_margin),
-            vertical = dimensionResource(R.dimen.medium_margin)
+            horizontal = dimensionResource(R.dimen.standard_spacing),
+            vertical = dimensionResource(R.dimen.medium_spacing)
         ),
         content = content,
         contentStart = contentStart,

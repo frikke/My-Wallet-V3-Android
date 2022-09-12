@@ -5,7 +5,7 @@
         <clip>
             <shape>
                 <solid android:color="@color/product_red_medium" />
-                <corners android:radius="@dimen/small_margin"/>
+                <corners android:radius="@dimen/small_spacing"/>
             </shape>
         </clip>
         <color android:color="@color/product_red_medium" />
@@ -14,7 +14,7 @@
         <clip>
             <shape>
                 <solid android:color="@color/product_red_medium" />
-                <corners android:radius="@dimen/small_margin"/>
+                <corners android:radius="@dimen/small_spacing"/>
             </shape>
         </clip>
 

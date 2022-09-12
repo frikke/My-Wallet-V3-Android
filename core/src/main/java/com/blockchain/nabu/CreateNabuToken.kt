@@ -6,7 +6,7 @@ import io.reactivex.rxjava3.core.Single
 interface CreateNabuToken {
 
     /**
-     * NB: If you use [Authenticator] or [NabuToken], token creation and persistence in metadata is done transparently
+     * NB: If you use [NabuToken], token creation and persistence in metadata is done transparently
      * for you on demand.
      *
      * Creates the lifetime token for nabu.

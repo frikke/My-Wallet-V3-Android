@@ -25,6 +25,8 @@ sealed class ProductNotEligibleReason {
     @Serializable
     sealed class InsufficientTier : ProductNotEligibleReason() {
         @Serializable
+        object Tier1Required : InsufficientTier()
+        @Serializable
         object Tier2Required : InsufficientTier()
         @Serializable
         object Tier1TradeLimitExceeded : InsufficientTier()

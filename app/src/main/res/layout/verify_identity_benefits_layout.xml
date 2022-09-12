@@ -10,7 +10,7 @@
         android:id="@+id/kyc_benefits_sheet_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/tiny_margin"
+        android:layout_marginTop="@dimen/tiny_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -20,8 +20,8 @@
         android:id="@+id/kyc_benefits_default_symbol"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/very_small_spacing"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/kyc_benefits_sheet_indicator" />
 
@@ -30,9 +30,9 @@
         style="@style/Text.Semibold.20"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/small_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/small_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
         android:text="@string/fiat_funds_no_kyc_announcement_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -43,9 +43,9 @@
         style="@style/Text.Light.14"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/small_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/small_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
         android:text="@string/fiat_funds_no_kyc_sheet_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,7 +54,7 @@
     <View
         android:id="@+id/kyc_benefits_header_separator"
         style="@style/SeparatorWithoutMargins"
-        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginTop="@dimen/small_spacing"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/kyc_benefits_intro_description" />
 
@@ -62,13 +62,13 @@
         android:id="@+id/rv_benefits"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/standard_spacing"
         app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toTopOf="@+id/footer_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/kyc_benefits_header_separator"
-        app:layout_goneMarginBottom="@dimen/standard_margin"
+        app:layout_goneMarginBottom="@dimen/standard_spacing"
         tools:itemCount="5"
         tools:listitem="@layout/verify_identity_numeric_benefit_layout" />
 
@@ -77,7 +77,7 @@
         style="@style/Text.Light.12"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/standard_margin"
+        android:layout_margin="@dimen/standard_spacing"
         android:gravity="center"
         app:layout_constraintBottom_toTopOf="@+id/kyc_benefits_positive_action"
         app:layout_constraintEnd_toEndOf="parent"
@@ -90,7 +90,7 @@
         style="@style/CtaButton.Blue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/tiny_margin"
+        android:layout_marginBottom="@dimen/tiny_spacing"
         android:text="@string/fiat_funds_no_kyc_positive_action"
         app:layout_constraintBottom_toTopOf="@id/kyc_benefits_negative_action"
         app:layout_constraintEnd_toEndOf="parent"
@@ -102,11 +102,11 @@
         style="@style/CtaButton.White"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/standard_spacing"
         android:text="@string/fiat_funds_no_kyc_negative_action"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_goneMarginBottom="@dimen/standard_margin" />
+        app:layout_goneMarginBottom="@dimen/standard_spacing" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -67,14 +67,14 @@ fun EducationalWalletModeScreen(
             modifier = Modifier
                 .clickable { onClick() }
                 .align(Alignment.TopEnd)
-                .padding(AppTheme.dimensions.paddingLarge),
+                .padding(AppTheme.dimensions.standardSpacing),
             imageResource = ImageResource.Local(R.drawable.ic_close_circle)
         )
 
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(AppTheme.dimensions.paddingMedium),
+                .padding(AppTheme.dimensions.smallSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (buttonVisible) {
@@ -85,10 +85,10 @@ fun EducationalWalletModeScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
             HorizontalPagerIndicator(
-                modifier = Modifier.padding(AppTheme.dimensions.xPaddingSmall),
+                modifier = Modifier.padding(AppTheme.dimensions.smallestSpacing),
                 pagerState = pagerState,
                 activeColor = AppTheme.colors.background,
                 inactiveColor = AppTheme.colors.background.copy(alpha = 0.25F)

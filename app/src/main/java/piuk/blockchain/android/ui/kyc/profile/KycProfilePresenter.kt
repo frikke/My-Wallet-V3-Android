@@ -2,10 +2,8 @@ package piuk.blockchain.android.ui.kyc.profile
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.util.toISO8601DateString
 import com.google.common.base.Optional
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -22,17 +20,16 @@ import java.util.Locale
 import kotlin.properties.Delegates
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.ui.kyc.BaseKycPresenter
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.util.StringUtils
 import timber.log.Timber
 
 class KycProfilePresenter(
-    nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
     private val userService: UserService,
     private val stringUtils: StringUtils,
-) : BaseKycPresenter<KycProfileView>(nabuToken) {
+) : BasePresenter<KycProfileView>() {
 
     var firstNameSet by Delegates.observable(false) { _, _, _ -> enableButtonIfComplete() }
     var lastNameSet by Delegates.observable(false) { _, _, _ -> enableButtonIfComplete() }
@@ -47,9 +44,7 @@ class KycProfilePresenter(
         check(view.lastName.isNotEmpty()) { "lastName is empty" }
         check(view.dateOfBirth != null) { "dateOfBirth is null" }
 
-        compositeDisposable += fetchOfflineToken.flatMapCompletable {
-            createBasicUser(it)
-        }
+        compositeDisposable += createBasicUser()
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { view.showProgressDialog() }
             .doOnTerminate { view.dismissProgressDialog() }
@@ -61,7 +56,6 @@ class KycProfilePresenter(
                         lastName = view.lastName,
                         countryCode = view.countryCode,
                         stateCode = view.stateCode,
-                        stateName = view.stateName
                     ).run { view.continueSignUp(this) }
                 },
                 onError = {
@@ -108,13 +102,12 @@ class KycProfilePresenter(
         }
     }
 
-    private fun createBasicUser(offlineToken: NabuOfflineToken): Completable =
+    private fun createBasicUser(): Completable =
         nabuDataManager.createBasicUser(
             view.firstName,
             view.lastName,
             view.dateOfBirth?.toISO8601DateString()
                 ?: throw IllegalStateException("DoB has not been set"),
-            offlineToken
         ).subscribeOn(Schedulers.io())
             .doOnComplete {
                 userService.markAsStale()

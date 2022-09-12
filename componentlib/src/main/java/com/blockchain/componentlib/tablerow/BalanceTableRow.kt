@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,7 +30,7 @@ import com.blockchain.componentlib.theme.AppTheme
 fun BalanceTableRow(
     titleStart: AnnotatedString,
     titleEnd: AnnotatedString? = null,
-    bodyStart: AnnotatedString,
+    bodyStart: AnnotatedString? = null,
     bodyEnd: AnnotatedString? = null,
     startImageResource: ImageResource,
     endImageResource: ImageResource = ImageResource.None,
@@ -44,20 +45,21 @@ fun BalanceTableRow(
                 imageResource = startImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .size(dimensionResource(R.dimen.standard_margin))
+                    .size(dimensionResource(R.dimen.standard_spacing)),
+                defaultShape = RoundedCornerShape(2.dp)
             )
         },
         content = {
             val startPadding = if (startImageResource != ImageResource.None) {
-                dimensionResource(R.dimen.medium_margin)
+                dimensionResource(R.dimen.medium_spacing)
             } else {
-                dimensionResource(R.dimen.zero_margin)
+                dimensionResource(R.dimen.zero_spacing)
             }
 
             val endPadding = if (endImageResource != ImageResource.None) {
-                dimensionResource(R.dimen.medium_margin)
+                dimensionResource(R.dimen.medium_spacing)
             } else {
-                dimensionResource(R.dimen.zero_margin)
+                dimensionResource(R.dimen.zero_spacing)
             }
             Column(
                 modifier = Modifier
@@ -80,14 +82,16 @@ fun BalanceTableRow(
                     Row(
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text(
-                            text = bodyStart,
-                            style = AppTheme.typography.paragraph1,
-                            modifier = Modifier
-                                .wrapContentSize()
-                                .align(Alignment.CenterVertically),
-                            color = AppTheme.colors.body
-                        )
+                        bodyStart?.let {
+                            Text(
+                                text = bodyStart,
+                                style = AppTheme.typography.paragraph1,
+                                modifier = Modifier
+                                    .wrapContentSize()
+                                    .align(Alignment.CenterVertically),
+                                color = AppTheme.colors.body
+                            )
+                        }
                         if (isInlineTags) {
                             TagsRow(
                                 tags = tags,
@@ -111,8 +115,8 @@ fun BalanceTableRow(
                 Image(
                     imageResource = endImageResource,
                     modifier = Modifier.requiredSizeIn(
-                        maxWidth = dimensionResource(R.dimen.standard_margin),
-                        maxHeight = dimensionResource(R.dimen.standard_margin),
+                        maxWidth = dimensionResource(R.dimen.standard_spacing),
+                        maxHeight = dimensionResource(R.dimen.standard_spacing),
                     ),
                 )
             }

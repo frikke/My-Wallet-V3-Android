@@ -40,7 +40,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/tiny_margin">
+            android:layout_marginBottom="@dimen/tiny_spacing">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/fee_option_custom_il"
@@ -66,9 +66,9 @@
                 android:id="@+id/fee_option_custom_bounds"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/minuscule_margin"
+                android:layout_marginTop="@dimen/minuscule_spacing"
                 android:drawableStart="@drawable/ic_information"
-                android:drawablePadding="@dimen/minuscule_margin"
+                android:drawablePadding="@dimen/minuscule_spacing"
                 app:layout_constraintTop_toBottomOf="@id/fee_option_custom_il" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

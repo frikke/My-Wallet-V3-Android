@@ -3,7 +3,6 @@ package com.blockchain.coincore
 import com.blockchain.coincore.bch.BchAsset
 import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.eth.EthAsset
-import com.blockchain.coincore.evm.MaticAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
@@ -74,6 +73,7 @@ val coincoreModule = module {
         scoped {
             EthAsset(
                 ethDataManager = get(),
+                l1BalanceStore = get(),
                 feeDataManager = get(),
                 walletPrefs = get(),
                 labels = get(),
@@ -81,19 +81,6 @@ val coincoreModule = module {
                 assetCatalogue = lazy { get() },
                 formatUtils = get(),
                 addressResolver = get()
-            )
-        }.bind(CryptoAsset::class)
-
-        scoped {
-            MaticAsset(
-                ethDataManager = get(),
-                erc20DataManager = get(),
-                feeDataManager = get(),
-                walletPreferences = get(),
-                labels = get(),
-                formatUtils = get(),
-                addressResolver = get(),
-                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
             )
         }.bind(CryptoAsset::class)
 
@@ -128,6 +115,7 @@ val coincoreModule = module {
                 experimentalL1EvmAssets = experimentalL1EvmAssetList(), // Only Matic ATM
                 assetCatalogue = get(),
                 payloadManager = get(),
+                l1BalanceStore = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
                 tradingService = get(),
@@ -235,6 +223,7 @@ val coincoreModule = module {
                 CryptoCurrency.BCH,
                 CryptoCurrency.XLM,
                 CryptoCurrency.ETHER,
+                CryptoCurrency.BNB
             ),
             discoveryService = get(),
             l2sDynamicAssetRepository = get()

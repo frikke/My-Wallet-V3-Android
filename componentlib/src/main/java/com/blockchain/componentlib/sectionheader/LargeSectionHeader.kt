@@ -35,7 +35,7 @@ fun LargeSectionHeader(
     isDarkMode: Boolean = isSystemInDarkTheme(),
 ) {
     Row(
-        modifier = modifier.padding(vertical = 14.dp, horizontal = dimensionResource(R.dimen.medium_margin)),
+        modifier = modifier.padding(vertical = 14.dp, horizontal = dimensionResource(R.dimen.medium_spacing)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -66,7 +66,7 @@ fun LargeSectionHeader(
                     )
 
                     if (index != headerType.options.lastIndex) {
-                        Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
+                        Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                     }
                 }
             }

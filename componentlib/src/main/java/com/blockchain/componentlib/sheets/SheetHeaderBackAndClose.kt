@@ -53,10 +53,10 @@ fun SheetHeaderBackAndClose(
                     backPressContentDescription = backPressContentDescription,
                     modifier = Modifier
                         .padding(
-                            start = dimensionResource(R.dimen.very_small_margin),
-                            top = dimensionResource(R.dimen.medium_margin)
+                            start = dimensionResource(R.dimen.very_small_spacing),
+                            top = dimensionResource(R.dimen.medium_spacing)
                         )
-                        .size(dimensionResource(R.dimen.standard_margin))
+                        .size(dimensionResource(R.dimen.standard_spacing))
                 )
 
                 SheetHeaderTitle(
@@ -65,15 +65,15 @@ fun SheetHeaderBackAndClose(
                     modifier = Modifier
                         .weight(1f)
                         .padding(
-                            top = dimensionResource(R.dimen.medium_margin),
-                            start = dimensionResource(R.dimen.standard_margin)
+                            top = dimensionResource(R.dimen.medium_spacing),
+                            start = dimensionResource(R.dimen.standard_spacing)
                         )
                 )
 
                 SheetHeaderCloseButton(
                     onClosePress = onClosePress,
                     backPressContentDescription = closePressContentDescription,
-                    modifier = Modifier.padding(dimensionResource(R.dimen.medium_margin))
+                    modifier = Modifier.padding(dimensionResource(R.dimen.medium_spacing))
                 )
             }
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
@@ -93,7 +93,7 @@ private fun SheetHeaderTitle(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (byline == null) {
-            Spacer(Modifier.height(dimensionResource(R.dimen.smallest_margin)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.smallest_spacing)))
         }
 
         Text(
@@ -109,7 +109,7 @@ private fun SheetHeaderTitle(
                 color = if (isDarkMode) Dark200 else Grey600,
                 textAlign = TextAlign.Center,
             )
-            Spacer(Modifier.height(dimensionResource(R.dimen.minuscule_margin)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.minuscule_spacing)))
         }
     }
 }

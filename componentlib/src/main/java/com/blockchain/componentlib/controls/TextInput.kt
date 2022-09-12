@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.controls
 
+import android.view.KeyEvent.ACTION_DOWN
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,11 +23,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -57,6 +65,71 @@ fun TextInput(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
+    readOnly: Boolean = false,
+    state: TextInputState = TextInputState.Default(""),
+    label: String? = null,
+    placeholder: String? = null,
+    leadingIcon: ImageResource = ImageResource.None,
+    trailingIcon: ImageResource = ImageResource.None,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    singleLine: Boolean = false,
+    maxLines: Int = Int.MAX_VALUE,
+    maxLength: Int = Int.MAX_VALUE,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    onFocusChanged: (FocusState) -> Unit = {},
+    onTrailingIconClicked: () -> Unit = {}
+) {
+    // Holds the latest internal TextFieldValue state. We need to keep it to have the correct value
+    // of the composition.
+    var textFieldValueState by remember { mutableStateOf(TextFieldValue(text = value)) }
+    // Holds the latest TextFieldValue that BasicTextField was recomposed with. We couldn't simply
+    // pass `TextFieldValue(text = value)` to the CoreTextField because we need to preserve the
+    // composition.
+    val textFieldValue = textFieldValueState.copy(text = value)
+    // Last String value that either text field was recomposed with or updated in the onValueChange
+    // callback. We keep track of it to prevent calling onValueChange(String) for same String when
+    // CoreTextField's onValueChange is called multiple times without recomposition in between.
+    var lastTextValue by remember(value) { mutableStateOf(value) }
+
+    TextInput(
+        modifier = modifier,
+        value = textFieldValue,
+        onValueChange = { newTextFieldValueState ->
+            textFieldValueState = newTextFieldValueState
+
+            val stringChangedSinceLastInvocation = lastTextValue != newTextFieldValueState.text
+            lastTextValue = newTextFieldValueState.text
+
+            if (stringChangedSinceLastInvocation) {
+                onValueChange(newTextFieldValueState.text)
+            }
+        },
+        readOnly = readOnly,
+        state = state,
+        label = label,
+        placeholder = placeholder,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+        visualTransformation = visualTransformation,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        singleLine = singleLine,
+        maxLines = maxLines,
+        maxLength = maxLength,
+        interactionSource = interactionSource,
+        onFocusChanged = onFocusChanged,
+        onTrailingIconClicked = onTrailingIconClicked,
+    )
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun TextInput(
+    modifier: Modifier = Modifier,
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
     readOnly: Boolean = false,
     state: TextInputState = TextInputState.Default(""),
     label: String? = null,
@@ -124,12 +197,41 @@ fun TextInput(
         Dark200
     }
 
+    val newTextFieldValue = if (maxLength != Int.MAX_VALUE) {
+        val newValueString = value.annotatedString.subSequence(
+            0,
+            value.annotatedString.length.coerceAtMost(maxLength)
+        )
+        value.copy(annotatedString = newValueString)
+    } else {
+        value
+    }
     Column {
+        val focusManager = LocalFocusManager.current
         TextField(
-            value = value,
-            onValueChange = { onValueChange(it.take(maxLength)) },
+            value = newTextFieldValue,
+            onValueChange = { newValue ->
+                val newTextFieldValue = if (maxLength != Int.MAX_VALUE) {
+                    val newValueString = newValue.annotatedString.subSequence(
+                        0,
+                        newValue.annotatedString.length.coerceAtMost(maxLength)
+                    )
+                    newValue.copy(annotatedString = newValueString)
+                } else {
+                    newValue
+                }
+                onValueChange(newTextFieldValue)
+            },
             modifier = modifier
                 .fillMaxWidth(1f)
+                .onPreviewKeyEvent { keyEvent ->
+                    if (keyEvent.key == Key.Tab && keyEvent.nativeKeyEvent.action == ACTION_DOWN) {
+                        focusManager.moveFocus(FocusDirection.Next)
+                        true
+                    } else {
+                        false
+                    }
+                }
                 .onFocusChanged { focusState ->
                     onFocusChanged.invoke(focusState)
                 },
@@ -187,10 +289,55 @@ fun TextInput(
                 modifier = Modifier
                     .background(Color.Transparent)
                     .padding(
-                        start = dimensionResource(R.dimen.medium_margin),
-                        end = dimensionResource(R.dimen.medium_margin),
+                        start = dimensionResource(R.dimen.medium_spacing),
+                        end = dimensionResource(R.dimen.medium_spacing),
                         top = 8.dp
                     )
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun TextInput_Error_Preview() {
+    AppTheme {
+        AppSurface {
+            TextInput(
+                value = "",
+                label = "Home Address",
+                onValueChange = {},
+                placeholder = "Placeholder text",
+                trailingIcon = ImageResource.Local(R.drawable.ic_search),
+                state = TextInputState.Error("Test Error Message")
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun TextInput_Disabled_Preview() {
+    AppTheme {
+        AppSurface {
+            TextInput(
+                value = "Input",
+                onValueChange = {},
+                state = TextInputState.Disabled("Test Disabled message")
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun TextInput_Success_Preview() {
+    AppTheme {
+        AppSurface {
+            TextInput(
+                value = "Input",
+                onValueChange = {},
+                state = TextInputState.Success("Test Disabled message")
             )
         }
     }
@@ -204,7 +351,7 @@ fun TextInput_Preview() {
             TextInput(
                 value = "Input",
                 onValueChange = {},
-                state = TextInputState.Error("Test Error Message")
+                state = TextInputState.Default()
             )
         }
     }
@@ -216,7 +363,76 @@ fun OutlinedTextInput(
     value: String,
     onValueChange: (String) -> Unit,
     readOnly: Boolean = false,
-    state: TextInputState = TextInputState.Default(""),
+    state: TextInputState = TextInputState.Default(null),
+    label: String? = null,
+    placeholder: String? = null,
+    leadingIcon: ImageResource = ImageResource.None,
+    unfocusedTrailingIcon: ImageResource = ImageResource.None,
+    focusedTrailingIcon: ImageResource = ImageResource.None,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    singleLine: Boolean = false,
+    maxLines: Int = Int.MAX_VALUE,
+    maxLength: Int = Int.MAX_VALUE,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    hasFocus: MutableState<Boolean> = remember { mutableStateOf(false) },
+    onFocusChanged: (FocusState) -> Unit = {},
+    onTrailingIconClicked: () -> Unit = {}
+) {
+    // Holds the latest internal TextFieldValue state. We need to keep it to have the correct value
+    // of the composition.
+    var textFieldValueState by remember { mutableStateOf(TextFieldValue(text = value)) }
+    // Holds the latest TextFieldValue that BasicTextField was recomposed with. We couldn't simply
+    // pass `TextFieldValue(text = value)` to the CoreTextField because we need to preserve the
+    // composition.
+    val textFieldValue = textFieldValueState.copy(text = value)
+    // Last String value that either text field was recomposed with or updated in the onValueChange
+    // callback. We keep track of it to prevent calling onValueChange(String) for same String when
+    // CoreTextField's onValueChange is called multiple times without recomposition in between.
+    var lastTextValue by remember(value) { mutableStateOf(value) }
+
+    OutlinedTextInput(
+        modifier = modifier,
+        value = textFieldValue,
+        onValueChange = { newTextFieldValueState ->
+            textFieldValueState = newTextFieldValueState
+
+            val stringChangedSinceLastInvocation = lastTextValue != newTextFieldValueState.text
+            lastTextValue = newTextFieldValueState.text
+
+            if (stringChangedSinceLastInvocation) {
+                onValueChange(newTextFieldValueState.text)
+            }
+        },
+        readOnly = readOnly,
+        state = state,
+        label = label,
+        placeholder = placeholder,
+        leadingIcon = leadingIcon,
+        unfocusedTrailingIcon = unfocusedTrailingIcon,
+        focusedTrailingIcon = focusedTrailingIcon,
+        visualTransformation = visualTransformation,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        singleLine = singleLine,
+        maxLines = maxLines,
+        maxLength = maxLength,
+        interactionSource = interactionSource,
+        hasFocus = hasFocus,
+        onFocusChanged = onFocusChanged,
+        onTrailingIconClicked = onTrailingIconClicked,
+    )
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun OutlinedTextInput(
+    modifier: Modifier = Modifier,
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    readOnly: Boolean = false,
+    state: TextInputState = TextInputState.Default(null),
     label: String? = null,
     placeholder: String? = null,
     leadingIcon: ImageResource = ImageResource.None,
@@ -297,16 +513,45 @@ fun OutlinedTextInput(
     }
 
     Column(modifier = modifier) {
+        val focusManager = LocalFocusManager.current
         Box(
             modifier = Modifier
                 .border(BorderStroke(1.dp, borderColor), RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp))
                 .background(color = backgroundColor)
         ) {
+            val newTextFieldValue = if (maxLength != Int.MAX_VALUE) {
+                val newValueString = value.annotatedString.subSequence(
+                    0,
+                    value.annotatedString.length.coerceAtMost(maxLength)
+                )
+                value.copy(annotatedString = newValueString)
+            } else {
+                value
+            }
             TextField(
-                value = value,
-                onValueChange = { onValueChange(it.take(maxLength)) },
-                modifier = modifier
+                value = newTextFieldValue,
+                onValueChange = { newValue ->
+                    val newTextFieldValue = if (maxLength != Int.MAX_VALUE) {
+                        val newValueString = newValue.annotatedString.subSequence(
+                            0,
+                            newValue.annotatedString.length.coerceAtMost(maxLength)
+                        )
+                        newValue.copy(annotatedString = newValueString)
+                    } else {
+                        newValue
+                    }
+                    onValueChange(newTextFieldValue)
+                },
+                modifier = Modifier
                     .fillMaxWidth()
+                    .onPreviewKeyEvent { keyEvent ->
+                        if (keyEvent.key == Key.Tab && keyEvent.nativeKeyEvent.action == ACTION_DOWN) {
+                            focusManager.moveFocus(FocusDirection.Next)
+                            true
+                        } else {
+                            false
+                        }
+                    }
                     .onFocusChanged { focusState ->
                         onFocusChanged.invoke(focusState)
                         hasFocus.value = focusState.isFocused
@@ -317,6 +562,7 @@ fun OutlinedTextInput(
                 placeholder = if (placeholder != null) {
                     {
                         SimpleText(
+                            modifier = Modifier.fillMaxWidth(),
                             text = placeholder,
                             style = ComposeTypographies.Body1,
                             gravity = ComposeGravities.Start,
@@ -374,8 +620,8 @@ fun OutlinedTextInput(
                 modifier = Modifier
                     .background(Color.Transparent)
                     .padding(
-                        start = dimensionResource(R.dimen.medium_margin),
-                        end = dimensionResource(R.dimen.medium_margin),
+                        start = dimensionResource(R.dimen.medium_spacing),
+                        end = dimensionResource(R.dimen.medium_spacing),
                         top = 8.dp
                     )
             )

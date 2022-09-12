@@ -43,6 +43,7 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
         legalDocuments = state.legalDocuments,
         isLegalDocReviewComplete = state.isLegalDocReviewComplete,
         singleLegalDocumentToSee = state.singleLegalDocumentToSee,
+        isAddressLoading = state.isAddressLoading
     )
 
     override suspend fun handleIntent(
@@ -67,13 +68,21 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
             }
 
             is BlockchainCardIntent.LoadResidentialAddress -> {
+
+                updateState { it.copy(isAddressLoading = true) }
+
                 blockchainCardRepository.getResidentialAddress().fold(
                     onSuccess = { address ->
-                        updateState { it.copy(residentialAddress = address) }
+                        updateState { it.copy(residentialAddress = address, isAddressLoading = false) }
                     },
                     onFailure = { error ->
                         Timber.e("Unable to get residential address: $error")
-                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                        updateState {
+                            it.copy(
+                                errorState = BlockchainCardErrorState.SnackbarErrorState(error),
+                                isAddressLoading = false
+                            )
+                        }
                     }
                 )
             }
@@ -87,21 +96,29 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                         .doOnFailure {
                             Timber.e("Unable to get states: $it")
                         }
+                    navigate(BlockchainCardNavigationEvent.SeeBillingAddress(address))
                 }
-                navigate(BlockchainCardNavigationEvent.SeeBillingAddress)
             }
 
             is BlockchainCardIntent.UpdateBillingAddress -> {
+
+                updateState { it.copy(isAddressLoading = true) }
+
                 blockchainCardRepository.updateResidentialAddress(
                     intent.newAddress
                 ).fold(
                     onSuccess = { newAddress ->
-                        updateState { it.copy(residentialAddress = newAddress) }
+                        updateState { it.copy(residentialAddress = newAddress, isAddressLoading = false) }
                         navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = true))
                     },
                     onFailure = { error ->
                         Timber.e("Unable to update residential address: $error")
-                        updateState { it.copy(errorState = BlockchainCardErrorState.ScreenErrorState(error)) }
+                        updateState {
+                            it.copy(
+                                errorState = BlockchainCardErrorState.ScreenErrorState(error),
+                                isAddressLoading = false
+                            )
+                        }
                         navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = false))
                     }
                 )

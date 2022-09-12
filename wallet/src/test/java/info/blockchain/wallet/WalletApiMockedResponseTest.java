@@ -37,7 +37,8 @@ public abstract class WalletApiMockedResponseTest extends MockedResponseTest {
                 "https://explorer.staging.blockchain.info/",
                 newOkHttpClient()
             ).create(WalletExplorerEndpoints.class),
-            api
+            api,
+            ""
         ));
     }
 

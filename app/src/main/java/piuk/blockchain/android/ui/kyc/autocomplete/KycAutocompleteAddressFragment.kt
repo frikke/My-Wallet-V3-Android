@@ -21,10 +21,10 @@ import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycAutocompleteBinding
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
+import piuk.blockchain.android.ui.kyc.address.models.OldAddressDetailsModel
+import piuk.blockchain.android.ui.kyc.address.models.OldProfileModel
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
-import piuk.blockchain.android.ui.kyc.profile.models.AddressDetailsModel
-import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class KycAutocompleteAddressFragment :
@@ -33,7 +33,7 @@ class KycAutocompleteAddressFragment :
 
     override val model: KycAutocompleteAddressModel by scopedInject()
 
-    val profileModel: ProfileModel by unsafeLazy {
+    val profileModel: OldProfileModel by unsafeLazy {
         KycAutocompleteAddressFragmentArgs.fromBundle(arguments ?: Bundle()).profileModel
     }
 
@@ -85,7 +85,7 @@ class KycAutocompleteAddressFragment :
         model.process(KycAutocompleteAddressIntents.SelectAddress(result))
     }
 
-    private fun navigateToAddress(addressDetails: AddressDetailsModel?) {
+    private fun navigateToAddress(addressDetails: OldAddressDetailsModel?) {
         navigate(
             KycAutocompleteAddressFragmentDirections
                 .actionKycAutocompleteAddressFragmentToKycHomeAddressFragment(

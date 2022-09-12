@@ -7,7 +7,6 @@ import com.blockchain.network.interceptor.AuthenticationNotRequired
 import com.blockchain.network.interceptor.Cacheable
 import com.blockchain.outcome.Outcome
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -15,7 +14,6 @@ interface EligibilityApi {
 
     @GET("products")
     suspend fun getProductEligibility(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("product") productType: String = "SIMPLEBUY"
     ): Outcome<Exception, ProductEligibilityResponse>
 

@@ -2,6 +2,7 @@ package com.blockchain.blockchaincard.viewmodel
 
 import androidx.navigation.NavHostController
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.ui.BlockchainCardHostFragment
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -122,7 +123,9 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.SeeBillingAddress -> {
-                destination = BlockchainCardDestination.BillingAddressDestination
+                val fragmentManager = (navController.context as? BlockchainActivity)?.supportFragmentManager
+                val fragmentOld = fragmentManager?.fragments?.first { it is BlockchainCardHostFragment }
+                (fragmentOld as BlockchainCardHostFragment).startKycAddressVerification(navigationEvent.address)
             }
 
             is BlockchainCardNavigationEvent.SeeSupport -> {
@@ -143,6 +146,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
 
             is BlockchainCardNavigationEvent.DismissBillingAddressUpdateResult -> {
                 navController.popBackStack()
+            }
+
+            is BlockchainCardNavigationEvent.SeeAllTransactions -> {
+                destination = BlockchainCardDestination.AllTransactionsDestination
             }
 
             is BlockchainCardNavigationEvent.SeeTransactionDetails -> {
@@ -221,7 +228,7 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     object SeePersonalDetails : BlockchainCardNavigationEvent()
 
-    object SeeBillingAddress : BlockchainCardNavigationEvent()
+    data class SeeBillingAddress(val address: BlockchainCardAddress) : BlockchainCardNavigationEvent()
 
     object SeeSupport : BlockchainCardNavigationEvent()
 
@@ -232,6 +239,8 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
     data class BillingAddressUpdated(val success: Boolean) : BlockchainCardNavigationEvent()
 
     object DismissBillingAddressUpdateResult : BlockchainCardNavigationEvent()
+
+    object SeeAllTransactions : BlockchainCardNavigationEvent()
 
     object SeeTransactionDetails : BlockchainCardNavigationEvent()
 
@@ -292,6 +301,8 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
 
     object BillingAddressUpdateFailedDestination :
         BlockchainCardDestination(route = "billing_address_update_failed")
+
+    object AllTransactionsDestination : BlockchainCardDestination(route = "all_transactions")
 
     object TransactionDetailsDestination : BlockchainCardDestination(route = "transaction_details")
 

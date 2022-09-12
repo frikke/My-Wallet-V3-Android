@@ -4,16 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/standard_margin"
-    android:paddingBottom="@dimen/standard_margin">
+    android:paddingTop="@dimen/standard_spacing"
+    android:paddingBottom="@dimen/standard_spacing">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/image_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_verification_badge"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
@@ -23,9 +23,9 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/image_view"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_spacing"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
         style="@style/Text.Semibold.20"
         android:text="@string/kyc_upsell_custodial_dlg_title"/>
 
@@ -35,8 +35,8 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/sheet_title"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
         style="@style/Text.Standard.14"
         android:text="@string/kyc_upsell_custodial_dlg_body"/>
 
@@ -45,9 +45,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_bullet_1"
-        android:layout_marginTop="@dimen/large_margin"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/large_spacing"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
         app:layout_constraintTop_toBottomOf="@id/sheet_body"
         app:layout_constraintStart_toStartOf="parent"/>
 
@@ -58,8 +58,8 @@
         app:layout_constraintTop_toTopOf="@id/sheet_bullet_1"
         app:layout_constraintStart_toEndOf="@id/sheet_bullet_1"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="@dimen/small_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/small_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
         style="@style/Text.Semibold.14"
         android:text="@string/kyc_upsell_custodial_dlg_item_title_1"/>
 
@@ -78,9 +78,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_bullet_2"
-        android:layout_marginTop="@dimen/large_margin"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/large_spacing"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
         app:layout_constraintTop_toBottomOf="@id/sheet_item_1"
         app:layout_constraintStart_toStartOf="parent"/>
 
@@ -91,8 +91,8 @@
         app:layout_constraintTop_toTopOf="@id/sheet_bullet_2"
         app:layout_constraintStart_toEndOf="@id/sheet_bullet_2"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="@dimen/small_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/small_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
         style="@style/Text.Semibold.14"
         android:text="@string/kyc_upsell_custodial_dlg_item_title_2"/>
 
@@ -111,9 +111,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_bullet_3"
-        android:layout_marginTop="@dimen/large_margin"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/large_spacing"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
         app:layout_constraintTop_toBottomOf="@id/sheet_item_2"
         app:layout_constraintStart_toStartOf="parent"/>
 
@@ -124,8 +124,8 @@
         app:layout_constraintTop_toTopOf="@id/sheet_bullet_3"
         app:layout_constraintStart_toEndOf="@id/sheet_bullet_3"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="@dimen/small_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/small_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
         style="@style/Text.Semibold.14"
         android:text="@string/kyc_upsell_custodial_dlg_item_title_3"/>
 
@@ -144,7 +144,7 @@
         style="@style/CtaButton.Blue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/large_margin"
+        android:layout_marginTop="@dimen/large_spacing"
         android:text="@string/kyc_upsell_custodial_dlg_cta"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
