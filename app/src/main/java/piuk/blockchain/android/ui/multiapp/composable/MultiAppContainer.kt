@@ -100,7 +100,7 @@ fun MultiAppContainer() {
     if (animateSnap) {
         toolbarState.scrollOffset = offsetY.value
 
-        if (toolbarState.scrollOffset == toolbarState.fullHeight) {
+        if (toolbarState.scrollOffset == toolbarState.fullCollapsedOffset) {
             animateSnap = false
         }
     }
@@ -136,8 +136,8 @@ fun MultiAppContainer() {
 
     fun stopRefresh() {
         coroutineScopeSnaps.launch {
-            if (toolbarState.scrollOffset < toolbarState.collapsedHeight) {
-                updateOffset(targetValue = toolbarState.collapsedHeight)
+            if (toolbarState.scrollOffset < toolbarState.halfCollapsedOffset) {
+                updateOffset(targetValue = toolbarState.halfCollapsedOffset)
             }
             isRefreshing = false
         }
@@ -155,7 +155,7 @@ fun MultiAppContainer() {
                 } else {
                     toolbarState.scrollOffset = toolbarState.scrollOffset - available.y
 
-                    if (toolbarState.scrollOffset == toolbarState.fullHeight) {
+                    if (toolbarState.scrollOffset == toolbarState.fullCollapsedOffset) {
                         // disable pull to refresh when user scrolls past the full header
                         // to be able to lock again at the ModeSwitcher level
                         toolbarState.isInteractingWithPullToRefresh = false
@@ -167,7 +167,7 @@ fun MultiAppContainer() {
                         enablePullToRefresh = false
                     } else if (enablePullToRefresh.not()) {
                         val pullToRefreshEnabledThreshold =
-                            toolbarState.scrollOffset < (toolbarState.collapsedHeight / 2)
+                            toolbarState.scrollOffset < (toolbarState.halfCollapsedOffset / 2)
 
                         enablePullToRefresh = pullToRefreshEnabledThreshold && toolbarState.scrollTopLimitReached
                     }
@@ -179,12 +179,12 @@ fun MultiAppContainer() {
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
                 // hide total balance if the offset is 1/2 below its height
                 if (toolbarState.scrollOffset > 0F &&
-                    toolbarState.scrollOffset < toolbarState.collapsedHeight
+                    toolbarState.scrollOffset < toolbarState.halfCollapsedOffset
                 ) {
                     coroutineScopeSnaps.launch {
                         updateOffset(
-                            targetValue = if (toolbarState.scrollOffset > toolbarState.collapsedHeight / 2) {
-                                toolbarState.collapsedHeight
+                            targetValue = if (toolbarState.scrollOffset > toolbarState.halfCollapsedOffset / 2) {
+                                toolbarState.halfCollapsedOffset
                             } else {
                                 0F
                             }
@@ -192,11 +192,11 @@ fun MultiAppContainer() {
                     }
                 }
                 // if switcher is scrolled but still visible, snap to the top of it
-                if (toolbarState.scrollOffset > toolbarState.collapsedHeight &&
-                    toolbarState.scrollOffset < toolbarState.fullHeight
+                if (toolbarState.scrollOffset > toolbarState.halfCollapsedOffset &&
+                    toolbarState.scrollOffset < toolbarState.fullCollapsedOffset
                 ) {
                     coroutineScopeSnaps.launch {
-                        updateOffset(targetValue = toolbarState.collapsedHeight)
+                        updateOffset(targetValue = toolbarState.halfCollapsedOffset)
                     }
                 }
 
@@ -238,15 +238,15 @@ fun MultiAppContainer() {
     )
     var balanceScrollAlpha by remember { mutableStateOf(1F) }
     balanceScrollAlpha =
-        (1 - (toolbarState.scrollOffset + (toolbarState.scrollOffset * 0.3F)) / toolbarState.collapsedHeight)
+        (1 - (toolbarState.scrollOffset + (toolbarState.scrollOffset * 0.3F)) / toolbarState.halfCollapsedOffset)
             .coerceIn(0F, 1F)
 
     var switcherScrollAlpha by remember { mutableStateOf(1F) }
     switcherScrollAlpha =
         (
             1 -
-                (toolbarState.scrollOffset - toolbarState.collapsedHeight) /
-                (toolbarState.fullHeight - toolbarState.collapsedHeight)
+                (toolbarState.scrollOffset - toolbarState.halfCollapsedOffset) /
+                (toolbarState.fullCollapsedOffset - toolbarState.halfCollapsedOffset)
             ).coerceIn(0F, 1F)
     // //////////////////////////////////////////////
 
@@ -259,7 +259,7 @@ fun MultiAppContainer() {
             toolbarState.scrollOffset == 0F && animateSnap.not()
         ) {
             coroutineScopeSnaps.launch {
-                updateOffset(targetValue = toolbarState.collapsedHeight)
+                updateOffset(targetValue = toolbarState.halfCollapsedOffset)
             }
         }
         verifyHeaderPositionForNewScreen = false
@@ -325,12 +325,12 @@ fun MultiAppContainer() {
 
             // ///// header
             if (balanceSectionHeight > 0 && tabsSectionHeight > 0 &&
-                toolbarState.collapsedHeight != balanceSectionHeight.toFloat() &&
-                toolbarState.fullHeight != (balanceSectionHeight + tabsSectionHeight).toFloat()
+                toolbarState.halfCollapsedOffset != balanceSectionHeight.toFloat() &&
+                toolbarState.fullCollapsedOffset != (balanceSectionHeight + tabsSectionHeight).toFloat()
             ) {
-                toolbarState.updateHeight(balanceSectionHeight, (balanceSectionHeight + tabsSectionHeight))
+                toolbarState.updateHeight(balanceSectionHeight,  tabsSectionHeight)
 
-                updateOffsetNoAnimation(targetValue = toolbarState.collapsedHeight)
+                updateOffsetNoAnimation(targetValue = toolbarState.halfCollapsedOffset)
             }
 
             Column(
@@ -379,7 +379,7 @@ fun MultiAppContainer() {
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
-                        translationY = -toolbarState.scrollOffset + toolbarState.fullHeight
+                        translationY = -toolbarState.scrollOffset + toolbarState.fullCollapsedOffset
                     }
                     .pointerInput(Unit) {
                         detectTapGestures(

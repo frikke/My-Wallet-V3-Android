@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.multiapp.toolbar
 
 interface CollapsingToolbarState {
-    val fullHeight: Float
-    val collapsedHeight: Float
+    val fullCollapsedOffset: Float
+    val halfCollapsedOffset: Float
 
     val consumed: Float
     var scrollTopLimitReached: Boolean
@@ -10,5 +10,5 @@ interface CollapsingToolbarState {
     var isInteractingWithPullToRefresh: Boolean
     var isAutoScrolling: Boolean
 
-    fun updateHeight(newMinHeight: Int, newMaxHeight: Int)
+    fun updateHeight(newTopSectionHeight: Int, newBottomSectionHeight: Int)
 }

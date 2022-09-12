@@ -7,23 +7,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 
 class EnterAlwaysCollapsedState(
-    var initialMinHeight: Int,
-    var initialMaxHeight: Int,
+    var topSectionHeight: Int,
+    var bottomSectionHeight: Int,
     scrollOffset: Float = 0f
 ) : CollapsingToolbarState {
 
-    override fun updateHeight(newMinHeight: Int, newMaxHeight: Int) {
-        initialMinHeight = newMinHeight
-        initialMaxHeight = newMaxHeight
+    override fun updateHeight(newTopSectionHeight: Int, newBottomSectionHeight: Int) {
+        topSectionHeight = newTopSectionHeight
+        bottomSectionHeight = newBottomSectionHeight
     }
 
-    private val minHeight get() = initialMinHeight
-    override val collapsedHeight: Float
-        get() = minHeight.toFloat()
+    private val _halfCollapsedOffset get() = topSectionHeight
+    override val halfCollapsedOffset: Float
+        get() = _halfCollapsedOffset.toFloat()
 
-    private val maxHeight get() = initialMaxHeight
-    override val fullHeight: Float
-        get() = maxHeight.toFloat()
+    private val _fullCollapsedOffset get() = topSectionHeight + bottomSectionHeight
+    override val fullCollapsedOffset: Float
+        get() = _fullCollapsedOffset.toFloat()
 
     private var _consumed: Float = 0f
     override val consumed: Float
@@ -35,7 +35,7 @@ class EnterAlwaysCollapsedState(
     override var isAutoScrolling: Boolean = false
 
     private var _scrollOffset by mutableStateOf(
-        value = scrollOffset.coerceIn(0f, maxHeight.toFloat()),
+        value = scrollOffset.coerceIn(0f, _fullCollapsedOffset.toFloat()),
         policy = structuralEqualityPolicy()
     )
     override var scrollOffset: Float
@@ -43,9 +43,9 @@ class EnterAlwaysCollapsedState(
         set(value) {
             val oldOffset = _scrollOffset
             _scrollOffset = if (scrollTopLimitReached || isInteractingWithPullToRefresh || isAutoScrolling) {
-                value.coerceIn(0f, maxHeight.toFloat())
+                value.coerceIn(0f, _fullCollapsedOffset.toFloat())
             } else {
-                value.coerceIn(minHeight.toFloat(), maxHeight.toFloat())
+                value.coerceIn(_halfCollapsedOffset.toFloat(), _fullCollapsedOffset.toFloat())
             }
 
             _consumed = oldOffset - _scrollOffset
@@ -54,22 +54,22 @@ class EnterAlwaysCollapsedState(
     companion object {
         val Saver = run {
 
-            val minHeightKey = "MinHeight"
-            val maxHeightKey = "MaxHeight"
+            val topSectionHeight = "topSectionHeight"
+            val bottomSectionHeight = "bottomSectionHeight"
             val scrollOffsetKey = "ScrollOffset"
 
             mapSaver(
                 save = {
                     mapOf(
-                        minHeightKey to it.minHeight,
-                        maxHeightKey to it.maxHeight,
+                        topSectionHeight to it._halfCollapsedOffset,
+                        bottomSectionHeight to it._fullCollapsedOffset,
                         scrollOffsetKey to it.scrollOffset
                     )
                 },
                 restore = {
                     EnterAlwaysCollapsedState(
-                        initialMinHeight = it[minHeightKey] as Int,
-                        initialMaxHeight = it[maxHeightKey] as Int,
+                        topSectionHeight = it[topSectionHeight] as Int,
+                        bottomSectionHeight = it[bottomSectionHeight] as Int,
                         scrollOffset = it[scrollOffsetKey] as Float,
                     )
                 }
