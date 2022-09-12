@@ -105,6 +105,22 @@ fun MultiAppDashboard() {
      * because it also consumes nested scroll events
      */
     var enablePullToRefresh by remember { mutableStateOf(false) }
+
+    fun stopRefresh() {
+        coroutineScopeSnaps.launch {
+            if (toolbarState.scrollOffset < toolbarState.collapsedHeight) {
+                animateSnap = true
+                offsetY.snapTo(toolbarState.scrollOffset)
+                offsetY.animateTo(
+                    targetValue = toolbarState.collapsedHeight,
+                    animationSpec = tween(
+                        durationMillis = 400
+                    )
+                )
+            }
+            isRefreshing = false
+        }
+    }
     // //////////////////////////////////////////////
 
     val nestedScrollConnection = remember {
@@ -303,6 +319,8 @@ fun MultiAppDashboard() {
                         },
                     modes = modes,
                     onModeClicked = {
+                        stopRefresh()
+
                         if (it == modes[0]) {
                             shouldFlash = true
                             selectedMode = modes[0]
@@ -339,19 +357,7 @@ fun MultiAppDashboard() {
                     isRefreshing = true
                 },
                 refreshComplete = {
-                    coroutineScopeSnaps.launch {
-                        if (toolbarState.scrollOffset < toolbarState.collapsedHeight) {
-                            animateSnap = true
-                            offsetY.snapTo(toolbarState.scrollOffset)
-                            offsetY.animateTo(
-                                targetValue = toolbarState.collapsedHeight,
-                                animationSpec = tween(
-                                    durationMillis = 400
-                                )
-                            )
-                        }
-                        isRefreshing = false
-                    }
+                   stopRefresh()
                 }
             )
         }
@@ -374,6 +380,9 @@ fun MultiAppDashboard() {
                 },
             navController
         ) {
+            if (isRefreshing) {
+                stopRefresh()
+            }
         }
 
         // we have to reserve spaces for the statusbar and nav bar because the screen can draw on them

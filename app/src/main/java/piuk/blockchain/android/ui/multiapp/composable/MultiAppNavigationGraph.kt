@@ -65,6 +65,7 @@ fun MultiAppNavigationGraph(
     }
 }
 
+// todo(othman) create real BottomNavItem items and support multi app modes
 @Composable
 fun MultiAppBottomNavigation(
     modifier: Modifier = Modifier,
