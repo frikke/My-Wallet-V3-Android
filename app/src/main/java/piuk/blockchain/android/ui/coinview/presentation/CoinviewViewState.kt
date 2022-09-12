@@ -5,13 +5,17 @@ import androidx.annotation.StringRes
 import com.blockchain.charts.ChartEntry
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.core.price.HistoricalTimeSpan
+import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 
 data class CoinviewViewState(
     val assetName: String,
     val assetPrice: CoinviewPriceState,
     val totalBalance: CoinviewTotalBalanceState,
     val accounts: CoinviewAccountsState,
-    val recurringBuys: CoinviewRecurringBuysState
+    val centerQuickAction: CoinviewCenterQuickActionsState,
+    val recurringBuys: CoinviewRecurringBuysState,
+    val bottomQuickAction: CoinviewBottomQuickActionsState
 ) : ViewState
 
 // Price
@@ -26,12 +30,12 @@ sealed interface CoinviewPriceState {
         val priceChange: String,
         val percentChange: Double,
         @StringRes val intervalName: Int,
-        val chartData: CoinviewChart,
+        val chartData: CoinviewChartState,
         val selectedTimeSpan: HistoricalTimeSpan
     ) : CoinviewPriceState {
-        sealed interface CoinviewChart {
-            object Loading : CoinviewChart
-            data class Data(val chartData: List<ChartEntry>) : CoinviewChart
+        sealed interface CoinviewChartState {
+            object Loading : CoinviewChartState
+            data class Data(val chartData: List<ChartEntry>) : CoinviewChartState
         }
     }
 }
@@ -93,14 +97,81 @@ sealed interface CoinviewRecurringBuysState {
     object Error : CoinviewRecurringBuysState
     object Upsell : CoinviewRecurringBuysState
     data class Data(
-        val recurringBuys: List<RecurringBuyState>
+        val recurringBuys: List<CoinviewRecurringBuyState>
     ) : CoinviewRecurringBuysState {
-        data class RecurringBuyState(
+
+        data class CoinviewRecurringBuyState(
             val id: String,
             val description: SimpleValue,
             val status: SimpleValue,
             val assetColor: String
         )
+    }
+}
+
+// Quick actions
+// center
+sealed interface CoinviewCenterQuickActionsState {
+    object Loading : CoinviewCenterQuickActionsState
+    data class Data(
+        val center: CoinviewQuickActionState,
+    ) : CoinviewCenterQuickActionsState
+}
+
+// bottom
+sealed interface CoinviewBottomQuickActionsState {
+    object Loading : CoinviewBottomQuickActionsState
+    data class Data(
+        val start: CoinviewQuickActionState,
+        val end: CoinviewQuickActionState
+    ) : CoinviewBottomQuickActionsState
+}
+
+sealed interface CoinviewQuickActionState {
+    val name: SimpleValue
+    val logo: LogoSource.Resource
+    val enabled: Boolean
+
+    data class Buy(override val enabled: Boolean) : CoinviewQuickActionState {
+        override val name = SimpleValue.IntResValue(R.string.common_buy)
+        override val logo = LogoSource.Resource(R.drawable.ic_cta_buy)
+    }
+
+    data class Sell(override val enabled: Boolean) : CoinviewQuickActionState {
+        override val name = SimpleValue.IntResValue(R.string.common_sell)
+        override val logo = LogoSource.Resource(R.drawable.ic_cta_sell)
+    }
+
+    data class Send(override val enabled: Boolean) : CoinviewQuickActionState {
+        override val name = SimpleValue.IntResValue(R.string.common_send)
+        override val logo = LogoSource.Resource(R.drawable.ic_cta_send)
+    }
+
+    data class Receive(override val enabled: Boolean) : CoinviewQuickActionState {
+        override val name = SimpleValue.IntResValue(R.string.common_receive)
+        override val logo = LogoSource.Resource(R.drawable.ic_cta_receive)
+    }
+
+    data class Swap(override val enabled: Boolean) : CoinviewQuickActionState {
+        override val name = SimpleValue.IntResValue(R.string.common_swap)
+        override val logo = LogoSource.Resource(R.drawable.ic_cta_swap)
+    }
+
+    object None : CoinviewQuickActionState {
+        override val name = error("None action doesn't have name property")
+        override val logo = error("None action doesn't have log property")
+        override val enabled = error("None action doesn't have enabled property")
+    }
+}
+
+fun CoinviewQuickAction.toViewState(): CoinviewQuickActionState = run {
+    when (this) {
+        is CoinviewQuickAction.Buy -> CoinviewQuickActionState.Buy(enabled)
+        is CoinviewQuickAction.Sell -> CoinviewQuickActionState.Sell(enabled)
+        is CoinviewQuickAction.Send -> CoinviewQuickActionState.Send(enabled)
+        is CoinviewQuickAction.Receive -> CoinviewQuickActionState.Receive(enabled)
+        is CoinviewQuickAction.Swap -> CoinviewQuickActionState.Swap(enabled)
+        CoinviewQuickAction.None -> CoinviewQuickActionState.None
     }
 }
 
@@ -121,5 +192,5 @@ sealed interface SimpleValue {
  */
 sealed interface LogoSource {
     data class Remote(val value: String) : LogoSource
-    data class Local(@DrawableRes val value: Int) : LogoSource
+    data class Resource(@DrawableRes val value: Int) : LogoSource
 }

@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.kyc.profile
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiExceptionFactory
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
@@ -36,6 +37,7 @@ class KycProfilePresenterTest {
     private val view: KycProfileView = mock()
     private val nabuDataManager: NabuDataManager = mock()
     private val userService: UserService = mock()
+    private val getUserStore: GetUserStore = mock()
     private val stringUtils: StringUtils = mock()
 
     @Suppress("unused")
@@ -50,6 +52,7 @@ class KycProfilePresenterTest {
         subject = KycProfilePresenter(
             nabuDataManager,
             userService,
+            getUserStore,
             stringUtils,
         )
         whenever(stringUtils.getString(any())).thenReturn("")
@@ -135,7 +138,7 @@ class KycProfilePresenterTest {
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
         verify(view).continueSignUp(any())
-        verify(userService).markAsStale()
+        verify(getUserStore).markAsStale()
     }
 
     @Test

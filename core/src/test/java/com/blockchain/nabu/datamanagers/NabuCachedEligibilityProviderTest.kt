@@ -1,6 +1,6 @@
 package com.blockchain.nabu.datamanagers
 
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.nabu.service.NabuService
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -17,8 +17,8 @@ import org.junit.Test
 
 class NabuCachedEligibilityProviderTest {
 
-    private val eligibility = SimpleBuyEligibility(true, true, 0, 10)
-    private val eligibility2 = SimpleBuyEligibility(false, false, 10, 10)
+    private val eligibility = SimpleBuyEligibilityDto(true, true, 0, 10)
+    private val eligibility2 = SimpleBuyEligibilityDto(false, false, 10, 10)
 
     private var nabuService: NabuService = mock()
 

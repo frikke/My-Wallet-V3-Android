@@ -8,7 +8,10 @@ import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
-import com.blockchain.core.buy.BuyPairsStore
+import com.blockchain.core.buy.data.SimpleBuyRepository
+import com.blockchain.core.buy.data.dataresources.BuyPairsStore
+import com.blockchain.core.buy.data.dataresources.SimpleBuyEligibilityStore
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
@@ -57,6 +60,9 @@ import com.blockchain.core.payments.WithdrawLocksCache
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.referral.ReferralRepository
+import com.blockchain.core.sdd.data.SddRepository
+import com.blockchain.core.sdd.data.datasources.SddEligibilityStore
+import com.blockchain.core.sdd.domain.SddService
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.core.user.WatchlistDataManager
@@ -260,11 +266,36 @@ val coreModule = module {
         }
 
         scoped {
+            SddEligibilityStore(
+                nabuService = get()
+            )
+        }
+
+        scoped<SddService> {
+            SddRepository(
+                sddEligibilityStore = get()
+            )
+        }
+
+        scoped {
             BuyPairsCache(nabuService = get())
         }
 
         scoped {
             BuyPairsStore(nabuService = get())
+        }
+
+        scoped {
+            SimpleBuyEligibilityStore(
+                nabuService = get()
+            )
+        }
+
+        scoped<SimpleBuyService> {
+            SimpleBuyRepository(
+                simpleBuyEligibilityStore = get(),
+                buyPairsStore = get()
+            )
         }
 
         scoped {

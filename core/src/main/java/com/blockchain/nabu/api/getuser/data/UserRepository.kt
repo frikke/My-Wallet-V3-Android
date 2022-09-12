@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 internal class UserRepository(
     private val getUserStore: GetUserStore
 ) : UserService {
-
     override fun getUser(): Single<NabuUser> =
         getUserStore
             .stream(FreshnessStrategy.Cached(forceRefresh = false))
@@ -22,8 +21,4 @@ internal class UserRepository(
     override fun getUserFlow(refreshStrategy: FreshnessStrategy): Flow<NabuUser> =
         getUserStore.stream(refreshStrategy)
             .getDataOrThrow()
-
-    override fun markAsStale() {
-        getUserStore.markAsStale()
-    }
 }

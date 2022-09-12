@@ -62,6 +62,7 @@ val kycUiModule = module {
             KycProfilePresenter(
                 nabuDataManager = get(),
                 userService = get(),
+                getUserStore = get(),
                 stringUtils = get(),
             )
         }

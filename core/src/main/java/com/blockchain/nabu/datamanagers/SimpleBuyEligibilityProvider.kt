@@ -1,20 +1,24 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.core.common.caching.TimedCacheRequest
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.nabu.service.NabuService
 import io.reactivex.rxjava3.core.Single
 
+@Deprecated("usee SimpleBuyService")
 interface SimpleBuyEligibilityProvider {
+    @Deprecated("usee SimpleBuyService")
     fun isEligibleForSimpleBuy(forceRefresh: Boolean = false): Single<Boolean>
-    fun simpleBuyTradingEligibility(): Single<SimpleBuyEligibility>
+
+    @Deprecated("usee SimpleBuyService")
+    fun simpleBuyTradingEligibility(): Single<SimpleBuyEligibilityDto>
 }
 
 class NabuCachedEligibilityProvider(
     private val nabuService: NabuService,
 ) : SimpleBuyEligibilityProvider {
 
-    private val refresh: () -> Single<SimpleBuyEligibility> = {
+    private val refresh: () -> Single<SimpleBuyEligibilityDto> = {
         nabuService.isEligibleForSimpleBuy()
     }
 
@@ -34,7 +38,7 @@ class NabuCachedEligibilityProvider(
         }
     }
 
-    override fun simpleBuyTradingEligibility(): Single<SimpleBuyEligibility> = cache.getCachedSingle()
+    override fun simpleBuyTradingEligibility(): Single<SimpleBuyEligibilityDto> = cache.getCachedSingle()
 }
 
 const val DEFAULT_CACHE_LIFETIME = 20L

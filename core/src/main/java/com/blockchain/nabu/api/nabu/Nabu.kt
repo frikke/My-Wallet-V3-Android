@@ -1,5 +1,7 @@
 package com.blockchain.nabu.api.nabu
 
+import com.blockchain.core.sdd.domain.model.SddEligibilityDto
+import com.blockchain.core.sdd.domain.model.SddStatusDto
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
@@ -16,8 +18,6 @@ import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocumentsResponse
 import com.blockchain.nabu.models.responses.nabu.VeriffToken
-import com.blockchain.nabu.models.responses.sdd.SDDEligibilityResponse
-import com.blockchain.nabu.models.responses.sdd.SDDStatusResponse
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuyOrderListResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
@@ -29,8 +29,8 @@ import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyResponse
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsDto
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferFundsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
@@ -162,16 +162,16 @@ internal interface Nabu {
 
     @AuthenticationNotRequired
     @GET(SDD_ELIGIBLE)
-    fun isSDDEligible(): Single<SDDEligibilityResponse>
+    fun isSDDEligible(): Single<SddEligibilityDto>
 
     @GET(SDD_VERIFIED)
-    fun isSDDVerified(): Single<SDDStatusResponse>
+    fun isSDDVerified(): Single<SddStatusDto>
 
     @AuthenticationNotRequired
     @GET(NABU_SIMPLE_BUY_PAIRS)
     fun getSupportedSimpleBuyPairs(
         @Query("fiatCurrency") fiatCurrency: String? = null
-    ): Single<SimpleBuyPairsResp>
+    ): Single<SimpleBuyPairsDto>
 
     @GET(NABU_SIMPLE_BUY_TRANSACTIONS)
     fun getTransactions(
@@ -190,7 +190,7 @@ internal interface Nabu {
     fun isEligibleForSimpleBuy(
         @Query("fiatCurrency") fiatCurrency: String?,
         @Query("methods") methods: String = "BANK_ACCOUNT,PAYMENT_CARD"
-    ): Single<SimpleBuyEligibility>
+    ): Single<SimpleBuyEligibilityDto>
 
     @POST(NABU_SIMPLE_BUY_ORDERS)
     fun createOrder(

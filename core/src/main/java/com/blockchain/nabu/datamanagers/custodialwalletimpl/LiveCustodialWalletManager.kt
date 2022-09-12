@@ -7,11 +7,12 @@ import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
-import com.blockchain.core.buy.BuyPairsStore
+import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.data.onErrorReturn
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
@@ -63,7 +64,7 @@ import com.blockchain.nabu.models.responses.simplebuy.PaymentAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.PaymentStateResponse
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairResp
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairDto
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
 import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuy
@@ -96,7 +97,7 @@ class LiveCustodialWalletManager(
     private val assetCatalogue: AssetCatalogue,
     private val nabuService: NabuService,
     private val pairsCache: BuyPairsCache,
-    private val buyPairsStore: BuyPairsStore,
+    private val simpleBuyService: SimpleBuyService,
     private val transactionsCache: TransactionsCache,
     private val buyOrdersCache: BuyOrdersCache,
     private val swapOrdersCache: SwapTransactionsCache,
@@ -201,7 +202,7 @@ class LiveCustodialWalletManager(
                 }
             }
 
-    private fun SimpleBuyPairResp.toBuySellPair(): BuySellPair? {
+    private fun SimpleBuyPairDto.toBuySellPair(): BuySellPair? {
         val parts = pair.split("-")
         val crypto = parts.getOrNull(0)?.let {
             assetCatalogue.fromNetworkTicker(it)
@@ -318,12 +319,11 @@ class LiveCustodialWalletManager(
         freshnessStrategy: FreshnessStrategy
     ): Flow<DataResource<Boolean>> {
         val tradingCurrency = fiatCurrenciesService.selectedTradingCurrency
-        return buyPairsStore.stream(freshnessStrategy)
+        return simpleBuyService.getPairs(freshnessStrategy)
             .mapData {
-                it.pairs.firstOrNull { buyPair ->
-                    val pair = buyPair.pair.split("-")
-                    pair.first() == assetInfo.networkTicker && pair.last() == tradingCurrency.networkTicker
-                } != null
+                it.any {
+                    it.pair.first == assetInfo.networkTicker && it.pair.second == tradingCurrency.networkTicker
+                }
             }
     }
 
@@ -337,11 +337,23 @@ class LiveCustodialWalletManager(
             }
         }
 
-    override fun isAssetSupportedForSwap(assetInfo: AssetInfo): Single<Boolean> =
+    override fun isAssetSupportedForSwapLegacy(assetInfo: AssetInfo): Single<Boolean> =
         custodialRepository.getSwapAvailablePairs()
             .map { pairs ->
                 assetInfo.networkTicker in pairs.map { it.source.networkTicker }
             }
+
+    override fun isAssetSupportedForSwap(
+        assetInfo: AssetInfo,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<Boolean>> {
+        return simpleBuyService.getPairs(freshnessStrategy)
+            .mapData {
+                it.any { buyPair ->
+                    buyPair.pair.first == assetInfo.networkTicker
+                }
+            }.onErrorReturn { false }
+    }
 
     override fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList> =
         nabuService.getOutstandingOrders(
@@ -683,6 +695,7 @@ class LiveCustodialWalletManager(
     companion object {
         private const val ACH_CURRENCY = "USD"
 
+        @Deprecated("use SddRepository")
         private const val SDD_ELIGIBLE_TIER = 3
     }
 }

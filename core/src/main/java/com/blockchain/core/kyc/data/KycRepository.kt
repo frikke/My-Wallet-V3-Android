@@ -107,8 +107,8 @@ class KycRepository(
         return getKycTiersFlow(refreshStrategy)
     }
 
-    override fun getHighestApprovedTierLevel(freshnessStrategy: FreshnessStrategy): Flow<KycTier> {
-        return getTiers(freshnessStrategy).getDataOrThrow().map { kycTiers ->
+    override fun getHighestApprovedTierLevel(freshnessStrategy: FreshnessStrategy): Flow<DataResource<KycTier>> {
+        return getTiers(freshnessStrategy).mapData { kycTiers ->
             val approvedTier = KycTier.values().reversed().find {
                 kycTiers.isApprovedFor(it)
             }

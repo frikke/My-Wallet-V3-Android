@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.kyc.profile
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.util.toISO8601DateString
@@ -28,6 +29,7 @@ import timber.log.Timber
 class KycProfilePresenter(
     private val nabuDataManager: NabuDataManager,
     private val userService: UserService,
+    private val getUserStore: GetUserStore,
     private val stringUtils: StringUtils,
 ) : BasePresenter<KycProfileView>() {
 
@@ -110,7 +112,7 @@ class KycProfilePresenter(
                 ?: throw IllegalStateException("DoB has not been set"),
         ).subscribeOn(Schedulers.io())
             .doOnComplete {
-                userService.markAsStale()
+                getUserStore.markAsStale()
             }
 
     private fun enableButtonIfComplete() {
