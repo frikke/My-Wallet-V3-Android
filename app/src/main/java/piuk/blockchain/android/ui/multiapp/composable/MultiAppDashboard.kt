@@ -241,14 +241,15 @@ fun MultiAppDashboard() {
 
     // //////////////////////////////////////////////
     // bottomnav animation
+    // todo refactor
     var trading by remember { mutableStateOf(true) }
-    var shouldFlash by remember { mutableStateOf(false) }
-    val animateDown by animateIntAsState(
-        targetValue = if (shouldFlash) 300 else 0,
+    var animateBottomNav by remember { mutableStateOf(false) }
+    val bottomNavOffsetY by animateIntAsState(
+        targetValue = if (animateBottomNav) 300 else 0,
         finishedListener = {
-            if (shouldFlash) {
+            if (animateBottomNav) {
                 trading = trading.not()
-                shouldFlash = false
+                animateBottomNav = false
             }
         },
         animationSpec = tween(
@@ -259,6 +260,15 @@ fun MultiAppDashboard() {
     // //////////////////////////////////////////////
 
     val navController = rememberNavController()
+
+    // this container has the following format
+    // -> Space for the toolbar
+    // -> collapsable header
+    //    -> total balance
+    //    -> mode switcher tabs
+    // -> main screen navhost content
+    // -> floating bottom navigation
+    // -> Space for the native android navigation
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
@@ -322,10 +332,10 @@ fun MultiAppDashboard() {
                         stopRefresh()
 
                         if (it == modes[0]) {
-                            shouldFlash = true
+                            animateBottomNav = true
                             selectedMode = modes[0]
                         } else if (it == modes[1]) {
-                            shouldFlash = true
+                            animateBottomNav = true
                             selectedMode = modes[1]
                         }
                     },
@@ -375,7 +385,7 @@ fun MultiAppDashboard() {
                 .offset {
                     IntOffset(
                         x = 0,
-                        y = animateDown
+                        y = bottomNavOffsetY
                     )
                 },
             navController
