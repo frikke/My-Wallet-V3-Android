@@ -28,7 +28,6 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.superapp.dashboard.composable.SwipeRefreshWithoutOverscroll
 
 /**
  * This screen shows the minimum setup needed to communicate the necessary info

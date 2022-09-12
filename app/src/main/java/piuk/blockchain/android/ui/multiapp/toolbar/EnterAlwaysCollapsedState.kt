@@ -11,12 +11,6 @@ class EnterAlwaysCollapsedState(
     scrollOffset: Float = 0f
 ) : CollapsingToolbarState {
 
-    //    init {
-    //        require(heightRange.first >= 0 && heightRange.last >= heightRange.first) {
-    //            "first range is lower than last"
-    //        }
-    //    }
-
     override fun updateHeight(newMinHeight: Int, newMaxHeight: Int) {
         initialMinHeight = newMinHeight
         initialMaxHeight = newMaxHeight
@@ -37,6 +31,7 @@ class EnterAlwaysCollapsedState(
     override var scrollTopLimitReached: Boolean = true
 
     override var isInteractingWithPullToRefresh: Boolean = false
+    override var isTargetedScrolling: Boolean = false
 
     private var _scrollOffset by mutableStateOf(
         value = scrollOffset.coerceIn(0f, maxHeight.toFloat()),
@@ -46,11 +41,12 @@ class EnterAlwaysCollapsedState(
         get() = _scrollOffset
         set(value) {
             val oldOffset = _scrollOffset
-            _scrollOffset = if (scrollTopLimitReached || isInteractingWithPullToRefresh) {
+            _scrollOffset = if (scrollTopLimitReached || isInteractingWithPullToRefresh || isTargetedScrolling) {
                 value.coerceIn(0f, maxHeight.toFloat())
             } else {
                 value.coerceIn(minHeight.toFloat(), maxHeight.toFloat())
             }
+
             _consumed = oldOffset - _scrollOffset
         }
 

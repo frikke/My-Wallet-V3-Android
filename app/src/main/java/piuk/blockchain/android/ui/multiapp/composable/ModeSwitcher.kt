@@ -35,7 +35,7 @@ fun ModeSwitcher(
     modes: List<String>,
     onModeClicked: (String) -> Unit
 ) {
-    val animationDuration = 400
+
     val coroutineScopeAnimation = rememberCoroutineScope()
 
     var modeTrigger by remember { mutableStateOf(modes.first()) }
@@ -57,7 +57,7 @@ fun ModeSwitcher(
             animatableIndicatorWidthPx.animateTo(
                 targetValue = fullIndicatorWidthPx,
                 animationSpec = tween(
-                    durationMillis = animationDuration
+                    durationMillis = ANIMATION_DURATION
                 )
             )
         }
@@ -68,7 +68,7 @@ fun ModeSwitcher(
             textAlpha.animateTo(
                 targetValue = fullTextAlpha,
                 animationSpec = tween(
-                    durationMillis = animationDuration
+                    durationMillis = ANIMATION_DURATION
                 )
             )
         }

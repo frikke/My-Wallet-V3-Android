@@ -3,6 +3,8 @@ package piuk.blockchain.android.ui.multiapp.composable
 import androidx.compose.foundation.lazy.LazyListState
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 
+const val ANIMATION_DURATION = 400
+
 data class ListStateInfo(
     val firstVisibleItemIndex: Int,
     val firstVisibleItemScrollOffset: Int,

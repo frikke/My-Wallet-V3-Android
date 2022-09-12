@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.superapp.dashboard.composable
+package piuk.blockchain.android.ui.multiapp.composable
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration

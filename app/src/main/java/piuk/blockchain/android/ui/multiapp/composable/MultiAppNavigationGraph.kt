@@ -27,7 +27,7 @@ fun MultiAppNavigationGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     enableRefresh: Boolean,
-    updateScrollInfo: (ListStateInfo) -> Unit,
+    updateScrollInfo: (Pair<BottomNavItem, ListStateInfo>) -> Unit,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit
 ) {
@@ -36,7 +36,7 @@ fun MultiAppNavigationGraph(
             DemoScreen(
                 modifier = modifier,
                 tag = "Home",
-                updateScrollInfo = updateScrollInfo,
+                updateScrollInfo = { updateScrollInfo(Pair(BottomNavItem.Home, it)) },
                 isPullToRefreshEnabled = enableRefresh,
                 refreshStarted = refreshStarted,
                 refreshComplete = refreshComplete
@@ -46,7 +46,7 @@ fun MultiAppNavigationGraph(
             DemoScreen(
                 modifier = modifier,
                 tag = "Trade",
-                updateScrollInfo = updateScrollInfo,
+                updateScrollInfo = { updateScrollInfo(Pair(BottomNavItem.Trade, it)) },
                 isPullToRefreshEnabled = enableRefresh,
                 refreshStarted = refreshStarted,
                 refreshComplete = refreshComplete
@@ -56,7 +56,7 @@ fun MultiAppNavigationGraph(
             DemoScreen(
                 modifier = modifier,
                 tag = "Card",
-                updateScrollInfo = updateScrollInfo,
+                updateScrollInfo = { updateScrollInfo(Pair(BottomNavItem.Card, it)) },
                 isPullToRefreshEnabled = enableRefresh,
                 refreshStarted = refreshStarted,
                 refreshComplete = refreshComplete
@@ -69,15 +69,10 @@ fun MultiAppNavigationGraph(
 @Composable
 fun MultiAppBottomNavigation(
     modifier: Modifier = Modifier,
+    navigationItem: List<BottomNavItem>,
     navController: NavController,
     onSelected: (BottomNavItem) -> Unit
 ) {
-    val items = listOf(
-        BottomNavItem.Home,
-        BottomNavItem.Trade,
-        BottomNavItem.Card,
-    )
-
     Card(
         modifier = modifier,
         elevation = 15.dp,
@@ -90,7 +85,7 @@ fun MultiAppBottomNavigation(
 
             Spacer(Modifier.size(dimensionResource(R.dimen.large_margin)))
 
-            items.forEach { item ->
+            navigationItem.forEach { item ->
 
                 com.blockchain.componentlib.basic.Image(
                     modifier = Modifier.clickable {

@@ -48,6 +48,7 @@ import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
+import piuk.blockchain.android.ui.multiapp.bottomnav.BottomNavItem
 import piuk.blockchain.android.ui.multiapp.toolbar.CollapsingToolbarState
 import piuk.blockchain.android.ui.multiapp.toolbar.EnterAlwaysCollapsedState
 
@@ -61,6 +62,11 @@ private fun rememberToolbarState(): CollapsingToolbarState {
 }
 
 val modes = listOf("Trading", "DeFi")
+val navigationItem = listOf(
+    BottomNavItem.Home,
+    BottomNavItem.Trade,
+    BottomNavItem.Card,
+)
 
 @Composable
 fun MultiAppDashboard() {
@@ -82,6 +88,8 @@ fun MultiAppDashboard() {
         mutableStateOf(false)
     }
 
+    var selectedNavigationItem by remember { mutableStateOf(navigationItem.first()) }
+
     // //////////////////////////////////////////////
     // snap header views depending on scroll position
     val coroutineScopeSnaps = rememberCoroutineScope()
@@ -90,9 +98,28 @@ fun MultiAppDashboard() {
 
     if (animateSnap) {
         toolbarState.scrollOffset = offsetY.value
+
         if (toolbarState.scrollOffset == toolbarState.fullHeight) {
             animateSnap = false
         }
+    }
+
+    suspend fun updateOffset(targetValue: Float) {
+        toolbarState.isTargetedScrolling = true
+        animateSnap = true
+        offsetY.snapTo(toolbarState.scrollOffset)
+        offsetY.animateTo(
+            targetValue = targetValue,
+            animationSpec = tween(
+                durationMillis = ANIMATION_DURATION
+            )
+        )
+        animateSnap = false
+        toolbarState.isTargetedScrolling = false
+    }
+
+    fun updateOffsetNoAnimation(targetValue: Float) {
+        toolbarState.scrollOffset = targetValue
     }
     // //////////////////////////////////////////////
 
@@ -109,14 +136,7 @@ fun MultiAppDashboard() {
     fun stopRefresh() {
         coroutineScopeSnaps.launch {
             if (toolbarState.scrollOffset < toolbarState.collapsedHeight) {
-                animateSnap = true
-                offsetY.snapTo(toolbarState.scrollOffset)
-                offsetY.animateTo(
-                    targetValue = toolbarState.collapsedHeight,
-                    animationSpec = tween(
-                        durationMillis = 400
-                    )
-                )
+                updateOffset(targetValue = toolbarState.collapsedHeight)
             }
             isRefreshing = false
         }
@@ -161,17 +181,12 @@ fun MultiAppDashboard() {
                     toolbarState.scrollOffset < toolbarState.collapsedHeight
                 ) {
                     coroutineScopeSnaps.launch {
-                        animateSnap = true
-                        offsetY.snapTo(toolbarState.scrollOffset)
-                        offsetY.animateTo(
+                        updateOffset(
                             targetValue = if (toolbarState.scrollOffset > toolbarState.collapsedHeight / 2) {
                                 toolbarState.collapsedHeight
                             } else {
                                 0F
-                            },
-                            animationSpec = tween(
-                                durationMillis = 400
-                            )
+                            }
                         )
                     }
                 }
@@ -180,14 +195,7 @@ fun MultiAppDashboard() {
                     toolbarState.scrollOffset < toolbarState.fullHeight
                 ) {
                     coroutineScopeSnaps.launch {
-                        animateSnap = true
-                        offsetY.snapTo(toolbarState.scrollOffset)
-                        offsetY.animateTo(
-                            targetValue = toolbarState.collapsedHeight,
-                            animationSpec = tween(
-                                durationMillis = 400
-                            )
-                        )
+                        updateOffset(targetValue = toolbarState.collapsedHeight)
                     }
                 }
 
@@ -205,14 +213,14 @@ fun MultiAppDashboard() {
     val backgroundStartColor by animateColorAsState(
         targetValue = if (selectedMode == modes.first()) START_TRADING else START_DEFI,
         animationSpec = tween(
-            durationMillis = 400,
+            durationMillis = ANIMATION_DURATION,
             delayMillis = 0
         )
     )
     val backgroundEndColor by animateColorAsState(
         targetValue = if (selectedMode == modes.first()) END_TRADING else END_DEFI,
         animationSpec = tween(
-            durationMillis = 400,
+            durationMillis = ANIMATION_DURATION,
             delayMillis = 0
         )
     )
@@ -223,7 +231,7 @@ fun MultiAppDashboard() {
     val balanceLoadingAlpha by animateFloatAsState(
         targetValue = if (isRefreshing) 0F else 1F,
         animationSpec = tween(
-            durationMillis = 400,
+            durationMillis = ANIMATION_DURATION,
             delayMillis = 0
         )
     )
@@ -240,6 +248,22 @@ fun MultiAppDashboard() {
     // //////////////////////////////////////////////
 
     // //////////////////////////////////////////////
+    // fix scroll position for new screens
+    var verifyHeaderPositionForNewScreen by remember { mutableStateOf(false) }
+    fun verifyAndCollapseHeaderForNewScreen() {
+        if (verifyHeaderPositionForNewScreen &&
+            toolbarState.scrollTopLimitReached.not() &&
+            toolbarState.scrollOffset == 0F && animateSnap.not()
+        ) {
+            coroutineScopeSnaps.launch {
+                updateOffset(targetValue = toolbarState.collapsedHeight)
+            }
+        }
+        verifyHeaderPositionForNewScreen = false
+    }
+    // //////////////////////////////////////////////
+
+    // //////////////////////////////////////////////
     // bottomnav animation
     // todo refactor
     var trading by remember { mutableStateOf(true) }
@@ -253,7 +277,7 @@ fun MultiAppDashboard() {
             }
         },
         animationSpec = tween(
-            durationMillis = 200,
+            durationMillis = ANIMATION_DURATION / 2,
             delayMillis = 0
         )
     )
@@ -298,8 +322,13 @@ fun MultiAppDashboard() {
         ) {
 
             /////// header
-            if (balanceSectionHeight > 0 && tabsSectionHeight > 0) {
+            if (balanceSectionHeight > 0 && tabsSectionHeight > 0 &&
+                toolbarState.collapsedHeight != balanceSectionHeight.toFloat() &&
+                toolbarState.fullHeight != (balanceSectionHeight + tabsSectionHeight).toFloat()
+            ) {
                 toolbarState.updateHeight(balanceSectionHeight, (balanceSectionHeight + tabsSectionHeight))
+
+                updateOffsetNoAnimation(targetValue = toolbarState.collapsedHeight)
             }
 
             Column(modifier = Modifier
@@ -354,20 +383,28 @@ fun MultiAppDashboard() {
                             onPress = {
                                 coroutineScopeSnaps.coroutineContext.cancelChildren()
                                 animateSnap = false
+                                verifyHeaderPositionForNewScreen = false
+                                toolbarState.isTargetedScrolling = false
                             }
                         )
                     },
                 navController = navController,
                 enableRefresh = enablePullToRefresh,
-                updateScrollInfo = { (firstVisibleItemIndex, firstVisibleItemScrollOffset, isSwipeInProgress) ->
-                    toolbarState.scrollTopLimitReached = firstVisibleItemIndex == 0 && firstVisibleItemScrollOffset == 0
-                    isPullToRefreshSwipeInProgress = isSwipeInProgress
+                updateScrollInfo = { (navItem, listStateInfo) ->
+                    toolbarState.scrollTopLimitReached = listStateInfo.firstVisibleItemIndex == 0 &&
+                        listStateInfo.firstVisibleItemScrollOffset == 0
+
+                    isPullToRefreshSwipeInProgress = listStateInfo.isSwipeInProgress
+
+                    if (verifyHeaderPositionForNewScreen && selectedNavigationItem == navItem) {
+                        verifyAndCollapseHeaderForNewScreen()
+                    }
                 },
                 refreshStarted = {
                     isRefreshing = true
                 },
                 refreshComplete = {
-                   stopRefresh()
+                    stopRefresh()
                 }
             )
         }
@@ -388,10 +425,14 @@ fun MultiAppDashboard() {
                         y = bottomNavOffsetY
                     )
                 },
+            navigationItem,
             navController
         ) {
             if (isRefreshing) {
                 stopRefresh()
+            } else {
+                selectedNavigationItem = it
+                verifyHeaderPositionForNewScreen = true
             }
         }
 
