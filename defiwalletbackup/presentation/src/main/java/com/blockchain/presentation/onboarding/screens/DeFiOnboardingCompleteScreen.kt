@@ -61,7 +61,7 @@ fun DeFiOnboardingCompleteScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(AppTheme.dimensions.paddingMedium),
+                    .padding(AppTheme.dimensions.smallSpacing),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.weight(1F))
@@ -70,9 +70,10 @@ fun DeFiOnboardingCompleteScreen(
                     imageResource = ImageResource.Local(R.drawable.ic_defi_onboarding)
                 )
 
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(
                         R.string.defi_onboarding_complete_title,
                         stringResource(R.string.defi_wallet_name)
@@ -82,9 +83,10 @@ fun DeFiOnboardingCompleteScreen(
                     gravity = ComposeGravities.Centre
                 )
 
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.defi_onboarding_complete_description),
                     style = ComposeTypographies.Paragraph1,
                     color = ComposeColors.Title,

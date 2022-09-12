@@ -3,13 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/smallest_margin"
+    android:layout_margin="@dimen/smallest_spacing"
     android:addStatesFromChildren="true"
     android:background="?selectableItemBackground"
     android:gravity="center"
     android:orientation="horizontal"
-    android:paddingLeft="@dimen/tiny_margin"
-    android:paddingRight="@dimen/tiny_margin">
+    android:paddingLeft="@dimen/tiny_spacing"
+    android:paddingRight="@dimen/tiny_spacing">
 
     <TextView
         android:id="@+id/titleView"

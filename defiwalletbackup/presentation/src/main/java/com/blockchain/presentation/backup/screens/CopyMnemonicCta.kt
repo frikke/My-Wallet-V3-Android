@@ -60,12 +60,12 @@ fun MnemonicCopied() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(dimensionResource(id = R.dimen.very_small_margin)),
+            .padding(dimensionResource(id = R.dimen.very_small_spacing)),
         horizontalArrangement = Arrangement.Center
     ) {
         Image(imageResource = ImageResource.Local(R.drawable.ic_check))
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
 
         Text(
             text = stringResource(R.string.manual_backup_copied),

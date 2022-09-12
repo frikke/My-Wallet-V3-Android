@@ -4,7 +4,6 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.Outcome
@@ -44,7 +43,6 @@ class AppRatingServiceTest {
     private val defaultThreshold = 3
     private val appRatingApi = mockk<AppRatingApi>()
     private val appRatingPrefs = mockk<AppRatingPrefs>()
-    private val appRatingFF = mockk<FeatureFlag>()
     private val userIdentity = mockk<UserIdentity>()
     private val currencyPrefs = mockk<CurrencyPrefs>()
     private val bankService = mockk<BankService>()
@@ -58,7 +56,6 @@ class AppRatingServiceTest {
         defaultThreshold = defaultThreshold,
         appRatingApi = appRatingApi,
         appRatingPrefs = appRatingPrefs,
-        appRatingFF = appRatingFF,
         userIdentity = userIdentity,
         currencyPrefs = currencyPrefs,
         bankService = bankService
@@ -74,7 +71,6 @@ class AppRatingServiceTest {
 
     @Before
     fun setUp() {
-        every { appRatingFF.enabled } returns Single.just(true)
 
         every { currencyPrefs.selectedFiatCurrency } returns FiatCurrency.Dollars
 

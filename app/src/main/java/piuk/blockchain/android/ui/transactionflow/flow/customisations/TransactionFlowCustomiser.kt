@@ -991,7 +991,7 @@ class TransactionFlowCustomiserImpl(
                 R.string.trading_invalid_destination_amount
             )
             TransactionError.InvalidPostcode -> resources.getString(
-                R.string.kyc_postcode_error
+                R.string.address_verification_postcode_error
             )
             is TransactionError.ExecutionFailed -> resources.getString(
                 R.string.executing_transaction_error, state.sendingAsset.displayTicker
@@ -1220,6 +1220,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestDeposit,
             AssetAction.FiatWithdraw,
             AssetAction.FiatDeposit,
+            AssetAction.Sell,
             -> {
                 {
                     DefaultCellDecorator()
@@ -1262,11 +1263,10 @@ class TransactionFlowCustomiserImpl(
         when (state.currentStep) {
             TransactionStep.ENTER_PASSWORD -> resources.getString(R.string.transfer_second_pswd_title)
             TransactionStep.FEATURE_BLOCKED -> when (state.featureBlockedReason) {
-                is BlockedReason.Sanctions -> selectTargetAddressTitle(state)
                 is BlockedReason.TooManyInFlightTransactions,
-                BlockedReason.NotEligible,
-                is BlockedReason.InsufficientTier,
-                -> resources.getString(R.string.kyc_upgrade_now_toolbar)
+                is BlockedReason.NotEligible,
+                is BlockedReason.Sanctions -> selectTargetAddressTitle(state)
+                is BlockedReason.InsufficientTier -> resources.getString(R.string.kyc_upgrade_now_toolbar)
                 null -> throw IllegalStateException(
                     "No featureBlockedReason provided for TransactionStep.FEATURE_BLOCKED, state $state"
                 )

@@ -16,7 +16,7 @@
         android:id="@+id/support_centre_webview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginTop="@dimen/very_small_spacing"
         app:layout_constraintBottom_toTopOf="@id/open_chat_cta"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
@@ -27,8 +27,8 @@
         android:layout_gravity="bottom"
         android:visibility="gone"
         tools:visibility="visible"
-        android:paddingTop="@dimen/standard_margin"
-        android:layout_margin="@dimen/standard_margin"
+        android:paddingTop="@dimen/standard_spacing"
+        android:layout_margin="@dimen/standard_spacing"
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <com.airbnb.lottie.LottieAnimationView

@@ -2,6 +2,7 @@ package com.blockchain.api
 
 import com.blockchain.api.adapters.OutcomeCallAdapterFactory
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
+import com.blockchain.api.addressverification.AddressVerificationApi
 import com.blockchain.api.analytics.AnalyticsApiInterface
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
 import com.blockchain.api.assetdiscovery.data.AssetInformationDto
@@ -36,6 +37,7 @@ import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.referral.ReferralApi
 import com.blockchain.api.selfcustody.SelfCustodyApi
 import com.blockchain.api.services.AddressMappingService
+import com.blockchain.api.services.AddressVerificationApiService
 import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.AssetPriceService
@@ -266,6 +268,13 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(blockchainApi).create(AnalyticsApiInterface::class.java)
         AnalyticsService(
+            api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(AddressVerificationApi::class.java)
+        AddressVerificationApiService(
             api
         )
     }

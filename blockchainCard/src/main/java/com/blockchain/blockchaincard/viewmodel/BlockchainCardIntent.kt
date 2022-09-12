@@ -49,6 +49,7 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object LoadResidentialAddress : BlockchainCardIntent()
     object SeeBillingAddress : BlockchainCardIntent()
     data class UpdateBillingAddress(val newAddress: BlockchainCardAddress) : BlockchainCardIntent()
+    object SeeAllTransactions : BlockchainCardIntent()
     data class SeeTransactionDetails(val transaction: BlockchainCardTransaction) : BlockchainCardIntent()
 
     object DismissBillingAddressUpdateResult : BlockchainCardIntent()

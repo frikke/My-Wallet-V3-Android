@@ -25,10 +25,10 @@ fun ToggleTableRow(
 ) {
     FlexibleTableRow(
         paddingValues = PaddingValues(
-            start = dimensionResource(R.dimen.standard_margin),
+            start = dimensionResource(R.dimen.standard_spacing),
             end = 18.dp, // Switch has a built-in padding and we need to consider it for the screen padding
-            top = dimensionResource(R.dimen.medium_margin),
-            bottom = dimensionResource(R.dimen.medium_margin),
+            top = dimensionResource(R.dimen.medium_spacing),
+            bottom = dimensionResource(R.dimen.medium_spacing),
         ),
         content = {
             Column(modifier = Modifier.weight(1f)) {

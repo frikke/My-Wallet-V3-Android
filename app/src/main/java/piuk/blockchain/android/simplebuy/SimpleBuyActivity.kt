@@ -324,7 +324,7 @@ class SimpleBuyActivity :
         when (reason) {
             is BlockedReason.InsufficientTier -> showBottomSheet(KycUpgradeNowSheet.newInstance())
             is BlockedReason.Sanctions -> showBottomSheet(BlockedDueToSanctionsSheet.newInstance(reason))
-            BlockedReason.NotEligible,
+            is BlockedReason.NotEligible,
             is BlockedReason.TooManyInFlightTransactions -> {
                 supportFragmentManager.beginTransaction()
                     .addAnimationTransaction()
@@ -559,7 +559,7 @@ class SimpleBuyActivity :
     }
 
     override fun goToBlockedBuyScreen() {
-        blockBuy(BlockedReason.NotEligible)
+        blockBuy(BlockedReason.NotEligible(null))
     }
 
     override fun questionnaireSubmittedSuccessfully() {

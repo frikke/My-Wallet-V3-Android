@@ -115,6 +115,7 @@ abstract class CryptoAccountBase : CryptoAccount {
         internal val defaultNonCustodialActions = setOf(
             AssetAction.ViewActivity,
             AssetAction.Send,
+            AssetAction.Sell,
             AssetAction.InterestDeposit,
             AssetAction.Swap,
             AssetAction.Receive

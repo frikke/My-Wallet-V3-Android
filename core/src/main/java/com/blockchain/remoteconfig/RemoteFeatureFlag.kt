@@ -47,7 +47,7 @@ class RemoteConfiguration(
 
     private fun fetchAndActivateCache(isRemoteConfigStale: Boolean): Completable = Completable.create { emitter ->
         val cacheExpirationTimeOut =
-            if (isRemoteConfigStale || environmentConfig.isRunningInDebugMode())
+            if (isRemoteConfigStale)
                 cacheExpirationForStaleValues
             else
                 cacheExpirationForUpdatedValues
@@ -100,5 +100,6 @@ fun RemoteConfig.featureFlag(key: String, name: String): FeatureFlag = object : 
     override val isEnabled: Boolean by lazy {
         isFeatureEnabled(key)
     }
+
     override suspend fun coEnabled(): Boolean = enabled.await()
 }

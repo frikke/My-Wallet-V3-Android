@@ -39,7 +39,7 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
     data class Icon(
         val drawable: Int,
         val color: Color? = Grey400,
-        @DimenRes val size: Int = R.dimen.standard_margin,
+        @DimenRes val size: Int = R.dimen.standard_spacing,
         @StringRes val contentDescription: Int,
         val onIconClick: () -> Unit,
     ) :
@@ -94,7 +94,7 @@ fun NavigationBar(
         Row(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .padding(horizontal = dimensionResource(R.dimen.standard_margin))
+                .padding(horizontal = dimensionResource(R.dimen.standard_spacing))
         ) {
             startNavigationBarButton?.let { button ->
                 when (button) {
@@ -116,7 +116,7 @@ fun NavigationBar(
                 style = AppTheme.typography.title2
             )
             endNavigationBarButtons.forEach {
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.smallest_margin)))
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.smallest_spacing)))
                 Box(
                     modifier = Modifier
                         .clickable {
@@ -178,7 +178,7 @@ fun RowScope.StartButton(button: NavigationBarButton.Icon) {
             colorFilter = if (button.color != null) ColorFilter.tint(button.color) else null
         )
     }
-    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_margin)))
+    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_spacing)))
 }
 
 @Composable
@@ -190,7 +190,7 @@ fun RowScope.DropDown(dropdownIndicator: NavigationBarButton.DropdownIndicator) 
             }
             .background(
                 dropdownIndicator.color,
-                RoundedCornerShape(dimensionResource(id = R.dimen.medium_margin))
+                RoundedCornerShape(dimensionResource(id = R.dimen.medium_spacing))
             )
             .align(CenterVertically)
             .padding(
@@ -204,7 +204,7 @@ fun RowScope.DropDown(dropdownIndicator: NavigationBarButton.DropdownIndicator) 
             contentDescription = dropdownIndicator.contentDescription,
             modifier = Modifier
                 .padding(
-                    start = dimensionResource(id = R.dimen.tiny_margin)
+                    start = dimensionResource(id = R.dimen.tiny_spacing)
                 )
         )
         Text(
@@ -212,8 +212,8 @@ fun RowScope.DropDown(dropdownIndicator: NavigationBarButton.DropdownIndicator) 
             style = AppTheme.typography.body1,
             modifier = Modifier
                 .padding(
-                    start = dimensionResource(id = R.dimen.tiny_margin),
-                    end = dimensionResource(id = R.dimen.tiny_margin)
+                    start = dimensionResource(id = R.dimen.tiny_spacing),
+                    end = dimensionResource(id = R.dimen.tiny_spacing)
                 )
         )
         Image(
@@ -221,11 +221,11 @@ fun RowScope.DropDown(dropdownIndicator: NavigationBarButton.DropdownIndicator) 
             contentDescription = "IconArrowDown",
             modifier = Modifier
                 .padding(
-                    end = dimensionResource(id = R.dimen.tiny_margin)
+                    end = dimensionResource(id = R.dimen.tiny_spacing)
                 )
         )
     }
-    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_margin)))
+    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_spacing)))
 }
 
 @Preview(showBackground = true)

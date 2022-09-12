@@ -16,6 +16,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.compose.ui.unit.Dp
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.biometrics.BiometricAuthError
 import com.blockchain.biometrics.BiometricsCallback
@@ -282,8 +283,7 @@ class PinActivity :
                 add(pinBox3)
             }
             pinIcon.apply {
-                image = ImageResource.Local(R.drawable.ic_pin)
-                imageSize = 40
+                image = ImageResource.Local(id = R.drawable.ic_pin, size = Dp(40f))
 
                 if (environmentConfig.isRunningInDebugMode()) {
                     onClick = {
@@ -960,8 +960,7 @@ class PinActivity :
 
     fun showFingerprintDialog() {
         binding.fingerprintLogo.apply {
-            image = ImageResource.Local(R.drawable.vector_fingerprint)
-            imageSize = 24
+            image = ImageResource.Local(id = R.drawable.vector_fingerprint, size = Dp(24f))
             visible()
             onClick = { checkFingerprintStatus() }
         }

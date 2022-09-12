@@ -1,6 +1,7 @@
 package com.blockchain.koin
 
 import android.app.Application
+import com.blockchain.addressverification.koin.addressVerificationModule
 import com.blockchain.analytics.data.koin.analyticsModule
 import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
@@ -111,7 +112,6 @@ object KoinStarter {
 
                     coinviewPresentationModule, coinviewDomainModule,
                     internalFeatureFlagsModule,
-                    authenticationModule,
                     kycUiModule,
                     kycUiNabuModule,
                     loginUiModule,
@@ -128,7 +128,6 @@ object KoinStarter {
                     sunriverModule,
                     walletModule,
                     xlmModule,
-                    kycAutocompleteModule,
                     mainModule,
                     redesignSettingsModule,
                     remoteFeatureFlagsModule,
@@ -140,6 +139,8 @@ object KoinStarter {
                     storeCachesPersistedJsonSqlDelightModule,
                     blockchainCardModule,
                     interestDashboardDomainModule, interestDashboardPresentationModule,
+                    kycAutocompleteModule,
+                    addressVerificationModule,
                     appMaintenanceDataModule, appMaintenanceDomainModule, appMaintenancePresentationModule,
                     bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule,
                     referralPresentationModule,

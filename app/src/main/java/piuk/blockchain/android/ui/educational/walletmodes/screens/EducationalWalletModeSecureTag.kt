@@ -19,13 +19,13 @@ fun EducationalWalletModeSecureTag(
 ) {
     Card(
         backgroundColor = AppTheme.colors.background,
-        shape = RoundedCornerShape(AppTheme.dimensions.xBorderRadiiSmall),
-        elevation = AppTheme.dimensions.xxElevationSmall
+        shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmallest),
+        elevation = AppTheme.dimensions.smallElevation
     ) {
         Text(
             modifier = Modifier.padding(
-                vertical = AppTheme.dimensions.xPaddingSmall,
-                horizontal = AppTheme.dimensions.paddingSmall
+                vertical = AppTheme.dimensions.smallestSpacing,
+                horizontal = AppTheme.dimensions.tinySpacing
             ),
             text = text,
             style = AppTheme.typography.caption2,

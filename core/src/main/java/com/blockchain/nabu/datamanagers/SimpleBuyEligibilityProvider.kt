@@ -1,7 +1,6 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.core.common.caching.TimedCacheRequest
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.nabu.service.NabuService
 import io.reactivex.rxjava3.core.Single
@@ -17,13 +16,10 @@ interface SimpleBuyEligibilityProvider {
 
 class NabuCachedEligibilityProvider(
     private val nabuService: NabuService,
-    private val authenticator: Authenticator
 ) : SimpleBuyEligibilityProvider {
 
     private val refresh: () -> Single<SimpleBuyEligibilityDto> = {
-        authenticator.authenticate {
-            nabuService.isEligibleForSimpleBuy(it)
-        }
+        nabuService.isEligibleForSimpleBuy()
     }
 
     private val cache = TimedCacheRequest(

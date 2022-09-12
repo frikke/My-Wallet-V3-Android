@@ -2,6 +2,7 @@ package piuk.blockchain.android.scan
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.net.Uri
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.analytics.Analytics
 import com.blockchain.bitpay.BITPAY_LIVE_BASE
@@ -65,6 +66,7 @@ sealed class ScanResult(
 
 class QrScanError(val errorCode: ErrorCode, msg: String) : Exception(msg) {
     enum class ErrorCode {
+        ScanUnrecognized, // Scanned successfully but unrecognized url
         ScanFailed, // General Purpose Error. The most common case for now until scan gets overhauled
         BitPayScanFailed
     }
@@ -78,7 +80,13 @@ class QrScanResultProcessor(
 
     fun processScan(scanResult: String, isDeeplinked: Boolean = false): Single<out ScanResult> =
         when {
-            scanResult.isHttpUri() -> Single.just(ScanResult.HttpUri(scanResult, isDeeplinked))
+            scanResult.isHttpUri() -> {
+                if (scanResult.isUriRecognizable()) {
+                    Single.just(ScanResult.HttpUri(scanResult, isDeeplinked))
+                } else {
+                    Single.error(QrScanError(QrScanError.ErrorCode.ScanUnrecognized, "Unrecognized QR"))
+                }
+            }
             scanResult.isBitpayUri() -> parseBitpayInvoice(scanResult)
                 .map {
                     ScanResult.TxTarget(setOf(it), isDeeplinked)
@@ -90,11 +98,19 @@ class QrScanResultProcessor(
                 addressParser.parse(scanResult)
                     .onErrorResumeNext {
                         Single.error(QrScanError(QrScanError.ErrorCode.ScanFailed, it.message ?: "Unknown reason"))
-                    }.map {
-                        ScanResult.TxTarget(
-                            it.filterIsInstance<CryptoAddress>().toSet(),
-                            isDeeplinked
-                        )
+                    }.flatMap {
+                        if (it.isEmpty()) {
+                            Single.error(
+                                QrScanError(QrScanError.ErrorCode.ScanUnrecognized, "Unrecognized QR")
+                            )
+                        } else {
+                            Single.just(
+                                ScanResult.TxTarget(
+                                    it.filterIsInstance<CryptoAddress>().toSet(),
+                                    isDeeplinked
+                                )
+                            )
+                        }
                     }
             }
         }.doOnSuccess { scan ->
@@ -224,7 +240,9 @@ private fun ScanResult.type(): QrCodeType {
     }
 }
 
-private fun String.isHttpUri(): Boolean = startsWith("http")
+private fun String.isHttpUri(): Boolean = this.startsWith("http")
+
+private fun String.isUriRecognizable(): Boolean = Uri.parse(this).getQueryParameter("link") != null
 
 private const val bitpayInvoiceUrl = "$BITPAY_LIVE_BASE$PATH_BITPAY_INVOICE/"
 

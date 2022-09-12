@@ -2,32 +2,25 @@ package piuk.blockchain.android.data
 
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.trade.data.RecurringBuyResponse
-import com.blockchain.coincore.NullCryptoAddress.asset
-import com.blockchain.nabu.Authenticator
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.storedatasource.KeyedFlushableDataSource
-import info.blockchain.balance.Currency
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 
 class GetRecurringBuysStore(
-    private val authenticator: Authenticator,
     private val tradeService: TradeService
 ) : KeyedStore<GetRecurringBuysStore.Key, List<RecurringBuyResponse>> by PersistedJsonSqlDelightStoreBuilder()
     .buildKeyed(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(
             mapper = { key ->
-                authenticator.authenticate { tokenResponse ->
-                    tradeService.getRecurringBuysForAsset(
-                        authHeader = tokenResponse.authHeader,
-                        assetTicker = key.networkTicker
-                    )
-                }
+                tradeService.getRecurringBuysForAsset(
+                    assetTicker = key.networkTicker
+                )
             }
         ),
         keySerializer = Key.serializer(),

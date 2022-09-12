@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 internal class UserRepository(
     private val getUserStore: GetUserStore
-) : UserService{
+) : UserService {
     override fun getUser(): Single<NabuUser> =
         getUserStore
             .stream(FreshnessStrategy.Cached(forceRefresh = false))

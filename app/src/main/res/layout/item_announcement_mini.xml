@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/AnnounceCardStyle"
-    android:layout_marginTop="@dimen/small_margin"
-    android:layout_marginBottom="@dimen/tiny_margin">
+    android:layout_marginTop="@dimen/small_spacing"
+    android:layout_marginBottom="@dimen/tiny_spacing">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mini_card_container"
@@ -55,7 +55,7 @@
             android:id="@+id/action_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginEnd="@dimen/standard_spacing"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/msg_title"

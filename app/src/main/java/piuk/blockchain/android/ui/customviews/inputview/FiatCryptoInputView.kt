@@ -137,9 +137,9 @@ class FiatCryptoInputView(
             fakeHint.afterMeasured {
                 it.translationX =
                     if (hasPrefix) (enterAmount.width / 2f + textSize / 2f) +
-                        resources.getDimensionPixelOffset(R.dimen.smallest_margin) else
+                        resources.getDimensionPixelOffset(R.dimen.smallest_spacing) else
                         enterAmount.width / 2f - textSize / 2f - it.width -
-                            resources.getDimensionPixelOffset(R.dimen.smallest_margin)
+                            resources.getDimensionPixelOffset(R.dimen.smallest_spacing)
             }
         }
     }

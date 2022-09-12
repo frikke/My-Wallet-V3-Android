@@ -181,7 +181,7 @@ class L1EvmOnChainTxEngine(
             l1Chain = evmNetworkTicker
         )
             .map { isContract ->
-                if (isContract || tgt !is MaticAddress) {
+                if (isContract || tgt !is L1EvmAddress) {
                     throw TxValidationFailure(ValidationState.INVALID_ADDRESS)
                 } else {
                     isContract

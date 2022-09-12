@@ -45,11 +45,11 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
                 override val osType: String
                     get() = "android"
             },
+            mock(),
             object : AppVersion {
                 override val appVersion: String
                     get() = "8.18"
-            },
-            mock()
+            }
         )
     }
 
@@ -123,8 +123,8 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
             "SomePassword"
         )
         val walletBody = payloadManager
-            .getPayload()
-        Assert.assertEquals(36, walletBody!!.guid.length.toLong()) // GUIDs are 36 in length
+            .payload
+        Assert.assertEquals(36, walletBody.guid.length.toLong()) // GUIDs are 36 in length
         Assert.assertEquals("My HDWallet", walletBody.walletBody!!.accounts[0].label)
         Assert.assertEquals("0660cc198330660cc198330660cc1983", walletBody.walletBody!!.seedHex)
         Assert.assertEquals(14, walletBody.walletBody!!.accounts.size)
@@ -468,7 +468,7 @@ class PayloadManagerTest : WalletApiMockedResponseTest() {
         payloadManager.updateAllBalances()
 
         // 'All' wallet balance and transactions
-        Assert.assertEquals(743071, payloadManager.walletBalance.toLong())
+        Assert.assertEquals(743071, payloadManager.getWalletBalance().toLong())
         val balance = payloadManager.importedAddressesBalance
         // Imported addresses consolidated
         Assert.assertEquals(137505, balance.toLong())

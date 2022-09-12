@@ -4,6 +4,7 @@ import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.wrap.FormatUtilities
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.mock
@@ -15,12 +16,11 @@ import io.reactivex.rxjava3.core.Single
 import org.junit.Test
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 @Suppress("LocalVariableName", "SimplifyBooleanWithConstants")
 class EthAddressParserTest : CoincoreTestBase() {
-    private val payloadManager: PayloadDataManager = mock()
     private val ethDataManager: EthDataManager = mock()
+    private val l1BalanceStore: L1BalanceStore = mock()
     private val feeDataManager: FeeDataManager = mock()
     private val assetCatalogue: Lazy<AssetCatalogue> = mock()
     private val walletPrefs: WalletStatusPrefs = mock()
@@ -32,6 +32,7 @@ class EthAddressParserTest : CoincoreTestBase() {
 
     private val subject = EthAsset(
         ethDataManager = ethDataManager,
+        l1BalanceStore = l1BalanceStore,
         feeDataManager = feeDataManager,
         assetCatalogue = assetCatalogue,
         walletPrefs = walletPrefs,

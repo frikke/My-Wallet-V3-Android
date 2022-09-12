@@ -106,7 +106,7 @@ class PrefixedOrSuffixedEditText : AutofitEdittext {
     }
 
     private val majorValue: String
-        get() = text.toString().removePrefix(prefix ?: "").removeSuffix(suffix ?: "")
+        get() = text.toString().removePrefix(prefix.orEmpty()).removeSuffix(suffix.orEmpty())
 
     internal val bigDecimalValue: BigDecimal?
         get() = majorValue.tryParseBigDecimal()

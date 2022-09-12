@@ -240,6 +240,7 @@ class AddNewCardFragment :
 
                     showCardRejectionAlert(title = actionTitle, isError = true)
                     showCardRejectionLearnMore(
+                        errorId = state.errorId,
                         title = actionTitle,
                         description = state.description ?: getString(R.string.card_issuer_always_rejects_desc),
                         primaryCtaText = ctaCopies.first,
@@ -261,6 +262,7 @@ class AddNewCardFragment :
 
                     showCardRejectionAlert(title = actionTitle, isError = false)
                     showCardRejectionLearnMore(
+                        errorId = state.errorId,
                         title = actionTitle,
                         description = state.description ?: getString(R.string.card_issuer_sometimes_rejects_desc),
                         primaryCtaText = ctaCopies.first,
@@ -309,6 +311,7 @@ class AddNewCardFragment :
     }
 
     private fun showCardRejectionLearnMore(
+        errorId: String?,
         title: String,
         description: String,
         primaryCtaText: String,
@@ -327,6 +330,7 @@ class AddNewCardFragment :
                 showBottomSheet(
                     ErrorSlidingBottomDialog.newInstance(
                         ErrorDialogData(
+                            errorId = errorId,
                             title = title,
                             description = description,
                             errorButtonCopies = ErrorButtonCopies(

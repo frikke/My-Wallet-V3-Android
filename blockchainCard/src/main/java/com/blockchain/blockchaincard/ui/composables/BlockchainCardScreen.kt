@@ -21,6 +21,7 @@ import com.blockchain.blockchaincard.ui.composables.managecard.AccountPicker
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddress
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddressUpdated
 import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionDetails
+import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionHistory
 import com.blockchain.blockchaincard.ui.composables.managecard.FundingAccountActionChooser
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCardDetails
@@ -94,7 +95,8 @@ fun BlockchainCardNavHost(
                     OrderCardAddressKYC(
                         onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardSSNAddress) },
                         onCheckBillingAddress = { viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress) },
-                        shortAddress = state.residentialAddress?.getShortAddress()
+                        shortAddress = state.residentialAddress?.getShortAddress(),
+                        isAddressLoading = state.isAddressLoading
                     )
                 }
             }
@@ -216,7 +218,7 @@ fun BlockchainCardNavHost(
                             linkedAccountBalance = state.linkedAccountBalance,
                             isBalanceLoading = state.isLinkedAccountBalanceLoading,
                             isTransactionListRefreshing = state.isTransactionListRefreshing,
-                            transactionList = state.transactionList,
+                            transactionList = state.shortTransactionList,
                             onManageCardDetails = {
                                 viewModel.onIntent(BlockchainCardIntent.ManageCardDetails)
                             },
@@ -225,6 +227,9 @@ fun BlockchainCardNavHost(
                             },
                             onRefreshBalance = {
                                 viewModel.onIntent(BlockchainCardIntent.LoadLinkedAccount)
+                            },
+                            onSeeAllTransactions = {
+                                viewModel.onIntent(BlockchainCardIntent.SeeAllTransactions)
                             },
                             onSeeTransactionDetails = { transaction ->
                                 viewModel.onIntent(BlockchainCardIntent.SeeTransactionDetails(transaction))
@@ -377,23 +382,35 @@ fun BlockchainCardNavHost(
                 }
             }
 
-            bottomSheet(BlockchainCardDestination.TransactionDetailsDestination) {
-                state?.selectedCardTransaction?.let { transaction ->
-                    CardTransactionDetails(
-                        cardTransaction = transaction,
-                        onCloseBottomSheet = {
-                            viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
-                        }
-                    )
+            composable(BlockchainCardDestination.AllTransactionsDestination) {
+                state?.let { state ->
+                    if (state.pendingTransactions != null && state.completedTransactionsGroupedByMonth != null) {
+                        CardTransactionHistory(
+                            pendingTransactions = state.pendingTransactions,
+                            completedTransactionsGroupedByMonth = state.completedTransactionsGroupedByMonth,
+                            onSeeTransactionDetails = { transaction ->
+                                viewModel.onIntent(BlockchainCardIntent.SeeTransactionDetails(transaction))
+                            },
+                            onRefreshTransactions = {
+                                viewModel.onIntent(BlockchainCardIntent.RefreshTransactions)
+                            },
+                            isTransactionListRefreshing = state.isTransactionListRefreshing,
+                        )
+                    }
                 }
             }
 
             bottomSheet(BlockchainCardDestination.TransactionDetailsDestination) {
-                state?.selectedCardTransaction?.let { transaction ->
-                    CardTransactionDetails(
-                        cardTransaction = transaction,
-                        onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
-                    )
+                state?.let { state ->
+                    if (state.selectedCardTransaction != null && state.card != null) {
+                        CardTransactionDetails(
+                            cardTransaction = state.selectedCardTransaction,
+                            onCloseBottomSheet = {
+                                viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
+                            },
+                            last4digits = state.card.last4
+                        )
+                    }
                 }
             }
 

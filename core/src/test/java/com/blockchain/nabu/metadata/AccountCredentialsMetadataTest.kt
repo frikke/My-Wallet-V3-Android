@@ -1,6 +1,5 @@
 package com.blockchain.nabu.metadata
 
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
@@ -12,21 +11,16 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Single
 import org.junit.Test
 import org.mockito.Mockito
 
 class AccountCredentialsMetadataTest {
 
-    private val accountMetadataMigrationFF: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(true))
-    }
     private val metadataRepository: MetadataRepository = mock()
     private val remoteLogger: RemoteLogger = mock()
 
     private val subject = AccountCredentialsMetadata(
         metadataRepository = metadataRepository,
-        accountMetadataMigrationFF = accountMetadataMigrationFF,
         remoteLogger = remoteLogger
     )
 
@@ -184,28 +178,7 @@ class AccountCredentialsMetadataTest {
     }
 
     @Test
-    fun `when ff is off, legacy metadata should be saved`() {
-
-        whenever(accountMetadataMigrationFF.enabled).thenReturn(Single.just(false))
-        whenever(metadataRepository.saveMetadata(any(), any(), any(), any())).thenReturn(Completable.complete())
-
-        val test = subject.save(NabuOfflineToken("123", "546")).test()
-        val metadata = NabuLegacyCredentialsMetadata(
-            userId = "123",
-            lifetimeToken = "546"
-        )
-
-        test.assertComplete()
-
-        Mockito.verify(metadataRepository).save(
-            metadata, MetadataEntry.NABU_LEGACY_CREDENTIALS
-        )
-    }
-
-    @Test
-    fun `when ff is on, account metadata should be saved`() {
-
-        whenever(accountMetadataMigrationFF.enabled).thenReturn(Single.just(true))
+    fun `account metadata should be saved`() {
         whenever(metadataRepository.saveMetadata(any(), any(), any(), any())).thenReturn(Completable.complete())
 
         val test = subject.save(NabuOfflineToken("123", "546")).test()

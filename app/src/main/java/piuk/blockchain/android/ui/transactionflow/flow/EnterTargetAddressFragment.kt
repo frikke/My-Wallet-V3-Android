@@ -25,6 +25,7 @@ import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -309,6 +310,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             data.getRawScanData()?.let { rawScan ->
                 disposables += qrProcessor.processScan(rawScan, false)
                     .flatMapMaybe { qrProcessor.selectAssetTargetFromScan(state.sendingAsset.asAssetInfoOrThrow(), it) }
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(
                         onSuccess = {
                             // TODO update the selected target (address type) instead so the render method knows what to show  & hide

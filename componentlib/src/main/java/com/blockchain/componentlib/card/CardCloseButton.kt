@@ -36,7 +36,7 @@ fun CardCloseButton(
             .clickable {
                 onClick.invoke()
             }
-            .size(dimensionResource(R.dimen.standard_margin))
+            .size(dimensionResource(R.dimen.standard_spacing))
             .background(color = backgroundColor, shape = CircleShape)
     ) {
         Image(

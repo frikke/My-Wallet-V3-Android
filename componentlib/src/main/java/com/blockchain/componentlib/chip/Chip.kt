@@ -114,8 +114,8 @@ fun Chip(
             .animateContentSize()
             .background(backgroundColor, AppTheme.shapes.extraLarge)
             .padding(
-                horizontal = dimensionResource(R.dimen.very_small_margin),
-                vertical = dimensionResource(R.dimen.smallest_margin)
+                horizontal = dimensionResource(R.dimen.very_small_spacing),
+                vertical = dimensionResource(R.dimen.smallest_spacing)
             )
     ) {
         Image(
@@ -123,7 +123,7 @@ fun Chip(
                 .align(alignment = Alignment.CenterVertically)
                 .height(size)
                 .width(size)
-                .padding(end = dimensionResource(R.dimen.minuscule_margin)),
+                .padding(end = dimensionResource(R.dimen.minuscule_spacing)),
             painter = painterResource(id = R.drawable.ic_chip_checkmark),
             contentDescription = null,
             colorFilter = ColorFilter.tint(textColor)

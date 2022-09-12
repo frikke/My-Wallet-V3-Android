@@ -67,7 +67,7 @@
         <com.blockchain.componentlib.divider.HorizontalDividerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="@dimen/small_margin"/>
+            android:paddingVertical="@dimen/small_spacing"/>
 
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"

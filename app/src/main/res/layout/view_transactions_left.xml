@@ -13,14 +13,14 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/small_margin"
+        android:padding="@dimen/small_spacing"
         android:background="@drawable/rounded_view_grey_border">
 
         <piuk.blockchain.android.ui.customviews.RoundedCornersProgressView
             android:id="@+id/progress_steps"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginStart="@dimen/tiny_margin"
+            android:layout_marginStart="@dimen/tiny_spacing"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -41,7 +41,7 @@
             style="@style/Text.Semibold.14"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_spacing"
             android:layout_marginBottom="2dp"
             android:lineSpacingExtra="1sp"
             android:text="@string/transactions_left_title"
@@ -56,7 +56,7 @@
             style="@style/Text.Light.12"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_spacing"
             android:layout_marginTop="2dp"
             android:lineSpacingExtra="3sp"
             android:text="@string/transactions_left_subtitle"

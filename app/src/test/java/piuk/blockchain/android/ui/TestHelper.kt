@@ -10,7 +10,6 @@ import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.testutils.USD
 import com.blockchain.testutils.numberToBigInteger
 import info.blockchain.balance.Currency
@@ -37,12 +36,6 @@ fun getBlankNabuUser(kycState: KycState = KycState.None): NabuUser = NabuUser(
         userFiatCurrencies = listOf("EUR", "GBP")
     )
 )
-
-val validOfflineToken
-    get() = NabuOfflineToken(
-        "userId",
-        "lifetimeToken"
-    )
 
 fun tiers(tier1State: KycTierState, tier2State: KycTierState): KycTiers {
     return KycTiers(

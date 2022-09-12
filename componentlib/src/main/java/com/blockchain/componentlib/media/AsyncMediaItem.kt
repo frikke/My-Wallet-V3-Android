@@ -2,6 +2,7 @@
 
 package com.blockchain.componentlib.media
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,7 +29,9 @@ fun AsyncMediaItem(
     modifier: Modifier = Modifier,
     url: String,
     contentDescription: String? = "async media item",
-    contentScale: ContentScale = ContentScale.Fit
+    contentScale: ContentScale = ContentScale.Fit,
+    @DrawableRes onLoadingPlaceholder: Int = R.drawable.bkgd_grey_900_rounded,
+    @DrawableRes onErrorDrawable: Int = R.drawable.ic_error
 ) {
     val context = LocalContext.current
 
@@ -64,8 +67,8 @@ fun AsyncMediaItem(
             UrlType.SVG.name -> {
                 val imageRequest = ImageRequest.Builder(context)
                     .data(url)
-                    .placeholder(R.drawable.bkgd_grey_900_rounded)
-                    .error(R.drawable.ic_error)
+                    .placeholder(onLoadingPlaceholder)
+                    .error(onErrorDrawable)
                     .crossfade(true)
                     .build()
 

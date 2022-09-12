@@ -379,10 +379,10 @@ class EthDataManager(
         private val extraGasLimitForMemo: BigInteger = 600.toBigInteger()
         const val ETH_CHAIN_ID: Int = 1
         val ethChain: EvmNetwork = EvmNetwork(
-            CryptoCurrency.ETHER.networkTicker,
-            CryptoCurrency.ETHER.name,
-            ETH_CHAIN_ID,
-            EthUrls.ETH_NODES
+            networkTicker = CryptoCurrency.ETHER.networkTicker,
+            networkName = CryptoCurrency.ETHER.name,
+            chainId = ETH_CHAIN_ID,
+            nodeUrl = EthUrls.ETH_NODES
         )
     }
 }

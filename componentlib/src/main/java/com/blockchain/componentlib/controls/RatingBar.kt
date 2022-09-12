@@ -48,7 +48,7 @@ fun RatingBar(
             )
 
             if (index < range.last) {
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.tiny_margin)))
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.tiny_spacing)))
             }
         }
     }

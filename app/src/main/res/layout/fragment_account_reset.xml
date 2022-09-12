@@ -17,10 +17,10 @@
         android:id="@+id/back_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/small_margin"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/small_spacing"
+        android:layout_marginTop="@dimen/standard_spacing"
         android:background="@android:color/transparent"
-        android:padding="@dimen/tiny_margin"
+        android:padding="@dimen/tiny_spacing"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_arrow_back_blue" />
@@ -54,9 +54,9 @@
         app:layout_constraintTop_toBottomOf="@+id/reset_image"
         app:layout_constraintBottom_toTopOf="@+id/reset_account_desc"
         android:text="@string/reset_account_title"
-        android:layout_marginStart="@dimen/huge_margin"
-        android:layout_marginEnd="@dimen/huge_margin"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/huge_spacing"
+        android:layout_marginEnd="@dimen/huge_spacing"
+        android:layout_marginTop="@dimen/standard_spacing"
         />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -69,11 +69,11 @@
         app:layout_constraintTop_toBottomOf="@+id/reset_account_label"
         app:layout_constraintBottom_toTopOf="@+id/reset_button"
         android:text="@string/reset_account_description_1"
-        android:layout_marginStart="@dimen/huge_margin"
-        android:layout_marginEnd="@dimen/huge_margin"
-        android:layout_marginTop="@dimen/tiny_margin"
-        android:paddingStart="@dimen/medium_margin"
-        android:paddingEnd="@dimen/medium_margin"
+        android:layout_marginStart="@dimen/huge_spacing"
+        android:layout_marginEnd="@dimen/huge_spacing"
+        android:layout_marginTop="@dimen/tiny_spacing"
+        android:paddingStart="@dimen/medium_spacing"
+        android:paddingEnd="@dimen/medium_spacing"
         />
 
 
@@ -86,8 +86,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/reset_account_desc"
         app:layout_constraintBottom_toTopOf="@+id/retry_button"
-        android:layout_marginTop="@dimen/epic_margin"
-        android:layout_marginBottom="@dimen/tiny_margin"
+        android:layout_marginTop="@dimen/epic_spacing"
+        android:layout_marginBottom="@dimen/tiny_spacing"
         android:text="@string/reset_account_cta" />
 
     <androidx.appcompat.widget.AppCompatButton
@@ -99,8 +99,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/reset_button"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="@dimen/tiny_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/tiny_spacing"
+        android:layout_marginBottom="@dimen/standard_spacing"
         android:text="@string/retry_recovery_phrase_cta" />
 
     <FrameLayout

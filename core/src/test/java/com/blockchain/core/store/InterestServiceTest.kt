@@ -13,7 +13,6 @@ import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.nabu.Authenticator
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
@@ -40,7 +39,6 @@ class InterestServiceTest {
     private val interestRateStore = mockk<InterestRateStore>()
     private val paymentTransactionHistoryStore = mockk<PaymentTransactionHistoryStore>()
     private val currencyPrefs = mockk<CurrencyPrefs>()
-    private val authenticator = mockk<Authenticator>()
     private val interestApiService = mockk<InterestApiService>()
 
     private val interestService: InterestService = InterestRepository(
@@ -52,7 +50,6 @@ class InterestServiceTest {
         interestRateStore = interestRateStore,
         paymentTransactionHistoryStore = paymentTransactionHistoryStore,
         currencyPrefs = currencyPrefs,
-        authenticator = authenticator,
         interestApiService = interestApiService,
     )
 

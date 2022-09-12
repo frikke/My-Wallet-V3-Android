@@ -810,7 +810,7 @@ class SimpleBuyModel(
                 getEligibilityAndNextPaymentDateUseCase(Unit)
                     .map { paymentMethods to it }
                     .onErrorReturn { paymentMethods to emptyList() }
-            }
+            }.trackProgress(activityIndicator)
             .subscribeBy(
                 onSuccess = { (availablePaymentMethods, eligibilityNextPaymentList) ->
                     process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibilityNextPaymentList))

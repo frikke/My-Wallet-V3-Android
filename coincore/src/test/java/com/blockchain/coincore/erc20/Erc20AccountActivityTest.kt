@@ -51,13 +51,14 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
 
     @Test
     fun getErc20TransactionsList() {
+        val eventTimestamp = 1557334297L
         val erc20HistoryEvent = Erc20HistoryEvent(
             from = FROM_ADDRESS,
             to = TO_ADDRESS,
             value = CryptoValue.fromMinor(ERC20_TOKEN, 10000.toBigInteger()),
             transactionHash = "0xfd7d583fa54bf55f6cfbfec97c0c55cc6af8c121b71addb7d06a9e1e305ae8ff",
             blockNumber = 7721219.toBigInteger(),
-            timestamp = 1557334297,
+            timestamp = eventTimestamp,
             fee = Single.just(CryptoValue.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
         )
 
@@ -103,7 +104,7 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
                         !doubleSpend &&
                         !isFeeTransaction &&
                         confirmations == 3 &&
-                        timeStampMs == 1557334297L &&
+                        timeStampMs == eventTimestamp * 1000L &&
                         transactionType == TransactionSummary.TransactionType.SENT &&
                         txId == "0xfd7d583fa54bf55f6cfbfec97c0c55cc6af8c121b71addb7d06a9e1e305ae8ff" &&
                         confirmations == 3 &&

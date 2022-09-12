@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="@dimen/standard_margin">
+    android:layout_margin="@dimen/standard_spacing">
 
     <TextView
         android:id="@+id/verify_email_msg"
@@ -20,7 +20,7 @@
         android:id="@+id/email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_spacing"
         app:layout_constraintTop_toBottomOf="@id/verify_email_msg"
         tools:text="paco@gmail.com" />
 
@@ -28,7 +28,7 @@
         android:id="@+id/verify_email_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_spacing"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/email" />

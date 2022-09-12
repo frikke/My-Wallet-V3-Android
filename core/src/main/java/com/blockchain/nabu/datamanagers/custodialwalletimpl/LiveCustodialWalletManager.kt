@@ -19,7 +19,6 @@ import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BankAccount
 import com.blockchain.nabu.datamanagers.BuyOrderList
@@ -89,15 +88,14 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.flatMapIterable
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import java.math.BigInteger
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 
 class LiveCustodialWalletManager(
     private val assetCatalogue: AssetCatalogue,
     private val nabuService: NabuService,
-    private val authenticator: Authenticator,
     private val pairsCache: BuyPairsCache,
     private val simpleBuyService: SimpleBuyService,
     private val transactionsCache: TransactionsCache,
@@ -118,54 +116,44 @@ class LiveCustodialWalletManager(
         custodialWalletOrder: CustodialWalletOrder,
         stateAction: String?,
     ): Single<BuySellOrder> =
-        authenticator.authenticate {
-            nabuService.createOrder(
-                it,
-                custodialWalletOrder,
-                stateAction
-            )
-        }.map { response ->
+        nabuService.createOrder(
+            custodialWalletOrder,
+            stateAction
+        ).map { response ->
             response.toDomainOrThrow()
         }
 
     override fun createRecurringBuyOrder(
         recurringBuyRequestBody: RecurringBuyRequestBody,
     ): Single<RecurringBuyOrder> =
-        authenticator.authenticate {
-            nabuService.createRecurringBuyOrder(
-                it,
-                recurringBuyRequestBody
-            )
-        }.map { response -> response.toRecurringBuyOrder() }
+        nabuService.createRecurringBuyOrder(
+            recurringBuyRequestBody
+        ).map { response -> response.toRecurringBuyOrder() }
 
     override fun createWithdrawOrder(amount: Money, bankId: String): Completable =
-        authenticator.authenticateCompletable {
-            nabuService.createWithdrawOrder(
-                sessionToken = it,
-                amount = amount.toBigInteger().toString(),
-                currency = amount.currencyCode,
-                beneficiaryId = bankId
-            )
-        }
+        nabuService.createWithdrawOrder(
+            amount = amount.toBigInteger().toString(),
+            currency = amount.currencyCode,
+            beneficiaryId = bankId
+        )
 
     override fun fetchFiatWithdrawFeeAndMinLimit(
         fiatCurrency: FiatCurrency,
         product: Product,
         paymentMethodType: PaymentMethodType,
     ): Single<FiatWithdrawalFeeAndLimit> =
-        authenticator.authenticate {
-            nabuService.fetchWithdrawFeesAndLimits(it, product.toRequestString(), paymentMethodType.mapToRequest())
-        }.map { response ->
-            val fee = response.fees.firstOrNull { it.symbol == fiatCurrency.networkTicker }?.let {
-                Money.fromMinor(fiatCurrency, it.minorValue.toBigInteger())
-            } ?: Money.zero(fiatCurrency)
+        nabuService.fetchWithdrawFeesAndLimits(product.toRequestString(), paymentMethodType.mapToRequest())
+            .map { response ->
+                val fee = response.fees.firstOrNull { it.symbol == fiatCurrency.networkTicker }?.let {
+                    Money.fromMinor(fiatCurrency, it.minorValue.toBigInteger())
+                } ?: Money.zero(fiatCurrency)
 
-            val minLimit = response.minAmounts.firstOrNull { it.symbol == fiatCurrency.networkTicker }?.let {
-                Money.fromMinor(fiatCurrency, it.minorValue.toBigInteger())
-            } ?: Money.zero(fiatCurrency)
+                val minLimit = response.minAmounts.firstOrNull { it.symbol == fiatCurrency.networkTicker }?.let {
+                    Money.fromMinor(fiatCurrency, it.minorValue.toBigInteger())
+                } ?: Money.zero(fiatCurrency)
 
-            FiatWithdrawalFeeAndLimit(minLimit, fee)
-        }
+                FiatWithdrawalFeeAndLimit(minLimit, fee)
+            }
 
     private fun PaymentMethodType.mapToRequest(): String =
         when (this) {
@@ -178,31 +166,27 @@ class LiveCustodialWalletManager(
         asset: AssetInfo,
         product: Product,
     ): Single<CryptoWithdrawalFeeAndLimit> =
-        authenticator.authenticate {
-            nabuService.fetchWithdrawFeesAndLimits(it, product.toRequestString(), WithdrawFeeRequest.DEFAULT)
-        }.map { response ->
-            val fee = response.fees.firstOrNull {
-                it.symbol == asset.networkTicker
-            }?.minorValue?.toBigInteger() ?: BigInteger.ZERO
+        nabuService.fetchWithdrawFeesAndLimits(product.toRequestString(), WithdrawFeeRequest.DEFAULT)
+            .map { response ->
+                val fee = response.fees.firstOrNull {
+                    it.symbol == asset.networkTicker
+                }?.minorValue?.toBigInteger() ?: BigInteger.ZERO
 
-            val minLimit = response.minAmounts.firstOrNull {
-                it.symbol == asset.networkTicker
-            }?.minorValue?.toBigInteger() ?: BigInteger.ZERO
+                val minLimit = response.minAmounts.firstOrNull {
+                    it.symbol == asset.networkTicker
+                }?.minorValue?.toBigInteger() ?: BigInteger.ZERO
 
-            CryptoWithdrawalFeeAndLimit(minLimit, fee)
-        }
+                CryptoWithdrawalFeeAndLimit(minLimit, fee)
+            }
 
     override fun fetchWithdrawLocksTime(
         paymentMethodType: PaymentMethodType,
         fiatCurrency: FiatCurrency,
     ): Single<BigInteger> =
-        authenticator.authenticate {
-            nabuService.fetchWithdrawLocksRules(
-                it,
-                paymentMethodType,
-                fiatCurrency.networkTicker
-            )
-        }.flatMap { response ->
+        nabuService.fetchWithdrawLocksRules(
+            paymentMethodType,
+            fiatCurrency.networkTicker
+        ).flatMap { response ->
             response.rule?.let {
                 Single.just(it.lockTime.toBigInteger())
             } ?: Single.just(BigInteger.ZERO)
@@ -310,17 +294,13 @@ class LiveCustodialWalletManager(
         }
 
     override fun getBankAccountDetails(currency: FiatCurrency): Single<BankAccount> =
-        authenticator.authenticate {
-            nabuService.getSimpleBuyBankAccountDetails(it, currency.networkTicker)
-        }.map { response ->
+        nabuService.getSimpleBuyBankAccountDetails(currency.networkTicker).map { response ->
             paymentAccountMapperMappers[currency.networkTicker]?.map(response)
                 ?: throw IllegalStateException("Not valid Account returned")
         }
 
     override fun getCustodialAccountAddress(asset: Currency): Single<String> =
-        authenticator.authenticate {
-            nabuService.getSimpleBuyBankAccountDetails(it, asset.networkTicker)
-        }.map { response ->
+        nabuService.getSimpleBuyBankAccountDetails(asset.networkTicker).map { response ->
             response.address
         }
 
@@ -358,14 +338,10 @@ class LiveCustodialWalletManager(
         }
 
     override fun isAssetSupportedForSwapLegacy(assetInfo: AssetInfo): Single<Boolean> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.getSwapAvailablePairs(sessionToken)
-        }.map { response ->
-            response.firstOrNull { pair ->
-                val splitPair = pair.split("-")
-                splitPair[0] == assetInfo.networkTicker
-            } != null
-        }
+        custodialRepository.getSwapAvailablePairs()
+            .map { pairs ->
+                assetInfo.networkTicker in pairs.map { it.source.networkTicker }
+            }
 
     override fun isAssetSupportedForSwap(
         assetInfo: AssetInfo,
@@ -380,34 +356,25 @@ class LiveCustodialWalletManager(
     }
 
     override fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList> =
-        authenticator.authenticate {
-            nabuService.getOutstandingOrders(
-                sessionToken = it,
-                pendingOnly = true
-            )
-        }.map {
+        nabuService.getOutstandingOrders(
+            pendingOnly = true
+        ).map {
             it.filterAndMapToOrder(asset)
         }
 
     override fun getAllOutstandingBuyOrders(): Single<BuyOrderList> =
-        authenticator.authenticate {
-            nabuService.getOutstandingOrders(
-                sessionToken = it,
-                pendingOnly = true
-            )
-        }.map {
+        nabuService.getOutstandingOrders(
+            pendingOnly = true
+        ).map {
             it.filter { order -> order.type() == OrderType.BUY }
                 .map { order -> order.toBuySellOrder(assetCatalogue) }
                 .filter { order -> order.state != OrderState.UNKNOWN }
         }
 
     override fun getAllOutstandingOrders(): Single<BuyOrderList> =
-        authenticator.authenticate {
-            nabuService.getOutstandingOrders(
-                sessionToken = it,
-                pendingOnly = true
-            )
-        }.map {
+        nabuService.getOutstandingOrders(
+            pendingOnly = true
+        ).map {
             it.map { order -> order.toBuySellOrder(assetCatalogue) }
                 .filter { order -> order.state != OrderState.UNKNOWN }
         }
@@ -433,27 +400,20 @@ class LiveCustodialWalletManager(
         }
 
     override fun getBuyOrder(orderId: String): Single<BuySellOrder> =
-        authenticator.authenticate {
-            nabuService.getBuyOrder(it, orderId)
-        }.map { it.toDomainOrThrow() }
+        nabuService.getBuyOrder(orderId).map { it.toDomainOrThrow() }
 
     override fun deleteBuyOrder(orderId: String): Completable =
-        authenticator.authenticateCompletable {
-            nabuService.deleteBuyOrder(it, orderId)
-        }
+        nabuService.deleteBuyOrder(orderId)
 
     override fun transferFundsToWallet(amount: CryptoValue, fee: CryptoValue, walletAddress: String): Single<String> =
-        authenticator.authenticate {
-            nabuService.transferFunds(
-                it,
-                TransferRequest(
-                    address = walletAddress,
-                    currency = amount.currency.networkTicker,
-                    amount = amount.toBigInteger().toString(),
-                    fee = fee.toBigInteger().toString()
-                )
+        nabuService.transferFunds(
+            TransferRequest(
+                address = walletAddress,
+                currency = amount.currency.networkTicker,
+                amount = amount.toBigInteger().toString(),
+                fee = fee.toBigInteger().toString()
             )
-        }
+        )
 
     override fun cancelAllPendingOrders(): Completable {
         return getAllOutstandingOrders().toObservable()
@@ -462,10 +422,8 @@ class LiveCustodialWalletManager(
     }
 
     override fun getBankTransferLimits(fiatCurrency: FiatCurrency, onlyEligible: Boolean): Single<PaymentLimits> =
-        authenticator.authenticate {
-            nabuService.paymentMethods(it, fiatCurrency.networkTicker, onlyEligible, null).map { methods ->
-                methods.filter { method -> method.eligible || !onlyEligible }
-            }
+        nabuService.paymentMethods(fiatCurrency.networkTicker, onlyEligible, null).map { methods ->
+            methods.filter { method -> method.eligible || !onlyEligible }
         }.map {
             it.filter { response ->
                 response.type == PaymentMethodResponse.BANK_TRANSFER && response.currency == fiatCurrency.networkTicker
@@ -485,26 +443,20 @@ class LiveCustodialWalletManager(
     }
 
     override fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy> {
-        return authenticator.authenticate { sessionToken ->
-            nabuService.getRecurringBuyForId(sessionToken, recurringBuyId)
-                .map {
-                    it.first().toRecurringBuy(assetCatalogue) ?: throw IllegalStateException(
-                        "No recurring buy"
-                    )
-                }
-        }
+        return nabuService.getRecurringBuyForId(recurringBuyId)
+            .map {
+                it.first().toRecurringBuy(assetCatalogue) ?: throw IllegalStateException(
+                    "No recurring buy"
+                )
+            }
     }
 
     override fun cancelRecurringBuy(recurringBuyId: String): Completable =
-        authenticator.authenticateCompletable { sessionToken ->
-            nabuService.cancelRecurringBuy(sessionToken, recurringBuyId)
-        }
+        nabuService.cancelRecurringBuy(recurringBuyId)
 
     override fun getCardAcquirers(): Single<List<PaymentCardAcquirer>> =
-        authenticator.authenticate { nabuSessionToken ->
-            nabuService.cardAcquirers(nabuSessionToken).map { paymentCardAcquirers ->
-                paymentCardAcquirers.map(PaymentCardAcquirerResponse::toPaymentCardAcquirer)
-            }
+        nabuService.cardAcquirers().map { paymentCardAcquirers ->
+            paymentCardAcquirers.map(PaymentCardAcquirerResponse::toPaymentCardAcquirer)
         }
 
     override fun confirmOrder(
@@ -513,19 +465,16 @@ class LiveCustodialWalletManager(
         paymentMethodId: String?,
         isBankPartner: Boolean?,
     ): Single<BuySellOrder> =
-        authenticator.authenticate { authToken ->
-            nabuService.confirmOrder(
-                authToken,
-                orderId,
-                ConfirmOrderRequestBody(
-                    paymentMethodId = paymentMethodId,
-                    attributes = attributes,
-                    paymentType = if (isBankPartner == true) {
-                        PaymentMethodResponse.BANK_TRANSFER
-                    } else null
-                )
+        nabuService.confirmOrder(
+            orderId,
+            ConfirmOrderRequestBody(
+                paymentMethodId = paymentMethodId,
+                attributes = attributes,
+                paymentType = if (isBankPartner == true) {
+                    PaymentMethodResponse.BANK_TRANSFER
+                } else null
             )
-        }.map { response ->
+        ).map { response ->
             response.toDomainOrThrow()
         }
 
@@ -576,17 +525,15 @@ class LiveCustodialWalletManager(
     }.getDataOrThrow()
 
     override fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String> =
-        authenticator.authenticateMaybe { sessionToken ->
-            nabuService.fetchExchangeSendToAddressForCrypto(sessionToken, asset.networkTicker)
-                .flatMapMaybe { response ->
-                    if (response.state == State.ACTIVE) {
-                        Maybe.just(response.address)
-                    } else {
-                        Maybe.empty()
-                    }
+        nabuService.fetchExchangeSendToAddressForCrypto(asset.networkTicker)
+            .flatMapMaybe { response ->
+                if (response.state == State.ACTIVE) {
+                    Maybe.just(response.address)
+                } else {
+                    Maybe.empty()
                 }
-                .onErrorComplete()
-        }
+            }
+            .onErrorComplete()
 
     override fun isSimplifiedDueDiligenceEligible(): Single<Boolean> =
         nabuService.isSDDEligible().map { response ->
@@ -594,9 +541,7 @@ class LiveCustodialWalletManager(
         }.onErrorReturn { false }
 
     override fun fetchSimplifiedDueDiligenceUserState(): Single<SimplifiedDueDiligenceUserState> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.isSDDVerified(sessionToken)
-        }.map {
+        nabuService.isSDDVerified().map {
             SimplifiedDueDiligenceUserState(
                 isVerified = it.verified,
                 stateFinalised = it.taskComplete
@@ -610,60 +555,55 @@ class LiveCustodialWalletManager(
         destinationAddress: String?,
         refundAddress: String?,
     ): Single<CustodialOrder> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.createCustodialOrder(
-                sessionToken,
-                CreateOrderRequest(
-                    direction = direction.toString(),
-                    quoteId = quoteId,
-                    volume = volume.toBigInteger().toString(),
-                    destinationAddress = destinationAddress,
-                    refundAddress = refundAddress
-                )
-            ).onErrorResumeNext {
-                Single.error(transactionErrorMapper.mapToTransactionError(it))
-            }.map {
-                it.toCustodialOrder() ?: throw IllegalStateException("Invalid order created")
-            }
+        nabuService.createCustodialOrder(
+            CreateOrderRequest(
+                direction = direction.toString(),
+                quoteId = quoteId,
+                volume = volume.toBigInteger().toString(),
+                destinationAddress = destinationAddress,
+                refundAddress = refundAddress
+            )
+        ).onErrorResumeNext {
+            Single.error(transactionErrorMapper.mapToTransactionError(it))
+        }.map {
+            it.toCustodialOrder() ?: throw IllegalStateException("Invalid order created")
         }
 
     override fun getProductTransferLimits(
         currency: FiatCurrency,
         product: Product,
         orderDirection: TransferDirection?,
-    ): Single<TransferLimits> =
-        authenticator.authenticate {
-            val side = when (product) {
-                Product.BUY,
-                Product.SELL -> product.name
-                else -> null
-            }
+    ): Single<TransferLimits> {
+        val side = when (product) {
+            Product.BUY,
+            Product.SELL -> product.name
+            else -> null
+        }
 
-            val direction = if (product == Product.TRADE && orderDirection != null) {
-                orderDirection.name
-            } else null
+        val direction = if (product == Product.TRADE && orderDirection != null) {
+            orderDirection.name
+        } else null
 
-            nabuService.fetchProductLimits(
-                it,
-                currency.networkTicker,
-                product.toRequestString(),
-                side,
-                direction
-            ).map { response ->
-                if (response.maxOrder == null && response.minOrder == null && response.maxPossibleOrder == null) {
-                    TransferLimits(currency)
-                } else {
-                    TransferLimits(
-                        minLimit = Money.fromMinor(currency, response.minOrder?.toBigInteger() ?: BigInteger.ZERO),
-                        maxOrder = Money.fromMinor(currency, response.maxOrder?.toBigInteger() ?: BigInteger.ZERO),
-                        maxLimit = Money.fromMinor(
-                            currency,
-                            response.maxPossibleOrder?.toBigInteger() ?: BigInteger.ZERO
-                        )
+        return nabuService.fetchProductLimits(
+            currency.networkTicker,
+            product.toRequestString(),
+            side,
+            direction
+        ).map { response ->
+            if (response.maxOrder == null && response.minOrder == null && response.maxPossibleOrder == null) {
+                TransferLimits(currency)
+            } else {
+                TransferLimits(
+                    minLimit = Money.fromMinor(currency, response.minOrder?.toBigInteger() ?: BigInteger.ZERO),
+                    maxOrder = Money.fromMinor(currency, response.maxOrder?.toBigInteger() ?: BigInteger.ZERO),
+                    maxLimit = Money.fromMinor(
+                        currency,
+                        response.maxPossibleOrder?.toBigInteger() ?: BigInteger.ZERO
                     )
-                }
+                )
             }
         }
+    }
 
     override fun getCustodialActivityForAsset(
         cryptoCurrency: AssetInfo,
@@ -672,13 +612,10 @@ class LiveCustodialWalletManager(
         custodialRepository.getCustodialActivityForAsset(cryptoCurrency, directions)
 
     override fun updateOrder(id: String, success: Boolean): Completable =
-        authenticator.authenticateCompletable { sessionToken ->
-            nabuService.updateOrder(
-                sessionToken = sessionToken,
-                id = id,
-                success = success
-            )
-        }
+        nabuService.updateOrder(
+            id = id,
+            success = success
+        )
 
     override fun createPendingDeposit(
         crypto: AssetInfo,
@@ -687,30 +624,24 @@ class LiveCustodialWalletManager(
         amount: Money,
         product: Product,
     ): Completable =
-        authenticator.authenticateCompletable { sessionToken ->
-            nabuService.createDepositTransaction(
-                sessionToken = sessionToken,
-                currency = crypto.networkTicker,
-                address = address,
-                hash = hash,
-                amount = amount.toBigInteger().toString(),
-                product = product.toRequestString()
+        nabuService.createDepositTransaction(
+            currency = crypto.networkTicker,
+            address = address,
+            hash = hash,
+            amount = amount.toBigInteger().toString(),
+            product = product.toRequestString()
 
-            )
-        }
+        )
 
     override fun executeCustodialTransfer(amount: Money, origin: Product, destination: Product): Completable =
-        authenticator.authenticateCompletable { sessionToken ->
-            nabuService.executeTransfer(
-                sessionToken = sessionToken,
-                body = ProductTransferRequestBody(
-                    amount = amount.toBigInteger().toString(),
-                    currency = amount.currencyCode,
-                    origin = origin.toRequestString(),
-                    destination = destination.toRequestString()
-                )
+        nabuService.executeTransfer(
+            body = ProductTransferRequestBody(
+                amount = amount.toBigInteger().toString(),
+                currency = amount.currencyCode,
+                origin = origin.toRequestString(),
+                destination = destination.toRequestString()
             )
-        }
+        )
 
     override fun getSwapTrades(): Single<List<CustodialOrder>> =
         swapOrdersCache.swapOrders().map { response ->

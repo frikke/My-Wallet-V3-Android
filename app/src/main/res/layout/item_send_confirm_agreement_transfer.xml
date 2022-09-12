@@ -9,13 +9,13 @@
         android:id="@+id/confirm_details_checkbox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
         android:background="@color/white"
         android:button="@drawable/checkbox_selector_blue"
-        android:paddingStart="@dimen/standard_margin"
-        android:paddingTop="@dimen/very_small_margin"
-        android:paddingBottom="@dimen/very_small_margin"
-        android:paddingEnd="@dimen/standard_margin"
+        android:paddingStart="@dimen/standard_spacing"
+        android:paddingTop="@dimen/very_small_spacing"
+        android:paddingBottom="@dimen/very_small_spacing"
+        android:paddingEnd="@dimen/standard_spacing"
         tools:text="@string/send_confirmation_rewards_holding_period_2" />
 
 </FrameLayout>

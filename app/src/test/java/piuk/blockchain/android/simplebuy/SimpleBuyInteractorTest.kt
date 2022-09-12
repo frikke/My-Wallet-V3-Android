@@ -14,9 +14,13 @@ import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.PaymentAttributes
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.outcome.Outcome
@@ -58,8 +62,8 @@ class SimpleBuyInteractorTest {
     private val cardService: CardService = mock()
     private val paymentMethodService: PaymentMethodService = mock()
     private val paymentsRepository: PaymentsRepository = mock()
-    private val quickFillButtonsFeatureFlag: FeatureFlag = mock()
     private val cardRejectionCheckFeatureFlag: FeatureFlag = mock()
+    private val cardPaymentAsyncFF: FeatureFlag = mock()
     private val simpleBuyPrefs: SimpleBuyPrefs = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
     private val eligibilityService: EligibilityService = mock {
@@ -95,18 +99,18 @@ class SimpleBuyInteractorTest {
             cardService = cardService,
             paymentMethodService = paymentMethodService,
             paymentsRepository = paymentsRepository,
-            quickFillButtonsFeatureFlag = quickFillButtonsFeatureFlag,
             simpleBuyPrefs = simpleBuyPrefs,
             onboardingPrefs = onboardingPrefs,
             cardRejectionCheckFF = cardRejectionCheckFeatureFlag,
             eligibilityService = eligibilityService,
+            cardPaymentAsyncFF = cardPaymentAsyncFF
         )
     }
 
     @Test
     fun `when no previous buy amount for pair available then default value is returned and quick fill buttons are correct`() {
         whenever(simpleBuyPrefs.getLastAmount(any())).thenReturn("")
-        whenever(quickFillButtonsFeatureFlag.enabled).thenReturn(Single.just(true))
+
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(1000))
@@ -127,7 +131,6 @@ class SimpleBuyInteractorTest {
     @Test
     fun `when no previous buy amount for pair available and default value is lower than min returned and quick fill buttons are correct`() {
         whenever(simpleBuyPrefs.getLastAmount(any())).thenReturn("")
-        whenever(quickFillButtonsFeatureFlag.enabled).thenReturn(Single.just(true))
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(1000))
@@ -149,7 +152,6 @@ class SimpleBuyInteractorTest {
     @Test
     fun `when no previous buy amount for pair available and default value is higher than max returned and quick fill buttons are correct`() {
         whenever(simpleBuyPrefs.getLastAmount(any())).thenReturn("")
-        whenever(quickFillButtonsFeatureFlag.enabled).thenReturn(Single.just(true))
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(40))
@@ -169,7 +171,6 @@ class SimpleBuyInteractorTest {
     @Test
     fun `when previous buy amount available for pair then it is returned and quick fill buttons are correct`() {
         whenever(simpleBuyPrefs.getLastAmount("BTC-USD")).thenReturn("100")
-        whenever(quickFillButtonsFeatureFlag.enabled).thenReturn(Single.just(true))
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(1000))
@@ -189,7 +190,6 @@ class SimpleBuyInteractorTest {
     @Test
     fun `when first quick fill button over payment limit then none are returned`() {
         whenever(simpleBuyPrefs.getLastAmount("BTC-USD")).thenReturn("100")
-        whenever(quickFillButtonsFeatureFlag.enabled).thenReturn(Single.just(true))
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(80))
@@ -207,7 +207,6 @@ class SimpleBuyInteractorTest {
     @Test
     fun `when second quick fill button over payment limit then last two are not returned`() {
         whenever(simpleBuyPrefs.getLastAmount("BTC-USD")).thenReturn("50")
-        whenever(quickFillButtonsFeatureFlag.enabled).thenReturn(Single.just(true))
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(300))
@@ -226,7 +225,6 @@ class SimpleBuyInteractorTest {
     @Test
     fun `when third quick fill button over payment limit then last is not returned`() {
         whenever(simpleBuyPrefs.getLastAmount("BTC-USD")).thenReturn("50")
-        whenever(quickFillButtonsFeatureFlag.enabled).thenReturn(Single.just(true))
         val fiatCurrency = FiatCurrency.Dollars
         val assetCode = "BTC"
         val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(500))
@@ -244,23 +242,6 @@ class SimpleBuyInteractorTest {
     }
 
     @Test
-    fun `when feature flag is turned off then no prefill or quick fill data is returned`() {
-        whenever(simpleBuyPrefs.getLastAmount("BTC-USD")).thenReturn("100")
-        whenever(quickFillButtonsFeatureFlag.enabled).thenReturn(Single.just(false))
-        val fiatCurrency = FiatCurrency.Dollars
-        val assetCode = "BTC"
-        val maxAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(500))
-        val minAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(500))
-        val limits = TxLimits(min = TxLimit.Limited(minAmount), max = TxLimit.Limited(maxAmount))
-
-        val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
-        test.assertValue {
-            it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal.ZERO) &&
-                it.second == null
-        }
-    }
-
-    @Test
     fun `when a list of States is requested, check if list is valid`() {
         val test = subject.getListOfStates("US").test()
         test.await().assertValue {
@@ -268,5 +249,73 @@ class SimpleBuyInteractorTest {
                 it.size == 3 &&
                 it.contains(Region.State("US", "Georgia", false, "US-GA"))
         }
+    }
+
+    @Test
+    fun `pollForOrderStatus should finish when OrderState is FINISHED`() {
+        val order: BuySellOrder = mock()
+        whenever(order.state).thenReturn(OrderState.FINISHED)
+        whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(false))
+        whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
+
+        subject.pollForOrderStatus(ORDER_ID).test()
+            .assertComplete()
+            .assertValue { it.value == order }
+    }
+
+    @Test
+    fun `pollForOrderStatus should finish when OrderState is FAILED`() {
+        val order: BuySellOrder = mock()
+        whenever(order.state).thenReturn(OrderState.FAILED)
+        whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(false))
+        whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
+
+        subject.pollForOrderStatus(ORDER_ID).test()
+            .assertComplete()
+            .assertValue { it.value == order }
+    }
+
+    @Test
+    fun `pollForOrderStatus should finish when OrderState is CANCELED`() {
+        val order: BuySellOrder = mock()
+        whenever(order.state).thenReturn(OrderState.CANCELED)
+        whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(false))
+        whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
+
+        subject.pollForOrderStatus(ORDER_ID).test()
+            .assertComplete()
+            .assertValue { it.value == order }
+    }
+
+    @Test
+    fun `pollForOrderStatus for PAYMENT_CARD should finish when attributes are returned`() {
+        val order: BuySellOrder = mock()
+        val attributes: PaymentAttributes = mock()
+        whenever(order.attributes).thenReturn(attributes)
+        whenever(order.paymentMethodType).thenReturn(PaymentMethodType.PAYMENT_CARD)
+        whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(true))
+        whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
+
+        subject.pollForOrderStatus(ORDER_ID).test()
+            .assertComplete()
+            .assertValue { it.value == order }
+    }
+
+    @Test
+    fun `pollForOrderStatus for GOOGLE_PAY should finish when attributes are returned`() {
+        val order: BuySellOrder = mock()
+        val attributes: PaymentAttributes = mock()
+        whenever(order.attributes).thenReturn(attributes)
+        whenever(order.paymentMethodType).thenReturn(PaymentMethodType.GOOGLE_PAY)
+        whenever(cardPaymentAsyncFF.enabled).thenReturn(Single.just(true))
+        whenever(custodialWalletManager.getBuyOrder(ORDER_ID)).thenReturn(Single.just(order))
+
+        subject.pollForOrderStatus(ORDER_ID).test()
+            .assertComplete()
+            .assertValue { it.value == order }
+    }
+
+    private companion object {
+        private const val ORDER_ID = "orderId"
     }
 }

@@ -38,7 +38,6 @@ import com.blockchain.api.services.CollateralLock
 import com.blockchain.api.services.CollateralLocks
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
-import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.data.DataResource
@@ -144,9 +143,6 @@ class PaymentsRepositoryTest {
     private val tradingService: TradingService = mockk()
     private val assetCatalogue: AssetCatalogue = mockk()
     private val simpleBuyPrefs: SimpleBuyPrefs = mockk()
-    private val authenticator: AuthHeaderProvider = mockk<AuthHeaderProvider>().apply {
-        coEvery { getAuthHeader() } returns Single.just(AUTH)
-    }
     private val googlePayManager: GooglePayManager = mockk()
 
     private val environmentConfig: EnvironmentConfig = mockk<EnvironmentConfig>().apply {
@@ -171,7 +167,6 @@ class PaymentsRepositoryTest {
             assetCatalogue,
             simpleBuyPrefs,
             withdrawLocksCache,
-            authenticator,
             googlePayManager,
             environmentConfig,
             fiatCurrenciesService,
@@ -199,7 +194,7 @@ class PaymentsRepositoryTest {
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
-        every { paymentMethodsService.getLinkedBank(AUTH, ID) } returns Single.just(linkedBankTransferResponse)
+        every { paymentMethodsService.getLinkedBank(ID) } returns Single.just(linkedBankTransferResponse)
 
         // ASSERT
         subject.getLinkedBank(ID).test()
@@ -228,7 +223,7 @@ class PaymentsRepositoryTest {
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
-        every { paymentMethodsService.getLinkedBank(AUTH, ID) } returns Single.just(linkedBankTransferResponse)
+        every { paymentMethodsService.getLinkedBank(ID) } returns Single.just(linkedBankTransferResponse)
 
         // ASSERT
         subject.getLinkedBank(ID).test()
@@ -282,7 +277,7 @@ class PaymentsRepositoryTest {
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
-        every { paymentMethodsService.getBanks(AUTH) } returns Single.just(listOf(bankResponse))
+        every { paymentMethodsService.getBanks() } returns Single.just(listOf(bankResponse))
 
         // ASSERT
         subject.getLinkedBanks().test()
@@ -302,7 +297,7 @@ class PaymentsRepositoryTest {
             every { type } returns PaymentMethodType.BANK_ACCOUNT
             every { id } returns ID
         }
-        every { paymentMethodsService.removeBeneficiary(AUTH, ID) } returns Completable.complete()
+        every { paymentMethodsService.removeBeneficiary(ID) } returns Completable.complete()
 
         // ASSERT
         subject.removeBank(bank).test().assertComplete()
@@ -327,7 +322,7 @@ class PaymentsRepositoryTest {
         val response = mockk<BankTransferPaymentResponse>(relaxed = true).apply {
             every { paymentId } returns ID
         }
-        every { paymentMethodsService.startBankTransferPayment(any(), any(), any()) } returns Single.just(response)
+        every { paymentMethodsService.startBankTransferPayment(any(), any()) } returns Single.just(response)
 
         // ASSERT
         subject.startBankTransfer(ID, Money.zero(FiatCurrency.Dollars), NETWORK_TICKER).test()
@@ -341,7 +336,7 @@ class PaymentsRepositoryTest {
 
         every {
             paymentMethodsService.updateAccountProviderId(
-                eq(AUTH), eq(ID), any()
+                eq(ID), any()
             )
         } returns
             Completable.complete()
@@ -355,7 +350,7 @@ class PaymentsRepositoryTest {
     fun `linkPlaidAccount() - success`() {
         // ARRANGE
         val attrs = LinkPlaidAccountBody.Attributes("accountId", "publicToken")
-        every { paymentMethodsService.linkPLaidAccount(AUTH, ID, LinkPlaidAccountBody(attrs)) } returns
+        every { paymentMethodsService.linkPLaidAccount(ID, LinkPlaidAccountBody(attrs)) } returns
             Completable.complete()
 
         // ASSERT
@@ -372,7 +367,7 @@ class PaymentsRepositoryTest {
             ID,
             RefreshPlaidResponse.Attributes("linkToken", "linkUrl", "tokenExpiresAt")
         )
-        every { paymentMethodsService.refreshPlaidAccount(AUTH, ID, requestBody) } returns Single.just(response)
+        every { paymentMethodsService.refreshPlaidAccount(ID, requestBody) } returns Single.just(response)
 
         // ASSERT
         subject.refreshPlaidBankAccount(ID).test()
@@ -400,7 +395,6 @@ class PaymentsRepositoryTest {
         }
         coEvery {
             paymentMethodsService.getBeneficiaryInfo(
-                authorization = AUTH,
                 currency = currency,
                 address = alias
             )
@@ -439,7 +433,6 @@ class PaymentsRepositoryTest {
         }
         coEvery {
             paymentMethodsService.getBeneficiaryInfo(
-                authorization = AUTH,
                 currency = currency,
                 address = address
             )
@@ -475,7 +468,6 @@ class PaymentsRepositoryTest {
         )
         every {
             paymentMethodsService.linkBank(
-                authorization = AUTH,
                 fiatCurrency = NETWORK_TICKER,
                 supportedPartners = listOf(PLAID_PARTNER, YODLEE_PARTNER, YAPILY_PARTNER),
                 applicationId = APPLICATION_ID
@@ -518,7 +510,6 @@ class PaymentsRepositoryTest {
         )
         every {
             paymentMethodsService.linkBank(
-                authorization = AUTH,
                 fiatCurrency = NETWORK_TICKER,
                 supportedPartners = emptyList(),
                 applicationId = APPLICATION_ID
@@ -568,7 +559,6 @@ class PaymentsRepositoryTest {
         )
         every {
             paymentMethodsService.linkBank(
-                authorization = AUTH,
                 fiatCurrency = NETWORK_TICKER,
                 supportedPartners = emptyList(),
                 applicationId = APPLICATION_ID
@@ -622,7 +612,6 @@ class PaymentsRepositoryTest {
         )
         every {
             paymentMethodsService.linkBank(
-                authorization = AUTH,
                 fiatCurrency = NETWORK_TICKER,
                 supportedPartners = emptyList(),
                 applicationId = APPLICATION_ID
@@ -646,7 +635,6 @@ class PaymentsRepositoryTest {
         )
         every {
             paymentMethodsService.linkBank(
-                authorization = AUTH,
                 fiatCurrency = NETWORK_TICKER,
                 supportedPartners = emptyList(),
                 applicationId = APPLICATION_ID
@@ -663,7 +651,7 @@ class PaymentsRepositoryTest {
         // ARRANGE
         val url = "url"
         val token = "token"
-        every { paymentMethodsService.updateOpenBankingToken(url, AUTH, OpenBankingTokenBody(token)) } returns
+        every { paymentMethodsService.updateOpenBankingToken(url, OpenBankingTokenBody(token)) } returns
             Completable.complete()
 
         // ASSERT
@@ -684,7 +672,7 @@ class PaymentsRepositoryTest {
             null
         )
         every { assetCatalogue.fromNetworkTicker(NETWORK_TICKER) } returns FiatCurrency.Dollars
-        every { paymentMethodsService.getBankTransferCharge(AUTH, ID) } returns Single.just(response)
+        every { paymentMethodsService.getBankTransferCharge(ID) } returns Single.just(response)
 
         // ASSERT
         subject.getBankTransferCharge(ID).test()
@@ -730,7 +718,6 @@ class PaymentsRepositoryTest {
         }
         every {
             paymentMethodsService.checkSettlement(
-                AUTH,
                 ID,
                 SettlementBody(
                     SettlementBody.Attributes(
@@ -770,7 +757,6 @@ class PaymentsRepositoryTest {
         }
         every {
             paymentMethodsService.checkSettlement(
-                AUTH,
                 ID,
                 SettlementBody(
                     SettlementBody.Attributes(
@@ -859,7 +845,7 @@ class PaymentsRepositoryTest {
             "countryCode", "fullName", "address1", "address2", "city", "postCode", null
         )
         val fiatCurrency: FiatCurrency = mockk<FiatCurrency>().apply { every { networkTicker } returns NETWORK_TICKER }
-        every { paymentMethodsService.addNewCard(eq(AUTH), any()) } returns
+        every { paymentMethodsService.addNewCard(any()) } returns
             Single.just(AddNewCardResponse(id = ID, partner = "EVERYPAY"))
 
         // ASSERT
@@ -878,7 +864,7 @@ class PaymentsRepositoryTest {
             everypay = EveryPayCardCredentialsResponse("name", "token", "link"),
             cardProvider = null
         )
-        every { paymentMethodsService.activateCard(eq(AUTH), any(), any()) } returns Single.just(cardResponse)
+        every { paymentMethodsService.activateCard(any(), any()) } returns Single.just(cardResponse)
 
         // ASSERT
         subject.activateCard(ID, "redirectUrl", "cvv").test()
@@ -903,7 +889,7 @@ class PaymentsRepositoryTest {
             everypay = null,
             cardProvider = cardProviderResponse
         )
-        every { paymentMethodsService.activateCard(eq(AUTH), any(), any()) } returns Single.just(cardResponse)
+        every { paymentMethodsService.activateCard(any(), any()) } returns Single.just(cardResponse)
 
         // ASSERT
         subject.activateCard(ID, "redirectUrl", "cvv").test()
@@ -925,7 +911,7 @@ class PaymentsRepositoryTest {
             everypay = null,
             cardProvider = null
         )
-        every { paymentMethodsService.activateCard(eq(AUTH), any(), any()) } returns Single.just(cardResponse)
+        every { paymentMethodsService.activateCard(any(), any()) } returns Single.just(cardResponse)
 
         // ASSERT
         subject.activateCard(ID, "redirectUrl", "cvv").test()
@@ -945,7 +931,7 @@ class PaymentsRepositoryTest {
             currency = NETWORK_TICKER
         )
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns mockk()
-        every { paymentMethodsService.getCardDetails(AUTH, ID) } returns Single.just(cardResponse)
+        every { paymentMethodsService.getCardDetails(ID) } returns Single.just(cardResponse)
 
         // ASSERT
         subject.getCardDetails(ID).test()
@@ -961,7 +947,7 @@ class PaymentsRepositoryTest {
     @Test
     fun `deleteCard() should remove card and invalidate cache`() {
         // ARRANGE
-        every { paymentMethodsService.deleteCard(AUTH, ID) } returns Completable.complete()
+        every { paymentMethodsService.deleteCard(ID) } returns Completable.complete()
 
         // ASSERT
         subject.deleteCard(ID).test()
@@ -986,7 +972,7 @@ class PaymentsRepositoryTest {
             billingAddressRequired = true,
             billingAddressParameters = GooglePayResponse.BillingAddressParameters()
         )
-        every { paymentMethodsService.getGooglePayInfo(AUTH, NETWORK_TICKER) } returns Single.just(response)
+        every { paymentMethodsService.getGooglePayInfo(NETWORK_TICKER) } returns Single.just(response)
 
         // ASSERT
         subject.getGooglePayTokenizationParameters(NETWORK_TICKER).test()
@@ -1017,7 +1003,7 @@ class PaymentsRepositoryTest {
     fun `getPaymentMethodForId() - happy`() = runTest {
         // ARRANGE
         val paymentMethodDetails: PaymentMethodDetails = mockk()
-        coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
+        coEvery { paymentsService.getPaymentMethodDetailsForId(ID) } returns
             Outcome.Success(paymentMethodDetails)
 
         // ACT

@@ -48,23 +48,30 @@ fun ButtonContent(
                 is ImageResource.Local -> {
                     Image(
                         imageResource = icon.withColorFilter(ColorFilter.tint(textColor)),
-                        modifier = Modifier.size(icon.size ?: dimensionResource(R.dimen.medium_margin)),
+                        modifier = Modifier.size(icon.size ?: dimensionResource(R.dimen.medium_spacing)),
                     )
-                    Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
+                    Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
+                }
+                is ImageResource.LocalWithResolvedDrawable -> {
+                    Image(
+                        imageResource = icon,
+                        modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
+                    )
+                    Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.LocalWithBackground -> {
                     Image(
                         imageResource = icon,
-                        modifier = Modifier.size(dimensionResource(R.dimen.medium_margin)),
+                        modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
                     )
-                    Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
+                    Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.Remote -> {
                     Image(
                         imageResource = icon,
-                        modifier = Modifier.size(dimensionResource(R.dimen.medium_margin)),
+                        modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)),
                     )
-                    Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
+                    Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
                 }
                 is ImageResource.LocalWithResolvedBitmap,
                 is ImageResource.LocalWithBackgroundAndExternalResources,

@@ -18,7 +18,8 @@ import retrofit2.Response
 
 class WalletApi(
     private val explorerInstance: WalletExplorerEndpoints,
-    private val api: ApiCode
+    private val api: ApiCode,
+    private val captchaSiteKey: String
 ) {
     fun updateFirebaseNotificationToken(
         token: String,
@@ -102,7 +103,8 @@ class WalletApi(
             device,
             null,
             api.apiCode,
-            recaptchaToken
+            recaptchaToken,
+            captchaSiteKey
         )
     }
 
@@ -138,6 +140,7 @@ class WalletApi(
             device,
             oldChecksum,
             api.apiCode,
+            null,
             null
         )
     }

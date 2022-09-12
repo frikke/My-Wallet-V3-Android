@@ -9,9 +9,9 @@
         </shape>
     </item>
     <item
-        android:bottom="@dimen/minuscule_margin"
+        android:bottom="@dimen/minuscule_spacing"
         android:drawable="@drawable/ic_icon_gold"
-        android:left="@dimen/minuscule_margin"
-        android:right="@dimen/minuscule_margin"
-        android:top="@dimen/minuscule_margin" />
+        android:left="@dimen/minuscule_spacing"
+        android:right="@dimen/minuscule_spacing"
+        android:top="@dimen/minuscule_spacing" />
 </layer-list>

@@ -51,6 +51,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentSwapBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_SWAP
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
@@ -222,9 +223,8 @@ class SwapFragment :
                             val eligibility = composite.eligibility
                             if (eligibility is FeatureAccess.Blocked) {
                                 when (val reason = eligibility.reason) {
-                                    BlockedReason.NotEligible,
-                                    is BlockedReason.InsufficientTier,
-                                    -> showKycUpgradeNow()
+                                    is BlockedReason.NotEligible -> showBlockedDueToNotEligible(reason)
+                                    is BlockedReason.InsufficientTier -> showKycUpgradeNow()
                                     is BlockedReason.Sanctions -> showBlockedDueToSanctions(reason)
                                     is BlockedReason.TooManyInFlightTransactions -> { // noop
                                     }
@@ -269,6 +269,22 @@ class SwapFragment :
 
     private fun showKycUpgradeNow() {
         showBottomSheet(KycUpgradeNowSheet.newInstance())
+    }
+
+    private fun showBlockedDueToNotEligible(reason: BlockedReason.NotEligible) {
+        binding.swapViewFlipper.gone()
+        binding.swapError.apply {
+            title = R.string.account_restricted
+            descriptionText = if (reason.message != null) {
+                reason.message
+            } else {
+                getString(R.string.feature_not_available)
+            }
+            icon = R.drawable.ic_wallet_intro_image
+            ctaText = R.string.contact_support
+            ctaAction = { startActivity(SupportCentreActivity.newIntent(requireContext())) }
+            visible()
+        }
     }
 
     private fun showBlockedDueToSanctions(reason: BlockedReason.Sanctions) {

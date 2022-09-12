@@ -130,7 +130,8 @@ class AssetDiscoveryApiService internal constructor(
     companion object {
         const val ETHEREUM = "ETH"
         const val MATIC = "MATIC"
-        val supportedErc20Chains = listOf(ETHEREUM, MATIC)
+        const val BNB = "BNB"
+        val supportedErc20Chains = listOf(ETHEREUM, MATIC, BNB)
         const val CELO = "CELO"
         private const val ERC20_CONFIRMATIONS = 12
         private const val CELO_CONFIRMATIONS = 1

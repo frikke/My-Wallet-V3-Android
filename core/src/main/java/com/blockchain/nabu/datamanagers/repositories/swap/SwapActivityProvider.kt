@@ -1,6 +1,5 @@
 package com.blockchain.nabu.datamanagers.repositories.swap
 
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.TransferDirection
@@ -19,13 +18,10 @@ interface SwapActivityProvider {
 
 class SwapActivityProviderImpl(
     private val assetCatalogue: AssetCatalogue,
-    private val authenticator: Authenticator,
     private val nabuService: NabuService
 ) : SwapActivityProvider {
     override fun getSwapActivity(): Single<List<TradeTransactionItem>> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.fetchSwapActivity(sessionToken)
-        }.map { response ->
+        nabuService.fetchSwapActivity().map { response ->
             response.mapNotNull {
                 val pair = CurrencyPair.fromRawPair(
                     it.pair, assetCatalogue

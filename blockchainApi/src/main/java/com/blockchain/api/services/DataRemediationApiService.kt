@@ -9,14 +9,12 @@ class DataRemediationApiService(
 ) {
 
     suspend fun getQuestionnaire(
-        authorization: String,
         questionnaireContext: String
     ): Outcome<Exception, QuestionnaireResponse?> =
-        api.getQuestionnaire(authorization, questionnaireContext)
+        api.getQuestionnaire(questionnaireContext)
 
     suspend fun submitQuestionnaire(
-        authorization: String,
         nodes: QuestionnaireResponse
     ): Outcome<Exception, Unit> =
-        api.submitQuestionnaire(authorization, nodes)
+        api.submitQuestionnaire(nodes)
 }

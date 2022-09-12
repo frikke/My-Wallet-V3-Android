@@ -363,7 +363,7 @@ fun CowboysInterstitial(
             AsyncMediaItem(
                 modifier = Modifier
                     .wrapContentHeight()
-                    .padding(top = dimensionResource(R.dimen.large_margin))
+                    .padding(top = dimensionResource(R.dimen.large_spacing))
                     .constrainAs(foregroundImage) {
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
@@ -386,8 +386,8 @@ fun CowboysInterstitial(
             AsyncMediaItem(
                 modifier = Modifier
                     .requiredSizeIn(
-                        minWidth = dimensionResource(id = R.dimen.epic_margin),
-                        minHeight = dimensionResource(id = R.dimen.epic_margin),
+                        minWidth = dimensionResource(id = R.dimen.epic_spacing),
+                        minHeight = dimensionResource(id = R.dimen.epic_spacing),
                         maxWidth = 100.dp,
                         maxHeight = 100.dp
                     )
@@ -405,9 +405,9 @@ fun CowboysInterstitial(
         MarkdownText(
             modifier = Modifier
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_margin),
-                    end = dimensionResource(id = R.dimen.standard_margin),
-                    top = dimensionResource(id = R.dimen.very_small_margin)
+                    start = dimensionResource(id = R.dimen.standard_spacing),
+                    end = dimensionResource(id = R.dimen.standard_spacing),
+                    top = dimensionResource(id = R.dimen.very_small_spacing)
                 )
                 .constrainAs(title) {
                     top.linkTo(
@@ -430,9 +430,9 @@ fun CowboysInterstitial(
         MarkdownText(
             modifier = Modifier
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_margin),
-                    end = dimensionResource(id = R.dimen.standard_margin),
-                    top = dimensionResource(id = R.dimen.tiny_margin)
+                    start = dimensionResource(id = R.dimen.standard_spacing),
+                    end = dimensionResource(id = R.dimen.standard_spacing),
+                    top = dimensionResource(id = R.dimen.tiny_spacing)
                 )
                 .constrainAs(subtitle) {
                     top.linkTo(title.bottom, margin = 16.dp)
@@ -468,7 +468,7 @@ fun CowboysInterstitial(
         Image(
             imageResource = ImageResource.Local(R.drawable.ic_close_circle, null),
             modifier = Modifier
-                .padding(all = dimensionResource(id = R.dimen.standard_margin))
+                .padding(all = dimensionResource(id = R.dimen.standard_spacing))
                 .clickable(true, onClick = onCloseClicked)
                 .constrainAs(closeButton) {
                     top.linkTo(parent.top)

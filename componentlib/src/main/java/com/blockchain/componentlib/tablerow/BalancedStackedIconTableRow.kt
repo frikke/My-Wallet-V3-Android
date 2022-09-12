@@ -51,7 +51,7 @@ fun BalanceStackedIconTableRow(
                 bottomImageResource = bottomImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(end = dimensionResource(R.dimen.medium_margin))
+                    .padding(end = dimensionResource(R.dimen.medium_spacing))
             )
         },
         onContentClicked = onClick,

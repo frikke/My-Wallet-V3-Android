@@ -144,41 +144,6 @@
         <item name="android:textColorHint">@color/product_gray_hint</item>
     </style>
 
-    <style name="PinEntryButtonLayout">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:background">@drawable/selector_navy_blue</item>
-        <item name="android:gravity">center</item>
-        <item name="android:orientation">vertical</item>
-        <item name="android:padding">@dimen/pinentry_padding</item>
-    </style>
-
-    <style name="PinEntryButtonNumberText">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">@dimen/pinentry_num_text_size</item>
-    </style>
-
-    <style name="PinEntryButtonLetterText">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">@dimen/pinentry_alpha_text_size</item>
-    </style>
-
-    <style name="PinEntryKeyboardHorizontalContainer">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:baselineAligned">false</item>
-        <item name="android:orientation">horizontal</item>
-    </style>
-
     <style name="OnboardingHeader">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -318,8 +283,8 @@
     <style name="Separator">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
-        <item name="android:layout_marginStart">@dimen/standard_margin</item>
-        <item name="android:layout_marginEnd">@dimen/standard_margin</item>
+        <item name="android:layout_marginStart">@dimen/standard_spacing</item>
+        <item name="android:layout_marginEnd">@dimen/standard_spacing</item>
         <item name="android:background">@color/grey_000</item>
     </style>
 
@@ -438,10 +403,5 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:background">?android:attr/listDivider</item>
-    </style>
-
-    <style name="CircularProgressIndicator" parent="Widget.MaterialComponents.CircularProgressIndicator.ExtraSmall">
-        <item name="indicatorColor">@color/blue_600</item>
-        <item name="trackColor">@color/grey_000</item>
     </style>
 </resources>

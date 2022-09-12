@@ -80,7 +80,7 @@ class SimpleBuyBlockedFragment : Fragment() {
             resources: Resources
         ): SimpleBuyBlockedFragment {
             val data = when (val reason = access.reason) {
-                BlockedReason.NotEligible -> {
+                is BlockedReason.NotEligible -> {
                     BlockedBuyData(
                         title = resources.getString(R.string.sell_is_coming_soon),
                         description = resources.getString(R.string.sell_is_coming_soon_description),

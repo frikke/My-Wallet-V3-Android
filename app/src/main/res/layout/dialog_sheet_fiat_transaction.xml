@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/tiny_margin"
+        android:layout_marginTop="@dimen/tiny_spacing"
         app:srcCompat="@drawable/vector_sheet_indicator_small" />
 
     <piuk.blockchain.android.ui.customviews.TransactionProgressView

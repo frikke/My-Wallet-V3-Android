@@ -61,7 +61,7 @@ fun SnackbarAlert(
         modifier = Modifier
             .fillMaxWidth()
             .background(backgroundColour)
-            .padding(horizontal = dimensionResource(R.dimen.medium_margin), vertical = 14.dp),
+            .padding(horizontal = dimensionResource(R.dimen.medium_spacing), vertical = 14.dp),
         horizontalArrangement = if (icon != null) {
             Arrangement.Start
         } else {
@@ -73,7 +73,7 @@ fun SnackbarAlert(
             Image(
                 modifier = Modifier
                     .align(alignment = Alignment.CenterVertically)
-                    .padding(end = dimensionResource(R.dimen.medium_margin)),
+                    .padding(end = dimensionResource(R.dimen.medium_spacing)),
                 painter = painterResource(id = icon),
                 contentDescription = null
             )
@@ -94,7 +94,7 @@ fun SnackbarAlert(
                 text = actionLabel.toUpperCase(Locale.current),
                 modifier = Modifier
                     .align(alignment = Alignment.CenterVertically)
-                    .padding(start = dimensionResource(R.dimen.standard_margin))
+                    .padding(start = dimensionResource(R.dimen.standard_spacing))
                     .clickable {
                         onActionClicked()
                     },

@@ -44,19 +44,19 @@ fun CustomerSupportScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColor, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_margin))),
+            .background(backgroundColor, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(
             onClosePress = onDismiss,
             shouldShowDivider = false
         )
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
+        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
         Image(
             imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_blockchain),
             modifier = Modifier.size(dimensionResource(R.dimen.size_huge))
         )
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
+        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
         Text(
             text = stringResource(id = R.string.customer_support_title),
@@ -64,7 +64,7 @@ fun CustomerSupportScreen(
             color = AppTheme.colors.title,
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+        Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
 
         Text(
             text = stringResource(id = R.string.customer_support_description),
@@ -72,12 +72,12 @@ fun CustomerSupportScreen(
             textAlign = TextAlign.Center,
             color = AppTheme.colors.title,
             modifier = Modifier.padding(
-                start = dimensionResource(R.dimen.standard_margin),
-                end = dimensionResource(R.dimen.standard_margin)
+                start = dimensionResource(R.dimen.standard_spacing),
+                end = dimensionResource(R.dimen.standard_spacing)
             )
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.standard_margin)))
+        Spacer(Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
         Text(
             text = stringResource(id = R.string.app_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE),
@@ -87,38 +87,38 @@ fun CustomerSupportScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(R.dimen.standard_margin),
-                    end = dimensionResource(R.dimen.standard_margin)
+                    start = dimensionResource(R.dimen.standard_spacing),
+                    end = dimensionResource(R.dimen.standard_spacing)
                 )
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
+        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
         MinimalButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(R.dimen.standard_margin),
-                    end = dimensionResource(R.dimen.standard_margin)
+                    start = dimensionResource(R.dimen.standard_spacing),
+                    end = dimensionResource(R.dimen.standard_spacing)
                 ),
             text = stringResource(id = R.string.customer_support_contact_us),
             onClick = contactUsClicked
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
+        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
         MinimalButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(R.dimen.standard_margin),
-                    end = dimensionResource(R.dimen.standard_margin)
+                    start = dimensionResource(R.dimen.standard_spacing),
+                    end = dimensionResource(R.dimen.standard_spacing)
                 ),
             text = stringResource(id = R.string.customer_support_faq),
             onClick = faqClicked
         )
 
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
+        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
         if (BuildConfig.DEBUG) {
             Text(
@@ -129,13 +129,13 @@ fun CustomerSupportScreen(
                 modifier = Modifier
                     .clickable { copyCommitHash(BuildConfig.COMMIT_HASH) }
                     .padding(
-                        start = dimensionResource(R.dimen.standard_margin),
-                        end = dimensionResource(R.dimen.standard_margin)
+                        start = dimensionResource(R.dimen.standard_spacing),
+                        end = dimensionResource(R.dimen.standard_spacing)
                     )
 
             )
 
-            Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
+            Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
         }
     }
 }

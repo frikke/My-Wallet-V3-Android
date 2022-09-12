@@ -85,9 +85,6 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
             carousel.apply {
                 submitList(onboardingList)
                 setCarouselIndicator(carouselIndicators)
-                setOnPricesRequest {
-                    presenter.getPrices(it)
-                }
 
                 setOnPricesAlphaChangeListener {
                     this@with.background.alpha = it
@@ -127,11 +124,6 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         setupSSOControls(
             binding.btnLoginRestore.rightButton, binding.btnLoginRestore.leftButton
         )
-    }
-
-    override fun onResume() {
-        super.onResume()
-        presenter.loadAssets()
     }
 
     private fun launchSSOAccountRecoveryFlow() =

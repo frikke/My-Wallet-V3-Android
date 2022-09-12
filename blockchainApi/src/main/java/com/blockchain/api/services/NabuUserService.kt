@@ -13,17 +13,15 @@ class NabuUserService internal constructor(
     private val api: NabuUserApi
 ) {
     fun saveUserInitialLocation(
-        authHeader: String,
         countryIsoCode: String,
         stateIsoCode: String?
     ): Completable =
-        api.saveUserInitialLocation(authHeader, InitialAddressRequest(countryIsoCode, stateIsoCode))
+        api.saveUserInitialLocation(InitialAddressRequest(countryIsoCode, stateIsoCode))
 
-    fun getContactPreferences(authHeader: String) = api.getContactPreferences(authHeader).map { it.toDomain() }
+    fun getContactPreferences() = api.getContactPreferences().map { it.toDomain() }
 
-    fun updateContactPreferences(authHeader: String, preferenceUpdates: List<ContactPreferenceUpdate>) =
+    fun updateContactPreferences(preferenceUpdates: List<ContactPreferenceUpdate>) =
         api.updateContactPreference(
-            authHeader,
             PreferenceUpdates(
                 preferenceUpdates.map { it.toPreferenceUpdate() }
             )
