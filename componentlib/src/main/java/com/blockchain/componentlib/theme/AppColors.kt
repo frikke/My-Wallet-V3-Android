@@ -8,9 +8,6 @@ val END_TRADING = Color(0XFF7C33B9)
 val START_DEFI = Color(0XFF6D39BD)
 val END_DEFI = Color(0XFF2878D4)
 
-
-
-
 val Blue700 = Color(0XFF1656B9)
 val Blue600 = Color(0XFF0C6CF2)
 val Blue400 = Color(0XFF619FF7)

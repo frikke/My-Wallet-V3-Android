@@ -8,9 +8,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import piuk.blockchain.android.ui.multiapp.composable.MultiAppDashboard
+import piuk.blockchain.android.ui.multiapp.composable.MultiAppContainer
 
-class MultiAppDashboardActivity : BlockchainActivity() {
+class MultiAppActivity : BlockchainActivity() {
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
@@ -24,15 +24,14 @@ class MultiAppDashboardActivity : BlockchainActivity() {
             val systemUiController = rememberSystemUiController()
             systemUiController.setStatusBarColor(Color.Transparent)
 
-            MultiAppDashboard()
+            MultiAppContainer()
         }
     }
 
-    companion object{
+    companion object {
         fun newIntent(
             context: Context,
         ): Intent =
-            Intent(context, MultiAppDashboardActivity::class.java)
+            Intent(context, MultiAppActivity::class.java)
     }
-
 }

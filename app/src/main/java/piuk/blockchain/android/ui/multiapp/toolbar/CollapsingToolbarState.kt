@@ -8,7 +8,7 @@ interface CollapsingToolbarState {
     var scrollTopLimitReached: Boolean
     var scrollOffset: Float
     var isInteractingWithPullToRefresh: Boolean
-    var isTargetedScrolling: Boolean
+    var isAutoScrolling: Boolean
 
     fun updateHeight(newMinHeight: Int, newMaxHeight: Int)
 }

@@ -119,7 +119,7 @@
             android:theme="@style/AppTheme.MainActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".ui.multiapp.MultiAppDashboardActivity"
+            android:name=".ui.multiapp.MultiAppActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" >
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />

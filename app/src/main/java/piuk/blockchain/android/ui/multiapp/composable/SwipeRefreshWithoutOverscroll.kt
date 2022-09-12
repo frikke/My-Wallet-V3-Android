@@ -13,6 +13,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 
+// https://github.com/google/accompanist/issues/1059
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SwipeRefreshWithoutOverscroll(

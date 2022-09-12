@@ -60,7 +60,6 @@ fun TotalBalance(
                     color = Color.White,
                     style = AppTheme.typography.paragraph2
                 )
-
             }
         }
     }

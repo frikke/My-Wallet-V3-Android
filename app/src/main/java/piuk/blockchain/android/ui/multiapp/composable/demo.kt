@@ -33,6 +33,7 @@ import piuk.blockchain.android.R
  * This screen shows the minimum setup needed to communicate the necessary info
  * to the main app switcher
  */
+@Deprecated("only for reference when creating new screens")
 @Composable
 fun DemoScreen(
     modifier: Modifier = Modifier,
@@ -57,7 +58,7 @@ fun DemoScreen(
     val scope = rememberCoroutineScope()
 
     /**
-     * send data to [MultiAppDashboard] to manage scroll and pull to refresh states correctly
+     * send data to [MultiAppContainer] to manage scroll and pull to refresh states correctly
      * if no pull to refresh is needed [swipeRefreshState] can be null
      */
     updateScrollInfo(

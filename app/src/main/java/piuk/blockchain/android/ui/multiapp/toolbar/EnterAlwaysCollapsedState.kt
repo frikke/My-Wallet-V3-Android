@@ -7,7 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 
 class EnterAlwaysCollapsedState(
-    var initialMinHeight: Int, var initialMaxHeight: Int,
+    var initialMinHeight: Int,
+    var initialMaxHeight: Int,
     scrollOffset: Float = 0f
 ) : CollapsingToolbarState {
 
@@ -31,7 +32,7 @@ class EnterAlwaysCollapsedState(
     override var scrollTopLimitReached: Boolean = true
 
     override var isInteractingWithPullToRefresh: Boolean = false
-    override var isTargetedScrolling: Boolean = false
+    override var isAutoScrolling: Boolean = false
 
     private var _scrollOffset by mutableStateOf(
         value = scrollOffset.coerceIn(0f, maxHeight.toFloat()),
@@ -41,7 +42,7 @@ class EnterAlwaysCollapsedState(
         get() = _scrollOffset
         set(value) {
             val oldOffset = _scrollOffset
-            _scrollOffset = if (scrollTopLimitReached || isInteractingWithPullToRefresh || isTargetedScrolling) {
+            _scrollOffset = if (scrollTopLimitReached || isInteractingWithPullToRefresh || isAutoScrolling) {
                 value.coerceIn(0f, maxHeight.toFloat())
             } else {
                 value.coerceIn(minHeight.toFloat(), maxHeight.toFloat())

@@ -36,6 +36,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
@@ -69,7 +70,7 @@ val navigationItem = listOf(
 )
 
 @Composable
-fun MultiAppDashboard() {
+fun MultiAppContainer() {
     var balanceSectionHeight by remember {
         mutableStateOf(0)
     }
@@ -105,7 +106,7 @@ fun MultiAppDashboard() {
     }
 
     suspend fun updateOffset(targetValue: Float) {
-        toolbarState.isTargetedScrolling = true
+        toolbarState.isAutoScrolling = true
         animateSnap = true
         offsetY.snapTo(toolbarState.scrollOffset)
         offsetY.animateTo(
@@ -115,7 +116,7 @@ fun MultiAppDashboard() {
             )
         )
         animateSnap = false
-        toolbarState.isTargetedScrolling = false
+        toolbarState.isAutoScrolling = false
     }
 
     fun updateOffsetNoAnimation(targetValue: Float) {
@@ -242,9 +243,10 @@ fun MultiAppDashboard() {
 
     var switcherScrollAlpha by remember { mutableStateOf(1F) }
     switcherScrollAlpha =
-        (1 - (toolbarState.scrollOffset - toolbarState.collapsedHeight) / (toolbarState.fullHeight - toolbarState.collapsedHeight)).coerceIn(
-            0F, 1F
-        )
+        (1 -
+            (toolbarState.scrollOffset - toolbarState.collapsedHeight) /
+            (toolbarState.fullHeight - toolbarState.collapsedHeight)
+            ).coerceIn(0F, 1F)
     // //////////////////////////////////////////////
 
     // //////////////////////////////////////////////
@@ -316,12 +318,11 @@ fun MultiAppDashboard() {
                     bottom.linkTo(navBar.top)
                     height = Dimension.fillToConstraints
                 }
-
                 .fillMaxSize()
                 .nestedScroll(nestedScrollConnection)
         ) {
 
-            /////// header
+            // ///// header
             if (balanceSectionHeight > 0 && tabsSectionHeight > 0 &&
                 toolbarState.collapsedHeight != balanceSectionHeight.toFloat() &&
                 toolbarState.fullHeight != (balanceSectionHeight + tabsSectionHeight).toFloat()
@@ -331,13 +332,14 @@ fun MultiAppDashboard() {
                 updateOffsetNoAnimation(targetValue = toolbarState.collapsedHeight)
             }
 
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .graphicsLayer {
-                    translationY = -toolbarState.scrollOffset
-                }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer {
+                        translationY = -toolbarState.scrollOffset
+                    }
             ) {
-                /////// balance
+                // ///// balance
                 TotalBalance(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -348,7 +350,7 @@ fun MultiAppDashboard() {
                     balance = "$278,666.12"
                 )
 
-                /////// mode tabs
+                // ///// mode tabs
                 ModeSwitcher(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -371,7 +373,7 @@ fun MultiAppDashboard() {
                 )
             }
 
-            //////// content
+            // ////// content
             MultiAppNavigationGraph(
                 modifier = Modifier
                     .fillMaxSize()
@@ -384,7 +386,7 @@ fun MultiAppDashboard() {
                                 coroutineScopeSnaps.coroutineContext.cancelChildren()
                                 animateSnap = false
                                 verifyHeaderPositionForNewScreen = false
-                                toolbarState.isTargetedScrolling = false
+                                toolbarState.isAutoScrolling = false
                             }
                         )
                     },
@@ -409,7 +411,7 @@ fun MultiAppDashboard() {
             )
         }
 
-        //////// bottom nav
+        // ////// bottom nav
         MultiAppBottomNavigation(
             modifier = Modifier
                 .wrapContentSize()
@@ -465,4 +467,10 @@ fun MultiAppDashboard() {
                 .height(navBarHeight)
         )
     }
+}
+
+@Preview
+@Composable
+fun PreviewMultiAppContainer() {
+    MultiAppContainer()
 }
