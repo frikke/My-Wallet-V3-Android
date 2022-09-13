@@ -10,12 +10,14 @@ import io.reactivex.rxjava3.core.Single
 import java.io.Serializable
 
 interface UserIdentity {
+    @Deprecated("use UserFeaturePermissionService")
     fun isEligibleFor(feature: Feature): Single<Boolean>
     fun isVerifiedFor(feature: Feature): Single<Boolean>
     fun getBasicProfileInformation(): Single<BasicProfileInfo>
     fun checkForUserWalletLinkErrors(): Completable
     fun getUserCountry(): Maybe<String>
     fun getUserState(): Maybe<String>
+    @Deprecated("use UserFeaturePermissionService")
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess>
     fun userAccessForFeatures(features: List<Feature>): Single<Map<Feature, FeatureAccess>>
     fun majorProductsNotEligibleReasons(): Single<List<ProductNotEligibleReason>>

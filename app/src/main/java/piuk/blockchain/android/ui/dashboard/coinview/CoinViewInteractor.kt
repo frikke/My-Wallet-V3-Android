@@ -110,7 +110,7 @@ class CoinViewInteractor(
                     identity.userAccessForFeature(Feature.Buy),
                     identity.userAccessForFeature(Feature.Sell),
                     custodialWalletManager.isCurrencyAvailableForTradingLegacy(asset.currency),
-                    custodialWalletManager.isAssetSupportedForSwap(asset.currency)
+                    custodialWalletManager.isAssetSupportedForSwapLegacy(asset.currency)
                 ) { kycTier, sddEligible, buyAccess, sellAccess, isSupportedPair, isSwapSupported ->
 
                     val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
@@ -178,7 +178,7 @@ class CoinViewInteractor(
             }
 
             WalletMode.NON_CUSTODIAL_ONLY -> {
-                custodialWalletManager.isAssetSupportedForSwap(asset.currency).map { isSwapSupported ->
+                custodialWalletManager.isAssetSupportedForSwapLegacy(asset.currency).map { isSwapSupported ->
                     val nonCustodialAccount = accountList.firstOrNull { it is NonCustodialAccount }
 
                     /**

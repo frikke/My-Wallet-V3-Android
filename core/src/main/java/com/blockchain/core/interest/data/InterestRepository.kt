@@ -127,12 +127,12 @@ internal class InterestRepository(
     }
 
     // eligibility
-    override fun getEligibilityForAssets(): Single<Map<AssetInfo, InterestEligibility>> {
-        return getEligibilityForAssetsFlow()
+    override fun getEligibilityForAssetsLegacy(): Single<Map<AssetInfo, InterestEligibility>> {
+        return getEligibilityForAssets()
             .asObservable().firstOrError()
     }
 
-    override fun getEligibilityForAssetsFlow(
+    override fun getEligibilityForAssets(
         refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<Map<AssetInfo, InterestEligibility>>> {
         fun String.toIneligibilityReason(): InterestEligibility.Ineligible {
@@ -161,7 +161,7 @@ internal class InterestRepository(
     }
 
     override fun getEligibilityForAsset(asset: AssetInfo): Single<InterestEligibility> {
-        return getEligibilityForAssets().map { mapAssetWithEligibility ->
+        return getEligibilityForAssetsLegacy().map { mapAssetWithEligibility ->
             mapAssetWithEligibility[asset] ?: InterestEligibility.Ineligible.default()
         }
     }
@@ -170,7 +170,7 @@ internal class InterestRepository(
         asset: AssetInfo,
         refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<InterestEligibility>> {
-        return getEligibilityForAssetsFlow(refreshStrategy)
+        return getEligibilityForAssets(refreshStrategy)
             .mapData { mapAssetWithEligibility ->
                 mapAssetWithEligibility[asset] ?: InterestEligibility.Ineligible.default()
             }

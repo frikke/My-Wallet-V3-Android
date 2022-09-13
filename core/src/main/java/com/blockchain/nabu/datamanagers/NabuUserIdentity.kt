@@ -36,7 +36,7 @@ class NabuUserIdentity(
             is Feature.TierLevel -> kycService.getTiersLegacy().map {
                 it.isInitialisedFor(feature.tier).not()
             }
-            is Feature.Interest -> interestService.getEligibilityForAssets()
+            is Feature.Interest -> interestService.getEligibilityForAssetsLegacy()
                 .map { mapAssetWithEligibility -> mapAssetWithEligibility.containsKey(feature.currency) }
             is Feature.SimplifiedDueDiligence -> custodialWalletManager.isSimplifiedDueDiligenceEligible()
             Feature.Buy,
@@ -105,7 +105,7 @@ class NabuUserIdentity(
         return when (feature) {
             Feature.Buy ->
                 Single.zip(
-                    rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.BUY) },
+                    rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.BUY) },
                     simpleBuyEligibilityProvider.simpleBuyTradingEligibility()
                 ) { buyEligibility, sbEligibility ->
                     val buyFeatureAccess = buyEligibility.toFeatureAccess()
@@ -122,22 +122,22 @@ class NabuUserIdentity(
                     }
                 }
             Feature.Swap ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.SWAP) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.SWAP) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.Sell ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.SELL) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.SELL) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositFiat ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_FIAT) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_FIAT) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositCrypto ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_CRYPTO) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_CRYPTO) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositInterest ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_INTEREST) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_INTEREST) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.WithdrawFiat ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.WITHDRAW_FIAT) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.WITHDRAW_FIAT) }
                     .map(ProductEligibility::toFeatureAccess)
             is Feature.Interest,
             Feature.SimplifiedDueDiligence,

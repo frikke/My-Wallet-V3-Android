@@ -105,7 +105,7 @@ interface CustodialWalletManager {
 
     fun getCustodialAccountAddress(asset: Currency): Single<String>
 
-    @Deprecated("use flow isCurrencyAvailableForTrading")
+    @Deprecated("use flow isCurrencyAvailableForTrading - remove when CoinView is migrated")
     fun isCurrencyAvailableForTradingLegacy(
         assetInfo: AssetInfo
     ): Single<Boolean>
@@ -117,9 +117,15 @@ interface CustodialWalletManager {
 
     fun availableFiatCurrenciesForTrading(assetInfo: AssetInfo): Single<List<FiatCurrency>>
 
-    fun isAssetSupportedForSwap(
+    @Deprecated("use flow isAssetSupportedForSwap")
+    fun isAssetSupportedForSwapLegacy(
         assetInfo: AssetInfo
     ): Single<Boolean>
+
+    fun isAssetSupportedForSwap(
+        assetInfo: AssetInfo,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<Boolean>>
 
     fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList>
 
@@ -158,6 +164,7 @@ interface CustodialWalletManager {
 
     fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
 
+    @Deprecated("use SddService")
     fun isSimplifiedDueDiligenceEligible(): Single<Boolean>
 
     fun fetchSimplifiedDueDiligenceUserState(): Single<SimplifiedDueDiligenceUserState>

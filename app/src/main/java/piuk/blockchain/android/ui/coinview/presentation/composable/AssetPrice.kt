@@ -93,11 +93,11 @@ fun AssetPriceInfoData(
         )
 
         when (data.chartData) {
-            CoinviewPriceState.Data.CoinviewChart.Loading -> {
+            CoinviewPriceState.Data.CoinviewChartState.Loading -> {
                 LoadingChart()
             }
 
-            is CoinviewPriceState.Data.CoinviewChart.Data -> {
+            is CoinviewPriceState.Data.CoinviewChartState.Data -> {
                 ContentChart(
                     fiatSymbol = data.fiatSymbol,
                     chartData = data.chartData.chartData,
@@ -230,7 +230,7 @@ fun PreviewAssetPrice_Data() {
             priceChange = "$969.25",
             percentChange = 5.58,
             intervalName = R.string.coinview_price_day,
-            chartData = CoinviewPriceState.Data.CoinviewChart.Data(
+            chartData = CoinviewPriceState.Data.CoinviewChartState.Data(
                 listOf(ChartEntry(1.4f, 43f), ChartEntry(3.4f, 4f))
             ),
             selectedTimeSpan = HistoricalTimeSpan.DAY

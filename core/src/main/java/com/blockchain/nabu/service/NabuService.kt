@@ -1,5 +1,7 @@
 package com.blockchain.nabu.service
 
+import com.blockchain.core.sdd.domain.model.SddEligibilityDto
+import com.blockchain.core.sdd.domain.model.SddStatusDto
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.api.nabu.Nabu
@@ -18,8 +20,6 @@ import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
-import com.blockchain.nabu.models.responses.sdd.SDDEligibilityResponse
-import com.blockchain.nabu.models.responses.sdd.SDDStatusResponse
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.ConfirmOrderRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
@@ -27,8 +27,8 @@ import com.blockchain.nabu.models.responses.simplebuy.DepositRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.ProductTransferRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsDto
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
 import com.blockchain.nabu.models.responses.simplebuy.WithdrawLocksCheckRequestBody
@@ -189,10 +189,10 @@ class NabuService internal constructor(
         SendToExchangeAddressRequest(cryptoSymbol)
     ).wrapErrorMessage()
 
-    internal fun isSDDEligible(): Single<SDDEligibilityResponse> =
+    internal fun isSDDEligible(): Single<SddEligibilityDto> =
         nabu.isSDDEligible().wrapErrorMessage()
 
-    internal fun isSDDVerified(): Single<SDDStatusResponse> =
+    internal fun isSDDVerified(): Single<SddStatusDto> =
         nabu.isSDDVerified().wrapErrorMessage()
 
     internal fun fetchQuote(
@@ -233,7 +233,7 @@ class NabuService internal constructor(
 
     internal fun getSupportedCurrencies(
         fiatCurrency: String? = null
-    ): Single<SimpleBuyPairsResp> =
+    ): Single<SimpleBuyPairsDto> =
         nabu.getSupportedSimpleBuyPairs(fiatCurrency).wrapErrorMessage()
 
     fun getSimpleBuyBankAccountDetails(
@@ -265,7 +265,7 @@ class NabuService internal constructor(
 
     internal fun isEligibleForSimpleBuy(
         fiatCurrency: String? = null
-    ): Single<SimpleBuyEligibility> = nabu.isEligibleForSimpleBuy(
+    ): Single<SimpleBuyEligibilityDto> = nabu.isEligibleForSimpleBuy(
         fiatCurrency
     ).wrapErrorMessage()
 

@@ -28,6 +28,8 @@ android {
 }
 
 dependencies {
+    implementation project(':string-resources')
+
     implementation Libraries.appCompat
     implementation Libraries.design
     implementation Libraries.glide

@@ -660,7 +660,7 @@ class CustodialTradingAccountActionsTest : KoinTest {
         whenever(custodialManager.getSupportedFundsFiats())
             .thenReturn(flowOf(supportedFiat))
 
-        whenever(custodialManager.isAssetSupportedForSwap(TEST_ASSET))
+        whenever(custodialManager.isAssetSupportedForSwapLegacy(TEST_ASSET))
             .thenReturn(Single.just(swapSupported))
 
         whenever(custodialManager.getSupportedBuySellCryptoCurrencies())

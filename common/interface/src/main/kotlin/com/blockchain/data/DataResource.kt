@@ -1,5 +1,8 @@
 package com.blockchain.data
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
 /**
  * [Loading] : emitted exclusively when fetching from network, the next emitted Data or Error will be related to the network fetch and mean that Store is no longer Loading
  * [Data] : emitted when the fetcher completes successfully or when we get a Cached value
@@ -14,6 +17,17 @@ sealed class DataResource<out T> {
 fun <T> List<DataResource<T>>.anyLoading() = any { it is DataResource.Loading }
 fun <T> List<DataResource<T>>.anyError() = any { it is DataResource.Error }
 fun <T> List<DataResource<T>>.getFirstError() = (first { it is DataResource.Error } as DataResource.Error)
+
+fun <T> Flow<DataResource<T>>.onErrorReturn(errorToData: (Exception) -> T): Flow<DataResource<T>> {
+    return map { dataResource ->
+        when (dataResource) {
+            is DataResource.Error -> {
+                DataResource.Data(errorToData(dataResource.error))
+            }
+            else -> dataResource
+        }
+    }
+}
 
 fun <T1, T2, R> combineDataResources(
     r1: DataResource<T1>,

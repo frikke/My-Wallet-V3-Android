@@ -24,6 +24,7 @@ import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
@@ -76,9 +77,12 @@ class SimpleBuyActivity :
     KycUpgradeNowSheet.Host,
     QuestionnaireSheet.Host,
     RecurringBuyCreatedBottomSheet.Host,
-    ErrorSlidingBottomDialog.Host {
+    ErrorSlidingBottomDialog.Host,
+    CurrencySelectionSheet.Host {
     override val alwaysDisableScreenshots: Boolean
         get() = false
+
+    private var isUpdatingCurrency = false
 
     override val enableLogoutTimer: Boolean = false
     private val compositeDisposable = CompositeDisposable()
@@ -88,6 +92,7 @@ class SimpleBuyActivity :
     private val assetCatalogue: AssetCatalogue by inject()
     private val googlePayResponseInterceptor: GooglePayResponseInterceptor by inject()
     private val dataRemediationService: DataRemediationService by scopedInject()
+    private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
 
     private var primaryErrorCtaAction = {}
     private var secondaryErrorCtaAction = {}
@@ -174,6 +179,12 @@ class SimpleBuyActivity :
         when (sheet) {
             is KycUpgradeNowSheet,
             is BlockedDueToSanctionsSheet -> exitSimpleBuyFlow()
+            is CurrencySelectionSheet -> {
+                // We're using this var because onSheetClosed will always be called, and in case the user
+                // has picked a new currency, we want to wait till it's changed in the BE, so if the user
+                // changed the currency we don't want to do anything here.
+                if (!isUpdatingCurrency) subscribeForNavigation(true)
+            }
             is ErrorSlidingBottomDialog -> {
                 // do nothing for now
                 Timber.e("----- ErrorSlidingBottomDialog sheet closed")
@@ -395,6 +406,23 @@ class SimpleBuyActivity :
                 }
             }
             .commitAllowingStateLoss()
+    }
+
+    override fun onCurrencyChanged(
+        currency: FiatCurrency,
+        selectionType: CurrencySelectionSheet.CurrencySelectionType
+    ) {
+        when (selectionType) {
+            CurrencySelectionSheet.CurrencySelectionType.DISPLAY_CURRENCY ->
+                throw UnsupportedOperationException()
+            CurrencySelectionSheet.CurrencySelectionType.TRADING_CURRENCY -> {
+                isUpdatingCurrency = true
+                lifecycleScope.launchWhenCreated {
+                    fiatCurrenciesService.setSelectedTradingCurrency(currency)
+                    subscribeForNavigation(true)
+                }
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -5,6 +5,8 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 import com.github.mikephil.charting.data.Entry
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 
 sealed interface CoinviewIntents : Intent<CoinviewModelState> {
     /**
@@ -35,6 +37,16 @@ sealed interface CoinviewIntents : Intent<CoinviewModelState> {
             return modelState.walletMode != WalletMode.NON_CUSTODIAL_ONLY
         }
     }
+
+    /**
+     * Load quick actions to setup the center and bottom buttons
+     *
+     * todo(othman) remove these params once accounts are cached
+     */
+    data class LoadQuickActions(
+        val accounts: CoinviewAccounts,
+        val totalBalance: CoinviewAssetTotalBalance
+    ) : CoinviewIntents
 
     /**
      * Performs price updates while chart is interactive

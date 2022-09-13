@@ -9,7 +9,9 @@ import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.data.GetUserStore
+import com.blockchain.nabu.api.getuser.data.UserFeaturePermissionRepository
 import com.blockchain.nabu.api.getuser.data.UserRepository
+import com.blockchain.nabu.api.getuser.domain.UserFeaturePermissionService
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.datamanagers.AnalyticsNabuUserReporterImpl
@@ -94,6 +96,16 @@ val nabuModule = module {
             )
         }
 
+        scoped<UserFeaturePermissionService> {
+            UserFeaturePermissionRepository(
+                kycService = get(),
+                interestService = get(),
+                sddService = get(),
+                eligibilityService = get(),
+                simpleBuyService = get()
+            )
+        }
+
         factory {
             LiveCustodialWalletManager(
                 assetCatalogue = get(),
@@ -107,7 +119,7 @@ val nabuModule = module {
                 currencyPrefs = get(),
                 buyOrdersCache = get(),
                 pairsCache = get(),
-                buyPairsStore = get(),
+                simpleBuyService = get(),
                 swapOrdersCache = get(),
                 paymentMethodsEligibilityStore = get(),
                 fiatCurrenciesService = get()

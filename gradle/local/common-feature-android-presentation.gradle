@@ -12,6 +12,8 @@ android {
 }
 
 dependencies {
+    implementation project(':string-resources')
+
     // android
     implementation Libraries.appCompat
     implementation Libraries.androidXAnnotations

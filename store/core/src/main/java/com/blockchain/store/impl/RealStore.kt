@@ -34,8 +34,6 @@ class RealStore<K : Any, T : Any>(
             is KeyedFreshnessStrategy.Fresh -> buildFreshFlow(request)
         }.distinctUntilChanged()
 
-    private var previousEmissions: MutableList<Pair<Long, CachedData<K, T>?>> = mutableListOf()
-
     private fun buildCachedFlow(request: KeyedFreshnessStrategy.Cached<K>) = channelFlow<DataResource<T>> {
 
         val networkLock = CompletableDeferred<Unit>()
@@ -52,7 +50,6 @@ class RealStore<K : Any, T : Any>(
         }
 
         cache.read(request.key).distinctUntilChanged().collectIndexed { index, cachedData ->
-            previousEmissions += System.currentTimeMillis() to cachedData
             val isFirstEmission = index == 0
 
             // We only want to filter out stale emissions on the first cache emission, which contains the cached value,

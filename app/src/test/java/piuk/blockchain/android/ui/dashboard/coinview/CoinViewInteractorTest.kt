@@ -186,7 +186,7 @@ class CoinViewInteractorTest {
         whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(CryptoCurrency.BTC)).thenReturn(
             Single.just(availableForTrading)
         )
-        whenever(custodialWalletManager.isAssetSupportedForSwap(CryptoCurrency.BTC)).thenReturn(
+        whenever(custodialWalletManager.isAssetSupportedForSwapLegacy(CryptoCurrency.BTC)).thenReturn(
             Single.just(supportedForSwap)
         )
     }
@@ -285,7 +285,7 @@ class CoinViewInteractorTest {
     fun `GIVEN non custodial, has balance, WHEN loadQuickActions is called, THEN Swap(true) Receive(true) Send(true)`() {
         whenever(walletModeService.enabledWalletMode()).thenReturn(WalletMode.NON_CUSTODIAL_ONLY)
 
-        whenever(custodialWalletManager.isAssetSupportedForSwap(CryptoCurrency.BTC)).thenReturn(
+        whenever(custodialWalletManager.isAssetSupportedForSwapLegacy(CryptoCurrency.BTC)).thenReturn(
             Single.just(true)
         )
 
@@ -312,7 +312,7 @@ class CoinViewInteractorTest {
     fun `GIVEN non custodial, has zero balance, WHEN loadQuickActions is called, THEN Swap(true) Receive(true) Send(true)`() {
         whenever(walletModeService.enabledWalletMode()).thenReturn(WalletMode.NON_CUSTODIAL_ONLY)
 
-        whenever(custodialWalletManager.isAssetSupportedForSwap(CryptoCurrency.BTC)).thenReturn(
+        whenever(custodialWalletManager.isAssetSupportedForSwapLegacy(CryptoCurrency.BTC)).thenReturn(
             Single.just(true)
         )
 
@@ -339,7 +339,7 @@ class CoinViewInteractorTest {
     fun `GIVEN non custodial, has zero balance, no swap, WHEN loadQuickActions is called, THEN None Receive(true) Send(true)`() {
         whenever(walletModeService.enabledWalletMode()).thenReturn(WalletMode.NON_CUSTODIAL_ONLY)
 
-        whenever(custodialWalletManager.isAssetSupportedForSwap(CryptoCurrency.BTC)).thenReturn(
+        whenever(custodialWalletManager.isAssetSupportedForSwapLegacy(CryptoCurrency.BTC)).thenReturn(
             Single.just(false)
         )
 

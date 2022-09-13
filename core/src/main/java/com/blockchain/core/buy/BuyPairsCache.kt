@@ -1,14 +1,14 @@
 package com.blockchain.core.buy
 
 import com.blockchain.core.common.caching.TimedCacheRequest
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsDto
 import com.blockchain.nabu.service.NabuService
 import io.reactivex.rxjava3.core.Single
 
-@Deprecated("use store")
+@Deprecated("use store - remove when CoinView is migrated")
 class BuyPairsCache(private val nabuService: NabuService) {
 
-    private val refresh: () -> Single<SimpleBuyPairsResp> = {
+    private val refresh: () -> Single<SimpleBuyPairsDto> = {
         nabuService.getSupportedCurrencies()
     }
 
@@ -17,7 +17,7 @@ class BuyPairsCache(private val nabuService: NabuService) {
         refreshFn = refresh
     )
 
-    fun pairs(): Single<SimpleBuyPairsResp> = cache.getCachedSingle()
+    fun pairs(): Single<SimpleBuyPairsDto> = cache.getCachedSingle()
 
     companion object {
         private const val CACHE_LIFETIME = 10 * 60L
