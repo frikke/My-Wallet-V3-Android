@@ -521,7 +521,7 @@ class CoinViewInteractorTest {
         val test = subject.getAccountActions(asset, account).test()
         test.assertValue {
             it is CoinViewViewState.ShowAccountActionSheet &&
-                it.actions.find { it.action == AssetAction.Sell}?.state != ActionState.LockedDueToAvailability
+                it.actions.find { it.action == AssetAction.Sell }?.state != ActionState.LockedDueToAvailability
         }
     }
 
@@ -539,7 +539,7 @@ class CoinViewInteractorTest {
         val test = subject.getAccountActions(asset, account).test()
         test.assertValue {
             it is CoinViewViewState.ShowAccountActionSheet &&
-                it.actions.find { it.action == AssetAction.Sell}?.state == ActionState.LockedDueToAvailability
+                it.actions.find { it.action == AssetAction.Sell }?.state == ActionState.LockedDueToAvailability
         }
     }
 
