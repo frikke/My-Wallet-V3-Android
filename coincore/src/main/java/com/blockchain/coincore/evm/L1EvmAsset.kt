@@ -78,19 +78,21 @@ internal class L1EvmAsset(
     @CommonCode("Exists in EthAsset")
     override fun parseAddress(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> {
 
-        return Single.just(isValidAddress(address))
+        val normalisedAddress = address.removePrefix(FormatUtilities.ETHEREUM_PREFIX)
+
+        return Single.just(isValidAddress(normalisedAddress))
             .flatMapMaybe { isValid ->
                 if (isValid) {
                     erc20DataManager.isContractAddress(
-                        address = address,
+                        address = normalisedAddress,
                         l1Chain = nativeNetworkTicker
                     )
                         .flatMapMaybe { isContract ->
                             Maybe.just(
                                 L1EvmAddress(
                                     asset = currency,
-                                    address = address,
-                                    label = label ?: address,
+                                    address = normalisedAddress,
+                                    label = label ?: normalisedAddress,
                                     isDomain = isDomainAddress,
                                     isContract = isContract
                                 )
