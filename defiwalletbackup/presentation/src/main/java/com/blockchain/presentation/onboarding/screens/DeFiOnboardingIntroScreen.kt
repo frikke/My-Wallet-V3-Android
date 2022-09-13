@@ -32,6 +32,7 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue000
 import com.blockchain.componentlib.theme.Blue600
@@ -47,19 +48,29 @@ import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
 @Composable
 fun DeFiOnboardingIntro(viewModel: DeFiOnboardingViewModel) {
     DeFiOnboardingIntroScreen(
+        closeOnClick = { viewModel.onIntent(DeFiOnboardingIntent.EndFlow(isSuccessful = false)) },
         enableDeFiOnClick = { viewModel.onIntent(DeFiOnboardingIntent.EnableDeFiWallet) },
     )
 }
 
 @Composable
 fun DeFiOnboardingIntroScreen(
+    closeOnClick: () -> Unit,
     enableDeFiOnClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         NavigationBar(
-            title = stringResource(R.string.defi_wallet_name)
+            title = stringResource(R.string.defi_wallet_name),
+            endNavigationBarButtons = listOf(
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_close_circle,
+                    color = null,
+                    contentDescription = R.string.accessibility_close,
+                    onIconClick = closeOnClick
+                )
+            )
         )
 
         Box {
@@ -217,7 +228,7 @@ data class DeFiProperty(@StringRes val title: Int, @StringRes val subtitle: Int)
 @Preview(showBackground = true)
 @Composable
 fun PreviewDeFiOnboardingIntroScreen() {
-    DeFiOnboardingIntroScreen {}
+    DeFiOnboardingIntroScreen({}, {})
 }
 
 @Preview(showBackground = true)
