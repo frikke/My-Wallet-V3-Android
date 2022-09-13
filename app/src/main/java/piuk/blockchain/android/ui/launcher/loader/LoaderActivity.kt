@@ -17,8 +17,11 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.koin.superappRedesignFeatureFlag
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
 import piuk.blockchain.android.ui.educational.walletmodes.EducationalWalletModeActivity
@@ -26,8 +29,10 @@ import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.multiapp.MultiAppActivity
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.util.AppUtil
+import piuk.blockchain.android.util.AppUtil.Companion.INTENT_EXTRA_VERIFIED
 
 class LoaderActivity :
     MviActivity<LoaderModel, LoaderIntents, LoaderState, ActivityLoaderBinding>(),
@@ -47,6 +52,8 @@ class LoaderActivity :
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
+
+    private val superappRedesignFF: FeatureFlag by inject(superappRedesignFeatureFlag)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -166,15 +173,24 @@ class LoaderActivity :
     }
 
     private fun onStartMainActivity(mainData: String?, shouldLaunchUiTour: Boolean) {
-        startActivity(
-            MainActivity.newIntent(
-                context = this,
-                intentData = mainData,
-                shouldLaunchUiTour = shouldLaunchUiTour,
-                shouldBeNewTask = true
+        superappRedesignFF.enabled.subscribe { isEnabled ->
+            startActivity(
+                if (isEnabled) {
+                    MultiAppActivity.newIntent(
+                        context = this
+                    )
+                } else {
+                    MainActivity.newIntent(
+                        context = this,
+                        intentData = mainData,
+                        shouldLaunchUiTour = shouldLaunchUiTour,
+                        shouldBeNewTask = true
+                    )
+                }
             )
-        )
-        finish()
+
+            finish()
+        }
     }
 
     private fun launchEducationalWalletMode(isUserInCowboysPromo: Boolean, data: String?) {
