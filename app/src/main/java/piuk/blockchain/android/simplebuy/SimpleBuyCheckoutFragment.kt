@@ -133,7 +133,7 @@ class SimpleBuyCheckoutFragment :
 
         compositeDisposable += buyQuoteRefreshFF.enabled.onErrorReturn { false }
             .subscribe { enabled ->
-                if (enabled) {
+                if (enabled && !isForPendingPayment) {
                     binding.quoteExpiration.visible()
                     model.process(SimpleBuyIntent.ListenToQuotesUpdate)
                 }
@@ -205,14 +205,17 @@ class SimpleBuyCheckoutFragment :
     }
 
     override fun render(newState: SimpleBuyState) {
-        if (buyQuoteRefreshFF.isEnabled && countDownTimer == null && newState.quote != null) {
+        if (buyQuoteRefreshFF.isEnabled && countDownTimer == null &&
+            newState.quote != null &&
+            !isPendingOrAwaitingFunds(newState.orderState)
+        ) {
             chunksCounter = newState.quote.chunksTimeCounter
             startCounter(newState.quote, chunksCounter.first())
         }
 
         showAmountForMethod(newState)
 
-        if (buyQuoteRefreshFF.isEnabled && newState.hasQuoteChanged) {
+        if (buyQuoteRefreshFF.isEnabled && newState.hasQuoteChanged && !isPendingOrAwaitingFunds(newState.orderState)) {
             binding.amount.animateChange {
                 binding.amount.setTextColor(
                     ContextCompat.getColor(binding.amount.context, R.color.grey_800)
@@ -434,9 +437,7 @@ class SimpleBuyCheckoutFragment :
                         ContextCompat.getColor(requireContext(), R.color.green_600)
                     )
                 }
-                else -> {
-                    gone()
-                }
+                else -> gone()
             }
         }
     }
@@ -491,7 +492,7 @@ class SimpleBuyCheckoutFragment :
                 isImportant = true,
                 hasChanged = false
             ),
-            if (state.suggestEnablingRecurringBuyFrequency()) {
+            if (!isPendingOrAwaitingFunds(state.orderState) && state.suggestEnablingRecurringBuyFrequency()) {
                 SimpleBuyCheckoutItem.ToggleCheckoutItem(
                     title = RecurringBuyFrequency.WEEKLY.toRecurringBuySuggestionTitle(requireContext()),
                     subtitle = getString(
