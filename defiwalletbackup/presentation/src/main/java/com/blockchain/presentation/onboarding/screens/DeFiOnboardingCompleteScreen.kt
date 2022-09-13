@@ -22,6 +22,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.R
 import com.blockchain.presentation.onboarding.DeFiOnboardingIntent
@@ -33,12 +34,14 @@ import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
 @Composable
 fun DeFiOnboardingComplete(viewModel: DeFiOnboardingViewModel) {
     DeFiOnboardingCompleteScreen(
+        closeOnClick = { viewModel.onIntent(DeFiOnboardingIntent.EndFlow(isSuccessful = true)) },
         continueOnClick = { viewModel.onIntent(DeFiOnboardingIntent.EndFlow(isSuccessful = true)) }
     )
 }
 
 @Composable
 fun DeFiOnboardingCompleteScreen(
+    closeOnClick: () -> Unit,
     continueOnClick: () -> Unit,
 ) {
 
@@ -46,7 +49,17 @@ fun DeFiOnboardingCompleteScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(R.string.defi_wallet_name))
+        NavigationBar(
+            title = stringResource(R.string.defi_wallet_name),
+            endNavigationBarButtons = listOf(
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_close_circle,
+                    color = null,
+                    contentDescription = R.string.accessibility_close,
+                    onIconClick = closeOnClick
+                )
+            )
+        )
 
         Box {
             Image(
@@ -112,5 +125,5 @@ fun DeFiOnboardingCompleteScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewDeFiOnboardingCompleteScreen() {
-    DeFiOnboardingCompleteScreen {}
+    DeFiOnboardingCompleteScreen({}, {})
 }

@@ -28,6 +28,7 @@
     <string name="manual_backup_copy_description" />
     <string name="manual_backup_copied" />
 
+    <string name="accessibility_close"/>
     <string name="common_copy" />
     <string name="common_next" />
     <string name="done" />
