@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <dimen name="paddingSmall">8dp</dimen>
-    <dimen name="paddingMedium">16dp</dimen>
-    <dimen name="paddingLarge">24dp</dimen>
-    <dimen name="xPaddingLarge">32dp</dimen>
-    <dimen name="xxPaddingLarge">40dp</dimen>
-    <dimen name="xxxPaddingLarge">48dp</dimen>
-
     <dimen name="borderRadiiSmallest">4dp</dimen>
     <dimen name="borderRadiiSmall">8dp</dimen>
     <dimen name="borderRadiiMedium">16dp</dimen>
