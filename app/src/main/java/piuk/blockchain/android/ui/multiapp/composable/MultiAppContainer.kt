@@ -328,7 +328,7 @@ fun MultiAppContainer() {
                 toolbarState.halfCollapsedOffset != balanceSectionHeight.toFloat() &&
                 toolbarState.fullCollapsedOffset != (balanceSectionHeight + tabsSectionHeight).toFloat()
             ) {
-                toolbarState.updateHeight(balanceSectionHeight,  tabsSectionHeight)
+                toolbarState.updateHeight(balanceSectionHeight, tabsSectionHeight)
 
                 updateOffsetNoAnimation(targetValue = toolbarState.halfCollapsedOffset)
             }
