@@ -875,22 +875,30 @@ class CoinViewModelTest {
 
     @Test
     fun `when CheckScreenToOpen returns ShowAccountActionSheet then state is updated`() {
+        val asset: CryptoAsset = mock {
+            on { currency }.thenReturn(mock())
+        }
+        val fiatCurrency: FiatCurrency = mock()
+
         val selectedAccount = mock<BlockchainAccount>()
         val assetDetailsItem: AssetDetailsItem.CryptoDetailsInfo = mock {
             on { account }.thenReturn(selectedAccount)
         }
         val actions = setOf<StateAwareAction>().toTypedArray()
-        whenever(interactor.getAccountActions(selectedAccount))
+        whenever(interactor.getAccountActions(asset, selectedAccount))
             .thenReturn(Single.just(CoinViewViewState.ShowAccountActionSheet(actions)))
 
         val testState = subject.state.test()
+        subject.process(CoinViewIntent.AssetLoaded(asset, fiatCurrency))
         subject.process(CoinViewIntent.CheckScreenToOpen(assetDetailsItem))
 
         testState.assertValueAt(0) {
             it == defaultState
         }.assertValueAt(1) {
-            it.selectedCryptoAccount == assetDetailsItem
+            it == defaultState.copy(asset = asset, selectedFiat = fiatCurrency)
         }.assertValueAt(2) {
+            it.selectedCryptoAccount == assetDetailsItem
+        }.assertValueAt(3) {
             it.viewState is CoinViewViewState.ShowAccountActionSheet &&
                 (it.viewState as CoinViewViewState.ShowAccountActionSheet).actions.contentEquals(actions)
         }
@@ -933,22 +941,31 @@ class CoinViewModelTest {
 
     @Test
     fun `when CheckScreenToOpen returns ShowAccountExplainerSheet then state is updated`() {
+        val asset: CryptoAsset = mock {
+            on { currency }.thenReturn(mock())
+        }
+        val fiatCurrency: FiatCurrency = mock()
+
         val selectedAccount = mock<BlockchainAccount>()
         val assetDetailsItem: AssetDetailsItem.CryptoDetailsInfo = mock {
             on { account }.thenReturn(selectedAccount)
         }
         val actions = setOf<StateAwareAction>().toTypedArray()
-        whenever(interactor.getAccountActions(selectedAccount))
+        whenever(interactor.getAccountActions(asset, selectedAccount))
             .thenReturn(Single.just(CoinViewViewState.ShowAccountExplainerSheet(actions)))
 
         val testState = subject.state.test()
+
+        subject.process(CoinViewIntent.AssetLoaded(asset, fiatCurrency))
         subject.process(CoinViewIntent.CheckScreenToOpen(assetDetailsItem))
 
         testState.assertValueAt(0) {
             it == defaultState
         }.assertValueAt(1) {
-            it.selectedCryptoAccount == assetDetailsItem
+            it == defaultState.copy(asset = asset, selectedFiat = fiatCurrency)
         }.assertValueAt(2) {
+            it.selectedCryptoAccount == assetDetailsItem
+        }.assertValueAt(3) {
             it.viewState is CoinViewViewState.ShowAccountExplainerSheet &&
                 (it.viewState as CoinViewViewState.ShowAccountExplainerSheet).actions.contentEquals(actions)
         }

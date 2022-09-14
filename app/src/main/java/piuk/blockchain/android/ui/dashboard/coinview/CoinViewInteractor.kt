@@ -28,6 +28,7 @@ import com.blockchain.core.user.WatchlistInfo
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.extensions.minus
+import com.blockchain.extensions.replace
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -222,11 +223,25 @@ class CoinViewInteractor(
             endAction = if (predicate(endAction)) endAction else QuickActionCta.None
         )
 
-    fun getAccountActions(account: BlockchainAccount): Single<CoinViewViewState> = Singles.zip(
+    fun getAccountActions(asset: CryptoAsset, account: BlockchainAccount): Single<CoinViewViewState> = Singles.zip(
         account.stateAwareActions,
+        custodialWalletManager.isCurrencyAvailableForTradingLegacy(asset.currency),
         account.balance.firstOrError()
-    ).map { (actions, balance) ->
+    ).map { (actions, isSupportedPair, balance) ->
         assetActionsComparator.initAccount(account, balance)
+
+        // disable sell option if trading par not supported
+        val actions = if (isSupportedPair.not() &&
+            actions.any { it.action == AssetAction.Sell && it.state == ActionState.Available }
+        ) {
+            actions.replace(
+                actions.first { it.action == AssetAction.Sell && it.state == ActionState.Available },
+                StateAwareAction(ActionState.LockedDueToAvailability, AssetAction.Sell)
+            ).toSet()
+        } else {
+            actions
+        }
+
         val sortedActions = when (account) {
             is InterestAccount -> {
                 if (actions.none { it.action == AssetAction.InterestDeposit }) {
