@@ -30,7 +30,6 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.cancelChildren
-import piuk.blockchain.android.ui.dashboard.walletmode.titleSuperApp
 
 @Composable
 fun ModeSwitcher(
