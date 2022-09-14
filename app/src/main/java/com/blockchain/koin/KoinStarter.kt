@@ -67,6 +67,7 @@ import piuk.blockchain.android.ui.linkbank.data.bankAuthDataModule
 import piuk.blockchain.android.ui.linkbank.domain.bankAuthDomainModule
 import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.bankAuthPresentationModule
 import piuk.blockchain.android.ui.login.loginUiModule
+import piuk.blockchain.android.ui.multiapp.multiAppModule
 import piuk.blockchain.android.ui.prices.presentation.pricesPresentationModule
 import piuk.blockchain.android.ui.referral.presentation.referralPresentationModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
@@ -148,7 +149,9 @@ object KoinStarter {
                     backupPhraseDataModule, backupPhrasePresentationModule,
                     pricesPresentationModule,
                     bankAliasLinkPresentationModule,
-                    educationalWalletModesPresentationModule
+                    educationalWalletModesPresentationModule,
+
+                    multiAppModule
                 )
             )
         }

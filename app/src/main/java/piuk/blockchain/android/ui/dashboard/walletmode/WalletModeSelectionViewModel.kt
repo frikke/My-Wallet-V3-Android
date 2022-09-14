@@ -215,6 +215,13 @@ fun WalletMode.title(): Int = when (this) {
     else -> throw IllegalArgumentException("No title supported for mode")
 }
 
+@StringRes
+fun WalletMode.titleSuperApp(): Int = when (this) {
+    WalletMode.NON_CUSTODIAL_ONLY -> R.string.defi_wallet_name_superapp
+    WalletMode.CUSTODIAL_ONLY -> R.string.brokerage_wallet_name_superapp
+    else -> throw IllegalArgumentException("No title supported for mode")
+}
+
 @DrawableRes
 fun WalletMode.icon(): Int = when (this) {
     WalletMode.NON_CUSTODIAL_ONLY -> R.drawable.ic_defi_wallet
