@@ -16,7 +16,14 @@ class MultiAppViewModel(
     MultiAppViewState,
     MultiAppModelState,
     NavigationEvent,
-    ModelConfigArgs.NoArgs>(MultiAppModelState(selectedWalletMode = walletModeService.enabledWalletMode())) {
+    ModelConfigArgs.NoArgs>(
+    MultiAppModelState(
+        selectedWalletMode = walletModeService.enabledWalletMode().let {
+            // necessary for KoinGraphTest to pass because Universal is default and reduce raises an error for it
+            if (it == WalletMode.UNIVERSAL) WalletMode.CUSTODIAL_ONLY else it
+        }
+    )
+) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         viewModelScope.launch {
