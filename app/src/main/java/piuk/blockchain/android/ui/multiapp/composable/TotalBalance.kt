@@ -18,12 +18,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.data.DataResource
 import piuk.blockchain.android.R
 
 @Composable
 fun TotalBalance(
     modifier: Modifier = Modifier,
-    balance: String
+    balance: DataResource<String>
 ) {
     Box(modifier = modifier.fillMaxWidth()) {
         Box(
@@ -56,7 +57,12 @@ fun TotalBalance(
 
                 Text(
                     modifier = Modifier,
-                    text = balance,
+                    text = when (balance) {
+                        // todo(othman) check with Ethan about different states
+                        DataResource.Loading -> "Loading.."
+                        is DataResource.Error -> "Error.."
+                        is DataResource.Data -> balance.data
+                    },
                     color = Color.White,
                     style = AppTheme.typography.paragraph2
                 )
@@ -68,5 +74,5 @@ fun TotalBalance(
 @Preview
 @Composable
 fun PreviewTotalBalance() {
-    TotalBalance(balance = "$278,031.12")
+    TotalBalance(balance = DataResource.Data("$278,031.12"))
 }

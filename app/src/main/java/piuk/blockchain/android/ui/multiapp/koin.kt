@@ -8,7 +8,8 @@ val multiAppModule = module {
     scope(payloadScopeQualifier) {
         viewModel {
             MultiAppViewModel(
-                walletModeService = get()
+                walletModeService = get(),
+                balanceStore = get()
             )
         }
     }

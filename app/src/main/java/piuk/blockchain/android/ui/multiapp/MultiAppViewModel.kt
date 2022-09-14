@@ -4,13 +4,23 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.data.combineDataResources
+import com.blockchain.data.map
+import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import info.blockchain.balance.total
+import java.util.stream.Collectors.toList
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 
 class MultiAppViewModel(
-    private val walletModeService: WalletModeService
+    private val walletModeService: WalletModeService,
+    private val balanceStore: WalletModeBalanceCache
 ) : MviViewModel<
     MultiAppIntents,
     MultiAppViewState,
@@ -28,6 +38,8 @@ class MultiAppViewModel(
                 }
             }
         }
+
+        loadTotalBalance()
     }
 
     override fun reduce(state: MultiAppModelState): MultiAppViewState = state.run {
@@ -38,7 +50,8 @@ class MultiAppViewModel(
                 WalletMode.CUSTODIAL_ONLY -> ChromeBackgroundColors.Trading
                 WalletMode.NON_CUSTODIAL_ONLY -> ChromeBackgroundColors.DeFi
                 WalletMode.UNIVERSAL -> error("WalletMode.UNIVERSAL unsupported")
-            }
+            },
+            totalBalance = state.totalBalance.map { balance -> balance.toStringWithSymbol() }
         )
     }
 
@@ -48,6 +61,27 @@ class MultiAppViewModel(
                 // update wallet mode - since we observe it in viewCreated level
                 // it will automatically be updated
                 walletModeService.updateEnabledWalletMode(intent.walletMode)
+            }
+        }
+    }
+
+    private fun loadTotalBalance() {
+        viewModelScope.launch {
+
+            val balances = modelState.walletModes.map { walletMode ->
+                balanceStore
+                    .stream(FreshnessStrategy.Cached(forceRefresh = true).withKey(walletMode))
+                    .mapData { it.total }
+            }
+
+            combine(balances) {
+                combineDataResources(it.toList()) {
+                    it.total()
+                }
+            }.collectLatest { dataResource ->
+                updateState {
+                    it.copy(totalBalance = dataResource)
+                }
             }
         }
     }
