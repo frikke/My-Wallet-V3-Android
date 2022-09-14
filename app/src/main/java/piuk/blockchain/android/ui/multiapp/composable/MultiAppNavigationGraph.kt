@@ -47,5 +47,15 @@ fun MultiAppNavigationGraph(
                 refreshComplete = refreshComplete
             )
         }
+        composable(ChromeBottomNavigationItem.Nft.route) {
+            DemoScreen(
+                modifier = modifier,
+                tag = "NFT",
+                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Nft, it)) },
+                isPullToRefreshEnabled = enableRefresh,
+                refreshStarted = refreshStarted,
+                refreshComplete = refreshComplete
+            )
+        }
     }
 }

@@ -292,19 +292,18 @@ fun MultiAppChromeScreen(
 
     // //////////////////////////////////////////////
     // bottomnav animation
-    // todo refactor
-    var trading by remember { mutableStateOf(true) }
-    var animateBottomNav by remember { mutableStateOf(false) }
+    var currentBottomNavigationItems by remember { mutableStateOf(bottomNavigationItems) }
+    var bottomNavigationVisible by remember { mutableStateOf(true) }
     val bottomNavOffsetY by animateIntAsState(
-        targetValue = if (animateBottomNav) 300 else 0,
+        targetValue = if (bottomNavigationVisible) 0 else 300,
         finishedListener = {
-            if (animateBottomNav) {
-                trading = trading.not()
-                animateBottomNav = false
+            if (bottomNavigationVisible.not()) {
+                bottomNavigationVisible = true
+                currentBottomNavigationItems = bottomNavigationItems
             }
         },
         animationSpec = tween(
-            durationMillis = ANIMATION_DURATION / 2
+            durationMillis = ANIMATION_DURATION
         )
     )
     // //////////////////////////////////////////////
@@ -386,7 +385,7 @@ fun MultiAppChromeScreen(
                     onModeClicked = { walletMode ->
                         stopRefresh()
 
-                        animateBottomNav = true
+                        bottomNavigationVisible = false
 
                         onModeSelected(walletMode)
                     },
@@ -447,7 +446,7 @@ fun MultiAppChromeScreen(
                         y = bottomNavOffsetY
                     )
                 },
-            navigationItems = bottomNavigationItems,
+            navigationItems = currentBottomNavigationItems,
             navController = navController
         ) {
             if (isRefreshing) {
