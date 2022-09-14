@@ -52,10 +52,10 @@ import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.ui.multiapp.ChromeBackgroundColors
+import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
 import piuk.blockchain.android.ui.multiapp.MultiAppIntents
 import piuk.blockchain.android.ui.multiapp.MultiAppViewModel
 import piuk.blockchain.android.ui.multiapp.MultiAppViewState
-import piuk.blockchain.android.ui.multiapp.bottomnav.BottomNavItem
 import piuk.blockchain.android.ui.multiapp.toolbar.CollapsingToolbarState
 import piuk.blockchain.android.ui.multiapp.toolbar.EnterAlwaysCollapsedState
 
@@ -67,12 +67,6 @@ private fun rememberToolbarState(): CollapsingToolbarState {
         EnterAlwaysCollapsedState(0, 0)
     }
 }
-
-val navigationItem = listOf(
-    BottomNavItem.Home,
-    BottomNavItem.Trade,
-    BottomNavItem.Card,
-)
 
 @Composable
 fun MultiAppChrome(viewModel: MultiAppViewModel) {
@@ -88,6 +82,7 @@ fun MultiAppChrome(viewModel: MultiAppViewModel) {
             selectedMode = state.selectedMode,
             backgroundColors = state.backgroundColors,
             balance = state.totalBalance,
+            bottomNavigationItems = state.bottomNavigationItems,
             onModeSelected = { walletMode ->
                 viewModel.onIntent(MultiAppIntents.WalletModeChanged(walletMode))
             }
@@ -101,6 +96,7 @@ fun MultiAppChromeScreen(
     selectedMode: WalletMode,
     backgroundColors: ChromeBackgroundColors,
     balance: DataResource<String>,
+    bottomNavigationItems: List<ChromeBottomNavigationItem>,
     onModeSelected: (WalletMode) -> Unit
 ) {
     var balanceSectionHeight by remember {
@@ -121,7 +117,7 @@ fun MultiAppChromeScreen(
         mutableStateOf(false)
     }
 
-    var selectedNavigationItem by remember { mutableStateOf(navigationItem.first()) }
+    var selectedNavigationItem by remember { mutableStateOf(bottomNavigationItems.first()) }
 
     // //////////////////////////////////////////////
     // snap header views depending on scroll position
@@ -451,8 +447,8 @@ fun MultiAppChromeScreen(
                         y = bottomNavOffsetY
                     )
                 },
-            navigationItem,
-            navController
+            navigationItems = bottomNavigationItems,
+            navController = navController
         ) {
             if (isRefreshing) {
                 stopRefresh()
@@ -501,6 +497,11 @@ fun PreviewMultiAppContainer() {
         selectedMode = WalletMode.CUSTODIAL_ONLY,
         backgroundColors = ChromeBackgroundColors.Trading,
         balance = DataResource.Data("$278,031.12"),
+        bottomNavigationItems = listOf(
+            ChromeBottomNavigationItem.Home,
+            ChromeBottomNavigationItem.Trade,
+            ChromeBottomNavigationItem.Card
+        ),
         onModeSelected = {}
     )
 }
