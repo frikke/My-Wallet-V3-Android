@@ -69,6 +69,7 @@ import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistDataManagerImpl
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
@@ -96,6 +97,7 @@ import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.remoteconfig.RemoteConfigRepository
 import com.blockchain.storedatasource.StoreWiper
 import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
@@ -580,7 +582,7 @@ val coreModule = module {
                 payloadDataManager = get(),
                 currencyPrefs = get(),
                 assetCatalogue = get(),
-                remoteConfig = get()
+                remoteConfigService = get()
             )
         }
 
@@ -591,6 +593,15 @@ val coreModule = module {
             )
         }
     }
+
+    single {
+        RemoteConfigRepository(
+            firebaseRemoteConfig = get(),
+            remoteConfigPrefs = get(),
+            experimentsStore = get(),
+            json = get(),
+        )
+    }.bind(RemoteConfigService::class)
 
     single {
         DynamicAssetsDataManagerImpl(

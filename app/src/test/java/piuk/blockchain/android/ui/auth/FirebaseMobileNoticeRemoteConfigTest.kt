@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.auth
 
-import com.blockchain.remoteconfig.RemoteConfig
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
 import io.reactivex.rxjava3.core.Single
@@ -11,7 +11,7 @@ import org.mockito.ArgumentMatchers.anyString
 
 class FirebaseMobileNoticeRemoteConfigTest {
 
-    private val remoteConfig: RemoteConfig = mock()
+    private val remoteConfigService: RemoteConfigService = mock()
 
     private val json = Json {
         explicitNulls = false
@@ -23,13 +23,13 @@ class FirebaseMobileNoticeRemoteConfigTest {
 
     @Before
     fun setup() {
-        subject = FirebaseMobileNoticeRemoteConfig(remoteConfig, json)
+        subject = FirebaseMobileNoticeRemoteConfig(remoteConfigService, json)
     }
 
     @Test
-    fun `remoteConfig returns valid payload`() {
+    fun `remoteConfigService returns valid payload`() {
         // ARRANGE
-        given(remoteConfig.getRawJson(anyString())).willReturn(
+        given(remoteConfigService.getRawJson(anyString())).willReturn(
             Single.just("{\"title\":\"1\",\"body\":\"2\",\"ctaText\":\"3\",\"ctaLink\":\"4\"}")
         )
 
@@ -46,9 +46,9 @@ class FirebaseMobileNoticeRemoteConfigTest {
     }
 
     @Test
-    fun `remoteConfig returns invalid payload`() {
+    fun `remoteConfigService returns invalid payload`() {
         // ARRANGE
-        given(remoteConfig.getRawJson(anyString())).willReturn(Single.just("{}"))
+        given(remoteConfigService.getRawJson(anyString())).willReturn(Single.just("{}"))
 
         // ACT
         val result = subject.mobileNoticeDialog()
@@ -63,9 +63,9 @@ class FirebaseMobileNoticeRemoteConfigTest {
     }
 
     @Test
-    fun `remoteConfig returns empty payload`() {
+    fun `remoteConfigService returns empty payload`() {
         // ARRANGE
-        given(remoteConfig.getRawJson(anyString())).willReturn(Single.just(""))
+        given(remoteConfigService.getRawJson(anyString())).willReturn(Single.just(""))
 
         // ACT
         val result = subject.mobileNoticeDialog()

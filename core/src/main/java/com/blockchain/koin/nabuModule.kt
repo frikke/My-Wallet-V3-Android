@@ -1,6 +1,7 @@
 package com.blockchain.koin
 
 import com.blockchain.api.nabuApi
+import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.core.kyc.data.KycRepository
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.core.kyc.domain.KycService
@@ -246,6 +247,12 @@ val nabuModule = module {
             explorerPath = getProperty("explorer-api"),
             apiCode = getProperty("api-code"),
             retrofit = get(serializerExplorerRetrofit)
+        )
+    }
+
+    single {
+        ExperimentsStore(
+            experimentsApiService = get(),
         )
     }
 }

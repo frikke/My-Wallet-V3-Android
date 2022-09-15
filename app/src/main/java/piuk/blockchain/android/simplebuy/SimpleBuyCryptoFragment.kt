@@ -46,8 +46,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod.UndefinedCard.Ca
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -121,7 +119,6 @@ class SimpleBuyCryptoFragment :
     private val assetResources: AssetResources by inject()
     private val assetCatalogue: AssetCatalogue by inject()
     private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
-    private val cardRejectionFF: FeatureFlag by inject(cardRejectionCheckFeatureFlag)
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private var infoActionCallback: () -> Unit = {}
 
@@ -175,6 +172,7 @@ class SimpleBuyCryptoFragment :
             toolbarTitle = getString(R.string.tx_title_buy, asset.displayTicker),
             backAction = { activity.onBackPressedDispatcher.onBackPressed() }
         )
+        model.process(SimpleBuyIntent.InitializeFeatureFlags)
         model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, fiatCurrency))
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
@@ -527,7 +525,8 @@ class SimpleBuyCryptoFragment :
 
     private fun showCtaOrError(newState: SimpleBuyState) {
         when {
-            cardRejectionFF.isEnabled && newState.selectedPaymentMethodDetails?.isCardAndAlwaysRejected() == true -> {
+            newState.featureFlagSet.cardRejectionFF &&
+                newState.selectedPaymentMethodDetails?.isCardAndAlwaysRejected() == true -> {
                 (
                     (newState.selectedPaymentMethodDetails as PaymentMethod.Card).cardRejectionState
                         as CardRejectionState.AlwaysRejected
@@ -700,7 +699,7 @@ class SimpleBuyCryptoFragment :
         }
 
         when (selectedPaymentMethod) {
-            is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod)
+            is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod, state.featureFlagSet.cardRejectionFF)
             is PaymentMethod.Funds -> renderFundsPayment(selectedPaymentMethod)
             is PaymentMethod.Bank -> renderBankPayment(selectedPaymentMethod)
             is PaymentMethod.UndefinedCard -> renderUndefinedCardPayment(selectedPaymentMethod)
@@ -712,7 +711,7 @@ class SimpleBuyCryptoFragment :
             }
         }
 
-        if (cardRejectionFF.isEnabled && selectedPaymentMethod !is PaymentMethod.Card) {
+        if (state.featureFlagSet.cardRejectionFF && selectedPaymentMethod !is PaymentMethod.Card) {
             with(binding) {
                 btnError.gone()
                 btnContinue.visible()
@@ -833,7 +832,7 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun renderCardPayment(selectedPaymentMethod: PaymentMethod.Card) {
+    private fun renderCardPayment(selectedPaymentMethod: PaymentMethod.Card, cardRejectionFF: Boolean) {
         with(binding) {
             paymentMethodDetailsRoot.apply {
                 primaryText = selectedPaymentMethod.dottedEndDigits()
@@ -842,7 +841,7 @@ class SimpleBuyCryptoFragment :
                 startImageResource = ImageResource.Local(
                     selectedPaymentMethod.cardType.toCardType().icon()
                 )
-                if (cardRejectionFF.isEnabled) {
+                if (cardRejectionFF) {
                     when (val cardState = selectedPaymentMethod.cardRejectionState) {
                         is CardRejectionState.AlwaysRejected -> {
                             cardState.renderAlwaysRejectedCardError()

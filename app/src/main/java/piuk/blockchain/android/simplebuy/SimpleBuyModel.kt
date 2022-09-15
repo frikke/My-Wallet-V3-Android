@@ -99,6 +99,40 @@ class SimpleBuyModel(
 
     override fun performAction(previousState: SimpleBuyState, intent: SimpleBuyIntent): Disposable? =
         when (intent) {
+            is SimpleBuyIntent.InitializeFeatureFlags -> {
+                interactor.initializeFeatureFlags().subscribeBy(
+                    onSuccess = {
+                        process(SimpleBuyIntent.UpdateFeatureFlags(it))
+                    },
+                    onError = {
+                        process(SimpleBuyIntent.UpdateFeatureFlags(FeatureFlagsSet()))
+                    }
+                )
+            }
+            is SimpleBuyIntent.GetRecurringBuyFrequencyRemote -> {
+                if (previousState.featureFlagSet.rbFrequencySuggestionFF) {
+                    rxSingle {
+                        getRemoteRecurringBuy().subscribeBy(
+                            onSuccess = {
+                                process(SimpleBuyIntent.UpdateRecurringFrequencyRemote(it))
+                            },
+                            onError = {
+                                Timber.e("SimpleBuyModel - getRemoteRecurringBuy error: " + it.message)
+                                process(
+                                    SimpleBuyIntent.UpdateRecurringFrequencyRemote(
+                                        RecurringBuyFrequency.ONE_TIME
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+                if (previousState.featureFlagSet.buyQuoteRefreshFF) {
+                    process(SimpleBuyIntent.ListenToQuotesUpdate)
+                }
+                null
+            }
+
             is SimpleBuyIntent.UpdateExchangeRate -> interactor.updateExchangeRate(intent.fiatCurrency, intent.asset)
                 .subscribeBy(
                     onSuccess = { process(SimpleBuyIntent.ExchangeRateUpdated(it)) },
@@ -944,6 +978,9 @@ class SimpleBuyModel(
         )
     }
 
+    private suspend fun getRemoteRecurringBuy(): Single<RecurringBuyFrequency> =
+        interactor.getRecurringBuyFrequency()
+
     private fun createRecurringBuy(
         selectedCryptoAsset: AssetInfo?,
         order: SimpleBuyOrder,
@@ -972,7 +1009,8 @@ class SimpleBuyModel(
         return cardPaymentAsyncFF.enabled.flatMap { cardPaymentAsync ->
             interactor.confirmOrder(
                 orderId = id,
-                paymentMethodId = googlePayBeneficiaryId ?: selectedPaymentMethod.takeIf { it.isBank() }?.concreteId(),
+                paymentMethodId = googlePayBeneficiaryId ?: selectedPaymentMethod.takeIf { it.isBank() }
+                    ?.concreteId(),
                 attributes = if (selectedPaymentMethod.isBank()) {
                     // redirectURL is for card providers only.
                     SimpleBuyConfirmationAttributes(

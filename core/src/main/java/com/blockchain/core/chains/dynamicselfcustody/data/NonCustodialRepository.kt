@@ -14,10 +14,10 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.NonCustodialTx
 import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSignature
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.remoteconfig.RemoteConfig
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -40,14 +40,14 @@ internal class NonCustodialRepository(
     private val payloadDataManager: PayloadDataManager,
     private val currencyPrefs: CurrencyPrefs,
     private val assetCatalogue: AssetCatalogue,
-    private val remoteConfig: RemoteConfig
+    private val remoteConfigService: RemoteConfigService
 ) : NonCustodialService {
 
     private val supportedCoins: Single<Map<String, CoinConfiguration>>
         get() = getAllSupportedCoins()
 
     private fun getAllSupportedCoins(): Single<Map<String, CoinConfiguration>> {
-        return remoteConfig.getRawJson(COIN_CONFIGURATIONS).map { json ->
+        return remoteConfigService.getRawJson(COIN_CONFIGURATIONS).map { json ->
             jsonBuilder.decodeFromString<Map<String, CoinConfiguration>>(json)
         }
     }

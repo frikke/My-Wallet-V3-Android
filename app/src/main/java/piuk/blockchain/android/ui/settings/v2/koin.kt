@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2
 
+import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.presentation.BackupPhrasePinService
@@ -68,7 +69,8 @@ val redesignSettingsModule = module {
                 getAvailablePaymentMethodsTypesUseCase = get(),
                 currencyPrefs = get(),
                 referralService = get(),
-                nabuUserIdentity = get()
+                nabuUserIdentity = get(),
+                cardRejectionFF = get(cardRejectionCheckFeatureFlag)
             )
         }
 

@@ -12,7 +12,6 @@ import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.coincore.selfcustody.DynamicSelfCustodyAsset
-import com.blockchain.coincore.selfcustody.StxAsset
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
@@ -25,7 +24,6 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrThrow
-import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
@@ -299,27 +297,14 @@ internal class DynamicAssetLoader(
     }
 
     private fun loadSelfCustodialAsset(assetInfo: AssetInfo): CryptoAsset {
-        // TODO(dtverdota): Remove Stx-specific code once it is enabled for all users
-        return if (assetInfo.networkTicker == "STX" && stxForAllFeatureFlag.isEnabled) {
-            StxAsset(
-                currency = assetInfo,
-                payloadManager = payloadManager,
-                addressValidation = defaultCustodialAddressValidation,
-                addressResolver = identityAddressResolver,
-                selfCustodyService = selfCustodyService,
-                stxForAllFeatureFlag = stxForAllFeatureFlag,
-                walletPreferences = walletPreferences
-            )
-        } else {
-            return DynamicSelfCustodyAsset(
-                currency = assetInfo,
-                payloadManager = payloadManager,
-                addressValidation = defaultCustodialAddressValidation,
-                addressResolver = identityAddressResolver,
-                selfCustodyService = selfCustodyService,
-                walletPreferences = walletPreferences
-            )
-        }
+        return DynamicSelfCustodyAsset(
+            currency = assetInfo,
+            payloadManager = payloadManager,
+            addressValidation = defaultCustodialAddressValidation,
+            addressResolver = identityAddressResolver,
+            selfCustodyService = selfCustodyService,
+            walletPreferences = walletPreferences
+        )
     }
 
     private fun loadErc20Asset(assetInfo: Currency): CryptoAsset {
