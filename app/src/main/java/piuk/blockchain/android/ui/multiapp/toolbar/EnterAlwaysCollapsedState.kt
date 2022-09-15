@@ -25,6 +25,9 @@ class EnterAlwaysCollapsedState(
     override val fullCollapsedOffset: Float
         get() = _fullCollapsedOffset.toFloat()
 
+    override val offsetValuesSet: Boolean
+        get() = _halfCollapsedOffset > 0 && _fullCollapsedOffset > 0
+
     private var _consumed: Float = 0f
     override val consumed: Float
         get() = _consumed

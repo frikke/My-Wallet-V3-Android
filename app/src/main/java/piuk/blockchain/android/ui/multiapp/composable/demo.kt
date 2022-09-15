@@ -86,8 +86,7 @@ fun DemoScreen(
             LazyColumn(
                 state = listState,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0XFFF1F2F7), RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
+                    .fillMaxSize(),
             ) {
                 items(
                     items = aaaaa,

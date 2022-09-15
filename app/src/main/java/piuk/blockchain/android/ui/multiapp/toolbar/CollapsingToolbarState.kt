@@ -4,6 +4,8 @@ interface CollapsingToolbarState {
     val fullCollapsedOffset: Float
     val halfCollapsedOffset: Float
 
+    val offsetValuesSet: Boolean
+
     val consumed: Float
     var scrollTopLimitReached: Boolean
     var scrollOffset: Float

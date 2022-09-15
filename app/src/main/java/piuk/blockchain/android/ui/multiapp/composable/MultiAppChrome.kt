@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -39,6 +41,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
@@ -50,6 +53,7 @@ import androidx.navigation.compose.rememberNavController
 import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.ui.multiapp.ChromeBackgroundColors
 import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
@@ -75,23 +79,31 @@ fun MultiAppChrome(viewModel: MultiAppViewModel) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
     val viewState: MultiAppViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    viewState?.let { state ->
-        MultiAppChromeScreen(
-            modeSwitcherOptions = state.modeSwitcherOptions,
-            selectedMode = state.selectedMode,
-            backgroundColors = state.backgroundColors,
-            balance = state.totalBalance,
-            bottomNavigationItems = state.bottomNavigationItems,
-            onModeSelected = { walletMode ->
-                viewModel.onIntent(MultiAppIntents.WalletModeChanged(walletMode))
-            }
-        )
+    if (viewState != null && statusBarHeight > 0.dp && navBarHeight > 0.dp) {
+        viewState?.let { state ->
+            MultiAppChromeScreen(
+                statusBarHeight = statusBarHeight,
+                navBarHeight = navBarHeight,
+                modeSwitcherOptions = state.modeSwitcherOptions,
+                selectedMode = state.selectedMode,
+                backgroundColors = state.backgroundColors,
+                balance = state.totalBalance,
+                bottomNavigationItems = state.bottomNavigationItems,
+                onModeSelected = { walletMode ->
+                    viewModel.onIntent(MultiAppIntents.WalletModeChanged(walletMode))
+                }
+            )
+        }
     }
 }
 
 @Composable
 fun MultiAppChromeScreen(
+    statusBarHeight: Dp,
+    navBarHeight: Dp,
     modeSwitcherOptions: List<WalletMode>,
     selectedMode: WalletMode,
     backgroundColors: ChromeBackgroundColors,
@@ -145,6 +157,13 @@ fun MultiAppChromeScreen(
         )
         animateSnap = false
         toolbarState.isAutoScrolling = false
+    }
+
+    fun updateOffsetScoped(targetValue: Float, delay: Long = 0L) {
+        coroutineScopeSnaps.launch {
+            delay(delay)
+            updateOffset(targetValue)
+        }
     }
 
     fun updateOffsetNoAnimation(targetValue: Float) {
@@ -291,6 +310,24 @@ fun MultiAppChromeScreen(
     // //////////////////////////////////////////////
 
     // //////////////////////////////////////////////
+    // show and hide balance on first launch
+    var hideBalanceAfterInitialValue by remember { mutableStateOf(false) }
+    fun showAndHideBalanceOnFirstLaunch() {
+        coroutineScopeSnaps.launch {
+            if (balance is DataResource.Data && hideBalanceAfterInitialValue.not() && toolbarState.offsetValuesSet) {
+                hideBalanceAfterInitialValue = true
+
+                updateOffset(0F)
+
+                delay(2000L)
+
+                updateOffset(toolbarState.halfCollapsedOffset)
+            }
+        }
+    }
+    // //////////////////////////////////////////////
+
+    // //////////////////////////////////////////////
     // bottomnav animation
     var currentBottomNavigationItems by remember { mutableStateOf(bottomNavigationItems) }
     var bottomNavigationVisible by remember { mutableStateOf(true) }
@@ -362,6 +399,13 @@ fun MultiAppChromeScreen(
                     }
             ) {
                 // ///// balance
+                showAndHideBalanceOnFirstLaunch()
+                //                var hideBalanceAfterInitialValue by remember { mutableStateOf(false) }
+                //                if (balance is DataResource.Data && hideBalanceAfterInitialValue.not() && toolbarState.offsetValuesSet) {
+                //                    updateOffsetScoped(toolbarState.halfCollapsedOffset, 2000L)
+                //                    hideBalanceAfterInitialValue = true
+                //                }
+
                 TotalBalance(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -393,6 +437,28 @@ fun MultiAppChromeScreen(
             }
 
             // ////// content
+            // the screen can look jumpy at first launch since views positions are initialized dynamically
+            // content will be hidden at first until we have the view heights
+            val contentAlpha by animateFloatAsState(
+                targetValue = if (toolbarState.offsetValuesSet) 1F else 0F,
+                animationSpec = tween(
+                    durationMillis = ANIMATION_DURATION / 2
+                )
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        translationY = -toolbarState.scrollOffset + toolbarState.fullCollapsedOffset
+                    }
+                    .alpha(contentAlpha)
+                    .background(
+                        color = Color(0XFFF1F2F7),
+                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                    )
+            )
+
             MultiAppNavigationGraph(
                 modifier = Modifier
                     .fillMaxSize()
@@ -408,7 +474,8 @@ fun MultiAppChromeScreen(
                                 toolbarState.isAutoScrolling = false
                             }
                         )
-                    },
+                    }
+                    .alpha(contentAlpha),
                 navController = navController,
                 enableRefresh = enablePullToRefresh,
                 updateScrollInfo = { (navItem, listStateInfo) ->
@@ -461,7 +528,6 @@ fun MultiAppChromeScreen(
         // so we can have custom gradient status bar
 
         // status bar
-        val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
         Box(
             modifier = Modifier
                 .constrainAs(statusBar) {
@@ -474,7 +540,6 @@ fun MultiAppChromeScreen(
         )
 
         // nav bar
-        val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
         Box(
             modifier = Modifier
                 .constrainAs(navBar) {
@@ -492,6 +557,8 @@ fun MultiAppChromeScreen(
 @Composable
 fun PreviewMultiAppContainer() {
     MultiAppChromeScreen(
+        statusBarHeight = 25.dp,
+        navBarHeight = 50.dp,
         modeSwitcherOptions = listOf(WalletMode.CUSTODIAL_ONLY, WalletMode.NON_CUSTODIAL_ONLY),
         selectedMode = WalletMode.CUSTODIAL_ONLY,
         backgroundColors = ChromeBackgroundColors.Trading,
