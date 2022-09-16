@@ -124,6 +124,10 @@
             android:theme="@style/AppTheme.MainActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
+            android:name=".ui.multiapp.MultiAppActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" >
+        </activity>
+        <activity
             android:name=".ui.scan.QrScanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity

@@ -39,12 +39,12 @@ fun BottomQuickActionLoading() {
     Column(modifier = Modifier.fillMaxWidth()) {
         Separator()
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.smallSpacing)
+                .padding(AppTheme.dimensions.mediumSpacing)
         ) {
             SecondaryButton(
                 modifier = Modifier.weight(1F),
@@ -53,7 +53,7 @@ fun BottomQuickActionLoading() {
                 onClick = {}
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
             SecondaryButton(
                 modifier = Modifier.weight(1F),
@@ -72,12 +72,12 @@ fun BottomQuickActionData(
     Column(modifier = Modifier.fillMaxWidth()) {
         Separator()
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(AppTheme.dimensions.smallSpacing)
+                .padding(AppTheme.dimensions.mediumSpacing)
         ) {
             SecondaryButton(
                 modifier = Modifier.weight(1F),
@@ -91,7 +91,7 @@ fun BottomQuickActionData(
                 onClick = { /*todo*/ }
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
             SecondaryButton(
                 modifier = Modifier.weight(1F),

@@ -19,7 +19,7 @@ class PasswordRequiredPresenter(
     override val authPrefs: AuthPrefs,
     override val authDataManager: AuthDataManager,
     override val payloadDataManager: PayloadDataManager,
-    override val remoteLogger: RemoteLogger
+    override val remoteLogger: RemoteLogger,
 ) : PasswordAuthPresenter<PasswordRequiredView>() {
 
     fun onContinueClicked(password: String) {

@@ -32,6 +32,16 @@ class SettingsModel(
         intent: SettingsIntent
     ): Disposable? =
         when (intent) {
+            is SettingsIntent.InitializeFeatureFlags -> {
+                interactor.initializeFeatureFlags().subscribeBy(
+                    onSuccess = {
+                        process(SettingsIntent.UpdateFeatureFlags(it))
+                    },
+                    onError = {
+                        process(SettingsIntent.UpdateFeatureFlags(FeatureFlagsSet()))
+                    }
+                )
+            }
             is SettingsIntent.LoadHeaderInformation -> {
                 interactor.getSupportEligibilityAndBasicInfo()
                     .subscribeBy(
@@ -105,6 +115,7 @@ class SettingsModel(
             is SettingsIntent.OnBankRemoved,
             is SettingsIntent.ResetErrorState,
             is SettingsIntent.UpdateAvailablePaymentMethods,
-            is SettingsIntent.UpdateErrorState -> null
+            is SettingsIntent.UpdateErrorState,
+            is SettingsIntent.UpdateFeatureFlags -> null
         }.exhaustive
 }

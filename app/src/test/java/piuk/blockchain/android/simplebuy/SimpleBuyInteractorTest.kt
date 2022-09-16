@@ -29,6 +29,7 @@ import com.blockchain.payments.core.CardProcessor
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.remoteconfig.RemoteConfigRepository
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -63,6 +64,11 @@ class SimpleBuyInteractorTest {
     private val paymentMethodService: PaymentMethodService = mock()
     private val paymentsRepository: PaymentsRepository = mock()
     private val cardRejectionCheckFeatureFlag: FeatureFlag = mock()
+    private val rbFrequencySuggestion: FeatureFlag = mock()
+    private val rbExperimentFF: FeatureFlag = mock()
+    private val remoteConfigRepository: RemoteConfigRepository = mock()
+    private val buyQuoteRefreshFF: FeatureFlag = mock()
+    private val plaidFF: FeatureFlag = mock()
     private val cardPaymentAsyncFF: FeatureFlag = mock()
     private val simpleBuyPrefs: SimpleBuyPrefs = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
@@ -81,17 +87,17 @@ class SimpleBuyInteractorTest {
     @Before
     fun setup() {
         subject = SimpleBuyInteractor(
+            withdrawLocksRepository = withdrawLocksRepository,
             kycService = kycService,
             custodialWalletManager = custodialWalletManager,
             limitsDataManager = limitsDataManager,
-            withdrawLocksRepository = withdrawLocksRepository,
-            analytics = analytics,
-            bankPartnerCallbackProvider = bankPartnerCallbackProvider,
-            eligibilityProvider = eligibilityProvider,
-            exchangeRatesDataManager = exchangeRatesDataManager,
             coincore = coincore,
             userIdentity = userIdentity,
+            eligibilityProvider = eligibilityProvider,
             bankLinkingPrefs = bankLinkingPrefs,
+            analytics = analytics,
+            exchangeRatesDataManager = exchangeRatesDataManager,
+            bankPartnerCallbackProvider = bankPartnerCallbackProvider,
             cardProcessors = cardProcessors,
             cancelOrderUseCase = cancelOrderUseCase,
             getAvailablePaymentMethodsTypesUseCase = getAvailablePaymentMethodsTypesUseCase,
@@ -101,9 +107,14 @@ class SimpleBuyInteractorTest {
             paymentsRepository = paymentsRepository,
             simpleBuyPrefs = simpleBuyPrefs,
             onboardingPrefs = onboardingPrefs,
-            cardRejectionCheckFF = cardRejectionCheckFeatureFlag,
             eligibilityService = eligibilityService,
-            cardPaymentAsyncFF = cardPaymentAsyncFF
+            cardPaymentAsyncFF = cardPaymentAsyncFF,
+            buyQuoteRefreshFF = buyQuoteRefreshFF,
+            plaidFF = plaidFF,
+            rbFrequencySuggestionFF = rbFrequencySuggestion,
+            cardRejectionFF = cardRejectionCheckFeatureFlag,
+            rbExperimentFF = rbExperimentFF,
+            remoteConfigRepository = remoteConfigRepository
         )
     }
 

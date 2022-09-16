@@ -32,6 +32,13 @@ android {
             keyAlias buildProperties.secrets['debugKeyAlias'].toString()
         }
 
+        prod {
+            storeFile file('blockchainAndroid.keystore')
+            storePassword buildProperties.secrets['keyPasswordProd'].toString()
+            keyPassword buildProperties.secrets['keyPasswordProd'].toString()
+            keyAlias buildProperties.secrets['prodKeyAlias'].toString()
+        }
+
         prodInternal {
             storeFile file('blockchainInternalKey.keystore')
             storePassword buildProperties.secrets['keyPasswordInternal'].toString()
@@ -143,6 +150,8 @@ android {
             if (ciVersionCode != null) {
                 versionCode = ciVersionCode.toInteger()
             }
+
+            signingConfig signingConfigs.prod
         }
 
         envInternalProd {
@@ -194,6 +203,8 @@ android {
                 versionCode = ciVersionCode.toInteger()
                 versionNameSuffix = ".${ciVersionCode}_alpha"
             }
+
+            signingConfig signingConfigs.prodInternal
         }
 
         envStaging {
@@ -240,6 +251,8 @@ android {
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"
+
+            signingConfig signingConfigs.debug
         }
     }
 
@@ -254,6 +267,7 @@ android {
             multiDexEnabled true
         }
         debug {
+            signingConfig null
             multiDexEnabled true
             buildConfigField "boolean",  "SKIP_VERIFF_KYC", "false"
         }
@@ -477,6 +491,8 @@ dependencies {
 
     // Compose
     implementation Libraries.composeUi
+    implementation Libraries.composeUiUtil
+    implementation Libraries.accompanistSystemUi
     implementation Libraries.composeMaterial
     implementation Libraries.composePreview
     implementation Libraries.composeActivity
@@ -484,6 +500,7 @@ dependencies {
     implementation Libraries.composeCoilSvg
     implementation Libraries.composeLottie
     implementation Libraries.constraintLayoutCompose
+    implementation Libraries.accompanistSwipeRefresh
 
     // TODO(aromano): TEMP while Google doesn't fix https://issuetracker.google.com/issues/227767363
     debugImplementation "androidx.customview:customview:1.2.0-alpha01"

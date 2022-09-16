@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.coinview
 
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
@@ -473,13 +474,14 @@ class CoinViewInteractorTest {
     fun `getting actions when account interest account is enabled or funded should show deposit`() {
         val actions = setOf<StateAwareAction>()
         whenever(dashboardPrefs.isRewardsIntroSeen).thenReturn(true)
+        whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(any())).thenReturn(Single.just(true))
         val account: CryptoInterestAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
             on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
-        val test = subject.getAccountActions(account).test()
+        val test = subject.getAccountActions(asset, account).test()
         test.assertValue {
             it is CoinViewViewState.ShowAccountActionSheet &&
                 it.actions.find { it.action == AssetAction.InterestDeposit } != null
@@ -490,13 +492,14 @@ class CoinViewInteractorTest {
     fun `getting actions when account is not interest account should not show deposit`() {
         val actions = setOf<StateAwareAction>()
         whenever(dashboardPrefs.isPrivateKeyIntroSeen).thenReturn(true)
+        whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(any())).thenReturn(Single.just(true))
         val account: CryptoNonCustodialAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
             on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
-        val test = subject.getAccountActions(account).test()
+        val test = subject.getAccountActions(asset, account).test()
         test.assertValue {
             it is CoinViewViewState.ShowAccountActionSheet &&
                 it.actions.find { it.action == AssetAction.InterestWithdraw } == null &&
@@ -505,16 +508,53 @@ class CoinViewInteractorTest {
     }
 
     @Test
-    fun `getting explainer sheet should work`() {
-        val actions = setOf<StateAwareAction>()
-        whenever(dashboardPrefs.isPrivateKeyIntroSeen).thenReturn(false)
+    fun `getting actions when pair is supported should not have sell disabled`() {
+        val actions = setOf(StateAwareAction(ActionState.Available, AssetAction.Sell))
+        whenever(dashboardPrefs.isPrivateKeyIntroSeen).thenReturn(true)
+        whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(any())).thenReturn(Single.just(true))
         val account: CryptoNonCustodialAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
             on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
-        val test = subject.getAccountActions(account).test()
+        val test = subject.getAccountActions(asset, account).test()
+        test.assertValue {
+            it is CoinViewViewState.ShowAccountActionSheet &&
+                it.actions.find { it.action == AssetAction.Sell }?.state != ActionState.LockedDueToAvailability
+        }
+    }
+
+    @Test
+    fun `getting actions when pair is not supported should have sell disabled`() {
+        val actions = setOf(StateAwareAction(ActionState.Available, AssetAction.Sell))
+        whenever(dashboardPrefs.isPrivateKeyIntroSeen).thenReturn(true)
+        whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(any())).thenReturn(Single.just(false))
+        val account: CryptoNonCustodialAccount = mock {
+            on { stateAwareActions }.thenReturn(Single.just(actions))
+            on { isFunded }.thenReturn(true)
+            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+        }
+
+        val test = subject.getAccountActions(asset, account).test()
+        test.assertValue {
+            it is CoinViewViewState.ShowAccountActionSheet &&
+                it.actions.find { it.action == AssetAction.Sell }?.state == ActionState.LockedDueToAvailability
+        }
+    }
+
+    @Test
+    fun `getting explainer sheet should work`() {
+        val actions = setOf<StateAwareAction>()
+        whenever(dashboardPrefs.isPrivateKeyIntroSeen).thenReturn(false)
+        whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(any())).thenReturn(Single.just(true))
+        val account: CryptoNonCustodialAccount = mock {
+            on { stateAwareActions }.thenReturn(Single.just(actions))
+            on { isFunded }.thenReturn(true)
+            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+        }
+
+        val test = subject.getAccountActions(asset, account).test()
         test.assertValue {
             it is CoinViewViewState.ShowAccountExplainerSheet &&
                 it.actions.find { it.action == AssetAction.InterestDeposit } == null
