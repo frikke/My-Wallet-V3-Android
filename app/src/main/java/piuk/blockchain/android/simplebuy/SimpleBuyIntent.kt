@@ -29,6 +29,17 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 
 sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
+    object InitializeFeatureFlags : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
+    }
+
+    class UpdateFeatureFlags(
+        private val featureFlagSet: FeatureFlagsSet
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(featureFlagSet = featureFlagSet)
+    }
+
     object ShowAppRating : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(showAppRating = true)
@@ -563,6 +574,16 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     object AddNewPaymentMethodHandled : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(newPaymentMethodToBeAdded = null)
+    }
+
+    object GetRecurringBuyFrequencyRemote : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
+    }
+
+    class UpdateRecurringFrequencyRemote(private val recurringBuyFrequencyRemote: RecurringBuyFrequency) :
+        SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(recurringBuyForExperiment = recurringBuyFrequencyRemote)
     }
 
     class RecurringBuyIntervalUpdated(private val recurringBuyFrequency: RecurringBuyFrequency) :

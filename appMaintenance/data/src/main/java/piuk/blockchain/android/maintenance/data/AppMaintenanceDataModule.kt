@@ -13,7 +13,7 @@ import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceServi
 val appMaintenanceDataModule = module {
     single {
         AppMaintenanceRemoteConfig(
-            remoteConfig = get(),
+            remoteConfigService = get(),
             json = get(),
             appMaintenancePrefs = get()
         )

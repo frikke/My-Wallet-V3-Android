@@ -147,6 +147,9 @@ platform :android do
       sh("echo \"--------------Copying Dogfood Signing Key--------------\"")
       sh("cp ../../tmp/credentials/blockchainInternalKey.keystore ../app")
 
+      sh("echo \"--------------Copying Production Signing Key--------------\"")
+      sh("cp ../../tmp/credentials/blockchainAndroid.keystore ../app")
+
     end
 
 
@@ -202,6 +205,9 @@ platform :android do
 
       sh("echo \"--------------Copying Dogfood Signing Key--------------\"")
       sh("cp ../../tmp/credentials/blockchainInternalKey.keystore ../app")
+
+      sh("echo \"--------------Copying Production Signing Key--------------\"")
+      sh("cp ../../tmp/credentials/blockchainAndroid.keystore ../app")
     end
 
     desc "Cleanup the credentials repository"

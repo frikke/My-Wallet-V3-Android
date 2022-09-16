@@ -27,6 +27,9 @@ import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.rbExperimentFeatureFlag
+import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -444,9 +447,14 @@ val applicationModule = module {
                 paymentsRepository = get(),
                 simpleBuyPrefs = get(),
                 onboardingPrefs = get(),
-                cardRejectionCheckFF = get(cardRejectionCheckFeatureFlag),
                 eligibilityService = get(),
-                cardPaymentAsyncFF = get(cardPaymentAsyncFeatureFlag)
+                cardPaymentAsyncFF = get(cardPaymentAsyncFeatureFlag),
+                buyQuoteRefreshFF = get(buyRefreshQuoteFeatureFlag),
+                plaidFF = get(plaidFeatureFlag),
+                rbFrequencySuggestionFF = get(rbFrequencyFeatureFlag),
+                cardRejectionFF = get(cardRejectionCheckFeatureFlag),
+                rbExperimentFF = get(rbExperimentFeatureFlag),
+                remoteConfigRepository = get()
             )
         }
 

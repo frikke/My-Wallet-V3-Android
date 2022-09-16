@@ -401,21 +401,23 @@ internal class Erc20DataManagerImpl(
         balance: BigInteger
     ): Observable<Erc20Balance> {
         val hasNativeTokenBalance = balance > BigInteger.ZERO
-        val shouldShow = evmWithoutL1BalanceFeatureFlag.isEnabled || hasNativeTokenBalance
-        val isOnOtherEvm = evmNetwork.chainId != EthDataManager.ETH_CHAIN_ID
-        return when {
-            // Only load L2 balances if we have a balance of the network's native token
-            isOnOtherEvm && shouldShow -> {
-                erc20L2StoreService.getBalances(networkTicker = evmNetwork.networkTicker)
-                    .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
-            }
+        return evmWithoutL1BalanceFeatureFlag.enabled.flatMapObservable { isEnabled ->
+            val shouldShow = isEnabled || hasNativeTokenBalance
+            val isOnOtherEvm = evmNetwork.chainId != EthDataManager.ETH_CHAIN_ID
+            when {
+                // Only load L2 balances if we have a balance of the network's native token
+                isOnOtherEvm && shouldShow -> {
+                    erc20L2StoreService.getBalances(networkTicker = evmNetwork.networkTicker)
+                        .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
+                }
 
-            isOnOtherEvm.not() -> {
-                erc20StoreService.getBalanceFor(asset = asset)
-            }
+                isOnOtherEvm.not() -> {
+                    erc20StoreService.getBalanceFor(asset = asset)
+                }
 
-            else -> {
-                Observable.just(Erc20Balance.zero(asset))
+                else -> {
+                    Observable.just(Erc20Balance.zero(asset))
+                }
             }
         }
     }

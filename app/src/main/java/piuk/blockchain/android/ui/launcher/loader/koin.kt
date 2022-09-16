@@ -43,7 +43,8 @@ val loaderModule = module {
                 cowboysPromoFeatureFlag = get(cowboysPromoFeatureFlag),
                 cowboysPrefs = get(),
                 userIdentity = get(),
-                kycService = get()
+                kycService = get(),
+                experimentsStore = get()
             )
         }
     }

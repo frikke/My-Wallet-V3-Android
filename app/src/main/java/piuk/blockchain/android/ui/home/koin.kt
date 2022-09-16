@@ -2,7 +2,9 @@ package piuk.blockchain.android.ui.home
 
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.superAppFeatureFlag
+import com.blockchain.koin.superAppModeService
 import com.blockchain.walletmode.WalletModeService
+import com.blockchain.walletmode.WalletModeStore
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
@@ -16,6 +18,8 @@ import piuk.blockchain.android.ui.home.models.ActionsSheetState
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
+import piuk.blockchain.android.walletmode.SuperAppWalletModeRepository
+import piuk.blockchain.android.walletmode.WalletModePrefStore
 import piuk.blockchain.android.walletmode.WalletModeRepository
 
 val mainModule = module {
@@ -86,9 +90,21 @@ val mainModule = module {
         )
     }.bind(WalletModeReporter::class)
 
+    single(superAppModeService) {
+        SuperAppWalletModeRepository(
+            walletModeStore = get()
+        )
+    }.bind(WalletModeService::class)
+
+    single {
+        WalletModePrefStore(
+            sharedPreferences = get()
+        )
+    }.bind(WalletModeStore::class)
+
     single {
         WalletModeRepository(
-            sharedPreferences = get(),
+            walletModeStore = get(),
             featureFlag = get(superAppFeatureFlag)
         )
     }.bind(WalletModeService::class)

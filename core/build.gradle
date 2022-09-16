@@ -34,7 +34,7 @@ dependencies {
     implementation project(':common:network')
     implementation project(':common:interface')
     implementation project(':metadata')
-    implementation project(':common:domain')
+    api project(':common:domain')
     implementation project(':common-mp:utils')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')

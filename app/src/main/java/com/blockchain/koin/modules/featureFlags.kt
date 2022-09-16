@@ -1,6 +1,7 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.assetOrderingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
@@ -16,11 +17,11 @@ import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.loqateFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.superappRedesignFeatureFlag
-import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -30,7 +31,7 @@ val featureFlagsModule = module {
 
     single(googlePayFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_gpay",
                 "Google Pay"
             )
@@ -39,7 +40,7 @@ val featureFlagsModule = module {
 
     single(blockchainCardFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_blockchain_card",
                 "Blockchain Card"
             )
@@ -48,7 +49,7 @@ val featureFlagsModule = module {
 
     single(intercomChatFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_intercom",
                 "Show intercom chat"
             )
@@ -57,7 +58,7 @@ val featureFlagsModule = module {
 
     single(loqateFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_loqate",
                 "Loqate"
             )
@@ -66,7 +67,7 @@ val featureFlagsModule = module {
 
     single(buyRefreshQuoteFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_buy_refresh_quote",
                 "Buy Quote refreshing on checkout screen"
             )
@@ -75,7 +76,7 @@ val featureFlagsModule = module {
 
     single(superAppFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_new_super_app",
                 "Super App mode"
             )
@@ -84,7 +85,7 @@ val featureFlagsModule = module {
 
     single(ethLayerTwoFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_eth_layer_two_networks",
                 "Enable Eth L2 Networks"
             )
@@ -93,7 +94,7 @@ val featureFlagsModule = module {
 
     single(evmWithoutL1BalanceFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_balance_without_l1",
                 "Load Balances Without L1 Balance"
             )
@@ -102,7 +103,7 @@ val featureFlagsModule = module {
 
     single(backupPhraseFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_backup_phrase",
                 "Backup Phrase Flow"
             )
@@ -111,7 +112,7 @@ val featureFlagsModule = module {
 
     single(stxForAllFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_stx_all_users",
                 "Enable Stacks"
             )
@@ -120,7 +121,7 @@ val featureFlagsModule = module {
 
     single(plaidFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_plaid",
                 "Enable Plaid For ACH Users"
             )
@@ -129,7 +130,7 @@ val featureFlagsModule = module {
 
     single(bindFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_bind",
                 "Enable BIND For LatAm Users"
             )
@@ -138,7 +139,7 @@ val featureFlagsModule = module {
 
     single(cardRejectionCheckFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_card_rejection_check",
                 "Check Cards for tx rejection"
             )
@@ -147,7 +148,7 @@ val featureFlagsModule = module {
 
     single(assetOrderingFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_brokerage_lists_order",
                 "Enable new asset list ordering"
             )
@@ -156,7 +157,7 @@ val featureFlagsModule = module {
 
     single(cowboysPromoFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_cowboys_promo",
                 "Enable Cowboys promotion"
             )
@@ -165,7 +166,7 @@ val featureFlagsModule = module {
 
     single(cardPaymentAsyncFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "ff_card_payment_async",
                 "Enable Async Card Payment"
             )
@@ -174,16 +175,25 @@ val featureFlagsModule = module {
 
     single(rbFrequencyFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_rb_frequency_suggestion",
                 "Enable Recurring Buy suggestion"
             )
         )
     }.bind(FeatureFlag::class)
 
+    single(rbExperimentFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_recurring_buy_frequency_experiment",
+                "Recurring Buy Experiment"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
     single(superappRedesignFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_superapp_redesign",
                 "Enable SuperApp Redesign"
             )

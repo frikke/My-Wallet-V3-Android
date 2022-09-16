@@ -64,11 +64,13 @@ data class SimpleBuyState constructor(
     val paymentSucceeded: Boolean = false,
     val withdrawalLockPeriod: @Contextual BigInteger = BigInteger.ZERO,
     val recurringBuyFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
+    val recurringBuyForExperiment: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
     val recurringBuyId: String? = null,
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
     val showRecurringBuyFirstTimeFlow: Boolean = false,
     val eligibleAndNextPaymentRecurringBuy: List<EligibleAndNextPaymentRecurringBuy> = emptyList(),
     val googlePayDetails: GooglePayDetails? = null,
+    val featureFlagSet: FeatureFlagsSet = FeatureFlagsSet(),
     @Transient val quickFillButtonData: QuickFillButtonData? = null,
     @Transient val safeConnectTosLink: String? = null,
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
@@ -193,6 +195,15 @@ enum class KycState {
 
     fun verified() = this == VERIFIED_AND_ELIGIBLE || this == VERIFIED_BUT_NOT_ELIGIBLE
 }
+
+@kotlinx.serialization.Serializable
+data class FeatureFlagsSet(
+    val buyQuoteRefreshFF: Boolean = false,
+    val plaidFF: Boolean = false,
+    val rbFrequencySuggestionFF: Boolean = false,
+    val cardRejectionFF: Boolean = false,
+    val rbExperimentFF: Boolean = false,
+)
 
 enum class FlowScreen {
     ENTER_AMOUNT, KYC, KYC_VERIFICATION

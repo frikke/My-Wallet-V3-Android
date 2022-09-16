@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.auth
 
-import com.blockchain.remoteconfig.RemoteConfig
+import com.blockchain.domain.experiments.RemoteConfigService
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 class FirebaseMobileNoticeRemoteConfig(
-    private val remoteConfig: RemoteConfig,
+    private val remoteConfig: RemoteConfigService,
     private val json: Json
 ) : MobileNoticeRemoteConfig {
 

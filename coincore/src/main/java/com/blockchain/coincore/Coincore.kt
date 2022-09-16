@@ -11,6 +11,8 @@ import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
@@ -46,7 +48,7 @@ class Coincore internal constructor(
     private val remoteLogger: RemoteLogger,
     private val bankService: BankService,
     private val walletModeService: WalletModeService,
-    private val disabledEvmAssets: List<AssetInfo>,
+    private val ethLayerTwoFF: FeatureFlag,
 ) {
     fun getWithdrawalLocks(localCurrency: Currency): Maybe<FundsLocks> =
         if (walletModeService.enabledWalletMode().custodialEnabled) {
@@ -285,12 +287,19 @@ class Coincore internal constructor(
     fun activeWallets(walletMode: WalletMode = walletModeService.enabledWalletMode()): Single<AccountGroup> =
         activeWalletsInMode(walletMode)
 
-    fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets.minus(disabledEvmAssets.toSet())
-}
+    fun availableCryptoAssets(): Single<List<AssetInfo>> =
+        ethLayerTwoFF.enabled.map {
+            if (it) {
+                assetCatalogue.supportedCryptoAssets
+            } else {
+                assetCatalogue.supportedCryptoAssets.minus(experimentalL1EvmAssetList().toSet())
+            }
+        }
 
-private fun BlockchainAccount.isSameType(other: BlockchainAccount): Boolean {
-    if (this is CustodialTradingAccount && other is CustodialTradingAccount) return true
-    if (this is NonCustodialAccount && other is NonCustodialAccount) return true
-    if (this is InterestAccount && other is InterestAccount) return true
-    return false
+    private fun BlockchainAccount.isSameType(other: BlockchainAccount): Boolean {
+        if (this is CustodialTradingAccount && other is CustodialTradingAccount) return true
+        if (this is NonCustodialAccount && other is NonCustodialAccount) return true
+        if (this is InterestAccount && other is InterestAccount) return true
+        return false
+    }
 }
