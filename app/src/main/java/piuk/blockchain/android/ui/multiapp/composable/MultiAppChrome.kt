@@ -491,6 +491,9 @@ fun MultiAppChromeScreen(
                     TotalBalance(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .graphicsLayer {
+                                translationY = (balanceRevealAlpha - 1) * 40
+                            }
                             .alpha(min(balanceRevealAlpha, switcherScrollAlpha)),
                         balance = balance
                     )
@@ -502,6 +505,9 @@ fun MultiAppChromeScreen(
                     ModeSwitcher(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .graphicsLayer {
+                                translationY = -1 * ((switcherRevealAlpha - 1) * 40)
+                            }
                             .alpha(
                                 if (isBalanceRevealInProgress) {
                                     min(switcherRevealAlpha, switcherScrollAlpha)
