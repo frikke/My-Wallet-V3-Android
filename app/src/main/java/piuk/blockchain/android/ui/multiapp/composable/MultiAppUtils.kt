@@ -6,8 +6,10 @@ import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
+import java.util.concurrent.TimeUnit
 
 const val ANIMATION_DURATION = 400
+val REVEAL_BALANCE_DELAY_MS = TimeUnit.SECONDS.toMillis(3)
 
 data class ListStateInfo(
     val firstVisibleItemIndex: Int,

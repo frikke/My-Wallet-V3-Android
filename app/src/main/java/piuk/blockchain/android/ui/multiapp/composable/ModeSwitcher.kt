@@ -41,8 +41,8 @@ fun ModeSwitcher(
 
     val coroutineScopeAnimation = rememberCoroutineScope()
 
-    var currentMode by remember { mutableStateOf(selectedMode) }
-    var previousMode by remember { mutableStateOf(selectedMode) }
+    var currentMode: WalletMode? by remember { mutableStateOf(null) }
+    var previousMode: WalletMode? by remember { mutableStateOf(null) }
 
     val fullIndicatorWidthPx = 16F
 
@@ -94,10 +94,14 @@ fun ModeSwitcher(
                     modifier = Modifier,
                     style = AppTheme.typography.title3,
                     color = AppTheme.colors.background.copy(
-                        alpha = if (currentMode == mode) {
-                            textAlpha.value
+                        alpha = if (currentMode == mode || mode == previousMode) {
+                            if (currentMode == mode) {
+                                textAlpha.value
+                            } else {
+                                fullTextAlpha - textAlpha.value + minTextAlpha
+                            }
                         } else {
-                            fullTextAlpha - textAlpha.value + minTextAlpha
+                            minTextAlpha
                         }
                     ),
                     text = stringResource(mode.titleSuperApp())

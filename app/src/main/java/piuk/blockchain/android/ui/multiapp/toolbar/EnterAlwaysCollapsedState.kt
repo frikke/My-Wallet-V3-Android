@@ -45,6 +45,13 @@ class EnterAlwaysCollapsedState(
         get() = _scrollOffset
         set(value) {
             val oldOffset = _scrollOffset
+
+            _scrollState = when {
+                value < oldOffset -> ScrollState.Up
+                value > oldOffset -> ScrollState.Down
+                else -> ScrollState.Idle
+            }
+
             _scrollOffset = if (scrollTopLimitReached || isInteractingWithPullToRefresh || isAutoScrolling) {
                 value.coerceIn(0f, _fullCollapsedOffset.toFloat())
             } else {
@@ -53,6 +60,10 @@ class EnterAlwaysCollapsedState(
 
             _consumed = oldOffset - _scrollOffset
         }
+
+    private var _scrollState: ScrollState = ScrollState.Idle
+    override val scrollState: ScrollState
+        get() = _scrollState
 
     companion object {
         val Saver = run {

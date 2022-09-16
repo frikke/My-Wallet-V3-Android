@@ -9,8 +9,13 @@ interface CollapsingToolbarState {
     val consumed: Float
     var scrollTopLimitReached: Boolean
     var scrollOffset: Float
+    val scrollState: ScrollState
     var isInteractingWithPullToRefresh: Boolean
     var isAutoScrolling: Boolean
 
     fun updateHeight(newTopSectionHeight: Int, newBottomSectionHeight: Int)
+}
+
+enum class ScrollState{
+    Idle, Up, Down
 }
