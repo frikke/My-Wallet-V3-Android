@@ -95,7 +95,9 @@ fun BlockchainCardNavHost(
                     OrderCardAddressKYC(
                         onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardSSNAddress) },
                         onCheckBillingAddress = { viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress) },
-                        shortAddress = state.residentialAddress?.getShortAddress(),
+                        line1 = state.residentialAddress?.line1,
+                        city = state.residentialAddress?.city,
+                        postalCode = state.residentialAddress?.postCode,
                         isAddressLoading = state.isAddressLoading
                     )
                 }
@@ -239,6 +241,9 @@ fun BlockchainCardNavHost(
                             },
                             onRefreshCardWidgetUrl = {
                                 viewModel.onIntent(BlockchainCardIntent.LoadCardWidget)
+                            },
+                            onAddFunds = {
+                                viewModel.onIntent(BlockchainCardIntent.AddFunds)
                             }
                         )
                     }
@@ -264,7 +269,7 @@ fun BlockchainCardNavHost(
 
             bottomSheet(BlockchainCardDestination.FundingAccountActionsDestination) {
                 FundingAccountActionChooser(
-                    onAddFunds = { viewModel.onIntent(BlockchainCardIntent.TopUp) },
+                    onAddFunds = { viewModel.onIntent(BlockchainCardIntent.AddFunds) },
                     onChangeAsset = { viewModel.onIntent(BlockchainCardIntent.ChoosePaymentMethod) },
                     onClose = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
                 )

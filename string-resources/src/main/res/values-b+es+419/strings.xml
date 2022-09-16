@@ -2497,8 +2497,8 @@ Comprueba la conexión a Internet y vuelve a intentarlo o comunícate con el Sop
     <string name="accessibility_price_not_available">Precio no disponible</string>
     <string name="trading_deposit_relink_bank_account">Vuelve a vincular la cuenta bancaria</string>
     <string name="simple_buy_quote_message">Nueva cotización en %s</string>
-    <string name="verify_your_address">Verifica tu dirección</string>
-    <string name="verify_your_address_description">Confirma tu dirección residencial a continuación para evitar retrasos.</string>
+    <string name="address_verification_title">Verifica tu dirección</string>
+    <string name="address_verification_description">Confirma tu dirección residencial a continuación para evitar retrasos.</string>
     <string name="residential_address">Dirección residencial</string>
     <string name="card_intro_title">Obtén la tarjeta Visa de Blockchain.com</string>
     <string name="backup_success_title">¡Copia de seguridad exitosa!</string>

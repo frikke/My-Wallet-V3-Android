@@ -2628,8 +2628,8 @@ Verifique a sua ligação à Internet e tente novamente ou Contacte o Apoio ao C
     <string name="accessibility_price_not_available">Preço não disponível</string>
     <string name="trading_deposit_relink_bank_account">Reassociar conta bancária</string>
     <string name="simple_buy_quote_message">Nova cotação em %s</string>
-    <string name="verify_your_address">Verifique o seu endereço</string>
-    <string name="verify_your_address_description">Confirme o seu endereço residencial abaixo para evitar atrasos.</string>
+    <string name="address_verification_title">Verifique o seu endereço</string>
+    <string name="address_verification_description">Confirme o seu endereço residencial abaixo para evitar atrasos.</string>
     <string name="residential_address">Endereço residencial</string>
     <string name="card_intro_title">Obtenha o cartão Visa Blockchain.com</string>
     <string name="backup_success_title">Cópia de segurança bem-sucedida!</string>

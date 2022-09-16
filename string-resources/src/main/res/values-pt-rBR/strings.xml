@@ -2560,8 +2560,8 @@ Verifique sua conexão com a Internet e tente novamente ou entre em contato com 
     <string name="accessibility_price_not_available">Preço indisponível</string>
     <string name="trading_deposit_relink_bank_account">Vincular conta bancária novamente</string>
     <string name="simple_buy_quote_message">Nova cotação em %s</string>
-    <string name="verify_your_address">Verifique seu endereço</string>
-    <string name="verify_your_address_description">Confirme seu endereço residencial abaixo para evitar atrasos.</string>
+    <string name="address_verification_title">Verifique seu endereço</string>
+    <string name="address_verification_description">Confirme seu endereço residencial abaixo para evitar atrasos.</string>
     <string name="residential_address">Endereço residencial</string>
     <string name="card_intro_title">Obtenha o cartão Visa Blockchain.com</string>
     <string name="backup_success_title">Backup feito com sucesso!</string>
