@@ -392,6 +392,7 @@ dependencies {
 
     implementation Libraries.koin
     implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
 
     // Views
     implementation Libraries.countryPicker
