@@ -336,7 +336,8 @@ val coreModule = module {
                 metadataRepository = get(),
                 lastTxUpdater = get(),
                 evmNetworksService = get(),
-                nonCustodialEvmService = get()
+                nonCustodialEvmService = get(),
+                labels = get()
             )
         }.bind(EthMessageSigner::class)
 
