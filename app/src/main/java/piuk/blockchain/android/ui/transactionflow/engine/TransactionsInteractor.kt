@@ -25,6 +25,7 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
@@ -75,6 +76,7 @@ class TransactionInteractor(
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val dismissRecorder: DismissRecorder,
     private val fiatCurrenciesService: FiatCurrenciesService,
+    private val swapSellQuickFillFF: FeatureFlag
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
@@ -340,6 +342,8 @@ class TransactionInteractor(
         }
 
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess> = identity.userAccessForFeature(feature)
+
+    fun isSwapSellQuickFillFFEnabled() = swapSellQuickFillFF.enabled
 }
 
 private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair>): Boolean =

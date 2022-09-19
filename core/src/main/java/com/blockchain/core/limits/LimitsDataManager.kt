@@ -252,14 +252,14 @@ data class TxLimits(
     val maxAmount: Money
         get() = max.amount
 
-    fun isMinViolatedByAmount(amount: Money) = min.amount > amount
+    fun isAmountUnderMin(amount: Money) = min.amount > amount
 
-    fun isMaxViolatedByAmount(amount: Money) = (max as? TxLimit.Limited)?.let {
+    fun isAmountOverMax(amount: Money) = (max as? TxLimit.Limited)?.let {
         it.amount < amount
     } ?: false
 
     fun isAmountInRange(amount: Money): Boolean =
-        !(isMinViolatedByAmount(amount) || isMaxViolatedByAmount(amount))
+        !(isAmountUnderMin(amount) || isAmountOverMax(amount))
 
     // TODO we need to combine the suggested upgrades also but this requires some refactoring and can wait for now
     fun combineWith(other: TxLimits): TxLimits =

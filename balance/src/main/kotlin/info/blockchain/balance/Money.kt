@@ -99,6 +99,10 @@ abstract class Money : Serializable, Comparable<Money> {
         return division(other)
     }
 
+    operator fun times(multiplier: Float): Money {
+        return multiply(multiplier)
+    }
+
     override operator fun compareTo(other: Money): Int {
         ensureComparable("compare", other)
         return compare(other)
@@ -109,6 +113,7 @@ abstract class Money : Serializable, Comparable<Money> {
     protected abstract fun subtract(other: Money): Money
     protected abstract fun division(other: Money): Money
     protected abstract fun compare(other: Money): Int
+    protected abstract fun multiply(multiplier: Float): Money
 
     companion object {
         fun min(a: Money, b: Money): Money {

@@ -60,6 +60,7 @@ import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetwo
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.remoteconfig.RemoteConfigRepository
 import com.blockchain.serializers.StringMapSerializer
 import info.blockchain.balance.AssetCategory
@@ -626,8 +627,8 @@ class SimpleBuyInteractor(
             else -> Money.fromMajor(fiatCurrency, BigDecimal.ZERO)
         }
 
-        val isMaxLimited = limits.isMaxViolatedByAmount(prefilledAmount)
-        val isMinLimited = limits.isMinViolatedByAmount(prefilledAmount)
+        val isMaxLimited = limits.isAmountOverMax(prefilledAmount)
+        val isMinLimited = limits.isAmountUnderMin(prefilledAmount)
 
         val listOfAmounts = mutableListOf<Money>()
 
@@ -665,7 +666,7 @@ class SimpleBuyInteractor(
         }
 
         val quickFillButtonData = QuickFillButtonData(
-            buyMaxAmount = (limits.max as? TxLimit.Limited)?.amount ?: Money.zero(fiatCurrency),
+            maxAmount = (limits.max as? TxLimit.Limited)?.amount ?: Money.zero(fiatCurrency),
             quickFillButtons = listOfAmounts
         )
 

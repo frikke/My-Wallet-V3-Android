@@ -308,6 +308,6 @@ class FiatDepositTxEngine(
 
     private fun PendingTx.maxLimitForPaymentMethodViolated(): Boolean =
         engineState[PAYMENT_METHOD_LIMITS]?.let {
-            (it as TxLimits).isMaxViolatedByAmount(amount)
+            (it as TxLimits).isAmountOverMax(amount)
         } ?: throw IllegalStateException("Missing Limit for Payment method")
 }

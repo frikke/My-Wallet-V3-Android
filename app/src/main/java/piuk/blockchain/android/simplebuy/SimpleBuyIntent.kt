@@ -18,6 +18,7 @@ import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
+import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency

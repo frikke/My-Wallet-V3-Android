@@ -132,7 +132,7 @@ class SimpleBuyInteractorTest {
         val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == defaultAmount &&
-                it.second?.buyMaxAmount == maxAmount &&
+                it.second?.maxAmount == maxAmount &&
                 it.second!!.quickFillButtons[0] == FiatValue.fromMajor(fiatCurrency, BigDecimal(110)) &&
                 it.second!!.quickFillButtons[1] == FiatValue.fromMajor(fiatCurrency, BigDecimal(250)) &&
                 it.second!!.quickFillButtons[2] == FiatValue.fromMajor(fiatCurrency, BigDecimal(600))
@@ -154,7 +154,7 @@ class SimpleBuyInteractorTest {
         val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == prefilledAmount &&
-                it.second?.buyMaxAmount == maxAmount &&
+                it.second?.maxAmount == maxAmount &&
                 it.second!!.quickFillButtons[0] == FiatValue.fromMajor(fiatCurrency, BigDecimal(210)) &&
                 it.second!!.quickFillButtons[1] == FiatValue.fromMajor(fiatCurrency, BigDecimal(450))
         }
@@ -175,7 +175,7 @@ class SimpleBuyInteractorTest {
         val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == prefilledAmount &&
-                it.second?.buyMaxAmount == maxAmount
+                it.second?.maxAmount == maxAmount
         }
     }
 
@@ -191,7 +191,7 @@ class SimpleBuyInteractorTest {
         val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal(100)) &&
-                it.second?.buyMaxAmount == limits.maxAmount &&
+                it.second?.maxAmount == limits.maxAmount &&
                 it.second!!.quickFillButtons[0] == FiatValue.fromMajor(fiatCurrency, BigDecimal(210)) &&
                 it.second!!.quickFillButtons[1] == FiatValue.fromMajor(fiatCurrency, BigDecimal(450)) &&
                 it.second!!.quickFillButtons[2] == FiatValue.fromMajor(fiatCurrency, BigDecimal(1000))
@@ -210,7 +210,7 @@ class SimpleBuyInteractorTest {
         val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == maxAmount &&
-                it.second?.buyMaxAmount == maxAmount &&
+                it.second?.maxAmount == maxAmount &&
                 it.second!!.quickFillButtons.isEmpty()
         }
     }
@@ -227,7 +227,7 @@ class SimpleBuyInteractorTest {
         val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == minAmount &&
-                it.second?.buyMaxAmount == maxAmount &&
+                it.second?.maxAmount == maxAmount &&
                 it.second!!.quickFillButtons.size == 1 &&
                 it.second!!.quickFillButtons[0] == FiatValue.fromMajor(fiatCurrency, BigDecimal(210))
         }
@@ -245,7 +245,7 @@ class SimpleBuyInteractorTest {
         val test = subject.getPrefillAndQuickFillAmounts(limits, assetCode, fiatCurrency).test()
         test.assertValue {
             it.first == limits.minAmount &&
-                it.second?.buyMaxAmount == limits.maxAmount &&
+                it.second?.maxAmount == limits.maxAmount &&
                 it.second!!.quickFillButtons.size == 2 &&
                 it.second!!.quickFillButtons[0] == FiatValue.fromMajor(fiatCurrency, BigDecimal(210)) &&
                 it.second!!.quickFillButtons[1] == FiatValue.fromMajor(fiatCurrency, BigDecimal(450))

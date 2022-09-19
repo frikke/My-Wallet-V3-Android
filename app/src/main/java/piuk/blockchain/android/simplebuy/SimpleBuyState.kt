@@ -23,6 +23,7 @@ import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
+import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -364,11 +365,6 @@ data class SelectedPaymentMethod(
         concreteId() != null ||
             (paymentMethodType == PaymentMethodType.FUNDS && id == PaymentMethod.FUNDS_PAYMENT_ID)
 }
-
-data class QuickFillButtonData(
-    val quickFillButtons: List<Money>,
-    val buyMaxAmount: Money
-)
 
 @kotlinx.serialization.Serializable
 data class GooglePayDetails(

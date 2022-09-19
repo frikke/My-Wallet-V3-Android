@@ -9,6 +9,7 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
@@ -51,6 +52,7 @@ class TransactionInteractorTest {
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
     private val dismissRecorder: DismissRecorder = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
+    private val quickfillSwapSellFF: FeatureFlag = mock()
 
     private lateinit var subject: TransactionInteractor
 
@@ -71,7 +73,8 @@ class TransactionInteractorTest {
             linkedBanksFactory = linkedBanksFactory,
             bankLinkingPrefs = bankLinkingPrefs,
             dismissRecorder = dismissRecorder,
-            fiatCurrenciesService = fiatCurrenciesService
+            fiatCurrenciesService = fiatCurrenciesService,
+            swapSellQuickFillFF = quickfillSwapSellFF
         )
     }
 

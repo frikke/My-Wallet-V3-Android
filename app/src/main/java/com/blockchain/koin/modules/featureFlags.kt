@@ -17,6 +17,7 @@ import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.loqateFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.quickFillSellSwapFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
@@ -178,6 +179,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_rb_frequency_suggestion",
                 "Enable Recurring Buy suggestion"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(quickFillSellSwapFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_sell_swap_quickfill",
+                "Enable Quick Fill in Tx Flow Sell/Swap"
             )
         )
     }.bind(FeatureFlag::class)

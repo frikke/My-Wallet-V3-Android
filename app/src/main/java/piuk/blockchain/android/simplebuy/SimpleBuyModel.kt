@@ -719,8 +719,8 @@ class SimpleBuyModel(
         Single.defer {
             when {
                 balance != null && balance < amount -> Single.just(TransactionErrorState.INSUFFICIENT_FUNDS)
-                buyLimits.isMinViolatedByAmount(amount) -> Single.just(TransactionErrorState.BELOW_MIN_LIMIT)
-                buyLimits.isMaxViolatedByAmount(amount) -> {
+                buyLimits.isAmountUnderMin(amount) -> Single.just(TransactionErrorState.BELOW_MIN_LIMIT)
+                buyLimits.isAmountOverMax(amount) -> {
                     userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD))
                         .onErrorReturnItem(false)
                         .map { gold ->
@@ -730,11 +730,11 @@ class SimpleBuyModel(
                                 TransactionErrorState.OVER_SILVER_TIER_LIMIT
                         }
                 }
-                paymentMethodLimits.isMaxViolatedByAmount(amount) -> Single.just(
+                paymentMethodLimits.isAmountOverMax(amount) -> Single.just(
                     TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT
                 )
 
-                paymentMethodLimits.isMinViolatedByAmount(amount) -> Single.just(
+                paymentMethodLimits.isAmountUnderMin(amount) -> Single.just(
                     TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT
                 )
                 else -> Single.just(TransactionErrorState.NONE)

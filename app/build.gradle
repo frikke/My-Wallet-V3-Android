@@ -358,6 +358,7 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':common:network')
     implementation project(':common:domain')
+    implementation project(':common:presentation')
     implementation project(':payments:checkoutcom')
     implementation project(':payments:stripe')
     implementation project(':payments:googlepay')

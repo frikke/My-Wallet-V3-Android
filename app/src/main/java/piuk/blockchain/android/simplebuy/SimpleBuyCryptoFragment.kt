@@ -10,23 +10,13 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.switcher.SwitcherState
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
@@ -49,6 +39,8 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.presentation.complexcomponents.QuickFillButtonData
+import com.blockchain.presentation.complexcomponents.QuickFillRow
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
@@ -363,47 +355,28 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun loadQuickFillButtons(
-        quickFillButtonData: QuickFillButtonData,
+        quickFillButtonData: QuickFillButtonData
     ) {
         with(binding.quickFillButtons) {
             visible()
             setContent {
                 AppTheme {
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        LazyRow(modifier = Modifier.weight(1f)) {
-                            items(
-                                items = quickFillButtonData.quickFillButtons,
-                                itemContent = { item ->
-                                    SmallMinimalButton(
-                                        text = item.toStringWithSymbol(includeDecimalsWhenWhole = false),
-                                        onClick = {
-                                            model.process(SimpleBuyIntent.PrefillEnterAmount(item))
-                                            sendAnalyticsQuickFillButtonTapped(
-                                                item,
-                                                quickFillButtonData.quickFillButtons.indexOf(item)
-                                            )
-                                        },
-                                        modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_spacing))
-                                    )
-                                }
+                    QuickFillRow(
+                        quickFillButtonData = quickFillButtonData,
+                        onQuickFillItemClick = { item ->
+                            model.process(SimpleBuyIntent.PrefillEnterAmount(item))
+                            sendAnalyticsQuickFillButtonTapped(
+                                item,
+                                quickFillButtonData.quickFillButtons.indexOf(item)
                             )
-                        }
-                        if (quickFillButtonData.buyMaxAmount.isPositive) {
-                            SmallMinimalButton(
-                                text = getString(R.string.buy_max),
-                                onClick = {
-                                    model.process(
-                                        SimpleBuyIntent.PrefillEnterAmount(
-                                            quickFillButtonData.buyMaxAmount as FiatValue
-                                        )
-                                    )
-                                },
-                                state = ButtonState.Enabled,
-                                modifier = Modifier
-                                    .wrapContentSize(Alignment.Center)
+                        },
+                        onMaxItemClick = { maxAmount ->
+                            model.process(
+                                SimpleBuyIntent.PrefillEnterAmount(maxAmount as FiatValue)
                             )
-                        }
-                    }
+                        },
+                        maxButtonText = stringResource(R.string.buy_max)
+                    )
                 }
             }
         }
