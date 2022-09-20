@@ -6,6 +6,9 @@ import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.Database
 import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
+import com.blockchain.core.asset.data.AssetRepository
+import com.blockchain.core.asset.data.dataresources.AssetInformationStore
+import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.buy.data.SimpleBuyRepository
@@ -609,6 +612,18 @@ val coreModule = module {
             discoveryService = get(),
         )
     }.bind(DynamicAssetsDataManager::class)
+
+    single {
+        AssetInformationStore(
+            discoveryService = get()
+        )
+    }
+
+    single<AssetService> {
+        AssetRepository(
+            assetInformationStore = get()
+        )
+    }
 
     factory {
         AndroidDeviceIdGenerator(

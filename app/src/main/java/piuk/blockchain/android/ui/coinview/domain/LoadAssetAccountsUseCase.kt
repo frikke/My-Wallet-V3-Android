@@ -29,7 +29,7 @@ import kotlinx.coroutines.rx3.await
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccountDetail
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
-import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetDetail
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 
 class LoadAssetAccountsUseCase(
@@ -38,7 +38,7 @@ class LoadAssetAccountsUseCase(
     private val watchlistDataManager: WatchlistDataManager,
     private val currencyPrefs: CurrencyPrefs
 ) {
-    suspend operator fun invoke(asset: CryptoAsset): Flow<DataResource<CoinviewAssetInformation>> {
+    suspend operator fun invoke(asset: CryptoAsset): Flow<DataResource<CoinviewAssetDetail>> {
 
         val accountsFlow = asset.accountGroup(walletModeService.enabledWalletMode().defaultFilter())
             .map { it.accounts }
@@ -88,7 +88,7 @@ class LoadAssetAccountsUseCase(
 
                     totalCryptoBalance[AssetFilter.All] = totalCryptoMoneyAll
 
-                    CoinviewAssetInformation.AccountsInfo(
+                    CoinviewAssetDetail.Tradeable(
                         isAddedToWatchlist = isAddedToWatchlistData,
                         accounts = accountsList,
                         totalBalance = CoinviewAssetTotalBalance(
@@ -97,7 +97,7 @@ class LoadAssetAccountsUseCase(
                         ),
                     )
                 } else {
-                    CoinviewAssetInformation.NonTradeable(
+                    CoinviewAssetDetail.NonTradeable(
                         isAddedToWatchlist = isAddedToWatchlistData
                     )
                 }
