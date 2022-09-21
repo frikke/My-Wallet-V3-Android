@@ -14,7 +14,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import com.blockchain.analytics.NotificationAppOpened
-import com.blockchain.analytics.data.logEvent
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.analytics.events.SendAnalytics
@@ -58,7 +57,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.net.URLDecoder
 import org.koin.android.ext.android.inject
-import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityMainBinding
@@ -80,7 +78,6 @@ import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
-import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeReporter
 import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionBottomSheet
 import piuk.blockchain.android.ui.dashboard.walletmode.icon
 import piuk.blockchain.android.ui.dashboard.walletmode.title
@@ -123,7 +120,6 @@ import timber.log.Timber
 
 class MainActivity :
     MviActivity<MainModel, MainIntent, MainState, ActivityMainBinding>(),
-    WalletModeReporter by KoinJavaComponent.get(WalletModeReporter::class.java),
     HomeNavigator,
     SlidingModalBottomDialog.Host,
     AuthNewLoginSheet.Host,
@@ -208,9 +204,6 @@ class MainActivity :
             val payload = createCampaignPayload(intent.extras)
             analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped(payload))
         }
-
-        reportMvpEnabled(walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL)
-        reportWalletMode(walletModeService.enabledWalletMode())
 
         val startUiTour = intent.getBooleanExtra(START_UI_TOUR_KEY, false)
         intent.removeExtra(START_UI_TOUR_KEY)
