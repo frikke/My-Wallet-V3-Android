@@ -47,6 +47,7 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
@@ -86,6 +87,7 @@ fun MultiAppChrome(viewModel: MultiAppViewModel) {
             modeSwitcherOptions = state.modeSwitcherOptions,
             selectedMode = state.selectedMode,
             backgroundColors = state.backgroundColors,
+            balance = state.totalBalance,
             onModeSelected = { walletMode ->
                 viewModel.onIntent(MultiAppIntents.WalletModeChanged(walletMode))
             }
@@ -98,6 +100,7 @@ fun MultiAppChromeScreen(
     modeSwitcherOptions: List<WalletMode>,
     selectedMode: WalletMode,
     backgroundColors: ChromeBackgroundColors,
+    balance: DataResource<String>,
     onModeSelected: (WalletMode) -> Unit
 ) {
     var balanceSectionHeight by remember {
@@ -371,7 +374,7 @@ fun MultiAppChromeScreen(
                         .onGloballyPositioned { coordinates ->
                             balanceSectionHeight = coordinates.size.height
                         },
-                    balance = "$278,666.12"
+                    balance = balance
                 )
 
                 // ///// mode tabs
@@ -497,6 +500,7 @@ fun PreviewMultiAppContainer() {
         modeSwitcherOptions = listOf(WalletMode.CUSTODIAL_ONLY, WalletMode.NON_CUSTODIAL_ONLY),
         selectedMode = WalletMode.CUSTODIAL_ONLY,
         backgroundColors = ChromeBackgroundColors.Trading,
+        balance = DataResource.Data("$278,031.12"),
         onModeSelected = {}
     )
 }

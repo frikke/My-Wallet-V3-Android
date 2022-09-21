@@ -86,7 +86,7 @@ class WalletModeSelectionViewModel(
                 val nonCustodialBalance = cache.stream(
                     KeyedFreshnessStrategy.Cached(
                         key = WalletMode.NON_CUSTODIAL_ONLY,
-                        forceRefresh = false
+                        forceRefresh = true
                     )
                 ).map { response ->
                     when (response) {
@@ -106,7 +106,7 @@ class WalletModeSelectionViewModel(
                 val custodialBalance = cache.stream(
                     KeyedFreshnessStrategy.Cached(
                         key = WalletMode.CUSTODIAL_ONLY,
-                        forceRefresh = false
+                        forceRefresh = true
                     )
                 ).map { response ->
                     when (response) {

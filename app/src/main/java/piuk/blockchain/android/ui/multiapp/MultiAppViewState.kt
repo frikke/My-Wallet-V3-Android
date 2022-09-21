@@ -6,12 +6,14 @@ import com.blockchain.componentlib.theme.END_DEFI
 import com.blockchain.componentlib.theme.END_TRADING
 import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
+import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 
 data class MultiAppViewState(
     val modeSwitcherOptions: List<WalletMode>,
     val selectedMode: WalletMode,
-    val backgroundColors: ChromeBackgroundColors
+    val backgroundColors: ChromeBackgroundColors,
+    val totalBalance: DataResource<String>,
 ) : ViewState
 
 sealed interface ChromeBackgroundColors {
