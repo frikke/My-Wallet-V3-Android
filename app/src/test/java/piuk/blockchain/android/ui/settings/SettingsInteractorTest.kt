@@ -7,6 +7,7 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
@@ -20,6 +21,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import exchangerate.HistoricRateQueries
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -40,6 +42,7 @@ class SettingsInteractorTest {
     private val currencyPrefs: CurrencyPrefs = mock()
     private val referralService: ReferralService = mock()
     private val nabuUserIdentity: NabuUserIdentity = mock()
+    private val cardRejectionFF: FeatureFlag = mock()
 
     @Before
     fun setup() {
@@ -53,7 +56,8 @@ class SettingsInteractorTest {
             getAvailablePaymentMethodsTypesUseCase = getAvailablePaymentMethodsTypesUseCase,
             currencyPrefs = currencyPrefs,
             referralService = referralService,
-            nabuUserIdentity = nabuUserIdentity
+            nabuUserIdentity = nabuUserIdentity,
+            cardRejectionFF = cardRejectionFF
         )
     }
 
@@ -75,8 +79,9 @@ class SettingsInteractorTest {
         verifyNoMoreInteractions(userIdentity)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `Sign out then unpair wallet`() {
+    fun `Sign out then unpair wallet and call experiments`() {
         val mockQueries: HistoricRateQueries = mock()
 
         doNothing().whenever(credentialsWiper).wipe()

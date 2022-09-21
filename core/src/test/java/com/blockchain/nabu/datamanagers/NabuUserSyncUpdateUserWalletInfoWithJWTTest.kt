@@ -3,7 +3,6 @@ package com.blockchain.nabu.datamanagers
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.testutils.rxInit
@@ -23,14 +22,12 @@ class NabuUserSyncUpdateUserWalletInfoWithJWTTest {
         ioTrampoline()
     }
 
-    private val authenticator = mockk<NabuAuthenticator>()
     private val jwt = "JWT"
     private val nabuDataManager: NabuDataManager = mockk()
     private val nabuService = mockk<NabuService>()
     private val getUserStore = mockk<GetUserStore>()
 
     private val nabuUserSync: NabuUserSync = NabuUserSyncUpdateUserWalletInfoWithJWT(
-        authenticator = authenticator,
         nabuDataManager = nabuDataManager,
         nabuService = nabuService,
         getUserStore = getUserStore
@@ -41,13 +38,9 @@ class NabuUserSyncUpdateUserWalletInfoWithJWTTest {
 
     @Before
     fun setUp() {
-        every { authenticator.authenticate(any<(NabuSessionTokenResponse) -> Single<NabuUser>>()) } answers {
-            firstArg<(NabuSessionTokenResponse) -> Single<NabuUser>>().invoke(sessionToken)
-        }
-
         every { nabuDataManager.requestJwt() } returns Single.just(jwt)
 
-        every { nabuService.updateWalletInformation(any(), any()) } returns Single.just(userObject)
+        every { nabuService.updateWalletInformation(any()) } returns Single.just(userObject)
 
         every { getUserStore.invalidate() } just Runs
 
@@ -62,7 +55,7 @@ class NabuUserSyncUpdateUserWalletInfoWithJWTTest {
             .test()
             .assertComplete()
 
-        verify { nabuService.updateWalletInformation(sessionToken, jwt) }
+        verify { nabuService.updateWalletInformation(jwt) }
         verify { nabuDataManager.requestJwt() }
     }
 }

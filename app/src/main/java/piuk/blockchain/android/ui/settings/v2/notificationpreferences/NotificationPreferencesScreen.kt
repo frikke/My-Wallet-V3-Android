@@ -37,11 +37,12 @@ fun NotificationPreferenceScreen(
     ) {
         Column(
             modifier = Modifier
-                .padding(AppTheme.dimensions.paddingLarge),
+                .padding(AppTheme.dimensions.standardSpacing),
             horizontalAlignment = Alignment.Start
         ) {
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.settings_notification_preferences_subtitle),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
@@ -51,9 +52,9 @@ fun NotificationPreferenceScreen(
 
         Spacer(
             modifier = Modifier.padding(
-                start = dimensionResource(id = R.dimen.standard_margin),
-                end = dimensionResource(id = R.dimen.standard_margin),
-                bottom = dimensionResource(id = R.dimen.standard_margin)
+                start = dimensionResource(id = R.dimen.standard_spacing),
+                end = dimensionResource(id = R.dimen.standard_spacing),
+                bottom = dimensionResource(id = R.dimen.standard_spacing)
             )
         )
 

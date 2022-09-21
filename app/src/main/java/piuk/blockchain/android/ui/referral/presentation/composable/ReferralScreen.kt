@@ -31,7 +31,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.basic.MarkdownContent
+import com.blockchain.componentlib.basic.MarkdownText
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.media.AsyncMediaItem
@@ -40,8 +40,8 @@ import com.blockchain.componentlib.theme.Blue000
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.CowboysDark
 import com.blockchain.componentlib.theme.UltraLight
-import com.blockchain.domain.common.model.PromotionStyleInfo
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.referral.presentation.ReferralPromotionStyleInfo
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
@@ -54,7 +54,7 @@ fun ReferralScreen(
     onBackPressed: () -> Unit,
     copyToClipboard: (String) -> Unit,
     shareCode: (String) -> Unit,
-    promotionData: PromotionStyleInfo?
+    promotionData: ReferralPromotionStyleInfo?
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         val backgroundUrl = promotionData?.backgroundUrl
@@ -76,7 +76,7 @@ fun ReferralScreen(
 
             Box(
                 modifier = Modifier
-                    .padding(dimensionResource(R.dimen.standard_margin))
+                    .padding(dimensionResource(R.dimen.standard_spacing))
                     .clickable(true, onClick = onBackPressed)
             ) {
                 Image(
@@ -90,9 +90,9 @@ fun ReferralScreen(
                     .fillMaxWidth()
                     .weight(weight = 1f, fill = false)
                     .padding(
-                        start = dimensionResource(R.dimen.standard_margin),
-                        end = dimensionResource(R.dimen.standard_margin),
-                        bottom = dimensionResource(R.dimen.medium_margin),
+                        start = dimensionResource(R.dimen.standard_spacing),
+                        end = dimensionResource(R.dimen.standard_spacing),
+                        bottom = dimensionResource(R.dimen.medium_spacing),
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -100,7 +100,9 @@ fun ReferralScreen(
                 if (!iconUrl.isNullOrEmpty()) {
                     AsyncMediaItem(
                         modifier = Modifier.size(dimensionResource(R.dimen.asset_icon_size_large)),
-                        url = iconUrl
+                        url = iconUrl,
+                        onErrorDrawable = R.drawable.ic_referral,
+                        onLoadingPlaceholder = R.drawable.ic_blockchain
                     )
                 } else if (backgroundUrl.isNullOrEmpty()) {
                     Image(
@@ -109,34 +111,35 @@ fun ReferralScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
-                MarkdownContent(
+                MarkdownText(
                     style = ComposeTypographies.Title2,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
                     markdownText = promotionData?.title ?: rewardTitle
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_spacing)))
 
-                MarkdownContent(
+                MarkdownText(
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
                     markdownText = promotionData?.message ?: rewardSubtitle
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
                     text = stringResource(R.string.referral_code_title),
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
 
                 ReferralCode(
                     code = code,
@@ -145,33 +148,34 @@ fun ReferralScreen(
                     isCustomBackground = !backgroundUrl.isNullOrEmpty()
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     style = ComposeTypographies.Paragraph1,
                     color = if (!backgroundUrl.isNullOrEmpty()) ComposeColors.Light else ComposeColors.Title,
                     gravity = ComposeGravities.Centre,
                     text = stringResource(R.string.referral_criteria_title),
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
                 ReferralCriteria(
                     criteria = criteria,
                     isCustomBackground = !backgroundUrl.isNullOrEmpty()
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_spacing)))
             }
 
             PrimaryButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        start = dimensionResource(id = R.dimen.standard_margin),
-                        end = dimensionResource(id = R.dimen.standard_margin),
-                        top = dimensionResource(id = R.dimen.tiny_margin),
-                        bottom = dimensionResource(id = R.dimen.medium_margin)
+                        start = dimensionResource(id = R.dimen.standard_spacing),
+                        end = dimensionResource(id = R.dimen.standard_spacing),
+                        top = dimensionResource(id = R.dimen.tiny_spacing),
+                        bottom = dimensionResource(id = R.dimen.medium_spacing)
                     ),
                 text = stringResource(R.string.common_share),
                 onClick = { shareCode(code) }
@@ -191,21 +195,22 @@ fun ReferralCode(
         modifier = Modifier
             .background(if (isCustomBackground) CowboysDark else UltraLight)
             .padding(
-                top = dimensionResource(R.dimen.standard_margin),
-                bottom = dimensionResource(R.dimen.standard_margin)
+                top = dimensionResource(R.dimen.standard_spacing),
+                bottom = dimensionResource(R.dimen.standard_spacing)
             )
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             style = ComposeTypographies.Title4,
             color = if (isCustomBackground) ComposeColors.Light else ComposeColors.Title,
             gravity = ComposeGravities.Centre,
             text = code
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
 
         Text(
             modifier = Modifier
@@ -223,7 +228,7 @@ fun ReferralCriteria(criteria: List<String>, isCustomBackground: Boolean) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = dimensionResource(R.dimen.large_margin)
+                horizontal = dimensionResource(R.dimen.large_spacing)
             )
     ) {
         criteria.forEachIndexed { index, value ->
@@ -243,12 +248,12 @@ fun SingleReferralCriteria(
     isCustomBackground: Boolean
 ) {
     Row(
-        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.standard_margin)),
+        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.standard_spacing)),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        MarkdownContent(
+        MarkdownText(
             modifier = Modifier
-                .size(AppTheme.dimensions.paddingLarge)
+                .size(AppTheme.dimensions.standardSpacing)
                 .clip(CircleShape)
                 .background(Blue000),
             style = ComposeTypographies.Body2,
@@ -257,9 +262,9 @@ fun SingleReferralCriteria(
             gravity = ComposeGravities.Centre
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
-        MarkdownContent(
+        MarkdownText(
             style = ComposeTypographies.Paragraph1,
             color = if (isCustomBackground) ComposeColors.Light else ComposeColors.Title,
             gravity = ComposeGravities.Centre,
@@ -273,7 +278,7 @@ fun ReferralCriteriaSeparator() {
     Box(
         modifier = Modifier
             .padding(horizontal = 34.dp) // padding: 24 + (text width: 24 / 2) - (this view width / 2) -> 24 + 12 - 2
-            .size(height = AppTheme.dimensions.paddingSmall, width = AppTheme.dimensions.xPaddingSmall)
+            .size(height = AppTheme.dimensions.tinySpacing, width = AppTheme.dimensions.smallestSpacing)
             .background(Blue000)
     )
 }
@@ -310,16 +315,13 @@ fun PreviewReferralScreenPromotion() {
         onBackPressed = {},
         copyToClipboard = {},
         shareCode = {},
-        promotionData = PromotionStyleInfo(
+        promotionData = ReferralPromotionStyleInfo(
             "cowboys referral title",
             message = "cowboys referral message",
             iconUrl = "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com" +
                 "/o/tickets.png?alt=media&token=b3fa42b6-55a7-4680-ba63-9d08657c0da3",
-            headerUrl = "",
             backgroundUrl = "https://firebasestorage.googleapis.com/v0/b/fir-staging-92d79.appspot.com" +
                 "/o/prescott.png?alt=media&token=443cc5cb-0f04-4e46-9712-a052b2437fa1",
-            foregroundColorScheme = emptyList(),
-            actions = emptyList()
         )
     )
 }

@@ -32,10 +32,6 @@ class PriceListView : RecyclerView {
         adapter = listAdapter
     }
 
-    fun setOnPriceRequest(onPriceRequest: ((PriceView.Price) -> Unit)?) {
-        listAdapter.onPriceRequest = onPriceRequest
-    }
-
     fun submitList(priceViews: List<PriceView.Price>) {
         (context as? Activity)?.runOnUiThread {
             listAdapter.submitList(priceViews)
@@ -45,7 +41,6 @@ class PriceListView : RecyclerView {
 
 private class PriceAdapter : RecyclerView.Adapter<PriceAdapter.PriceViewHolder>() {
 
-    var onPriceRequest: ((PriceView.Price) -> Unit)? = null
     var prices: List<PriceView.Price> = emptyList()
 
     class PriceViewHolder(val priceView: PriceView) : RecyclerView.ViewHolder(priceView.rootView)
@@ -57,7 +52,6 @@ private class PriceAdapter : RecyclerView.Adapter<PriceAdapter.PriceViewHolder>(
     override fun onBindViewHolder(holder: PriceViewHolder, position: Int) {
         val price = prices.get(position)
         holder.priceView.price = price
-        onPriceRequest?.invoke(price)
     }
 
     override fun getItemCount(): Int {

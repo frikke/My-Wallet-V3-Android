@@ -9,8 +9,6 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.BlockedReason
-import com.blockchain.nabu.FeatureAccess
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Scheduler
@@ -41,6 +39,7 @@ class CoinViewModel(
                             process(CoinViewIntent.LoadAccounts(it))
                             process(CoinViewIntent.LoadRecurringBuys(it.currency))
                             process(CoinViewIntent.LoadAssetDetails(it.currency))
+                            process(CoinViewIntent.CheckBuyStatus)
                         } ?: process(CoinViewIntent.UpdateErrorState(CoinViewError.UnknownAsset))
                     },
                     onError = {
@@ -74,16 +73,24 @@ class CoinViewModel(
                 } else null
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
             is CoinViewIntent.ToggleWatchlist -> toggleWatchlist(previousState)
-            is CoinViewIntent.CheckScreenToOpen -> getAccountActions(intent)
-            is CoinViewIntent.CheckBuyStatus -> checkUserBuyStatus()
+            is CoinViewIntent.CheckScreenToOpen -> {
+                previousState.asset?.let {
+                    getAccountActions(it, intent)
+                }
+            }
+            is CoinViewIntent.CheckBuyStatus -> {
+                require(previousState.asset != null)
+                checkUserBuyStatus(previousState.asset)
+            }
             is CoinViewIntent.LoadAssetDetails -> loadAssetInfoDetails(intent)
             CoinViewIntent.ResetErrorState,
             CoinViewIntent.ResetViewState,
             is CoinViewIntent.UpdateWatchlistState,
-            CoinViewIntent.BuyHasWarning,
             is CoinViewIntent.UpdateErrorState,
             is CoinViewIntent.UpdateViewState,
-            is CoinViewIntent.AssetLoaded -> null
+            is CoinViewIntent.AssetLoaded,
+            is CoinViewIntent.ShowBalanceUpsell,
+            is CoinViewIntent.UpdateBuyEligibility -> null
         }
 
     private fun toggleWatchlist(previousState: CoinViewState) =
@@ -131,8 +138,8 @@ class CoinViewModel(
             }
         )
 
-    private fun getAccountActions(intent: CoinViewIntent.CheckScreenToOpen) =
-        interactor.getAccountActions(intent.cryptoAccountSelected.account)
+    private fun getAccountActions(asset: CryptoAsset, intent: CoinViewIntent.CheckScreenToOpen) =
+        interactor.getAccountActions(asset, intent.cryptoAccountSelected.account)
             .subscribeBy(
                 onSuccess = { screenToNavigate ->
                     process(CoinViewIntent.UpdateViewState(screenToNavigate))
@@ -143,16 +150,16 @@ class CoinViewModel(
                 }
             )
 
-    private fun checkUserBuyStatus() = interactor.checkIfUserCanBuy().subscribeBy(
-        onSuccess = {
-            if ((it as? FeatureAccess.Blocked)?.reason is BlockedReason.TooManyInFlightTransactions) {
-                process(CoinViewIntent.BuyHasWarning)
+    private fun checkUserBuyStatus(asset: CryptoAsset): Disposable {
+        return interactor.isBuyOptionAvailable(asset).subscribeBy(
+            onSuccess = { canBuy ->
+                process(CoinViewIntent.UpdateBuyEligibility(canBuy))
+            },
+            onError = {
+                remoteLogger.logException(it, "CoinViewModel userCanBuy failed")
             }
-        },
-        onError = {
-            remoteLogger.logException(it, "CoinViewModel userCanBuy failed")
-        }
-    )
+        )
+    }
 
     private fun loadRecurringBuys(intent: CoinViewIntent.LoadRecurringBuys) =
         interactor.loadRecurringBuys(intent.asset)
@@ -176,6 +183,7 @@ class CoinViewModel(
                     process(
                         CoinViewIntent.UpdateViewState(
                             CoinViewViewState.QuickActionsLoaded(
+                                middleAction = actions.middleAction,
                                 startAction = actions.startAction,
                                 endAction = actions.endAction,
                                 actionableAccount = actions.actionableAccount

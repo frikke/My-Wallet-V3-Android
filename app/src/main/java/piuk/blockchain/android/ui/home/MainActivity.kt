@@ -14,6 +14,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import com.blockchain.analytics.NotificationAppOpened
+import com.blockchain.analytics.data.logEvent
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.analytics.events.SendAnalytics
@@ -57,6 +58,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.net.URLDecoder
 import org.koin.android.ext.android.inject
+import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityMainBinding
@@ -78,9 +80,11 @@ import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
+import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeReporter
 import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionBottomSheet
 import piuk.blockchain.android.ui.dashboard.walletmode.icon
 import piuk.blockchain.android.ui.dashboard.walletmode.title
+import piuk.blockchain.android.ui.home.analytics.BuyDefiAnalyticsEvents
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
@@ -115,11 +119,11 @@ import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
-import piuk.blockchain.android.util.openUrl
 import timber.log.Timber
 
 class MainActivity :
     MviActivity<MainModel, MainIntent, MainState, ActivityMainBinding>(),
+    WalletModeReporter by KoinJavaComponent.get(WalletModeReporter::class.java),
     HomeNavigator,
     SlidingModalBottomDialog.Host,
     AuthNewLoginSheet.Host,
@@ -156,6 +160,8 @@ class MainActivity :
     private val destinationArgs: DestinationArgs by scopedInject()
 
     private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
+
+    private var onEmailVerificationCompleteAction: () -> Unit = {}
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -202,6 +208,9 @@ class MainActivity :
             val payload = createCampaignPayload(intent.extras)
             analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped(payload))
         }
+
+        reportMvpEnabled(walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL)
+        reportWalletMode(walletModeService.enabledWalletMode())
 
         val startUiTour = intent.getBooleanExtra(START_UI_TOUR_KEY, false)
         intent.removeExtra(START_UI_TOUR_KEY)
@@ -315,7 +324,7 @@ class MainActivity :
             ) {
                 model.process(MainIntent.ReferralIconClicked)
                 showReferralBottomSheet(referralState.referralInfo)
-                analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Origin.Portfolio))
+                analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Portfolio))
             }
         } else {
             null
@@ -537,6 +546,8 @@ class MainActivity :
             )
     }
 
+    private var launchSellAction: () -> Unit = {}
+
     override fun render(newState: MainState) {
         when (val view = newState.viewToLaunch) {
             is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
@@ -644,7 +655,7 @@ class MainActivity :
             is ViewToLaunch.LaunchSimpleBuyFromDeepLinkApproval -> launchSimpleBuyFromDeepLinkApproval()
             is ViewToLaunch.LaunchSwap -> launchSwap()
             is ViewToLaunch.LaunchTwoFaSetup -> launchSetup2Fa()
-            is ViewToLaunch.LaunchVerifyEmail -> launchVerifyEmail()
+            is ViewToLaunch.LaunchVerifyEmail -> launchOpenExternalEmailApp()
             is ViewToLaunch.ShowOpenBankingError ->
                 BlockchainSnackbar.make(
                     binding.root,
@@ -669,7 +680,7 @@ class MainActivity :
                 view.walletConnectSession
             )
             is ViewToLaunch.ShowReferralSheet -> {
-                analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Origin.Deeplink))
+                analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Deeplink))
                 showReferralBottomSheet(newState.referral.referralInfo)
             }
         }.exhaustive
@@ -685,19 +696,36 @@ class MainActivity :
 
         renderTabs(newState.tabs, newState.currentTab)
         renderMode(newState.walletMode)
+        configSellAction(newState.tabs)
+    }
+
+    private fun configSellAction(tabs: List<NavigationItem>) {
+        launchSellAction = if (NavigationItem.BuyAndSell in tabs) {
+            {
+                launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
+            }
+        } else {
+            {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.Sell
+                    )
+                )
+            }
+        }
     }
 
     private val middleButtonBottomSheetLaunch: BottomSheetDialogFragment
         get() = when (walletModeService.enabledWalletMode()) {
-            WalletMode.UNIVERSAL,
-            WalletMode.CUSTODIAL_ONLY -> BrokerageActionsBottomSheet.newInstance()
-            WalletMode.NON_CUSTODIAL_ONLY -> DefiActionsBottomSheet.newInstance()
+            WalletMode.UNIVERSAL -> BrokerageActionsBottomSheet.newInstance()
+            WalletMode.CUSTODIAL_ONLY,
+            WalletMode.NON_CUSTODIAL_ONLY -> ActionsBottomSheet.newInstance(walletModeService.enabledWalletMode())
         }
 
     private fun renderMode(walletMode: WalletMode) {
         if (walletMode == WalletMode.UNIVERSAL)
             return
-
         val updatedDropdownIndicator =
             (toolbarBinding.navigationToolbar.startNavigationButton as? NavigationBarButton.DropdownIndicator)?.copy(
                 text = getString(walletMode.title()),
@@ -824,8 +852,8 @@ class MainActivity :
             Destination.StartKycDestination ->
                 startActivity(KycNavHostActivity.newIntent(this, CampaignType.None))
             Destination.ReferralDestination -> model.process(MainIntent.ShowReferralWhenAvailable)
-            is Destination.ExternalLinkDestination -> openUrl(destination.url)
             is Destination.DashboardDestination -> launchPortfolio(reload = true)
+            is Destination.WalletConnectDestination -> model.process(MainIntent.StartWCSession(destination.url))
         }.exhaustive
 
         model.process(MainIntent.ClearDeepLinkResult)
@@ -854,6 +882,7 @@ class MainActivity :
             binding.root,
             getString(
                 when (error.errorCode) {
+                    QrScanError.ErrorCode.ScanUnrecognized -> R.string.error_scan_unrecognized
                     QrScanError.ErrorCode.ScanFailed -> R.string.error_scan_failed_general
                     QrScanError.ErrorCode.BitPayScanFailed -> R.string.error_scan_failed_bitpay
                 }
@@ -978,6 +1007,7 @@ class MainActivity :
     }
 
     override fun goToTrading() {
+        analytics.logEvent(BuyDefiAnalyticsEvents.SwitchedToTrading)
         model.process(MainIntent.SwitchWalletMode(WalletMode.CUSTODIAL_ONLY))
     }
 
@@ -1048,7 +1078,7 @@ class MainActivity :
         startActivity(SettingsActivity.newIntent(this, true))
     }
 
-    override fun launchVerifyEmail() {
+    override fun launchOpenExternalEmailApp() {
         Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_APP_EMAIL)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -1072,12 +1102,13 @@ class MainActivity :
         launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
     }
 
-    override fun launchDefiBuy() {
+    override fun launchBuyForDefi() {
+        analytics.logEvent(BuyDefiAnalyticsEvents.BuySelected)
         showBottomSheet(BuyDefiBottomSheet.newInstance())
     }
 
     override fun launchSell() {
-        launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
+        launchSellAction()
     }
 
     override fun launchBuySell(

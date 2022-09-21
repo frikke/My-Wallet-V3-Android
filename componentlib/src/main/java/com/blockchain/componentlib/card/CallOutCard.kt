@@ -51,19 +51,19 @@ fun CallOutCard(
     ) {
         Surface(
             modifier = Modifier
-                .padding(dimensionResource(R.dimen.medium_margin))
+                .padding(dimensionResource(R.dimen.medium_spacing))
         ) {
             Row(modifier = Modifier.background(backgroundColor), verticalAlignment = CenterVertically) {
                 Image(
                     modifier = Modifier
-                        .size(dimensionResource(R.dimen.large_margin)),
+                        .size(dimensionResource(R.dimen.large_spacing)),
                     imageResource = iconResource
                 )
 
                 Column(
                     modifier = Modifier
                         .weight(1f, true)
-                        .padding(start = dimensionResource(R.dimen.medium_margin))
+                        .padding(start = dimensionResource(R.dimen.medium_spacing))
                         .background(backgroundColor)
                 ) {
 
@@ -84,7 +84,7 @@ fun CallOutCard(
 
                 SmallPrimaryButton(
                     modifier = Modifier
-                        .padding(start = dimensionResource(R.dimen.medium_margin))
+                        .padding(start = dimensionResource(R.dimen.medium_spacing))
                         .background(backgroundColor),
                     text = callToActionButton?.text ?: "",
                     onClick = callToActionButton?.onClick ?: {},

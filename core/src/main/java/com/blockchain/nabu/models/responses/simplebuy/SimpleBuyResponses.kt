@@ -8,10 +8,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SimpleBuyPairsResp(val pairs: List<SimpleBuyPairResp>)
+data class SimpleBuyPairsDto(val pairs: List<SimpleBuyPairDto>)
 
 @Serializable
-data class SimpleBuyPairResp(
+data class SimpleBuyPairDto(
     val pair: String,
     val buyMin: Long,
     val buyMax: Long,
@@ -20,7 +20,7 @@ data class SimpleBuyPairResp(
 )
 
 @Serializable
-data class SimpleBuyEligibility(
+data class SimpleBuyEligibilityDto(
     val eligible: Boolean,
     val simpleBuyTradingEligible: Boolean,
     val pendingDepositSimpleBuyTrades: Int,

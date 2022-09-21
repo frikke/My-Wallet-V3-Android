@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.FiatCurrency
@@ -30,6 +31,7 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
     interface Host : SlidingModalBottomDialog.Host {
         fun onPaymentMethodChanged(paymentMethod: PaymentMethod)
         fun showAvailableToAddPaymentMethods()
+        fun onCardTagClicked(cardInfo: CardRejectionState)
     }
 
     private val paymentMethods: List<PaymentMethod> by unsafeLazy {
@@ -62,12 +64,10 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         binding.recycler.apply {
             adapter =
                 PaymentMethodsAdapter(
-                    paymentMethods
-                        .map {
-                            it.toPaymentMethodItem()
-                        },
-                    assetResources,
-                    canUseCreditCards
+                    adapterItems = paymentMethods.map { it.toPaymentMethodItem() },
+                    assetResources = assetResources,
+                    canUseCreditCards = canUseCreditCards,
+                    onCardTagClicked = ::onCardTagClicked
                 )
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
             layoutManager = LinearLayoutManager(context)
@@ -90,6 +90,11 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         if (paymentMethods.any { it is PaymentMethod.UndefinedBankTransfer }) {
             analytics.logEvent(BankTransferViewed(fiatCurrency = fiatCurrency))
         }
+    }
+
+    private fun onCardTagClicked(cardInfo: CardRejectionState) {
+        (host as? Host)?.onCardTagClicked(cardInfo)
+        dismiss()
     }
 
     private fun PaymentMethod.toPaymentMethodItem(): PaymentMethodItem {
@@ -135,11 +140,12 @@ data class PaymentMethodItem(val paymentMethod: PaymentMethod, val clickAction: 
 private class PaymentMethodsAdapter(
     adapterItems: List<PaymentMethodItem>,
     assetResources: AssetResources,
-    canUseCreditCards: Boolean
+    canUseCreditCards: Boolean,
+    onCardTagClicked: (cardInfo: CardRejectionState) -> Unit
 ) :
     DelegationAdapter<PaymentMethodItem>(AdapterDelegatesManager(), adapterItems) {
     init {
-        val cardPaymentDelegate = CardPaymentDelegate()
+        val cardPaymentDelegate = CardPaymentDelegate(onCardTagClicked)
         val bankPaymentDelegate = BankPaymentDelegate()
         val depositTooltipDelegate = DepositTooltipDelegate()
         val addCardPaymentDelegate = AddCardDelegate(canUseCreditCards)

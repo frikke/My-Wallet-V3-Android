@@ -53,8 +53,8 @@ fun BottomSheetHostLayout(
         modifier = Modifier.fillMaxSize(),
         sheetState = modalBottomSheetState,
         sheetShape = RoundedCornerShape(
-            topEnd = dimensionResource(R.dimen.small_margin),
-            topStart = dimensionResource(R.dimen.small_margin)
+            topEnd = dimensionResource(R.dimen.small_spacing),
+            topStart = dimensionResource(R.dimen.small_spacing)
         ),
         sheetContent = sheetContent
     ) {

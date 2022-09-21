@@ -36,7 +36,7 @@ fun ReferralInviteNowScreen(
             .fillMaxWidth()
             .background(
                 color = Blue600,
-                shape = RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_margin))
+                shape = RoundedCornerShape(dimensionResource(id = com.blockchain.componentlib.R.dimen.tiny_spacing))
             )
     ) {
         SheetHeader(
@@ -46,11 +46,11 @@ fun ReferralInviteNowScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(R.dimen.standard_margin)),
+                .padding(dimensionResource(R.dimen.standard_spacing)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.xlarge_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.xlarge_spacing)))
 
             Image(
                 imageResource = ImageResource.Local(
@@ -58,7 +58,7 @@ fun ReferralInviteNowScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.xlarge_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.xlarge_spacing)))
 
             Text(
                 style = AppTheme.typography.title2,
@@ -66,7 +66,7 @@ fun ReferralInviteNowScreen(
                 text = referralTitle,
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_spacing)))
 
             Text(
                 style = AppTheme.typography.paragraph1,
@@ -74,7 +74,7 @@ fun ReferralInviteNowScreen(
                 text = referralSubtitle,
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
 
             TertiaryButton(
                 text = stringResource(R.string.referral_invite_now),
@@ -82,7 +82,7 @@ fun ReferralInviteNowScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.medium_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.medium_spacing)))
 
             PrimaryButton(
                 text = stringResource(R.string.common_skip),

@@ -48,10 +48,10 @@ sealed class Destination : Parcelable {
     object ReferralDestination : Destination()
 
     @Parcelize
-    class ExternalLinkDestination(
-        val url: String
-    ) : Destination()
+    object DashboardDestination : Destination()
 
     @Parcelize
-    object DashboardDestination : Destination()
+    class WalletConnectDestination(
+        val url: String
+    ) : Destination()
 }

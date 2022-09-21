@@ -27,8 +27,8 @@ fun SmallSectionHeader(
             style = AppTheme.typography.caption2,
             color = AppTheme.colors.title,
             modifier = Modifier.padding(
-                horizontal = AppTheme.dimensions.paddingLarge,
-                vertical = AppTheme.dimensions.paddingSmall,
+                horizontal = AppTheme.dimensions.standardSpacing,
+                vertical = AppTheme.dimensions.tinySpacing,
             )
         )
     }

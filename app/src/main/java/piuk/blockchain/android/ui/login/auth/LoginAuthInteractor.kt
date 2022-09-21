@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.login.auth
 
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import io.reactivex.rxjava3.core.Completable
@@ -20,7 +19,6 @@ class LoginAuthInteractor(
     private val authDataManager: AuthDataManager,
     private val payloadDataManager: PayloadDataManager,
     private val authPrefs: AuthPrefs,
-    private val accountUnificationFF: FeatureFlag,
     private val walletStatusPrefs: WalletStatusPrefs
 ) {
     fun getAuthInfo(json: String): Single<LoginAuthInfo> {
@@ -93,11 +91,11 @@ class LoginAuthInteractor(
         )
     }
 
-    fun updateMobileSetup(isMobileSetup: Boolean, deviceType: Int): Single<Boolean> =
+    fun updateMobileSetup(isMobileSetup: Boolean, deviceType: Int): Completable =
         authDataManager.updateMobileSetup(
             guid = authPrefs.walletGuid,
             sharedKey = authPrefs.sharedKey,
             isMobileSetup = isMobileSetup,
             deviceType = deviceType
-        ).toSingle { accountUnificationFF.isEnabled }
+        )
 }

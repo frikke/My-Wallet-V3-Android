@@ -10,7 +10,7 @@
         android:id="@+id/funds_sheet_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/tiny_margin"
+        android:layout_marginTop="@dimen/tiny_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -21,14 +21,14 @@
         layout="@layout/item_dashboard_funds"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/tiny_margin"
-        android:layout_marginEnd="@dimen/tiny_margin"
+        android:layout_marginStart="@dimen/tiny_spacing"
+        android:layout_marginEnd="@dimen/tiny_spacing"
         app:layout_constraintTop_toBottomOf="@id/funds_sheet_indicator" />
 
     <View
         android:id="@+id/funds_deposit_separator"
         style="@style/SeparatorWithoutMargins"
-        android:paddingTop="@dimen/tiny_margin"
+        android:paddingTop="@dimen/tiny_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fund_details" />
@@ -38,9 +38,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
-        android:paddingStart="@dimen/standard_margin"
-        android:paddingTop="@dimen/small_margin"
-        android:paddingEnd="@dimen/standard_margin"
+        android:paddingStart="@dimen/standard_spacing"
+        android:paddingTop="@dimen/small_spacing"
+        android:paddingEnd="@dimen/standard_spacing"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/funds_deposit_separator"
         tools:visibility="visible">
@@ -49,7 +49,7 @@
             android:id="@+id/funds_deposit_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/tiny_spacing"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_tx_deposit_w_green_bkgd" />
@@ -59,7 +59,7 @@
             style="@style/Text.Semibold.16"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_spacing"
             android:text="@string/common_deposit"
             app:layout_constraintStart_toEndOf="@id/funds_deposit_icon"
             app:layout_constraintTop_toTopOf="parent" />
@@ -70,7 +70,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:paddingBottom="@dimen/small_margin"
+            android:paddingBottom="@dimen/small_spacing"
             android:text="@string/fiat_funds_detail_deposit_details"
             app:layout_constraintStart_toStartOf="@id/funds_deposit_title"
             app:layout_constraintTop_toBottomOf="@id/funds_deposit_title" />
@@ -80,7 +80,7 @@
     <View
         android:id="@+id/funds_withdraw_separator"
         style="@style/SeparatorWithoutMargins"
-        android:paddingTop="@dimen/tiny_margin"
+        android:paddingTop="@dimen/tiny_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/funds_deposit_holder" />
@@ -90,9 +90,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
-        android:paddingStart="@dimen/standard_margin"
-        android:paddingTop="@dimen/small_margin"
-        android:paddingEnd="@dimen/standard_margin"
+        android:paddingStart="@dimen/standard_spacing"
+        android:paddingTop="@dimen/small_spacing"
+        android:paddingEnd="@dimen/standard_spacing"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/funds_withdraw_separator"
         tools:visibility="visible">
@@ -101,7 +101,7 @@
             android:id="@+id/funds_withdraw_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/tiny_spacing"
             android:rotation="180"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -112,7 +112,7 @@
             style="@style/Text.Semibold.16"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_spacing"
             android:text="@string/fiat_funds_detail_withdraw_option"
             app:layout_constraintStart_toEndOf="@id/funds_withdraw_icon"
             app:layout_constraintTop_toTopOf="parent" />
@@ -123,7 +123,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:paddingBottom="@dimen/small_margin"
+            android:paddingBottom="@dimen/small_spacing"
             android:text="@string/fiat_funds_detail_withdraw_details"
             app:layout_constraintStart_toStartOf="@id/funds_withdraw_title"
             app:layout_constraintTop_toBottomOf="@id/funds_withdraw_title" />
@@ -133,7 +133,7 @@
     <View
         android:id="@+id/funds_activity_separator"
         style="@style/SeparatorWithoutMargins"
-        android:paddingTop="@dimen/tiny_margin"
+        android:paddingTop="@dimen/tiny_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/funds_withdraw_holder" />
@@ -143,9 +143,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
-        android:paddingStart="@dimen/standard_margin"
-        android:paddingTop="@dimen/small_margin"
-        android:paddingEnd="@dimen/standard_margin"
+        android:paddingStart="@dimen/standard_spacing"
+        android:paddingTop="@dimen/small_spacing"
+        android:paddingEnd="@dimen/standard_spacing"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/funds_activity_separator"
         tools:visibility="visible">
@@ -154,7 +154,7 @@
             android:id="@+id/funds_activity_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/tiny_spacing"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_tx_activity" />
@@ -164,7 +164,7 @@
             style="@style/Text.Semibold.16"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_spacing"
             android:text="@string/fiat_funds_detail_activity_title"
             app:layout_constraintStart_toEndOf="@id/funds_activity_icon"
             app:layout_constraintTop_toTopOf="parent" />
@@ -175,7 +175,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:paddingBottom="@dimen/small_margin"
+            android:paddingBottom="@dimen/small_spacing"
             android:text="@string/fiat_funds_detail_activity_details"
             app:layout_constraintStart_toStartOf="@id/funds_activity_title"
             app:layout_constraintTop_toBottomOf="@id/funds_activity_title" />
@@ -186,7 +186,7 @@
         android:id="@+id/funds_sheet_progress"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginTop="@dimen/large_margin"
+        android:layout_marginTop="@dimen/large_spacing"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

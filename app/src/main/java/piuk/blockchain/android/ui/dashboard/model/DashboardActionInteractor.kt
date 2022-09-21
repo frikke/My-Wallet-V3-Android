@@ -13,12 +13,14 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
+import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
@@ -44,6 +46,7 @@ import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.store.asSingle
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
@@ -105,6 +108,7 @@ class DashboardActionInteractor(
     private val kycService: KycService,
     private val dataRemediationService: DataRemediationService,
     private val walletModeBalanceCache: WalletModeBalanceCache,
+    private val productsEligibilityStore: ProductsEligibilityStore,
     private val walletModeService: WalletModeService,
     private val analytics: Analytics,
     private val remoteLogger: RemoteLogger,
@@ -175,7 +179,7 @@ class DashboardActionInteractor(
     }
 
     fun fetchAssetPrice(model: DashboardModel, asset: AssetInfo): Disposable =
-        exchangeRates.getPricesWith24hDelta(asset)
+        exchangeRates.getPricesWith24hDeltaLegacy(asset)
             // If prices are coming in too fast, be sure not to miss any
             .subscribeBy(
                 onNext = {
@@ -204,7 +208,9 @@ class DashboardActionInteractor(
         warmWalletModeBalanceCache().forEach {
             it.addTo(compositeDisposable)
         }
-
+        warmProductsCache().also {
+            it.addTo(compositeDisposable)
+        }
         return compositeDisposable
     }
 
@@ -224,6 +230,10 @@ class DashboardActionInteractor(
                 )
             ).asObservable().emptySubscribe()
         )
+    }
+
+    private fun warmProductsCache(): Disposable {
+        return productsEligibilityStore.stream(FreshnessStrategy.Cached(true)).asSingle().emptySubscribe()
     }
 
     private fun loadBalances(
@@ -283,7 +293,7 @@ class DashboardActionInteractor(
             }
 
     private fun refreshPricesWith24HDelta(model: DashboardModel, crypto: AssetInfo): Disposable =
-        exchangeRates.getPricesWith24hDelta(crypto).firstOrError()
+        exchangeRates.getPricesWith24hDeltaLegacy(crypto).firstOrError()
             .map { pricesWithDelta ->
                 DashboardIntent.AssetPriceWithDeltaUpdate(crypto, pricesWithDelta, true)
             }
@@ -807,17 +817,28 @@ class DashboardActionInteractor(
         }
 
     private fun checkHighestApprovedKycTier(): Single<DashboardCowboysState> =
-        kycService.getHighestApprovedTierLevelLegacy().flatMap { highestApprovedKycTier ->
-            when (highestApprovedKycTier) {
-                KycTier.BRONZE -> cowboysDataProvider.getRaffleAnnouncement().flatMap {
-                    Single.just(DashboardCowboysState.CowboyRaffleCard(it))
+        kycService.getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)
+            .flatMap { highestApprovedKycTier ->
+                when (highestApprovedKycTier) {
+                    KycTier.BRONZE -> cowboysDataProvider.getRaffleAnnouncement().flatMap {
+                        Single.just(DashboardCowboysState.CowboyRaffleCard(it))
+                    }
+                    KycTier.SILVER ->
+                        kycService.getTiersLegacy(FreshnessStrategy.Fresh)
+                            .flatMap { tierData ->
+                                if (tierData.isPendingOrUnderReviewFor(KycTier.GOLD)) {
+                                    cowboysDataProvider.getKycInProgressAnnouncement().flatMap {
+                                        Single.just(DashboardCowboysState.CowboyKycInProgressCard(it))
+                                    }
+                                } else {
+                                    cowboysDataProvider.getIdentityAnnouncement().flatMap {
+                                        Single.just(DashboardCowboysState.CowboyIdentityCard(it))
+                                    }
+                                }
+                            }
+                    else -> getCowboysReferralInfo()
                 }
-                KycTier.SILVER -> cowboysDataProvider.getIdentityAnnouncement().flatMap {
-                    Single.just(DashboardCowboysState.CowboyIdentityCard(it))
-                }
-                else -> getCowboysReferralInfo()
             }
-        }
 
     private fun getCowboysReferralInfo(): Single<DashboardCowboysState> =
         if (cowboysPrefs.hasCowboysReferralBeenDismissed) {

@@ -43,6 +43,7 @@ class AddNewCardFragment :
 
     private var availableCards: List<LinkedPaymentMethod.Card> = emptyList()
     private var secondaryCtaLink: String = ""
+    private var cardRejectionState: CardRejectionState? = null
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentAddNewCardBinding =
         FragmentAddNewCardBinding.inflate(inflater, container, false)
@@ -55,35 +56,35 @@ class AddNewCardFragment :
         get() = (activity as? CardDetailsPersistence)
             ?: throw IllegalStateException("Parent must implement CardDetailsPersistence")
 
-    private val textWatcher = object : AfterTextChangedWatcher() {
+    private val cardTextWatcher = object : AfterTextChangedWatcher() {
         override fun afterTextChanged(s: Editable?) {
             with(binding) {
-                if (cardNumber.isError) {
-                    resetCardRejectionState()
+                with(cardNumber) {
+                    if (isError) {
+                        resetCardRejectionState()
+                    }
+
+                    text?.let { input ->
+                        if (input.length == CARD_BIN_LENGTH) {
+                            model.process(CardIntent.CheckProviderFailureRate(input.toString()))
+                        } else if (input.length < CARD_BIN_LENGTH) {
+                            model.process(CardIntent.ResetCardRejectionState)
+                        }
+                    }
                 }
 
-                btnNext.buttonState = if (cardName.isValid && cardNumber.isValid && cvv.isValid && expiryDate.isValid) {
-                    ButtonState.Enabled
-                } else {
-                    ButtonState.Disabled
-                }
+                checkAllFieldsValidity()
             }
             hideError()
         }
     }
 
-    private val cardNumberTextWatcher = object : AfterTextChangedWatcher() {
+    private val otherFieldsTextWatcher = object : AfterTextChangedWatcher() {
         override fun afterTextChanged(s: Editable?) {
-            s?.let { input ->
-                when {
-                    input.length == CARD_BIN_LENGTH -> {
-                        model.process(CardIntent.CheckProviderFailureRate(s.toString()))
-                    }
-                    input.length < CARD_BIN_LENGTH -> {
-                        model.process(CardIntent.ResetCardRejectionState)
-                    }
-                }
+            with(binding) {
+                checkAllFieldsValidity()
             }
+            hideError()
         }
     }
 
@@ -106,10 +107,6 @@ class AddNewCardFragment :
         }
     }
 
-    private fun hideError() {
-        binding.sameCardError.gone()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
@@ -117,11 +114,13 @@ class AddNewCardFragment :
         model.process(CardIntent.LoadLinkedCards)
 
         with(binding) {
-            cardName.addTextChangedListener(textWatcher)
+            cardName.addTextChangedListener(otherFieldsTextWatcher)
+            cvv.addTextChangedListener(otherFieldsTextWatcher)
+            expiryDate.addTextChangedListener(otherFieldsTextWatcher)
+
             cardNumber.apply {
                 addTextChangedListener(cardTypeWatcher)
-                addTextChangedListener(textWatcher)
-                addTextChangedListener(cardNumberTextWatcher)
+                addTextChangedListener(cardTextWatcher)
                 attachListener(object : CardNumberEditText.CardNumberListener {
                     override fun onPaste() {
                         model.process(CardIntent.CheckProviderFailureRate(cardNumber.text.toString()))
@@ -136,8 +135,7 @@ class AddNewCardFragment :
                     }
                 })
             }
-            cvv.addTextChangedListener(textWatcher)
-            expiryDate.addTextChangedListener(textWatcher)
+
             btnNext.apply {
                 text = getString(R.string.common_next)
                 buttonState = ButtonState.Disabled
@@ -168,6 +166,24 @@ class AddNewCardFragment :
         }
         activity.updateToolbarTitle(getString(R.string.add_card_title))
         analytics.logEvent(SimpleBuyAnalytics.ADD_CARD)
+    }
+
+    override fun render(newState: CardState) {
+        newState.linkedCards?.let {
+            availableCards = it
+        }
+
+        newState.cardRejectionState?.let { state ->
+            cardRejectionState = state
+
+            handleCardRejectionState(state)
+        } ?: run {
+            resetCardRejectionState()
+        }
+    }
+
+    private fun hideError() {
+        binding.sameCardError.gone()
     }
 
     private fun FragmentAddNewCardBinding.setupCardInfo() {
@@ -204,25 +220,8 @@ class AddNewCardFragment :
         binding.sameCardError.visible()
     }
 
-    override fun render(newState: CardState) {
-        newState.linkedCards?.let {
-            availableCards = it
-        }
-
-        newState.cardRejectionState?.let { state ->
-            handleCardRejectionState(state)
-        } ?: run {
-            resetCardRejectionState()
-        }
-    }
-
     private fun resetCardRejectionState() {
         with(binding) {
-            btnNext.apply {
-                visible()
-                isEnabled = true
-            }
-
             cardInputAlert.gone()
             cardInputAlertInfo.gone()
         }
@@ -232,7 +231,7 @@ class AddNewCardFragment :
         with(binding) {
             when (state) {
                 is CardRejectionState.AlwaysRejected -> {
-                    btnNext.isEnabled = false
+                    btnNext.buttonState = ButtonState.Disabled
 
                     val actionTitle = state.title ?: getString(R.string.card_issuer_always_rejects_title)
                     val ctaCopies = getActionTexts(state.actions)
@@ -241,6 +240,7 @@ class AddNewCardFragment :
 
                     showCardRejectionAlert(title = actionTitle, isError = true)
                     showCardRejectionLearnMore(
+                        errorId = state.errorId,
                         title = actionTitle,
                         description = state.description ?: getString(R.string.card_issuer_always_rejects_desc),
                         primaryCtaText = ctaCopies.first,
@@ -251,6 +251,10 @@ class AddNewCardFragment :
                     )
                 }
                 is CardRejectionState.MaybeRejected -> {
+                    if (isCardInfoDataValid()) {
+                        btnNext.buttonState = ButtonState.Enabled
+                    }
+
                     val actionTitle = state.title ?: getString(R.string.card_issuer_sometimes_rejects_title)
                     val ctaCopies = getActionTexts(state.actions)
 
@@ -258,6 +262,7 @@ class AddNewCardFragment :
 
                     showCardRejectionAlert(title = actionTitle, isError = false)
                     showCardRejectionLearnMore(
+                        errorId = state.errorId,
                         title = actionTitle,
                         description = state.description ?: getString(R.string.card_issuer_sometimes_rejects_desc),
                         primaryCtaText = ctaCopies.first,
@@ -269,6 +274,10 @@ class AddNewCardFragment :
                 }
                 CardRejectionState.NotRejected -> {
                     resetCardRejectionState()
+
+                    if (isCardInfoDataValid()) {
+                        btnNext.buttonState = ButtonState.Enabled
+                    }
                 }
             }
         }
@@ -302,6 +311,7 @@ class AddNewCardFragment :
     }
 
     private fun showCardRejectionLearnMore(
+        errorId: String?,
         title: String,
         description: String,
         primaryCtaText: String,
@@ -320,6 +330,7 @@ class AddNewCardFragment :
                 showBottomSheet(
                     ErrorSlidingBottomDialog.newInstance(
                         ErrorDialogData(
+                            errorId = errorId,
                             title = title,
                             description = description,
                             errorButtonCopies = ErrorButtonCopies(
@@ -336,6 +347,20 @@ class AddNewCardFragment :
             visible()
         }
     }
+
+    private fun FragmentAddNewCardBinding.isCardInfoDataValid() =
+        cardName.isValid && cardNumber.isValid && cvv.isValid && expiryDate.isValid
+
+    private fun FragmentAddNewCardBinding.checkAllFieldsValidity() =
+        if (isCardInfoDataValid()) {
+            if (cardRejectionState != null && cardRejectionState !is CardRejectionState.AlwaysRejected) {
+                btnNext.buttonState = ButtonState.Enabled
+            } else {
+                btnNext.buttonState = ButtonState.Disabled
+            }
+        } else {
+            btnNext.buttonState = ButtonState.Disabled
+        }
 
     private fun openUrl(url: String) {
         requireContext().openUrl(url)

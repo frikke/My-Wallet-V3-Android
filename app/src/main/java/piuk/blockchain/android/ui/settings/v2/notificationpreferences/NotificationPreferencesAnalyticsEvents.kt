@@ -9,13 +9,9 @@ sealed class NotificationPreferencesAnalyticsEvents(
     override val params: Map<String, String> = emptyMap(),
 ) : AnalyticsEvent {
 
-    object NotificationClicked : NotificationPreferencesAnalyticsEvents(
-        AnalyticsNames.NOTIFICATION_CLICKED.eventName, emptyMap()
-    )
+    object NotificationClicked : NotificationPreferencesAnalyticsEvents(AnalyticsNames.NOTIFICATION_CLICKED.eventName)
 
-    object NotificationViewed : NotificationPreferencesAnalyticsEvents(
-        AnalyticsNames.NOTIFICATION_PREFERENCES_VIEWED.eventName, emptyMap()
-    )
+    object NotificationViewed : NotificationPreferencesAnalyticsEvents(AnalyticsNames.NOTIFICATION_VIEWED.eventName)
 
     data class NotificationPreferencesTapped(val option: String) :
         NotificationPreferencesAnalyticsEvents(
@@ -24,7 +20,10 @@ sealed class NotificationPreferencesAnalyticsEvents(
         )
 
     data class NotificationOptionViewed(val option: String) :
-        NotificationPreferencesAnalyticsEvents(AnalyticsNames.NOTIFICATION_PREFERENCES_VIEWED.eventName)
+        NotificationPreferencesAnalyticsEvents(
+            AnalyticsNames.NOTIFICATION_PREFERENCES_VIEWED.eventName,
+            mapOf(KEY_OPTION_VIEWED to option)
+        )
 
     object NotificationsClosed : NotificationPreferencesAnalyticsEvents(
         AnalyticsNames.NOTIFICATIONS_CLOSED.eventName,
@@ -52,6 +51,7 @@ sealed class NotificationPreferencesAnalyticsEvents(
 
     companion object {
         private const val KEY_OPTION_SELECTED = "option_selection"
+        private const val KEY_OPTION_VIEWED = "option_viewed"
 
         private const val KEY_ORIGIN = "origin"
 

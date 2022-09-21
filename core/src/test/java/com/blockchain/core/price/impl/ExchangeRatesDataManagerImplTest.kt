@@ -8,6 +8,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore
 import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.USD
 import com.blockchain.preferences.CurrencyPrefs
@@ -55,7 +56,8 @@ class ExchangeRatesDataManagerImplTest {
             getHistoricalPriceForAsset(
                 base = any(),
                 quote = any(),
-                timeSpan = any()
+                timeSpan = any(),
+                freshnessStrategy = any()
             )
         }.thenReturn(flowOf(DataResource.Data(PRICE_DATA)))
     }
@@ -72,11 +74,15 @@ class ExchangeRatesDataManagerImplTest {
 
     @Test
     fun `get All Time Price`() = runTest {
-        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.ALL_TIME).test {
+        subject.getHistoricPriceSeries(
+            asset = OLD_ASSET,
+            span = HistoricalTimeSpan.ALL_TIME,
+            freshnessStrategy = FreshnessStrategy.Cached(false)
+        ).test {
             awaitEvent()
             verify(priceStore)
                 .getHistoricalPriceForAsset(
-                    OLD_ASSET, SELECTED_FIAT, HistoricalTimeSpan.ALL_TIME
+                    OLD_ASSET, SELECTED_FIAT, HistoricalTimeSpan.ALL_TIME, FreshnessStrategy.Cached(false)
                 )
             awaitComplete()
         }
@@ -84,41 +90,61 @@ class ExchangeRatesDataManagerImplTest {
 
     @Test
     fun getYearPrice() = runTest {
-        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.YEAR, calendar).test {
-            awaitEvent()
-            verify(priceStore)
-                .getHistoricalPriceForAsset(
-                    OLD_ASSET,
-                    SELECTED_FIAT,
-                    HistoricalTimeSpan.YEAR
-                )
-            awaitComplete()
-        }
+        subject.getHistoricPriceSeries(
+            asset = OLD_ASSET,
+            span = HistoricalTimeSpan.YEAR,
+            now = calendar,
+            freshnessStrategy = FreshnessStrategy.Cached(false)
+        )
+            .test {
+                awaitEvent()
+                verify(priceStore)
+                    .getHistoricalPriceForAsset(
+                        OLD_ASSET,
+                        SELECTED_FIAT,
+                        HistoricalTimeSpan.YEAR,
+                        FreshnessStrategy.Cached(false)
+                    )
+                awaitComplete()
+            }
     }
 
     @Test
     fun getMonthPrice() = runTest {
-        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.MONTH, calendar).test {
-            awaitEvent()
-            verify(priceStore)
-                .getHistoricalPriceForAsset(
-                    OLD_ASSET,
-                    SELECTED_FIAT,
-                    HistoricalTimeSpan.MONTH
-                )
-            awaitComplete()
-        }
+        subject.getHistoricPriceSeries(
+            asset = OLD_ASSET,
+            span = HistoricalTimeSpan.MONTH,
+            now = calendar,
+            freshnessStrategy = FreshnessStrategy.Cached(false)
+        )
+            .test {
+                awaitEvent()
+                verify(priceStore)
+                    .getHistoricalPriceForAsset(
+                        OLD_ASSET,
+                        SELECTED_FIAT,
+                        HistoricalTimeSpan.MONTH,
+                        FreshnessStrategy.Cached(false)
+                    )
+                awaitComplete()
+            }
     }
 
     @Test
     fun getWeekPrice() = runTest {
-        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.WEEK, calendar).test {
+        subject.getHistoricPriceSeries(
+            asset = OLD_ASSET,
+            span = HistoricalTimeSpan.WEEK,
+            now = calendar,
+            freshnessStrategy = FreshnessStrategy.Cached(false)
+        ).test {
             awaitEvent()
             verify(priceStore)
                 .getHistoricalPriceForAsset(
                     OLD_ASSET,
                     SELECTED_FIAT,
-                    HistoricalTimeSpan.WEEK
+                    HistoricalTimeSpan.WEEK,
+                    FreshnessStrategy.Cached(false)
                 )
             awaitComplete()
         }
@@ -126,13 +152,19 @@ class ExchangeRatesDataManagerImplTest {
 
     @Test
     fun getDayPrice() = runTest {
-        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.DAY, calendar).test {
+        subject.getHistoricPriceSeries(
+            asset = OLD_ASSET,
+            span = HistoricalTimeSpan.DAY,
+            now = calendar,
+            freshnessStrategy = FreshnessStrategy.Cached(false)
+        ).test {
             awaitEvent()
             verify(priceStore)
                 .getHistoricalPriceForAsset(
                     OLD_ASSET,
                     SELECTED_FIAT,
-                    HistoricalTimeSpan.DAY
+                    HistoricalTimeSpan.DAY,
+                    FreshnessStrategy.Cached(false)
                 )
             awaitComplete()
         }
@@ -140,13 +172,19 @@ class ExchangeRatesDataManagerImplTest {
 
     @Test
     fun `get year price on new asset`() = runTest {
-        subject.getHistoricPriceSeries(NEW_ASSET, HistoricalTimeSpan.WEEK, calendar).test {
+        subject.getHistoricPriceSeries(
+            asset = NEW_ASSET,
+            span = HistoricalTimeSpan.WEEK,
+            now = calendar,
+            freshnessStrategy = FreshnessStrategy.Cached(false)
+        ).test {
             awaitEvent()
             verify(priceStore)
                 .getHistoricalPriceForAsset(
                     OLD_ASSET,
                     SELECTED_FIAT,
-                    HistoricalTimeSpan.WEEK
+                    HistoricalTimeSpan.WEEK,
+                    FreshnessStrategy.Cached(false)
                 )
             awaitComplete()
         }
@@ -190,6 +228,7 @@ class ExchangeRatesDataManagerImplTest {
                 price = 100.toDouble(),
                 timestampSeconds = 200000,
                 marketCap = 0.0,
+                tradingVolume24h = 0.0
             )
         )
         private val PRICE_DATA = listOf(

@@ -1,44 +1,58 @@
 package piuk.blockchain.android.walletmode
 
-import android.content.SharedPreferences
-import androidx.core.content.edit
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import com.blockchain.walletmode.WalletModeStore
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
+@OptIn(DelicateCoroutinesApi::class)
 class WalletModeRepository(
-    private val sharedPreferences: SharedPreferences,
+    private val walletModeStore: WalletModeStore,
     private val featureFlag: IntegratedFeatureFlag,
 ) : WalletModeService {
+    private var walletModesEnabled = false
+    private var _walletMode: MutableStateFlow<WalletMode> = MutableStateFlow(WalletMode.UNIVERSAL)
 
-    override fun enabledWalletMode(): WalletMode {
-        if (!featureFlag.isEnabled)
-            return WalletMode.UNIVERSAL
-
-        val walletModeString = sharedPreferences.getString(
-            WALLET_MODE,
-            ""
-        )
-        return WalletMode.values().firstOrNull { walletModeString == it.name } ?: defaultMode()
+    init {
+        GlobalScope.launch {
+            while (true) {
+                walletModesEnabled = featureFlag.coEnabled()
+                /**
+                 * If its universal then update to the enabled.
+                 */
+                _walletMode.compareAndSet(WalletMode.UNIVERSAL, enabledWalletMode())
+                delay(ONE_HOUR_MILLIS)
+            }
+        }
     }
 
-    private fun defaultMode(): WalletMode =
-        WalletMode.CUSTODIAL_ONLY
+    override fun enabledWalletMode(): WalletMode {
+        if (!walletModesEnabled)
+            return WalletMode.UNIVERSAL
 
-    private val _walletMode = MutableStateFlow(enabledWalletMode())
+        return walletModeStore.walletMode
+    }
+
+    override fun reset() {
+        _walletMode = MutableStateFlow(enabledWalletMode())
+    }
 
     override val walletMode: Flow<WalletMode>
         get() = _walletMode
 
     override fun updateEnabledWalletMode(type: WalletMode) {
-        sharedPreferences.edit {
-            putString(WALLET_MODE, type.name)
-        }.also {
+        walletModeStore.updateWalletMode(type).also {
             _walletMode.value = type
         }
     }
+
+    override fun availableModes(): List<WalletMode> = WalletMode.values().toList()
 }
 
-private const val WALLET_MODE = "WALLET_MODE"
+private const val ONE_HOUR_MILLIS = 3600000L

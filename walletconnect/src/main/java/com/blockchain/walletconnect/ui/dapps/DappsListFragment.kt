@@ -279,12 +279,12 @@ private fun renderNoDapps() {
             contentScale = ContentScale.None,
             imageResource = ImageResource.Local(R.drawable.ic_world_blue)
         )
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
+        Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
         Text(
             text = stringResource(R.string.no_dapps_connected),
             modifier = Modifier.padding(
-                start = dimensionResource(R.dimen.small_margin),
-                end = dimensionResource(R.dimen.small_margin)
+                start = dimensionResource(R.dimen.small_spacing),
+                end = dimensionResource(R.dimen.small_spacing)
             ),
             textAlign = TextAlign.Center,
             style = AppTheme.typography.title3,
@@ -294,8 +294,8 @@ private fun renderNoDapps() {
             text = stringResource(R.string.connect_with_wallet_connect),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(
-                start = dimensionResource(R.dimen.standard_margin),
-                end = dimensionResource(R.dimen.standard_margin)
+                start = dimensionResource(R.dimen.standard_spacing),
+                end = dimensionResource(R.dimen.standard_spacing)
             ),
             style = AppTheme.typography.paragraph1,
             color = AppTheme.colors.medium

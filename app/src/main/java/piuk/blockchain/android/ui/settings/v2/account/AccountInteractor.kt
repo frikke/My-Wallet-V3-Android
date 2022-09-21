@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.settings.v2.account
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardType
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.outcome.Outcome
@@ -91,8 +92,10 @@ class AccountInteractor internal constructor(
                     blockchainCardRepository.getProducts()
                         .mapError { it }
                         .map { products ->
-                            if (products.isNotEmpty())
-                                BlockchainCardOrderState.Eligible(products)
+                            // TODO(labreu): remove this once BE supports physical cards
+                            val productsFinal = products.filter { it.type == BlockchainCardType.VIRTUAL }
+                            if (productsFinal.isNotEmpty())
+                                BlockchainCardOrderState.Eligible(productsFinal)
                             else
                                 BlockchainCardOrderState.NotEligible
                         }

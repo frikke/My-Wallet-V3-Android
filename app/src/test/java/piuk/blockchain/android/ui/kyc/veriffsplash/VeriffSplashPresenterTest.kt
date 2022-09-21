@@ -5,7 +5,6 @@ import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
@@ -28,7 +27,6 @@ import retrofit2.Response
 
 class VeriffSplashPresenterTest {
 
-    private val nabuToken: NabuToken = mock()
     private val nabuDataManager: NabuDataManager = mock()
     private val kycTiersStore: KycTiersStore = mock()
     private val view: VeriffSplashView = mock()
@@ -36,7 +34,6 @@ class VeriffSplashPresenterTest {
     private val prefs: SessionPrefs = mock()
 
     private val subject = VeriffSplashPresenter(
-        nabuToken = nabuToken,
         nabuDataManager = nabuDataManager,
         kycTiersStore = kycTiersStore,
         analytics = analytics,
@@ -53,7 +50,6 @@ class VeriffSplashPresenterTest {
     @Test
     fun onViewReady_happyPath_displayDocsView() {
         // Arrange
-        setupFetchNabuToken_ok()
         setupFetchRequiredDocs_ok()
         setupFetchApplicantToken_ok()
 
@@ -87,7 +83,6 @@ class VeriffSplashPresenterTest {
     @Test
     fun onViewReady_pre_IDV_fail_displayUnavailableView() {
         // Arrange
-        setupFetchNabuToken_ok()
         setupFetchRequiredDocs_ok()
         setupFetchApplicantToken_error_4xx()
 
@@ -121,19 +116,14 @@ class VeriffSplashPresenterTest {
         verify(view, never()).setUiState(UiState.CONTENT)
     }
 
-    // Setup:
-    private fun setupFetchNabuToken_ok() {
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(TOKEN))
-    }
-
     private fun setupFetchRequiredDocs_ok() {
         whenever(view.countryCode).thenReturn(COUNTRY_CODE)
-        whenever(nabuDataManager.getSupportedDocuments(TOKEN, COUNTRY_CODE))
+        whenever(nabuDataManager.getSupportedDocuments(COUNTRY_CODE))
             .thenReturn(Single.just(SUPPORTED_DOCS))
     }
 
     private fun setupFetchApplicantToken_ok() {
-        whenever(nabuDataManager.startVeriffSession(TOKEN))
+        whenever(nabuDataManager.startVeriffSession())
             .thenReturn(Single.just(APPLICANT_TOKEN))
     }
 
@@ -147,7 +137,7 @@ class VeriffSplashPresenterTest {
         )
         val httpError = NabuApiExceptionFactory.fromResponseBody(HttpException(body))
 
-        whenever(nabuDataManager.startVeriffSession(TOKEN))
+        whenever(nabuDataManager.startVeriffSession())
             .thenReturn(Single.error(httpError))
     }
 

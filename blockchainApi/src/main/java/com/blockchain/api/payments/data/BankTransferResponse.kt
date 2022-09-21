@@ -389,7 +389,7 @@ data class SettlementResponse(
     @SerialName("details")
     val details: Details,
     @SerialName("attributes")
-    val attributes: Attributes,
+    val attributes: Attributes?,
     @SerialName("addedAt")
     val addedAt: String
 ) {
@@ -410,7 +410,7 @@ data class SettlementResponse(
     @Serializable
     data class Attributes(
         @SerialName("settlementResponse")
-        val settlementResponse: SettlementResponse
+        val settlementResponse: SettlementResponse?
     ) {
         @Serializable
         data class SettlementResponse(

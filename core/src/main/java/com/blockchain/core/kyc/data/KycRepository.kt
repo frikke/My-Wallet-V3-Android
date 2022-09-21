@@ -10,6 +10,7 @@ import com.blockchain.core.kyc.domain.model.KycTierDetail
 import com.blockchain.core.kyc.domain.model.KycTierState
 import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.kyc.domain.model.TiersMap
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
@@ -30,7 +31,7 @@ class KycRepository(
     private val assetCatalogue: AssetCatalogue,
 ) : KycService {
 
-    private fun getKycTiersFlow(freshnessStrategy: FreshnessStrategy): Flow<KycTiers> {
+    private fun getKycTiersFlow(freshnessStrategy: FreshnessStrategy): Flow<DataResource<KycTiers>> {
         return kycTiersStore.stream(freshnessStrategy)
             .mapData { tiersResponse ->
                 KycTiers(
@@ -38,12 +39,11 @@ class KycRepository(
                 )
             }
             .wrapErrorMessage()
-            .getDataOrThrow()
     }
 
     // rx
     override fun getTiersLegacy(freshnessStrategy: FreshnessStrategy): Single<KycTiers> {
-        return getKycTiersFlow(freshnessStrategy)
+        return getKycTiersFlow(freshnessStrategy).getDataOrThrow()
             .asObservable()
             .firstElement()
             .toSingle()
@@ -103,12 +103,12 @@ class KycRepository(
     }
 
     // flow
-    override fun getTiers(refreshStrategy: FreshnessStrategy): Flow<KycTiers> {
+    override fun getTiers(refreshStrategy: FreshnessStrategy): Flow<DataResource<KycTiers>> {
         return getKycTiersFlow(refreshStrategy)
     }
 
-    override fun getHighestApprovedTierLevel(freshnessStrategy: FreshnessStrategy): Flow<KycTier> {
-        return getTiers(freshnessStrategy).map { kycTiers ->
+    override fun getHighestApprovedTierLevel(freshnessStrategy: FreshnessStrategy): Flow<DataResource<KycTier>> {
+        return getTiers(freshnessStrategy).mapData { kycTiers ->
             val approvedTier = KycTier.values().reversed().find {
                 kycTiers.isApprovedFor(it)
             }

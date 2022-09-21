@@ -6,10 +6,8 @@ import com.blockchain.api.referral.data.ReferralCode
 class ReferralApiService(private val api: ReferralApi) {
 
     suspend fun getReferralCode(
-        authorization: String,
         currency: String
     ) = api.getReferralCode(
-        authorization = authorization,
         currency = currency,
         platform = WALLET
     )
@@ -19,9 +17,8 @@ class ReferralApiService(private val api: ReferralApi) {
     ) = api.validateReferralCode(referralCode)
 
     suspend fun associateReferralCode(
-        authorization: String,
         referralCode: String
-    ) = api.associateReferral(authorization, ReferralCode(referralCode))
+    ) = api.associateReferral(ReferralCode(referralCode))
 }
 
 private const val WALLET = "wallet"

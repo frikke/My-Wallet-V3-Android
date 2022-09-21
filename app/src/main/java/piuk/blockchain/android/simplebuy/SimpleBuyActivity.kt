@@ -16,6 +16,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.ASSET_URL
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_CODE
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_RECURRING_BUY_ID
@@ -23,11 +24,13 @@ import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
@@ -64,7 +67,7 @@ import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
+import piuk.blockchain.android.util.checkValidUrlAndOpen
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -75,9 +78,12 @@ class SimpleBuyActivity :
     KycUpgradeNowSheet.Host,
     QuestionnaireSheet.Host,
     RecurringBuyCreatedBottomSheet.Host,
-    ErrorSlidingBottomDialog.Host {
+    ErrorSlidingBottomDialog.Host,
+    CurrencySelectionSheet.Host {
     override val alwaysDisableScreenshots: Boolean
         get() = false
+
+    private var isUpdatingCurrency = false
 
     override val enableLogoutTimer: Boolean = false
     private val compositeDisposable = CompositeDisposable()
@@ -87,6 +93,7 @@ class SimpleBuyActivity :
     private val assetCatalogue: AssetCatalogue by inject()
     private val googlePayResponseInterceptor: GooglePayResponseInterceptor by inject()
     private val dataRemediationService: DataRemediationService by scopedInject()
+    private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
 
     private var primaryErrorCtaAction = {}
     private var secondaryErrorCtaAction = {}
@@ -173,6 +180,12 @@ class SimpleBuyActivity :
         when (sheet) {
             is KycUpgradeNowSheet,
             is BlockedDueToSanctionsSheet -> exitSimpleBuyFlow()
+            is CurrencySelectionSheet -> {
+                // We're using this var because onSheetClosed will always be called, and in case the user
+                // has picked a new currency, we want to wait till it's changed in the BE, so if the user
+                // changed the currency we don't want to do anything here.
+                if (!isUpdatingCurrency) subscribeForNavigation(true)
+            }
             is ErrorSlidingBottomDialog -> {
                 // do nothing for now
                 Timber.e("----- ErrorSlidingBottomDialog sheet closed")
@@ -195,7 +208,10 @@ class SimpleBuyActivity :
                     is BuyNavigation.CurrencySelection -> launchCurrencySelector(it.currencies, it.selectedCurrency)
                     is BuyNavigation.FlowScreenWithCurrency -> startFlow(it)
                     is BuyNavigation.BlockBuy -> blockBuy(it.reason)
-                    BuyNavigation.OrderInProgressScreen -> goToPaymentScreen(false, startedFromApprovalDeepLink)
+                    BuyNavigation.OrderInProgressScreen -> goToPaymentScreen(
+                        addToBackStack = false,
+                        isPaymentAuthorised = startedFromApprovalDeepLink
+                    )
                     BuyNavigation.CurrencyNotAvailable -> finish()
                 }.exhaustive
             }
@@ -323,7 +339,7 @@ class SimpleBuyActivity :
         when (reason) {
             is BlockedReason.InsufficientTier -> showBottomSheet(KycUpgradeNowSheet.newInstance())
             is BlockedReason.Sanctions -> showBottomSheet(BlockedDueToSanctionsSheet.newInstance(reason))
-            BlockedReason.NotEligible,
+            is BlockedReason.NotEligible,
             is BlockedReason.TooManyInFlightTransactions -> {
                 supportFragmentManager.beginTransaction()
                     .addAnimationTransaction()
@@ -349,13 +365,16 @@ class SimpleBuyActivity :
     override fun goToPaymentScreen(
         addToBackStack: Boolean,
         isPaymentAuthorised: Boolean,
-        showRecurringBuySuggestion: Boolean
+        showRecurringBuySuggestion: Boolean,
+        recurringBuyFrequencyRemote: RecurringBuyFrequency?
     ) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(
                 R.id.content_frame,
-                SimpleBuyPaymentFragment.newInstance(isPaymentAuthorised, showRecurringBuySuggestion),
+                SimpleBuyPaymentFragment.newInstance(
+                    isPaymentAuthorised, showRecurringBuySuggestion, recurringBuyFrequencyRemote
+                ),
                 SimpleBuyPaymentFragment::class.simpleName
             )
             .apply {
@@ -394,6 +413,23 @@ class SimpleBuyActivity :
                 }
             }
             .commitAllowingStateLoss()
+    }
+
+    override fun onCurrencyChanged(
+        currency: FiatCurrency,
+        selectionType: CurrencySelectionSheet.CurrencySelectionType
+    ) {
+        when (selectionType) {
+            CurrencySelectionSheet.CurrencySelectionType.DISPLAY_CURRENCY ->
+                throw UnsupportedOperationException()
+            CurrencySelectionSheet.CurrencySelectionType.TRADING_CURRENCY -> {
+                isUpdatingCurrency = true
+                lifecycleScope.launchWhenCreated {
+                    fiatCurrenciesService.setSelectedTradingCurrency(currency)
+                    subscribeForNavigation(true)
+                }
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -436,11 +472,12 @@ class SimpleBuyActivity :
                     nabuApiException = nabuApiException,
                     errorDescription = description,
                     action = ACTION_BUY,
-                    analyticsCategories = nabuApiException?.getServerSideErrorInfo()?.categories
-                        ?: serverSideUxErrorInfo?.categories.orEmpty(),
-                    iconUrl = nabuApiException?.getServerSideErrorInfo()?.iconUrl,
-                    statusIconUrl = nabuApiException?.getServerSideErrorInfo()?.statusUrl,
-                    errorId = nabuApiException?.getServerSideErrorInfo()?.id ?: serverSideUxErrorInfo?.id
+                    analyticsCategories = serverSideUxErrorInfo?.categories
+                        ?: nabuApiException?.getServerSideErrorInfo()?.categories.orEmpty(),
+                    iconUrl = serverSideUxErrorInfo?.iconUrl ?: nabuApiException?.getServerSideErrorInfo()?.iconUrl,
+                    statusIconUrl = serverSideUxErrorInfo?.statusUrl
+                        ?: nabuApiException?.getServerSideErrorInfo()?.statusUrl,
+                    errorId = serverSideUxErrorInfo?.id ?: nabuApiException?.getServerSideErrorInfo()?.id
                 )
             )
         )
@@ -524,7 +561,15 @@ class SimpleBuyActivity :
     }
 
     private fun processDeeplink(deepLink: Uri) {
-        compositeDisposable += deeplinkRedirector.processDeeplinkURL(deepLink).emptySubscribe()
+        compositeDisposable += deeplinkRedirector.processDeeplinkURL(deepLink).subscribeBy(
+            onSuccess = {
+                if (it is DeepLinkResult.DeepLinkResultUnknownLink) {
+                    it.uri?.let { uri ->
+                        this@SimpleBuyActivity.checkValidUrlAndOpen(uri)
+                    }
+                }
+            }
+        )
     }
 
     private fun redirectToDeeplinkProcessor(link: String) {
@@ -549,7 +594,7 @@ class SimpleBuyActivity :
     }
 
     override fun goToBlockedBuyScreen() {
-        blockBuy(BlockedReason.NotEligible)
+        blockBuy(BlockedReason.NotEligible(null))
     }
 
     override fun questionnaireSubmittedSuccessfully() {

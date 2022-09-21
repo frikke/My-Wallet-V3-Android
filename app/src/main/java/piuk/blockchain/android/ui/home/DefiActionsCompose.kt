@@ -18,8 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tablerow.DefaultTableRow
@@ -27,16 +29,16 @@ import com.blockchain.componentlib.theme.AppTheme
 import piuk.blockchain.android.R
 
 @Composable
-fun DefiBuyCrypto(onClick: () -> Unit) {
+fun BottomItem(sheetAction: SheetAction, onClick: (AssetAction) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .clickable { onClick() }
+            .clickable { onClick(sheetAction.action) }
             .background(AppTheme.colors.background)
             .padding(
-                horizontal = dimensionResource(id = R.dimen.standard_margin),
-                vertical = dimensionResource(id = R.dimen.standard_margin)
+                horizontal = dimensionResource(id = R.dimen.standard_spacing),
+                vertical = dimensionResource(id = R.dimen.standard_spacing)
             )
     ) {
         Row(
@@ -49,28 +51,28 @@ fun DefiBuyCrypto(onClick: () -> Unit) {
                     )
                 )
                 .padding(
-                    horizontal = dimensionResource(id = R.dimen.small_margin),
-                    vertical = dimensionResource(id = R.dimen.small_margin)
+                    horizontal = dimensionResource(id = R.dimen.small_spacing),
+                    vertical = dimensionResource(id = R.dimen.small_spacing)
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(imageResource = ImageResource.Local(R.drawable.ic_defi_buy))
+            Image(imageResource = ImageResource.Local(sheetAction.icon))
             Column(
                 modifier = Modifier
                     .weight(1f, true)
                     .padding(
-                        start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_margin)
+                        start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_spacing)
                     )
                     .align(Alignment.Top)
             ) {
                 Text(
-                    text = "Buy Crypto",
+                    text = stringResource(id = sheetAction.title),
                     style = AppTheme.typography.body2,
                     color = AppTheme.colors.title
                 )
-                Spacer(Modifier.height(dimensionResource(id = R.dimen.smallest_margin)))
+                Spacer(Modifier.height(dimensionResource(id = R.dimen.smallest_spacing)))
                 Text(
-                    text = "Top up in your Trading Account.",
+                    text = stringResource(id = sheetAction.subtitle),
                     style = AppTheme.typography.paragraph1,
                     color = AppTheme.colors.body
                 )
@@ -80,26 +82,27 @@ fun DefiBuyCrypto(onClick: () -> Unit) {
 }
 
 @Composable
-fun ActionRows(data: List<DefiAction>) {
+fun ActionRows(data: List<SheetAction>, onClick: (AssetAction) -> Unit) {
     LazyColumn {
         items(
             items = data,
         ) {
             ActionRow(
-                item = it
+                item = it,
+                onClick = onClick
             )
         }
     }
 }
 
 @Composable
-private fun ActionRow(item: DefiAction) {
+private fun ActionRow(item: SheetAction, onClick: (AssetAction) -> Unit) {
     DefaultTableRow(
-        primaryText = item.title,
-        secondaryText = item.subtitle,
+        primaryText = stringResource(id = item.title),
+        secondaryText = stringResource(id = item.subtitle),
         startImageResource = ImageResource.Local(item.icon),
         endImageResource = ImageResource.Local(R.drawable.ic_chevron_end),
-        onClick = item.onClick
+        onClick = { onClick(item.action) }
     )
     Divider(color = AppTheme.colors.light, thickness = 1.dp)
 }
@@ -108,6 +111,14 @@ private fun ActionRow(item: DefiAction) {
 @Composable
 private fun PreviewDefiBuyCrypto() {
     AppTheme {
-        DefiBuyCrypto(onClick = {})
+        BottomItem(
+            sheetAction = SheetAction(
+                icon = R.drawable.ic_sheet_menu_swap,
+                title = R.string.common_buy,
+                subtitle = R.string.common_buy,
+                action = AssetAction.Buy,
+            ),
+            onClick = {}
+        )
     }
 }

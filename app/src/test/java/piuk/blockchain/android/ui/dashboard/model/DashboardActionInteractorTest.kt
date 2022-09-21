@@ -7,7 +7,9 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
@@ -105,6 +107,7 @@ class DashboardActionInteractorTest {
             nftAnnouncementPrefs = nftAnnouncementPrefs,
             exchangeRates = mock(),
             walletModeBalanceCache = mock(),
+            productsEligibilityStore = mock(),
             bankService = bankService,
             referralPrefs = referralPrefs,
             cowboysFeatureFlag = cowboysFeatureFlag,
@@ -555,7 +558,9 @@ class DashboardActionInteractorTest {
         whenever(settings.isEmailVerified).thenReturn(true)
 
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
-        whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.BRONZE))
+        whenever(kycService.getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)).thenReturn(
+            Single.just(KycTier.BRONZE)
+        )
 
         actionInteractor.checkCowboysFlowSteps(model)
 
@@ -571,14 +576,15 @@ class DashboardActionInteractorTest {
 
         verify(cowboysFeatureFlag).enabled
         verify(userIdentity).isCowboysUser()
-        verify(kycService).getHighestApprovedTierLevelLegacy()
+        verify(kycService).getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)
         verify(settingsDataManager).getSettings()
         verifyNoMoreInteractions(settingsDataManager)
         verifyNoMoreInteractions(userIdentity)
+        verifyNoMoreInteractions(kycService)
     }
 
     @Test
-    fun `given cowboys check when flag is on, user is tagged, email verified but silver kyc then view state is verify gold`() {
+    fun `given cowboys check when flag is on, user is tagged, email verified, silver kyc but not started gold kyc then view state is verify gold`() {
         whenever(cowboysFeatureFlag.enabled).thenReturn(Single.just(true))
         whenever(userIdentity.isCowboysUser()).thenReturn(Single.just(true))
         val settings: Settings = mock()
@@ -589,7 +595,15 @@ class DashboardActionInteractorTest {
         whenever(cowboysDataProvider.getIdentityAnnouncement()).thenReturn(Single.just(data))
 
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
-        whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.SILVER))
+        whenever(kycService.getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)).thenReturn(
+            Single.just(KycTier.SILVER)
+        )
+        val kycTiers: KycTiers = mock {
+            on { isPendingOrUnderReviewFor(KycTier.GOLD) }.thenReturn(false)
+            on { isPendingFor(KycTier.GOLD) }.thenReturn(false)
+            on { isUnderReviewFor(KycTier.GOLD) }.thenReturn(false)
+        }
+        whenever(kycService.getTiersLegacy(FreshnessStrategy.Fresh)).thenReturn(Single.just(kycTiers))
 
         actionInteractor.checkCowboysFlowSteps(model)
 
@@ -605,11 +619,65 @@ class DashboardActionInteractorTest {
 
         verify(cowboysFeatureFlag).enabled
         verify(userIdentity).isCowboysUser()
-        verify(kycService).getHighestApprovedTierLevelLegacy()
+        verify(kycService).getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)
+        verify(kycService).getTiersLegacy(FreshnessStrategy.Fresh)
         verify(settingsDataManager).getSettings()
         verifyNoMoreInteractions(settingsDataManager)
         verifyNoMoreInteractions(userIdentity)
+        verifyNoMoreInteractions(kycService)
     }
+
+    @Test
+    fun `given cowboys check when flag is on, user is tagged, email verified, and gold kyc is pending then view state is kyc in progress`() =
+        runTest {
+            val settings: Settings = mock()
+
+            whenever(settings.isEmailVerified).thenReturn(true)
+            whenever(cowboysFeatureFlag.enabled).thenReturn(Single.just(true))
+            whenever(userIdentity.isCowboysUser()).thenReturn(Single.just(true))
+            whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
+            whenever(kycService.getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)).thenReturn(
+                Single.just(KycTier.SILVER)
+            )
+            val kycTiers: KycTiers = mock {
+                on { isPendingOrUnderReviewFor(KycTier.GOLD) }.thenReturn(true)
+                on { isPendingFor(KycTier.GOLD) }.thenReturn(true)
+                on { isUnderReviewFor(KycTier.GOLD) }.thenReturn(true)
+            }
+            whenever(kycService.getTiersLegacy(FreshnessStrategy.Fresh)).thenReturn(Single.just(kycTiers))
+            whenever(cowboysPrefs.hasCowboysReferralBeenDismissed).thenReturn(false)
+
+            val inProgressInfo: ReferralInfo.Data = mock()
+            whenever(referralService.fetchReferralData()).thenReturn(Outcome.Success(inProgressInfo))
+
+            val cowboysData: PromotionStyleInfo = mock()
+            whenever(cowboysDataProvider.getKycInProgressAnnouncement()).thenReturn(Single.just(cowboysData))
+
+            actionInteractor.checkCowboysFlowSteps(model)
+
+            val captor = argumentCaptor<DashboardIntent>()
+            verify(model, atLeastOnce()).process(captor.capture())
+            assert(
+                captor.allValues.any {
+                    val intent = it as? DashboardIntent.UpdateCowboysViewState
+                    intent?.cowboysState is DashboardCowboysState.CowboyKycInProgressCard &&
+                        (intent.cowboysState as DashboardCowboysState.CowboyKycInProgressCard).cardInfo == cowboysData
+                }
+            )
+
+            verify(cowboysFeatureFlag).enabled
+            verify(userIdentity).isCowboysUser()
+            verify(kycService).getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)
+            verify(kycService).getTiersLegacy(FreshnessStrategy.Fresh)
+            verify(settingsDataManager).getSettings()
+            verify(cowboysDataProvider).getKycInProgressAnnouncement()
+            verifyNoMoreInteractions(settingsDataManager)
+            verifyNoMoreInteractions(userIdentity)
+            verifyNoMoreInteractions(cowboysDataProvider)
+            verifyNoMoreInteractions(referralService)
+            verifyNoMoreInteractions(cowboysPrefs)
+            verifyNoMoreInteractions(kycService)
+        }
 
     @Test
     fun `given cowboys check when flag is on, user is tagged, email verified, gold kyc and view previously dismissed then view state is hidden`() =
@@ -620,7 +688,10 @@ class DashboardActionInteractorTest {
             whenever(cowboysFeatureFlag.enabled).thenReturn(Single.just(true))
             whenever(userIdentity.isCowboysUser()).thenReturn(Single.just(true))
             whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
-            whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.GOLD))
+            whenever(kycService.getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)).thenReturn(
+                Single.just(KycTier.GOLD)
+            )
+
             whenever(cowboysPrefs.hasCowboysReferralBeenDismissed).thenReturn(true)
 
             val referralInfo: ReferralInfo.Data = mock()
@@ -642,7 +713,7 @@ class DashboardActionInteractorTest {
 
             verify(cowboysFeatureFlag).enabled
             verify(userIdentity).isCowboysUser()
-            verify(kycService).getHighestApprovedTierLevelLegacy()
+            verify(kycService).getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)
             verify(settingsDataManager).getSettings()
             verify(cowboysPrefs).hasCowboysReferralBeenDismissed
             verifyNoMoreInteractions(settingsDataManager)
@@ -650,6 +721,7 @@ class DashboardActionInteractorTest {
             verifyNoMoreInteractions(cowboysDataProvider)
             verifyNoMoreInteractions(referralService)
             verifyNoMoreInteractions(cowboysPrefs)
+            verifyNoMoreInteractions(kycService)
         }
 
     @Test
@@ -661,7 +733,10 @@ class DashboardActionInteractorTest {
             whenever(cowboysFeatureFlag.enabled).thenReturn(Single.just(true))
             whenever(userIdentity.isCowboysUser()).thenReturn(Single.just(true))
             whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
-            whenever(kycService.getHighestApprovedTierLevelLegacy()).thenReturn(Single.just(KycTier.GOLD))
+            whenever(kycService.getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)).thenReturn(
+                Single.just(KycTier.GOLD)
+            )
+
             whenever(cowboysPrefs.hasCowboysReferralBeenDismissed).thenReturn(false)
 
             val referralInfo: ReferralInfo.Data = mock()
@@ -686,7 +761,7 @@ class DashboardActionInteractorTest {
 
             verify(cowboysFeatureFlag).enabled
             verify(userIdentity).isCowboysUser()
-            verify(kycService).getHighestApprovedTierLevelLegacy()
+            verify(kycService).getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)
             verify(settingsDataManager).getSettings()
             verify(cowboysDataProvider).getReferFriendsAnnouncement()
             verify(referralService).fetchReferralData()
@@ -696,5 +771,6 @@ class DashboardActionInteractorTest {
             verifyNoMoreInteractions(cowboysDataProvider)
             verifyNoMoreInteractions(referralService)
             verifyNoMoreInteractions(cowboysPrefs)
+            verifyNoMoreInteractions(kycService)
         }
 }

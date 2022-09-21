@@ -46,7 +46,6 @@ class NotificationPreferenceDetailsFragment :
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         bindViewModel(model, navigator, args)
-        analytics.logEvent(NotificationPreferencesAnalyticsEvents.NotificationOptionViewed(args.description))
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
@@ -60,6 +59,7 @@ class NotificationPreferenceDetailsFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        analytics.logEvent(NotificationPreferencesAnalyticsEvents.NotificationOptionViewed(args.channel))
         updateToolbar(
             toolbarTitle = args.title
         )

@@ -25,13 +25,13 @@ fun SmallMinimalButton(
 
     val contentPadding = PaddingValues(
         start = if (state == ButtonState.Loading) {
-            dimensionResource(R.dimen.medium_margin)
+            dimensionResource(R.dimen.medium_spacing)
         } else {
-            dimensionResource(R.dimen.very_small_margin)
+            dimensionResource(R.dimen.very_small_spacing)
         },
         top = ButtonDefaults.ContentPadding.calculateTopPadding(),
-        end = if (state == ButtonState.Loading) dimensionResource(R.dimen.medium_margin) else dimensionResource(
-            R.dimen.very_small_margin
+        end = if (state == ButtonState.Loading) dimensionResource(R.dimen.medium_spacing) else dimensionResource(
+            R.dimen.very_small_spacing
         ),
         bottom = ButtonDefaults.ContentPadding.calculateBottomPadding(),
     )
@@ -41,7 +41,7 @@ fun SmallMinimalButton(
         onClick = onClick,
         shape = AppTheme.shapes.extraLarge,
         state = state,
-        modifier = modifier.requiredHeightIn(min = dimensionResource(R.dimen.large_margin)),
+        modifier = modifier.requiredHeightIn(min = dimensionResource(R.dimen.large_spacing)),
         contentPadding = contentPadding,
         icon = icon,
         buttonContent = {

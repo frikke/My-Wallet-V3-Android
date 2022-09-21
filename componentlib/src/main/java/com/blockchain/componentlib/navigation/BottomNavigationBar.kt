@@ -210,7 +210,7 @@ fun BottomNavigationItemWithIndicator(
                     .absoluteOffset(y = (-2).dp)
                     .fillMaxWidth(0.6f)
                     .clip(AppTheme.shapes.small),
-                thickness = dimensionResource(R.dimen.smallest_margin),
+                thickness = dimensionResource(R.dimen.smallest_spacing),
                 color = AppTheme.colors.primary
             )
         }

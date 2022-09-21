@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.kyc.autocomplete
 
 import com.blockchain.commonarch.presentation.mvi.MviState
-import piuk.blockchain.android.ui.kyc.profile.models.AddressDetailsModel
+import piuk.blockchain.android.ui.kyc.address.models.OldAddressDetailsModel
 
 sealed class AutocompleteAddressStep {
-    data class Address(val addressDetailsModel: AddressDetailsModel) : AutocompleteAddressStep()
+    data class Address(val addressDetailsModel: OldAddressDetailsModel) : AutocompleteAddressStep()
 }
 
 enum class AutocompleteAddressToastType {

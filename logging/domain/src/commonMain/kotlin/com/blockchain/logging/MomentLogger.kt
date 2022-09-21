@@ -20,7 +20,18 @@ enum class MomentEvent(val value: String) {
      * Starts in Application and stops in Splash,
      * to calculate how long it takes to init everything in Application
      */
-    LAUNCHER_TO_SPLASH("Launcher->Splash")
+    LAUNCHER_TO_SPLASH("Launcher->Splash"),
+
+    SWAP_SOURCE_LIST_FF_ON("Swap Source Sort New"),
+    SWAP_SOURCE_LIST_FF_OFF("Swap Source Sort Legacy"),
+    SWAP_TARGET_LIST_FF_ON("Swap Target Sort New"),
+    SWAP_TARGET_LIST_FF_OFF("Swap Target Sort Legacy"),
+    SELL_LIST_FF_ON("Sell Sort New"),
+    SELL_LIST_FF_OFF("Sell Sort Legacy"),
+    DEFAULT_SORTING_CUSTODIAL_ONLY("Default Sort Custodial Only"),
+    DEFAULT_SORTING_NC_AND_UNIVERSAL("Default Sort NC & Universal"),
+    BUY_LIST_ORDERING_FF_ON("Buy Sort New"),
+    BUY_LIST_ORDERING_FF_OFF("Buy Sort Legacy")
 }
 
 enum class MomentParam(val value: String) {

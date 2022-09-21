@@ -5,6 +5,7 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.addressverification.ui.USState
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -122,7 +123,10 @@ class BillingAddressFragment :
                 city.setText(it.city)
                 if (it.countryCode == "US") {
                     zipUsa.setText(it.postCode)
-                    state.setText(it.state?.substringAfter("US-"))
+                    val stateName = it.stateIso?.let {
+                        USState.findStateByIso(it)?.displayName ?: it.substringAfter("US-")
+                    }
+                    state.setText(stateName)
                 } else {
                     postcode.setText(it.postCode)
                 }

@@ -135,7 +135,7 @@ fun QuestionnaireScreen(
             Modifier
                 .weight(1f)
                 .fillMaxWidth(),
-            contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.standard_margin)),
+            contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.standard_spacing)),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             state = listState
         ) {
@@ -158,9 +158,9 @@ fun QuestionnaireScreen(
 
         Box(
             Modifier.padding(
-                start = dimensionResource(id = R.dimen.standard_margin),
-                end = dimensionResource(id = R.dimen.standard_margin),
-                bottom = dimensionResource(id = R.dimen.standard_margin)
+                start = dimensionResource(id = R.dimen.standard_spacing),
+                end = dimensionResource(id = R.dimen.standard_spacing),
+                bottom = dimensionResource(id = R.dimen.standard_spacing)
             )
         ) {
             PrimaryButton(
@@ -199,7 +199,7 @@ private fun NodeRow(
         is FlatNode.SingleSelection,
         is FlatNode.Dropdown,
         is FlatNode.MultipleSelection,
-        -> dimensionResource(R.dimen.small_margin)
+        -> dimensionResource(R.dimen.small_spacing)
         is FlatNode.OpenEnded,
         is FlatNode.Selection,
         -> 0.dp
@@ -209,8 +209,8 @@ private fun NodeRow(
         .let { if (isInvalid) it.background(Color.Red.copy(alpha = .2f)) else it }
         .padding(
             top = topPadding,
-            start = dimensionResource(R.dimen.standard_margin),
-            end = dimensionResource(R.dimen.standard_margin)
+            start = dimensionResource(R.dimen.standard_spacing),
+            end = dimensionResource(R.dimen.standard_spacing)
         )
 
     when (node) {
@@ -272,7 +272,7 @@ private fun DropdownRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp)
-                .padding(bottom = dimensionResource(R.dimen.tiny_margin)),
+                .padding(bottom = dimensionResource(R.dimen.tiny_spacing)),
             style = ComposeTypographies.Caption1,
             color = ComposeColors.Muted,
             gravity = ComposeGravities.Start
@@ -291,7 +291,7 @@ private fun DropdownRow(
                 trailingIcon = {
                     Icon(
                         painterResource(R.drawable.ic_chevron_down), null,
-                        Modifier.size(dimensionResource(R.dimen.standard_margin)), Grey400
+                        Modifier.size(dimensionResource(R.dimen.standard_spacing)), Grey400
                     )
                 },
                 textStyle = AppTheme.typography.body1,
@@ -325,7 +325,7 @@ private fun DropdownRow(
                             painterResource(R.drawable.ic_success_check),
                             null,
                             Modifier
-                                .padding(start = dimensionResource(R.dimen.small_margin))
+                                .padding(start = dimensionResource(R.dimen.small_spacing))
                                 .size(16.dp),
                             Blue600
                         )
@@ -378,7 +378,7 @@ private fun OpenEndedRow(
     ) {
         if (node.text.isNotEmpty()) {
             SimpleText(
-                modifier = Modifier.padding(vertical = 4.dp),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 text = node.text,
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Body,
@@ -422,8 +422,8 @@ private fun SelectionRow(
             .clickable { onSelectionClicked(node) }
             .border(1.dp, Grey000, RoundedCornerShape(8.dp))
             .padding(
-                start = dimensionResource(R.dimen.standard_margin),
-                end = dimensionResource(R.dimen.small_margin)
+                start = dimensionResource(R.dimen.standard_spacing),
+                end = dimensionResource(R.dimen.small_spacing)
             )
     ) {
         SimpleText(
@@ -431,9 +431,9 @@ private fun SelectionRow(
             modifier = Modifier
                 .weight(1f)
                 .padding(
-                    end = dimensionResource(R.dimen.small_margin),
-                    top = dimensionResource(R.dimen.small_margin),
-                    bottom = dimensionResource(R.dimen.small_margin)
+                    end = dimensionResource(R.dimen.small_spacing),
+                    top = dimensionResource(R.dimen.small_spacing),
+                    bottom = dimensionResource(R.dimen.small_spacing)
                 ),
             style = ComposeTypographies.Body2,
             color = if (node.isChecked) ComposeColors.Body else ComposeColors.Muted,
@@ -443,7 +443,10 @@ private fun SelectionRow(
         if (node.isParentSingleSelection) {
             Radio(state = if (node.isChecked) RadioButtonState.Selected else RadioButtonState.Unselected)
         } else {
-            Checkbox(state = if (node.isChecked) CheckboxState.Checked else CheckboxState.Unchecked)
+            Checkbox(
+                modifier = Modifier.padding(dimensionResource(R.dimen.very_small_spacing)),
+                state = if (node.isChecked) CheckboxState.Checked else CheckboxState.Unchecked
+            )
         }
     }
 }
@@ -454,14 +457,14 @@ private fun Header(header: QuestionnaireHeader) {
         Image(
             imageResource = ImageResource.Local(R.drawable.ic_bank_user, colorFilter = ColorFilter.tint(Blue600)),
             modifier = Modifier
-                .padding(top = dimensionResource(R.dimen.huge_margin))
+                .padding(top = dimensionResource(R.dimen.huge_spacing))
                 .align(Alignment.CenterHorizontally)
         )
         SimpleText(
-            modifier = Modifier.padding(
-                top = dimensionResource(R.dimen.standard_margin),
-                start = dimensionResource(R.dimen.standard_margin),
-                end = dimensionResource(R.dimen.standard_margin)
+            modifier = Modifier.fillMaxWidth().padding(
+                top = dimensionResource(R.dimen.standard_spacing),
+                start = dimensionResource(R.dimen.standard_spacing),
+                end = dimensionResource(R.dimen.standard_spacing)
             ),
             text = header.title,
             style = ComposeTypographies.Title2,
@@ -469,11 +472,11 @@ private fun Header(header: QuestionnaireHeader) {
             gravity = ComposeGravities.Centre
         )
         SimpleText(
-            modifier = Modifier.padding(
-                top = dimensionResource(R.dimen.tiny_margin),
-                bottom = dimensionResource(R.dimen.standard_margin),
-                start = dimensionResource(R.dimen.standard_margin),
-                end = dimensionResource(R.dimen.standard_margin)
+            modifier = Modifier.fillMaxWidth().padding(
+                top = dimensionResource(R.dimen.tiny_spacing),
+                bottom = dimensionResource(R.dimen.standard_spacing),
+                start = dimensionResource(R.dimen.standard_spacing),
+                end = dimensionResource(R.dimen.standard_spacing)
             ),
             text = header.description,
             style = ComposeTypographies.Paragraph1,

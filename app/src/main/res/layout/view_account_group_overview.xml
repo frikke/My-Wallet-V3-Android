@@ -5,14 +5,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/small_margin"
-    android:paddingBottom="@dimen/small_margin">
+    android:paddingTop="@dimen/small_spacing"
+    android:paddingBottom="@dimen/small_spacing">
 
     <ImageView
         android:id="@+id/icon"
         android:layout_width="@dimen/asset_icon_size"
         android:layout_height="@dimen/asset_icon_size"
-        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
         android:importantForAccessibility="no"
         tools:srcCompat="@drawable/ic_default_asset_logo"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -45,7 +45,7 @@
         style="@style/Text.Semibold.16"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/wallet_name"
         tools:text="$15,879.90" />
@@ -55,7 +55,7 @@
         style="@style/Text.Semibold.Light.14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_spacing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/asset_subtitle"
         app:layout_constraintBottom_toBottomOf="@id/asset_subtitle"

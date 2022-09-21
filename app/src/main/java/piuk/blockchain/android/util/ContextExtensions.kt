@@ -9,6 +9,7 @@ import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.View
+import android.webkit.URLUtil
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
@@ -53,6 +54,12 @@ fun Context?.openUrl(url: String) {
 
 fun Context?.openUrl(url: Uri) {
     this?.run { startActivity(Intent(Intent.ACTION_VIEW, url)) }
+}
+
+fun Context.checkValidUrlAndOpen(url: Uri) {
+    if (URLUtil.isHttpsUrl(url.toString())) {
+        openUrl(url.toString())
+    }
 }
 
 fun Context.copyToClipboard(label: String, text: String) {

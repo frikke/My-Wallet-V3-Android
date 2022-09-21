@@ -44,9 +44,9 @@ class BuySellFlowNavigatorTest {
     @Test
     fun `when user is not eligible to neither buy nor sell, corresponding state should be propagated to the UI`() {
         whenever(userIdentity.userAccessForFeature(Feature.Buy))
-            .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.NotEligible)))
+            .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.NotEligible(null))))
         whenever(userIdentity.userAccessForFeature(Feature.Sell))
-            .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.NotEligible)))
+            .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.NotEligible(null))))
 
         val test = subject.navigateTo().test()
 

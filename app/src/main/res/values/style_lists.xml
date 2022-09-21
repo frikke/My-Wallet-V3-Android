@@ -12,14 +12,14 @@
     <style name="DashboardCardLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">@dimen/standard_margin</item>
-        <item name="android:layout_marginBottom">@dimen/small_margin</item>
-        <item name="android:layout_marginLeft">@dimen/standard_margin</item>
-        <item name="android:layout_marginRight">@dimen/standard_margin</item>
+        <item name="android:layout_marginTop">@dimen/standard_spacing</item>
+        <item name="android:layout_marginBottom">@dimen/small_spacing</item>
+        <item name="android:layout_marginLeft">@dimen/standard_spacing</item>
+        <item name="android:layout_marginRight">@dimen/standard_spacing</item>
     </style>
 
     <style name="DashboardCardLayout.Asset">
-        <item name="android:layout_marginLeft">@dimen/small_margin</item>
+        <item name="android:layout_marginLeft">@dimen/small_spacing</item>
     </style>
 
 </resources>

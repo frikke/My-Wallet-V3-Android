@@ -27,15 +27,15 @@ fun SmallPrimaryButton(
 ) {
     val contentPadding = PaddingValues(
         start = if (state == ButtonState.Loading) {
-            dimensionResource(R.dimen.medium_margin)
+            dimensionResource(R.dimen.medium_spacing)
         } else {
-            dimensionResource(R.dimen.very_small_margin)
+            dimensionResource(R.dimen.very_small_spacing)
         },
         top = ButtonDefaults.ContentPadding.calculateTopPadding(),
         end = if (state == ButtonState.Loading) {
-            dimensionResource(R.dimen.medium_margin)
+            dimensionResource(R.dimen.medium_spacing)
         } else {
-            dimensionResource(R.dimen.very_small_margin)
+            dimensionResource(R.dimen.very_small_spacing)
         },
         bottom = ButtonDefaults.ContentPadding.calculateBottomPadding(),
     )
@@ -53,7 +53,7 @@ fun SmallPrimaryButton(
         disabledBackgroundLightColor = Blue400,
         disabledBackgroundDarkColor = Grey900,
         pressedBackgroundColor = Blue700,
-        modifier = modifier.requiredHeightIn(min = dimensionResource(R.dimen.large_margin)),
+        modifier = modifier.requiredHeightIn(min = dimensionResource(R.dimen.large_spacing)),
         contentPadding = contentPadding,
         buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, _: ImageResource ->
             ButtonContentSmall(

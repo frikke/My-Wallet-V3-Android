@@ -35,6 +35,14 @@ interface InterestService {
     ): Observable<InterestAccountBalance>
 
     /**
+     * Returns [InterestAccountBalance] for [asset]
+     */
+    fun getBalanceForFlow(
+        asset: AssetInfo,
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<DataResource<InterestAccountBalance>>
+
+    /**
      * Returns a list of all [AssetInfo] that have an interest balance
      */
     fun getActiveAssets(
@@ -45,7 +53,7 @@ interface InterestService {
      * Returns all assets that can earn rewards
      * This list doesn't mean that all assets are eligible, some can be [InterestEligibility.Ineligible]
      *
-     * @see [getEligibilityForAssets]
+     * @see [getEligibilityForAssetsLegacy]
      */
     fun getAvailableAssetsForInterest(): Single<List<AssetInfo>>
 
@@ -53,11 +61,9 @@ interface InterestService {
      * Returns all assets that can earn rewards
      * This list doesn't mean that all assets are eligible, some can be [InterestEligibility.Ineligible]
      *
-     * @see [getEligibilityForAssets]
+     * @see [getEligibilityForAssetsLegacy]
      */
-    fun getAvailableAssetsForInterestFlow(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
-    ): Flow<DataResource<List<AssetInfo>>>
+    fun getAvailableAssetsForInterestFlow(): Flow<DataResource<List<AssetInfo>>>
 
     /**
      * Returns if an [asset] can earn rewards
@@ -70,19 +76,19 @@ interface InterestService {
      * True doesn't mean the asset is eligible, it can be [InterestEligibility.Ineligible]
      */
     fun isAssetAvailableForInterestFlow(
-        asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        asset: AssetInfo
     ): Flow<DataResource<Boolean>>
 
     /**
      * Returns a map composed of each [AssetInfo] with its [InterestEligibility]
      */
-    fun getEligibilityForAssets(): Single<Map<AssetInfo, InterestEligibility>>
+    @Deprecated("use flow getEligibilityForAssets")
+    fun getEligibilityForAssetsLegacy(): Single<Map<AssetInfo, InterestEligibility>>
 
     /**
      * Returns a map composed of each [AssetInfo] with its [InterestEligibility]
      */
-    fun getEligibilityForAssetsFlow(
+    fun getEligibilityForAssets(
         refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
     ): Flow<DataResource<Map<AssetInfo, InterestEligibility>>>
 

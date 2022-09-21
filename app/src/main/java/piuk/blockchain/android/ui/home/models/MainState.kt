@@ -22,15 +22,12 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
 data class MainState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,
-    val deeplinkResult: DeepLinkResult = DeepLinkResult.DeepLinkResultFailed(),
+    val deeplinkResult: DeepLinkResult = DeepLinkResult.DeepLinkResultUnknownLink(),
     val currentTab: NavigationItem = NavigationItem.Home,
     val tabs: List<NavigationItem> = emptyList(),
     val walletMode: WalletMode = WalletMode.UNIVERSAL,
     val referral: ReferralState = ReferralState(ReferralInfo.NotAvailable)
-) : MviState {
-    val hasMiddleButton: Boolean
-        get() = walletMode != WalletMode.NON_CUSTODIAL_ONLY
-}
+) : MviState
 
 sealed class ViewToLaunch {
     object None : ViewToLaunch()

@@ -115,6 +115,7 @@ abstract class CryptoAccountBase : CryptoAccount {
         internal val defaultNonCustodialActions = setOf(
             AssetAction.ViewActivity,
             AssetAction.Send,
+            AssetAction.Sell,
             AssetAction.InterestDeposit,
             AssetAction.Swap,
             AssetAction.Receive
@@ -344,7 +345,7 @@ abstract class CryptoNonCustodialAccount(
 
     private fun swapActionEligibility(activeAndFunded: Boolean): Single<StateAwareAction> {
         val swapEligibility = identity.userAccessForFeature(Feature.Swap)
-        val assetAvailableForSwap = custodialWalletManager.isAssetSupportedForSwap(currency)
+        val assetAvailableForSwap = custodialWalletManager.isAssetSupportedForSwapLegacy(currency)
         return swapEligibility.zipWith(assetAvailableForSwap) { swapEligible, assetEligibleForSwap ->
             StateAwareAction(
                 when {

@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.kyc.status
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.kyc.domain.model.KycTierState
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.notifications.NotificationTokenManager
 import com.nhaarman.mockitokotlin2.any
@@ -16,14 +15,12 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.tiers
-import piuk.blockchain.android.ui.validOfflineToken
 
 class KycStatusPresenterTest {
 
     private lateinit var subject: KycStatusPresenter
     private val view: KycStatusView = mock()
     private val kycStatusHelper: KycStatusHelper = mock()
-    private val nabuToken: NabuToken = mock()
     private val notificationTokenManager: NotificationTokenManager = mock()
 
     @Suppress("unused")
@@ -36,7 +33,6 @@ class KycStatusPresenterTest {
     @Before
     fun setUp() {
         subject = KycStatusPresenter(
-            nabuToken,
             kycStatusHelper,
             notificationTokenManager
         )
@@ -59,9 +55,6 @@ class KycStatusPresenterTest {
     @Test
     fun `onViewReady user loaded with highest tier2 in pending`() {
         // Arrange
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
         whenever(kycStatusHelper.getKycTierStatus())
             .thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Pending)))
         // Act
@@ -76,9 +69,6 @@ class KycStatusPresenterTest {
     fun `onViewReady user loaded with highest tier1 in pending`() {
         // Arrange
         val kycState = KycState.Pending
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
         whenever(kycStatusHelper.getKycTierStatus())
             .thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
         // Act
@@ -93,9 +83,6 @@ class KycStatusPresenterTest {
     fun `onViewReady user loaded with highest tier1 in failed`() {
         // Arrange
         val kycState = KycState.Pending
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
         whenever(kycStatusHelper.getKycTierStatus())
             .thenReturn(Single.just(tiers(KycTierState.Rejected, KycTierState.None)))
         // Act
@@ -110,9 +97,6 @@ class KycStatusPresenterTest {
     fun `onViewReady user loaded with highest tier2 in failed`() {
         // Arrange
         val kycState = KycState.Pending
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
         whenever(kycStatusHelper.getKycTierStatus())
             .thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Rejected)))
         // Act

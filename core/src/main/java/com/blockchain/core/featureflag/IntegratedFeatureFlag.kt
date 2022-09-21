@@ -7,7 +7,6 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.await
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.koin.java.KoinJavaComponent.inject
 
 class IntegratedFeatureFlag(private val remoteFlag: FeatureFlag) : FeatureFlag by remoteFlag, KoinComponent {
 
@@ -19,13 +18,6 @@ class IntegratedFeatureFlag(private val remoteFlag: FeatureFlag) : FeatureFlag b
             FeatureFlagState.DISABLED -> Single.just(false)
             FeatureFlagState.REMOTE -> remoteFlag.enabled
         }.onErrorReturnItem(false)
-
-    override val isEnabled: Boolean
-        get() = when (FeatureFlagState.valueOf(prefs.getFeatureState(key))) {
-            FeatureFlagState.ENABLED -> true
-            FeatureFlagState.DISABLED -> false
-            FeatureFlagState.REMOTE -> remoteFlag.isEnabled
-        }
 
     override suspend fun coEnabled(): Boolean = enabled.await()
 }
@@ -42,11 +34,6 @@ class LocalOnlyFeatureFlag(
             FeatureFlagState.DISABLED -> Single.just(false)
             else -> Single.just(defaultValue)
         }
-    override val isEnabled: Boolean
-        get() = when (FeatureFlagState.valueOf(prefs.getFeatureState(key))) {
-            FeatureFlagState.ENABLED -> true
-            FeatureFlagState.DISABLED -> false
-            else -> defaultValue
-        }
-    override suspend fun coEnabled(): Boolean = isEnabled
+
+    override suspend fun coEnabled(): Boolean = enabled.await()
 }

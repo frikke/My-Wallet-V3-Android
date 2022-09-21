@@ -22,7 +22,9 @@ import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.databinding.CardPaymentMethodLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 
-class CardPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
+class CardPaymentDelegate(
+    private val onCardTagClicked: (cardInfo: CardRejectionState) -> Unit
+) : AdapterDelegate<PaymentMethodItem> {
 
     override fun isForViewType(items: List<PaymentMethodItem>, position: Int): Boolean =
         items[position].paymentMethod is PaymentMethod.Card
@@ -33,14 +35,18 @@ class CardPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
                 LayoutInflater.from(parent.context),
                 parent,
                 false
-            )
+            ),
+            onCardTagClicked
         )
 
     override fun onBindViewHolder(items: List<PaymentMethodItem>, position: Int, holder: RecyclerView.ViewHolder) {
         (holder as CardPaymentViewHolder).bind(items[position])
     }
 
-    private class CardPaymentViewHolder(private val binding: CardPaymentMethodLayoutBinding) :
+    private class CardPaymentViewHolder(
+        private val binding: CardPaymentMethodLayoutBinding,
+        private val onCardTagClicked: (cardInfo: CardRejectionState) -> Unit
+    ) :
         RecyclerView.ViewHolder(binding.root), KoinComponent {
 
         private val cardRejectionFF: FeatureFlag by inject(cardRejectionCheckFeatureFlag)
@@ -70,29 +76,37 @@ class CardPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
                         onClick = {
                             paymentMethodItem.clickAction()
                         }
-                        if (cardRejectionFF.isEnabled) {
-                            tags = when (val cardState = it.cardRejectionState) {
-                                is CardRejectionState.AlwaysRejected -> {
-                                    listOf(
-                                        TagViewState(
-                                            cardState.title ?: context.getString(
-                                                R.string.card_issuer_always_rejects_title
-                                            ),
-                                            TagType.Error()
+                        cardRejectionFF.enabled.map { isEnabled ->
+                            if (isEnabled) {
+                                tags = when (val cardState = it.cardRejectionState) {
+                                    is CardRejectionState.AlwaysRejected -> {
+                                        listOf(
+                                            TagViewState(
+                                                value = cardState.title ?: context.getString(
+                                                    R.string.card_issuer_always_rejects_title
+                                                ),
+                                                type = TagType.Error(),
+                                                onClick = {
+                                                    onCardTagClicked(cardState)
+                                                }
+                                            )
                                         )
-                                    )
-                                }
-                                is CardRejectionState.MaybeRejected -> {
-                                    listOf(
-                                        TagViewState(
-                                            cardState.title ?: context.getString(
-                                                R.string.card_issuer_sometimes_rejects_title
-                                            ),
-                                            TagType.Warning()
+                                    }
+                                    is CardRejectionState.MaybeRejected -> {
+                                        listOf(
+                                            TagViewState(
+                                                value = cardState.title ?: context.getString(
+                                                    R.string.card_issuer_sometimes_rejects_title
+                                                ),
+                                                type = TagType.Warning(),
+                                                onClick = {
+                                                    onCardTagClicked(cardState)
+                                                }
+                                            )
                                         )
-                                    )
+                                    }
+                                    else -> null
                                 }
-                                else -> null
                             }
                         }
                     }

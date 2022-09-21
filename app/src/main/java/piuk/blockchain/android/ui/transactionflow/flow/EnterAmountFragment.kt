@@ -17,6 +17,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.FundsLocks
@@ -72,6 +73,7 @@ class EnterAmountFragment :
 
     private var lowerSlot: TxFlowWidget? = null
     private var upperSlot: TxFlowWidget? = null
+    private var upperSecondSlot: TxFlowWidget? = null
 
     private var infoActionCallback: () -> Unit = {}
 
@@ -112,8 +114,8 @@ class EnterAmountFragment :
                         TransactionIntent.AmountChanged(
                             when {
                                 !state.allowFiatInput && amount is FiatValue -> {
-                                    convertFiatToCrypto(amount, rate, state).also {
-                                        binding.amountSheetInput.fixExchange(it)
+                                    amount.convertFiatToCrypto(rate, state).also {
+                                        binding.amountSheetInput.updateExchangeAmount(it)
                                     }
                                 }
                                 amount is FiatValue &&
@@ -166,16 +168,23 @@ class EnterAmountFragment :
         }
 
         with(binding) {
+            enterAmountLoading.visibleIf { newState.currencyType == null }
 
             amountSheetCtaButton.apply {
-                buttonState = if (newState.nextEnabled) ButtonState.Enabled else ButtonState.Disabled
+                buttonState = if (newState.nextEnabled) {
+                    ButtonState.Enabled
+                } else {
+                    ButtonState.Disabled
+                }
                 onClick = { onCtaClick(newState) }
                 text = customiser.enterAmountCtaText(newState)
             }
 
             if (!amountSheetInput.configured) {
-                newState.pendingTx?.let {
-                    amountSheetInput.configure(newState, customiser.defInputType(newState, it.selectedFiat))
+                newState.pendingTx?.let { pTx ->
+                    val startingCurrencyType = customiser.defInputType(newState, pTx.selectedFiat)
+                    amountSheetInput.configure(newState, startingCurrencyType)
+                    model.process(TransactionIntent.DisplayModeChanged(startingCurrencyType.type))
                 }
             }
 
@@ -204,6 +213,8 @@ class EnterAmountFragment :
 
                 initialiseLowerSlotIfNeeded(newState)
                 initialiseUpperSlotIfNeeded(newState)
+                initialiseUpperSecondSlotIfNeeded(newState)
+
                 newState.locks?.let { fundLocks ->
                     displayFundsLockInfo(
                         fundsLocks = fundLocks,
@@ -213,13 +224,28 @@ class EnterAmountFragment :
 
                 lowerSlot?.update(newState)
                 upperSlot?.update(newState)
+                upperSecondSlot?.update(newState)
 
                 updateInputStateUI(newState)
                 showCtaOrError(newState)
             }
 
-            newState.pendingTx?.let {
-                val transactionsLimit = it.transactionsLimit
+            newState.amountsToPrefill?.let { amounts ->
+                with(binding.amountSheetInput) {
+                    if (newState.currencyType == CurrencyType.FIAT) {
+                        updateValue(amounts.fiatValue)
+                        updateExchangeAmount(amounts.cryptoValue)
+                    } else {
+                        updateValue(amounts.cryptoValue)
+                        updateExchangeAmount(amounts.fiatValue)
+                    }
+
+                    model.process(TransactionIntent.ResetPrefillAmount)
+                }
+            }
+
+            newState.pendingTx?.let { pTx ->
+                val transactionsLimit = pTx.transactionsLimit
                 if (transactionsLimit is TransactionsLimit.Limited) {
                     amountSheetInput.showInfo(
                         getString(R.string.tx_enter_amount_orders_limit_info, transactionsLimit.maxTransactionsLeft)
@@ -230,16 +256,17 @@ class EnterAmountFragment :
                         )
                         if (info != null) {
                             showBottomSheet(TransactionFlowInfoBottomSheet.newInstance(info))
-                            infoActionCallback = handlePossibleInfoAction(info, state)
+                            infoActionCallback = handlePossibleInfoAction(info, newState)
                         }
                     }
                 } else {
                     amountSheetInput.hideInfo()
                 }
-                if (it.feeSelection.selectedLevel == FeeLevel.None) {
+
+                if (pTx.feeSelection.selectedLevel == FeeLevel.None) {
                     frameLowerSlot.setOnClickListener(null)
                 } else {
-                    if (it.feeSelection.availableLevels.size > 1 &&
+                    if (pTx.feeSelection.availableLevels.size > 1 &&
                         frameLowerSlot.getChildAt(0) is BalanceAndFeeView
                     ) {
                         root.setOnClickListener {
@@ -310,7 +337,9 @@ class EnterAmountFragment :
             }
 
             val bottomSheetInfo = infoType?.let { type ->
-                bottomSheetInfoCustomiser.info(type, state, binding.amountSheetInput.configuration.inputCurrency.type)
+                bottomSheetInfoCustomiser.info(
+                    type, state, binding.amountSheetInput.configuration.inputCurrency.type
+                )
             }
             bottomSheetInfo?.let { info ->
                 errorContainer.setOnClickListener {
@@ -321,7 +350,10 @@ class EnterAmountFragment :
         }
     }
 
-    private fun handlePossibleInfoAction(info: TransactionFlowBottomSheetInfo, state: TransactionState): () -> Unit {
+    private fun handlePossibleInfoAction(
+        info: TransactionFlowBottomSheetInfo,
+        state: TransactionState
+    ): () -> Unit {
         analyticsHooks.onInfoBottomSheetActionClicked(info, state)
         info.action?.actionType?.let { type ->
             when (type) {
@@ -370,6 +402,18 @@ class EnterAmountFragment :
         }
     }
 
+    private fun FragmentTxFlowEnterAmountBinding.initialiseUpperSecondSlotIfNeeded(state: TransactionState) {
+        if (upperSecondSlot == null) {
+            upperSecondSlot = customiser.installEnterAmountUpperSecondSlotView(
+                requireContext(),
+                frameUpperSecondSlot,
+                state
+            )?.apply {
+                initControl(model, customiser, analyticsHooks)
+            }
+        }
+    }
+
     private fun FragmentTxFlowEnterAmountBinding.displayFundsLockInfo(
         fundsLocks: FundsLocks,
         state: TransactionState
@@ -406,7 +450,7 @@ class EnterAmountFragment :
     private fun configureCtaButton() {
         val layoutParams: ViewGroup.MarginLayoutParams =
             binding.amountSheetCtaButton.layoutParams as ViewGroup.MarginLayoutParams
-        layoutParams.bottomMargin = resources.getDimension(R.dimen.standard_margin).toInt()
+        layoutParams.bottomMargin = resources.getDimension(R.dimen.standard_spacing).toInt()
         binding.amountSheetCtaButton.layoutParams = layoutParams
     }
 
@@ -420,27 +464,6 @@ class EnterAmountFragment :
                 initControl(model, customiser, analyticsHooks)
             }
         }
-    }
-
-    // in this method we try to convert the fiat value coming out from
-    // the view to a crypto which is withing the min and max limits allowed.
-    // We use floor rounding for max and ceiling for min just to make sure that we wont have problem with rounding once
-    // the amount reach the engine where the comparison with limits will happen.
-
-    private fun convertFiatToCrypto(
-        amount: FiatValue,
-        rate: ExchangeRate,
-        state: TransactionState
-    ): Money {
-        val min = state.pendingTx?.limits?.minAmount ?: return rate.inverse().convert(amount)
-        val max = state.maxSpendable
-        val roundedUpAmount = rate.inverse(RoundingMode.CEILING, CryptoValue.DISPLAY_DP)
-            .convert(amount)
-        val roundedDownAmount = rate.inverse(RoundingMode.FLOOR, CryptoValue.DISPLAY_DP)
-            .convert(amount)
-        return if (roundedUpAmount >= min && roundedUpAmount <= max)
-            roundedUpAmount
-        else roundedDownAmount
     }
 
     private fun onCtaClick(state: TransactionState) {
@@ -562,3 +585,24 @@ private fun TransactionState.isAmountValid(): Boolean {
 private fun PendingTx.isLowOnBalance() =
     feeSelection.selectedLevel != FeeLevel.None &&
         availableBalance.isZero && totalBalance.isPositive
+
+// in this method we try to convert the fiat value coming out from
+// the view to a crypto which is withing the min and max limits allowed.
+// We use floor rounding for max and ceiling for min just to make sure that we wont have problem with rounding once
+// the amount reach the engine where the comparison with limits will happen.
+fun Money.convertFiatToCrypto(
+    rate: ExchangeRate,
+    state: TransactionState
+): Money {
+    val min = state.pendingTx?.limits?.minAmount ?: return rate.inverse().convert(this)
+    val max = state.maxSpendable
+    val roundedUpAmount = rate.inverse(RoundingMode.CEILING, CryptoValue.DISPLAY_DP)
+        .convert(this)
+    val roundedDownAmount = rate.inverse(RoundingMode.FLOOR, CryptoValue.DISPLAY_DP)
+        .convert(this)
+    return if (roundedUpAmount in min..max) {
+        roundedUpAmount
+    } else {
+        roundedDownAmount
+    }
+}

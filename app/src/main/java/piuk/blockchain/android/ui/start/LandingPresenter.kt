@@ -4,6 +4,7 @@ import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.OnboardingPrefs
@@ -12,9 +13,13 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.isCustodial
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.kotlin.merge
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.util.RootUtil
@@ -41,8 +46,7 @@ class LandingPresenter(
     override val alwaysDisableScreenshots = false
     override val enableLogoutTimer = false
 
-    var assetInfo: Map<String, AssetInfo> = emptyMap()
-    val priceInfo: MutableMap<String, PriceView.Price> = mutableMapOf()
+    private val statePricesViews = ConcurrentHashMap<String, PriceView.Price>()
 
     override fun onViewCreated() {}
 
@@ -54,6 +58,7 @@ class LandingPresenter(
             )
         }
         checkApiStatus()
+        loadAssets()
     }
 
     fun checkShouldShowLandingCta() {
@@ -61,60 +66,73 @@ class LandingPresenter(
         view?.showLandingCta()
     }
 
-    fun loadAssets() {
+    private fun loadAssets() {
         compositeDisposable += assetCatalogue.initialise()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .map { currencies ->
+                currencies.filterIsInstance<AssetInfo>().filter {
+                    it.isCustodial
+                }
+            }
+            .doOnSuccess { assets ->
+                val pricesViews = assets.map { assetInfo ->
+                    val view = PriceView.Price(
+                        icon = assetInfo.logo,
+                        name = assetInfo.name,
+                        displayTicker = assetInfo.displayTicker,
+                        networkTicker = assetInfo.networkTicker
+                    )
+
+                    @Suppress("ReplacePutWithAssignment")
+                    statePricesViews.put(assetInfo.networkTicker, view)
+
+                    view
+                }
+
+                view?.onLoadPrices(pricesViews)
+            }
+            .flatMapObservable { assets ->
+                getPricesMerged(assets)
+            }
             .subscribeBy(
-                onSuccess = { currencies ->
-                    val assets = currencies.filterIsInstance<AssetInfo>().filter {
-                        it.isCustodial
-                    }
+                onNext = { (asset, price) ->
+                    val priceView = PriceView.Price(
+                        icon = asset.logo,
+                        name = asset.name,
+                        displayTicker = asset.displayTicker,
+                        networkTicker = asset.networkTicker,
+                        price = price.currentRate.price.toStringWithSymbol(),
+                        gain = if (!price.delta24h.isNaN()) {
+                            price.delta24h
+                        } else {
+                            0.0
+                        }
+                    )
 
-                    assetInfo = assets.associateBy {
-                        it.networkTicker
-                    }
+                    @Suppress("ReplacePutWithAssignment")
+                    statePricesViews.put(asset.networkTicker, priceView)
 
-                    assets.forEach { assetInfo ->
-                        priceInfo[assetInfo.networkTicker] = PriceView.Price(
-                            icon = assetInfo.logo,
-                            name = assetInfo.name,
-                            displayTicker = assetInfo.displayTicker,
-                            networkTicker = assetInfo.networkTicker
-                        )
-                    }
-
-                    val priceList = priceInfo.values.toList()
-                    priceList.take(NUM_INITIAL_PRICES).forEach { price ->
-                        getPrices(price)
-                    }
-                    view?.onLoadPrices(priceList)
+                    view?.onLoadPrices(statePricesViews.values.toList())
                 },
                 onError = { Timber.e("initialise $it") }
             )
     }
 
-    fun getPrices(price: PriceView.Price) {
-        assetInfo[price.networkTicker]?.let {
-            compositeDisposable += exchangeRatesDataManager.getPricesWith24hDelta(it, Dollars)
+    private fun getPricesMerged(assets: List<AssetInfo>): Observable<Pair<AssetInfo, Prices24HrWithDelta>> {
+        if (assets.isEmpty()) return Observable.empty()
+        val pricesObservables = assets.map { asset ->
+            exchangeRatesDataManager.getPricesWith24hDeltaLegacy(asset, Dollars)
+                // Throttling to reduce UI changes
+                .throttleLatest(1L, TimeUnit.SECONDS)
+                .map { price -> asset to price }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                    onNext = {
-                        val currentPrice = priceInfo[price.networkTicker] ?: return@subscribeBy
+        }
 
-                        priceInfo[price.networkTicker] = currentPrice.copy(
-                            price = it.currentRate.price.toStringWithSymbol(),
-                            gain = if (!it.delta24h.isNaN()) {
-                                it.delta24h
-                            } else {
-                                0.0
-                            }
-                        )
-                        view?.onLoadPrices(priceInfo.values.toList())
-                    },
-                    onError = { Timber.e("getPricesWith24hDelta $it") }
-                )
+        // Every 10 seconds we request again the prices for the assets, and kill the old observables by using switchMap rather than flatMap
+        return Observable.interval(0L, 10L, TimeUnit.SECONDS).switchMap {
+            pricesObservables.merge()
         }
     }
 
@@ -136,9 +154,5 @@ class LandingPresenter(
         if (rootUtil.isDeviceRooted && !prefs.disableRootedWarning) {
             view?.showIsRootedWarning()
         }
-    }
-
-    companion object {
-        private const val NUM_INITIAL_PRICES = 10
     }
 }

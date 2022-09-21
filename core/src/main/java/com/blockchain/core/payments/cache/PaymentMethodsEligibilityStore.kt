@@ -2,7 +2,6 @@ package com.blockchain.core.payments.cache
 
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
-import com.blockchain.nabu.Authenticator
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.impl.Freshness
@@ -13,7 +12,6 @@ import kotlinx.serialization.builtins.ListSerializer
 
 class PaymentMethodsEligibilityStore(
     private val paymentMethodsService: PaymentMethodsService,
-    private val authenticator: Authenticator
 ) : KeyedStore<
     PaymentMethodsEligibilityStore.Key,
     List<PaymentMethodResponse>
@@ -21,15 +19,11 @@ class PaymentMethodsEligibilityStore(
     storeId = STORE_ID,
     fetcher = Fetcher.Keyed.ofSingle(
         mapper = { key ->
-            authenticator.getAuthHeader()
-                .flatMap {
-                    paymentMethodsService.getAvailablePaymentMethodsTypes(
-                        authorization = it,
-                        currency = key.currencyTicker,
-                        tier = if (key.shouldFetchSddLimits) SDD_ELIGIBLE_TIER else null,
-                        eligibleOnly = key.eligibleOnly
-                    )
-                }
+            paymentMethodsService.getAvailablePaymentMethodsTypes(
+                currency = key.currencyTicker,
+                tier = if (key.shouldFetchSddLimits) SDD_ELIGIBLE_TIER else null,
+                eligibleOnly = key.eligibleOnly
+            )
         }
     ),
     keySerializer = Key.serializer(),

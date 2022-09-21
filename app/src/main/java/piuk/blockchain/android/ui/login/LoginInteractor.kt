@@ -61,10 +61,10 @@ class LoginInteractor(
 
         return when {
             authPrefs.pinId.isNotEmpty() -> {
-                if (uri.hasDeeplinkData()) {
-                    decodePayloadAndNavigate(uri, builder, intentAction)
-                } else {
-                    LoginIntents.UserLoggedInWithoutDeeplinkData
+                when {
+                    uri.hasDeeplinkData() -> decodePayloadAndNavigate(uri, builder, intentAction)
+                    uri.isWalletConnectDeeplink() -> decodeWCLinkAndNavigate(uri)
+                    else -> LoginIntents.UserLoggedInWithoutDeeplinkData
                 }
             }
             uri.hasDeeplinkData() -> decodePayloadAndNavigate(uri, builder, intentAction)
@@ -89,6 +89,17 @@ class LoginInteractor(
         } catch (e: Throwable) {
             LoginIntents.UnknownError
         }
+
+    @ExperimentalSerializationApi
+    private fun decodeWCLinkAndNavigate(uri: Uri): LoginIntents {
+        // Example: https://login.blockchain.com/deeplink/login/wallet-connect/wc?uri=
+        // wc:00e46b69-d0cc-4b3e-b6a2-cee442f97188@1?bridge=https%3A%2F%2Fbridge.walletconnect.org&key=
+        // 91303dedf64285cbbaf9120f6e9d160a5c8aa3deb67017a3874cd272323f48ae
+        val wcUri = uri.getQueryParameter(PARAMETER_URI)
+        val wcKey = uri.getQueryParameter(PARAMETER_KEY)
+        // We need everything after the uri bit but querying the uri doesn't return the key part
+        return LoginIntents.WalletConnectDeeplinkReceived("$wcUri&$PARAMETER_KEY=$wcKey")
+    }
 
     fun shouldContinueToPinEntry() = authPrefs.pinId.isNotEmpty()
 
@@ -129,9 +140,14 @@ class LoginInteractor(
         fragment?.let { data -> data.split(LoginAuthActivity.LINK_DELIMITER).size > 1 }
             ?: false
 
+    private fun Uri.isWalletConnectDeeplink() =
+        toString().contains(WALLETCONNECT_URL)
+
     companion object {
         private const val POLLING_INTERVAL = 2L
         private const val POLLING_RETRIES = 50
-        private const val EMPTY_BODY = "{}"
+        private const val PARAMETER_URI = "uri"
+        private const val PARAMETER_KEY = "key"
+        private const val WALLETCONNECT_URL = "/login/wallet-connect/wc"
     }
 }

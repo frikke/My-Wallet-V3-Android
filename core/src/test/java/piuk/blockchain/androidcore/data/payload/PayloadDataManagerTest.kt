@@ -35,6 +35,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.RETURNS_DEEP_STUBS
+import org.mockito.exceptions.base.MockitoException
 
 @Suppress("IllegalIdentifier")
 class PayloadDataManagerTest {
@@ -109,18 +110,19 @@ class PayloadDataManagerTest {
         val password = "PASSWORD"
         val email = "EMAIL"
         val walletName = "WALLET_NAME"
+        val recaptcha = "CAPTCHA"
         val mockWallet: Wallet = mock()
-        whenever(payloadService.createHdWallet(password, walletName, email))
+        whenever(payloadService.createHdWallet(password, walletName, email, recaptcha))
             .thenReturn(Single.just(mockWallet))
 
         // Act
-        subject.createHdWallet(password, walletName, email)
+        subject.createHdWallet(password, walletName, email, recaptcha)
             .test()
             .assertComplete()
             .assertValue(mockWallet)
 
         // Assert
-        verify(payloadService).createHdWallet(password, walletName, email)
+        verify(payloadService).createHdWallet(password, walletName, email, recaptcha)
         verifyNoMoreInteractions(payloadService)
     }
 
@@ -164,8 +166,8 @@ class PayloadDataManagerTest {
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
 
-        whenever(payloadManager.isV3UpgradeRequired).thenReturn(true)
-        whenever(payloadManager.isV4UpgradeRequired).thenReturn(false)
+        whenever(payloadManager.isV3UpgradeRequired()).thenReturn(true)
+        whenever(payloadManager.isV4UpgradeRequired()).thenReturn(false)
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -174,8 +176,8 @@ class PayloadDataManagerTest {
 
         // Assert
         verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
-        verify(payloadManager).isV3UpgradeRequired
-        verify(payloadManager).isV4UpgradeRequired
+        verify(payloadManager).isV3UpgradeRequired()
+        verify(payloadManager).isV4UpgradeRequired()
         verify(payloadManager).payload
 
         verifyNoMoreInteractions(payloadService)
@@ -188,8 +190,8 @@ class PayloadDataManagerTest {
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
 
-        whenever(payloadManager.isV3UpgradeRequired).thenReturn(true)
-        whenever(payloadManager.isV4UpgradeRequired).thenReturn(true)
+        whenever(payloadManager.isV3UpgradeRequired()).thenReturn(true)
+        whenever(payloadManager.isV4UpgradeRequired()).thenReturn(true)
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -199,8 +201,8 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
         verify(payloadManager).upgradeV3PayloadToV4(secondPassword)
-        verify(payloadManager).isV3UpgradeRequired
-        verify(payloadManager).isV4UpgradeRequired
+        verify(payloadManager).isV3UpgradeRequired()
+        verify(payloadManager).isV4UpgradeRequired()
         verify(payloadManager).payload
 
         verifyNoMoreInteractions(payloadService)
@@ -213,8 +215,8 @@ class PayloadDataManagerTest {
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
 
-        whenever(payloadManager.isV3UpgradeRequired).thenReturn(false)
-        whenever(payloadManager.isV4UpgradeRequired).thenReturn(true)
+        whenever(payloadManager.isV3UpgradeRequired()).thenReturn(false)
+        whenever(payloadManager.isV4UpgradeRequired()).thenReturn(true)
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -223,8 +225,8 @@ class PayloadDataManagerTest {
 
         // Assert
         verify(payloadManager).upgradeV3PayloadToV4(secondPassword)
-        verify(payloadManager).isV3UpgradeRequired
-        verify(payloadManager).isV4UpgradeRequired
+        verify(payloadManager).isV3UpgradeRequired()
+        verify(payloadManager).isV4UpgradeRequired()
         verify(payloadManager).payload
 
         verifyNoMoreInteractions(payloadService)
@@ -237,9 +239,9 @@ class PayloadDataManagerTest {
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
         whenever(payloadManager.upgradeV2PayloadToV3(secondPassword, defaultAccountName))
-            .thenThrow(Exception("Failed"))
-        whenever(payloadManager.isV3UpgradeRequired).thenReturn(true)
-        whenever(payloadManager.isV4UpgradeRequired).thenReturn(true)
+            .thenThrow(MockitoException("Failed"))
+        whenever(payloadManager.isV3UpgradeRequired()).thenReturn(true)
+        whenever(payloadManager.isV4UpgradeRequired()).thenReturn(true)
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -248,7 +250,7 @@ class PayloadDataManagerTest {
 
         // Assert
         verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
-        verify(payloadManager).isV3UpgradeRequired
+        verify(payloadManager).isV3UpgradeRequired()
         verify(payloadManager).payload
 
         verifyNoMoreInteractions(payloadService)
@@ -260,9 +262,9 @@ class PayloadDataManagerTest {
         // Arrange
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
-        whenever(payloadManager.upgradeV3PayloadToV4(secondPassword)).thenThrow(Exception("Failed"))
-        whenever(payloadManager.isV3UpgradeRequired).thenReturn(true)
-        whenever(payloadManager.isV4UpgradeRequired).thenReturn(true)
+        whenever(payloadManager.upgradeV3PayloadToV4(secondPassword)).thenThrow(MockitoException("Failed"))
+        whenever(payloadManager.isV3UpgradeRequired()).thenReturn(true)
+        whenever(payloadManager.isV4UpgradeRequired()).thenReturn(true)
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -272,8 +274,8 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
         verify(payloadManager).upgradeV3PayloadToV4(secondPassword)
-        verify(payloadManager).isV3UpgradeRequired
-        verify(payloadManager).isV4UpgradeRequired
+        verify(payloadManager).isV3UpgradeRequired()
+        verify(payloadManager).isV4UpgradeRequired()
         verify(payloadManager).payload
 
         verifyNoMoreInteractions(payloadService)
@@ -521,17 +523,6 @@ class PayloadDataManagerTest {
     }
 
     @Test
-    fun `getAccounts returns empty list`() {
-        // Arrange
-        whenever(payloadManager.payload).thenReturn(null)
-        // Act
-        val result = subject.accounts
-        // Assert
-        verify(payloadManager).payload
-        result shouldBeEqualTo emptyList()
-    }
-
-    @Test
     fun `getImportedAddresses returns list of imported addresses`() {
         // Arrange
         val mockImportedAddress: ImportedAddress = mock {
@@ -563,17 +554,6 @@ class PayloadDataManagerTest {
         verify(payloadManager, atLeastOnce()).payload
         result.count() shouldBeEqualTo 1
         result[0] shouldBeEqualTo mockImportedAddress2
-    }
-
-    @Test
-    fun `getImportedAddresses returns empty list`() {
-        // Arrange
-        whenever(payloadManager.payload).thenReturn(null)
-        // Act
-        val result = subject.importedAddresses
-        // Assert
-        verify(payloadManager).payload
-        result shouldBeEqualTo emptyList()
     }
 
     @Test

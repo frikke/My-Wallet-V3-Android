@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
-import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycLimits
@@ -14,6 +13,7 @@ import com.blockchain.core.kyc.domain.model.TiersMap
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
@@ -21,7 +21,6 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.remoteconfig.RemoteConfig
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
@@ -45,11 +44,10 @@ class AnnouncementQueriesTest {
     private val userIdentity: UserIdentity = mock()
     private val coincore: Coincore = mock()
     private val assetCatalogue: AssetCatalogue = mock()
-    private val remoteConfig: RemoteConfig = mock()
+    private val remoteConfigService: RemoteConfigService = mock()
     private val googlePayManager: GooglePayManager = mock()
     private val googlePayEnabledFlag: FeatureFlag = mock()
     private val paymentMethodsService: PaymentMethodsService = mock()
-    private val authenticator: AuthHeaderProvider = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
     private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
@@ -68,11 +66,10 @@ class AnnouncementQueriesTest {
                 userIdentity = userIdentity,
                 coincore = coincore,
                 assetCatalogue = assetCatalogue,
-                remoteConfig = remoteConfig,
+                remoteConfigService = remoteConfigService,
                 googlePayManager = googlePayManager,
                 googlePayEnabledFlag = googlePayEnabledFlag,
                 paymentMethodsService = paymentMethodsService,
-                authenticator = authenticator,
                 fiatCurrenciesService = fiatCurrenciesService,
                 exchangeRatesDataManager = exchangeRatesDataManager,
                 currencyPrefs = currencyPrefs
@@ -82,7 +79,7 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `asset ticker raw json is empty`() {
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(""))
+        whenever(remoteConfigService.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(""))
         whenever(assetCatalogue.fromNetworkTicker(any())).thenReturn(null)
 
         subject.getAssetFromCatalogue().test().assertComplete()
@@ -91,7 +88,7 @@ class AnnouncementQueriesTest {
     @Test
     fun `asset ticker raw json doesn't exist`() {
         val testException = Throwable()
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.error(testException))
+        whenever(remoteConfigService.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.error(testException))
 
         subject.getAssetFromCatalogue().test().assertError(testException)
     }
@@ -99,7 +96,7 @@ class AnnouncementQueriesTest {
     @Test
     fun `asset ticker raw json returns unknown ticker`() {
         val moonToken = "TTM"
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(moonToken))
+        whenever(remoteConfigService.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(moonToken))
         whenever(assetCatalogue.fromNetworkTicker(moonToken)).thenReturn(null)
 
         subject.getAssetFromCatalogue().test().assertComplete()
@@ -107,7 +104,7 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `asset ticker raw json returns known ticker`() {
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER))
+        whenever(remoteConfigService.getRawJson(NEW_ASSET_TICKER))
             .thenReturn(Single.just(CryptoCurrency.BTC.networkTicker))
         whenever(assetCatalogue.assetInfoFromNetworkTicker(CryptoCurrency.BTC.networkTicker))
             .thenReturn(CryptoCurrency.BTC)
@@ -351,14 +348,12 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `when google pay feature flag disabled then return false`() {
-        val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(false))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                authToken, FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, null, true
             )
         ).thenReturn(
             Single.just(
@@ -383,14 +378,12 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `when goggle pay not a supported payment method then return false`() {
-        val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                authToken, FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, null, true
             )
         ).thenReturn(Single.just(emptyList()))
 
@@ -401,14 +394,12 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `when google pay not supported by device then return false`() {
-        val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(false))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                authToken, FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, null, true
             )
         ).thenReturn(
             Single.just(
@@ -433,14 +424,12 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `when google pay flag enabled and a supported payment method and supported by device then return true`() {
-        val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
         whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
-        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
-                authToken, FiatCurrency.Dollars.networkTicker, null, true
+                FiatCurrency.Dollars.networkTicker, null, true
             )
         ).thenReturn(
             Single.just(
@@ -473,7 +462,7 @@ class AnnouncementQueriesTest {
         )
         whenever(currencyPrefs.selectedFiatCurrency)
             .thenReturn(FiatCurrency.Dollars)
-        whenever(exchangeRatesDataManager.getPricesWith24hDelta(asset, FiatCurrency.Dollars))
+        whenever(exchangeRatesDataManager.getPricesWith24hDeltaLegacy(asset, FiatCurrency.Dollars))
             .thenReturn(Observable.just(prices24HrWithDelta))
 
         subject.getAssetPrice(asset).test().assertValue(prices24HrWithDelta)

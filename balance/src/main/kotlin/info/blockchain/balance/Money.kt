@@ -6,7 +6,7 @@ import java.math.BigInteger
 import java.math.RoundingMode
 import java.util.Locale
 
-abstract class Money : Serializable {
+abstract class Money : Serializable, Comparable<Money> {
 
     abstract val currency: Currency
 
@@ -99,7 +99,11 @@ abstract class Money : Serializable {
         return division(other)
     }
 
-    operator fun compareTo(other: Money): Int {
+    operator fun times(multiplier: Float): Money {
+        return multiply(multiplier)
+    }
+
+    override operator fun compareTo(other: Money): Int {
         ensureComparable("compare", other)
         return compare(other)
     }
@@ -109,6 +113,7 @@ abstract class Money : Serializable {
     protected abstract fun subtract(other: Money): Money
     protected abstract fun division(other: Money): Money
     protected abstract fun compare(other: Money): Int
+    protected abstract fun multiply(multiplier: Float): Money
 
     companion object {
         fun min(a: Money, b: Money): Money {

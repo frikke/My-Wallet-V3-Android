@@ -20,7 +20,7 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibilityDto
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -59,10 +59,10 @@ class NabuUserIdentityTest {
             )
             val mockTiers = createMockTiers(silverState = KycTierState.Verified, goldState = KycTierState.Verified)
             whenever(kycService.getTiersLegacy()).thenReturn(Single.just(mockTiers))
-            whenever(eligibilityService.getProductEligibility(EligibleProduct.BUY))
+            whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.BUY))
                 .thenReturn(Outcome.Success(eligibility))
             whenever(simpleBuyEligibilityProvider.simpleBuyTradingEligibility())
-                .thenReturn(Single.just(SimpleBuyEligibility(true, true, 0, 1)))
+                .thenReturn(Single.just(SimpleBuyEligibilityDto(true, true, 0, 1)))
 
             subject.userAccessForFeature(Feature.Buy)
                 .test()
@@ -79,7 +79,7 @@ class NabuUserIdentityTest {
             maxTransactionsCap = transactionsLimit,
             reasonNotEligible = null
         )
-        whenever(eligibilityService.getProductEligibility(EligibleProduct.SWAP))
+        whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.SWAP))
             .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.Swap)
@@ -96,7 +96,7 @@ class NabuUserIdentityTest {
             maxTransactionsCap = TransactionsLimit.Unlimited,
             reasonNotEligible = ProductNotEligibleReason.InsufficientTier.Tier2Required
         )
-        whenever(eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_CRYPTO))
+        whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_CRYPTO))
             .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.DepositCrypto)
@@ -113,7 +113,7 @@ class NabuUserIdentityTest {
             maxTransactionsCap = TransactionsLimit.Unlimited,
             reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
         )
-        whenever(eligibilityService.getProductEligibility(EligibleProduct.SELL))
+        whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.SELL))
             .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.Sell)
@@ -130,7 +130,7 @@ class NabuUserIdentityTest {
             maxTransactionsCap = TransactionsLimit.Unlimited,
             reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
         )
-        whenever(eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_FIAT))
+        whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_FIAT))
             .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.DepositFiat)
@@ -147,7 +147,7 @@ class NabuUserIdentityTest {
             maxTransactionsCap = TransactionsLimit.Unlimited,
             reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
         )
-        whenever(eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_INTEREST))
+        whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_INTEREST))
             .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.DepositInterest)
@@ -164,7 +164,7 @@ class NabuUserIdentityTest {
             maxTransactionsCap = TransactionsLimit.Unlimited,
             reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
         )
-        whenever(eligibilityService.getProductEligibility(EligibleProduct.WITHDRAW_FIAT))
+        whenever(eligibilityService.getProductEligibilityLegacy(EligibleProduct.WITHDRAW_FIAT))
             .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.WithdrawFiat)

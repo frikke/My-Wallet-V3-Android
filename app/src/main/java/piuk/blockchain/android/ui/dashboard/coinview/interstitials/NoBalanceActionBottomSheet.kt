@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.dashboard.coinview.interstitials
 import android.app.Dialog
 import android.os.Bundle
 import android.widget.FrameLayout
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
@@ -10,6 +11,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheetButton
+import com.blockchain.componentlib.sheets.BottomSheetOneButton
 import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
 import com.blockchain.componentlib.sheets.ButtonType
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -44,39 +46,17 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
 
     private val selectedAccount by lazy { arguments?.getAccount(SELECTED_ACCOUNT) as CryptoAccount }
 
+    private val canBuy by lazy { arguments?.getBoolean(CAN_BUY) ?: false }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = BottomSheetDialog(requireActivity())
 
-        val details = getNoBalanceExplainerDetails(selectedAccount, assetAction)
+        val details = getNoBalanceExplainerDetails(selectedAccount, assetAction, canBuy)
 
         dialog.setContentView(
             ComposeView(requireContext()).apply {
                 setContent {
-                    BottomSheetTwoButtons(
-                        title = details.title,
-                        subtitle = details.description,
-                        headerImageResource = details.icon,
-                        onCloseClick = {
-                            dismiss()
-                        },
-                        button1 = BottomSheetButton(
-                            type = ButtonType.PRIMARY,
-                            text = details.primaryButtonText,
-                            onClick = {
-                                details.primaryButtonOnClick()
-                                super.dismiss()
-                            }
-                        ),
-                        button2 = BottomSheetButton(
-                            type = ButtonType.MINIMAL,
-                            text = details.secondaryButtonText,
-                            onClick = {
-                                details.secondaryButtonOnClick()
-                                super.dismiss()
-                            }
-                        ),
-                        shouldShowHeaderDivider = false
-                    )
+                    ScreenContent(details)
                 }
             }
         )
@@ -90,9 +70,61 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
         return dialog
     }
 
+    @Composable
+    private fun ScreenContent(details: NoBalanceExplainerDetails) {
+        if (details.hasOnlyOneCta()) {
+            BottomSheetOneButton(
+                title = details.title,
+                subtitle = details.description,
+                headerImageResource = details.icon,
+                onCloseClick = {
+                    dismiss()
+                },
+                button = BottomSheetButton(
+                    type = ButtonType.PRIMARY,
+                    text = details.primaryButton.text,
+                    onClick = {
+                        details.primaryButton.onClick()
+                        super.dismiss()
+                    }
+                ),
+                shouldShowHeaderDivider = false
+            )
+        } else {
+            require(details.secondaryButton != null)
+
+            BottomSheetTwoButtons(
+                title = details.title,
+                subtitle = details.description,
+                headerImageResource = details.icon,
+                onCloseClick = {
+                    dismiss()
+                },
+                button1 = BottomSheetButton(
+                    type = ButtonType.PRIMARY,
+                    text = details.primaryButton.text,
+                    onClick = {
+                        details.primaryButton.onClick()
+                        super.dismiss()
+                    }
+                ),
+                button2 = BottomSheetButton(
+                    type = ButtonType.MINIMAL,
+                    text = details.secondaryButton.text,
+                    onClick = {
+                        details.secondaryButton.onClick()
+                        super.dismiss()
+                    }
+                ),
+                shouldShowHeaderDivider = false
+            )
+        }
+    }
+
     private fun getNoBalanceExplainerDetails(
         selectedAccount: CryptoAccount,
-        assetAction: AssetAction
+        assetAction: AssetAction,
+        canBuy: Boolean
     ): NoBalanceExplainerDetails {
         val assetTicker = selectedAccount.currency.displayTicker
         val accountLabel = selectedAccount.label
@@ -135,18 +167,25 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
             icon, selectedAccount.currency.colour, selectedAccount.currency.colour
         )
 
+        val buyButton = NoBalanceExplainerCta(
+            text = getString(R.string.tx_title_buy, assetTicker),
+            onClick = {
+                host.navigateToAction(AssetAction.Buy, selectedAccount, selectedAccount.currency)
+            }
+        )
+        val receiveButton = NoBalanceExplainerCta(
+            text = getString(R.string.common_receive_to, assetTicker),
+            onClick = {
+                host.navigateToAction(AssetAction.Receive, selectedAccount, selectedAccount.currency)
+            }
+        )
+
         return NoBalanceExplainerDetails(
             title = sheetTitle,
             description = sheetSubtitle,
             icon = sheetIcon,
-            primaryButtonText = getString(R.string.tx_title_buy, assetTicker),
-            primaryButtonOnClick = {
-                host.navigateToAction(AssetAction.Buy, selectedAccount, selectedAccount.currency)
-            },
-            secondaryButtonText = getString(R.string.common_receive_to, assetTicker),
-            secondaryButtonOnClick = {
-                host.navigateToAction(AssetAction.Receive, selectedAccount, selectedAccount.currency)
-            }
+            primaryButton = if (canBuy) buyButton else receiveButton,
+            secondaryButton = if (canBuy) receiveButton else null,
         )
     }
 
@@ -154,24 +193,32 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
         val title: String = "",
         val description: String = "",
         val icon: ImageResource = ImageResource.None,
-        val primaryButtonText: String = "",
-        val primaryButtonOnClick: () -> Unit = {},
-        val secondaryButtonText: String = "",
-        val secondaryButtonOnClick: () -> Unit = {}
+        val primaryButton: NoBalanceExplainerCta,
+        val secondaryButton: NoBalanceExplainerCta?
     )
+
+    private data class NoBalanceExplainerCta(
+        val text: String = "",
+        val onClick: () -> Unit = {},
+    )
+
+    private fun NoBalanceExplainerDetails.hasOnlyOneCta() = secondaryButton == null
 
     companion object {
         private const val SELECTED_ACCOUNT = "selected_account"
         private const val ASSET_ACTION = "asset_action"
+        private const val CAN_BUY = "can_buy"
 
         fun newInstance(
             selectedAccount: BlockchainAccount,
             action: AssetAction,
+            canBuy: Boolean
         ): NoBalanceActionBottomSheet {
             return NoBalanceActionBottomSheet().apply {
                 arguments = Bundle().apply {
                     putAccount(SELECTED_ACCOUNT, selectedAccount)
                     putSerializable(ASSET_ACTION, action)
+                    putBoolean(CAN_BUY, canBuy)
                 }
             }
         }

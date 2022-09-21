@@ -143,15 +143,11 @@ class DeeplinkProcessorV2Test {
     @Test
     fun `test parse of external link deeplink URI`() {
         val expectedUrl = "https://www.google.com"
-        val externalLinkUri = Uri.parse(
-            "https://www.login.blockchain.com/app/external/link?url=$expectedUrl"
-        )
+        val externalLinkUri = Uri.parse(expectedUrl)
 
         val test = deeplinkProcessorV2Subject.process(externalLinkUri).test()
         test.assertValue { deeplinkResult ->
-            deeplinkResult is DeepLinkResult.DeepLinkResultSuccess &&
-                deeplinkResult.destination is Destination.ExternalLinkDestination &&
-                (deeplinkResult.destination as Destination.ExternalLinkDestination).url == expectedUrl
+            deeplinkResult is DeepLinkResult.DeepLinkResultUnknownLink && deeplinkResult.uri == externalLinkUri
         }
     }
 

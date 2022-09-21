@@ -28,6 +28,8 @@ android {
 }
 
 dependencies {
+    implementation project(':string-resources')
+
     implementation Libraries.appCompat
     implementation Libraries.design
     implementation Libraries.glide
@@ -46,6 +48,7 @@ dependencies {
     implementation Libraries.composeLottie
     implementation Libraries.exoPlayer
     implementation Libraries.accompanistSystemUi
+    implementation Libraries.accompanistDrawablePainter
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.koin
     implementation Libraries.koinAndroid

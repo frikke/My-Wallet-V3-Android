@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.coinview
 
 import com.blockchain.api.services.DetailedAssetInformation
 import com.blockchain.charts.ChartEntry
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.StateAwareAction
@@ -34,6 +35,7 @@ sealed class CoinViewViewState {
 
     class ShowRecurringBuys(val recurringBuys: List<RecurringBuy>, val shouldShowUpsell: Boolean) : CoinViewViewState()
     class QuickActionsLoaded(
+        val middleAction: QuickActionCta,
         val startAction: QuickActionCta,
         val endAction: QuickActionCta,
         val actionableAccount: BlockchainAccount
@@ -44,6 +46,11 @@ sealed class CoinViewViewState {
     class UpdatedWatchlist(val addedToWatchlist: Boolean) : CoinViewViewState()
     class ShowAccountActionSheet(val actions: Array<StateAwareAction>) : CoinViewViewState()
     class ShowAccountExplainerSheet(val actions: Array<StateAwareAction>) : CoinViewViewState()
+    class ShowBalanceUpsellSheet(
+        val account: BlockchainAccount,
+        val action: AssetAction,
+        val canBuy: Boolean
+    ) : CoinViewViewState()
 }
 
 enum class CoinViewError {
@@ -105,6 +112,11 @@ sealed interface AssetDetailsItem {
         actions = actions,
         interestRate = Double.NaN
     )
+
+    data class CentralCta(
+        val enabled: Boolean,
+        val account: BlockchainAccount,
+    ) : AssetDetailsItem
 
     data class RecurringBuyInfo(
         val recurringBuy: RecurringBuy

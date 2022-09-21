@@ -56,7 +56,6 @@ enum class AnalyticsEvents(
     WalletSignupClickCreate("wallet_signup_create"),
     WalletSignupClickEmail("wallet_signup_email"),
     WalletSignupClickPasswordFirst("wallet_signup_password_first"),
-    WalletSignupClickPasswordSecond("wallet_signup_password_second"),
     WalletSignupCreated("wallet_signup_wallet_created"),
     WalletSignupPINFirst("wallet_signup_pin_first"),
     WalletSignupPINSecond("wallet_signup_pin_second"),
@@ -273,7 +272,8 @@ enum class AnalyticsNames(val eventName: String) {
     WALLET_HOME_VIEWED("Wallet Home Viewed"),
     WALLET_PRICES_VIEWED("Wallet Prices Viewed"),
     WALLET_REWARDS_VIEWED("Wallet Rewards Viewed"),
-    REFERRAL_CTA_CLICKED("Clicks on referral CTAs"),
+    WALLET_NFT_VIEWED("Wallet NFT Viewed"),
+    REFERRAL_PROGRAM_CLICKED("Wallet Referral Program Clicked"),
     REFERRAL_VIEW_REFERRAL("View referrals page"),
     REFERRAL_CODE_FILLED("Referral Code Filled"),
     REFERRAL_SHARE_CODE("Share referral code"),
@@ -291,10 +291,15 @@ enum class AnalyticsNames(val eventName: String) {
     COWBOYS_RAFFLE_INTERSTITIAL_CLOSED("Cowboys Raffle Interstitial Closed"),
     COWBOYS_RAFFLE_INTERSTITIAL_BUY_CLICKED("Cowboys Raffle Interstitial Buy Crypto Clicked"),
     COWBOYS_VERIFY_ANNOUNCEMENT_CLICKED("Cowboys Verify Identity Announcement Clicked"),
+    COWBOYS_KYC_IN_PROGRESS_ANNOUNCEMENT_CLICKED("Cowboys Kyc In Progress Announcement Clicked"),
     COWBOYS_VERIFY_INTERSTITIAL_VIEWED("Cowboys Verify Identity Interstitial Viewed"),
     COWBOYS_VERIFY_INTERSTITIAL_CLOSED("Cowboys Verify Identity Interstitial Closed"),
     COWBOYS_VERIFY_INTERSTITIAL_CTA_CLICKED("Cowboys Verify Identity Interstitial Verify ID Clicked"),
-    COWBOYS_REFER_FRIEND_ANNOUNCEMENT_CLICKED("Cowboys Refer Friends Announcement Clicked")
+    COWBOYS_REFER_FRIEND_ANNOUNCEMENT_CLICKED("Cowboys Refer Friends Announcement Clicked"),
+    MVP_SWITCHED_TO_DEFI("Switched to DeFi"),
+    MVP_SWITCHED_TO_TRADING("Switched to Trading"),
+    MVP_DEFI_BUY_SELECTED("QAS DeFi Buy"),
+    MVP_DEFI_BUY_SWITCH_TO_TRADING("QAS DeFi Buy Switched to Trading")
     ;
 }
 

@@ -10,12 +10,14 @@ import io.reactivex.rxjava3.core.Single
 import java.io.Serializable
 
 interface UserIdentity {
+    @Deprecated("use UserFeaturePermissionService")
     fun isEligibleFor(feature: Feature): Single<Boolean>
     fun isVerifiedFor(feature: Feature): Single<Boolean>
     fun getBasicProfileInformation(): Single<BasicProfileInfo>
     fun checkForUserWalletLinkErrors(): Completable
     fun getUserCountry(): Maybe<String>
     fun getUserState(): Maybe<String>
+    @Deprecated("use UserFeaturePermissionService")
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess>
     fun userAccessForFeatures(features: List<Feature>): Single<Map<Feature, FeatureAccess>>
     fun majorProductsNotEligibleReasons(): Single<List<ProductNotEligibleReason>>
@@ -50,12 +52,13 @@ sealed class FeatureAccess {
     data class Blocked(val reason: BlockedReason) : FeatureAccess()
 
     fun isBlockedDueToEligibility(): Boolean =
-        this is Blocked && reason == BlockedReason.NotEligible
+        this is Blocked && reason is BlockedReason.NotEligible
 }
 
 sealed class BlockedReason : Serializable {
-    object NotEligible : BlockedReason()
+    data class NotEligible(val message: String?) : BlockedReason()
     sealed class InsufficientTier : BlockedReason() {
+        object Tier1Required : InsufficientTier()
         object Tier2Required : InsufficientTier()
         object Tier1TradeLimitExceeded : InsufficientTier()
         data class Unknown(val message: String) : InsufficientTier()

@@ -25,7 +25,7 @@ import retrofit2.Response
 class WalletApiTest {
     private val walletExplorerEndpoints: WalletExplorerEndpoints = mock()
     private val api: ApiCode = mock()
-    private val subject: WalletApi = WalletApi(walletExplorerEndpoints, api)
+    private val subject: WalletApi = WalletApi(walletExplorerEndpoints, api, "")
 
     @Test
     fun `get encrypted payload`() {
@@ -49,7 +49,7 @@ class WalletApiTest {
         subject.fetchEncryptedPayload(guid, sessionId, false).test()
             .waitForCompletionWithoutErrors().assertValue {
                 val walletBase = WalletBase.fromJson(it.body()!!.string())
-                walletBase.isSyncPubkeys &&
+                walletBase.syncPubkeys &&
                     walletBase.payloadChecksum == "1b921868a5b29ef7548dd5b541b1e6644acc1c46b0fe7726b790ec717a947416"
             }
     }

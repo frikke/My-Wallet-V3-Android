@@ -79,10 +79,6 @@ class CarouselView : ConstraintLayout {
         listAdapter.priceList?.submitList(prices)
     }
 
-    fun setOnPricesRequest(onPriceRequest: (PriceView.Price) -> Unit) {
-        listAdapter.onPriceRequest = onPriceRequest
-    }
-
     fun setOnPricesAlphaChangeListener(alphaChangeListener: (Float) -> Unit) {
         listAdapter.onAlphaChangeListener = alphaChangeListener
     }
@@ -124,7 +120,6 @@ private class CarouselAdapter(
 
     class CarouselViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
-    var onPriceRequest: ((PriceView.Price) -> Unit) = {}
     var onAlphaChangeListener: ((Float) -> Unit) = {}
 
     var priceList: PriceListView? = null
@@ -163,7 +158,6 @@ private class CarouselAdapter(
                 val itemBinding = ViewCarouselListBinding.bind(holder.itemView)
                 itemBinding.title.text = item.text
                 itemBinding.livePriceText.text = item.secondaryText
-                itemBinding.priceList.setOnPriceRequest(onPriceRequest)
             }
             is CarouselViewType.ValueProp -> {
                 val itemBinding = ViewCarouselValueBinding.bind(holder.itemView)

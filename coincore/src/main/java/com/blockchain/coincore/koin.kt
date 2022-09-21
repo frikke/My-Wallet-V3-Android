@@ -3,7 +3,6 @@ package com.blockchain.coincore
 import com.blockchain.coincore.bch.BchAsset
 import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.eth.EthAsset
-import com.blockchain.coincore.evm.MaticAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
@@ -18,7 +17,6 @@ import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetRepository
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.koin.payloadScope
@@ -26,7 +24,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -73,6 +71,7 @@ val coincoreModule = module {
         scoped {
             EthAsset(
                 ethDataManager = get(),
+                l1BalanceStore = get(),
                 feeDataManager = get(),
                 walletPrefs = get(),
                 labels = get(),
@@ -84,35 +83,18 @@ val coincoreModule = module {
         }.bind(CryptoAsset::class)
 
         scoped {
-            MaticAsset(
-                ethDataManager = get(),
-                erc20DataManager = get(),
-                feeDataManager = get(),
-                walletPreferences = get(),
-                labels = get(),
-                formatUtils = get(),
-                addressResolver = get(),
-                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
-            )
-        }.bind(CryptoAsset::class)
-
-        scoped {
-            val flag: FeatureFlag = get(ethLayerTwoFeatureFlag)
-            val ncAssetList = if (flag.isEnabled) {
-                emptyList<AssetInfo>()
-            } else {
-                experimentalL1EvmAssetList()
-            }
             Coincore(
                 assetCatalogue = get(),
                 payloadManager = get(),
                 assetLoader = get(),
                 txProcessorFactory = get(),
                 defaultLabels = get(),
+                currencyPrefs = get(),
                 remoteLogger = get(),
                 bankService = get(),
                 walletModeService = get(),
-                disabledEvmAssets = ncAssetList.toList(),
+                ethLayerTwoFF = get(ethLayerTwoFeatureFlag)
+
             )
         }
 
@@ -126,6 +108,7 @@ val coincoreModule = module {
                 experimentalL1EvmAssets = experimentalL1EvmAssetList(), // Only Matic ATM
                 assetCatalogue = get(),
                 payloadManager = get(),
+                l1BalanceStore = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
                 tradingService = get(),
@@ -227,7 +210,14 @@ val coincoreModule = module {
 
     single {
         UniversalDynamicAssetRepository(
-            l1EvmAssets = experimentalL1EvmAssetList(),
+            dominantL1Assets = setOf(
+                CryptoCurrency.MATIC,
+                CryptoCurrency.BTC,
+                CryptoCurrency.BCH,
+                CryptoCurrency.XLM,
+                CryptoCurrency.ETHER,
+                CryptoCurrency.BNB
+            ),
             discoveryService = get(),
             l2sDynamicAssetRepository = get()
         )

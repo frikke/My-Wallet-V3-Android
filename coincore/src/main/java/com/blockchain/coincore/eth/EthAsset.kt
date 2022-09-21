@@ -11,6 +11,7 @@ import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.NotificationAddresses
 import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.coincore.wrap.FormatUtilities
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetCatalogue
@@ -25,6 +26,7 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 internal class EthAsset(
     private val ethDataManager: EthDataManager,
+    private val l1BalanceStore: L1BalanceStore,
     private val feeDataManager: FeeDataManager,
     private val assetCatalogue: Lazy<AssetCatalogue>,
     private val walletPrefs: WalletStatusPrefs,
@@ -40,33 +42,29 @@ internal class EthAsset(
 
     override fun initToken(): Completable =
         ethDataManager.initEthereumWallet(
-            assetCatalogue.value,
             labels.getDefaultNonCustodialWalletLabel()
         )
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        Single.just(ethDataManager.getEthWallet() ?: throw Exception("No ether wallet found"))
-            .flatMap { ethereumWallet ->
-                ethereumWallet.account?.let { ethereumAccount ->
-                    Single.just(
-                        EthCryptoWalletAccount(
-                            ethDataManager = ethDataManager,
-                            fees = feeDataManager,
-                            jsonAccount = ethereumAccount,
-                            walletPreferences = walletPrefs,
-                            exchangeRates = exchangeRates,
-                            custodialWalletManager = custodialManager,
-                            assetCatalogue = assetCatalogue.value,
-                            addressResolver = addressResolver,
-                            l1Network = EthDataManager.ethChain
-                        )
-                    )
-                } ?: throw Exception("No ethereum account found")
-            }.doOnSuccess { ethAccount ->
-                updateBackendNotificationAddresses(ethAccount)
-            }.map {
-                listOf(it)
-            }
+
+        Single.just(
+            EthCryptoWalletAccount(
+                ethDataManager = ethDataManager,
+                l1BalanceStore = l1BalanceStore,
+                fees = feeDataManager,
+                jsonAccount = ethDataManager.ehtAccount,
+                walletPreferences = walletPrefs,
+                exchangeRates = exchangeRates,
+                custodialWalletManager = custodialManager,
+                assetCatalogue = assetCatalogue.value,
+                addressResolver = addressResolver,
+                l1Network = EthDataManager.ethChain
+            )
+        ).doOnSuccess { ethAccount ->
+            updateBackendNotificationAddresses(ethAccount)
+        }.map {
+            listOf(it)
+        }
 
     private fun updateBackendNotificationAddresses(account: EthCryptoWalletAccount) {
         val notify = NotificationAddresses(

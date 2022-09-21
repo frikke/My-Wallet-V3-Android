@@ -1,5 +1,7 @@
 package com.blockchain.nabu.models.responses.nabu
 
+import com.blockchain.domain.common.model.CountryIso
+import com.blockchain.domain.common.model.StateIso
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.serialization.JsonSerializable
 import com.blockchain.serializers.AnyToStringSerializer
@@ -111,10 +113,11 @@ data class Address(
     val line1: String? = null,
     val line2: String? = null,
     val city: String? = null,
-    val state: String? = null,
+    @SerialName("state")
+    val stateIso: StateIso? = null,
     val postCode: String? = null,
     @SerialName("country")
-    val countryCode: String? = null
+    val countryCode: CountryIso? = null
 )
 
 @Serializable
@@ -150,7 +153,7 @@ data class AddAddressRequest(
                 city = billingAddress.city,
                 countryCode = billingAddress.countryCode,
                 postCode = billingAddress.postCode,
-                state = billingAddress.state
+                stateIso = billingAddress.state
             )
     }
 }

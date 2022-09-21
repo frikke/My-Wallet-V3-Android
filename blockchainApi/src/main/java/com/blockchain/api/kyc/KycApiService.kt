@@ -6,7 +6,7 @@ import io.reactivex.rxjava3.core.Single
 class KycApiService internal constructor(
     private val kycApi: KycApiInterface
 ) {
-    fun getTiers(authHeader: String): Single<KycTiersDto> {
-        return kycApi.getTiers(authorization = authHeader)
+    fun getTiers(): Single<KycTiersDto> {
+        return kycApi.getTiers()
     }
 }

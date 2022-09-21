@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.start
 
+import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.enviroment.EnvironmentConfig
@@ -13,6 +14,7 @@ import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito
 import piuk.blockchain.android.util.RootUtil
@@ -34,6 +36,13 @@ class LandingPresenterTest {
     private val onboardingPrefs: OnboardingPrefs = mock()
     private val rootUtil: RootUtil = mock()
 
+    @get:Rule
+    val rx = rxInit {
+        mainTrampoline()
+        ioTrampoline()
+        computationTrampoline()
+    }
+
     @Before
     fun setUp() {
         subject =
@@ -47,6 +56,7 @@ class LandingPresenterTest {
     fun `onViewReady no debug`() {
         // Arrange
         whenever(environmentSettings.isRunningInDebugMode()).thenReturn(false)
+        whenever(assetCatalogue.initialise()).thenReturn(Single.error(Exception()))
         // Act
         subject.attachView(view)
         // Assert
@@ -58,6 +68,7 @@ class LandingPresenterTest {
         // Arrange
         whenever(rootUtil.isDeviceRooted).thenReturn(true)
         whenever(prefs.disableRootedWarning).thenReturn(false)
+        whenever(assetCatalogue.initialise()).thenReturn(Single.error(Exception()))
 
         subject.attachView(view)
 
@@ -74,6 +85,7 @@ class LandingPresenterTest {
         // Arrange
         whenever(rootUtil.isDeviceRooted).thenReturn(false)
         whenever(prefs.disableRootedWarning).thenReturn(false)
+        whenever(assetCatalogue.initialise()).thenReturn(Single.error(Exception()))
 
         subject.attachView(view)
 
@@ -89,6 +101,7 @@ class LandingPresenterTest {
         // Arrange
         whenever(rootUtil.isDeviceRooted).thenReturn(true)
         whenever(prefs.disableRootedWarning).thenReturn(false)
+        whenever(assetCatalogue.initialise()).thenReturn(Single.error(Exception()))
 
         subject.attachView(view)
 

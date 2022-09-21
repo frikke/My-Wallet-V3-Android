@@ -101,5 +101,5 @@ fun ConstraintLayout.removePossibleBottomView() {
 }
 
 private const val BOTTOM_VIEW_TAG = "BOTTOM_VIEW"
-private const val ADDED_VIEW_MARGIN = R.dimen.smallest_margin
-private const val VIEW_SPACING = R.dimen.very_small_margin
+private const val ADDED_VIEW_MARGIN = R.dimen.smallest_spacing
+private const val VIEW_SPACING = R.dimen.very_small_spacing

@@ -25,16 +25,15 @@ fun StackedIcons(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier.size(width = dimensionResource(R.dimen.large_margin), height = 40.dp)
+        modifier = modifier.size(width = dimensionResource(R.dimen.large_spacing), height = 40.dp)
     ) {
         Image(
             imageResource = bottomImageResource,
             modifier = Modifier
-                .size(dimensionResource(R.dimen.standard_margin))
+                .size(dimensionResource(R.dimen.standard_spacing))
                 .clip(CircleShape)
                 .background(AppTheme.colors.background)
                 .align(Alignment.BottomEnd),
-            coilImageBuilderScope = null
         )
 
         Image(
@@ -45,7 +44,6 @@ fun StackedIcons(
                 .background(AppTheme.colors.background)
                 .border(2.dp, AppTheme.colors.background, shape = CircleShape)
                 .align(Alignment.TopStart),
-            coilImageBuilderScope = null
         )
     }
 }

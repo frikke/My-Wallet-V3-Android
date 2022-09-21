@@ -1,6 +1,7 @@
 package com.blockchain.koin
 
 import android.app.Application
+import com.blockchain.addressverification.koin.addressVerificationModule
 import com.blockchain.analytics.data.koin.analyticsModule
 import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
@@ -49,13 +50,14 @@ import piuk.blockchain.android.rating.presentaion.appRatingPresentationModule
 import piuk.blockchain.android.ui.activity.activitiesModule
 import piuk.blockchain.android.ui.auth.newlogin.data.secureChannelDataModule
 import piuk.blockchain.android.ui.auth.newlogin.presentation.secureChannelPresentationModule
+import piuk.blockchain.android.ui.coinview.domain.coinviewDomainModule
+import piuk.blockchain.android.ui.coinview.presentation.coinviewPresentationModule
 import piuk.blockchain.android.ui.customersupport.customerSupportModule
 import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncementsModule
 import piuk.blockchain.android.ui.dashboard.dashboardModule
 import piuk.blockchain.android.ui.debug.remoteFeatureFlagsModule
 import piuk.blockchain.android.ui.educational.walletmodes.educationalWalletModesPresentationModule
 import piuk.blockchain.android.ui.home.mainModule
-import piuk.blockchain.android.ui.interest.data.interestDashboardDataModule
 import piuk.blockchain.android.ui.interest.domain.interestDashboardDomainModule
 import piuk.blockchain.android.ui.interest.presentation.interestDashboardPresentationModule
 import piuk.blockchain.android.ui.kyc.autocomplete.kycAutocompleteModule
@@ -109,8 +111,9 @@ object KoinStarter {
                     pricesModule,
                     dashboardAnnouncementsModule,
                     environmentModule,
+
+                    coinviewPresentationModule, coinviewDomainModule,
                     internalFeatureFlagsModule,
-                    authenticationModule,
                     kycUiModule,
                     kycUiNabuModule,
                     loginUiModule,
@@ -127,7 +130,6 @@ object KoinStarter {
                     sunriverModule,
                     walletModule,
                     xlmModule,
-                    kycAutocompleteModule,
                     mainModule,
                     redesignSettingsModule,
                     remoteFeatureFlagsModule,
@@ -138,7 +140,9 @@ object KoinStarter {
                     storeCachesInMemoryModule,
                     storeCachesPersistedJsonSqlDelightModule,
                     blockchainCardModule,
-                    interestDashboardDataModule, interestDashboardDomainModule, interestDashboardPresentationModule,
+                    interestDashboardDomainModule, interestDashboardPresentationModule,
+                    kycAutocompleteModule,
+                    addressVerificationModule,
                     appMaintenanceDataModule, appMaintenanceDomainModule, appMaintenancePresentationModule,
                     bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule,
                     referralPresentationModule,

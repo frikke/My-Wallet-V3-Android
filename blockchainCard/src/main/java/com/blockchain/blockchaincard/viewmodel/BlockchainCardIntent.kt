@@ -39,7 +39,7 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object LoadCardWidget : BlockchainCardIntent()
     object FundingAccountClicked : BlockchainCardIntent()
     object ChoosePaymentMethod : BlockchainCardIntent()
-    object TopUp : BlockchainCardIntent()
+    object AddFunds : BlockchainCardIntent()
     data class LinkSelectedAccount(val accountCurrencyNetworkTicker: String) : BlockchainCardIntent()
     object LoadLinkedAccount : BlockchainCardIntent()
     data class LoadAccountBalance(val tradingAccount: BlockchainAccount) : BlockchainCardIntent()
@@ -49,6 +49,7 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object LoadResidentialAddress : BlockchainCardIntent()
     object SeeBillingAddress : BlockchainCardIntent()
     data class UpdateBillingAddress(val newAddress: BlockchainCardAddress) : BlockchainCardIntent()
+    object SeeAllTransactions : BlockchainCardIntent()
     data class SeeTransactionDetails(val transaction: BlockchainCardTransaction) : BlockchainCardIntent()
 
     object DismissBillingAddressUpdateResult : BlockchainCardIntent()

@@ -10,8 +10,8 @@ class EligibilityApiService(
     private val api: EligibilityApi
 ) {
 
-    suspend fun getProductEligibility(authHeader: String): Outcome<Exception, ProductEligibilityResponse> =
-        api.getProductEligibility(authHeader)
+    suspend fun getProductEligibility(): Outcome<Exception, ProductEligibilityResponse> =
+        api.getProductEligibility()
 
     suspend fun getCountriesList(scope: String?): Outcome<Exception, List<CountryResponse>> =
         api.getCountriesList(scope)

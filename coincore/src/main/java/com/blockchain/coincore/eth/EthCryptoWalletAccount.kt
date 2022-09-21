@@ -3,33 +3,43 @@ package com.blockchain.coincore.eth
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.NullFiatAccount.currency
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.EvmNetwork
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.store.asObservable
+import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
+import info.blockchain.wallet.ethereum.EthUrls
 import info.blockchain.wallet.ethereum.EthereumAccount
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlinx.coroutines.rx3.rxSingle
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOf
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 /*internal*/ class EthCryptoWalletAccount internal constructor(
-    private val jsonAccount: EthereumAccount,
+    private var jsonAccount: EthereumAccount,
     private val ethDataManager: EthDataManager,
+    private val l1BalanceStore: L1BalanceStore,
     private val fees: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
     override val exchangeRates: ExchangeRatesDataManager,
@@ -49,19 +59,20 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
     private val hasFunds = AtomicBoolean(false)
 
     override fun getOnChainBalance(): Observable<Money> =
-        rxSingle {
-            // Only get the balance for ETH from the node if we are on the Ethereum network
-            if (l1Network.networkTicker == currency.networkTicker) {
-                // TODO AND-5913 Use result/either and coroutines
-                ethDataManager.getBalance()
-                    .map { Money.fromMinor(currency, it) }
-                    .getOrDefault(Money.fromMajor(currency, BigDecimal.ZERO))
-            } else {
-                // TODO get the L2 balance of Eth from the backend
-                Money.fromMajor(currency, BigDecimal.ZERO)
+        // Only get the balance for ETH from the node if we are on the Ethereum network
+        if (l1Network.networkTicker == currency.networkTicker) {
+            // TODO AND-5913 Use result/either and coroutines
+            l1BalanceStore.stream(
+                FreshnessStrategy.Cached(forceRefresh = true).withKey(L1BalanceStore.Key(EthUrls.ETH_NODES))
+            ).catch {
+                emit(DataResource.Data(BigInteger.ZERO))
+            }.mapData { balance ->
+                Money.fromMinor(currency, balance)
             }
-        }
-            .toObservable()
+        } else {
+            // TODO get the L2 balance of Eth from the backend
+            flowOf(DataResource.Data(Money.fromMajor(currency, BigDecimal.ZERO)))
+        }.asObservable()
             .doOnNext { hasFunds.set(it.isPositive) }
 
     override val isFunded: Boolean
@@ -77,10 +88,7 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
     override fun updateLabel(newLabel: String): Completable {
         require(newLabel.isNotEmpty())
-        val revertLabel = label
-        jsonAccount.label = newLabel
         return ethDataManager.updateAccountLabel(newLabel)
-            .doOnError { jsonAccount.label = revertLabel }
     }
 
     override val activity: Single<ActivitySummaryList>

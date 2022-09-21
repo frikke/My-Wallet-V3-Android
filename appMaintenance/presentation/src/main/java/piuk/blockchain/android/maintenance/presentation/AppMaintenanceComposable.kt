@@ -48,10 +48,10 @@ fun AppMaintenanceScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(
-                        start = dimensionResource(R.dimen.standard_margin),
-                        end = dimensionResource(R.dimen.standard_margin),
-                        top = dimensionResource(R.dimen.standard_margin),
-                        bottom = dimensionResource(R.dimen.large_margin),
+                        start = dimensionResource(R.dimen.standard_spacing),
+                        end = dimensionResource(R.dimen.standard_spacing),
+                        top = dimensionResource(R.dimen.standard_spacing),
+                        bottom = dimensionResource(R.dimen.large_spacing),
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -68,16 +68,16 @@ fun AppMaintenanceScreen(
                 }
 
                 Text(
-                    modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
+                    modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_spacing)),
                     style = AppTheme.typography.title3,
                     color = Grey900,
                     text = stringResource(id = title),
                 )
 
-                Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+                Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
 
                 Text(
-                    modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
+                    modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_spacing)),
                     style = AppTheme.typography.body1,
                     color = Grey900,
                     textAlign = TextAlign.Center,
@@ -92,7 +92,7 @@ fun AppMaintenanceScreen(
                         text = "Debug Build - Click to skip",
                         onClick = debugSkip
                     )
-                    Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+                    Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
                 }
 
                 button1?.let { buttonSettings ->
@@ -104,7 +104,7 @@ fun AppMaintenanceScreen(
                 }
 
                 if (button1 != null && button2 != null) {
-                    Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+                    Spacer(Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
                 }
 
                 button2?.let { buttonSettings ->

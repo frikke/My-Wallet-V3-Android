@@ -5,13 +5,13 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/small_margin">
+    android:paddingTop="@dimen/small_spacing">
 
     <ImageView
         android:id="@+id/icon"
         android:layout_width="@dimen/asset_icon_size"
         android:layout_height="@dimen/asset_icon_size"
-        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
         android:importantForAccessibility="no"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -22,8 +22,8 @@
         style="@style/Text.Semibold.16"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/small_margin"
-        android:layout_marginEnd="@dimen/tiny_margin"
+        android:layout_marginStart="@dimen/small_spacing"
+        android:layout_marginEnd="@dimen/tiny_spacing"
         android:ellipsize="end"
         android:singleLine="true"
         app:layout_constraintStart_toEndOf="@id/icon"
@@ -36,7 +36,7 @@
         style="@style/Text.Semibold.Light.14"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_spacing"
         android:text="@string/archived_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/icon"

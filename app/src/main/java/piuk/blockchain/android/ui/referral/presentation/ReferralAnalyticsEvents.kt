@@ -8,8 +8,8 @@ sealed class ReferralAnalyticsEvents(
     override val params: Map<String, String> = emptyMap(),
 ) : AnalyticsEvent {
 
-    data class ReferralCtaClicked(val launchOrigin: Origin) : ReferralAnalyticsEvents(
-        event = AnalyticsNames.REFERRAL_CTA_CLICKED.eventName,
+    data class ReferralProgramClicked(val launchOrigin: Origin) : ReferralAnalyticsEvents(
+        event = AnalyticsNames.REFERRAL_PROGRAM_CLICKED.eventName,
         params = mapOf(
             KEY_PLATFORM to WALLET,
             KEY_ORIGIN to launchOrigin.name

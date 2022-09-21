@@ -2,17 +2,13 @@ package piuk.blockchain.android.ui.kyc.profile
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiExceptionFactory
-import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
-import com.blockchain.nabu.models.responses.tokenresponse.toNabuOfflineToken
 import com.blockchain.nabu.util.toISO8601DateString
 import com.blockchain.testutils.date
 import com.nhaarman.mockitokotlin2.any
@@ -31,7 +27,6 @@ import org.amshove.kluent.`should throw`
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.validOfflineToken
 import piuk.blockchain.android.util.StringUtils
 import retrofit2.HttpException
 import retrofit2.Response
@@ -42,8 +37,8 @@ class KycProfilePresenterTest {
     private val view: KycProfileView = mock()
     private val nabuDataManager: NabuDataManager = mock()
     private val userService: UserService = mock()
+    private val getUserStore: GetUserStore = mock()
     private val stringUtils: StringUtils = mock()
-    private val nabuToken: NabuToken = mock()
 
     @Suppress("unused")
     @get:Rule
@@ -55,9 +50,9 @@ class KycProfilePresenterTest {
     @Before
     fun setUp() {
         subject = KycProfilePresenter(
-            nabuToken,
             nabuDataManager,
             userService,
+            getUserStore,
             stringUtils,
         )
         whenever(stringUtils.getString(any())).thenReturn("")
@@ -120,22 +115,6 @@ class KycProfilePresenterTest {
     }
 
     @Test
-    fun `on continue clicked all data correct, nabu token failure`() {
-        // Arrange
-        whenever(view.firstName).thenReturn("Adam")
-        whenever(view.lastName).thenReturn("Bennett")
-        val dateOfBirth = date(Locale.US, 2014, 8, 10)
-        whenever(view.dateOfBirth).thenReturn(dateOfBirth)
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.error { Throwable() })
-        // Act
-        subject.onContinueClicked()
-        // Assert
-        verify(view).showProgressDialog()
-        verify(view).dismissProgressDialog()
-        verify(view).showErrorSnackbar(any())
-    }
-
-    @Test
     fun `on continue clicked all data correct, metadata fetch success`() {
         // Arrange
         val firstName = "Adam"
@@ -147,14 +126,10 @@ class KycProfilePresenterTest {
         whenever(view.dateOfBirth).thenReturn(dateOfBirth)
         whenever(view.countryCode).thenReturn(countryCode)
         whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-        whenever(
             nabuDataManager.createBasicUser(
                 firstName,
                 lastName,
                 dateOfBirth.toISO8601DateString(),
-                validOfflineToken
             )
         ).thenReturn(Completable.complete())
         // Act
@@ -163,7 +138,7 @@ class KycProfilePresenterTest {
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
         verify(view).continueSignUp(any())
-        verify(userService).markAsStale()
+        verify(getUserStore).markAsStale()
     }
 
     @Test
@@ -173,25 +148,10 @@ class KycProfilePresenterTest {
         val lastName = "Bennett"
         val dateOfBirth = date(Locale.US, 2014, 8, 10)
         val countryCode = "UK"
-        val offlineToken = NabuLegacyCredentialsMetadata("", "")
         whenever(view.firstName).thenReturn(firstName)
         whenever(view.lastName).thenReturn(lastName)
         whenever(view.dateOfBirth).thenReturn(dateOfBirth)
         whenever(view.countryCode).thenReturn(countryCode)
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(NabuOfflineToken("123", "123")))
-        val jwt = "JTW"
-
-        whenever(nabuDataManager.requestJwt()).thenReturn(Single.just(jwt))
-        whenever(nabuDataManager.getAuthToken(jwt))
-            .thenReturn(
-                Single.just(
-                    NabuOfflineTokenResponse(
-                        "123", "123", true
-                    )
-                )
-            )
 
         val responseBody =
             ResponseBody.create(
@@ -203,7 +163,6 @@ class KycProfilePresenterTest {
                 firstName,
                 lastName,
                 dateOfBirth.toISO8601DateString(),
-                offlineToken.toNabuOfflineToken()
             )
         ).thenReturn(
             Completable.error {
@@ -266,7 +225,6 @@ class KycProfilePresenterTest {
         // Act
         subject.onViewReady()
         // Assert
-        verifyZeroInteractions(nabuToken)
         verifyZeroInteractions(nabuDataManager)
     }
 }

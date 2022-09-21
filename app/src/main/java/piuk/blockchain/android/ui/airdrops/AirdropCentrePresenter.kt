@@ -47,8 +47,7 @@ class AirdropCentrePresenter(
     override fun onViewDetached() {}
 
     private fun fetchAirdropStatus() {
-        compositeDisposable += nabuToken.fetchNabuToken()
-            .flatMap { token -> nabu.getAirdropCampaignStatus(token) }
+        compositeDisposable += nabu.getAirdropCampaignStatus()
             .map { list -> remapStateList(list) }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(

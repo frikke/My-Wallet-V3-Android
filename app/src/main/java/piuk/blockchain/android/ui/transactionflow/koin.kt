@@ -1,8 +1,11 @@
 package piuk.blockchain.android.ui.transactionflow
 
 import android.content.Context
+import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
+import com.blockchain.koin.quickFillSellSwapFeatureFlag
+import com.blockchain.koin.swapSourceOrder
+import com.blockchain.koin.swapTargetOrder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
@@ -49,7 +52,6 @@ val transactionModule = module {
         TransactionFlowCustomiserImpl(
             resources = get<Context>().resources,
             assetResources = get(),
-            stringUtils = get(),
             walletModeService = get()
         )
     }.apply {
@@ -196,12 +198,14 @@ val transactionModule = module {
                 paymentMethodService = payloadScope.get(),
                 currencyPrefs = get(),
                 identity = payloadScope.get(),
-                accountsSorting = payloadScope.get(),
+                defaultAccountsSorting = payloadScope.get(defaultOrder),
+                swapSourceAccountsSorting = payloadScope.get(swapSourceOrder),
+                swapTargetAccountsSorting = payloadScope.get(swapTargetOrder),
                 linkedBanksFactory = payloadScope.get(),
                 bankLinkingPrefs = payloadScope.get(),
                 dismissRecorder = payloadScope.get(),
-                showSendToDomainsAnnouncementFeatureFlag = get(sendToDomainsAnnouncementFeatureFlag),
                 fiatCurrenciesService = payloadScope.get(),
+                swapSellQuickFillFF = payloadScope.get(quickFillSellSwapFeatureFlag)
             )
         }
 

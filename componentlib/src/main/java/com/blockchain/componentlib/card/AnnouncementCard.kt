@@ -70,10 +70,10 @@ fun AnnouncementCard(
             modifier = Modifier
                 .background(Color.Transparent)
                 .padding(
-                    start = dimensionResource(R.dimen.medium_margin),
-                    end = dimensionResource(R.dimen.medium_margin),
-                    top = dimensionResource(R.dimen.very_small_margin),
-                    bottom = dimensionResource(R.dimen.very_small_margin)
+                    start = dimensionResource(R.dimen.medium_spacing),
+                    end = dimensionResource(R.dimen.medium_spacing),
+                    top = dimensionResource(R.dimen.very_small_spacing),
+                    bottom = dimensionResource(R.dimen.very_small_spacing)
                 ),
             color = Color.Transparent
         ) {
@@ -84,14 +84,14 @@ fun AnnouncementCard(
             ) {
                 Image(
                     modifier = Modifier
-                        .size(dimensionResource(R.dimen.large_margin)),
+                        .size(dimensionResource(R.dimen.large_spacing)),
                     imageResource = iconResource
                 )
 
                 Column(
                     modifier = Modifier
                         .weight(1f, true)
-                        .padding(start = dimensionResource(R.dimen.medium_margin), end = 8.dp)
+                        .padding(start = dimensionResource(R.dimen.medium_spacing), end = 8.dp)
                         .align(Alignment.Top)
                 ) {
 

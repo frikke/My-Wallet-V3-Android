@@ -15,7 +15,6 @@ val blockchainCardModule = module {
             BlockchainCardRepositoryImpl(
                 blockchainCardService = get(),
                 eligibilityApiService = get(),
-                authenticator = get(),
                 coincore = get(),
                 assetCatalogue = get(),
                 userIdentity = get()

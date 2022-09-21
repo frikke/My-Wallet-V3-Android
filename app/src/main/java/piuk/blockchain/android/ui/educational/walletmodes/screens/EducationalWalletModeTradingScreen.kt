@@ -24,7 +24,7 @@ fun EducationalWalletModeTradingScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(AppTheme.dimensions.paddingLarge)
+            .padding(AppTheme.dimensions.standardSpacing)
     ) {
         Column(
             modifier = Modifier
@@ -37,7 +37,7 @@ fun EducationalWalletModeTradingScreen() {
                 imageResource = ImageResource.Local(R.drawable.ic_educational_wallet_trading)
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
             Text(
                 text = stringResource(R.string.educational_wallet_mode_trading_title),
@@ -46,7 +46,7 @@ fun EducationalWalletModeTradingScreen() {
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
             Text(
                 text = stringResource(R.string.educational_wallet_mode_trading_description),
@@ -62,7 +62,7 @@ fun EducationalWalletModeTradingScreen() {
                 .weight(0.6F),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
             EducationalWalletModeSecureTag(
                 text = stringResource(R.string.educational_wallet_mode_trading_secure_tag),

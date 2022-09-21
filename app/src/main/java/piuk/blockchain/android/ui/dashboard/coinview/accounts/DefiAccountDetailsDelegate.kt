@@ -7,7 +7,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.ActionState
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.componentlib.basic.ImageResource
@@ -17,11 +16,9 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewWalletsDefiBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItem
-import piuk.blockchain.android.util.context
 
 class DefiAccountDetailsDelegate(
     private val onAccountSelected: (AssetDetailsItem.CryptoDetailsInfo) -> Unit,
-    private val onReceiveClicked: (BlockchainAccount) -> Unit,
     private val onLockedAccountSelected: () -> Unit,
 ) : AdapterDelegate<AssetDetailsItem> {
     override fun isForViewType(items: List<AssetDetailsItem>, position: Int): Boolean =
@@ -31,7 +28,6 @@ class DefiAccountDetailsDelegate(
         DefiWalletViewHolder(
             ViewCoinviewWalletsDefiBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             onAccountSelected = onAccountSelected,
-            onReceiveClicked = onReceiveClicked,
             onLockedAccountSelected = onLockedAccountSelected
         )
 
@@ -41,21 +37,16 @@ class DefiAccountDetailsDelegate(
         holder: RecyclerView.ViewHolder
     ) = (holder as DefiWalletViewHolder).bind(
         item = items[position] as AssetDetailsItem.DefiDetailsInfo,
-        isOnlyItemOfCategory = items.count { it is AssetDetailsItem.DefiDetailsInfo } == 1
     )
 }
 
 private class DefiWalletViewHolder(
     private val binding: ViewCoinviewWalletsDefiBinding,
     private val onAccountSelected: (AssetDetailsItem.CryptoDetailsInfo) -> Unit,
-    private val onReceiveClicked: (BlockchainAccount) -> Unit,
     private val onLockedAccountSelected: () -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(
-        item: AssetDetailsItem.DefiDetailsInfo,
-        isOnlyItemOfCategory: Boolean
-    ) {
+    fun bind(item: AssetDetailsItem.DefiDetailsInfo) {
         with(binding) {
             assetDetailsAvailable.onClick = {
                 onAccountSelected(item)
@@ -81,17 +72,6 @@ private class DefiWalletViewHolder(
                     bodyStart = buildAnnotatedString { append(account.currency.displayTicker) }
                     startImageResource = ImageResource.Remote(url = account.currency.logo, shape = CircleShape)
                 }
-
-                if (isOnlyItemOfCategory) {
-                    receiveButton.visible()
-                    receiveButton.apply {
-                        text = context.getString(R.string.common_receive)
-                        icon = ImageResource.Local(R.drawable.ic_qr_scan)
-                        onClick = { onReceiveClicked(item.account) }
-                    }
-                } else {
-                    receiveButton.gone()
-                }
             } else {
                 assetDetailsAvailable.gone()
                 assetDetailsNotAvailable.apply {
@@ -103,7 +83,6 @@ private class DefiWalletViewHolder(
                         R.drawable.ic_lock, R.color.grey_400, R.color.white, 1F
                     )
                 }
-                receiveButton.gone()
             }
         }
     }

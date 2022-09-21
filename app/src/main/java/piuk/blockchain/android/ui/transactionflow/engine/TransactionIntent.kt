@@ -132,10 +132,12 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         val transactionTarget: TransactionTarget,
         val action: AssetAction,
         private val passwordRequired: Boolean,
-        val eligibility: FeatureAccess? = null
+        val eligibility: FeatureAccess? = null,
+        private val isSellSwapQuickFillFlagEnabled: Boolean = false
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState = oldState.copy(
             currentStep = selectStep(passwordRequired, transactionTarget),
+            ffSwapSellQuickFillsEnabled = isSellSwapQuickFillFlagEnabled
         ).updateBackstack(oldState)
 
         private fun selectStep(
@@ -350,6 +352,17 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
                 nextEnabled = false,
                 setMax = false
             ).updateBackstack(oldState)
+    }
+
+    class UpdatePrefillAmount(
+        private val amounts: PrefillAmounts
+    ) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(amountsToPrefill = amounts)
+    }
+
+    object ResetPrefillAmount : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState.copy(amountsToPrefill = null)
     }
 
     object UseMaxSpendable : TransactionIntent() {

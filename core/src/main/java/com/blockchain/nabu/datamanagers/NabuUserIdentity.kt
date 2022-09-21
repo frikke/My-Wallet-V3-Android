@@ -36,7 +36,7 @@ class NabuUserIdentity(
             is Feature.TierLevel -> kycService.getTiersLegacy().map {
                 it.isInitialisedFor(feature.tier).not()
             }
-            is Feature.Interest -> interestService.getEligibilityForAssets()
+            is Feature.Interest -> interestService.getEligibilityForAssetsLegacy()
                 .map { mapAssetWithEligibility -> mapAssetWithEligibility.containsKey(feature.currency) }
             is Feature.SimplifiedDueDiligence -> custodialWalletManager.isSimplifiedDueDiligenceEligible()
             Feature.Buy,
@@ -85,7 +85,7 @@ class NabuUserIdentity(
 
     override fun getUserState(): Maybe<String> =
         userService.getUser().flatMapMaybe {
-            val state = it.address?.state
+            val state = it.address?.stateIso
             if (state.isNullOrEmpty()) {
                 Maybe.empty()
             } else {
@@ -105,7 +105,7 @@ class NabuUserIdentity(
         return when (feature) {
             Feature.Buy ->
                 Single.zip(
-                    rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.BUY) },
+                    rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.BUY) },
                     simpleBuyEligibilityProvider.simpleBuyTradingEligibility()
                 ) { buyEligibility, sbEligibility ->
                     val buyFeatureAccess = buyEligibility.toFeatureAccess()
@@ -122,22 +122,22 @@ class NabuUserIdentity(
                     }
                 }
             Feature.Swap ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.SWAP) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.SWAP) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.Sell ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.SELL) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.SELL) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositFiat ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_FIAT) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_FIAT) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositCrypto ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_CRYPTO) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_CRYPTO) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.DepositInterest ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_INTEREST) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.DEPOSIT_INTEREST) }
                     .map(ProductEligibility::toFeatureAccess)
             Feature.WithdrawFiat ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.WITHDRAW_FIAT) }
+                rxSingleOutcome { eligibilityService.getProductEligibilityLegacy(EligibleProduct.WITHDRAW_FIAT) }
                     .map(ProductEligibility::toFeatureAccess)
             is Feature.Interest,
             Feature.SimplifiedDueDiligence,
@@ -179,6 +179,8 @@ private fun ProductEligibility.toFeatureAccess(): FeatureAccess =
         when (val reason = reasonNotEligible) {
             ProductNotEligibleReason.InsufficientTier.Tier1TradeLimitExceeded ->
                 BlockedReason.InsufficientTier.Tier1TradeLimitExceeded
+            ProductNotEligibleReason.InsufficientTier.Tier1Required ->
+                BlockedReason.InsufficientTier.Tier1Required
             ProductNotEligibleReason.InsufficientTier.Tier2Required ->
                 BlockedReason.InsufficientTier.Tier2Required
             is ProductNotEligibleReason.InsufficientTier.Unknown ->
@@ -187,7 +189,7 @@ private fun ProductEligibility.toFeatureAccess(): FeatureAccess =
                 BlockedReason.Sanctions.RussiaEU5
             is ProductNotEligibleReason.Sanctions.Unknown ->
                 BlockedReason.Sanctions.Unknown(reason.message)
-            is ProductNotEligibleReason.Unknown -> BlockedReason.NotEligible
-            null -> BlockedReason.NotEligible
+            is ProductNotEligibleReason.Unknown -> BlockedReason.NotEligible(reason.message)
+            null -> BlockedReason.NotEligible(null)
         }
     )

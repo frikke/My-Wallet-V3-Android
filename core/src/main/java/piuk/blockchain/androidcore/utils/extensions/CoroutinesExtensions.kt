@@ -7,6 +7,7 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxCompletable
@@ -38,6 +39,7 @@ suspend fun <T : Any> Single<T>.awaitOutcome(): Outcome<Exception, T> =
     try {
         Outcome.Success(await())
     } catch (ex: Exception) {
+        if (ex is CancellationException) throw ex
         Outcome.Failure(ex)
     }
 
@@ -45,6 +47,7 @@ suspend fun <T : Any, E : Any> Single<T>.awaitOutcome(errorMapper: (Exception) -
     try {
         Outcome.Success(await())
     } catch (ex: Exception) {
+        if (ex is CancellationException) throw ex
         Outcome.Failure(errorMapper(ex))
     }
 
@@ -52,5 +55,6 @@ suspend fun Completable.awaitOutcome(): Outcome<Exception, Unit> =
     try {
         Outcome.Success(await())
     } catch (ex: Exception) {
+        if (ex is CancellationException) throw ex
         Outcome.Failure(ex)
     }

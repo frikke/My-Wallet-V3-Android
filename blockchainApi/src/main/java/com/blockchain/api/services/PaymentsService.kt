@@ -17,17 +17,15 @@ class PaymentsService internal constructor(
     private val api: PaymentsApi
 ) {
     suspend fun getPaymentMethodDetailsForId(
-        authHeader: String,
         paymentId: String
     ): Outcome<Exception, PaymentMethodDetails> =
-        api.getPaymentMethodDetailsForId(authHeader, paymentId)
+        api.getPaymentMethodDetailsForId(paymentId)
             .map { it.toPaymentDetails() }
 
     fun getWithdrawalLocks(
-        authHeader: String,
         localCurrency: String
     ): Single<CollateralLocks> =
-        api.getWithdrawalLocks(authHeader, localCurrency)
+        api.getWithdrawalLocks(localCurrency)
             .map { it.toWithdrawalLocks() }
 }
 

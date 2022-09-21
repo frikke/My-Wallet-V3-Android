@@ -105,6 +105,7 @@ sealed class DashboardCowboysState {
     class CowboyWelcomeCard(val cardInfo: PromotionStyleInfo) : DashboardCowboysState()
     class CowboyRaffleCard(val cardInfo: PromotionStyleInfo) : DashboardCowboysState()
     class CowboyIdentityCard(val cardInfo: PromotionStyleInfo) : DashboardCowboysState()
+    class CowboyKycInProgressCard(val cardInfo: PromotionStyleInfo) : DashboardCowboysState()
     class CowboyReferFriendsCard(val referralData: ReferralInfo, val cardInfo: PromotionStyleInfo) :
         DashboardCowboysState()
 

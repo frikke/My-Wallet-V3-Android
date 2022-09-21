@@ -33,16 +33,17 @@ fun PreferenceLoadingError(onRetryClicked: () -> Unit, onBackClicked: () -> Unit
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = dimensionResource(id = R.dimen.epic_margin))
+            .padding(top = dimensionResource(id = R.dimen.epic_spacing))
     ) {
 
         Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(AppTheme.dimensions.paddingLarge)
+                .padding(AppTheme.dimensions.standardSpacing)
         ) {
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.settings_notification_error),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
@@ -50,6 +51,7 @@ fun PreferenceLoadingError(onRetryClicked: () -> Unit, onBackClicked: () -> Unit
             )
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.settings_notification_error_details),
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Body,
@@ -60,7 +62,7 @@ fun PreferenceLoadingError(onRetryClicked: () -> Unit, onBackClicked: () -> Unit
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(AppTheme.dimensions.paddingLarge),
+                .padding(AppTheme.dimensions.standardSpacing),
         ) {
             PrimaryButton(
                 text = stringResource(id = R.string.retry),
@@ -68,7 +70,7 @@ fun PreferenceLoadingError(onRetryClicked: () -> Unit, onBackClicked: () -> Unit
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(Modifier.size(AppTheme.dimensions.paddingSmall))
+            Spacer(Modifier.size(AppTheme.dimensions.tinySpacing))
 
             MinimalButton(
                 text = stringResource(id = R.string.settings_notification_error_back),

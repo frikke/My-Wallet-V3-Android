@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.dimensionResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
@@ -27,15 +28,19 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.backup.BackupPhraseActivity
 import com.blockchain.presentation.onboarding.DeFiOnboardingActivity
+import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.scope.Scope
+import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 
 class WalletModeSelectionBottomSheet :
     MVIBottomSheet<WalletModeSelectionViewState>(),
+    Analytics by KoinJavaComponent.get(Analytics::class.java),
+    WalletModeReporter by KoinJavaComponent.get(WalletModeReporter::class.java),
     NavigationRouter<WalletModeSelectionNavigationEvent>,
     AndroidScopeComponent {
 
@@ -72,7 +77,7 @@ class WalletModeSelectionBottomSheet :
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_margin))),
+                            .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         SheetHeader(
@@ -99,6 +104,22 @@ class WalletModeSelectionBottomSheet :
             }
 
             is WalletModeSelectionNavigationEvent.Close -> {
+                when (navigationEvent.walletMode) {
+                    WalletMode.CUSTODIAL_ONLY -> {
+                        logEvent(WalletModeAnalyticsEvents.SwitchedToTrading)
+                    }
+
+                    WalletMode.NON_CUSTODIAL_ONLY -> {
+                        logEvent(WalletModeAnalyticsEvents.SwitchedToDefi)
+                    }
+
+                    else -> {
+                        /*n/a*/
+                    }
+                }
+
+                reportWalletMode(navigationEvent.walletMode)
+
                 dismiss()
             }
         }.exhaustive

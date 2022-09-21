@@ -32,6 +32,7 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue000
 import com.blockchain.componentlib.theme.Blue600
@@ -47,19 +48,29 @@ import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
 @Composable
 fun DeFiOnboardingIntro(viewModel: DeFiOnboardingViewModel) {
     DeFiOnboardingIntroScreen(
+        closeOnClick = { viewModel.onIntent(DeFiOnboardingIntent.EndFlow(isSuccessful = false)) },
         enableDeFiOnClick = { viewModel.onIntent(DeFiOnboardingIntent.EnableDeFiWallet) },
     )
 }
 
 @Composable
 fun DeFiOnboardingIntroScreen(
+    closeOnClick: () -> Unit,
     enableDeFiOnClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         NavigationBar(
-            title = stringResource(R.string.defi_wallet_name)
+            title = stringResource(R.string.defi_wallet_name),
+            endNavigationBarButtons = listOf(
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_close_circle,
+                    color = null,
+                    contentDescription = R.string.accessibility_close,
+                    onIconClick = closeOnClick
+                )
+            )
         )
 
         Box {
@@ -75,7 +86,7 @@ fun DeFiOnboardingIntroScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(AppTheme.dimensions.paddingMedium),
+                    .padding(AppTheme.dimensions.smallSpacing),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
@@ -83,9 +94,10 @@ fun DeFiOnboardingIntroScreen(
 
                 Image(ImageResource.Local(R.drawable.ic_defi_onboarding))
 
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(
                         R.string.defi_onboarding_intro_title,
                         stringResource(R.string.defi_wallet_name)
@@ -95,9 +107,10 @@ fun DeFiOnboardingIntroScreen(
                     gravity = ComposeGravities.Centre
                 )
 
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.defi_onboarding_intro_description),
                     style = ComposeTypographies.Paragraph1,
                     color = ComposeColors.Title,
@@ -151,8 +164,8 @@ fun DeFiOnboardingPropertyItem(
             )
             .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
             .padding(
-                horizontal = AppTheme.dimensions.paddingMedium,
-                vertical = dimensionResource(R.dimen.very_small_margin) // todo (othman) use AppTheme.dimensions
+                horizontal = AppTheme.dimensions.smallSpacing,
+                vertical = dimensionResource(R.dimen.very_small_spacing)
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -165,19 +178,21 @@ fun DeFiOnboardingPropertyItem(
             text = number.toString(),
         )
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
         Column {
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = title,
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Start
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.xxPaddingSmall))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.composeSmallestSpacing))
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = subtitle,
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Muted,
@@ -198,7 +213,7 @@ fun DeFiOnboardingProperties(properties: List<DeFiProperty>) {
             )
 
             if (index != properties.lastIndex) {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
             }
         }
     }
@@ -213,7 +228,7 @@ data class DeFiProperty(@StringRes val title: Int, @StringRes val subtitle: Int)
 @Preview(showBackground = true)
 @Composable
 fun PreviewDeFiOnboardingIntroScreen() {
-    DeFiOnboardingIntroScreen {}
+    DeFiOnboardingIntroScreen({}, {})
 }
 
 @Preview(showBackground = true)

@@ -196,7 +196,7 @@ class TransactionFlowIntentMapperTest {
         )
     }
 
-    @Test(expected = IllegalStateException::class)
+    @Test
     fun `sell with no defined source account`() {
 
         val assetAction = AssetAction.Sell
@@ -207,7 +207,15 @@ class TransactionFlowIntentMapperTest {
 
         subject = TransactionFlowIntentMapper(sourceAccount, target, assetAction)
 
-        subject.map(passwordRequired)
+        val result = subject.map(passwordRequired)
+
+        Assert.assertEquals(
+            TransactionIntent.InitialiseWithNoSourceOrTargetAccount(
+                AssetAction.Sell,
+                false
+            ),
+            result
+        )
     }
 
     @Test(expected = IllegalStateException::class)

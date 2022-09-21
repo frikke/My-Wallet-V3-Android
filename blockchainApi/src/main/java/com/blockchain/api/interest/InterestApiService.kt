@@ -17,8 +17,8 @@ import retrofit2.HttpException
 class InterestApiService internal constructor(
     private val interestApi: InterestApiInterface
 ) {
-    fun getAccountBalances(authHeader: String): Single<Map<String, InterestAccountBalanceDto>> {
-        return interestApi.getAccountBalances(authHeader)
+    fun getAccountBalances(): Single<Map<String, InterestAccountBalanceDto>> {
+        return interestApi.getAccountBalances()
             .map { response ->
                 when (response.code()) {
                     HttpStatus.OK -> response.body() ?: emptyMap()
@@ -28,26 +28,26 @@ class InterestApiService internal constructor(
             }.wrapErrorMessage()
     }
 
-    fun getAvailableTickersForInterest(authHeader: String): Single<InterestAvailableTickersDto> {
-        return interestApi.getAvailableTickersForInterest(authorization = authHeader)
+    fun getAvailableTickersForInterest(): Single<InterestAvailableTickersDto> {
+        return interestApi.getAvailableTickersForInterest()
             .wrapErrorMessage()
     }
 
-    fun getTickersEligibility(authHeader: String): Single<Map<String, InterestEligibilityDto>> {
-        return interestApi.getTickersEligibility(authorization = authHeader)
+    fun getTickersEligibility(): Single<Map<String, InterestEligibilityDto>> {
+        return interestApi.getTickersEligibility()
             .onErrorReturn { emptyMap() }
     }
 
-    fun getTickersLimits(authHeader: String, fiatCurrencyTicker: String): Single<InterestTickerLimitsDto> {
-        return interestApi.getTickersLimits(authorization = authHeader, fiatCurrencyTicker = fiatCurrencyTicker)
+    fun getTickersLimits(fiatCurrencyTicker: String): Single<InterestTickerLimitsDto> {
+        return interestApi.getTickersLimits(fiatCurrencyTicker = fiatCurrencyTicker)
             .wrapErrorMessage()
     }
 
     /**
      * If there is no rate for a given asset, this endpoint returns a 204, which must be parsed
      */
-    fun getInterestRates(authHeader: String, cryptoCurrencyTicker: String): Maybe<InterestRateDto> {
-        return interestApi.getInterestRates(authorization = authHeader, cryptoCurrencyTicker = cryptoCurrencyTicker)
+    fun getInterestRates(cryptoCurrencyTicker: String): Maybe<InterestRateDto> {
+        return interestApi.getInterestRates(cryptoCurrencyTicker = cryptoCurrencyTicker)
             .flatMapMaybe {
                 when (it.code()) {
                     200 -> it.body()?.let { Maybe.just(it) } ?: Maybe.empty()
@@ -58,13 +58,13 @@ class InterestApiService internal constructor(
             .wrapErrorMessage()
     }
 
-    fun getAddress(authHeader: String, cryptoCurrencyTicker: String): Single<InterestAddressDto> {
-        return interestApi.getAddress(authorization = authHeader, cryptoCurrencyTicker = cryptoCurrencyTicker)
+    fun getAddress(cryptoCurrencyTicker: String): Single<InterestAddressDto> {
+        return interestApi.getAddress(cryptoCurrencyTicker = cryptoCurrencyTicker)
             .wrapErrorMessage()
     }
 
-    fun performWithdrawal(authHeader: String, body: InterestWithdrawalBodyDto): Completable {
-        return interestApi.performWithdrawal(authorization = authHeader, body = body)
+    fun performWithdrawal(body: InterestWithdrawalBodyDto): Completable {
+        return interestApi.performWithdrawal(body = body)
             .wrapErrorMessage()
     }
 }

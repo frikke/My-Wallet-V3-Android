@@ -14,9 +14,9 @@
             style="@style/Text.Standard.20"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/standard_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginStart="@dimen/standard_spacing"
+            android:layout_marginTop="@dimen/standard_spacing"
+            android:layout_marginEnd="@dimen/standard_spacing"
             tools:text="Pending [crypto] Buy" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -24,44 +24,44 @@
             style="@style/Text.Light.14"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/small_margin"
-            android:layout_marginBottom="@dimen/small_margin"
+            android:layout_marginStart="@dimen/standard_spacing"
+            android:layout_marginEnd="@dimen/standard_spacing"
+            android:layout_marginTop="@dimen/small_spacing"
+            android:layout_marginBottom="@dimen/small_spacing"
             tools:text="@string/simple_buy_bank_account_sheet_instructions" />
 
         <piuk.blockchain.android.simplebuy.BankDetailsContainer
             android:id="@+id/bank_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginStart="@dimen/standard_spacing"
+            android:layout_marginEnd="@dimen/standard_spacing"
             android:background="@drawable/rounded_box"
             android:orientation="vertical"
-            android:paddingBottom="@dimen/small_margin" />
+            android:paddingBottom="@dimen/small_spacing" />
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/Text.Light.12"
             android:layout_width="match_parent"
             android:id="@+id/bank_deposit_instruction"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/small_margin"
-            android:layout_marginBottom="@dimen/small_margin"
+            android:layout_marginStart="@dimen/standard_spacing"
+            android:layout_marginEnd="@dimen/standard_spacing"
+            android:layout_marginTop="@dimen/small_spacing"
+            android:layout_marginBottom="@dimen/small_spacing"
             android:text="@string/recipient_name_must_match" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingBottom="@dimen/small_margin">
+            android:paddingBottom="@dimen/small_spacing">
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/cta_button_cancel"
                 style="@style/CtaButton.NoMargin.White"
-                android:layout_marginStart="@dimen/standard_margin"
-                android:layout_marginEnd="@dimen/tiny_margin"
+                android:layout_marginStart="@dimen/standard_spacing"
+                android:layout_marginEnd="@dimen/tiny_spacing"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
@@ -71,8 +71,8 @@
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/cta_button_ok"
                 style="@style/CtaButton.NoMargin.Blue"
-                android:layout_marginStart="@dimen/tiny_margin"
-                android:layout_marginEnd="@dimen/standard_margin"
+                android:layout_marginStart="@dimen/tiny_spacing"
+                android:layout_marginEnd="@dimen/standard_spacing"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"

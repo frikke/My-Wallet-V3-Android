@@ -3,6 +3,7 @@ package com.blockchain.componentlib.card
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -91,37 +92,49 @@ fun CustomBackgroundCard(
             modifier = Modifier
                 .background(Color.Transparent)
                 .padding(
-                    start = dimensionResource(R.dimen.medium_margin),
-                    end = dimensionResource(R.dimen.medium_margin),
-                    top = dimensionResource(R.dimen.very_small_margin),
-                    bottom = dimensionResource(R.dimen.very_small_margin)
+                    start = dimensionResource(R.dimen.medium_spacing),
+                    end = dimensionResource(R.dimen.medium_spacing),
+                    top = dimensionResource(R.dimen.very_small_spacing),
+                    bottom = dimensionResource(R.dimen.very_small_spacing)
                 ),
             color = Color.Transparent
         ) {
             Row(
                 modifier = Modifier
                     .background(Color.Transparent),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
             ) {
-                if (iconResource is ImageResource.Remote) {
-                    AsyncMediaItem(
-                        modifier = Modifier.size(dimensionResource(R.dimen.large_margin)),
-                        url = iconResource.url,
-                        contentDescription = "",
-                        contentScale = ContentScale.Inside,
-                    )
-                } else {
-                    Image(
-                        modifier = Modifier.size(dimensionResource(R.dimen.large_margin)),
-                        contentScale = ContentScale.Inside,
-                        imageResource = iconResource
-                    )
+                when (iconResource) {
+                    is ImageResource.Remote -> {
+                        AsyncMediaItem(
+                            modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)),
+                            url = iconResource.url,
+                            contentDescription = "",
+                            contentScale = ContentScale.Inside,
+                        )
+                    }
+                    is ImageResource.None -> {
+                        // do nothing
+                    }
+                    else -> {
+                        Image(
+                            modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)),
+                            contentScale = ContentScale.Inside,
+                            imageResource = iconResource
+                        )
+                    }
                 }
 
                 Column(
                     modifier = Modifier
                         .weight(1f, true)
-                        .padding(start = dimensionResource(R.dimen.medium_margin), end = 8.dp)
+                        .padding(
+                            start = if (iconResource !is ImageResource.None) {
+                                dimensionResource(R.dimen.medium_spacing)
+                            } else 0.dp,
+                            end = dimensionResource(R.dimen.tiny_spacing)
+                        )
                         .align(Alignment.Top)
                 ) {
 
@@ -198,6 +211,22 @@ fun CustomBackgroundCard_Remote() {
                         "fir-staging-92d79.appspot.com/o/icon-cowboys-circle.svg?"
                 ),
                 isCloseable = true
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun CustomBackgroundCard_NoIcon() {
+    AppTheme {
+        AppSurface {
+            CustomBackgroundCard(
+                title = "Title",
+                subtitle = "Subtitle",
+                iconResource = ImageResource.None,
+                backgroundResource = ImageResource.Local(R.drawable.ic_blockchain_logo_with_text),
+                isCloseable = false
             )
         }
     }

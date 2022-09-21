@@ -3,14 +3,14 @@
     android:id="@+id/bank_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/smallest_margin"
-    android:layout_marginEnd="@dimen/smallest_margin"
+    android:layout_marginStart="@dimen/smallest_spacing"
+    android:layout_marginEnd="@dimen/smallest_spacing"
     android:orientation="vertical">
 
    <com.blockchain.componentlib.button.MinimalButtonView
        android:id="@+id/add_new_bank_account_button"
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
-       android:layout_margin="@dimen/medium_margin"
+       android:layout_margin="@dimen/medium_spacing"
        android:text="@string/add_new_bank_account"/>
 </LinearLayout>

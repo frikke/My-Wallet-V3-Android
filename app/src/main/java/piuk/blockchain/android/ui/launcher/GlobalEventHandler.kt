@@ -7,7 +7,6 @@ import android.content.Intent
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
@@ -17,7 +16,6 @@ import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
 import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -32,7 +30,6 @@ import timber.log.Timber
 class GlobalEventHandler(
     private val application: Application,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
-    private val deeplinkFeatureFlag: IntegratedFeatureFlag,
     private val deeplinkRedirector: DeeplinkRedirector,
     private val destinationArgs: DestinationArgs,
     private val notificationManager: NotificationManager,
@@ -46,26 +43,27 @@ class GlobalEventHandler(
             startTransactionFlowForSigning(event)
         }
 
-        compositeDisposable += deeplinkFeatureFlag.enabled.flatMapObservable { enabled ->
-            if (enabled) deeplinkRedirector.deeplinkEvents
-            else Observable.empty()
-        }.subscribe { deeplinkResult ->
-            navigateToDeeplinkDestination(deeplinkResult)
-        }
+        compositeDisposable += deeplinkRedirector.deeplinkEvents
+            .subscribe { deeplinkResult ->
+                navigateToDeeplinkDestination(deeplinkResult)
+            }
     }
 
-    private fun navigateToDeeplinkDestination(deeplinkResult: DeepLinkResult.DeepLinkResultSuccess) {
-        if (deeplinkResult.notificationPayload != null) {
-            Timber.d("deeplink: triggering notification with deeplink")
-            triggerNotificationFromDeeplink(deeplinkResult.destination, deeplinkResult.notificationPayload!!)
-        } else {
-            Timber.d("deeplink: Starting main activity with pending destination")
-            application.startActivity(
-                MainActivity.newIntent(
-                    context = application,
-                    pendingDestination = deeplinkResult.destination
-                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
+    private fun navigateToDeeplinkDestination(deeplinkResult: DeepLinkResult) {
+        // this is a known v2 deeplink that should be handled with the newer approach
+        if (deeplinkResult is DeepLinkResult.DeepLinkResultSuccess) {
+            if (deeplinkResult.notificationPayload != null) {
+                Timber.d("deeplink: triggering notification with deeplink")
+                triggerNotificationFromDeeplink(deeplinkResult.destination, deeplinkResult.notificationPayload!!)
+            } else {
+                Timber.d("deeplink: Starting main activity with pending destination")
+                application.startActivity(
+                    MainActivity.newIntent(
+                        context = application,
+                        pendingDestination = deeplinkResult.destination
+                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }
         }
     }
 

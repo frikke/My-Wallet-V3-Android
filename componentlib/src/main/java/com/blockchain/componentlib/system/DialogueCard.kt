@@ -67,16 +67,16 @@ fun DialogueCard(
         shape = AppTheme.shapes.small,
         backgroundColor = backgroundColor,
         modifier = Modifier
-            .padding(dimensionResource(R.dimen.smallest_margin))
+            .padding(dimensionResource(R.dimen.smallest_spacing))
             .defaultMinSize(280.dp)
     ) {
         Surface(
             modifier = Modifier
                 .padding(
-                    top = dimensionResource(R.dimen.standard_margin),
-                    bottom = dimensionResource(R.dimen.medium_margin),
-                    start = dimensionResource(R.dimen.standard_margin),
-                    end = dimensionResource(R.dimen.standard_margin)
+                    top = dimensionResource(R.dimen.standard_spacing),
+                    bottom = dimensionResource(R.dimen.medium_spacing),
+                    start = dimensionResource(R.dimen.standard_spacing),
+                    end = dimensionResource(R.dimen.standard_spacing)
                 )
                 .background(backgroundColor),
         ) {
@@ -108,8 +108,8 @@ fun DialogueCard(
                     modifier = Modifier
                         .background(backgroundColor)
                         .padding(
-                            top = dimensionResource(R.dimen.medium_margin),
-                            bottom = dimensionResource(R.dimen.large_margin)
+                            top = dimensionResource(R.dimen.medium_spacing),
+                            bottom = dimensionResource(R.dimen.large_spacing)
                         ),
                     text = body,
                     style = AppTheme.typography.paragraph1,

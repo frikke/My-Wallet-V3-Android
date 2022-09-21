@@ -304,7 +304,7 @@ private class CustomPaddingArrayAdapter<T>(context: Context, layoutId: Int, item
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view = super.getView(position, convertView, parent)
-        val smallPadding = context.resources.getDimension(R.dimen.tiny_margin).toInt()
+        val smallPadding = context.resources.getDimension(R.dimen.tiny_spacing).toInt()
         view.setPadding(0, smallPadding, view.paddingRight, smallPadding)
         return view
     }

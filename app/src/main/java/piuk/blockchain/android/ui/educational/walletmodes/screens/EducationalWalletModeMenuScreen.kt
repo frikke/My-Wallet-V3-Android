@@ -24,7 +24,7 @@ fun EducationalWalletModeMenuScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(AppTheme.dimensions.paddingLarge)
+            .padding(AppTheme.dimensions.standardSpacing)
     ) {
         Column(
             modifier = Modifier
@@ -37,7 +37,7 @@ fun EducationalWalletModeMenuScreen() {
                 imageResource = ImageResource.Local(R.drawable.ic_educational_wallet_menu)
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
             Text(
                 text = stringResource(R.string.educational_wallet_mode_menu_title),
@@ -46,7 +46,7 @@ fun EducationalWalletModeMenuScreen() {
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
             Text(
                 text = stringResource(R.string.educational_wallet_mode_menu_description),

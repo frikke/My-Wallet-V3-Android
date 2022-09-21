@@ -8,22 +8,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.switcher.SwitcherState
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
@@ -43,11 +36,11 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod.UndefinedCard.Ca
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.presentation.complexcomponents.QuickFillButtonData
+import com.blockchain.presentation.complexcomponents.QuickFillRow
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
@@ -118,7 +111,6 @@ class SimpleBuyCryptoFragment :
     private val assetResources: AssetResources by inject()
     private val assetCatalogue: AssetCatalogue by inject()
     private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
-    private val cardRejectionFF: FeatureFlag by inject(cardRejectionCheckFeatureFlag)
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private var infoActionCallback: () -> Unit = {}
 
@@ -172,6 +164,7 @@ class SimpleBuyCryptoFragment :
             toolbarTitle = getString(R.string.tx_title_buy, asset.displayTicker),
             backAction = { activity.onBackPressedDispatcher.onBackPressed() }
         )
+        model.process(SimpleBuyIntent.InitializeFeatureFlags)
         model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, fiatCurrency))
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
@@ -214,6 +207,58 @@ class SimpleBuyCryptoFragment :
             paymentOptions = lastState?.paymentOptions ?: PaymentOptions(),
             state = PaymentMethodsChooserState.AVAILABLE_TO_ADD
         )
+
+    override fun onCardTagClicked(cardInfo: CardRejectionState) {
+        when (cardInfo) {
+            is CardRejectionState.AlwaysRejected ->
+                showCardRejectionInfo(
+                    title = cardInfo.title.orEmpty(),
+                    description = cardInfo.description.orEmpty(),
+                    errorId = cardInfo.errorId,
+                    iconUrl = cardInfo.iconUrl.orEmpty(),
+                    statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
+                    actions = cardInfo.actions,
+                    analyticsCategories = cardInfo.analyticsCategories
+                )
+            is CardRejectionState.MaybeRejected -> showCardRejectionInfo(
+                title = cardInfo.title.orEmpty(),
+                description = cardInfo.description.orEmpty(),
+                errorId = cardInfo.errorId,
+                iconUrl = cardInfo.iconUrl.orEmpty(),
+                statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
+                actions = cardInfo.actions,
+                analyticsCategories = cardInfo.analyticsCategories
+            )
+            CardRejectionState.NotRejected -> {
+                // do nothing
+            }
+        }
+    }
+
+    private fun showCardRejectionInfo(
+        title: String?,
+        description: String?,
+        errorId: String?,
+        iconUrl: String?,
+        statusIconUrl: String?,
+        actions: List<ServerErrorAction>,
+        analyticsCategories: List<String>
+    ) {
+        navigator().showErrorInBottomSheet(
+            title = title.orEmpty(),
+            description = description.orEmpty(),
+            error = CardRejectionState.toString(),
+            serverSideUxErrorInfo = ServerSideUxErrorInfo(
+                id = errorId,
+                title = title.orEmpty(),
+                description = description.orEmpty(),
+                iconUrl = iconUrl.orEmpty(),
+                statusUrl = statusIconUrl.orEmpty(),
+                actions = actions,
+                categories = analyticsCategories
+            )
+        )
+    }
 
     private fun showPaymentMethodsBottomSheet(paymentOptions: PaymentOptions, state: PaymentMethodsChooserState) {
         showBottomSheet(
@@ -310,47 +355,28 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun loadQuickFillButtons(
-        quickFillButtonData: QuickFillButtonData,
+        quickFillButtonData: QuickFillButtonData
     ) {
         with(binding.quickFillButtons) {
             visible()
             setContent {
                 AppTheme {
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        LazyRow(modifier = Modifier.weight(1f)) {
-                            items(
-                                items = quickFillButtonData.quickFillButtons,
-                                itemContent = { item ->
-                                    SmallMinimalButton(
-                                        text = item.toStringWithSymbol(includeDecimalsWhenWhole = false),
-                                        onClick = {
-                                            model.process(SimpleBuyIntent.PrefillEnterAmount(item))
-                                            sendAnalyticsQuickFillButtonTapped(
-                                                item,
-                                                quickFillButtonData.quickFillButtons.indexOf(item)
-                                            )
-                                        },
-                                        modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_margin))
-                                    )
-                                }
+                    QuickFillRow(
+                        quickFillButtonData = quickFillButtonData,
+                        onQuickFillItemClick = { item ->
+                            model.process(SimpleBuyIntent.PrefillEnterAmount(item))
+                            sendAnalyticsQuickFillButtonTapped(
+                                item,
+                                quickFillButtonData.quickFillButtons.indexOf(item)
                             )
-                        }
-                        if (quickFillButtonData.buyMaxAmount.isPositive) {
-                            SmallMinimalButton(
-                                text = getString(R.string.buy_max),
-                                onClick = {
-                                    model.process(
-                                        SimpleBuyIntent.PrefillEnterAmount(
-                                            quickFillButtonData.buyMaxAmount as FiatValue
-                                        )
-                                    )
-                                },
-                                state = ButtonState.Enabled,
-                                modifier = Modifier
-                                    .wrapContentSize(Alignment.Center)
+                        },
+                        onMaxItemClick = { maxAmount ->
+                            model.process(
+                                SimpleBuyIntent.PrefillEnterAmount(maxAmount as FiatValue)
                             )
-                        }
-                    }
+                        },
+                        maxButtonText = stringResource(R.string.buy_max)
+                    )
                 }
             }
         }
@@ -472,7 +498,8 @@ class SimpleBuyCryptoFragment :
 
     private fun showCtaOrError(newState: SimpleBuyState) {
         when {
-            cardRejectionFF.isEnabled && newState.selectedPaymentMethodDetails?.isCardAndAlwaysRejected() == true -> {
+            newState.featureFlagSet.cardRejectionFF &&
+                newState.selectedPaymentMethodDetails?.isCardAndAlwaysRejected() == true -> {
                 (
                     (newState.selectedPaymentMethodDetails as PaymentMethod.Card).cardRejectionState
                         as CardRejectionState.AlwaysRejected
@@ -645,7 +672,7 @@ class SimpleBuyCryptoFragment :
         }
 
         when (selectedPaymentMethod) {
-            is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod)
+            is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod, state.featureFlagSet.cardRejectionFF)
             is PaymentMethod.Funds -> renderFundsPayment(selectedPaymentMethod)
             is PaymentMethod.Bank -> renderBankPayment(selectedPaymentMethod)
             is PaymentMethod.UndefinedCard -> renderUndefinedCardPayment(selectedPaymentMethod)
@@ -657,7 +684,7 @@ class SimpleBuyCryptoFragment :
             }
         }
 
-        if (cardRejectionFF.isEnabled && selectedPaymentMethod !is PaymentMethod.Card) {
+        if (state.featureFlagSet.cardRejectionFF && selectedPaymentMethod !is PaymentMethod.Card) {
             with(binding) {
                 btnError.gone()
                 btnContinue.visible()
@@ -719,9 +746,9 @@ class SimpleBuyCryptoFragment :
             primaryText = paymentMethod.fiatCurrency.name
             secondaryText = paymentMethod.limits.max.toStringWithSymbol()
             startImageResource = if (paymentMethod.fiatCurrency.logo.isNotEmpty()) {
-                ImageResource.Remote(paymentMethod.fiatCurrency.logo)
+                ImageResource.Remote(paymentMethod.fiatCurrency.logo, shape = RoundedCornerShape(2.dp))
             } else {
-                ImageResource.Local(R.drawable.ic_default_asset_logo)
+                ImageResource.Local(R.drawable.ic_default_asset_logo, shape = RoundedCornerShape(2.dp))
             }
         }
     }
@@ -778,7 +805,7 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun renderCardPayment(selectedPaymentMethod: PaymentMethod.Card) {
+    private fun renderCardPayment(selectedPaymentMethod: PaymentMethod.Card, cardRejectionFF: Boolean) {
         with(binding) {
             paymentMethodDetailsRoot.apply {
                 primaryText = selectedPaymentMethod.dottedEndDigits()
@@ -787,11 +814,12 @@ class SimpleBuyCryptoFragment :
                 startImageResource = ImageResource.Local(
                     selectedPaymentMethod.cardType.toCardType().icon()
                 )
-                if (cardRejectionFF.isEnabled) {
+                if (cardRejectionFF) {
                     when (val cardState = selectedPaymentMethod.cardRejectionState) {
                         is CardRejectionState.AlwaysRejected -> {
                             cardState.renderAlwaysRejectedCardError()
                             btnContinue.gone()
+                            tags = emptyList()
                         }
                         is CardRejectionState.MaybeRejected -> {
                             btnError.gone()
@@ -804,6 +832,7 @@ class SimpleBuyCryptoFragment :
                             )
                         }
                         else -> {
+                            tags = emptyList()
                             btnError.gone()
                             btnContinue.visible()
                         }
@@ -1304,6 +1333,17 @@ fun RecurringBuyFrequency.toHumanReadableRecurringBuy(context: Context): String 
         RecurringBuyFrequency.BI_WEEKLY -> context.getString(R.string.recurring_buy_bi_weekly_1)
         RecurringBuyFrequency.MONTHLY -> context.getString(R.string.recurring_buy_monthly_1)
         else -> context.getString(R.string.common_unknown)
+    }
+}
+
+@StringRes fun RecurringBuyFrequency.toHumanReadableRecurringBuy(): Int {
+    return when (this) {
+        RecurringBuyFrequency.ONE_TIME -> R.string.recurring_buy_one_time_selector
+        RecurringBuyFrequency.DAILY -> R.string.recurring_buy_daily_1
+        RecurringBuyFrequency.WEEKLY -> R.string.recurring_buy_weekly_1
+        RecurringBuyFrequency.BI_WEEKLY -> R.string.recurring_buy_bi_weekly_1
+        RecurringBuyFrequency.MONTHLY -> R.string.recurring_buy_monthly_1
+        else -> R.string.common_unknown
     }
 }
 

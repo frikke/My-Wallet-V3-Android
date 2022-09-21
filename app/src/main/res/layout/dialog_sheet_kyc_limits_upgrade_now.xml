@@ -11,7 +11,7 @@
         style="@style/Text.Semibold.16"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/standard_margin"
+        android:layout_margin="@dimen/standard_spacing"
         android:text="@string/kyc_limits_upgrade_now_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,7 +22,7 @@
         style="@style/Divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="@dimen/tiny_margin"
+        android:layout_marginTop="@dimen/tiny_spacing"
         app:layout_constraintTop_toBottomOf="@id/title" />
 
     <androidx.constraintlayout.widget.Guideline
@@ -49,8 +49,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/standard_spacing"
         android:lineSpacingExtra="5sp"
         android:text="@string/kyc_limits_upgrade_now_gold_title"
         app:layout_constraintStart_toEndOf="@id/image_tier_gold"
@@ -83,7 +83,7 @@
         style="@style/Text.Semibold.14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginTop="@dimen/small_spacing"
         android:background="@drawable/bkgd_green_100_rounded"
         android:text="@string/most_popular"
         android:textColor="@color/green_600"
@@ -94,7 +94,7 @@
         android:id="@+id/image_gold_chevron"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_margin="@dimen/standard_margin"
+        android:layout_margin="@dimen/standard_spacing"
         app:srcCompat="@drawable/ic_chevron_right"
         app:layout_constraintTop_toTopOf="@id/anchor_gold_top"
         app:layout_constraintEnd_toEndOf="parent"
@@ -105,7 +105,7 @@
         style="@style/Divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_spacing"
         app:layout_constraintTop_toBottomOf="@id/text_gold_state" />
 
     <FrameLayout
@@ -143,8 +143,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/standard_spacing"
         android:lineSpacingExtra="5sp"
         android:text="@string/kyc_limits_upgrade_now_silver_title"
         app:layout_constraintStart_toEndOf="@id/image_tier_silver"
@@ -176,7 +176,7 @@
         android:id="@+id/image_silver_chevron"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_margin="@dimen/standard_margin"
+        android:layout_margin="@dimen/standard_spacing"
         app:srcCompat="@drawable/ic_chevron_right"
         app:layout_constraintTop_toTopOf="@id/anchor_silver_top"
         app:layout_constraintEnd_toEndOf="parent"
@@ -187,7 +187,7 @@
         style="@style/Divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_spacing"
         app:layout_constraintTop_toBottomOf="@id/text_silver_info" />
 
     <FrameLayout

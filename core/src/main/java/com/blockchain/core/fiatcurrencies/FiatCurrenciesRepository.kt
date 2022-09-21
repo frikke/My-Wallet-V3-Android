@@ -5,7 +5,6 @@ import com.blockchain.api.services.FiatCurrenciesApiService
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.outcome.Outcome
@@ -19,10 +18,8 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 internal class FiatCurrenciesRepository(
-    private val authenticator: Authenticator,
     private val getUserStore: GetUserStore,
     private val userService: UserService,
     private val assetCatalogue: AssetCatalogue,
@@ -74,15 +71,12 @@ internal class FiatCurrenciesRepository(
     }
 
     override suspend fun setSelectedTradingCurrency(currency: FiatCurrency): Outcome<Exception, Unit> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { authHeader ->
-                api.setSelectedTradingCurrency(authHeader, currency.networkTicker)
-                    .mapError { it }
-                    .doOnSuccess {
-                        @Suppress("DEPRECATION_ERROR")
-                        currencyPrefs.tradingCurrency = currency
-                        analytics.logEvent(CurrencySelectionAnalytics.TradingCurrencyChanged(currency))
-                    }
+        api.setSelectedTradingCurrency(currency.networkTicker)
+            .mapError { it }
+            .doOnSuccess {
+                @Suppress("DEPRECATION_ERROR")
+                currencyPrefs.tradingCurrency = currency
+                analytics.logEvent(CurrencySelectionAnalytics.TradingCurrencyChanged(currency))
             }.flatMap {
                 // Fetching updated trading currencies and ignoring its result
                 getUserStore.markAsStale()

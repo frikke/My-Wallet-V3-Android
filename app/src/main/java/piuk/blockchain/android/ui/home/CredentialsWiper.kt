@@ -5,6 +5,7 @@ import com.blockchain.metadata.MetadataService
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.storedatasource.StoreWiper
+import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -19,6 +20,7 @@ import timber.log.Timber
 class CredentialsWiper(
     private val ethDataManager: EthDataManager,
     private val appUtil: AppUtil,
+    private val walletModeService: WalletModeService,
     private val notificationTokenManager: NotificationTokenManager,
     private val bchDataManager: BchDataManager,
     private val metadataService: MetadataService,
@@ -33,17 +35,21 @@ class CredentialsWiper(
                 ethDataManager.clearAccountDetails()
                 bchDataManager.clearAccountDetails()
                 nabuDataManager.clearAccessToken()
+                walletModeService.reset()
                 metadataService.reset()
                 walletOptionsState.wipe()
             }
-        }.then {
-            rxCompletable { storeWiper.wipe() }
         }.onErrorComplete()
+            .then {
+                rxCompletable { storeWiper.wipe() }
+            }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onError = {
                     Timber.e(it)
+                    // StoreWiper failed, we can't safely recover at this point
+                    throw it
                 },
                 onComplete = {
                     appUtil.logout()

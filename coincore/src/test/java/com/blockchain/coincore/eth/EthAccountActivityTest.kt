@@ -4,6 +4,7 @@ import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.chains.EvmNetwork
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -28,12 +29,11 @@ import org.mockito.Mockito.spy
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class EthAccountActivityTest : CoincoreTestBase() {
 
-    private val payloadManager: PayloadDataManager = mock()
     private val ethDataManager: EthDataManager = mock()
+    private val l1BalanceStore: L1BalanceStore = mock()
     private val feeDataManager: FeeDataManager = mock()
     private val walletPrefs: WalletStatusPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
@@ -47,6 +47,7 @@ class EthAccountActivityTest : CoincoreTestBase() {
             EthCryptoWalletAccount(
                 jsonAccount = ethAccount,
                 ethDataManager = ethDataManager,
+                l1BalanceStore = l1BalanceStore,
                 fees = feeDataManager,
                 exchangeRates = exchangeRates,
                 walletPreferences = walletPrefs,
