@@ -1,17 +1,5 @@
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
-
-android {
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-    buildFeatures {
-        viewBinding true
-    }
-}
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
 
 dependencies {
     implementation project(':common:interface')
@@ -21,9 +9,4 @@ dependencies {
     implementation Libraries.constraintLayout
     implementation Libraries.kotlinCoroutines
     implementation Libraries.kotlinJson
-
-    testImplementation project(':testutils')
-    testImplementation Libraries.kotlinCoroutinesTest
-    testImplementation Libraries.coreTesting
-    testImplementation Libraries.mockk
 }

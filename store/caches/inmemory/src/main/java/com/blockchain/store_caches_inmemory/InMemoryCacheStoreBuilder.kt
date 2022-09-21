@@ -1,5 +1,6 @@
 package com.blockchain.store_caches_inmemory
 
+import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.store.Fetcher
@@ -7,7 +8,6 @@ import com.blockchain.store.KeyedStore
 import com.blockchain.store.Mediator
 import com.blockchain.store.Store
 import com.blockchain.store.StoreId
-import com.blockchain.data.DataResource
 import com.blockchain.store.impl.MulticasterFetcher
 import com.blockchain.store.impl.RealStore
 import kotlinx.coroutines.CoroutineScope

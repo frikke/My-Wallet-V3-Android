@@ -2,17 +2,9 @@ plugins {
     id 'kotlinx-serialization'
 }
 
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
 
 android {
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-        debug {}
-    }
-
     lintOptions {
         warningsAsErrors true
         abortOnError true
@@ -24,24 +16,9 @@ dependencies {
     implementation project(':core')
     implementation project(':common:interface')
 
-    // Logging
-    implementation Libraries.timber
-
     // google play
     implementation Libraries.googlePlayCore
 
     // ktx json
     implementation Libraries.kotlinJson
-
-    // RxJava
-    implementation Libraries.rxjava3Coroutines
-
-    // koin
-    implementation Libraries.koin
-
-    // test
-    testImplementation Libraries.junit
-    testImplementation Libraries.kotlinTest
-    testImplementation Libraries.mockk
-    testImplementation Libraries.kotlinCoroutinesTest
 }
