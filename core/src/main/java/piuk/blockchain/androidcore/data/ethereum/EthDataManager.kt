@@ -10,7 +10,6 @@ import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
-import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.api.data.FeeLimits
@@ -50,8 +49,7 @@ class EthDataManager(
     private val metadataRepository: MetadataRepository,
     private val lastTxUpdater: LastTxUpdater,
     private val evmNetworksService: EvmNetworksService,
-    private val nonCustodialEvmService: NonCustodialEvmService,
-    private val labels: DefaultLabels
+    private val nonCustodialEvmService: NonCustodialEvmService
 ) : EthMessageSigner {
 
     val ehtAccount: EthereumAccount
@@ -229,13 +227,6 @@ class EthDataManager(
                     Completable.complete()
                 }
             }
-
-    fun initEthereumWalletIfNeeded(): Completable =
-        if (ethDataStore.ethWallet == null) {
-            initEthereumWallet(labels.getDefaultNonCustodialWalletLabel())
-        } else {
-            Completable.complete()
-        }
 
     /**
      * @param gasPriceWei Represents the fee the sender is willing to pay for gas. One unit of gas

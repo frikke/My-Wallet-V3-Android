@@ -339,14 +339,14 @@ val coreModule = module {
                 metadataRepository = get(),
                 lastTxUpdater = get(),
                 evmNetworksService = get(),
-                nonCustodialEvmService = get(),
-                labels = get()
+                nonCustodialEvmService = get()
             )
         }.bind(EthMessageSigner::class)
 
         scoped {
             L1BalanceStore(
-                ethDataManager = get()
+                ethDataManager = get(),
+                remoteLogger = get()
             )
         }
 
