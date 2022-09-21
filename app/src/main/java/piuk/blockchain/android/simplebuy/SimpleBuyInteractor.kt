@@ -61,6 +61,7 @@ import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
+import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
 import com.blockchain.remoteconfig.RemoteConfigRepository
 import com.blockchain.serializers.StringMapSerializer
 import info.blockchain.balance.AssetCategory
@@ -667,7 +668,12 @@ class SimpleBuyInteractor(
 
         val quickFillButtonData = QuickFillButtonData(
             maxAmount = (limits.max as? TxLimit.Limited)?.amount ?: Money.zero(fiatCurrency),
-            quickFillButtons = listOfAmounts
+            quickFillButtons = listOfAmounts.map { amount ->
+                QuickFillDisplayAndAmount(
+                    displayValue = amount.toStringWithSymbol(includeDecimalsWhenWhole = false),
+                    amount = amount
+                )
+            }
         )
 
         return Single.just(Pair(prefilledAmount, quickFillButtonData))

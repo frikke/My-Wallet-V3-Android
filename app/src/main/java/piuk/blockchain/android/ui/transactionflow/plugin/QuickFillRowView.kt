@@ -3,14 +3,17 @@ package piuk.blockchain.android.ui.transactionflow.plugin
 import android.content.Context
 import android.util.AttributeSet
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
+import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
 import com.blockchain.presentation.complexcomponents.QuickFillRowView
+import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
 import java.math.BigDecimal
-import java.math.BigInteger
 import kotlin.math.floor
-import kotlin.math.ln
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.PrefillAmounts
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -18,7 +21,6 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.convertFiatToCrypto
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
-import timber.log.Timber
 
 class QuickFillRowView @JvmOverloads constructor(
     ctx: Context,
@@ -45,69 +47,136 @@ class QuickFillRowView @JvmOverloads constructor(
 
     override fun update(state: TransactionState) {
         state.pendingTx?.limits?.let { limits ->
-            when (state.currencyType) {
-                CurrencyType.CRYPTO -> {
-                }
-                CurrencyType.FIAT -> {
-                    state.fiatRate?.let { fiatRate ->
-                        val spendableFiatBalance = state.availableBalanceInFiat(state.maxSpendable, fiatRate)
-                        val fiatCurrency = spendableFiatBalance.currency
+            state.fiatRate?.let { fiatRate ->
 
-                        val isMaxLimited = limits.isAmountOverMax(state.maxSpendable)
-                        val isMinLimited = limits.isAmountUnderMin(state.maxSpendable)
+                when (state.currencyType) {
+                    CurrencyType.CRYPTO -> {
+                        val adjustedBalance =
+                            limits.getSpendableBalanceWithinLimits(state.maxSpendable, state.maxSpendable.currency)
 
-                        val listOfAmounts = mutableListOf<Money>()
+                        val listOfAmounts = mutableListOf<QuickFillDisplayAndAmount>()
 
-                        val adjustedBalance = when {
-                            isMinLimited && isMaxLimited -> Money.fromMajor(fiatCurrency, BigDecimal.ZERO)
-                            isMinLimited -> limits.minAmount
-                            isMaxLimited -> limits.maxAmount
-                            else -> state.maxSpendable
-                        }
-
-                        val lowestPrefillAmount = roundAndAdjustToNearestFactor(adjustedBalance, 0.25f)
+                        val lowestPrefillAmount = adjustedBalance.times(TWENTY_FIVE_PERCENT)
 
                         if (limits.isAmountInRange(lowestPrefillAmount)) {
-                            listOfAmounts.add(state.availableBalanceInFiat(lowestPrefillAmount, fiatRate))
+                            listOfAmounts.add(
+                                QuickFillDisplayAndAmount(
+                                    displayValue = resources.getString(R.string.enter_amount_quickfill_25),
+                                    amount = lowestPrefillAmount
+                                )
+                            )
                         }
 
-                        val mediumPrefillAmount = roundAndAdjustToNearestFactor(adjustedBalance, 0.5f)
+                        val mediumPrefillAmount = adjustedBalance.times(FIFTY_PERCENT)
 
                         if (limits.isAmountInRange(mediumPrefillAmount)) {
-                            listOfAmounts.add(state.availableBalanceInFiat(mediumPrefillAmount, fiatRate))
+                            listOfAmounts.add(
+                                QuickFillDisplayAndAmount(
+                                    displayValue = resources.getString(R.string.enter_amount_quickfill_50),
+                                    amount = mediumPrefillAmount
+                                )
+                            )
                         }
 
-                        val largestPrefillAmount = roundAndAdjustToNearestFactor(adjustedBalance, 0.75f)
+                        val largestPrefillAmount = adjustedBalance.times(SEVENTY_FIVE_PERCENT)
 
                         if (limits.isAmountInRange(largestPrefillAmount)) {
-                            listOfAmounts.add(state.availableBalanceInFiat(largestPrefillAmount, fiatRate))
+                            listOfAmounts.add(
+                                QuickFillDisplayAndAmount(
+                                    displayValue = resources.getString(R.string.enter_amount_quickfill_75),
+                                    amount = largestPrefillAmount
+                                )
+                            )
                         }
 
                         quickFillButtonData = QuickFillButtonData(
                             maxAmount = state.maxSpendable,
                             quickFillButtons = listOfAmounts
                         )
+
+                        onQuickFillItemClick = { quickFillData ->
+                            model.process(
+                                TransactionIntent.UpdatePrefillAmount(
+                                    PrefillAmounts(
+                                        cryptoValue = quickFillData.amount,
+                                        fiatValue = state.availableBalanceInFiat(quickFillData.amount, fiatRate)
+                                    )
+                                )
+                            )
+                        }
+                    }
+                    CurrencyType.FIAT -> {
+                        val spendableFiatBalance = state.availableBalanceInFiat(state.maxSpendable, fiatRate)
+                        val fiatCurrency = spendableFiatBalance.currency
+
+                        val listOfAmounts = mutableListOf<Money>()
+                        val spendableBalanceWithinLimits = limits.getSpendableBalanceWithinLimits(
+                            amount = state.maxSpendable,
+                            currency = fiatCurrency
+                        )
+
+                        val lowestPrefillValues = getRoundedFiatAndCryptoValues(
+                            state = state,
+                            spendableBalance = spendableBalanceWithinLimits,
+                            fiatRate = fiatRate,
+                            multiplicationFactor = TWENTY_FIVE_PERCENT
+                        )
+
+                        if (limits.isAmountInRange(lowestPrefillValues.second)) {
+                            listOfAmounts.add(lowestPrefillValues.first)
+                        }
+
+                        val mediumPrefillValues = getRoundedFiatAndCryptoValues(
+                            state = state,
+                            spendableBalance = spendableBalanceWithinLimits,
+                            fiatRate = fiatRate,
+                            multiplicationFactor = FIFTY_PERCENT
+                        )
+
+                        if (limits.isAmountInRange(mediumPrefillValues.second)) {
+                            listOfAmounts.add(mediumPrefillValues.first)
+                        }
+
+                        val largestPrefillValues =
+                            getRoundedFiatAndCryptoValues(
+                                state = state,
+                                spendableBalance = spendableBalanceWithinLimits,
+                                fiatRate = fiatRate,
+                                multiplicationFactor = SEVENTY_FIVE_PERCENT
+                            )
+
+                        if (limits.isAmountInRange(largestPrefillValues.second)) {
+                            listOfAmounts.add(state.availableBalanceInFiat(largestPrefillValues.first, fiatRate))
+                        }
+
+                        quickFillButtonData = QuickFillButtonData(
+                            maxAmount = state.maxSpendable,
+                            quickFillButtons = listOfAmounts.map { amount ->
+                                QuickFillDisplayAndAmount(
+                                    displayValue = amount.toStringWithSymbol(includeDecimalsWhenWhole = false),
+                                    amount = amount
+                                )
+                            }
+                        )
+
+                        onQuickFillItemClick = { quickFillData ->
+                            model.process(
+                                TransactionIntent.UpdatePrefillAmount(
+                                    PrefillAmounts(
+                                        cryptoValue = quickFillData.amount.convertFiatToCrypto(fiatRate, state),
+                                        fiatValue = quickFillData.amount
+                                    )
+                                )
+                            )
+                        }
+                    }
+                    null -> {
+                        // do nothing - screen is initialising
                     }
                 }
-                null -> {
-                    // do nothing - screen is initialising
-                }
             }
-
             maxButtonText = customiser.quickFillRowMaxButtonLabel(state)
 
-            onQuickFillItemClick = { quickFillAMount ->
-                state.fiatRate?.let { rate ->
-                    model.process(
-                        TransactionIntent.UpdatePrefillAmount(
-                            PrefillAmounts(
-                                cryptoValue = quickFillAMount.convertFiatToCrypto(rate, state),
-                                fiatValue = quickFillAMount
-                            )
-                        )
-                    )
-                }
-            }
             onMaxItemClick = { maxAmount ->
                 state.fiatRate?.let { rate ->
                     model.process(
@@ -123,26 +192,58 @@ class QuickFillRowView @JvmOverloads constructor(
         }
     }
 
-    private fun roundAndAdjustToNearestFactor(amount: Money, multiplyFactor: Float): Money {
-        val digits = getDigitCount(amount.toBigInteger())
-        Timber.e("----- roundAndAdjustToNearestFactor digits $digits")
-        return amount.times(multiplyFactor)
-        /*
-         1 if balance is single digits,
-         10 if balance is double digits,
-          25 if 3 digits,
-          100 if 4 digits,
-          500 if if 5 digits,
-           1000, if 6 digits
-         */
+    private fun getRoundedFiatAndCryptoValues(
+        state: TransactionState,
+        spendableBalance: Money,
+        fiatRate: ExchangeRate,
+        multiplicationFactor: Float
+    ): Pair<Money, Money> {
+
+        val lowestPrefillCrypto = spendableBalance.times(multiplicationFactor)
+        val lowestPrefillFiat = state.availableBalanceInFiat(lowestPrefillCrypto, fiatRate)
+        val lowestPrefillFiatParts = lowestPrefillFiat.toStringParts()
+
+        val lowestPrefillRoundedFiat = when (
+            lowestPrefillFiatParts.major.filterNot {
+                it == lowestPrefillFiatParts.groupingSeparator
+            }.length
+        ) {
+            0,
+            1 -> {
+                roundToNearest(lowestPrefillFiat, 1)
+            }
+            2 -> {
+                roundToNearest(lowestPrefillFiat, 10)
+            }
+            3 -> {
+                roundToNearest(lowestPrefillFiat, 25)
+            }
+            4 -> {
+                roundToNearest(lowestPrefillFiat, 100)
+            }
+            5 -> {
+                roundToNearest(lowestPrefillFiat, 500)
+            }
+            else -> {
+                roundToNearest(lowestPrefillFiat, 1000)
+            }
+        }
+
+        val lowestPrefillRoundedCrypto = lowestPrefillRoundedFiat.convertFiatToCrypto(fiatRate, state)
+
+        return Pair(lowestPrefillRoundedFiat, lowestPrefillRoundedCrypto)
     }
 
-    private fun getDigitCount(number: BigInteger): Int {
-        val factor = ln(2.0) / ln(10.0)
-        val digitCount = (factor * number.bitLength() + 1).toInt()
-        return if (BigInteger.TEN.pow(digitCount - 1) > number) {
-            digitCount - 1
-        } else digitCount
+    private fun TxLimits.getSpendableBalanceWithinLimits(amount: Money, currency: Currency): Money {
+        val isMaxLimited = isAmountOverMax(amount)
+        val isMinLimited = isAmountUnderMin(amount)
+
+        return when {
+            isMinLimited && isMaxLimited -> Money.fromMajor(currency, BigDecimal.ZERO)
+            isMinLimited -> minAmount
+            isMaxLimited -> maxAmount
+            else -> amount
+        }
     }
 
     private fun roundToNearest(lastAmount: Money, nearest: Int): Money {
@@ -153,5 +254,11 @@ class QuickFillRowView @JvmOverloads constructor(
 
     override fun setVisible(isVisible: Boolean) {
         this.visibleIf { isVisible }
+    }
+
+    companion object {
+        private const val TWENTY_FIVE_PERCENT = 0.25f
+        private const val FIFTY_PERCENT = 0.5f
+        private const val SEVENTY_FIVE_PERCENT = 0.75f
     }
 }
