@@ -72,20 +72,19 @@ class MultiAppViewModel(
 
     private fun loadTotalBalance() {
         viewModelScope.launch {
-
             val balances = modelState.walletModes.map { walletMode ->
                 balanceStore
                     .stream(FreshnessStrategy.Cached(forceRefresh = true).withKey(walletMode))
                     .mapData { it.total }
             }
 
-            combine(balances) {
-                combineDataResources(it.toList()) {
-                    it.total()
+            combine(balances) { balancesArray ->
+                combineDataResources(balancesArray.toList()) { balancesList ->
+                    balancesList.total()
                 }
-            }.collectLatest { dataResource ->
+            }.collectLatest { totalBalanceDataResource ->
                 updateState {
-                    it.copy(totalBalance = dataResource)
+                    it.copy(totalBalance = totalBalanceDataResource)
                 }
             }
         }
