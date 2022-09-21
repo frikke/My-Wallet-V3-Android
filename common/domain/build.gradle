@@ -1,15 +1,6 @@
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file('gradle/local/common-feature.gradle')
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
 
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = Versions.kotlinJvmTarget
-    }
-}
-java {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-}
 dependencies {
     implementation project(':common:interface')
     implementation project(':balance')

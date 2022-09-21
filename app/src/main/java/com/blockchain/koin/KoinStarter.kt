@@ -69,6 +69,7 @@ import piuk.blockchain.android.ui.linkbank.data.bankAuthDataModule
 import piuk.blockchain.android.ui.linkbank.domain.bankAuthDomainModule
 import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.bankAuthPresentationModule
 import piuk.blockchain.android.ui.login.loginUiModule
+import piuk.blockchain.android.ui.multiapp.multiAppModule
 import piuk.blockchain.android.ui.prices.presentation.pricesPresentationModule
 import piuk.blockchain.android.ui.referral.presentation.referralPresentationModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
@@ -76,6 +77,7 @@ import piuk.blockchain.android.ui.settings.v2.redesignSettingsModule
 import piuk.blockchain.android.ui.start.startupUiModule
 import piuk.blockchain.android.ui.transactionflow.transactionModule
 import piuk.blockchain.android.ui.transfer.receive.receiveCryptoModule
+import piuk.blockchain.android.util.accessibilityModule
 import piuk.blockchain.com.internalFeatureFlagsModule
 import timber.log.Timber
 
@@ -136,6 +138,7 @@ object KoinStarter {
                     deeplinkModule,
                     loggingModule,
                     analyticsModule,
+                    accessibilityModule,
                     customerSupportModule,
                     storeCachesInMemoryModule,
                     storeCachesPersistedJsonSqlDelightModule,
@@ -151,7 +154,9 @@ object KoinStarter {
                     pricesPresentationModule,
                     bankAliasLinkPresentationModule,
                     educationalWalletModesPresentationModule,
-                    nftDataModule, nftPresentationModule
+                    nftDataModule, nftPresentationModule,
+
+                    multiAppModule
                 )
             )
         }

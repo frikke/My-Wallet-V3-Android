@@ -56,7 +56,7 @@ fun DemoScreen(
     val scope = rememberCoroutineScope()
 
     /**
-     * send data to [MultiAppContainer] to manage scroll and pull to refresh states correctly
+     * send data to [MultiAppChromeScreen] to manage scroll and pull to refresh states correctly
      * if no pull to refresh is needed [swipeRefreshState] can be null
      */
     updateScrollInfo(

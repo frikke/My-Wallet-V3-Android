@@ -52,7 +52,7 @@ import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.api.services.ExperimentsApiService
 import com.blockchain.api.services.FiatCurrenciesApiService
 import com.blockchain.api.services.NabuUserService
-import com.blockchain.api.services.NftService
+import com.blockchain.api.services.NftApiService
 import com.blockchain.api.services.NftWaitlistApiService
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.services.NonCustodialErc20Service
@@ -396,7 +396,7 @@ val blockchainApiModule = module {
 
     factory {
         val api = get<Retrofit>(blockchainApi).create(NftApi::class.java)
-        NftService(
+        NftApiService(
             nftApi = api
         )
     }

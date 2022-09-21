@@ -1,7 +1,14 @@
 package com.blockchain.nfts.domain.service
 
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nfts.domain.models.NftAsset
+import kotlinx.coroutines.flow.Flow
 
 interface NftService {
-    suspend fun getNftForAddress(network: String = "ETH", address: String): List<NftAsset>
+    suspend fun getNftForAddress(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true),
+        network: String = "ETH",
+        address: String
+    ): Flow<DataResource<List<NftAsset>>>
 }

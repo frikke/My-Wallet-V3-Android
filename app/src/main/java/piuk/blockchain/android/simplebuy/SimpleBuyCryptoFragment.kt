@@ -364,9 +364,9 @@ class SimpleBuyCryptoFragment :
                     QuickFillRow(
                         quickFillButtonData = quickFillButtonData,
                         onQuickFillItemClick = { item ->
-                            model.process(SimpleBuyIntent.PrefillEnterAmount(item))
+                            model.process(SimpleBuyIntent.PrefillEnterAmount(item.amount))
                             sendAnalyticsQuickFillButtonTapped(
-                                item,
+                                item.amount,
                                 quickFillButtonData.quickFillButtons.indexOf(item)
                             )
                         },
@@ -785,7 +785,7 @@ class SimpleBuyCryptoFragment :
             secondaryText =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
             startImageResource = ImageResource.Local(
-                contentDescription = "UnderfinedBankTransfer",
+                contentDescription = "UndefinedBankTransfer",
                 id = R.drawable.ic_bank_icon
             )
         }
@@ -799,7 +799,7 @@ class SimpleBuyCryptoFragment :
             secondaryText =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
             startImageResource = ImageResource.Local(
-                contentDescription = "UnderfinedBankTransfer",
+                contentDescription = "UndefinedBankTransfer",
                 id = R.drawable.ic_bank_icon
             )
         }
@@ -1299,8 +1299,7 @@ class SimpleBuyCryptoFragment :
                 R.string.not_enough_funds, state.fiatCurrency.displayTicker
             )
             TransactionErrorState.OVER_SILVER_TIER_LIMIT,
-            TransactionErrorState.OVER_GOLD_TIER_LIMIT,
-            -> resources.getString(
+            TransactionErrorState.OVER_GOLD_TIER_LIMIT -> resources.getString(
                 R.string.over_your_limit
             )
             TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT -> resources.getString(
@@ -1374,7 +1373,6 @@ fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context, dateTim
             }
         }
         RecurringBuyFrequency.ONE_TIME,
-        RecurringBuyFrequency.UNKNOWN,
-        -> ""
+        RecurringBuyFrequency.UNKNOWN -> ""
     }
 }

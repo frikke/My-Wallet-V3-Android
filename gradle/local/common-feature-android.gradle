@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply from: rootProject.file("quality/ktlint.gradle")
 apply from: rootProject.file("quality/detekt.gradle")
+apply from: rootProject.file('gradle/local/common-tests.gradle')
 
 android {
     compileSdkVersion Versions.compileSdk
@@ -12,8 +13,6 @@ android {
         targetSdkVersion Versions.targetSdk
         versionCode Versions.versionCode
         versionName Versions.versionName
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        vectorDrawables.useSupportLibrary = true
     }
 
     compileOptions {
@@ -34,4 +33,9 @@ android {
             reports.junitXml.destination = file('../build/test-results/')
         }
     }
+}
+
+dependencies {
+    // Logging
+    implementation Libraries.timber
 }

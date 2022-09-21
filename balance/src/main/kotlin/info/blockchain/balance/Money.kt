@@ -52,20 +52,27 @@ abstract class Money : Serializable, Comparable<Money> {
      */
     fun toStringParts() =
         toStringWithoutSymbol().let {
-            val index = it.lastIndexOf(LocaleDecimalFormat[Locale.getDefault()].decimalFormatSymbols.decimalSeparator)
+            val decimalSeparator = LocaleDecimalFormat[Locale.getDefault()].decimalFormatSymbols.decimalSeparator
+            val groupingSeparator = LocaleDecimalFormat[Locale.getDefault()].decimalFormatSymbols.groupingSeparator
+
+            val index = it.lastIndexOf(decimalSeparator)
             if (index != -1) {
                 Parts(
                     symbol = symbol,
                     major = it.substring(0, index),
                     minor = it.substring(index + 1),
-                    majorAndMinor = it
+                    majorAndMinor = it,
+                    decimalSeparator = decimalSeparator,
+                    groupingSeparator = groupingSeparator
                 )
             } else {
                 Parts(
                     symbol = symbol,
                     major = it,
                     minor = "",
-                    majorAndMinor = it
+                    majorAndMinor = it,
+                    decimalSeparator = decimalSeparator,
+                    groupingSeparator = groupingSeparator
                 )
             }
         }
@@ -74,7 +81,9 @@ abstract class Money : Serializable, Comparable<Money> {
         val symbol: String,
         val major: String,
         val minor: String,
-        val majorAndMinor: String
+        val majorAndMinor: String,
+        val groupingSeparator: Char,
+        val decimalSeparator: Char
     )
 
     fun formatOrSymbolForZero() =

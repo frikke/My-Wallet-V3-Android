@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.home
 
+import com.blockchain.analytics.data.TraitsService
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.superAppModeService
@@ -9,8 +10,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeReporter
-import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeReporterImpl
 import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionViewModel
 import piuk.blockchain.android.ui.home.models.ActionsSheetInteractor
 import piuk.blockchain.android.ui.home.models.ActionsSheetModel
@@ -21,6 +20,7 @@ import piuk.blockchain.android.ui.home.models.MainState
 import piuk.blockchain.android.walletmode.SuperAppWalletModeRepository
 import piuk.blockchain.android.walletmode.WalletModePrefStore
 import piuk.blockchain.android.walletmode.WalletModeRepository
+import piuk.blockchain.android.walletmode.WalletModeTraitsRepository
 
 val mainModule = module {
 
@@ -83,12 +83,11 @@ val mainModule = module {
             )
         }
     }
-
     factory {
-        WalletModeReporterImpl(
-            userAnalytics = get()
+        WalletModeTraitsRepository(
+            walletModeService = lazy { get() }
         )
-    }.bind(WalletModeReporter::class)
+    }.bind(TraitsService::class)
 
     single(superAppModeService) {
         SuperAppWalletModeRepository(

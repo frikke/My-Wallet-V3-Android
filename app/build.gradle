@@ -395,6 +395,7 @@ dependencies {
 
     implementation Libraries.koin
     implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
 
     // Views
     implementation Libraries.countryPicker
@@ -465,6 +466,7 @@ dependencies {
     implementation Libraries.rxBindingCompat
     implementation Libraries.rxBindingCore
     implementation Libraries.rxjava3Coroutines
+    implementation Libraries.rxKotlin
 
     //Animations
     implementation Libraries.lottie

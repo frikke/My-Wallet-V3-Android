@@ -6,7 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
+import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
+import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.collection.screen.NftCollection
+import org.koin.androidx.compose.getViewModel
 
 class NftCollectionFragment : Fragment() {
 
@@ -17,7 +20,10 @@ class NftCollectionFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                NftCollection()
+                val viewModel: NftCollectionViewModel = getViewModel(scope = payloadScope)
+                viewModel.viewCreated(ModelConfigArgs.NoArgs)
+
+                NftCollection(viewModel)
             }
         }
     }

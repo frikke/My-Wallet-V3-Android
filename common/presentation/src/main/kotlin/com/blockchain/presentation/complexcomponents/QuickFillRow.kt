@@ -30,7 +30,7 @@ open class QuickFillRowView @JvmOverloads constructor(
 ) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var quickFillButtonData by mutableStateOf<QuickFillButtonData?>(null)
-    var onQuickFillItemClick by mutableStateOf<(Money) -> Unit>({})
+    var onQuickFillItemClick by mutableStateOf<(QuickFillDisplayAndAmount) -> Unit>({})
     var onMaxItemClick by mutableStateOf<(Money) -> Unit>({})
     var maxButtonText by mutableStateOf("")
 
@@ -54,7 +54,7 @@ open class QuickFillRowView @JvmOverloads constructor(
 @Composable
 fun QuickFillRow(
     quickFillButtonData: QuickFillButtonData,
-    onQuickFillItemClick: (Money) -> Unit,
+    onQuickFillItemClick: (QuickFillDisplayAndAmount) -> Unit,
     onMaxItemClick: (Money) -> Unit,
     maxButtonText: String
 ) {
@@ -68,7 +68,7 @@ fun QuickFillRow(
                 items = quickFillButtonData.quickFillButtons,
                 itemContent = { item ->
                     SmallMinimalButton(
-                        text = item.toStringWithSymbol(includeDecimalsWhenWhole = false),
+                        text = item.displayValue,
                         onClick = {
                             onQuickFillItemClick(item)
                         },
@@ -92,6 +92,11 @@ fun QuickFillRow(
 }
 
 data class QuickFillButtonData(
-    val quickFillButtons: List<Money>,
+    val quickFillButtons: List<QuickFillDisplayAndAmount>,
     val maxAmount: Money
+)
+
+data class QuickFillDisplayAndAmount(
+    val displayValue: String,
+    val amount: Money
 )

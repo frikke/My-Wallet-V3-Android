@@ -3,12 +3,6 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'kotlin-parcelize'
 
 android {
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
     sourceSets {
         main {
             java {
@@ -35,29 +29,13 @@ dependencies {
     implementation project(':blockchainApi')
     implementation project(':store:core')
 
-    implementation Libraries.timber
     implementation Libraries.retrofit
     implementation Libraries.retrofitKotlinJsonConverter
     implementation Libraries.okHttp
     implementation Libraries.kotlinJson
-    implementation Libraries.composeMaterial
-    implementation Libraries.composePreview
-    implementation Libraries.composeActivity
-    implementation Libraries.composeNavigation
-    implementation Libraries.composeRx
-    implementation Libraries.design
-    implementation Libraries.appCompat
-    implementation Libraries.androidXAnnotations
-    implementation Libraries.accompanistNavigationMaterial
     implementation Libraries.accompanistSwipeRefresh
 
     // TODO(aromano): TEMP while Google doesn't fix https://issuetracker.google.com/issues/227767363
     debugImplementation "androidx.customview:customview:1.2.0-alpha01"
     debugImplementation "androidx.customview:customview-poolingcontainer:1.0.0-alpha01"
-
-    // test
-    testImplementation Libraries.junit
-    testImplementation Libraries.kotlinTest
-    testImplementation Libraries.mockk
-    testImplementation Libraries.kotlinCoroutinesTest
 }

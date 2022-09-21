@@ -8,7 +8,7 @@ object Versions {
     const val compileSdk = 32
 
     const val versionCode = 21422
-    const val versionName = "202210.1.0"
+    const val versionName = "202210.2.0"
 
     const val buildTools = "30.0.3"
 
@@ -135,7 +135,7 @@ object Versions {
     const val zendeskMessagingVersion = "5.2.3"
     const val checkoutComVersion = "3.0.1"
     const val stripeVersion = "20.3.0"
-    const val intercomVersion = "10.6.0"
+    const val intercomVersion = "12.3.0"
     const val plaidLinkVersion = "3.9.0"
     const val exoPlayerVersion = "2.18.1"
 
