@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,19 +37,23 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.compose.rememberNavController
-import com.blockchain.componentlib.theme.END_DEFI
-import com.blockchain.componentlib.theme.END_TRADING
-import com.blockchain.componentlib.theme.START_DEFI
-import com.blockchain.componentlib.theme.START_TRADING
+import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
+import piuk.blockchain.android.ui.multiapp.ChromeBackgroundColors
+import piuk.blockchain.android.ui.multiapp.MultiAppIntents
+import piuk.blockchain.android.ui.multiapp.MultiAppViewModel
+import piuk.blockchain.android.ui.multiapp.MultiAppViewState
 import piuk.blockchain.android.ui.multiapp.bottomnav.BottomNavItem
 import piuk.blockchain.android.ui.multiapp.toolbar.CollapsingToolbarState
 import piuk.blockchain.android.ui.multiapp.toolbar.EnterAlwaysCollapsedState
@@ -62,7 +67,6 @@ private fun rememberToolbarState(): CollapsingToolbarState {
     }
 }
 
-val modes = listOf("Trading", "DeFi")
 val navigationItem = listOf(
     BottomNavItem.Home,
     BottomNavItem.Trade,
@@ -70,7 +74,32 @@ val navigationItem = listOf(
 )
 
 @Composable
-fun MultiAppContainer() {
+fun MultiAppChrome(viewModel: MultiAppViewModel) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
+        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    val viewState: MultiAppViewState? by stateFlowLifecycleAware.collectAsState(null)
+
+    viewState?.let { state ->
+        MultiAppChromeScreen(
+            modeSwitcherOptions = state.modeSwitcherOptions,
+            selectedMode = state.selectedMode,
+            backgroundColors = state.backgroundColors,
+            onModeSelected = { walletMode ->
+                viewModel.onIntent(MultiAppIntents.WalletModeChanged(walletMode))
+            }
+        )
+    }
+}
+
+@Composable
+fun MultiAppChromeScreen(
+    modeSwitcherOptions: List<WalletMode>,
+    selectedMode: WalletMode,
+    backgroundColors: ChromeBackgroundColors,
+    onModeSelected: (WalletMode) -> Unit
+) {
     var balanceSectionHeight by remember {
         mutableStateOf(0)
     }
@@ -210,19 +239,16 @@ fun MultiAppContainer() {
 
     // //////////////////////////////////////////////
     // background color
-    var selectedMode by remember { mutableStateOf(modes.first()) }
     val backgroundStartColor by animateColorAsState(
-        targetValue = if (selectedMode == modes.first()) START_TRADING else START_DEFI,
+        targetValue = backgroundColors.startColor,
         animationSpec = tween(
-            durationMillis = ANIMATION_DURATION,
-            delayMillis = 0
+            durationMillis = ANIMATION_DURATION
         )
     )
     val backgroundEndColor by animateColorAsState(
-        targetValue = if (selectedMode == modes.first()) END_TRADING else END_DEFI,
+        targetValue = backgroundColors.endColor,
         animationSpec = tween(
-            durationMillis = ANIMATION_DURATION,
-            delayMillis = 0
+            durationMillis = ANIMATION_DURATION
         )
     )
     // //////////////////////////////////////////////
@@ -232,8 +258,7 @@ fun MultiAppContainer() {
     val balanceLoadingAlpha by animateFloatAsState(
         targetValue = if (isRefreshing) 0F else 1F,
         animationSpec = tween(
-            durationMillis = ANIMATION_DURATION,
-            delayMillis = 0
+            durationMillis = ANIMATION_DURATION
         )
     )
     var balanceScrollAlpha by remember { mutableStateOf(1F) }
@@ -280,14 +305,12 @@ fun MultiAppContainer() {
             }
         },
         animationSpec = tween(
-            durationMillis = ANIMATION_DURATION / 2,
-            delayMillis = 0
+            durationMillis = ANIMATION_DURATION / 2
         )
     )
     // //////////////////////////////////////////////
 
     val navController = rememberNavController()
-
     // this container has the following format
     // -> Space for the toolbar
     // -> collapsable header
@@ -359,17 +382,14 @@ fun MultiAppContainer() {
                         .onGloballyPositioned { coordinates ->
                             tabsSectionHeight = coordinates.size.height
                         },
-                    modes = modes,
-                    onModeClicked = {
+                    modes = modeSwitcherOptions,
+                    selectedMode = selectedMode,
+                    onModeClicked = { walletMode ->
                         stopRefresh()
 
-                        if (it == modes[0]) {
-                            animateBottomNav = true
-                            selectedMode = modes[0]
-                        } else if (it == modes[1]) {
-                            animateBottomNav = true
-                            selectedMode = modes[1]
-                        }
+                        animateBottomNav = true
+
+                        onModeSelected(walletMode)
                     },
                 )
             }
@@ -473,5 +493,10 @@ fun MultiAppContainer() {
 @Preview
 @Composable
 fun PreviewMultiAppContainer() {
-    MultiAppContainer()
+    MultiAppChromeScreen(
+        modeSwitcherOptions = listOf(WalletMode.CUSTODIAL_ONLY, WalletMode.NON_CUSTODIAL_ONLY),
+        selectedMode = WalletMode.CUSTODIAL_ONLY,
+        backgroundColors = ChromeBackgroundColors.Trading,
+        onModeSelected = {}
+    )
 }

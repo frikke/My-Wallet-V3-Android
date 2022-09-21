@@ -325,6 +325,7 @@
 
     <string name="portfolio">Portfolio</string>
     <string name="brokerage_wallet_name" translatable="false">Trading Account</string>
+    <string name="brokerage_wallet_name_superapp" translatable="false">Trading</string>
     <string name="prices">Prices</string>
     <string name="send">Send</string>
     <string name="receive_share">Share Address</string>
@@ -3160,6 +3161,7 @@
     <string name="bottom_nav_activity">Activity</string>
     <string name="bottom_nav_nfts" translatable="false">NFTs</string>
     <string name="defi_wallet_name" translatable="false">Private Key Wallet</string>
+    <string name="defi_wallet_name_superapp" translatable="false">DeFi</string>
 
     <string name="simple_buy_quote_message">New Quote in %s</string>
     <string name="defi_current_balance">Current Balance</string>
