@@ -714,4 +714,4 @@ val coreModule = module {
 }
 
 fun experimentalL1EvmAssetList(): Set<CryptoCurrency> =
-    setOf(CryptoCurrency.MATIC, CryptoCurrency.BNB)
+    setOf(CryptoCurrency.MATIC, CryptoCurrency.BNB, CryptoCurrency.AVAX)

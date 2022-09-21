@@ -211,13 +211,10 @@ val coincoreModule = module {
     single {
         UniversalDynamicAssetRepository(
             dominantL1Assets = setOf(
-                CryptoCurrency.MATIC,
                 CryptoCurrency.BTC,
                 CryptoCurrency.BCH,
-                CryptoCurrency.XLM,
-                CryptoCurrency.ETHER,
-                CryptoCurrency.BNB
-            ),
+                CryptoCurrency.XLM
+            ).plus(CryptoCurrency.evmCurrencies),
             discoveryService = get(),
             l2sDynamicAssetRepository = get()
         )

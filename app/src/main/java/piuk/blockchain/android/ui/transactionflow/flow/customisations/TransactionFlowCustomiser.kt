@@ -31,6 +31,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
+import info.blockchain.balance.asAssetInfoOrThrow
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -775,7 +776,8 @@ class TransactionFlowCustomiserImpl(
                 R.string.send_enter_invalid_password
             )
             TransactionErrorState.NOT_ENOUGH_GAS -> resources.getString(
-                R.string.send_enter_insufficient_gas
+                R.string.send_enter_insufficient_gas,
+                state.sendingAsset.asAssetInfoOrThrow().l1chainTicker ?: state.sendingAsset.displayTicker
             )
             TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
             TransactionErrorState.BELOW_MIN_LIMIT,

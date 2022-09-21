@@ -938,7 +938,7 @@ Intenta otra vez más tarde.</string>
     <string name="sell_info_action">Enviar ahora →</string>
     <string name="common_pending">Pendiente</string>
     <string name="confirm_status_msg_insufficient_funds">No tienes fondos suficientes en esta cuenta para procesar esta transacción.</string>
-    <string name="confirm_status_msg_insufficient_gas">No tienes suficientes ETH para procesar esta transacción.</string>
+    <string name="confirm_status_msg_insufficient_gas">No tienes suficientes %1$s para procesar esta transacción.</string>
     <string name="confirm_status_msg_option_invalid">Asegúrate de haber aceptado nuestros Términos.</string>
     <string name="common_free">Gratis</string>
     <string name="two_fa_new_request">Solicitando nuevo código...</string>
@@ -1717,7 +1717,7 @@ Tu %1$s estará disponible en tu cuenta \"%2$s\" en el plazo de 2 días.</string
     <string name="fiat_funds_detail_withdraw_title">Retirado</string>
     <string name="withdrawing_amount_message">Estamos completando tu retiro en este momento.</string>
     <string name="send_progress_error_subtitle">No te preocupes. Tu dinero está seguro. Vuelve a intentarlo o comunícate con nuestro equipo de Soporte para obtener ayuda.</string>
-    <string name="send_enter_insufficient_gas">No tienes suficientes ETH para procesar esta transacción.</string>
+    <string name="send_enter_insufficient_gas">No tienes suficientes %1$s para procesar esta transacción.</string>
     <string name="swap_select_target_title">Nuevo intercambio</string>
     <string name="yodlee_splash_title">Conexión segura</string>
     <string name="please_try_linking_your_bank_again">Intenta vincular tu banco nuevamente. Si esto sigue ocurriendo, comunícate con Soporte.</string>

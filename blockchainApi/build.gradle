@@ -5,6 +5,7 @@ dependencies {
     implementation project(':common:domain')
     implementation project(':common:interface')
     implementation project(':common:network')
+    implementation project(':balance')
 
     implementation Libraries.kotlin
     implementation Libraries.okHttpInterceptor

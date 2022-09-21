@@ -999,7 +999,7 @@ Vous pouvez continuer à utiliser le portefeuille pour gérer votre crypto.</str
     <string name="sell_info_action">Envoyer maintenant →</string>
     <string name="common_pending">En attente</string>
     <string name="confirm_status_msg_insufficient_funds">Vous n\'avez pas suffisamment de fonds sur ce compte pour traiter cette transaction</string>
-    <string name="confirm_status_msg_insufficient_gas">Votre solde d\'ETH est insuffisant pour traiter cette transaction.</string>
+    <string name="confirm_status_msg_insufficient_gas">Votre solde d\'%1$s est insuffisant pour traiter cette transaction.</string>
     <string name="confirm_status_msg_option_invalid">Veuillez vous assurer que vous avez accepté nos conditions.</string>
     <string name="common_free">Gratuit</string>
     <string name="two_fa_new_request">Demande d\'un nouveau code…</string>
@@ -1788,7 +1788,7 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="fiat_funds_detail_withdraw_title">Retirés</string>
     <string name="withdrawing_amount_message">Nous sommes en train de finaliser votre retrait.</string>
     <string name="send_progress_error_subtitle">Ne vous inquiétez pas. Votre argent est en sécurité. Veuillez réessayer ou contacter notre équipe d\'assistance pour obtenir de l\'aide.</string>
-    <string name="send_enter_insufficient_gas">Votre solde d\'ETH est insuffisant pour traiter cette transaction.</string>
+    <string name="send_enter_insufficient_gas">Votre solde d\'%1$s est insuffisant pour traiter cette transaction.</string>
     <string name="swap_select_target_title">Nouvel échange</string>
     <string name="yodlee_splash_title">Connexion sécurisée</string>
     <string name="please_try_linking_your_bank_again">Veuillez essayer de lier à nouveau votre banque. Si le problème persiste, veuillez contacter le service d\'assistance.</string>

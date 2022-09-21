@@ -970,7 +970,7 @@ Puedes seguir utilizando la billetera para gestionar tus criptomonedas.</string>
     <string name="sell_info_action">Enviar ahora →</string>
     <string name="common_pending">Pendiente</string>
     <string name="confirm_status_msg_insufficient_funds">No tiene fondos suficientes en esta cuenta para procesar esta transacción</string>
-    <string name="confirm_status_msg_insufficient_gas">No tiene suficientes ETH para procesar esta transacción.</string>
+    <string name="confirm_status_msg_insufficient_gas">No tiene suficientes %1$s para procesar esta transacción.</string>
     <string name="confirm_status_msg_option_invalid">Por favor, asegúrese de haber aceptado nuestros Términos.</string>
     <string name="common_free">Gratis</string>
     <string name="two_fa_new_request">Solicitando nuevo código…</string>
@@ -1753,7 +1753,7 @@ Verifique su conexión a Internet y vuelva a intentarlo o comuníquese con el se
     <string name="fiat_funds_detail_withdraw_title">Retirado</string>
     <string name="withdrawing_amount_message">Estamos completando su retirada en este momento.</string>
     <string name="send_progress_error_subtitle">No se preocupe. Su dinero está seguro. Inténtelo de nuevo o póngase en contacto con nuestro equipo de asistencia para obtener ayuda.</string>
-    <string name="send_enter_insufficient_gas">No tiene suficientes ETH para procesar esta transacción.</string>
+    <string name="send_enter_insufficient_gas">No tiene suficientes %1$s para procesar esta transacción.</string>
     <string name="swap_select_target_title">Nuevo intercambio</string>
     <string name="yodlee_splash_title">Conexión segura</string>
     <string name="please_try_linking_your_bank_again">Intente vincular su banco de nuevo. Si el problema persiste, póngase en contacto con el equipo de asistencia.</string>
