@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.launcher.loader
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.user.NabuUserDataManager
@@ -51,7 +52,8 @@ class LoaderInteractor(
     private val cowboysPromoFeatureFlag: FeatureFlag,
     private val cowboysPrefs: CowboysPrefs,
     private val userIdentity: UserIdentity,
-    private val kycService: KycService
+    private val kycService: KycService,
+    private val experimentsStore: ExperimentsStore
 ) {
 
     private val wallet: Wallet
@@ -103,12 +105,16 @@ class LoaderInteractor(
                     referralService.associateReferralCodeIfPresent(referralCode)
                 }
             }.then {
+                rxCompletable { invalidateExperiments() }
+            }
+            .then {
                 checkForCowboysUser()
             }
             .doOnSubscribe {
                 emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))
             }.subscribeBy(
                 onComplete = {
+                    invalidateExperiments()
                     onInitSettingsSuccess(isAfterWalletCreation && shouldCheckForEmailVerification())
                 },
                 onError = { throwable ->
@@ -116,6 +122,8 @@ class LoaderInteractor(
                 }
             )
     }
+
+    private fun invalidateExperiments() = experimentsStore.markAsStale()
 
     private fun checkForCowboysUser() = Single.zip(
         userIdentity.isCowboysUser(),

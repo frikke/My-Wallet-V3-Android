@@ -1,5 +1,6 @@
 package com.blockchain.blockchaincard.ui.composables.ordercard
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -18,8 +20,10 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,12 +34,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
@@ -43,15 +49,15 @@ import com.blockchain.blockchaincard.viewmodel.ordercard.OrderCardViewModel
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.basic.ExpandableSimpleText
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.InfoButton
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.Checkbox
 import com.blockchain.componentlib.control.CheckboxState
-import com.blockchain.componentlib.controls.TextInput
+import com.blockchain.componentlib.controls.OutlinedTextInput
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.CircularProgressBar
@@ -62,6 +68,8 @@ import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
+import com.blockchain.componentlib.theme.Grey000
+import com.blockchain.componentlib.theme.Grey400
 
 @Composable
 fun OrderCard(
@@ -123,6 +131,15 @@ fun OrderCardIntro(onOrderCard: () -> Unit) {
                 onClick = onOrderCard,
                 modifier = Modifier.fillMaxWidth()
             )
+
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+            SimpleText(
+                text = stringResource(R.string.bc_card_dashboard_legal_disclaimer),
+                style = ComposeTypographies.Caption1,
+                color = ComposeColors.Dark,
+                gravity = ComposeGravities.Centre
+            )
         }
     }
 }
@@ -137,7 +154,9 @@ private fun OrderCardIntroPreview() {
 fun OrderCardAddressKYC(
     onContinue: () -> Unit,
     onCheckBillingAddress: () -> Unit,
-    shortAddress: String?,
+    line1: String?,
+    city: String?,
+    postalCode: String?,
     isAddressLoading: Boolean
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -146,7 +165,7 @@ fun OrderCardAddressKYC(
             modifier = Modifier.padding(top = AppTheme.dimensions.smallSpacing)
         ) {
             SimpleText(
-                text = stringResource(R.string.verify_your_address),
+                text = stringResource(R.string.address_verification_title),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Start,
@@ -155,8 +174,10 @@ fun OrderCardAddressKYC(
                     .padding(horizontal = AppTheme.dimensions.standardSpacing)
             )
 
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
             SimpleText(
-                text = stringResource(R.string.verify_your_address_description),
+                text = stringResource(R.string.address_verification_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Start,
@@ -166,10 +187,52 @@ fun OrderCardAddressKYC(
             )
 
             if (!isAddressLoading) {
-                DefaultTableRow(
-                    primaryText = stringResource(R.string.residential_address),
-                    secondaryText = shortAddress,
-                    onClick = onCheckBillingAddress,
+
+                Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
+
+                SimpleText(
+                    text = stringResource(R.string.bc_card_kyc_address_input_title),
+                    style = ComposeTypographies.Paragraph2,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = AppTheme.dimensions.standardSpacing)
+                )
+
+                Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = AppTheme.dimensions.standardSpacing),
+                    border = BorderStroke(1.dp, Grey000),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = 0.dp
+                ) {
+                    line1?.let {
+                        DefaultTableRow(
+                            primaryText = line1,
+                            secondaryText = "$city, $postalCode",
+                            onClick = onCheckBillingAddress,
+                            endImageResource = ImageResource.Local(
+                                R.drawable.ic_edit,
+                                colorFilter = ColorFilter.tint(AppTheme.colors.primary)
+                            )
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+                SimpleText(
+                    text = stringResource(R.string.bc_card_kyc_commercial_address_not_accepted),
+                    style = ComposeTypographies.Caption1,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Centre,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = AppTheme.dimensions.standardSpacing)
                 )
             } else {
                 ShimmerLoadingTableRow()
@@ -199,8 +262,10 @@ private fun OrderCardAddressKYCPreview() {
     OrderCardAddressKYC(
         onContinue = {},
         onCheckBillingAddress = {},
-        shortAddress = "123 Main St, New York, NY 10001",
-        isAddressLoading = false
+        line1 = "123 Main St, New York, NY 10001",
+        city = "Sacramento",
+        postalCode = "CA 93401",
+        isAddressLoading = false,
     )
 }
 
@@ -226,7 +291,7 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
                     .padding(horizontal = AppTheme.dimensions.standardSpacing)
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
 
             SimpleText(
                 text = stringResource(R.string.verify_your_identity_description),
@@ -238,16 +303,41 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
                     .padding(horizontal = AppTheme.dimensions.standardSpacing)
             )
 
-            TextInput(
+            OutlinedTextInput(
                 value = ssn,
                 label = stringResource(R.string.ssn_title),
                 placeholder = stringResource(R.string.ssn_hint),
                 onValueChange = { if (it.length <= SSN_LENGTH) ssn = it },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.padding(
-                    horizontal = AppTheme.dimensions.smallSpacing,
-                    vertical = AppTheme.dimensions.standardSpacing
+                    start = AppTheme.dimensions.smallSpacing,
+                    end = AppTheme.dimensions.smallSpacing,
+                    top = AppTheme.dimensions.standardSpacing
                 ),
+                unfocusedTrailingIcon = ImageResource.Local(
+                    id = R.drawable.ic_lock_filled,
+                    colorFilter = ColorFilter.tint(
+                        Grey400
+                    )
+                ),
+                focusedTrailingIcon = ImageResource.Local(
+                    id = R.drawable.ic_lock_filled,
+                    colorFilter = ColorFilter.tint(
+                        Grey400
+                    )
+                )
+            )
+
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+            SimpleText(
+                text = stringResource(R.string.bc_card_kyc_ssn_secured_with_encryption),
+                style = ComposeTypographies.Caption1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Centre,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = AppTheme.dimensions.standardSpacing)
             )
         }
 
@@ -284,7 +374,12 @@ fun OrderCardContent(
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
-        modifier = Modifier.padding(AppTheme.dimensions.standardSpacing)
+        modifier = Modifier
+            .padding(
+                start = AppTheme.dimensions.standardSpacing,
+                end = AppTheme.dimensions.standardSpacing,
+                bottom = AppTheme.dimensions.standardSpacing
+            )
     ) {
         Image(
             painter = painterResource(id = R.drawable.card_front),
@@ -307,16 +402,26 @@ fun OrderCardContent(
             gravity = ComposeGravities.Centre
         )
 
-        InfoButton(
+        MinimalButton(
             text = stringResource(R.string.see_card_details),
             onClick = onSeeProductDetails,
             state = ButtonState.Enabled,
             modifier = Modifier
                 .padding(
-                    vertical = AppTheme.dimensions.largeSpacing
+                    vertical = AppTheme.dimensions.standardSpacing
                 )
-                .wrapContentWidth()
+                .wrapContentWidth(),
+            shape = AppTheme.shapes.extraLarge
         )
+
+        SimpleText(
+            text = stringResource(R.string.bc_card_dashboard_legal_disclaimer),
+            style = ComposeTypographies.Caption1,
+            color = ComposeColors.Dark,
+            gravity = ComposeGravities.Centre
+        )
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
 
         val termsAndConditionsCheckboxState = remember { mutableStateOf(CheckboxState.Unchecked) }
 
@@ -341,14 +446,16 @@ fun OrderCardContent(
                     }
                 },
             )
-            SimpleText(
+
+            ExpandableSimpleText(
                 text = stringResource(id = R.string.bc_card_terms_and_conditions_label),
                 style = ComposeTypographies.Caption1,
-                color = ComposeColors.Muted,
+                color = ComposeColors.Title,
                 gravity = ComposeGravities.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onSeeLegalDocuments() }
+                    .clickable { onSeeLegalDocuments() },
+                maxLinesWhenCollapsed = 3
             )
         }
 

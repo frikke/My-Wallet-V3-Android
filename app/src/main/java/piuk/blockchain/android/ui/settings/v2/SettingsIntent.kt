@@ -8,6 +8,17 @@ import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 
 sealed class SettingsIntent : MviIntent<SettingsState> {
 
+    object InitializeFeatureFlags : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState = oldState
+    }
+
+    class UpdateFeatureFlags(
+        private val featureFlagSet: FeatureFlagsSet
+    ) : SettingsIntent() {
+        override fun reduce(oldState: SettingsState): SettingsState =
+            oldState.copy(featureFlagsSet = featureFlagSet)
+    }
+
     object LoadHeaderInformation : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState = oldState
     }

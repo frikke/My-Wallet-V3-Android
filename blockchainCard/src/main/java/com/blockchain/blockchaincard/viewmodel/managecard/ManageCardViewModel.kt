@@ -148,7 +148,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 }
             }
 
-            is BlockchainCardIntent.TopUp -> {
+            is BlockchainCardIntent.AddFunds -> {
                 modelState.linkedAccountBalance?.let { accountBalance ->
                     when (accountBalance.total) {
                         is FiatValue -> {

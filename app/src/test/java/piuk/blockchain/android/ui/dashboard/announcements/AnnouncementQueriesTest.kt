@@ -13,6 +13,7 @@ import com.blockchain.core.kyc.domain.model.TiersMap
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
@@ -20,7 +21,6 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.remoteconfig.RemoteConfig
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
@@ -44,7 +44,7 @@ class AnnouncementQueriesTest {
     private val userIdentity: UserIdentity = mock()
     private val coincore: Coincore = mock()
     private val assetCatalogue: AssetCatalogue = mock()
-    private val remoteConfig: RemoteConfig = mock()
+    private val remoteConfigService: RemoteConfigService = mock()
     private val googlePayManager: GooglePayManager = mock()
     private val googlePayEnabledFlag: FeatureFlag = mock()
     private val paymentMethodsService: PaymentMethodsService = mock()
@@ -66,7 +66,7 @@ class AnnouncementQueriesTest {
                 userIdentity = userIdentity,
                 coincore = coincore,
                 assetCatalogue = assetCatalogue,
-                remoteConfig = remoteConfig,
+                remoteConfigService = remoteConfigService,
                 googlePayManager = googlePayManager,
                 googlePayEnabledFlag = googlePayEnabledFlag,
                 paymentMethodsService = paymentMethodsService,
@@ -79,7 +79,7 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `asset ticker raw json is empty`() {
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(""))
+        whenever(remoteConfigService.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(""))
         whenever(assetCatalogue.fromNetworkTicker(any())).thenReturn(null)
 
         subject.getAssetFromCatalogue().test().assertComplete()
@@ -88,7 +88,7 @@ class AnnouncementQueriesTest {
     @Test
     fun `asset ticker raw json doesn't exist`() {
         val testException = Throwable()
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.error(testException))
+        whenever(remoteConfigService.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.error(testException))
 
         subject.getAssetFromCatalogue().test().assertError(testException)
     }
@@ -96,7 +96,7 @@ class AnnouncementQueriesTest {
     @Test
     fun `asset ticker raw json returns unknown ticker`() {
         val moonToken = "TTM"
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(moonToken))
+        whenever(remoteConfigService.getRawJson(NEW_ASSET_TICKER)).thenReturn(Single.just(moonToken))
         whenever(assetCatalogue.fromNetworkTicker(moonToken)).thenReturn(null)
 
         subject.getAssetFromCatalogue().test().assertComplete()
@@ -104,7 +104,7 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `asset ticker raw json returns known ticker`() {
-        whenever(remoteConfig.getRawJson(NEW_ASSET_TICKER))
+        whenever(remoteConfigService.getRawJson(NEW_ASSET_TICKER))
             .thenReturn(Single.just(CryptoCurrency.BTC.networkTicker))
         whenever(assetCatalogue.assetInfoFromNetworkTicker(CryptoCurrency.BTC.networkTicker))
             .thenReturn(CryptoCurrency.BTC)

@@ -20,6 +20,7 @@ import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -78,7 +79,11 @@ class SimpleBuyPaymentFragment :
     }
 
     private val showRecurringBuyToggle: Boolean by lazy {
-        arguments?.getBoolean(RECURRING_BUY_SUGGESTION, false) ?: false
+        arguments?.getBoolean(RECURRING_BUY_TOGGLE, false) ?: false
+    }
+
+    private val recurringBuyFrequencyRemote: RecurringBuyFrequency? by lazy {
+        enumValueOfOrNull<RecurringBuyFrequency>(arguments?.getString(RECURRING_BUY_REMOTE).orEmpty())
     }
 
     override fun onAttach(context: Context) {
@@ -98,10 +103,14 @@ class SimpleBuyPaymentFragment :
         super.onViewCreated(view, savedInstanceState)
         activity.updateToolbarTitle(getString(R.string.common_payment))
 
-        binding.transactionProgressView.showToggleUI(
-            showToggle = showRecurringBuyToggle,
-            recurringBuyFrequency = RecurringBuyFrequency.WEEKLY
-        )
+        recurringBuyFrequencyRemote?.let {
+            if (recurringBuyFrequencyRemote != RecurringBuyFrequency.ONE_TIME) {
+                binding.transactionProgressView.showToggleUI(
+                    showToggle = showRecurringBuyToggle,
+                    recurringBuyFrequency = it
+                )
+            }
+        }
 
         binding.checkoutCardForm.initCheckoutPaymentForm()
     }
@@ -865,15 +874,21 @@ class SimpleBuyPaymentFragment :
 
     companion object {
         private const val IS_PAYMENT_AUTHORISED = "IS_PAYMENT_AUTHORISED"
-        private const val RECURRING_BUY_SUGGESTION = "RECURRING_BUY_SUGGESTION"
+        private const val RECURRING_BUY_TOGGLE = "RECURRING_BUY_TOGGLE"
+        private const val RECURRING_BUY_REMOTE = "RECURRING_BUY_REMOTE"
         private const val BANK_APPROVAL = 5123
         private const val SUPPORT_SB_SUBJECT = "Issue with Payments"
 
-        fun newInstance(isFromDeepLink: Boolean, showRecurringBuySuggestion: Boolean) =
+        fun newInstance(
+            isFromDeepLink: Boolean,
+            showRecurringBuySuggestion: Boolean,
+            recurringBuyFrequency: RecurringBuyFrequency?
+        ) =
             SimpleBuyPaymentFragment().apply {
                 arguments = Bundle().apply {
                     putBoolean(IS_PAYMENT_AUTHORISED, isFromDeepLink)
-                    putBoolean(RECURRING_BUY_SUGGESTION, showRecurringBuySuggestion)
+                    putBoolean(RECURRING_BUY_TOGGLE, showRecurringBuySuggestion)
+                    putSerializable(RECURRING_BUY_REMOTE, recurringBuyFrequency)
                 }
             }
     }

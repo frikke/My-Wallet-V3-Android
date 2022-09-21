@@ -1,9 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.remoteconfig.RemoteConfig
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -16,7 +15,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementConfigAdap
 
 class AnnouncementAdapterTest {
 
-    private val config: RemoteConfig = mock()
+    private val config: RemoteConfigService = mock()
     private val json: Json = Json
     private val userIdentity: UserIdentity = mock()
     private val expectedConfig = AnnounceConfig(interval = 5, order = listOf("TEST1", "TEST2", "TEST3"))

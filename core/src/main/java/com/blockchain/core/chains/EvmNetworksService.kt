@@ -1,6 +1,6 @@
 package com.blockchain.core.chains
 
-import com.blockchain.remoteconfig.RemoteConfig
+import com.blockchain.domain.experiments.RemoteConfigService
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -26,7 +26,7 @@ data class EvmNetwork(
 )
 
 class EvmNetworksService(
-    private val remoteConfig: RemoteConfig
+    private val remoteConfig: RemoteConfigService
 ) {
     fun getSupportedNetworks(): Single<List<EvmNetwork>> {
         return remoteConfig.getRawJson(LAYER_TWO_NETWORKS).map { json ->

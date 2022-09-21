@@ -113,7 +113,8 @@ fun ManageCard(
     onSeeAllTransactions: () -> Unit,
     onSeeTransactionDetails: (BlockchainCardTransaction) -> Unit,
     onRefreshTransactions: () -> Unit,
-    onRefreshCardWidgetUrl: () -> Unit
+    onRefreshCardWidgetUrl: () -> Unit,
+    onAddFunds: () -> Unit
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -231,6 +232,29 @@ fun ManageCard(
             ) {
                 if (linkedAccountBalance != null)
                     Column(modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)) {
+
+                        val hasFunds = when (linkedAccountBalance.total) {
+                            is FiatValue -> linkedAccountBalance.totalFiat.isPositive
+                            is CryptoValue -> linkedAccountBalance.total.isPositive
+                            else -> false
+                        }
+
+                        if (!hasFunds) {
+                            Box(
+                                modifier = Modifier.border(
+                                    width = 1.dp,
+                                    color = AppTheme.colors.warning,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                            ) {
+                                DefaultTableRow(
+                                    primaryText = stringResource(R.string.bc_card_out_of_funds_top_up),
+                                    onClick = onAddFunds
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+                        }
                         SimpleText(
                             text = stringResource(id = R.string.bc_card_transaction_payment_method),
                             style = ComposeTypographies.Paragraph1,
@@ -375,7 +399,8 @@ private fun PreviewManageCard() {
         onSeeAllTransactions = {},
         onSeeTransactionDetails = {},
         onRefreshTransactions = {},
-        onRefreshCardWidgetUrl = {}
+        onRefreshCardWidgetUrl = {},
+        onAddFunds = {}
     )
 }
 
@@ -789,7 +814,7 @@ fun CardTransactionItem(
         transactionTitle = buildAnnotatedString { append(merchantName) }
         transactionAmount = buildAnnotatedString {
             withStyle(style = SpanStyle(textDecoration = TextDecoration.LineThrough)) {
-                append("+$amount")
+                append("-$amount")
             }
         }
         transactionTimestamp = buildAnnotatedString {

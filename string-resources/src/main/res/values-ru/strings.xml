@@ -2589,8 +2589,8 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="accessibility_price_not_available">Цена недоступна</string>
     <string name="trading_deposit_relink_bank_account">Повторно привязать банковский счет</string>
     <string name="simple_buy_quote_message">Новое предложение в %s</string>
-    <string name="verify_your_address">Подтвердите свой адрес</string>
-    <string name="verify_your_address_description">Подтвердите свой адрес проживания ниже, чтобы избежать задержек.</string>
+    <string name="address_verification_title">Подтвердите свой адрес</string>
+    <string name="address_verification_description">Подтвердите свой адрес проживания ниже, чтобы избежать задержек.</string>
     <string name="residential_address">Адрес проживания</string>
     <string name="card_intro_title">Получите карту Visa Blockchain.com</string>
     <string name="backup_success_title">Резервное копирование успешно выполнено!</string>

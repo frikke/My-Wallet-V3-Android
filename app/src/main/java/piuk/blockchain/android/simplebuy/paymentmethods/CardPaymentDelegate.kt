@@ -76,35 +76,37 @@ class CardPaymentDelegate(
                         onClick = {
                             paymentMethodItem.clickAction()
                         }
-                        if (cardRejectionFF.isEnabled) {
-                            tags = when (val cardState = it.cardRejectionState) {
-                                is CardRejectionState.AlwaysRejected -> {
-                                    listOf(
-                                        TagViewState(
-                                            value = cardState.title ?: context.getString(
-                                                R.string.card_issuer_always_rejects_title
-                                            ),
-                                            type = TagType.Error(),
-                                            onClick = {
-                                                onCardTagClicked(cardState)
-                                            }
+                        cardRejectionFF.enabled.map { isEnabled ->
+                            if (isEnabled) {
+                                tags = when (val cardState = it.cardRejectionState) {
+                                    is CardRejectionState.AlwaysRejected -> {
+                                        listOf(
+                                            TagViewState(
+                                                value = cardState.title ?: context.getString(
+                                                    R.string.card_issuer_always_rejects_title
+                                                ),
+                                                type = TagType.Error(),
+                                                onClick = {
+                                                    onCardTagClicked(cardState)
+                                                }
+                                            )
                                         )
-                                    )
-                                }
-                                is CardRejectionState.MaybeRejected -> {
-                                    listOf(
-                                        TagViewState(
-                                            value = cardState.title ?: context.getString(
-                                                R.string.card_issuer_sometimes_rejects_title
-                                            ),
-                                            type = TagType.Warning(),
-                                            onClick = {
-                                                onCardTagClicked(cardState)
-                                            }
+                                    }
+                                    is CardRejectionState.MaybeRejected -> {
+                                        listOf(
+                                            TagViewState(
+                                                value = cardState.title ?: context.getString(
+                                                    R.string.card_issuer_sometimes_rejects_title
+                                                ),
+                                                type = TagType.Warning(),
+                                                onClick = {
+                                                    onCardTagClicked(cardState)
+                                                }
+                                            )
                                         )
-                                    )
+                                    }
+                                    else -> null
                                 }
-                                else -> null
                             }
                         }
                     }

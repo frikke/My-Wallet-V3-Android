@@ -1,7 +1,7 @@
 package com.blockchain.api.services
 
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
-import com.blockchain.api.assetdiscovery.data.AssetInformationResponse
+import com.blockchain.api.assetdiscovery.data.AssetInformationDto
 import com.blockchain.api.assetdiscovery.data.CeloTokenAsset
 import com.blockchain.api.assetdiscovery.data.CoinAsset
 import com.blockchain.api.assetdiscovery.data.DynamicCurrency
@@ -73,21 +73,8 @@ class AssetDiscoveryApiService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    suspend fun getAssetInformation(assetTicker: String): Outcome<Exception, DetailedAssetInformation?> =
-        api.getAssetInfo(assetTicker).map {
-            it.toAssetInfo()
-        }
-
-    private fun AssetInformationResponse.toAssetInfo(): DetailedAssetInformation? =
-        if (description != null && website != null) {
-            DetailedAssetInformation(
-                description = description,
-                website = website,
-                whitepaper = whitepaper.orEmpty()
-            )
-        } else {
-            null
-        }
+    suspend fun getAssetInformation(assetTicker: String): Outcome<Exception, AssetInformationDto> =
+        api.getAssetInfo(assetTicker)
 
     private fun DynamicCurrency.toDynamicAsset(): DynamicAsset? =
         when {

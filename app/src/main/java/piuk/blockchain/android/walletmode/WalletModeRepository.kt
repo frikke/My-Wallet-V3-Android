@@ -1,10 +1,9 @@
 package piuk.blockchain.android.walletmode
 
-import android.content.SharedPreferences
-import androidx.core.content.edit
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import com.blockchain.walletmode.WalletModeStore
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -14,7 +13,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(DelicateCoroutinesApi::class)
 class WalletModeRepository(
-    private val sharedPreferences: SharedPreferences,
+    private val walletModeStore: WalletModeStore,
     private val featureFlag: IntegratedFeatureFlag,
 ) : WalletModeService {
     private var walletModesEnabled = false
@@ -37,31 +36,23 @@ class WalletModeRepository(
         if (!walletModesEnabled)
             return WalletMode.UNIVERSAL
 
-        val walletModeString = sharedPreferences.getString(
-            WALLET_MODE,
-            ""
-        )
-        return WalletMode.values().firstOrNull { walletModeString == it.name } ?: defaultMode()
+        return walletModeStore.walletMode
     }
 
     override fun reset() {
         _walletMode = MutableStateFlow(enabledWalletMode())
     }
 
-    private fun defaultMode(): WalletMode =
-        WalletMode.CUSTODIAL_ONLY
-
     override val walletMode: Flow<WalletMode>
         get() = _walletMode
 
     override fun updateEnabledWalletMode(type: WalletMode) {
-        sharedPreferences.edit {
-            putString(WALLET_MODE, type.name)
-        }.also {
+        walletModeStore.updateWalletMode(type).also {
             _walletMode.value = type
         }
     }
+
+    override fun availableModes(): List<WalletMode> = WalletMode.values().toList()
 }
 
-private const val WALLET_MODE = "WALLET_MODE"
 private const val ONE_HOUR_MILLIS = 3600000L

@@ -19,6 +19,7 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.WITHDRAW_LOCKS
+import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.common.model.ServerErrorAction
@@ -48,11 +49,13 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
 import piuk.blockchain.android.ui.transactionflow.plugin.AccountLimitsView
+import piuk.blockchain.android.ui.transactionflow.plugin.AvailableBalanceView
 import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
 import piuk.blockchain.android.ui.transactionflow.plugin.ConfirmSheetWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.EmptyHeaderView
 import piuk.blockchain.android.ui.transactionflow.plugin.EnterAmountWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.FromAndToView
+import piuk.blockchain.android.ui.transactionflow.plugin.QuickFillRowView
 import piuk.blockchain.android.ui.transactionflow.plugin.SimpleInfoHeaderView
 import piuk.blockchain.android.ui.transactionflow.plugin.SmallBalanceView
 import piuk.blockchain.android.ui.transactionflow.plugin.SwapInfoHeaderView
@@ -74,7 +77,6 @@ interface TransactionFlowCustomiser :
 class TransactionFlowCustomiserImpl(
     private val resources: Resources,
     private val assetResources: AssetResources,
-    private val stringUtils: StringUtils,
     private val walletModeService: WalletModeService,
 ) : TransactionFlowCustomiser {
     override fun enterAmountActionIcon(state: TransactionState): Int {
@@ -315,8 +317,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestWithdraw,
             AssetAction.Sell,
             AssetAction.Swap,
-            AssetAction.Send,
-            -> resources.getString(R.string.send_enter_amount_max_fee)
+            AssetAction.Send -> resources.getString(R.string.send_enter_amount_max_fee)
             else -> throw java.lang.IllegalStateException("Max network fee label not configured for ${state.action}")
         }
 
@@ -336,8 +337,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Swap -> resources.getString(R.string.tx_enter_amount_swap_cta)
             AssetAction.Sell -> resources.getString(R.string.tx_enter_amount_sell_cta)
             AssetAction.FiatWithdraw,
-            AssetAction.InterestWithdraw,
-            -> resources.getString(R.string.tx_enter_amount_withdraw_cta)
+            AssetAction.InterestWithdraw -> resources.getString(R.string.tx_enter_amount_withdraw_cta)
             AssetAction.InterestDeposit -> resources.getString(R.string.tx_enter_amount_transfer_cta)
             AssetAction.FiatDeposit -> resources.getString(R.string.tx_enter_amount_deposit_cta)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
@@ -390,8 +390,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestDeposit -> resources.getString(R.string.send_confirmation_deposit_cta_button)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_confirmation_cta_button)
             AssetAction.FiatWithdraw,
-            AssetAction.InterestWithdraw,
-            -> resources.getString(R.string.withdraw_confirmation_cta_button)
+            AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_confirmation_cta_button)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
@@ -839,8 +838,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Send,
             AssetAction.Swap,
             AssetAction.Sell,
-            AssetAction.InterestDeposit,
-            -> true
+            AssetAction.InterestDeposit -> true
             else -> false
         }
 
@@ -852,19 +850,24 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.Send,
             AssetAction.InterestDeposit,
-            AssetAction.InterestWithdraw,
+            AssetAction.InterestWithdraw -> BalanceAndFeeView(ctx).also { frame.addView(it) }
             AssetAction.Sell,
-            AssetAction.Swap,
-            -> BalanceAndFeeView(ctx).also { frame.addView(it) }
+            AssetAction.Swap -> if (state.ffSwapSellQuickFillsEnabled) {
+                QuickFillRowView(ctx).also {
+                    frame.addView(it)
+                }
+            } else {
+                BalanceAndFeeView(ctx).also { frame.addView(it) }
+            }
             AssetAction.Receive -> SmallBalanceView(ctx).also { frame.addView(it) }
             AssetAction.FiatWithdraw,
-            AssetAction.FiatDeposit,
-            -> AccountInfoBank(ctx).also { frame.addView(it) }
+            AssetAction.FiatDeposit -> AccountInfoBank(ctx).also { frame.addView(it) }
             AssetAction.ViewActivity,
             AssetAction.ViewStatement,
             AssetAction.Sign,
-            AssetAction.Buy,
-            -> throw IllegalStateException("${state.action} is not supported in enter amount")
+            AssetAction.Buy -> throw IllegalStateException(
+                "Enter amount action ${state.action} does not support a bottom widget"
+            )
         }
 
     override fun installEnterAmountUpperSlotView(
@@ -874,13 +877,47 @@ class TransactionFlowCustomiserImpl(
     ): EnterAmountWidget =
         when (state.action) {
             AssetAction.FiatWithdraw,
-            AssetAction.FiatDeposit,
-            -> AccountLimitsView(ctx).also {
+            AssetAction.FiatDeposit -> AccountLimitsView(ctx).also {
                 frame.addView(it)
             }
             else -> FromAndToView(ctx).also {
                 frame.addView(it)
             }
+        }
+
+    override fun installEnterAmountUpperSecondSlotView(
+        ctx: Context,
+        frame: FrameLayout,
+        state: TransactionState
+    ): EnterAmountWidget? =
+        when (state.action) {
+            AssetAction.Sell,
+            AssetAction.Swap -> if (state.ffSwapSellQuickFillsEnabled) {
+                AvailableBalanceView(ctx).also { balanceView ->
+                    frame.addView(balanceView)
+                }
+            } else {
+                frame.gone()
+                null
+            }
+            else -> {
+                frame.gone()
+                null
+            }
+        }
+
+    override fun balanceRowLabel(state: TransactionState): String =
+        when (state.action) {
+            AssetAction.Sell -> resources.getString(R.string.enter_amount_balance_row_sell_label)
+            AssetAction.Swap -> resources.getString(R.string.enter_amount_balance_row_swap_label)
+            else -> throw IllegalStateException("Enter amount balance row label not configured for ${state.action}")
+        }
+
+    override fun quickFillRowMaxButtonLabel(state: TransactionState): String =
+        when (state.action) {
+            AssetAction.Swap -> resources.getString(R.string.swap_enter_amount_max)
+            AssetAction.Sell -> resources.getString(R.string.sell_enter_amount_max)
+            else -> throw IllegalStateException("Enter amount quick fill - ${state.action} not supported")
         }
 
     override fun installAddressSheetSource(
@@ -898,7 +935,6 @@ class TransactionFlowCustomiserImpl(
         }
 
     private fun aboveMaxErrorMessage(state: TransactionState, input: CurrencyType): String {
-
         if (state.limits.suggestedUpgrade != null) {
             return resources.getString(R.string.over_your_limit)
         } else {
@@ -1202,11 +1238,9 @@ class TransactionFlowCustomiserImpl(
     override fun defInputType(state: TransactionState, fiatCurrency: Currency): Currency =
         when (state.action) {
             AssetAction.Swap,
-            AssetAction.Sell,
-            -> fiatCurrency
+            AssetAction.Sell -> fiatCurrency
             AssetAction.FiatWithdraw,
-            AssetAction.FiatDeposit,
-            -> state.amount.currency
+            AssetAction.FiatDeposit -> state.amount.currency
             else -> state.sendingAsset
         }
 

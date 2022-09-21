@@ -2534,8 +2534,8 @@ Verifique su conexión a Internet y vuelva a intentarlo o póngase en contacto c
     <string name="accessibility_price_not_available">Precio no disponible</string>
     <string name="trading_deposit_relink_bank_account">Volver a vincular cuenta bancaria</string>
     <string name="simple_buy_quote_message">Nueva cotización en %s</string>
-    <string name="verify_your_address">Verifique su dirección</string>
-    <string name="verify_your_address_description">Confirme la dirección de su residencia a continuación para evitar retrasos.</string>
+    <string name="address_verification_title">Verifique su dirección</string>
+    <string name="address_verification_description">Confirme la dirección de su residencia a continuación para evitar retrasos.</string>
     <string name="residential_address">Dirección de residencia</string>
     <string name="card_intro_title">Obtenga la tarjeta Visa de Blockchain.com</string>
     <string name="backup_success_title">¡Copia de seguridad completada correctamente!</string>

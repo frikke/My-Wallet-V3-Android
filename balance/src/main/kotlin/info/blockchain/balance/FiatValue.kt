@@ -117,6 +117,10 @@ class FiatValue private constructor(
         return amount.compareTo(other.amount)
     }
 
+    override fun multiply(multiplier: Float): Money {
+        return fromMinor(currency, (amount * multiplier.toBigDecimal()).toBigInteger())
+    }
+
     override fun ensureComparable(operation: String, other: Money) {
         if (other is FiatValue) {
             if (currencyCode != other.currencyCode) {

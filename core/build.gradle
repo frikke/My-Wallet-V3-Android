@@ -1,6 +1,6 @@
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.squareup.sqldelight'
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
 
 final buildProperties = new BuildProperties(
         file('../app/secrets.properties'), file('../app/secretsDefaults.properties')
@@ -34,7 +34,7 @@ dependencies {
     implementation project(':common:network')
     implementation project(':common:interface')
     implementation project(':metadata')
-    implementation project(':common:domain')
+    api project(':common:domain')
     implementation project(':common-mp:utils')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')
@@ -52,16 +52,14 @@ dependencies {
     implementation Libraries.okHttpInterceptor
     implementation Libraries.kotlinJson
 
-    implementation Libraries.koin
     implementation Libraries.cardForm
-    implementation Libraries.rxRelay
+    implementation Libraries.rxJava
+    implementation Libraries.rxKotlin
+    implementation Libraries.rxAndroid
 
     // Database
     implementation Libraries.sqlDelight
     implementation Libraries.rxSqlDelight
-
-    // Logging
-    implementation Libraries.timber
 
     // Firebase
     implementation platform(Libraries.firebaseBom)
@@ -75,20 +73,6 @@ dependencies {
     implementation Libraries.rxjava3Coroutines
 
     // Unit Test dependencies
-    testImplementation Libraries.junit
-    testImplementation Libraries.mockito
-    testImplementation Libraries.koinTest
     testImplementation Libraries.koinTestJunit
-    testImplementation Libraries.hamcrestJunit
-    testImplementation Libraries.kotlinJunit
-    testImplementation Libraries.kluent
-    testImplementation Libraries.turbine
-    testImplementation(Libraries.mockitoKotlin) {
-        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
-    }
-    testImplementation Libraries.kotlinCoroutinesTest
-    testImplementation Libraries.mockk
-    testImplementation Libraries.coreTesting
-    testImplementation project(':testutils')
     testImplementation project(':testutils-android')
 }

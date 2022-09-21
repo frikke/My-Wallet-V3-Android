@@ -60,6 +60,9 @@ import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetwo
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.presentation.complexcomponents.QuickFillButtonData
+import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
+import com.blockchain.remoteconfig.RemoteConfigRepository
 import com.blockchain.serializers.StringMapSerializer
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
@@ -114,9 +117,14 @@ class SimpleBuyInteractor(
     private val paymentsRepository: PaymentsRepository,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val onboardingPrefs: OnboardingPrefs,
-    private val cardRejectionCheckFF: FeatureFlag,
     private val eligibilityService: EligibilityService,
     private val cardPaymentAsyncFF: FeatureFlag,
+    private val buyQuoteRefreshFF: FeatureFlag,
+    private val plaidFF: FeatureFlag,
+    private val rbFrequencySuggestionFF: FeatureFlag,
+    private val cardRejectionFF: FeatureFlag,
+    private val rbExperimentFF: FeatureFlag,
+    private val remoteConfigRepository: RemoteConfigRepository
 ) {
 
     // Hack until we have a proper limits api.
@@ -166,6 +174,23 @@ class SimpleBuyInteractor(
     }
 
     fun cancelOrder(orderId: String): Completable = cancelOrderUseCase.invoke(orderId)
+
+    suspend fun getRecurringBuyFrequency(): Single<RecurringBuyFrequency> =
+        rxSingle {
+            mapToFrequency(
+                remoteConfigRepository.getValueForFeature(rbExperimentFF.key)
+                    .toString()
+            )
+        }
+
+    private fun mapToFrequency(frequencyName: String): RecurringBuyFrequency {
+        return when (frequencyName) {
+            WEEKLY -> RecurringBuyFrequency.WEEKLY
+            BIWEEKLY -> RecurringBuyFrequency.BI_WEEKLY
+            MONTHLY -> RecurringBuyFrequency.MONTHLY
+            else -> RecurringBuyFrequency.ONE_TIME
+        }
+    }
 
     fun createRecurringBuyOrder(
         asset: AssetInfo?,
@@ -494,6 +519,24 @@ class SimpleBuyInteractor(
         return exchangeRatesDataManager.exchangeRate(asset, fiat).firstOrError()
     }
 
+    fun initializeFeatureFlags(): Single<FeatureFlagsSet> {
+        return Single.zip(
+            cardRejectionFF.enabled,
+            buyQuoteRefreshFF.enabled,
+            plaidFF.enabled,
+            rbFrequencySuggestionFF.enabled,
+            rbExperimentFF.enabled
+        ) { cardRejectionFF, buyQuoteRefreshFF, plaidFF, rbFrequencySuggestionFF, rbExperimentFF ->
+            FeatureFlagsSet(
+                cardRejectionFF = cardRejectionFF,
+                buyQuoteRefreshFF = buyQuoteRefreshFF,
+                plaidFF = plaidFF,
+                rbFrequencySuggestionFF = rbFrequencySuggestionFF,
+                rbExperimentFF = rbExperimentFF
+            )
+        }
+    }
+
     fun getGooglePayInfo(
         currency: FiatCurrency
     ): Single<SimpleBuyIntent.GooglePayInfoReceived> =
@@ -530,7 +573,7 @@ class SimpleBuyInteractor(
         simpleBuyPrefs.buysCompletedCount >= APP_RATING_MINIMUM_BUY_ORDERS
 
     fun checkNewCardRejectionRate(binNumber: String): Single<CardRejectionState> =
-        cardRejectionCheckFF.enabled.flatMap { enabled ->
+        cardRejectionFF.enabled.flatMap { enabled ->
             if (enabled) {
                 rxSingle { paymentsRepository.checkNewCardRejectionState(binNumber).getOrThrow() }
             } else {
@@ -585,8 +628,8 @@ class SimpleBuyInteractor(
             else -> Money.fromMajor(fiatCurrency, BigDecimal.ZERO)
         }
 
-        val isMaxLimited = limits.isMaxViolatedByAmount(prefilledAmount)
-        val isMinLimited = limits.isMinViolatedByAmount(prefilledAmount)
+        val isMaxLimited = limits.isAmountOverMax(prefilledAmount)
+        val isMinLimited = limits.isAmountUnderMin(prefilledAmount)
 
         val listOfAmounts = mutableListOf<Money>()
 
@@ -624,8 +667,13 @@ class SimpleBuyInteractor(
         }
 
         val quickFillButtonData = QuickFillButtonData(
-            buyMaxAmount = (limits.max as? TxLimit.Limited)?.amount ?: Money.zero(fiatCurrency),
-            quickFillButtons = listOfAmounts
+            maxAmount = (limits.max as? TxLimit.Limited)?.amount ?: Money.zero(fiatCurrency),
+            quickFillButtons = listOfAmounts.map { amount ->
+                QuickFillDisplayAndAmount(
+                    displayValue = amount.toStringWithSymbol(includeDecimalsWhenWhole = false),
+                    amount = amount
+                )
+            }
         )
 
         return Single.just(Pair(prefilledAmount, quickFillButtonData))
@@ -651,6 +699,10 @@ class SimpleBuyInteractor(
     }
 
     companion object {
+        private const val WEEKLY = "WEEKLY"
+        private const val BIWEEKLY = "BIWEEKLY"
+        private const val MONTHLY = "MONTHLY"
+
         const val PENDING = "pending"
 
         private const val INTERVAL: Long = 5

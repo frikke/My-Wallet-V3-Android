@@ -170,10 +170,10 @@
 
         <com.blockchain.componentlib.tablerow.DefaultTableRowView
             android:id="@+id/payment_method_details_root"
-            android:visibility="gone"
-            android:padding="@dimen/smallest_spacing"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:padding="@dimen/smallest_spacing"
+            android:visibility="gone" />
 
         <com.blockchain.componentlib.system.LoadingTableRowView
             android:id="@+id/shimmer"

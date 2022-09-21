@@ -3,7 +3,7 @@ include ':app',
         ':wallet',
         ':blockchainApi',
         ':balance',
-        ':common:interface', ':common:network', ':common:domain',
+        ':common:interface', ':common:network', ':common:domain', ':common:presentation',
         ':coincore',
         ':core',
         ':payments:core', ':payments:checkoutcom', ':payments:stripe', ':payments:googlepay',
@@ -28,3 +28,4 @@ include ':app',
         ':defiwalletbackup:data', ':defiwalletbackup:domain', ':defiwalletbackup:presentation',
         ':nfts:data', ':nfts:domain', ':nfts:presentation',
         ':string-resources'
+

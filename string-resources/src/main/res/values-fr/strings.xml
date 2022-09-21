@@ -2570,8 +2570,8 @@ Veuillez vérifier votre connexion Internet et réessayer ou contactez l\'assist
     <string name="accessibility_price_not_available">Prix non disponible</string>
     <string name="trading_deposit_relink_bank_account">Réassocier le compte bancaire</string>
     <string name="simple_buy_quote_message">Nouvelle offre en %s</string>
-    <string name="verify_your_address">Vérifiez votre adresse</string>
-    <string name="verify_your_address_description">Confirmez votre adresse de résidence ci-dessous pour éviter les retards.</string>
+    <string name="address_verification_title">Vérifiez votre adresse</string>
+    <string name="address_verification_description">Confirmez votre adresse de résidence ci-dessous pour éviter les retards.</string>
     <string name="residential_address">Adresse de résidence</string>
     <string name="card_intro_title">Obtenez la carte Visa Blockchain.com</string>
     <string name="backup_success_title">Sauvegarde réussie !</string>

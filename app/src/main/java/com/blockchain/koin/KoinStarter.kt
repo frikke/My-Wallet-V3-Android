@@ -75,6 +75,7 @@ import piuk.blockchain.android.ui.settings.v2.redesignSettingsModule
 import piuk.blockchain.android.ui.start.startupUiModule
 import piuk.blockchain.android.ui.transactionflow.transactionModule
 import piuk.blockchain.android.ui.transfer.receive.receiveCryptoModule
+import piuk.blockchain.android.util.accessibilityModule
 import piuk.blockchain.com.internalFeatureFlagsModule
 import timber.log.Timber
 
@@ -135,6 +136,7 @@ object KoinStarter {
                     deeplinkModule,
                     loggingModule,
                     analyticsModule,
+                    accessibilityModule,
                     customerSupportModule,
                     storeCachesInMemoryModule,
                     storeCachesPersistedJsonSqlDelightModule,

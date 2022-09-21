@@ -1,0 +1,17 @@
+apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+
+dependencies {
+    // koin
+    implementation Libraries.koin
+
+    // RxJava
+    implementation Libraries.rxReplayShareKotlin
+    implementation Libraries.rxRelay
+    implementation Libraries.rxBinding
+    implementation Libraries.rxBindingCompat
+    implementation Libraries.rxBindingCore
+    implementation Libraries.rxjava3Coroutines
+
+    // coroutines
+    implementation Libraries.androidCoroutines
+}

@@ -2628,8 +2628,8 @@ Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin veya sorun deva
     <string name="accessibility_price_not_available">Fiyat mevcut değil</string>
     <string name="trading_deposit_relink_bank_account">Banka Hesabını Yeniden Bağla</string>
     <string name="simple_buy_quote_message">%s temelinde yeni teklif</string>
-    <string name="verify_your_address">Adresinizi Doğrulayın</string>
-    <string name="verify_your_address_description">Gecikmeleri önlemek için aşağıda ikamet adresinizi onaylayın.</string>
+    <string name="address_verification_title">Adresinizi Doğrulayın</string>
+    <string name="address_verification_description">Gecikmeleri önlemek için aşağıda ikamet adresinizi onaylayın.</string>
     <string name="residential_address">İkamet Adresi</string>
     <string name="card_intro_title">Blockchain.com Visa Card\'ı alın</string>
     <string name="backup_success_title">Yedekleme Başarılı!</string>
