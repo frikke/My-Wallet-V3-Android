@@ -20,6 +20,7 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.quickFillSellSwapFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
+import com.blockchain.koin.sessionIdFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.superappRedesignFeatureFlag
@@ -206,6 +207,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_superapp_redesign",
                 "Enable SuperApp Redesign"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(sessionIdFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "ff_x_session_id",
+                "Send X-Session-ID Header"
             )
         )
     }.bind(FeatureFlag::class)

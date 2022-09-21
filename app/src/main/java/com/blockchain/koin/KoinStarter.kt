@@ -40,6 +40,7 @@ import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.campaign.campaignModule
+import piuk.blockchain.android.fraud.data.fraudDataModule
 import piuk.blockchain.android.maintenance.data.appMaintenanceDataModule
 import piuk.blockchain.android.maintenance.domain.appMaintenanceDomainModule
 import piuk.blockchain.android.maintenance.presentation.appMaintenancePresentationModule
@@ -152,7 +153,7 @@ object KoinStarter {
                     pricesPresentationModule,
                     bankAliasLinkPresentationModule,
                     educationalWalletModesPresentationModule,
-
+                    fraudDataModule,
                     multiAppModule
                 )
             )
