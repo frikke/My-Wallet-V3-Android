@@ -1,5 +1,6 @@
 package piuk.blockchain.androidcore.data.ethereum
 
+import com.blockchain.api.ethereum.evm.FeeLevel
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.EvmNetworksService
@@ -11,6 +12,8 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.wallet.api.data.FeeLimits
+import info.blockchain.wallet.api.data.FeeOptions
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.ethereum.EthUrls
@@ -28,9 +31,11 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.HashMap
 import org.web3j.crypto.RawTransaction
+import org.web3j.utils.Convert
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -312,6 +317,42 @@ class EthDataManager(
             }
             .applySchedulers()
 
+    fun getFeesForEvmTx(l1Chain: String) = rxSingleOutcome {
+        val defaultFeeForEvm = FeeOptions.defaultForEvm(l1Chain)
+        nonCustodialEvmService.getFeeLevels(l1Chain).map { feeLevels ->
+            FeeOptions(
+                gasLimit = defaultFeeForEvm.gasLimit,
+                regularFee = getFeeForLevel(
+                    feeLevels = feeLevels,
+                    feeLevel = FeeLevel.NORMAL,
+                    defaultFeeForLevel = defaultFeeForEvm.regularFee
+                ),
+                gasLimitContract = defaultFeeForEvm.gasLimitContract,
+                priorityFee = getFeeForLevel(
+                    feeLevels = feeLevels,
+                    feeLevel = FeeLevel.HIGH,
+                    defaultFeeForLevel = defaultFeeForEvm.priorityFee
+                ),
+                limits = FeeLimits(
+                    min = getFeeForLevel(
+                        feeLevels = feeLevels,
+                        feeLevel = FeeLevel.LOW,
+                        defaultFeeForLevel = defaultFeeForEvm.limits?.min ?: DEFAULT_MIN_FEE
+                    ),
+                    max = getFeeForLevel(
+                        feeLevels = feeLevels,
+                        feeLevel = FeeLevel.HIGH,
+                        defaultFeeForLevel = defaultFeeForEvm.limits?.max ?: DEFAULT_MAX_FEE
+                    )
+                )
+            )
+        }
+    }
+        .applySchedulers()
+
+    private fun getFeeForLevel(feeLevels: Map<FeeLevel, BigDecimal>, feeLevel: FeeLevel, defaultFeeForLevel: Long) =
+        feeLevels[feeLevel]?.let { Convert.fromWei(it, Convert.Unit.GWEI).toLong() } ?: defaultFeeForLevel
+
     fun pushEvmTx(signedTxBytes: ByteArray, l1Chain: String): Single<String> =
         rxSingleOutcome {
             nonCustodialEvmService.pushTransaction(EthUtils.decorateAndEncode(signedTxBytes), l1Chain)
@@ -378,6 +419,8 @@ class EthDataManager(
         // To account for the extra data we want to send
         private val extraGasLimitForMemo: BigInteger = 600.toBigInteger()
         const val ETH_CHAIN_ID: Int = 1
+        private const val DEFAULT_MIN_FEE = 23L
+        private const val DEFAULT_MAX_FEE = 26L
         val ethChain: EvmNetwork = EvmNetwork(
             networkTicker = CryptoCurrency.ETHER.networkTicker,
             networkName = CryptoCurrency.ETHER.name,

@@ -6,10 +6,10 @@ import com.blockchain.store.CachedData
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Mediator
 import com.blockchain.store.firstOutcome
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class InMemoryCacheStoreBuilderTest {

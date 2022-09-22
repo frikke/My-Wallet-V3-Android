@@ -1,17 +1,17 @@
 package piuk.blockchain.android.ui.settings.notifications
 
+import com.blockchain.android.testutils.rxInit
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.preferences.NotificationPrefs
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.never
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
+import io.mockk.Called
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
-import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.settings.v2.notifications.EmailNotVerifiedException
 import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsInteractor
@@ -20,12 +20,18 @@ import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class NotificationsInteractorTest {
 
+    @get:Rule
+    val initSchedulers = rxInit {
+        mainTrampoline()
+        ioTrampoline()
+    }
+
     private lateinit var interactor: NotificationsInteractor
 
-    private val notificationPrefs: NotificationPrefs = mock()
-    private val notificationTokenManager: NotificationTokenManager = mock()
-    private val settingsDataManager: SettingsDataManager = mock()
-    private val payloadDataManager: PayloadDataManager = mock()
+    private val notificationPrefs: NotificationPrefs = mockk(relaxed = true)
+    private val notificationTokenManager: NotificationTokenManager = mockk(relaxed = true)
+    private val settingsDataManager: SettingsDataManager = mockk(relaxed = true)
+    private val payloadDataManager: PayloadDataManager = mockk(relaxed = true)
 
     @Before
     fun setup() {
@@ -39,182 +45,176 @@ class NotificationsInteractorTest {
 
     @Test
     fun getNotificationInfo_pushOn_emailOn() {
-        val settingsMock: Settings = mock {
-            on { notificationsType }.thenReturn(listOf(Settings.NOTIFICATION_TYPE_EMAIL))
+        val settingsMock: Settings = mockk<Settings>(relaxed = true).apply {
+            coEvery { notificationsType } returns listOf(Settings.NOTIFICATION_TYPE_EMAIL)
         }
-        whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
-        whenever(notificationPrefs.arePushNotificationsEnabled).thenReturn(true)
+        coEvery { settingsDataManager.getSettings() } returns Observable.just(settingsMock)
+        coEvery { notificationPrefs.arePushNotificationsEnabled() } returns true
 
-        val test = interactor.getNotificationsEnabled().test()
-        test.assertValue {
-            it.first && it.second
+        interactor.getNotificationsEnabled().test()
+            .assertValue {
+                it.first && it.second
+            }
+
+        coVerify(exactly = 1) {
+            settingsDataManager.getSettings()
+            notificationPrefs.arePushNotificationsEnabled()
         }
-
-        verify(settingsDataManager).getSettings()
-        verify(notificationPrefs).arePushNotificationsEnabled
-
-        verifyNoMoreInteractions(settingsDataManager)
-        verifyNoMoreInteractions(notificationPrefs)
     }
 
     @Test
     fun getNotificationInfo_pushOff_emailOn() {
-        val settingsMock: Settings = mock {
-            on { notificationsType }.thenReturn(listOf(Settings.NOTIFICATION_TYPE_ALL))
+        val settingsMock: Settings = mockk<Settings>(relaxed = true).apply {
+            coEvery { notificationsType } returns listOf(Settings.NOTIFICATION_TYPE_ALL)
         }
-        whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
-        whenever(notificationPrefs.arePushNotificationsEnabled).thenReturn(false)
+        coEvery { settingsDataManager.getSettings() } returns Observable.just(settingsMock)
+        coEvery { notificationPrefs.arePushNotificationsEnabled() } returns false
 
-        val test = interactor.getNotificationsEnabled().test()
-        test.assertValue {
-            it.first && !it.second
+        interactor.getNotificationsEnabled().test()
+            .assertValue {
+                it.first && !it.second
+            }
+
+        coVerify(exactly = 1) {
+            settingsDataManager.getSettings()
+            notificationPrefs.arePushNotificationsEnabled()
         }
-
-        verify(settingsDataManager).getSettings()
-        verify(notificationPrefs).arePushNotificationsEnabled
-
-        verifyNoMoreInteractions(settingsDataManager)
-        verifyNoMoreInteractions(notificationPrefs)
     }
 
     @Test
     fun getNotificationInfo_pushOn_emailOff() {
-        val settingsMock: Settings = mock {
-            on { notificationsType }.thenReturn(emptyList())
+        val settingsMock: Settings = mockk<Settings>(relaxed = true).apply {
+            coEvery { notificationsType } returns emptyList()
         }
-        whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
-        whenever(notificationPrefs.arePushNotificationsEnabled).thenReturn(true)
+        coEvery { settingsDataManager.getSettings() } returns Observable.just(settingsMock)
+        coEvery { notificationPrefs.arePushNotificationsEnabled() } returns true
 
-        val test = interactor.getNotificationsEnabled().test()
-        test.assertValue {
-            !it.first && it.second
+        interactor.getNotificationsEnabled().test()
+            .assertValue {
+                !it.first && it.second
+            }
+
+        coVerify(exactly = 1) {
+            settingsDataManager.getSettings()
+            notificationPrefs.arePushNotificationsEnabled()
         }
-
-        verify(settingsDataManager).getSettings()
-        verify(notificationPrefs).arePushNotificationsEnabled
-
-        verifyNoMoreInteractions(settingsDataManager)
-        verifyNoMoreInteractions(notificationPrefs)
     }
 
     @Test
     fun getNotificationInfo_pushOff_emailOff() {
-        val settingsMock: Settings = mock {
-            on { notificationsType }.thenReturn(emptyList())
+        val settingsMock: Settings = mockk<Settings>(relaxed = true).apply {
+            coEvery { notificationsType } returns emptyList()
         }
-        whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
-        whenever(notificationPrefs.arePushNotificationsEnabled).thenReturn(false)
+        coEvery { settingsDataManager.getSettings() } returns Observable.just(settingsMock)
+        coEvery { notificationPrefs.arePushNotificationsEnabled() } returns false
 
-        val test = interactor.getNotificationsEnabled().test()
-        test.assertValue {
-            !it.first && !it.second
+        interactor.getNotificationsEnabled().test()
+            .assertValue {
+                !it.first && !it.second
+            }
+
+        coVerify(exactly = 1) {
+            settingsDataManager.getSettings()
+            notificationPrefs.arePushNotificationsEnabled()
         }
-
-        verify(settingsDataManager).getSettings()
-        verify(notificationPrefs).arePushNotificationsEnabled
-
-        verifyNoMoreInteractions(settingsDataManager)
-        verifyNoMoreInteractions(notificationPrefs)
     }
 
     @Test
     fun enablePushNotifications() {
-        whenever(notificationTokenManager.enableNotifications()).thenReturn(Completable.complete())
+        coEvery { notificationTokenManager.enableNotifications() } returns Completable.complete()
 
-        val test = interactor.enablePushNotifications().test()
-        test.assertComplete()
+        interactor.enablePushNotifications().test()
+            .assertComplete()
 
-        verify(notificationTokenManager).enableNotifications()
-        verifyNoMoreInteractions(notificationTokenManager)
+        coVerify(exactly = 1) {
+            notificationTokenManager.enableNotifications()
+        }
     }
 
     @Test
     fun disablePushNotifications() {
-        whenever(notificationTokenManager.disableNotifications()).thenReturn(Completable.complete())
+        coEvery { notificationTokenManager.disableNotifications() } returns Completable.complete()
 
-        val test = interactor.disablePushNotifications().test()
-        test.assertComplete()
+        interactor.disablePushNotifications().test()
+            .assertComplete()
 
-        verify(notificationTokenManager).disableNotifications()
-        verifyNoMoreInteractions(notificationTokenManager)
+        coVerify(exactly = 1) {
+            notificationTokenManager.disableNotifications()
+        }
     }
 
     @Test
     fun checkPushNotificationState() {
-        whenever(notificationPrefs.arePushNotificationsEnabled).thenReturn(true)
+        coEvery { notificationPrefs.arePushNotificationsEnabled() } returns true
 
-        val test = interactor.arePushNotificationsEnabled()
-        Assert.assertTrue(test)
+        interactor.arePushNotificationsEnabled().test()
+            .assertValue(true)
 
-        verify(notificationPrefs).arePushNotificationsEnabled
-        verifyNoMoreInteractions(notificationPrefs)
+        coVerify(exactly = 1) {
+            notificationPrefs.arePushNotificationsEnabled()
+        }
     }
 
     @Test
     fun toggleEmailNotifications_enabledToDisabled() {
-        val settingsMock: Settings = mock {
-            on { isEmailVerified }.thenReturn(true)
-            on { notificationsType }.thenReturn(listOf(Settings.NOTIFICATION_TYPE_EMAIL))
+        val settingsMock: Settings = mockk<Settings>(relaxed = true).apply {
+            coEvery { isEmailVerified } returns true
+            coEvery { notificationsType } returns listOf(Settings.NOTIFICATION_TYPE_EMAIL)
         }
-        whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
-        whenever(
+        coEvery { settingsDataManager.getSettings() } returns Observable.just(settingsMock)
+        coEvery {
             settingsDataManager.disableNotification(Settings.NOTIFICATION_TYPE_EMAIL, settingsMock.notificationsType)
-        ).thenReturn(
-            Observable.just(settingsMock)
-        )
-        whenever(payloadDataManager.syncPayloadAndPublicKeys()).thenReturn(Completable.complete())
+        } returns Observable.just(settingsMock)
+        coEvery { payloadDataManager.syncPayloadAndPublicKeys() } returns Completable.complete()
 
-        val test = interactor.toggleEmailNotifications(true).test()
-        test.assertComplete()
+        interactor.toggleEmailNotifications(true).test()
+            .assertComplete()
 
-        verify(settingsDataManager).getSettings()
-        verify(settingsDataManager).disableNotification(
-            Settings.NOTIFICATION_TYPE_EMAIL, settingsMock.notificationsType
-        )
-        verify(payloadDataManager).syncPayloadAndPublicKeys()
-        verifyNoMoreInteractions(settingsDataManager)
-        verifyNoMoreInteractions(payloadDataManager)
+        coVerify(exactly = 1) {
+            settingsDataManager.getSettings()
+            settingsDataManager.disableNotification(Settings.NOTIFICATION_TYPE_EMAIL, settingsMock.notificationsType)
+            payloadDataManager.syncPayloadAndPublicKeys()
+        }
     }
 
     @Test
     fun toggleEmailNotifications_disabledToEnabled() {
-        val settingsMock: Settings = mock {
-            on { isEmailVerified }.thenReturn(true)
-            on { notificationsType }.thenReturn(listOf(Settings.NOTIFICATION_TYPE_EMAIL))
+        val settingsMock: Settings = mockk<Settings>(relaxed = true).apply {
+            coEvery { isEmailVerified } returns true
+            coEvery { notificationsType } returns listOf(Settings.NOTIFICATION_TYPE_EMAIL)
         }
-        whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
-        whenever(
+        coEvery { settingsDataManager.getSettings() } returns Observable.just(settingsMock)
+        coEvery {
             settingsDataManager.enableNotification(Settings.NOTIFICATION_TYPE_EMAIL, settingsMock.notificationsType)
-        ).thenReturn(
-            Observable.just(settingsMock)
-        )
+        } returns Observable.just(settingsMock)
 
-        val test = interactor.toggleEmailNotifications(false).test()
-        test.assertComplete()
+        interactor.toggleEmailNotifications(false).test()
+            .assertComplete()
 
-        verify(settingsDataManager).getSettings()
-        verify(settingsDataManager).enableNotification(
-            Settings.NOTIFICATION_TYPE_EMAIL, settingsMock.notificationsType
-        )
-        verify(payloadDataManager, never()).syncPayloadAndPublicKeys()
-        verifyNoMoreInteractions(settingsDataManager)
-        verifyNoMoreInteractions(payloadDataManager)
+        coVerify(exactly = 1) {
+            settingsDataManager.getSettings()
+            settingsDataManager.enableNotification(Settings.NOTIFICATION_TYPE_EMAIL, settingsMock.notificationsType)
+        }
+        coVerify(exactly = 0) {
+            payloadDataManager.syncPayloadAndPublicKeys()
+        }
     }
 
     @Test
     fun toggleEmailNotifications_unverifiedEmail() {
-        val settingsMock: Settings = mock {
-            on { isEmailVerified }.thenReturn(false)
+        val settingsMock: Settings = mockk<Settings>(relaxed = true).apply {
+            coEvery { isEmailVerified } returns false
         }
-        whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
+        coEvery { settingsDataManager.getSettings() } returns Observable.just(settingsMock)
 
-        val test = interactor.toggleEmailNotifications(true).test()
-        test.assertError {
-            it is EmailNotVerifiedException
+        interactor.toggleEmailNotifications(true).test()
+            .assertError {
+                it is EmailNotVerifiedException
+            }
+
+        coVerify(exactly = 1) {
+            settingsDataManager.getSettings()
         }
-
-        verify(settingsDataManager).getSettings()
-        verifyNoMoreInteractions(settingsDataManager)
-        verifyNoMoreInteractions(payloadDataManager)
+        coVerify { payloadDataManager wasNot Called }
     }
 }

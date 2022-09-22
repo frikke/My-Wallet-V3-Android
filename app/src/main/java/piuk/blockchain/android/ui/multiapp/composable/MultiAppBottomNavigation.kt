@@ -64,7 +64,7 @@ fun MultiAppBottomNavigation(
                 ) {
                     Image(
                         imageResource = ImageResource.Local(
-                            if(item.route == currentRoute ) {
+                            if (item.route == currentRoute) {
                                 item.iconSelected
                             } else {
                                 item.iconDefault
@@ -80,7 +80,6 @@ fun MultiAppBottomNavigation(
                         color = AppTheme.colors.title,
                     )
                 }
-
 
                 Spacer(Modifier.size(AppTheme.dimensions.largeSpacing))
             }

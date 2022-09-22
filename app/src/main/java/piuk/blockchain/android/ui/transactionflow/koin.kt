@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.transactionflow
 import android.content.Context
 import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.payloadScope
+import com.blockchain.koin.quickFillSellSwapFeatureFlag
 import com.blockchain.koin.swapSourceOrder
 import com.blockchain.koin.swapTargetOrder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -51,7 +52,6 @@ val transactionModule = module {
         TransactionFlowCustomiserImpl(
             resources = get<Context>().resources,
             assetResources = get(),
-            stringUtils = get(),
             walletModeService = get()
         )
     }.apply {
@@ -205,6 +205,7 @@ val transactionModule = module {
                 bankLinkingPrefs = payloadScope.get(),
                 dismissRecorder = payloadScope.get(),
                 fiatCurrenciesService = payloadScope.get(),
+                swapSellQuickFillFF = payloadScope.get(quickFillSellSwapFeatureFlag)
             )
         }
 

@@ -91,6 +91,10 @@ data class CryptoValue(
         return CryptoValue(currency, amount / other.amount)
     }
 
+    override fun multiply(multiplier: Float): Money {
+        return fromMinor(currency, amount.toBigDecimal() * multiplier.toBigDecimal())
+    }
+
     override fun ensureComparable(operation: String, other: Money) {
         if (other is CryptoValue) {
             if (currency != other.currency) {

@@ -60,6 +60,9 @@ class FiatCryptoInputView(
             convertAmount()
         }
 
+    var syncLatestAmount: Money? = null
+        private set
+
     private val exchangeRates: ExchangeRatesDataManager by inject()
 
     private val currencyPrefs: CurrencyPrefs by inject()
@@ -287,10 +290,11 @@ class FiatCryptoInputView(
                 updateValue(amounts.outputAmount)
             }
             amountSubject.onNext(amounts.outputAmount)
+            syncLatestAmount = amounts.outputAmount
         }
     }
 
-    fun fixExchange(it: Money) {
+    fun updateExchangeAmount(it: Money) {
         binding.exchangeAmount.text = it.toStringWithSymbol()
     }
 

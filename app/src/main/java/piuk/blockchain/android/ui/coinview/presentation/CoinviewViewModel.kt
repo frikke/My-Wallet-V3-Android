@@ -10,6 +10,7 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
 import com.blockchain.preferences.CurrencyPrefs
@@ -32,7 +33,7 @@ import piuk.blockchain.android.ui.coinview.domain.LoadAssetRecurringBuysUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadQuickActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
-import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetDetail
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistory
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
@@ -50,7 +51,8 @@ class CoinviewViewModel(
     private val getAssetPriceUseCase: GetAssetPriceUseCase,
     private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase,
     private val loadAssetRecurringBuysUseCase: LoadAssetRecurringBuysUseCase,
-    private val loadQuickActionsUseCase: LoadQuickActionsUseCase
+    private val loadQuickActionsUseCase: LoadQuickActionsUseCase,
+    private val assetService: AssetService
 ) : MviViewModel<
     CoinviewIntents,
     CoinviewViewState,
@@ -83,7 +85,8 @@ class CoinviewViewModel(
             accounts = reduceAccounts(this),
             centerQuickAction = reduceCenterQuickActions(this),
             recurringBuys = reduceRecurringBuys(this),
-            bottomQuickAction = reduceBottomQuickActions(this)
+            bottomQuickAction = reduceBottomQuickActions(this),
+            assetInfo = reduceAssetInfo(this)
         )
     }
 
@@ -153,18 +156,18 @@ class CoinviewViewModel(
                 CoinviewTotalBalanceState.NotSupported
             }
 
-            assetInfo is DataResource.Loading -> {
+            assetDetail is DataResource.Loading -> {
                 CoinviewTotalBalanceState.Loading
             }
 
-            assetInfo is DataResource.Error -> {
+            assetDetail is DataResource.Error -> {
                 CoinviewTotalBalanceState.NotSupported
             }
 
-            assetInfo is DataResource.Data && assetInfo.data is CoinviewAssetInformation.AccountsInfo -> {
+            assetDetail is DataResource.Data && assetDetail.data is CoinviewAssetDetail.Tradeable -> {
                 check(asset != null) { "asset not initialized" }
 
-                with(assetInfo.data as CoinviewAssetInformation.AccountsInfo) {
+                with(assetDetail.data as CoinviewAssetDetail.Tradeable) {
                     check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
 
                     CoinviewTotalBalanceState.Data(
@@ -183,14 +186,14 @@ class CoinviewViewModel(
 
     private fun reduceAccounts(state: CoinviewModelState): CoinviewAccountsState = state.run {
         when {
-            assetInfo is DataResource.Loading -> {
+            assetDetail is DataResource.Loading -> {
                 CoinviewAccountsState.Loading
             }
 
-            assetInfo is DataResource.Data && assetInfo.data is CoinviewAssetInformation.AccountsInfo -> {
+            assetDetail is DataResource.Data && assetDetail.data is CoinviewAssetDetail.Tradeable -> {
                 check(asset != null) { "asset not initialized" }
 
-                with(assetInfo.data as CoinviewAssetInformation.AccountsInfo) {
+                with(assetDetail.data as CoinviewAssetDetail.Tradeable) {
                     CoinviewAccountsState.Data(
                         style = when (accounts) {
                             is CoinviewAccounts.Universal,
@@ -505,6 +508,30 @@ class CoinviewViewModel(
         }
     }
 
+    private fun reduceAssetInfo(state: CoinviewModelState): CoinviewAssetInfoState = state.run {
+        when (assetInfo) {
+            DataResource.Loading -> {
+                CoinviewAssetInfoState.Loading
+            }
+
+            is DataResource.Error -> {
+                CoinviewAssetInfoState.Error
+            }
+
+            is DataResource.Data -> {
+                require(asset != null) { "asset not initialized" }
+
+                with(assetInfo.data) {
+                    CoinviewAssetInfoState.Data(
+                        assetName = asset.currency.name,
+                        description = if (description.isEmpty().not()) description else null,
+                        website = if (website.isEmpty().not()) website else null,
+                    )
+                }
+            }
+        }
+    }
+
     override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntents) {
         when (intent) {
             is CoinviewIntents.LoadAllData -> {
@@ -512,6 +539,7 @@ class CoinviewViewModel(
                 onIntent(CoinviewIntents.LoadPriceData)
                 onIntent(CoinviewIntents.LoadAccountsData)
                 onIntent(CoinviewIntents.LoadRecurringBuysData)
+                onIntent(CoinviewIntents.LoadAssetInfo)
             }
 
             CoinviewIntents.LoadPriceData -> {
@@ -547,6 +575,14 @@ class CoinviewViewModel(
                     asset = modelState.asset,
                     accounts = intent.accounts,
                     totalBalance = intent.totalBalance
+                )
+            }
+
+            CoinviewIntents.LoadAssetInfo -> {
+                check(modelState.asset != null) { "asset not initialized" }
+
+                loadAssetInformation(
+                    asset = modelState.asset,
                 )
             }
 
@@ -692,9 +728,9 @@ class CoinviewViewModel(
 
                 updateState {
                     it.copy(
-                        assetInfo = if (dataResource is DataResource.Loading && it.assetInfo is DataResource.Data) {
+                        assetDetail = if (dataResource is DataResource.Loading && it.assetDetail is DataResource.Data) {
                             // if data is present already - don't show loading
-                            it.assetInfo
+                            it.assetDetail
                         } else {
                             dataResource
                         }
@@ -702,8 +738,8 @@ class CoinviewViewModel(
                 }
 
                 // get quick actions
-                if (dataResource is DataResource.Data && dataResource.data is CoinviewAssetInformation.AccountsInfo) {
-                    with(dataResource.data as CoinviewAssetInformation.AccountsInfo) {
+                if (dataResource is DataResource.Data && dataResource.data is CoinviewAssetDetail.Tradeable) {
+                    with(dataResource.data as CoinviewAssetDetail.Tradeable) {
                         onIntent(
                             CoinviewIntents.LoadQuickActions(
                                 accounts = accounts,
@@ -755,6 +791,26 @@ class CoinviewViewModel(
                             it.quickActions is DataResource.Data
                         ) {
                             it.quickActions
+                        } else {
+                            dataResource
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    // //////////////////////
+    // Asset info
+    private fun loadAssetInformation(asset: CryptoAsset) {
+        viewModelScope.launch {
+            assetService.getAssetInformation(asset = asset.currency).collectLatest { dataResource ->
+                updateState {
+                    it.copy(
+                        assetInfo = if (dataResource is DataResource.Loading &&
+                            it.assetInfo is DataResource.Data
+                        ) {
+                            it.assetInfo
                         } else {
                             dataResource
                         }

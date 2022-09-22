@@ -1,5 +1,11 @@
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file('gradle/local/common-feature.gradle')
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
+
+test {
+    testLogging {
+        events 'skipped', 'failed', 'standardOut', 'standardError'
+    }
+}
 
 dependencies {
     implementation project(":balance")
@@ -7,7 +13,6 @@ dependencies {
     implementation project(':logging:domain')
     implementation Libraries.kotlin
     implementation Libraries.rxKotlin
-    implementation Libraries.koin
     implementation Libraries.okHttp
 
     // Network
@@ -18,36 +23,4 @@ dependencies {
     implementation Libraries.timber
 
     implementation Libraries.kotlinJson
-
-    // Testing
-    testImplementation Libraries.junit
-    testImplementation Libraries.mockito
-    testImplementation Libraries.kluent
-    testImplementation Libraries.koinTest
-    testImplementation project(':testutils')
-    testImplementation(Libraries.mockitoKotlin) {
-        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
-    }
-}
-
-test {
-    testLogging {
-        events 'skipped', 'failed', 'standardOut', 'standardError'
-    }
-}
-
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = Versions.kotlinJvmTarget
-    }
-}
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = Versions.kotlinJvmTarget
-    }
-}
-
-java {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
 }

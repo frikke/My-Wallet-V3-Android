@@ -63,12 +63,12 @@
 
         <TextView
             android:layout_width="wrap_content"
+            style="@style/Text.Semibold.16"
             android:layout_height="wrap_content"
             android:text="@string/recurring_buy_weekly_selector" />
 
         <RadioButton
             android:id="@+id/rb_weekly"
-            style="@style/Text.Semibold.16"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:button="@null"
@@ -82,11 +82,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/Text.Semibold.16"
             android:text="@string/recurring_buy_bi_weekly_1" />
 
         <RadioButton
             android:id="@+id/rb_bi_weekly"
-            style="@style/Text.Semibold.16"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:button="@null"
@@ -100,11 +100,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/Text.Semibold.16"
             android:text="@string/recurring_buy_monthly_selector" />
 
         <RadioButton
             android:id="@+id/rb_monthly"
-            style="@style/Text.Semibold.16"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:button="@null"

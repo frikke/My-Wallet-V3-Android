@@ -6,6 +6,11 @@ compileKotlin {
     }
 }
 
+java {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}
+
 dependencies {
     implementation project(':balance')
 
@@ -29,9 +34,4 @@ dependencies {
     implementation Libraries.kotlinCoroutinesTest
     implementation Libraries.coreTesting
     implementation Libraries.mockk
-}
-
-java {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
 }

@@ -36,7 +36,7 @@ class AppUtil(
                 action = BlockchainActivity.LOGOUT_ACTION
             }
         )
-        if (isIntercomEnabledFlag.isEnabled) {
+        isIntercomEnabledFlag.enabled.map {
             Intercom.client().logout()
         }
     }

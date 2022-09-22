@@ -1,39 +1,6 @@
 apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature.gradle')
-
-dependencies {
-    implementation Libraries.kotlin
-    implementation Libraries.koin
-    implementation Libraries.rxKotlin
-    implementation project(':balance')
-    implementation project(':metadata')
-    implementation project(':common:interface')
-    implementation project(':common:network')
-    implementation project(':logging:domain')
-
-    implementation Libraries.kotlinJson
-    implementation Libraries.sunriver
-
-    // Derivation
-    testImplementation files('libs/BIP39-2019.01.27.jar')
-    testImplementation Libraries.spongyCastle
-
-    // Testing
-    testImplementation Libraries.junit
-    testImplementation Libraries.mockito
-    testImplementation Libraries.kluent
-    testImplementation Libraries.koinTest
-    testImplementation project(':testutils')
-    testImplementation(Libraries.mockitoKotlin) {
-        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
-    }
-}
-
-test {
-    testLogging {
-        events 'skipped', 'failed', 'standardOut', 'standardError'
-    }
-}
+apply from: rootProject.file('gradle/local/common-tests.gradle')
 
 compileKotlin {
     kotlinOptions {
@@ -45,4 +12,28 @@ compileTestKotlin {
     kotlinOptions {
         jvmTarget = Versions.kotlinJvmTarget
     }
+}
+
+test {
+    testLogging {
+        events 'skipped', 'failed', 'standardOut', 'standardError'
+    }
+}
+
+dependencies {
+    implementation project(':balance')
+    implementation project(':metadata')
+    implementation project(':common:interface')
+    implementation project(':common:network')
+    implementation project(':logging:domain')
+
+    implementation Libraries.kotlin
+    implementation Libraries.koin
+    implementation Libraries.rxKotlin
+    implementation Libraries.kotlinJson
+    implementation Libraries.sunriver
+
+    // Derivation
+    testImplementation files('libs/BIP39-2019.01.27.jar')
+    testImplementation Libraries.spongyCastle
 }

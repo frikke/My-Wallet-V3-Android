@@ -1,7 +1,7 @@
 package piuk.blockchain.android.maintenance.data.remoteconfig
 
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.preferences.AppMaintenancePrefs
-import com.blockchain.remoteconfig.RemoteConfig
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
@@ -16,7 +16,7 @@ import piuk.blockchain.android.maintenance.data.model.AppMaintenanceConfigDto
 @ExperimentalCoroutinesApi
 class AppMaintenanceRemoteConfigTest {
 
-    private val remoteConfig = mockk<RemoteConfig>()
+    private val remoteConfig = mockk<RemoteConfigService>()
     private val json = Json
     private val appMaintenancePrefs = mockk<AppMaintenancePrefs>()
 

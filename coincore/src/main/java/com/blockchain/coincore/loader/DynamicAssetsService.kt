@@ -23,12 +23,15 @@ internal fun DynamicAsset.toAssetInfo(): AssetInfo =
         precisionDp = precision,
         l1chainTicker = parentChain?.let { chain ->
             // TODO this is not scalable, need a way to enable L2 networks from remote config/service
-            when (chain) {
-                AssetDiscoveryApiService.ETHEREUM -> CryptoCurrency.ETHER.networkTicker
-                AssetDiscoveryApiService.MATIC -> AssetDiscoveryApiService.MATIC
-                AssetDiscoveryApiService.BNB -> AssetDiscoveryApiService.BNB
-                AssetDiscoveryApiService.CELO -> AssetDiscoveryApiService.CELO
-                else -> throw IllegalStateException("Unknown l1 chain")
+            CryptoCurrency.evmCurrencies.find {
+                // For example MATIC's network ticker is MATIC.MATIC on Polygon while the display ticker is MATIC
+                it.networkTicker == chain ||
+                    it.displayTicker == chain
+            }?.displayTicker ?: kotlin.run {
+                when (chain) {
+                    AssetDiscoveryApiService.CELO -> AssetDiscoveryApiService.CELO
+                    else -> throw IllegalStateException("Unknown l1 chain: $chain")
+                }
             }
         },
         l2identifier = chainIdentifier,
@@ -41,7 +44,7 @@ internal fun DynamicAsset.toAssetInfo(): AssetInfo =
 private const val BTC_START_DATE = 1282089600L
 
 private fun String.forParentTicker(parentChain: String): String {
-    if (parentChain == AssetDiscoveryApiService.MATIC && !this.endsWith(POLYGON_NETWORK_SUFFIX)) {
+    if (parentChain == CryptoCurrency.MATIC.displayTicker && !this.endsWith(POLYGON_NETWORK_SUFFIX)) {
         return this.plus(POLYGON_NETWORK_SUFFIX)
     }
     return this

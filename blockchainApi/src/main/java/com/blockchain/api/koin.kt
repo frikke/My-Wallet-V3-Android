@@ -5,6 +5,13 @@ import com.blockchain.api.addressmapping.AddressMappingApiInterface
 import com.blockchain.api.addressverification.AddressVerificationApi
 import com.blockchain.api.analytics.AnalyticsApiInterface
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
+import com.blockchain.api.assetdiscovery.data.AssetInformationDto
+import com.blockchain.api.assetdiscovery.data.AssetType
+import com.blockchain.api.assetdiscovery.data.CeloTokenAsset
+import com.blockchain.api.assetdiscovery.data.CoinAsset
+import com.blockchain.api.assetdiscovery.data.Erc20Asset
+import com.blockchain.api.assetdiscovery.data.FiatAsset
+import com.blockchain.api.assetdiscovery.data.UnsupportedAsset
 import com.blockchain.api.assetdiscovery.data.assetTypeSerializers
 import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.auth.AuthApiInterface
@@ -17,6 +24,7 @@ import com.blockchain.api.dataremediation.DataRemediationApi
 import com.blockchain.api.eligibility.EligibilityApi
 import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.ethereum.evm.EvmApi
+import com.blockchain.api.experiments.ExperimentsApi
 import com.blockchain.api.fiatcurrencies.FiatCurrenciesApi
 import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.interest.InterestApiService
@@ -41,6 +49,7 @@ import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.DataRemediationApiService
 import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.api.services.EligibilityApiService
+import com.blockchain.api.services.ExperimentsApiService
 import com.blockchain.api.services.FiatCurrenciesApiService
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.api.services.NftService
@@ -51,10 +60,12 @@ import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.ReferralApiService
+import com.blockchain.api.services.SessionService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.api.services.WatchlistService
+import com.blockchain.api.session.SessionApi
 import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
@@ -62,9 +73,18 @@ import com.blockchain.api.watchlist.WatchlistApi
 import com.blockchain.koin.authOkHttpClient
 import com.blockchain.koin.kotlinJsonConverterFactory
 import com.blockchain.koin.kotlinXApiRetrofit
+import com.blockchain.serializers.BigDecimalSerializer
+import com.blockchain.serializers.BigIntSerializer
+import com.blockchain.serializers.IsoDateSerializer
+import com.blockchain.serializers.KZonedDateTimeSerializer
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import okhttp3.MediaType.Companion.toMediaType
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.scope.Scope
@@ -123,6 +143,33 @@ val blockchainApiModule = module {
             .addConverterFactory(get(kotlinJsonConverterFactory))
             .build()
     }
+
+    // *****
+    // BaseJson
+    @OptIn(ExperimentalSerializationApi::class)
+    single {
+        Json {
+            explicitNulls = false
+            ignoreUnknownKeys = true
+            isLenient = true
+            encodeDefaults = true
+            serializersModule = SerializersModule {
+                contextual(BigDecimalSerializer)
+                contextual(BigIntSerializer)
+                contextual(IsoDateSerializer)
+                contextual(KZonedDateTimeSerializer)
+                polymorphic(AssetType::class) {
+                    subclass(CoinAsset::class)
+                    subclass(Erc20Asset::class)
+                    subclass(CeloTokenAsset::class)
+                    subclass(FiatAsset::class)
+                    subclass(AssetInformationDto::class)
+                    default { UnsupportedAsset.serializer() }
+                }
+            }
+        }
+    }
+    // *****
 
     single(assetsApi) {
         // Can't use the standard convertor here, because we need to set a discriminator
@@ -329,6 +376,13 @@ val blockchainApiModule = module {
     }
 
     factory {
+        val api = get<Retrofit>(nabuApi).create(SessionApi::class.java)
+        SessionService(
+            api
+        )
+    }
+
+    factory {
         object : WalletHelperUrl {
             override val url: String
                 get() = getProperty("wallet-helper-url")
@@ -353,6 +407,13 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(explorerApi).create(NftApi::class.java)
         NftService(
             nftApi = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(ExperimentsApi::class.java)
+        ExperimentsApiService(
+            api = api
         )
     }
 }

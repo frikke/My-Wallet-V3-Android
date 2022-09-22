@@ -1,4 +1,4 @@
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
 
 android {
     lintOptions {
@@ -9,16 +9,9 @@ android {
 }
 
 dependencies {
-
     implementation Libraries.kotlin
-
     implementation Libraries.veriff
-
-    implementation Libraries.appCompat
-    implementation Libraries.constraintLayout
-    implementation Libraries.design
     implementation Libraries.jjwt
-    implementation Libraries.timber
     implementation(Libraries.retrofit) { exclude module: 'okhttp' }
     implementation Libraries.okHttp
     implementation Libraries.okHttpInterceptor

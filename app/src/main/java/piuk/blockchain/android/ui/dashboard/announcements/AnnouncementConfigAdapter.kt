@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.remoteconfig.RemoteConfig
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -19,7 +19,7 @@ interface AnnouncementConfigAdapter {
 }
 
 class AnnouncementConfigAdapterImpl(
-    private val config: RemoteConfig,
+    private val config: RemoteConfigService,
     private val json: Json,
     private val userIdentity: UserIdentity
 ) : AnnouncementConfigAdapter {

@@ -938,7 +938,7 @@ Intenta otra vez más tarde.</string>
     <string name="sell_info_action">Enviar ahora →</string>
     <string name="common_pending">Pendiente</string>
     <string name="confirm_status_msg_insufficient_funds">No tienes fondos suficientes en esta cuenta para procesar esta transacción.</string>
-    <string name="confirm_status_msg_insufficient_gas">No tienes suficientes ETH para procesar esta transacción.</string>
+    <string name="confirm_status_msg_insufficient_gas">No tienes suficientes %1$s para procesar esta transacción.</string>
     <string name="confirm_status_msg_option_invalid">Asegúrate de haber aceptado nuestros Términos.</string>
     <string name="common_free">Gratis</string>
     <string name="two_fa_new_request">Solicitando nuevo código...</string>
@@ -1717,7 +1717,7 @@ Tu %1$s estará disponible en tu cuenta \"%2$s\" en el plazo de 2 días.</string
     <string name="fiat_funds_detail_withdraw_title">Retirado</string>
     <string name="withdrawing_amount_message">Estamos completando tu retiro en este momento.</string>
     <string name="send_progress_error_subtitle">No te preocupes. Tu dinero está seguro. Vuelve a intentarlo o comunícate con nuestro equipo de Soporte para obtener ayuda.</string>
-    <string name="send_enter_insufficient_gas">No tienes suficientes ETH para procesar esta transacción.</string>
+    <string name="send_enter_insufficient_gas">No tienes suficientes %1$s para procesar esta transacción.</string>
     <string name="swap_select_target_title">Nuevo intercambio</string>
     <string name="yodlee_splash_title">Conexión segura</string>
     <string name="please_try_linking_your_bank_again">Intenta vincular tu banco nuevamente. Si esto sigue ocurriendo, comunícate con Soporte.</string>
@@ -2497,8 +2497,8 @@ Comprueba la conexión a Internet y vuelve a intentarlo o comunícate con el Sop
     <string name="accessibility_price_not_available">Precio no disponible</string>
     <string name="trading_deposit_relink_bank_account">Vuelve a vincular la cuenta bancaria</string>
     <string name="simple_buy_quote_message">Nueva cotización en %s</string>
-    <string name="verify_your_address">Verifica tu dirección</string>
-    <string name="verify_your_address_description">Confirma tu dirección residencial a continuación para evitar retrasos.</string>
+    <string name="address_verification_title">Verifica tu dirección</string>
+    <string name="address_verification_description">Confirma tu dirección residencial a continuación para evitar retrasos.</string>
     <string name="residential_address">Dirección residencial</string>
     <string name="card_intro_title">Obtén la tarjeta Visa de Blockchain.com</string>
     <string name="backup_success_title">¡Copia de seguridad exitosa!</string>

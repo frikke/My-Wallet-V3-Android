@@ -23,6 +23,7 @@ import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
+import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -64,11 +65,13 @@ data class SimpleBuyState constructor(
     val paymentSucceeded: Boolean = false,
     val withdrawalLockPeriod: @Contextual BigInteger = BigInteger.ZERO,
     val recurringBuyFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
+    val recurringBuyForExperiment: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
     val recurringBuyId: String? = null,
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
     val showRecurringBuyFirstTimeFlow: Boolean = false,
     val eligibleAndNextPaymentRecurringBuy: List<EligibleAndNextPaymentRecurringBuy> = emptyList(),
     val googlePayDetails: GooglePayDetails? = null,
+    val featureFlagSet: FeatureFlagsSet = FeatureFlagsSet(),
     @Transient val quickFillButtonData: QuickFillButtonData? = null,
     @Transient val safeConnectTosLink: String? = null,
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
@@ -194,6 +197,15 @@ enum class KycState {
     fun verified() = this == VERIFIED_AND_ELIGIBLE || this == VERIFIED_BUT_NOT_ELIGIBLE
 }
 
+@kotlinx.serialization.Serializable
+data class FeatureFlagsSet(
+    val buyQuoteRefreshFF: Boolean = false,
+    val plaidFF: Boolean = false,
+    val rbFrequencySuggestionFF: Boolean = false,
+    val cardRejectionFF: Boolean = false,
+    val rbExperimentFF: Boolean = false,
+)
+
 enum class FlowScreen {
     ENTER_AMOUNT, KYC, KYC_VERIFICATION
 }
@@ -269,7 +281,7 @@ data class BuyQuote(
 ) {
 
     companion object {
-        private const val MIN_QUOTE_REFRESH = 30L
+        private const val MIN_QUOTE_REFRESH = 90L
 
         fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: FiatCurrency, orderFee: Money?) =
             BuyQuote(
@@ -353,11 +365,6 @@ data class SelectedPaymentMethod(
         concreteId() != null ||
             (paymentMethodType == PaymentMethodType.FUNDS && id == PaymentMethod.FUNDS_PAYMENT_ID)
 }
-
-data class QuickFillButtonData(
-    val quickFillButtons: List<Money>,
-    val buyMaxAmount: Money
-)
 
 @kotlinx.serialization.Serializable
 data class GooglePayDetails(

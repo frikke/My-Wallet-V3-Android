@@ -8,7 +8,7 @@ import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
 @Serializable
-internal data class DynamicCurrency(
+data class DynamicCurrency(
     @SerialName("symbol")
     private val symbol: String, // "ADA"
     @SerialName("displaySymbol")
@@ -24,6 +24,7 @@ internal data class DynamicCurrency(
 ) {
     @Transient
     val networkSymbol: String = symbol
+
     @Transient
     val displaySymbol: String = display ?: symbol
 }
@@ -34,15 +35,16 @@ internal val assetTypeSerializers = SerializersModule {
         subclass(Erc20Asset::class)
         subclass(CeloTokenAsset::class)
         subclass(FiatAsset::class)
-        subclass(AssetInformationResponse::class)
+        subclass(AssetInformationDto::class)
         default { UnsupportedAsset.serializer() }
     }
 }
 
 @Serializable
-internal abstract class AssetType {
+abstract class AssetType {
     @SerialName("logoPngUrl")
     val logoUrl: String? = null
+
     @SerialName("websiteUrl")
     val websiteUrl: String? = null
 }
@@ -90,7 +92,7 @@ internal data class DynamicCurrencyList(
 )
 
 @Serializable
-internal data class AssetInformationResponse(
+data class AssetInformationDto(
     @SerialName("currencyInfo")
     val assetInfo: DynamicCurrency?,
     @SerialName("description")
