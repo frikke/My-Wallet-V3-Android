@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
 
 const val ANIMATION_DURATION = 400
 
@@ -27,7 +28,21 @@ fun extractStatesInfo(
 
 @StringRes
 fun WalletMode.titleSuperApp(): Int = when (this) {
-    WalletMode.NON_CUSTODIAL_ONLY -> R.string.defi_wallet_name_superapp
     WalletMode.CUSTODIAL_ONLY -> R.string.brokerage_wallet_name_superapp
-    else -> throw IllegalArgumentException("No title supported for mode")
+    WalletMode.NON_CUSTODIAL_ONLY -> R.string.defi_wallet_name_superapp
+    else -> error("UNIVERSAL not supported")
+}
+
+fun WalletMode.bottomNavigationItems(): List<ChromeBottomNavigationItem> = when (this) {
+    WalletMode.CUSTODIAL_ONLY -> listOf(
+        ChromeBottomNavigationItem.Home,
+        ChromeBottomNavigationItem.Trade,
+        ChromeBottomNavigationItem.Card
+    )
+    WalletMode.NON_CUSTODIAL_ONLY -> listOf(
+        ChromeBottomNavigationItem.Home,
+        ChromeBottomNavigationItem.Trade,
+        ChromeBottomNavigationItem.Nft
+    )
+    else -> error("UNIVERSAL not supported")
 }

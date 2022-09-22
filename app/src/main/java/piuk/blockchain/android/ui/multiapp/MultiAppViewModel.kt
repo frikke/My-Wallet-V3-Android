@@ -12,11 +12,11 @@ import com.blockchain.store.mapData
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.total
-import java.util.stream.Collectors.toList
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
+import piuk.blockchain.android.ui.multiapp.composable.bottomNavigationItems
 
 class MultiAppViewModel(
     private val walletModeService: WalletModeService,
@@ -56,7 +56,8 @@ class MultiAppViewModel(
                 WalletMode.NON_CUSTODIAL_ONLY -> ChromeBackgroundColors.DeFi
                 WalletMode.UNIVERSAL -> error("WalletMode.UNIVERSAL unsupported")
             },
-            totalBalance = state.totalBalance.map { balance -> balance.toStringWithSymbol() }
+            totalBalance = state.totalBalance.map { balance -> balance.toStringWithSymbol() },
+            bottomNavigationItems = state.selectedWalletMode.bottomNavigationItems()
         )
     }
 
