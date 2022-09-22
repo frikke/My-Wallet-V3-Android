@@ -694,7 +694,7 @@ class SimpleBuyInteractor(
 
     private fun roundToNearest(lastAmount: Money, nearest: Int): Money {
         return Money.fromMajor(
-            lastAmount.currency, (nearest * (floor(lastAmount.toFloat() / nearest) + 1)).toBigDecimal()
+            lastAmount.currency, (nearest * (floor(lastAmount.toFloat() / nearest))).toBigDecimal()
         )
     }
 

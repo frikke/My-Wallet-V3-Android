@@ -133,9 +133,9 @@ class SimpleBuyInteractorTest {
         test.assertValue {
             it.first == defaultAmount &&
                 it.second?.maxAmount == maxAmount &&
-                it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(110)) &&
-                it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(250)) &&
-                it.second!!.quickFillButtons[2].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(600))
+                it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(100)) &&
+                it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200)) &&
+                it.second!!.quickFillButtons[2].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
     }
 
@@ -155,8 +155,8 @@ class SimpleBuyInteractorTest {
         test.assertValue {
             it.first == prefilledAmount &&
                 it.second?.maxAmount == maxAmount &&
-                it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(210)) &&
-                it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(450))
+                it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200)) &&
+                it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
     }
 
@@ -192,9 +192,9 @@ class SimpleBuyInteractorTest {
         test.assertValue {
             it.first == FiatValue.fromMajor(fiatCurrency, BigDecimal(100)) &&
                 it.second?.maxAmount == limits.maxAmount &&
-                it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(210)) &&
-                it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(450)) &&
-                it.second!!.quickFillButtons[2].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(1000))
+                it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200)) &&
+                it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400)) &&
+                it.second!!.quickFillButtons[2].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(800))
         }
     }
 
@@ -229,7 +229,7 @@ class SimpleBuyInteractorTest {
             it.first == minAmount &&
                 it.second?.maxAmount == maxAmount &&
                 it.second!!.quickFillButtons.size == 1 &&
-                it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(210))
+                it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200))
         }
     }
 
@@ -247,8 +247,8 @@ class SimpleBuyInteractorTest {
             it.first == limits.minAmount &&
                 it.second?.maxAmount == limits.maxAmount &&
                 it.second!!.quickFillButtons.size == 2 &&
-                it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(210)) &&
-                it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(450))
+                it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200)) &&
+                it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
     }
 
