@@ -12,6 +12,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.nfts.collection.NftCollectionViewModel
 import com.blockchain.nfts.collection.NftCollectionViewState
 import com.blockchain.nfts.domain.models.NftAsset
+import com.blockchain.nfts.domain.models.NftData
 
 @Composable
 fun NftCollection(viewModel: NftCollectionViewModel) {
@@ -33,6 +34,7 @@ fun NftCollectionScreen(nftCollection: DataResource<List<NftAsset>>) {
         }
 
         is DataResource.Error -> {
+            nftCollection.error.printStackTrace()
         }
 
         is DataResource.Data -> {
@@ -40,6 +42,7 @@ fun NftCollectionScreen(nftCollection: DataResource<List<NftAsset>>) {
                 if (isEmpty()) {
                     NftEmptyCollectionScreen()
                 } else {
+                    NftCollectionDataScreen(collection = this)
                 }
             }
         }
@@ -60,7 +63,13 @@ fun PreviewNftCollectionScreen_Empty() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewNftCollectionScreen_Data() {
-    NftCollectionScreen(nftCollection = DataResource.Data(emptyList()))
+    NftCollectionScreen(
+        nftCollection = DataResource.Data(
+            listOf(
+                NftAsset("", "", NftData("", "", listOf()))
+            )
+        )
+    )
 }
 
 @Preview(showBackground = true)

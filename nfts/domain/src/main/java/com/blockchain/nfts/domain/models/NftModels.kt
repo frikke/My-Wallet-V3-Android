@@ -9,5 +9,10 @@ data class NftAsset(
 data class NftData(
     val name: String,
     val description: String,
-    val attributes: List<String>
+    val traits: List<NftTrait>
+)
+
+data class NftTrait(
+    val name: String,
+    val value: String
 )

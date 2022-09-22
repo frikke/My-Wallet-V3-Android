@@ -1,6 +1,6 @@
 package com.blockchain.api.nfts.api
 
-import com.blockchain.api.nfts.data.NftAssetsResponse
+import com.blockchain.api.nfts.data.NftAssetsDto
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -10,5 +10,5 @@ interface NftApi {
     fun getAssetsForAddress(
         @Path("address") ownerAddress: String,
         //  @Body requestBody: NftAssetRequestBody
-    ): Single<NftAssetsResponse>
+    ): Single<NftAssetsDto>
 }

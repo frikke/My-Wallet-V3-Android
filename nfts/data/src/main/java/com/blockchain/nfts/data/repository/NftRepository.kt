@@ -1,11 +1,12 @@
 package com.blockchain.nfts.data.repository
 
-import com.blockchain.api.nfts.data.NftAssetsResponse
+import com.blockchain.api.nfts.data.NftAssetsDto
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nfts.data.dataresources.NftCollectionStore
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftData
+import com.blockchain.nfts.domain.models.NftTrait
 import com.blockchain.nfts.domain.service.NftService
 import com.blockchain.store.mapData
 import kotlinx.coroutines.flow.Flow
@@ -23,15 +24,20 @@ class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftSer
             }
     }
 
-    private fun NftAssetsResponse.mapToDomain(): List<NftAsset> =
-        this.assets.map {
+    private fun NftAssetsDto.mapToDomain(): List<NftAsset> =
+        this.assets.map { nftAsset ->
             NftAsset(
-                it.tokenId.orEmpty(),
-                it.imageUrl ?: it.imagePreviewUrl.orEmpty(),
-                NftData(
-                    it.name.orEmpty(),
-                    it.description.orEmpty(),
-                    it.traits
+                tokenId = nftAsset.tokenId.orEmpty(),
+                iconUrl = nftAsset.imageUrl ?: nftAsset.imagePreviewUrl.orEmpty(),
+                nftData = NftData(
+                    name = nftAsset.name.orEmpty(),
+                    description = nftAsset.description.orEmpty(),
+                    traits = nftAsset.traits.map { nftTrait ->
+                        NftTrait(
+                            name = nftTrait.name,
+                            value = nftTrait.value
+                        )
+                    }
                 )
             )
         }

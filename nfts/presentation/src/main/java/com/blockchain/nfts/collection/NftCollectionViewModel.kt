@@ -22,12 +22,10 @@ class NftCollectionViewModel(
         loadNftCollection()
     }
 
-    override fun reduce(state: NftCollectionModelState): NftCollectionViewState {
-        return with(state) {
-            NftCollectionViewState(
-                collection = state.collection
-            )
-        }
+    override fun reduce(state: NftCollectionModelState): NftCollectionViewState = state.run {
+        NftCollectionViewState(
+            collection = collection
+        )
     }
 
     override suspend fun handleIntent(modelState: NftCollectionModelState, intent: NftCollectionIntent) {

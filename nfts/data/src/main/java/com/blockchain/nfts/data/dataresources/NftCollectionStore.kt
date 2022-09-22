@@ -1,6 +1,6 @@
 package com.blockchain.nfts.data.dataresources
 
-import com.blockchain.api.nfts.data.NftAssetsResponse
+import com.blockchain.api.nfts.data.NftAssetsDto
 import com.blockchain.api.services.NftApiService
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
@@ -11,7 +11,7 @@ import com.blockchain.storedatasource.FlushableDataSource
 
 class NftCollectionStore(
     private val nftApiService: NftApiService
-) : Store<NftAssetsResponse> by PersistedJsonSqlDelightStoreBuilder()
+) : Store<NftAssetsDto> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = "NftCollectionStore",
         fetcher = Fetcher.ofSingle(
@@ -19,7 +19,7 @@ class NftCollectionStore(
                 nftApiService.getNftsForAddress(address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC")
             }
         ),
-        dataSerializer = NftAssetsResponse.serializer(),
+        dataSerializer = NftAssetsDto.serializer(),
         mediator = FreshnessMediator(Freshness.DURATION_24_HOURS)
     ),
     FlushableDataSource {
