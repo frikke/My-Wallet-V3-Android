@@ -3186,6 +3186,12 @@
     <!-- NFT -->
     <string name="nft_coming_soon_title">Coming soon!</string>
     <string name="nft_coming_soon_description">We’re working hard to support your NFTs in the wallet. We’ll send you an email when it’s time to update your app.</string>
+    <string name="nft_empty_title">You Don’t Have Any NFTs</string>
+    <string name="nft_empty_description">Send from any wallet, or buy from a marketplace!</string>
+    <string name="nft_cta_buy">Buy NFTs</string>
+    <string name="nft_help">How does this work?</string>
+
+    <!---->
     <string name="shortcuts">Shortcuts</string>
     <string name="exchange_your_crypto">Exchange your crypto</string>
     <string name="transfer_to_another_wallet">Transfer to another wallet</string>
