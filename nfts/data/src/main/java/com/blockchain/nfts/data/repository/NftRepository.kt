@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 
 class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftService {
 
-    override suspend fun getNftForAddress(
+    override suspend fun getNftCollectionForAddress(
         freshnessStrategy: FreshnessStrategy,
         network: String,
         address: String
@@ -24,10 +24,25 @@ class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftSer
             }
     }
 
+    override suspend fun getNftAsset(
+        freshnessStrategy: FreshnessStrategy,
+        network: String,
+        address: String,
+        nftId: String
+    ): Flow<DataResource<NftAsset?>> {
+        return getNftCollectionForAddress(
+            freshnessStrategy = freshnessStrategy,
+            network = network,
+            address = address
+        ).mapData {
+            it.firstOrNull { it.id == nftId }
+        }
+    }
+
     private fun NftAssetsDto.mapToDomain(): List<NftAsset> =
         this.assets.map { nftAsset ->
             NftAsset(
-                tokenId = nftAsset.tokenId.orEmpty(),
+                id = nftAsset.tokenId.orEmpty(),
                 iconUrl = nftAsset.imageUrl ?: nftAsset.imagePreviewUrl.orEmpty(),
                 nftData = NftData(
                     name = nftAsset.name.orEmpty(),

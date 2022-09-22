@@ -1,7 +1,7 @@
 package com.blockchain.nfts.domain.models
 
 data class NftAsset(
-    val tokenId: String,
+    val id: String,
     val iconUrl: String,
     val nftData: NftData
 )

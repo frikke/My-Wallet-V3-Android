@@ -1,7 +1,6 @@
 package com.blockchain.nfts.comingsoon
 
 import android.os.Bundle
-import android.util.StatsLog.logEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,7 +36,7 @@ KoinScopeComponent{
         logEvent(NftAnalyticsEvents.ScreenViewed)
 
         CoroutineScope(Dispatchers.IO).launch {
-            val data = nftService.getNftForAddress(address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC")
+            val data = nftService.getNftCollectionForAddress(address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC")
 
             withContext(Dispatchers.Main) {
 

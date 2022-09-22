@@ -6,9 +6,16 @@ import com.blockchain.nfts.domain.models.NftAsset
 import kotlinx.coroutines.flow.Flow
 
 interface NftService {
-    suspend fun getNftForAddress(
+    suspend fun getNftCollectionForAddress(
         freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true),
         network: String = "ETH",
         address: String
     ): Flow<DataResource<List<NftAsset>>>
+
+    suspend fun getNftAsset(
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true),
+        network: String = "ETH",
+        address: String,
+        nftId: String
+    ): Flow<DataResource<NftAsset?>>
 }

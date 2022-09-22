@@ -1,9 +1,9 @@
-package com.blockchain.nfts.collection
+package com.blockchain.nfts.detail
 
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.data.DataResource
 import com.blockchain.nfts.domain.models.NftAsset
 
-data class NftCollectionViewState(
-    val collection: DataResource<NftAsset>
+data class NftDetailViewState(
+    val asset: DataResource<NftAsset>
 ) : ViewState
