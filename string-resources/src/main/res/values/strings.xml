@@ -1826,7 +1826,7 @@
 
     <!-- Buy & Sell -->
     <string name="buy_and_sell">Buy &amp; Sell</string>
-    <string name="buy_with_cash">Buy with Cash or Card.</string>
+    <string name="buy_with_cash">Buy with a bank, card, or cash.</string>
     <string name="select_crypto_you_want">Select the crypto you want to buy.</string>
     <string name="sell_intro_kyc_title_1">Verify Your Identity</string>
     <string name="sell_intro_kyc_subtitle_1">To prevent identity theft or fraud, we’ll need a make sure it’s really you by uploading an ID.</string>

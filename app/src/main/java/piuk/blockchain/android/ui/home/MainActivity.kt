@@ -1002,6 +1002,7 @@ class MainActivity :
     override fun goToTrading() {
         analytics.logEvent(BuyDefiAnalyticsEvents.SwitchedToTrading)
         model.process(MainIntent.SwitchWalletMode(WalletMode.CUSTODIAL_ONLY))
+        startBuy()
     }
 
     override fun onSheetClosed() {
