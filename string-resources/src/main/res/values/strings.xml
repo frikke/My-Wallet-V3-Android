@@ -1733,7 +1733,7 @@
     <string name="send_enter_amount_error_invalid_amount_1">Send %1$s or more.</string>
     <string name="send_enter_invalid_password">Password is incorrect.</string>
     <string name="send_enter_unexpected_error">An unexpected error has occurred. Please try again.</string>
-    <string name="send_enter_insufficient_gas">You do not have enough ETH to process this transaction.</string>
+    <string name="send_enter_insufficient_gas">You do not have enough %1$s to process this transaction.</string>
     <string name="send_select_a_wallet_title">or Select a Wallet</string>
     <string name="send_select_a_wallet_warning">Only send %1$s to wallets on the (%2$s) network.\n<annotation link="send_network_options">Learn more</annotation></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s) is a token that might be available on multiple networks. Make sure you know the network of the wallet address you’re sending to before sending.</string>
@@ -1769,6 +1769,11 @@
     <string name="tx_enter_amount_withdraw_cta">Preview Withdrawal</string>
     <string name="tx_enter_amount_orders_limit_info">%1$d Transaction Allowed, Verify Now -></string>
     <string name="tx_confirmation_countdown">New quote in %1$s</string>
+    <string name="enter_amount_balance_row_sell_label">Available to sell</string>
+    <string name="enter_amount_balance_row_swap_label">Available to swap</string>
+    <string name="enter_amount_quickfill_25">25%</string>
+    <string name="enter_amount_quickfill_50">50%</string>
+    <string name="enter_amount_quickfill_75">75%</string>
 
     <!--Tx Flow Info messaging-->
     <string name="not_enough_funds">Not Enough %1$s</string>
@@ -1905,7 +1910,7 @@
 
     <!-- Transaction Flow confirmation screen -->
     <string name="confirm_status_msg_insufficient_funds">You have insufficient funds in this account to process this transaction</string>
-    <string name="confirm_status_msg_insufficient_gas">You do not have enough ETH to process this transaction.</string>
+    <string name="confirm_status_msg_insufficient_gas">You do not have enough %1$s to process this transaction.</string>
     <string name="confirm_status_msg_option_invalid">Please ensure you\'ve agreed to our Terms.</string>
     <string name="confirm_status_memo_invalid">Please add a memo.</string>
     <string name="confirm_status_msg_invoice_expired">BitPay Invoice Expired</string>
@@ -3093,8 +3098,8 @@
     <string name="address_update_success_description">Your billing address has been successfully changed and will take effect immediately.</string>
     <string name="address_update_failed">Address Update Failed</string>
     <string name="address_update_failed_description">Your billing address could not be updated. Please try again.</string>
-    <string name="verify_your_address">Verify Your Address</string>
-    <string name="verify_your_address_description">Confirm your residential address below to avoid delays.</string>
+    <string name="address_verification_title">Address Verification</string>
+    <string name="address_verification_description">Confirm your address below as part of a federal identity requirement.</string>
     <string name="residential_address">Residential Address</string>
     <string name="card_intro_title">Get the Blockchain.com Visa Card</string>
     <string name="merchant">Merchant</string>
@@ -3131,6 +3136,11 @@
     <string name="bc_card_transaction_original_amount">Total %1$s</string>
     <string name="bc_card_dashboard_legal_disclaimer">This Blockchain.com Visa® Card is issued by Pathward, N.A., Member FDIC, pursuant to a license from Visa U.S.A. Inc. Blockchain.com Visa card can be used everywhere Visa debit cards are accepted.</string>
     <string name="bc_card_transaction_refund_title">Refund by %1$s</string>
+    <string name="bc_card_out_of_funds_top_up">Your card is out of funds, top up</string>
+    <string name="bc_card_kyc_address_input_title">Home Address</string>
+    <string name="bc_card_kyc_commercial_address_not_accepted">PO Box or commercial address will not be accepted</string>
+    <string name="bc_card_kyc_ssn_secured_with_encryption">Information secured with 256-bit encryption</string>
+
 
     <!--  Sanctions  -->
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>

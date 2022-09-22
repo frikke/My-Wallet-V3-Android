@@ -32,6 +32,13 @@ android {
             keyAlias buildProperties.secrets['debugKeyAlias'].toString()
         }
 
+        prod {
+            storeFile file('blockchainAndroid.keystore')
+            storePassword buildProperties.secrets['keyPasswordProd'].toString()
+            keyPassword buildProperties.secrets['keyPasswordProd'].toString()
+            keyAlias buildProperties.secrets['prodKeyAlias'].toString()
+        }
+
         prodInternal {
             storeFile file('blockchainInternalKey.keystore')
             storePassword buildProperties.secrets['keyPasswordInternal'].toString()
@@ -143,6 +150,8 @@ android {
             if (ciVersionCode != null) {
                 versionCode = ciVersionCode.toInteger()
             }
+
+            signingConfig signingConfigs.prod
         }
 
         envInternalProd {
@@ -194,6 +203,8 @@ android {
                 versionCode = ciVersionCode.toInteger()
                 versionNameSuffix = ".${ciVersionCode}_alpha"
             }
+
+            signingConfig signingConfigs.prodInternal
         }
 
         envStaging {
@@ -240,6 +251,8 @@ android {
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"
+
+            signingConfig signingConfigs.debug
         }
     }
 
@@ -254,6 +267,7 @@ android {
             multiDexEnabled true
         }
         debug {
+            signingConfig null
             multiDexEnabled true
             buildConfigField "boolean",  "SKIP_VERIFF_KYC", "false"
         }
@@ -344,6 +358,7 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':common:network')
     implementation project(':common:domain')
+    implementation project(':common:presentation')
     implementation project(':payments:checkoutcom')
     implementation project(':payments:stripe')
     implementation project(':payments:googlepay')
@@ -373,11 +388,15 @@ dependencies {
     implementation project(':appRating:domain')
     implementation project(':appRating:presentaion')
 
+    implementation project(':fraud:data')
+    implementation project(':fraud:domain')
+
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
 
     implementation Libraries.koin
     implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
 
     // Views
     implementation Libraries.countryPicker
@@ -448,6 +467,7 @@ dependencies {
     implementation Libraries.rxBindingCompat
     implementation Libraries.rxBindingCore
     implementation Libraries.rxjava3Coroutines
+    implementation Libraries.rxKotlin
 
     //Animations
     implementation Libraries.lottie

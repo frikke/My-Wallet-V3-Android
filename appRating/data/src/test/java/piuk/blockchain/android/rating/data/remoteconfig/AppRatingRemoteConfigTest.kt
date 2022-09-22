@@ -1,7 +1,7 @@
 package piuk.blockchain.android.rating.data.remoteconfig
 
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.outcome.Outcome
-import com.blockchain.remoteconfig.RemoteConfig
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
@@ -12,7 +12,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppRatingRemoteConfigTest {
-    private val remoteConfig = mockk<RemoteConfig>()
+    private val remoteConfig = mockk<RemoteConfigService>()
 
     private val appRatingRemoteConfig = AppRatingRemoteConfig(remoteConfig)
 

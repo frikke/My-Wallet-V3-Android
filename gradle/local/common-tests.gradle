@@ -1,0 +1,15 @@
+dependencies {
+    // Unit Tests
+    testImplementation project(':testutils')
+    testImplementation Libraries.kotlinTest
+    testImplementation Libraries.kotlinCoroutinesTest
+    testImplementation Libraries.coreTesting
+    testImplementation Libraries.mockk
+    testImplementation Libraries.kluent
+    testImplementation Libraries.turbine
+    testImplementation Libraries.junit
+    testImplementation Libraries.koinTest
+    testImplementation(Libraries.mockitoKotlin) {
+        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
+    }
+}

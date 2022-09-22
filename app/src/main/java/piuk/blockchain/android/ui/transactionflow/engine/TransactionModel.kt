@@ -34,6 +34,7 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -49,6 +50,7 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.Stack
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
@@ -136,7 +138,10 @@ data class TransactionState(
     val locks: FundsLocks? = null,
     val shouldShowSendToDomainBanner: Boolean = false,
     override val transactionsLimit: TransactionsLimit? = null,
-    val featureBlockedReason: BlockedReason? = null
+    val featureBlockedReason: BlockedReason? = null,
+    val quickFillButtonData: QuickFillButtonData? = null,
+    val amountsToPrefill: PrefillAmounts? = null,
+    val ffSwapSellQuickFillsEnabled: Boolean = false
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -349,7 +354,9 @@ class TransactionModel(
             is TransactionIntent.SendToDomainPrefLoaded,
             is TransactionIntent.FundsLocksLoaded,
             is TransactionIntent.ShowFeatureBlocked,
-            is TransactionIntent.FiatDepositOptionSelected -> null
+            is TransactionIntent.FiatDepositOptionSelected,
+            is TransactionIntent.UpdatePrefillAmount,
+            is TransactionIntent.ResetPrefillAmount -> null
         }
     }
 
@@ -552,19 +559,21 @@ class TransactionModel(
         passwordRequired: Boolean
     ): Disposable =
         fetchProductEligibility(action, sourceAccount, transactionTarget)
+            .zipWith(interactor.isSwapSellQuickFillFFEnabled().toMaybe())
             .subscribeBy(
-                onSuccess = {
-                    if (it is FeatureAccess.Blocked) {
-                        process(TransactionIntent.ShowFeatureBlocked(it.reason))
+                onSuccess = { (featureAccess, swapSellFFEnabled) ->
+                    if (featureAccess is FeatureAccess.Blocked) {
+                        process(TransactionIntent.ShowFeatureBlocked(featureAccess.reason))
                     } else {
                         process(
                             TransactionIntent.InitialiseTransaction(
-                                sourceAccount,
-                                amount,
-                                transactionTarget,
-                                action,
-                                passwordRequired,
-                                it
+                                sourceAccount = sourceAccount,
+                                amount = amount,
+                                transactionTarget = transactionTarget,
+                                action = action,
+                                passwordRequired = passwordRequired,
+                                eligibility = featureAccess,
+                                isSellSwapQuickFillFlagEnabled = swapSellFFEnabled
                             )
                         )
                     }
@@ -572,22 +581,22 @@ class TransactionModel(
                 onComplete = {
                     process(
                         TransactionIntent.InitialiseTransaction(
-                            sourceAccount,
-                            amount,
-                            transactionTarget,
-                            action,
-                            passwordRequired
+                            sourceAccount = sourceAccount,
+                            amount = amount,
+                            transactionTarget = transactionTarget,
+                            action = action,
+                            passwordRequired = passwordRequired
                         )
                     )
                 },
                 onError = {
                     process(
                         TransactionIntent.InitialiseTransaction(
-                            sourceAccount,
-                            amount,
-                            transactionTarget,
-                            action,
-                            passwordRequired
+                            sourceAccount = sourceAccount,
+                            amount = amount,
+                            transactionTarget = transactionTarget,
+                            action = action,
+                            passwordRequired = passwordRequired
                         )
                     )
                     Timber.i(it)
@@ -602,17 +611,21 @@ class TransactionModel(
         eligibility: FeatureAccess?
     ): Disposable =
         interactor.initialiseTransaction(sourceAccount, transactionTarget, action)
-            .doOnFirst {
-                if (it.validationState == ValidationState.UNINITIALISED ||
-                    it.validationState == ValidationState.CAN_EXECUTE
+            .doOnFirst { pTx ->
+                if (pTx.validationState == ValidationState.UNINITIALISED ||
+                    pTx.validationState == ValidationState.CAN_EXECUTE
                 ) {
                     onFirstUpdate(amount)
                 }
             }
             .subscribeBy(
-                onNext = {
+                onNext = { pTx ->
                     val transactionsLimit = (eligibility as? FeatureAccess.Granted)?.transactionsLimit
-                    process(TransactionIntent.PendingTxUpdated(it.copy(transactionsLimit = transactionsLimit)))
+                    process(
+                        TransactionIntent.PendingTxUpdated(
+                            pendingTx = pTx.copy(transactionsLimit = transactionsLimit)
+                        )
+                    )
                 },
                 onError = {
                     Timber.e("!TRANSACTION!> Processor failed: $it")
@@ -777,3 +790,8 @@ fun <T> Observable<T>.doOnFirst(onAction: (T) -> Unit): Observable<T> {
         }
     }
 }
+
+data class PrefillAmounts(
+    val cryptoValue: Money,
+    val fiatValue: Money
+)

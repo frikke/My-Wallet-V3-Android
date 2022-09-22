@@ -38,6 +38,7 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.connectivity.ConnectivityManager
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.ui.ssl.SSLVerifyActivity
 import piuk.blockchain.android.util.AppAnalytics
@@ -61,6 +62,7 @@ open class BlockchainApplication : Application() {
     private val analytics: Analytics by inject()
     private val remoteLogger: RemoteLogger by inject()
     private val trust: SiftDigitalTrust by inject()
+    private val fraudService: FraudService by inject()
 
     private val lifecycleListener: AppLifecycleListener by lazy {
         AppLifecycleListener(lifeCycleInterestedComponent, remoteLogger)
@@ -91,6 +93,7 @@ open class BlockchainApplication : Application() {
         KoinStarter.start(this)
         initRemoteLogger()
         initLifecycleListener()
+        fraudService.updateSessionId()
 
         if (environmentSettings.isCompanyInternalBuild() || environmentSettings.isRunningInDebugMode()) {
             Intercom.initialize(this, BuildConfig.INTERCOM_API_KEY, BuildConfig.INTERCOM_APP_ID)

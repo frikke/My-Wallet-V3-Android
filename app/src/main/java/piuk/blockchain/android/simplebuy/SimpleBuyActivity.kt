@@ -30,6 +30,7 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
@@ -207,7 +208,10 @@ class SimpleBuyActivity :
                     is BuyNavigation.CurrencySelection -> launchCurrencySelector(it.currencies, it.selectedCurrency)
                     is BuyNavigation.FlowScreenWithCurrency -> startFlow(it)
                     is BuyNavigation.BlockBuy -> blockBuy(it.reason)
-                    BuyNavigation.OrderInProgressScreen -> goToPaymentScreen(false, startedFromApprovalDeepLink)
+                    BuyNavigation.OrderInProgressScreen -> goToPaymentScreen(
+                        addToBackStack = false,
+                        isPaymentAuthorised = startedFromApprovalDeepLink
+                    )
                     BuyNavigation.CurrencyNotAvailable -> finish()
                 }.exhaustive
             }
@@ -361,13 +365,16 @@ class SimpleBuyActivity :
     override fun goToPaymentScreen(
         addToBackStack: Boolean,
         isPaymentAuthorised: Boolean,
-        showRecurringBuySuggestion: Boolean
+        showRecurringBuySuggestion: Boolean,
+        recurringBuyFrequencyRemote: RecurringBuyFrequency?
     ) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(
                 R.id.content_frame,
-                SimpleBuyPaymentFragment.newInstance(isPaymentAuthorised, showRecurringBuySuggestion),
+                SimpleBuyPaymentFragment.newInstance(
+                    isPaymentAuthorised, showRecurringBuySuggestion, recurringBuyFrequencyRemote
+                ),
                 SimpleBuyPaymentFragment::class.simpleName
             )
             .apply {

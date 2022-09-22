@@ -98,9 +98,8 @@ private fun ColumnScope.SearchStep(
             }
         }
 
-        val suggestions = state.results
-        if (state.showManualOverride) {
-            Column {
+        Column {
+            if (state.showManualOverride) {
                 SimpleText(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -113,50 +112,51 @@ private fun ColumnScope.SearchStep(
                     color = ComposeColors.Primary,
                     gravity = ComposeGravities.Start
                 )
+            }
 
-                val listState = rememberLazyListState()
+            val listState = rememberLazyListState()
+            val suggestions = state.results
 
-                LaunchedEffect(suggestions) {
-                    listState.scrollToItem(0)
-                }
+            LaunchedEffect(suggestions) {
+                listState.scrollToItem(0)
+            }
 
-                LazyColumn(
-                    modifier = Modifier.padding(vertical = AppTheme.dimensions.tinySpacing),
-                    state = listState,
-                ) {
-                    itemsIndexed(
-                        items = suggestions,
-                        itemContent = { index, suggestion ->
-                            Box(
-                                modifier = Modifier.clickable {
-                                    onIntent(AddressVerificationIntent.ResultClicked(suggestion))
-                                }
-                            ) {
-                                AutoCompleteItem(
-                                    isContainer = suggestion.type != AutocompleteAddressType.ADDRESS,
-                                    containedAddressesCount = suggestion.containedAddressesCount,
-                                    isLoading = state.loadingAddressDetails == suggestion,
-                                    title = suggestion.title,
-                                    titleHighlightRange = suggestion.titleHighlightRanges,
-                                    description = suggestion.description,
-                                    descriptionHighlightRange = suggestion.descriptionHighlightRanges
-                                )
+            LazyColumn(
+                modifier = Modifier.padding(vertical = AppTheme.dimensions.tinySpacing),
+                state = listState,
+            ) {
+                itemsIndexed(
+                    items = suggestions,
+                    itemContent = { index, suggestion ->
+                        Box(
+                            modifier = Modifier.clickable {
+                                onIntent(AddressVerificationIntent.ResultClicked(suggestion))
                             }
-                            if (index < suggestions.lastIndex)
-                                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                        ) {
+                            AutoCompleteItem(
+                                isContainer = suggestion.type != AutocompleteAddressType.ADDRESS,
+                                containedAddressesCount = suggestion.containedAddressesCount,
+                                isLoading = state.loadingAddressDetails == suggestion,
+                                title = suggestion.title,
+                                titleHighlightRange = suggestion.titleHighlightRanges,
+                                description = suggestion.description,
+                                descriptionHighlightRange = suggestion.descriptionHighlightRanges
+                            )
                         }
-                    )
-                }
+                        if (index < suggestions.lastIndex)
+                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                    }
+                )
+            }
 
-                if (suggestions.isEmpty()) {
-                    SimpleText(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.common_no_results_found),
-                        style = ComposeTypographies.Paragraph1,
-                        color = ComposeColors.Title,
-                        gravity = ComposeGravities.Centre,
-                    )
-                }
+            if (suggestions.isEmpty()) {
+                SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.common_no_results_found),
+                    style = ComposeTypographies.Paragraph1,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Centre,
+                )
             }
         }
     }

@@ -8,6 +8,7 @@ import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.storedatasource.KeyedFlushableDataSource
 import java.math.BigInteger
+import kotlinx.coroutines.rx3.await
 import kotlinx.serialization.Serializable
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
@@ -21,6 +22,7 @@ class L1BalanceStore(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofOutcome(
             mapper = { key ->
+                ethDataManager.initEthereumWalletIfNeeded().await()
                 ethDataManager.getBalance(key.nodeUrl)
             }
         ),

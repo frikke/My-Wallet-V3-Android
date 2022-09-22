@@ -3,6 +3,7 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
+import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import info.blockchain.balance.AssetInfo
 
 interface SimpleBuyScreen : SlidingModalBottomDialog.Host {
@@ -33,7 +34,8 @@ interface SimpleBuyNavigator :
     fun goToPaymentScreen(
         addToBackStack: Boolean = true,
         isPaymentAuthorised: Boolean = false,
-        showRecurringBuySuggestion: Boolean = false
+        showRecurringBuySuggestion: Boolean = false,
+        recurringBuyFrequencyRemote: RecurringBuyFrequency? = RecurringBuyFrequency.ONE_TIME
     )
     fun goToSetupFirstRecurringBuy(addToBackStack: Boolean = true)
     fun goToFirstRecurringBuyCreated(addToBackStack: Boolean = true)

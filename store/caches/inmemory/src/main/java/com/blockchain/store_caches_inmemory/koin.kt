@@ -7,5 +7,4 @@ val storeCachesInMemoryModule = module {
     single {
         InMemoryCacheWiper(InMemoryCacheProvider)
     }
-
 }

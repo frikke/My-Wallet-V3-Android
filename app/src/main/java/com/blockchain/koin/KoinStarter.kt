@@ -40,6 +40,7 @@ import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.campaign.campaignModule
+import piuk.blockchain.android.fraud.data.fraudDataModule
 import piuk.blockchain.android.maintenance.data.appMaintenanceDataModule
 import piuk.blockchain.android.maintenance.domain.appMaintenanceDomainModule
 import piuk.blockchain.android.maintenance.presentation.appMaintenancePresentationModule
@@ -75,6 +76,7 @@ import piuk.blockchain.android.ui.settings.v2.redesignSettingsModule
 import piuk.blockchain.android.ui.start.startupUiModule
 import piuk.blockchain.android.ui.transactionflow.transactionModule
 import piuk.blockchain.android.ui.transfer.receive.receiveCryptoModule
+import piuk.blockchain.android.util.accessibilityModule
 import piuk.blockchain.com.internalFeatureFlagsModule
 import timber.log.Timber
 
@@ -135,6 +137,7 @@ object KoinStarter {
                     deeplinkModule,
                     loggingModule,
                     analyticsModule,
+                    accessibilityModule,
                     customerSupportModule,
                     storeCachesInMemoryModule,
                     storeCachesPersistedJsonSqlDelightModule,
@@ -150,7 +153,7 @@ object KoinStarter {
                     pricesPresentationModule,
                     bankAliasLinkPresentationModule,
                     educationalWalletModesPresentationModule,
-
+                    fraudDataModule,
                     multiAppModule
                 )
             )

@@ -1,6 +1,5 @@
 package com.blockchain.core.chains.erc20
 
-import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
@@ -21,8 +20,10 @@ import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
+import info.blockchain.wallet.api.data.FeeOptions
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -75,6 +76,8 @@ interface Erc20DataManager {
         secondPassword: String = "",
         l1Chain: String
     ): Single<ByteArray>
+
+    fun getFeesForEvmTransaction(l1Chain: String): Single<FeeOptions>
 
     fun pushErc20Transaction(signedTxBytes: ByteArray, l1Chain: String): Single<String>
 
@@ -352,6 +355,9 @@ internal class Erc20DataManagerImpl(
             } ?: throw IllegalAccessException("Unsupported EVM Network")
         }
 
+    override fun getFeesForEvmTransaction(l1Chain: String): Single<FeeOptions> =
+        ethDataManager.getFeesForEvmTx(l1Chain)
+
     override fun pushErc20Transaction(signedTxBytes: ByteArray, l1Chain: String): Single<String> =
         ethDataManager.supportedNetworks.flatMap { supportedNetworks ->
             supportedNetworks.firstOrNull { it.networkTicker == l1Chain }?.let { evmNetwork ->
@@ -401,21 +407,23 @@ internal class Erc20DataManagerImpl(
         balance: BigInteger
     ): Observable<Erc20Balance> {
         val hasNativeTokenBalance = balance > BigInteger.ZERO
-        val shouldShow = evmWithoutL1BalanceFeatureFlag.isEnabled || hasNativeTokenBalance
-        val isOnOtherEvm = evmNetwork.chainId != EthDataManager.ETH_CHAIN_ID
-        return when {
-            // Only load L2 balances if we have a balance of the network's native token
-            isOnOtherEvm && shouldShow -> {
-                erc20L2StoreService.getBalances(networkTicker = evmNetwork.networkTicker)
-                    .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
-            }
+        return evmWithoutL1BalanceFeatureFlag.enabled.flatMapObservable { isEnabled ->
+            val shouldShow = isEnabled || hasNativeTokenBalance
+            val isOnOtherEvm = evmNetwork.chainId != EthDataManager.ETH_CHAIN_ID
+            when {
+                // Only load L2 balances if we have a balance of the network's native token
+                isOnOtherEvm && shouldShow -> {
+                    erc20L2StoreService.getBalances(networkTicker = evmNetwork.networkTicker)
+                        .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
+                }
 
-            isOnOtherEvm.not() -> {
-                erc20StoreService.getBalanceFor(asset = asset)
-            }
+                isOnOtherEvm.not() -> {
+                    erc20StoreService.getBalanceFor(asset = asset)
+                }
 
-            else -> {
-                Observable.just(Erc20Balance.zero(asset))
+                else -> {
+                    Observable.just(Erc20Balance.zero(asset))
+                }
             }
         }
     }
@@ -431,5 +439,7 @@ internal class Erc20DataManagerImpl(
 
 fun Currency.isErc20() =
     (this as? AssetInfo)?.l1chainTicker?.let {
-        it in AssetDiscoveryApiService.supportedErc20Chains
+        CryptoCurrency.evmCurrencies.find { evmCurrency ->
+            evmCurrency.networkTicker == it || evmCurrency.displayTicker == it
+        } != null
     } ?: false

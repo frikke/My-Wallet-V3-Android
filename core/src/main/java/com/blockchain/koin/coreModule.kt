@@ -6,6 +6,9 @@ import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.Database
 import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
+import com.blockchain.core.asset.data.AssetRepository
+import com.blockchain.core.asset.data.dataresources.AssetInformationStore
+import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.buy.data.SimpleBuyRepository
@@ -69,6 +72,7 @@ import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistDataManagerImpl
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
@@ -96,6 +100,7 @@ import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.remoteconfig.RemoteConfigRepository
 import com.blockchain.storedatasource.StoreWiper
 import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
@@ -334,7 +339,8 @@ val coreModule = module {
                 metadataRepository = get(),
                 lastTxUpdater = get(),
                 evmNetworksService = get(),
-                nonCustodialEvmService = get()
+                nonCustodialEvmService = get(),
+                labels = get()
             )
         }.bind(EthMessageSigner::class)
 
@@ -580,7 +586,7 @@ val coreModule = module {
                 payloadDataManager = get(),
                 currencyPrefs = get(),
                 assetCatalogue = get(),
-                remoteConfig = get()
+                remoteConfigService = get()
             )
         }
 
@@ -593,10 +599,31 @@ val coreModule = module {
     }
 
     single {
+        RemoteConfigRepository(
+            firebaseRemoteConfig = get(),
+            remoteConfigPrefs = get(),
+            experimentsStore = get(),
+            json = get(),
+        )
+    }.bind(RemoteConfigService::class)
+
+    single {
         DynamicAssetsDataManagerImpl(
             discoveryService = get(),
         )
     }.bind(DynamicAssetsDataManager::class)
+
+    single {
+        AssetInformationStore(
+            discoveryService = get()
+        )
+    }
+
+    single<AssetService> {
+        AssetRepository(
+            assetInformationStore = get()
+        )
+    }
 
     factory {
         AndroidDeviceIdGenerator(
@@ -687,4 +714,4 @@ val coreModule = module {
 }
 
 fun experimentalL1EvmAssetList(): Set<CryptoCurrency> =
-    setOf(CryptoCurrency.MATIC, CryptoCurrency.BNB)
+    setOf(CryptoCurrency.MATIC, CryptoCurrency.BNB, CryptoCurrency.AVAX)

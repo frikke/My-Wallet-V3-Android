@@ -9,9 +9,6 @@ import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.NotificationTokenProvider
 import com.blockchain.notifications.links.DynamicLinkHandler
 import com.blockchain.notifications.links.PendingLink
-import com.blockchain.remoteconfig.ABTestExperiment
-import com.blockchain.remoteconfig.RemoteConfig
-import com.blockchain.remoteconfig.RemoteConfiguration
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
@@ -51,16 +48,5 @@ val notificationModule = module {
         FirebaseRemoteConfig.getInstance().apply {
             setConfigSettingsAsync(config)
         }
-    }
-
-    factory {
-        RemoteConfiguration(
-            remoteConfig = get(),
-            environmentConfig = get(),
-            remoteConfigPrefs = get()
-        )
-    }.apply {
-        bind(RemoteConfig::class)
-        bind(ABTestExperiment::class)
     }
 }

@@ -6,7 +6,7 @@ import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.Money
 
 data class MultiAppModelState(
-    val walletModes: List<WalletMode> = WalletMode.values().toList().minus(WalletMode.UNIVERSAL),
+    val walletModes: List<WalletMode>,
     val selectedWalletMode: WalletMode,
     val totalBalance: DataResource<Money> = DataResource.Loading
 ) : ModelState

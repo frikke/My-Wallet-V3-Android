@@ -1,5 +1,7 @@
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
 
 dependencies {
     implementation project(':blockchainApi')
+
+    implementation Libraries.rxJava
 }

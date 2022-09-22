@@ -46,6 +46,7 @@ class UnknownValue private constructor(
         require(other.currencyCode == currencyCode)
         return 0
     }
+    override fun multiply(multiplier: Float): Money = this
 
     companion object {
         fun unknownValue(currency: Currency) =

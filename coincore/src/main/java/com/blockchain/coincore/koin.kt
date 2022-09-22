@@ -17,7 +17,6 @@ import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetRepository
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.koin.payloadScope
@@ -25,7 +24,6 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -85,12 +83,6 @@ val coincoreModule = module {
         }.bind(CryptoAsset::class)
 
         scoped {
-            val flag: FeatureFlag = get(ethLayerTwoFeatureFlag)
-            val ncAssetList = if (flag.isEnabled) {
-                emptyList<AssetInfo>()
-            } else {
-                experimentalL1EvmAssetList()
-            }
             Coincore(
                 assetCatalogue = get(),
                 payloadManager = get(),
@@ -101,7 +93,8 @@ val coincoreModule = module {
                 remoteLogger = get(),
                 bankService = get(),
                 walletModeService = get(),
-                disabledEvmAssets = ncAssetList.toList(),
+                ethLayerTwoFF = get(ethLayerTwoFeatureFlag)
+
             )
         }
 
@@ -218,13 +211,10 @@ val coincoreModule = module {
     single {
         UniversalDynamicAssetRepository(
             dominantL1Assets = setOf(
-                CryptoCurrency.MATIC,
                 CryptoCurrency.BTC,
                 CryptoCurrency.BCH,
-                CryptoCurrency.XLM,
-                CryptoCurrency.ETHER,
-                CryptoCurrency.BNB
-            ),
+                CryptoCurrency.XLM
+            ).plus(CryptoCurrency.evmCurrencies),
             discoveryService = get(),
             l2sDynamicAssetRepository = get()
         )
