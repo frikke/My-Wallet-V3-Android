@@ -10,7 +10,11 @@ import com.blockchain.componentlib.theme.Blue400
 import com.blockchain.componentlib.theme.Dark600
 
 @Composable
-fun InfoAltTag(text: String, size: TagSize = TagSize.Primary, onClick: (() -> Unit)?) {
+fun InfoAltTag(
+    text: String,
+    size: TagSize = TagSize.Primary,
+    onClick: (() -> Unit)? = null
+) {
 
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
         Blue200

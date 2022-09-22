@@ -161,7 +161,7 @@ open class CryptoCurrency(
         startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
         colour = "#8247E5",
         logo = "file:///android_asset/logo/matic/logo.png",
-        txExplorerUrlBase = "https://www.blockchain.com/matic/tx/"
+        txExplorerUrlBase = "https://polygonscan.com/tx/"
     )
 
     object BNB : CryptoCurrency(
@@ -176,6 +176,25 @@ open class CryptoCurrency(
         logo = "file:///android_asset/logo/bsc/logo.png",
         txExplorerUrlBase = "https://bscscan.com/tx/"
     )
+
+    object AVAX : CryptoCurrency(
+        displayTicker = "AVAX",
+        networkTicker = "AVAX",
+        name = "Avalanche",
+        categories = setOf(AssetCategory.NON_CUSTODIAL),
+        precisionDp = 18,
+        requiredConfirmations = 12,
+        startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
+        colour = "#E84142",
+        logo = "file:///android_asset/logo/avax/logo.png",
+        txExplorerUrlBase = "https://snowtrace.io/tx/"
+    )
+
+    companion object {
+        val evmCurrencies by lazy {
+            listOf(ETHER, MATIC, BNB, AVAX)
+        }
+    }
 }
 
 private const val BITCOIN_ORDER_INDEX = 4

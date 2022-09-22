@@ -217,14 +217,14 @@ data class TransactionState(
         }
     }
 
-    fun availableBalanceInFiat(availableBalance: Money, fiatRate: ExchangeRate?): Money {
-        return if (availableBalance is CryptoValue &&
+    fun convertBalanceToFiat(balance: Money, fiatRate: ExchangeRate?): Money {
+        return if (balance is CryptoValue &&
             fiatRate != null &&
-            fiatRate.canConvert(availableBalance)
+            fiatRate.canConvert(balance)
         ) {
-            fiatRate.convert(availableBalance)
+            fiatRate.convert(balance)
         } else {
-            availableBalance
+            balance
         }
     }
 }

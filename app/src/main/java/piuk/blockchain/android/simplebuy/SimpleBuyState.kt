@@ -281,7 +281,7 @@ data class BuyQuote(
 ) {
 
     companion object {
-        private const val MIN_QUOTE_REFRESH = 30L
+        private const val MIN_QUOTE_REFRESH = 90L
 
         fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: FiatCurrency, orderFee: Money?) =
             BuyQuote(

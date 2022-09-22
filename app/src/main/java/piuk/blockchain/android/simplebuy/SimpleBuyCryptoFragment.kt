@@ -90,12 +90,12 @@ import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.transactionflow.analytics.InfoBottomSheetDismissed
 import piuk.blockchain.android.ui.transactionflow.analytics.InfoBottomSheetKycUpsellActionClicked
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
-import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowInfoBottomSheet
-import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowInfoHost
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoActionType
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoBottomSheetType
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
+import piuk.blockchain.android.ui.transactionflow.flow.sheets.TransactionFlowInfoBottomSheet
+import piuk.blockchain.android.ui.transactionflow.flow.sheets.TransactionFlowInfoHost
 import piuk.blockchain.android.util.StringLocalizationUtil
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 

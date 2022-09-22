@@ -6,7 +6,6 @@ import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.outcome.Outcome
-import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.eq
@@ -63,7 +62,6 @@ class EthDataManagerTest {
         on { getSupportedNetworks() }.thenReturn(Single.just(emptyList()))
     }
     private val nonCustodialEvmService: NonCustodialEvmService = mock()
-    private val labels: DefaultLabels = mock()
 
     private val subject = EthDataManager(
         payloadDataManager = payloadManager,
@@ -72,8 +70,7 @@ class EthDataManagerTest {
         metadataRepository = metadataRepository,
         lastTxUpdater = lastTxUpdater,
         evmNetworksService = evmNetworksService,
-        nonCustodialEvmService = nonCustodialEvmService,
-        labels = labels
+        nonCustodialEvmService = nonCustodialEvmService
     )
 
     @Test

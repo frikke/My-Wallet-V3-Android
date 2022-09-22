@@ -339,14 +339,14 @@ val coreModule = module {
                 metadataRepository = get(),
                 lastTxUpdater = get(),
                 evmNetworksService = get(),
-                nonCustodialEvmService = get(),
-                labels = get()
+                nonCustodialEvmService = get()
             )
         }.bind(EthMessageSigner::class)
 
         scoped {
             L1BalanceStore(
-                ethDataManager = get()
+                ethDataManager = get(),
+                remoteLogger = get()
             )
         }
 
@@ -652,7 +652,8 @@ val coreModule = module {
             idGenerator = get(),
             uuidGenerator = get(),
             assetCatalogue = get(),
-            environmentConfig = get()
+            environmentConfig = get(),
+            defaultSharedPreferencesName = PreferenceManager.getDefaultSharedPreferencesName(get())
         )
     }.apply {
         bind(SessionPrefs::class)
@@ -714,4 +715,4 @@ val coreModule = module {
 }
 
 fun experimentalL1EvmAssetList(): Set<CryptoCurrency> =
-    setOf(CryptoCurrency.MATIC, CryptoCurrency.BNB)
+    setOf(CryptoCurrency.MATIC, CryptoCurrency.BNB, CryptoCurrency.AVAX)

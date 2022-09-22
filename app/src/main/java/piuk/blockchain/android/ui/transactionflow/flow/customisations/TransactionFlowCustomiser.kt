@@ -31,6 +31,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
+import info.blockchain.balance.asAssetInfoOrThrow
 import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -341,6 +342,20 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestDeposit -> resources.getString(R.string.tx_enter_amount_transfer_cta)
             AssetAction.FiatDeposit -> resources.getString(R.string.tx_enter_amount_deposit_cta)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
+        }
+
+    override fun getFeeSheetTitle(state: TransactionState): String =
+        when (state.action) {
+            AssetAction.Swap -> resources.getString(R.string.tx_enter_amount_swap_fees_title)
+            AssetAction.Sell -> resources.getString(R.string.tx_enter_amount_sell_fees_title)
+            else -> throw IllegalStateException("${state.action} is not supported for fee sheet title")
+        }
+
+    override fun getFeeSheetAvailableLabel(state: TransactionState): String =
+        when (state.action) {
+            AssetAction.Swap -> resources.getString(R.string.tx_enter_amount_fee_sheet_swap_available_label)
+            AssetAction.Sell -> resources.getString(R.string.tx_enter_amount_fee_sheet_sell_available_label)
+            else -> throw IllegalStateException("${state.action} is not supported for fee sheet label")
         }
 
     override fun confirmTitle(state: TransactionState): String =
@@ -775,7 +790,8 @@ class TransactionFlowCustomiserImpl(
                 R.string.send_enter_invalid_password
             )
             TransactionErrorState.NOT_ENOUGH_GAS -> resources.getString(
-                R.string.send_enter_insufficient_gas
+                R.string.send_enter_insufficient_gas,
+                state.sendingAsset.asAssetInfoOrThrow().l1chainTicker ?: state.sendingAsset.displayTicker
             )
             TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
             TransactionErrorState.BELOW_MIN_LIMIT,

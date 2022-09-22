@@ -1,6 +1,9 @@
 package com.blockchain.preferences
 
 interface NotificationPrefs {
-    var arePushNotificationsEnabled: Boolean
-    var firebaseToken: String
+    suspend fun arePushNotificationsEnabled(): Boolean
+    suspend fun setPushNotificationsEnabled(pushNotificationsEnabled: Boolean)
+
+    suspend fun getFirebaseToken(): String
+    suspend fun setFirebaseToken(firebaseToken: String)
 }

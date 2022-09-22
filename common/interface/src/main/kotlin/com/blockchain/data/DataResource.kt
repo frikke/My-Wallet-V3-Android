@@ -14,6 +14,14 @@ sealed class DataResource<out T> {
     data class Error(val error: Exception) : DataResource<Nothing>()
 }
 
+fun <T, R> DataResource<T>.map(transform: (T) -> R): DataResource<R> {
+    return when (this) {
+        DataResource.Loading -> DataResource.Loading
+        is DataResource.Error -> DataResource.Error(error)
+        is DataResource.Data -> DataResource.Data(transform(data))
+    }
+}
+
 fun <T> List<DataResource<T>>.anyLoading() = any { it is DataResource.Loading }
 fun <T> List<DataResource<T>>.anyError() = any { it is DataResource.Error }
 fun <T> List<DataResource<T>>.getFirstError() = (first { it is DataResource.Error } as DataResource.Error)

@@ -27,5 +27,6 @@ include ':app',
         ':appRating:data', ':appRating:domain', ':appRating:presentaion',
         ':defiwalletbackup:data', ':defiwalletbackup:domain', ':defiwalletbackup:presentation',
         ':nfts:data', ':nfts:domain', ':nfts:presentation',
-        ':string-resources'
+        ':string-resources',
+        ':fraud:data', ':fraud:domain'
 

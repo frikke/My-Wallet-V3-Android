@@ -6,6 +6,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
 import androidx.annotation.VisibleForTesting
+import androidx.datastore.preferences.SharedPreferencesMigration
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AppMaintenancePrefs
@@ -34,6 +39,8 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.crypto.AESUtil
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -53,6 +60,7 @@ class PrefsUtil(
     private val uuidGenerator: UUIDGenerator,
     private val assetCatalogue: AssetCatalogue,
     private val environmentConfig: EnvironmentConfig,
+    private val defaultSharedPreferencesName: String
 ) : SessionPrefs,
     CurrencyPrefs,
     NotificationPrefs,
@@ -74,6 +82,13 @@ class PrefsUtil(
     LocalSettingsPrefs,
     EducationalScreensPrefs,
     CowboysPrefs {
+
+    private val Context.dataStore by preferencesDataStore(
+        name = defaultSharedPreferencesName,
+        produceMigrations = { context ->
+            listOf(SharedPreferencesMigration(context, defaultSharedPreferencesName))
+        }
+    )
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -346,13 +361,19 @@ class PrefsUtil(
     }
 
     // Notification prefs
-    override var arePushNotificationsEnabled: Boolean
-        get() = getValue(KEY_PUSH_NOTIFICATION_ENABLED, true)
-        set(v) = setValue(KEY_PUSH_NOTIFICATION_ENABLED, v)
+    override suspend fun arePushNotificationsEnabled(): Boolean =
+        getValueFromDataStorage(KEY_PUSH_NOTIFICATION_ENABLED, true)
 
-    override var firebaseToken: String
-        get() = getValue(KEY_FIREBASE_TOKEN, "")
-        set(v) = setValue(KEY_FIREBASE_TOKEN, v)
+    override suspend fun setPushNotificationsEnabled(pushNotificationsEnabled: Boolean) {
+        setValueInDataStorage(KEY_PUSH_NOTIFICATION_ENABLED, pushNotificationsEnabled)
+    }
+
+    override suspend fun getFirebaseToken(): String =
+        getValueFromDataStorage(KEY_FIREBASE_TOKEN, "")
+
+    override suspend fun setFirebaseToken(firebaseToken: String) {
+        setValueInDataStorage(KEY_FIREBASE_TOKEN, firebaseToken)
+    }
 
     @SuppressLint("ApplySharedPref")
     override fun backupCurrentPrefs(encryptionKey: String, aes: AESUtilWrapper) {
@@ -550,6 +571,28 @@ class PrefsUtil(
         setValue(KEY_IS_LANDING_CTA_DISMISSED, isLandingCtaDismissed)
 
         clearBackup()
+    }
+
+    private suspend fun getValueFromDataStorage(name: String, defaultValue: String): String =
+        ctx.dataStore.data.map { preferences ->
+            preferences[stringPreferencesKey(name)] ?: defaultValue
+        }.first()
+
+    private suspend fun setValueInDataStorage(name: String, value: String) {
+        ctx.dataStore.edit { preferences ->
+            preferences[stringPreferencesKey(name)] = value
+        }
+    }
+
+    private suspend fun getValueFromDataStorage(name: String, defaultValue: Boolean): Boolean =
+        ctx.dataStore.data.map { preferences ->
+            preferences[booleanPreferencesKey(name)] ?: defaultValue
+        }.first()
+
+    private suspend fun setValueInDataStorage(name: String, value: Boolean) {
+        ctx.dataStore.edit { preferences ->
+            preferences[booleanPreferencesKey(name)] = value
+        }
     }
 
     // Secure Channel Prefs

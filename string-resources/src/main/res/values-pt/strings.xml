@@ -1055,7 +1055,7 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
     <string name="sell_info_action">Envie agora →</string>
     <string name="common_pending">Pendente</string>
     <string name="confirm_status_msg_insufficient_funds">Não tem fundos suficientes nesta conta para processar esta transação</string>
-    <string name="confirm_status_msg_insufficient_gas">Não tem ETH suficiente para processar esta transação.</string>
+    <string name="confirm_status_msg_insufficient_gas">Não tem %1$s suficiente para processar esta transação.</string>
     <string name="confirm_status_msg_option_invalid">Certifique-se de que concordou com os nossos Termos.</string>
     <string name="common_free">Gratuito</string>
     <string name="two_fa_new_request">A pedir novo código...</string>
@@ -1846,7 +1846,7 @@ Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com 
     <string name="fiat_funds_detail_withdraw_title">Levantar</string>
     <string name="withdrawing_amount_message">Estamos a concluir o seu levantamento agora.</string>
     <string name="send_progress_error_subtitle">Não se preocupe. O seu dinheiro está seguro. Tente novamente ou entre em contacto com a nossa equipa de Apoio ao Cliente para obter ajuda.</string>
-    <string name="send_enter_insufficient_gas">Não tem ETH suficientes para processar esta transação.</string>
+    <string name="send_enter_insufficient_gas">Não tem %1$s suficientes para processar esta transação.</string>
     <string name="swap_select_target_title">Nova troca</string>
     <string name="yodlee_splash_title">Ligação segura</string>
     <string name="please_try_linking_your_bank_again">Tente associar o seu banco novamente. Se a situação se mantiver, contacte o apoio ao cliente.</string>

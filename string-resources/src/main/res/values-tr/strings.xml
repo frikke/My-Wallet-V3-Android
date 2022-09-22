@@ -1058,7 +1058,7 @@ Kripto paranızı yönetmek için cüzdanı kullanmaya devam edebilirsiniz.</str
     <string name="sell_info_action">Şimdi Gönder →</string>
     <string name="common_pending">Beklemede</string>
     <string name="confirm_status_msg_insufficient_funds">Bu hesapta bu işlemi gerçekleştirmek için yeterli paranız yok</string>
-    <string name="confirm_status_msg_insufficient_gas">Bu işlemi gerçekleştirmek için yeterli tutarda ETH\'ye sahip değilsiniz.</string>
+    <string name="confirm_status_msg_insufficient_gas">Bu işlemi gerçekleştirmek için yeterli tutarda %1$s\'ye sahip değilsiniz.</string>
     <string name="confirm_status_msg_option_invalid">Lütfen Şartlarımızı kabul ettiğinizden emin olun.</string>
     <string name="common_free">Ücretsiz</string>
     <string name="two_fa_new_request">Yeni kod isteniyor...</string>
@@ -1846,7 +1846,7 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="fiat_funds_detail_withdraw_title">Çekilen</string>
     <string name="withdrawing_amount_message">Para çekme işleminizi şimdi tamamlıyoruz.</string>
     <string name="send_progress_error_subtitle">Merak etmeyin. Paranız güvende. Lütfen tekrar deneyin veya yardım için Destek Ekibimizle iletişime geçin.</string>
-    <string name="send_enter_insufficient_gas">Bu işlemi gerçekleştirmek için yeterli ETH\'niz bulunmuyor.</string>
+    <string name="send_enter_insufficient_gas">Bu işlemi gerçekleştirmek için yeterli %1$s\'niz bulunmuyor.</string>
     <string name="swap_select_target_title">Yeni Takas</string>
     <string name="yodlee_splash_title">Güvenli Bağlantı</string>
     <string name="please_try_linking_your_bank_again">Lütfen bankanızı tekrar bağlamayı deneyin. Sorun devam ederse lütfen destek ekibiyle iletişime geçin.</string>

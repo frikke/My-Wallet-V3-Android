@@ -1,5 +1,7 @@
 package com.blockchain.core.chains.erc20.data.store
 
+import com.blockchain.logging.RemoteLogger
+import com.blockchain.outcome.Outcome
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
@@ -8,22 +10,30 @@ import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.storedatasource.KeyedFlushableDataSource
 import java.math.BigInteger
-import kotlinx.coroutines.rx3.await
 import kotlinx.serialization.Serializable
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
+import timber.log.Timber
 
 /**
  * todo(othman) related stores and (ERC20) managers should be refactored
  */
 class L1BalanceStore(
     private val ethDataManager: EthDataManager,
+    private val remoteLogger: RemoteLogger
 ) : KeyedStore<L1BalanceStore.Key, BigInteger> by PersistedJsonSqlDelightStoreBuilder()
     .buildKeyed(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofOutcome(
             mapper = { key ->
-                ethDataManager.initEthereumWalletIfNeeded().await()
-                ethDataManager.getBalance(key.nodeUrl)
+                try {
+                    ethDataManager.getBalance(key.nodeUrl)
+                } catch (ex: Exception) {
+                    // Sometimes this gets called before the Ethereum Wallet is initialised which leads to a fatal crash
+                    // Returning an Outcome error means the relevant error messages will be shown on the Dashboard
+                    remoteLogger.logException(ex)
+                    Timber.e(ex)
+                    Outcome.Failure(ex)
+                }
             }
         ),
         keySerializer = Key.serializer(),

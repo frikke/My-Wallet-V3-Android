@@ -52,14 +52,14 @@ public class FeeDataManager {
 
     /**
      * Returns a {@link FeeOptions} object which contains both a "regular" and a "priority" fee
-     * option for ERC20 tokens.
+     * option for EVM L1 tokens.
      * @param network the ticker of the native token on the blockchain
      *
      * @return An {@link Observable} wrapping a {@link FeeOptions} object
      */
     public Observable<FeeOptions> getEvmFeeOptions(String network) {
         return feeApi.getEvmFeeOptions(network, null)
-            .onErrorReturnItem(FeeOptions.Companion.defaultForErc20())
+            .onErrorReturnItem(FeeOptions.Companion.defaultForEvm(network))
             .observeOn(AndroidSchedulers.mainThread());
     }
 

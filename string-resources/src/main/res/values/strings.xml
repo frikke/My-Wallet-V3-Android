@@ -1727,7 +1727,7 @@
     <string name="send_enter_amount_error_invalid_amount_1">Send %1$s or more.</string>
     <string name="send_enter_invalid_password">Password is incorrect.</string>
     <string name="send_enter_unexpected_error">An unexpected error has occurred. Please try again.</string>
-    <string name="send_enter_insufficient_gas">You do not have enough ETH to process this transaction.</string>
+    <string name="send_enter_insufficient_gas">You do not have enough %1$s to process this transaction.</string>
     <string name="send_select_a_wallet_title">or Select a Wallet</string>
     <string name="send_select_a_wallet_warning">Only send %1$s to wallets on the (%2$s) network.\n<annotation link="send_network_options">Learn more</annotation></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s) is a token that might be available on multiple networks. Make sure you know the network of the wallet address you’re sending to before sending.</string>
@@ -1746,7 +1746,7 @@
     <string name="swap_enter_amount_silver_limit">Tap here to upgrade your profile and swap this amount.</string>
     <string name="swap_enter_amount_over_limit">You can swap up to %1$s today.</string>
     <string name="swap_enter_amount_error_insufficient_funds_for_fees">Not enough %1$s in your wallet to swap with current network fees.</string>
-    <string name="swap_select_target_subtitle">Confirm the wallet you want to Swap from and choose the wallet you want to Receive into.</string>
+    <string name="swap_select_target_subtitle">Choose the wallet you want to Receive into.</string>
     <string name="swap_select_target_title">New Swap</string>
     <string name="tx_confirmation_network_fee">%1$s Network Fee</string>
     <string name="tx_confirmation_fee_learn_more_1">Network&#160;</string>
@@ -1768,6 +1768,14 @@
     <string name="enter_amount_quickfill_25">25%</string>
     <string name="enter_amount_quickfill_50">50%</string>
     <string name="enter_amount_quickfill_75">75%</string>
+    <string name="tx_enter_amount_swap_fees_title">Available to Swap</string>
+    <string name="tx_enter_amount_sell_fees_title">Available to Sell</string>
+    <string name="tx_enter_amount_fee_sheet_description">Your available balance is your total available minus estimated network fees.</string>
+    <string name="tx_enter_amount_fee_sheet_total_label">Total %1$s</string>
+    <string name="tx_enter_amount_fee_sheet_fee_label">Est. Network Fees</string>
+    <string name="tx_enter_amount_fee_sheet_swap_available_label">Available to Swap</string>
+    <string name="tx_enter_amount_fee_sheet_sell_available_label">Available to Sell</string>
+
 
     <!--Tx Flow Info messaging-->
     <string name="not_enough_funds">Not Enough %1$s</string>
@@ -1904,7 +1912,7 @@
 
     <!-- Transaction Flow confirmation screen -->
     <string name="confirm_status_msg_insufficient_funds">You have insufficient funds in this account to process this transaction</string>
-    <string name="confirm_status_msg_insufficient_gas">You do not have enough ETH to process this transaction.</string>
+    <string name="confirm_status_msg_insufficient_gas">You do not have enough %1$s to process this transaction.</string>
     <string name="confirm_status_msg_option_invalid">Please ensure you\'ve agreed to our Terms.</string>
     <string name="confirm_status_memo_invalid">Please add a memo.</string>
     <string name="confirm_status_msg_invoice_expired">BitPay Invoice Expired</string>
@@ -2340,7 +2348,7 @@
     <string name="recurring_buy_note">Calculation is based on one $30 purchase a week on a random day. \"Timing the market\" is defined as buying Bitcoin on every 6% dip.\n<annotation link="learn_more">Learn more →</annotation></string>
     <string name="recurring_buy_one_time_cta">One time</string>
     <string name="recurring_buy_one_time_selector">One time</string>
-    <string name="recurring_buy_daily_1">Everyday</string>
+    <string name="recurring_buy_daily_1">Daily</string>
     <string name="recurring_buy_daily_selector">Daily</string>
     <string name="recurring_buy_weekly_1">Once a Week</string>
     <string name="recurring_buy_weekly_selector">Weekly</string>
