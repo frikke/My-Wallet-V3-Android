@@ -28,9 +28,6 @@ class ExperimentsStore(
     mediator = FreshnessMediator(Freshness.ofMinutes(60L))
 ) {
 
-    override fun markAsStale() {
-    }
-
     companion object {
         private const val STORE_ID = "ExperimentsStore"
     }

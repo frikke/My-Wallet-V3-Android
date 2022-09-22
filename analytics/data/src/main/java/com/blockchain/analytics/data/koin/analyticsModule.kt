@@ -44,7 +44,8 @@ val analyticsModule = module {
             localAnalyticsPersistence = get(),
             remoteLogger = get(),
             tokenStore = get(),
-            lifecycleObservable = get()
+            lifecycleObservable = get(),
+            experimentsStore = get()
         )
     }.apply {
         bind(AppStartUpFlushable::class)

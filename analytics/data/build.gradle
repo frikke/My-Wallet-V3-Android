@@ -8,10 +8,13 @@ dependencies {
     implementation project(':blockchainApi')
     implementation project(':core')
     implementation project(':wallet')
+    implementation project(':store:core')
 
     implementation Libraries.koinAndroid
     implementation Libraries.kotlinJson
     implementation Libraries.rxKotlin
+
+    implementation Libraries.rxjava3Coroutines
 
     implementation platform(Libraries.firebaseBom)
     implementation Libraries.firebaseAnalytics

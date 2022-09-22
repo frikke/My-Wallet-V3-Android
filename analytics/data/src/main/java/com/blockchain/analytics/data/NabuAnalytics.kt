@@ -7,6 +7,9 @@ import com.blockchain.analytics.AnalyticsLocalPersistence
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.NabuAnalyticsEvent
+import com.blockchain.core.experiments.cache.ExperimentsStore
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.RemoteLogger
@@ -15,12 +18,16 @@ import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.utils.Optional
 import com.blockchain.utils.toUtcIso8601
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.lang.IllegalArgumentException
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -38,7 +45,8 @@ class NabuAnalytics(
     private val remoteLogger: RemoteLogger,
     lifecycleObservable: LifecycleObservable,
     private val analyticsContextProvider: AnalyticsContextProvider,
-    private val tokenStore: NabuSessionTokenStore
+    private val tokenStore: NabuSessionTokenStore,
+    private val experimentsStore: ExperimentsStore
 ) : Analytics, AppStartUpFlushable {
     private val compositeDisposable = CompositeDisposable()
 
@@ -51,6 +59,24 @@ class NabuAnalytics(
 
     private val id: String by lazy {
         prefs.value.deviceId
+    }
+
+    private fun getExperiments(): Single<Map<String, String>> {
+        return rxSingle {
+            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+                .filter { it !is DataResource.Loading }
+                .map { dataResourceMap ->
+                    when (dataResourceMap) {
+                        is DataResource.Data -> {
+                            dataResourceMap.data.mapValues { it.value.toString() }
+                        }
+                        is DataResource.Error -> emptyMap()
+                        DataResource.Loading -> {
+                            error("experimentsStore illegal argument exception -  we should never reach this point")
+                        }
+                    }
+                }.firstOrNull().orEmpty()
+        }
     }
 
     override fun logEvent(analyticsEvent: AnalyticsEvent) {
@@ -129,15 +155,17 @@ class NabuAnalytics(
     }
 
     private fun postEvents(events: List<NabuAnalyticsEvent>): Completable =
-        tokenStore.getAccessToken().firstOrError().flatMapCompletable {
-            analyticsService.postEvents(
-                events = events,
-                id = id,
-                analyticsContext = analyticsContextProvider.context(),
-                platform = "WALLET",
-                device = "APP-Android",
-                authorization = if (it is Optional.Some) it.element.authHeader else null
-            )
+        getExperiments().flatMapCompletable { experiments ->
+            tokenStore.getAccessToken().firstOrError().flatMapCompletable {
+                analyticsService.postEvents(
+                    events = events,
+                    id = id,
+                    analyticsContext = analyticsContextProvider.context(experiments),
+                    platform = "WALLET",
+                    device = "APP-Android",
+                    authorization = if (it is Optional.Some) it.element.authHeader else null
+                )
+            }
         }
 
     override fun logEventOnce(analyticsEvent: AnalyticsEvent) {}

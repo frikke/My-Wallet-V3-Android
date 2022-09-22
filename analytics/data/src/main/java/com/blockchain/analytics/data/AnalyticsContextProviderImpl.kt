@@ -13,13 +13,14 @@ class AnalyticsContextProviderImpl constructor(
     private val traitsServices: List<TraitsService>
 ) : AnalyticsContextProvider {
 
-    override fun context(): AnalyticsContext {
+    override fun context(experiments: Map<String, String>): AnalyticsContext {
         return AnalyticsContext(
             device = getDeviceInfo(),
             locale = Locale.getDefault().toString(),
             screen = getScreenInfo(),
             timezone = TimeZone.getDefault().id,
-            traits = traitsServices.map { traitsService -> traitsService.traits() }.reduce { acc, map -> acc.plus(map) }
+            traits = traitsServices.map { traitsService -> traitsService.traits() }
+                .reduce { acc, map -> acc.plus(map) } + experiments
         )
     }
 
