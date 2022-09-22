@@ -16,6 +16,6 @@ interface CollapsingToolbarState {
     fun updateHeight(newTopSectionHeight: Int, newBottomSectionHeight: Int)
 }
 
-enum class ScrollState{
+enum class ScrollState {
     Idle, Up, Down
 }

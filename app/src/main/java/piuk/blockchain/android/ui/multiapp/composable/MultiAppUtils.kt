@@ -4,9 +4,9 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.lazy.LazyListState
 import com.blockchain.walletmode.WalletMode
 import com.google.accompanist.swiperefresh.SwipeRefreshState
+import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
-import java.util.concurrent.TimeUnit
 
 const val ANIMATION_DURATION = 400
 val REVEAL_BALANCE_DELAY_MS = TimeUnit.SECONDS.toMillis(3)

@@ -52,6 +52,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
+import kotlin.math.min
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -63,7 +64,6 @@ import piuk.blockchain.android.ui.multiapp.MultiAppViewState
 import piuk.blockchain.android.ui.multiapp.toolbar.CollapsingToolbarState
 import piuk.blockchain.android.ui.multiapp.toolbar.EnterAlwaysCollapsedState
 import piuk.blockchain.android.ui.multiapp.toolbar.ScrollState
-import kotlin.math.min
 
 @Composable
 private fun rememberToolbarState(): CollapsingToolbarState {
@@ -315,10 +315,14 @@ fun MultiAppChromeScreen(
 
             override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
                 if (isRevealingTargetBalance &&
-                    (toolbarState.scrollState == ScrollState.Up &&
-                        toolbarState.scrollOffset <= toolbarState.halfCollapsedOffset) ||
-                    (toolbarState.scrollState == ScrollState.Down &&
-                        toolbarState.scrollOffset >= toolbarState.fullCollapsedOffset)
+                    (
+                        toolbarState.scrollState == ScrollState.Up &&
+                            toolbarState.scrollOffset <= toolbarState.halfCollapsedOffset
+                        ) ||
+                    (
+                        toolbarState.scrollState == ScrollState.Down &&
+                            toolbarState.scrollOffset >= toolbarState.fullCollapsedOffset
+                        )
                 ) {
                     coroutineScopeBalanceReveal.coroutineContext.cancelChildren()
                     if (isRevealingTargetBalance) {
