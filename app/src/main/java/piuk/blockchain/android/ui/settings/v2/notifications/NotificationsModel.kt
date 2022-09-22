@@ -69,28 +69,30 @@ class NotificationsModel(
                     )
             }
             is NotificationsIntent.TogglePushNotifications -> {
-                if (interactor.arePushNotificationsEnabled()) {
-                    interactor.disablePushNotifications()
-                } else {
-                    interactor.enablePushNotifications()
-                }.subscribeBy(
-                    onComplete = {
-                        process(
-                            NotificationsIntent.UpdateNotificationValues(
-                                emailNotificationsEnabled = previousState.emailNotificationsEnabled,
-                                pushNotificationsEnabled = !previousState.pushNotificationsEnabled
+                interactor.arePushNotificationsEnabled().subscribeBy { arePushNotificationsEnabled ->
+                    if (arePushNotificationsEnabled) {
+                        interactor.disablePushNotifications()
+                    } else {
+                        interactor.enablePushNotifications()
+                    }.subscribeBy(
+                        onComplete = {
+                            process(
+                                NotificationsIntent.UpdateNotificationValues(
+                                    emailNotificationsEnabled = previousState.emailNotificationsEnabled,
+                                    pushNotificationsEnabled = !previousState.pushNotificationsEnabled
+                                )
                             )
-                        )
-                    },
-                    onError = {
-                        Timber.e("Error updating push notifications $it")
-                        process(
-                            NotificationsIntent.UpdateErrorState(
-                                NotificationsError.PUSH_NOTIFICATION_UPDATE_FAIL
+                        },
+                        onError = {
+                            Timber.e("Error updating push notifications $it")
+                            process(
+                                NotificationsIntent.UpdateErrorState(
+                                    NotificationsError.PUSH_NOTIFICATION_UPDATE_FAIL
+                                )
                             )
-                        )
-                    }
-                )
+                        }
+                    )
+                }
             }
             is NotificationsIntent.UpdateNotificationValues,
             is NotificationsIntent.UpdateErrorState,

@@ -39,6 +39,7 @@ dependencies {
     implementation Libraries.rxJava
     implementation Libraries.rxKotlin
     implementation Libraries.rxAndroid
+    implementation Libraries.rxjava3Coroutines
 
     // Unit Test dependencies
     testImplementation project(':testutils-android')

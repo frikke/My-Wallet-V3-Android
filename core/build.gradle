@@ -60,6 +60,7 @@ dependencies {
     // Database
     implementation Libraries.sqlDelight
     implementation Libraries.rxSqlDelight
+    implementation Libraries.preferencesDataStore
 
     // Firebase
     implementation platform(Libraries.firebaseBom)

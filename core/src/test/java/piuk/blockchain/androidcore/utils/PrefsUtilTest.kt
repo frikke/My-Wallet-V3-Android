@@ -27,7 +27,7 @@ class PrefsUtilTest {
     private val environmentConfig: EnvironmentConfig = mock()
 
     private val subject: PrefsUtil =
-        PrefsUtil(ctx, store, backupStore, idGenerator, uuidGenerator, assetCatalogue, environmentConfig)
+        PrefsUtil(ctx, store, backupStore, idGenerator, uuidGenerator, assetCatalogue, environmentConfig, "")
 
     @Before
     fun setUpSharedPrefs() {
