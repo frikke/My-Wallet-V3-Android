@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.transactionflow.flow
+package piuk.blockchain.android.ui.transactionflow.flow.sheets
 
 import android.os.Bundle
 import android.view.LayoutInflater

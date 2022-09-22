@@ -344,6 +344,20 @@ class TransactionFlowCustomiserImpl(
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
 
+    override fun getFeeSheetTitle(state: TransactionState): String =
+        when (state.action) {
+            AssetAction.Swap -> resources.getString(R.string.tx_enter_amount_swap_fees_title)
+            AssetAction.Sell -> resources.getString(R.string.tx_enter_amount_sell_fees_title)
+            else -> throw IllegalStateException("${state.action} is not supported for fee sheet title")
+        }
+
+    override fun getFeeSheetAvailableLabel(state: TransactionState): String =
+        when (state.action) {
+            AssetAction.Swap -> resources.getString(R.string.tx_enter_amount_fee_sheet_swap_available_label)
+            AssetAction.Sell -> resources.getString(R.string.tx_enter_amount_fee_sheet_sell_available_label)
+            else -> throw IllegalStateException("${state.action} is not supported for fee sheet label")
+        }
+
     override fun confirmTitle(state: TransactionState): String =
         when (state.action) {
             AssetAction.Send -> resources.getString(

@@ -60,10 +60,15 @@ class AvailableBalanceView @JvmOverloads constructor(
         state.fiatRate?.let { rate ->
             amountText = when (state.currencyType) {
                 CurrencyType.CRYPTO -> state.maxSpendable.toStringWithSymbol()
-                CurrencyType.FIAT -> state.availableBalanceInFiat(state.maxSpendable, rate).toStringWithSymbol()
+                CurrencyType.FIAT -> state.convertBalanceToFiat(state.maxSpendable, rate).toStringWithSymbol()
                 null -> ""
             }
         }
+    }
+
+    fun onClick(onClick: () -> Unit) {
+        this.isTappable = true
+        this.onClick = onClick
     }
 
     override fun setVisible(isVisible: Boolean) {
@@ -80,6 +85,7 @@ open class TxFlowEnterAmountBalanceRowView @JvmOverloads constructor(
     var labelText by mutableStateOf("")
     var amountText by mutableStateOf("")
     var onClick by mutableStateOf({})
+    var isTappable by mutableStateOf(false)
 
     @Composable
     override fun Content() {
@@ -88,7 +94,8 @@ open class TxFlowEnterAmountBalanceRowView @JvmOverloads constructor(
                 TxFlowEnterAmountBalanceRow(
                     labelText = labelText,
                     amountText = amountText,
-                    onClick = onClick
+                    onClick = onClick,
+                    isTappable = isTappable
                 )
             }
         }
@@ -99,7 +106,8 @@ open class TxFlowEnterAmountBalanceRowView @JvmOverloads constructor(
 fun TxFlowEnterAmountBalanceRow(
     labelText: String,
     amountText: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isTappable: Boolean = false
 ) {
     Row(
         modifier = Modifier
@@ -108,21 +116,23 @@ fun TxFlowEnterAmountBalanceRow(
                 horizontal = dimensionResource(id = R.dimen.standard_spacing),
                 vertical = dimensionResource(R.dimen.tiny_spacing)
             )
-            .clickable(true, onClick = onClick)
+            .clickable(enabled = isTappable, onClick = onClick)
     ) {
         SimpleText(
             text = labelText, style = ComposeTypographies.Caption1, color = ComposeColors.Muted,
             gravity = ComposeGravities.Start
         )
 
-        Spacer(
-            modifier = Modifier.size(
-                width = dimensionResource(id = R.dimen.tiny_spacing),
-                height = dimensionResource(id = R.dimen.smallest_spacing)
+        if (isTappable) {
+            Spacer(
+                modifier = Modifier.size(
+                    width = dimensionResource(id = R.dimen.tiny_spacing),
+                    height = dimensionResource(id = R.dimen.smallest_spacing)
+                )
             )
-        )
 
-        Image(imageResource = ImageResource.Local(R.drawable.ic_question))
+            Image(imageResource = ImageResource.Local(R.drawable.ic_question))
+        }
 
         Spacer(
             modifier = Modifier.weight(1f)
@@ -139,10 +149,20 @@ fun TxFlowEnterAmountBalanceRow(
 
 @Preview
 @Composable
-fun enterAmountView() {
+fun enterAmountView_notTappable() {
     AppTheme {
         AppSurface {
             TxFlowEnterAmountBalanceRow(labelText = "test", amountText = "12345$", onClick = {})
+        }
+    }
+}
+
+@Preview
+@Composable
+fun enterAmountView_Tappable() {
+    AppTheme {
+        AppSurface {
+            TxFlowEnterAmountBalanceRow(labelText = "test", amountText = "12345$", onClick = {}, isTappable = true)
         }
     }
 }

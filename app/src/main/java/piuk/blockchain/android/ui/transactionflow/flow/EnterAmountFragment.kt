@@ -53,6 +53,10 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoAction
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoBottomSheetType
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
+import piuk.blockchain.android.ui.transactionflow.flow.sheets.TransactionFlowInfoBottomSheet
+import piuk.blockchain.android.ui.transactionflow.flow.sheets.TransactionFlowInfoHost
+import piuk.blockchain.android.ui.transactionflow.flow.sheets.TxFeeExplanationBottomSheet
+import piuk.blockchain.android.ui.transactionflow.plugin.AvailableBalanceView
 import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
 import piuk.blockchain.android.ui.transactionflow.plugin.ExpandableTxFlowWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
@@ -225,6 +229,24 @@ class EnterAmountFragment :
                 lowerSlot?.update(newState)
                 upperSlot?.update(newState)
                 upperSecondSlot?.update(newState)
+
+                if (frameUpperSecondSlot.getChildAt(0) is AvailableBalanceView) {
+                    (frameUpperSecondSlot.getChildAt(0) as AvailableBalanceView).onClick {
+                        newState.pendingTx?.let { pTx ->
+                            showBottomSheet(
+                                TxFeeExplanationBottomSheet.newInstance(
+                                    title = customiser.getFeeSheetTitle(newState),
+                                    displayTicker = newState.maxSpendable.currencyCode,
+                                    availableLabel = customiser.getFeeSheetAvailableLabel(newState),
+                                    totalBalance = state.convertBalanceToFiat(pTx.totalBalance, state.fiatRate),
+                                    estimatedFee = state.convertBalanceToFiat(pTx.feeAmount, state.fiatRate),
+                                    availableBalance = state.convertBalanceToFiat(pTx.availableBalance, state.fiatRate),
+                                    isTransactionFree = pTx.feeSelection.selectedLevel == FeeLevel.None
+                                )
+                            )
+                        }
+                    }
+                }
 
                 updateInputStateUI(newState)
                 showCtaOrError(newState)
@@ -419,7 +441,7 @@ class EnterAmountFragment :
         state: TransactionState
     ) {
         if (fundsLocks.locks.isNotEmpty() && state.action.requiresDisplayLocks()) {
-            val available = state.availableBalanceInFiat(
+            val available = state.convertBalanceToFiat(
                 state.availableBalance, state.fiatRate
             )
             onHoldCell.apply {
@@ -536,7 +558,6 @@ class EnterAmountFragment :
 
     companion object {
         private const val AMOUNT_DEBOUNCE_TIME_MS = 300L
-        private const val BOTTOM_SHEET = "BOTTOM_SHEET"
 
         fun newInstance(): EnterAmountFragment = EnterAmountFragment()
     }
@@ -546,6 +567,7 @@ class EnterAmountFragment :
     }
 
     override fun onSheetClosed() {
+        // do nothing
     }
 
     override fun onSheetClosed(sheet: BottomSheetDialogFragment) {

@@ -11,7 +11,11 @@ import com.blockchain.componentlib.theme.Red400
 import com.blockchain.componentlib.theme.Red600
 
 @Composable
-fun ErrorTag(text: String, size: TagSize = TagSize.Primary, onClick: (() -> Unit)?) {
+fun ErrorTag(
+    text: String,
+    size: TagSize = TagSize.Primary,
+    onClick: (() -> Unit)? = null
+) {
 
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
         Red100
