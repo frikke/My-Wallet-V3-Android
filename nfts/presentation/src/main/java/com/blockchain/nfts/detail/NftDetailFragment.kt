@@ -5,14 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
-import androidx.fragment.app.Fragment
-import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.koin.payloadScope
-import com.blockchain.nfts.collection.NftCollectionViewModel
-import com.blockchain.nfts.collection.screen.NftCollection
+import com.blockchain.nfts.detail.screen.NftDetail
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.androidx.compose.getViewModel
 
-class NftDetailFragment : Fragment() {
+class NftDetailFragment : BottomSheetDialogFragment() {
+
+    val args: NftDetailNavArgs by lazy {
+        arguments?.getParcelable<NftDetailNavArgs>(NftDetailNavArgs.ARGS_KEY)
+            ?: error("missing NftDetailNavArg")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -21,10 +24,20 @@ class NftDetailFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val viewModel: NftCollectionViewModel = getViewModel(scope = payloadScope)
-                viewModel.viewCreated(ModelConfigArgs.NoArgs)
+                val viewModel: NftDetailViewModel = getViewModel(scope = payloadScope)
+                viewModel.viewCreated(args)
 
-                NftCollection(viewModel)
+                NftDetail(viewModel)
+            }
+        }
+    }
+
+    companion object {
+        fun newInstance(nftId: String): NftDetailFragment {
+            val bundle = Bundle()
+            bundle.putParcelable(NftDetailNavArgs.ARGS_KEY, NftDetailNavArgs(nftId = nftId))
+            return NftDetailFragment().apply {
+                arguments = bundle
             }
         }
     }

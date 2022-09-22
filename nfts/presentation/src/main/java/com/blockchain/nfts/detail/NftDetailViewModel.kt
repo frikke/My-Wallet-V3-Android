@@ -14,10 +14,10 @@ class NftDetailViewModel(
     NftDetailViewState,
     NftDetailModelState,
     NftDetailNavigationEvent,
-    NftDetailNavArg>(
+    NftDetailNavArgs>(
     initialState = NftDetailModelState()
 ) {
-    override fun viewCreated(args: NftDetailNavArg) {
+    override fun viewCreated(args: NftDetailNavArgs) {
         loadNftAsset(nftId = args.nftId)
     }
 

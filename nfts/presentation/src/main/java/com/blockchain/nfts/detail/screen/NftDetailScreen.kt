@@ -19,36 +19,38 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
-import com.blockchain.nfts.collection.NftCollectionViewModel
-import com.blockchain.nfts.collection.NftCollectionViewState
 import com.blockchain.nfts.collection.screen.NftCollectionScreen
+import com.blockchain.nfts.detail.NftDetailViewModel
+import com.blockchain.nfts.detail.NftDetailViewState
 import com.blockchain.nfts.domain.models.NftAsset
 
 @Composable
-fun NftDetail(viewModel: NftCollectionViewModel) {
+fun NftDetail(viewModel: NftDetailViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
-    val viewState: NftCollectionViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: NftDetailViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        NftDetailScreen(state.collection)
+        NftDetailScreen(state.asset)
     }
 }
 
 @Composable
-fun NftDetailScreen(nftCollection: DataResource<NftAsset>) {
-    when (nftCollection) {
+fun NftDetailScreen(nftAsset: DataResource<NftAsset?>) {
+    when (nftAsset) {
         DataResource.Loading -> {
         }
 
         is DataResource.Error -> {
-            nftCollection.error.printStackTrace()
+            nftAsset.error.printStackTrace()
         }
 
         is DataResource.Data -> {
-            NftDetailDataScreen(nftAsset = nftCollection.data)
+            nftAsset.data?.let {
+                NftDetailDataScreen(nftAsset = it)
+            }
         }
     }
 }
