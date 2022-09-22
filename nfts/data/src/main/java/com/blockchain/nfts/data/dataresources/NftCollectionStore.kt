@@ -16,7 +16,7 @@ class NftCollectionStore(
         storeId = "NftCollectionStore",
         fetcher = Fetcher.ofSingle(
             mapper = {
-                nftApiService.getNftsForAddress(address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC")
+                nftApiService.getNftsForAddress(address = "0xe74e48007CB5D0464640b5D760d26f7b4DE6d790")
             }
         ),
         dataSerializer = NftAssetsDto.serializer(),
@@ -28,3 +28,7 @@ class NftCollectionStore(
         markAsStale()
     }
 }
+
+
+
+

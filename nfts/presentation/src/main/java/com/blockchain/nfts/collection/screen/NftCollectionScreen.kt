@@ -15,7 +15,10 @@ import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftData
 
 @Composable
-fun NftCollection(viewModel: NftCollectionViewModel) {
+fun NftCollection(
+    viewModel: NftCollectionViewModel,
+    onItemClick: (NftAsset) -> Unit
+) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
@@ -23,12 +26,15 @@ fun NftCollection(viewModel: NftCollectionViewModel) {
     val viewState: NftCollectionViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        NftCollectionScreen(state.collection)
+        NftCollectionScreen(nftCollection = state.collection, onItemClick = onItemClick)
     }
 }
 
 @Composable
-fun NftCollectionScreen(nftCollection: DataResource<List<NftAsset>>) {
+fun NftCollectionScreen(
+    nftCollection: DataResource<List<NftAsset>>,
+    onItemClick: (NftAsset) -> Unit
+) {
     when (nftCollection) {
         DataResource.Loading -> {
         }
@@ -42,7 +48,7 @@ fun NftCollectionScreen(nftCollection: DataResource<List<NftAsset>>) {
                 if (isEmpty()) {
                     NftEmptyCollectionScreen()
                 } else {
-                    NftCollectionDataScreen(collection = this)
+                    NftCollectionDataScreen(collection = this, onItemClick = onItemClick)
                 }
             }
         }
@@ -57,7 +63,10 @@ fun NftCollectionScreen(nftCollection: DataResource<List<NftAsset>>) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewNftCollectionScreen_Empty() {
-    NftCollectionScreen(nftCollection = DataResource.Data(emptyList()))
+    NftCollectionScreen(
+        nftCollection = DataResource.Data(emptyList()),
+        onItemClick = {}
+    )
 }
 
 @Preview(showBackground = true)
@@ -68,18 +77,25 @@ fun PreviewNftCollectionScreen_Data() {
             listOf(
                 NftAsset("", "", NftData("", "", listOf()))
             )
-        )
+        ),
+        onItemClick = {}
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewNftCollectionScreen_Loading() {
-    NftCollectionScreen(nftCollection = DataResource.Loading)
+    NftCollectionScreen(
+        nftCollection = DataResource.Loading,
+        onItemClick = {}
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewNftCollectionScreen_Error() {
-    NftCollectionScreen(nftCollection = DataResource.Error(Exception()))
+    NftCollectionScreen(
+        nftCollection = DataResource.Error(Exception()),
+        onItemClick = {}
+    )
 }

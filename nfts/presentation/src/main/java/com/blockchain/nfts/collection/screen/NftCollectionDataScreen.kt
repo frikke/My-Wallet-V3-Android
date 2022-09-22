@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,6 +21,7 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.nfts.R
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftData
@@ -30,7 +30,8 @@ private const val COLUMN_COUNT = 2
 
 @Composable
 fun NftCollectionDataScreen(
-    collection: List<NftAsset>
+    collection: List<NftAsset>,
+    onItemClick: (NftAsset) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -53,7 +54,8 @@ fun NftCollectionDataScreen(
                     Image(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .aspectRatio(1F),
+                            .aspectRatio(1F)
+                            .clickableNoEffect { onItemClick(nftAsset) },
                         imageResource = ImageResource.Remote(
                             url = nftAsset.iconUrl,
                             shape = RoundedCornerShape(size = AppTheme.dimensions.borderRadiiSmall)
@@ -103,6 +105,7 @@ fun PreviewNftCollectionDataScreen() {
                 "https://lh3.googleusercontent.com/DWlQUXP_Y3obWxNTxfj3bBg2COuSONsa36DCiBpo5-8wvd5FpCcSg3ZRWILS1tvcAq7SwyQY-fC6wpkr2lJWDtzM1LhJnbi_NpCLng",
                 NftData("", "", listOf())
             )
-        )
+        ),
+        {}
     )
 }

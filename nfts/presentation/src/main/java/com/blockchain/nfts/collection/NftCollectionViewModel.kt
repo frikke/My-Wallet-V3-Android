@@ -33,7 +33,7 @@ class NftCollectionViewModel(
 
     private fun loadNftCollection() {
         viewModelScope.launch {
-            nftService.getNftCollectionForAddress(address = "0x5D70101143BF7bbc889D757613e2B2761bD447EC")
+            nftService.getNftCollectionForAddress(address = "0xD3799B05bf81F05358fac9e09760Ba35876002b8")
                 .collectLatest { dataResource ->
                     updateState {
                         it.copy(

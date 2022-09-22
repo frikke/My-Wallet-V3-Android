@@ -5,5 +5,5 @@ import com.blockchain.data.DataResource
 import com.blockchain.nfts.domain.models.NftAsset
 
 data class NftCollectionViewState(
-    val collection: DataResource<NftAsset>
+    val collection: DataResource<List<NftAsset>>
 ) : ViewState
