@@ -1,4 +1,4 @@
-package com.blockchain.defiwalletbackup.domain.analytics
+package com.blockchain.presentation.analytics
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames

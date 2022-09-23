@@ -3,13 +3,13 @@ package com.blockchain.presentation.backup.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.defiwalletbackup.domain.analytics.BackupPhraseAnalytics
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.presentation.analytics.BackupPhraseAnalytics
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupOption
 import com.blockchain.presentation.backup.BackupPhraseArgs
