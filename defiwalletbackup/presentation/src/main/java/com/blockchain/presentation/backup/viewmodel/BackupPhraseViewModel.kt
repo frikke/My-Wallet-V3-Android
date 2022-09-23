@@ -1,7 +1,9 @@
 package com.blockchain.presentation.backup.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.defiwalletbackup.domain.analytics.BackupPhraseAnalytics
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.doOnFailure
@@ -28,6 +30,7 @@ class BackupPhraseViewModel(
     private val backupPhraseService: BackupPhraseService,
     private val settingsDataManager: SettingsDataManager,
     private val backupPrefs: EncryptedPrefs,
+    private val analytics: Analytics,
     private val walletStatusPrefs: WalletStatusPrefs,
     private val authPrefs: AuthPrefs
 ) : MviViewModel<BackupPhraseIntent,
@@ -87,6 +90,7 @@ class BackupPhraseViewModel(
             }
 
             BackupPhraseIntent.StartBackupProcess -> {
+                analytics.logEvent(BackupPhraseAnalytics.enableDefiClicked)
                 navigate(BackupPhraseNavigationEvent.RecoveryPhrase)
             }
 

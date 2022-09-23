@@ -14,10 +14,10 @@ compileKotlin {
 
 dependencies {
     implementation project(':common:interface')
-
     // test
     testImplementation Libraries.junit
     testImplementation Libraries.kotlinTest
     testImplementation Libraries.mockk
     testImplementation Libraries.kotlinCoroutinesTest
+    implementation project(':analytics:domain')
 }

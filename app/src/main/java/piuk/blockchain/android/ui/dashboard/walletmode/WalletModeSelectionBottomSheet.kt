@@ -40,7 +40,6 @@ import piuk.blockchain.android.R
 class WalletModeSelectionBottomSheet :
     MVIBottomSheet<WalletModeSelectionViewState>(),
     Analytics by KoinJavaComponent.get(Analytics::class.java),
-    WalletModeReporter by KoinJavaComponent.get(WalletModeReporter::class.java),
     NavigationRouter<WalletModeSelectionNavigationEvent>,
     AndroidScopeComponent {
 
@@ -117,9 +116,6 @@ class WalletModeSelectionBottomSheet :
                         /*n/a*/
                     }
                 }
-
-                reportWalletMode(navigationEvent.walletMode)
-
                 dismiss()
             }
         }.exhaustive
