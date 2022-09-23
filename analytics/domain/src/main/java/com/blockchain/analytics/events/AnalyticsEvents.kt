@@ -299,6 +299,7 @@ enum class AnalyticsNames(val eventName: String) {
     MVP_SWITCHED_TO_DEFI("Switched to DeFi"),
     MVP_SWITCHED_TO_TRADING("Switched to Trading"),
     MVP_DEFI_BUY_SELECTED("QAS DeFi Buy"),
+    ENABLE_DEFI_CLICKED("Enable DeFi Clicked"),
     MVP_DEFI_BUY_SWITCH_TO_TRADING("QAS DeFi Buy Switched to Trading")
     ;
 }

@@ -12,6 +12,7 @@ dependencies {
     implementation project(':defiwalletbackup:domain')
     implementation project(':commonarch')
     implementation project(':componentlib')
+    implementation project(':analytics:domain')
     implementation project(':common:interface')
     implementation project(':core')
 

@@ -16,7 +16,7 @@ class WalletModeTraitsRepository(private val walletModeService: Lazy<WalletModeS
 
 private fun WalletMode.toTraitsString(): String {
     return when (this) {
-        WalletMode.UNIVERSAL -> ""
+        WalletMode.UNIVERSAL -> "UNIVERSAL"
         WalletMode.CUSTODIAL_ONLY -> "TRADING"
         WalletMode.NON_CUSTODIAL_ONLY -> "PKW"
     }

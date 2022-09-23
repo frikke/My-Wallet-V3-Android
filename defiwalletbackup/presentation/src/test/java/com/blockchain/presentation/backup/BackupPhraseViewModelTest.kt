@@ -1,6 +1,7 @@
 package com.blockchain.presentation.backup
 
 import app.cash.turbine.test
+import com.blockchain.analytics.Analytics
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.AuthPrefs
@@ -36,6 +37,7 @@ class BackupPhraseViewModelTest {
     private val backupPrefs = mockk<EncryptedPrefs>()
     private val walletStatusPrefs = mockk<WalletStatusPrefs>()
     private val authPrefs = mockk<AuthPrefs>()
+    private val analytics = mockk<Analytics>()
 
     private lateinit var viewModel: BackupPhraseViewModel
 
@@ -52,13 +54,15 @@ class BackupPhraseViewModelTest {
             settingsDataManager = settingsDataManager,
             backupPrefs = backupPrefs,
             walletStatusPrefs = walletStatusPrefs,
-            authPrefs = authPrefs
+            authPrefs = authPrefs,
+            analytics = analytics
         )
 
         every { backupPhraseService.isBackedUp() } returns true
         every { backupPhraseService.getMnemonic(any()) } returns Outcome.Success(mnemonic)
 
         coEvery { settingsDataManager.triggerEmailAlert(any(), any()) } just Runs
+        coEvery { analytics.logEvent(any()) } just Runs
 
         every { walletStatusPrefs.isWalletBackUpSkipped = any() } just Runs
 
