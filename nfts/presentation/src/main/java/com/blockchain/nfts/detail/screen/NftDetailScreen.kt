@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,6 +34,7 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.expandables.ExpandableItemBordered
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.media.UrlType
 import com.blockchain.componentlib.theme.AppTheme
@@ -80,9 +83,14 @@ fun NftDetailScreen(nftAsset: DataResource<NftAsset?>) {
 fun NftDetailDataScreen(nftAsset: NftAsset) {
     LazyVerticalGrid(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(AppTheme.dimensions.smallSpacing),
+            .fillMaxWidth(),
         columns = GridCells.Fixed(count = 2),
+        contentPadding = PaddingValues(
+            start = dimensionResource(R.dimen.small_spacing),
+            end = dimensionResource(R.dimen.small_spacing),
+            top = dimensionResource(R.dimen.small_spacing),
+            bottom = dimensionResource(R.dimen.standard_spacing)
+        ),
         verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
     ) {
@@ -169,6 +177,16 @@ fun NftBasicInfo(nftAsset: NftAsset) {
         )
 
         NftCreator(creator = nftAsset.creator)
+
+        ExpandableItemBordered(
+            title = "Description",
+            text = nftAsset.description,
+            numLinesVisible = 2,
+            textButtonToExpand = stringResource(R.string.coinview_expandable_button),
+            textButtonToCollapse = stringResource(R.string.coinview_collapsable_button)
+        )
+
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
     }
 }
 
