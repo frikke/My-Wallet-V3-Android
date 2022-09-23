@@ -21,6 +21,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
         @Suppress("IMPLICIT_CAST_TO_ANY")
         when (navigationEvent) {
 
+            is BlockchainCardNavigationEvent.ShowHowToOrderCard -> {
+                destination = BlockchainCardDestination.HowToOrderCardDestination
+            }
+
             is BlockchainCardNavigationEvent.OrderCardKycAddress -> {
                 destination = BlockchainCardDestination.OrderCardKycAddressDestination
             }
@@ -29,12 +33,16 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                 destination = BlockchainCardDestination.OrderCardKycSSNDestination
             }
 
-            is BlockchainCardNavigationEvent.OrderCardConfirm -> {
+            is BlockchainCardNavigationEvent.ChooseCardProduct -> {
+                destination = BlockchainCardDestination.ChooseCardProductDestination
+            }
+
+            is BlockchainCardNavigationEvent.ReviewAndSubmitCard -> {
                 // Check if this destination is already in the backstack (popBackStack returns true)
                 // If not, create it and navigate to it
                 // If yes pop to it and return null.
-                if (!navController.popBackStack(BlockchainCardDestination.OrderCardConfirmDestination.route, false))
-                    destination = BlockchainCardDestination.OrderCardConfirmDestination
+                if (!navController.popBackStack(BlockchainCardDestination.ReviewAndSubmitCardDestination.route, false))
+                    destination = BlockchainCardDestination.ReviewAndSubmitCardDestination
                 else null
             }
 
@@ -165,7 +173,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.FinishLegalDocReview -> {
-                navController.popBackStack(BlockchainCardDestination.OrderCardConfirmDestination.route, false)
+                navController.popBackStack(
+                    route = BlockchainCardDestination.ReviewAndSubmitCardDestination.route,
+                    inclusive = false
+                )
             }
 
             // For now, all support pages go to the same place
@@ -189,11 +200,15 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     // Order Card
 
+    object ShowHowToOrderCard : BlockchainCardNavigationEvent()
+
     object OrderCardKycAddress : BlockchainCardNavigationEvent()
 
     object OrderCardKycSSN : BlockchainCardNavigationEvent()
 
-    object OrderCardConfirm : BlockchainCardNavigationEvent()
+    object ChooseCardProduct : BlockchainCardNavigationEvent()
+
+    object ReviewAndSubmitCard : BlockchainCardNavigationEvent()
 
     object RetryOrderCard : BlockchainCardNavigationEvent()
 
@@ -261,11 +276,15 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
 
     object OrderCardDestination : BlockchainCardDestination(route = "order_card")
 
+    object HowToOrderCardDestination : BlockchainCardDestination(route = "how_to_order_card")
+
     object OrderCardKycAddressDestination : BlockchainCardDestination(route = "order_card_kyc_address")
 
     object OrderCardKycSSNDestination : BlockchainCardDestination(route = "order_card_kyc_ssn")
 
-    object OrderCardConfirmDestination : BlockchainCardDestination(route = "order_card_confirm")
+    object ChooseCardProductDestination : BlockchainCardDestination(route = "choose_card_product")
+
+    object ReviewAndSubmitCardDestination : BlockchainCardDestination(route = "review_and_submit")
 
     object CreateCardInProgressDestination : BlockchainCardDestination(route = "create_card_in_progress")
 

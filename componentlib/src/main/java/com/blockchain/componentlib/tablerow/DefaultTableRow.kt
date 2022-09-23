@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
@@ -38,6 +39,7 @@ fun DefaultTableRow(
         id = R.drawable.ic_chevron_end,
         contentDescription = null
     ),
+    backgroundColor: Color = AppTheme.colors.background
 ) {
     DefaultTableRow(
         primaryText = buildAnnotatedString { append(primaryText) },
@@ -48,7 +50,8 @@ fun DefaultTableRow(
         tags = tags,
         endTag = endTag,
         startImageResource = startImageResource,
-        endImageResource = endImageResource
+        endImageResource = endImageResource,
+        backgroundColor = backgroundColor
     )
 }
 
@@ -66,6 +69,7 @@ fun DefaultTableRow(
         id = R.drawable.ic_chevron_end,
         contentDescription = null
     ),
+    backgroundColor: Color = AppTheme.colors.background
 ) {
     TableRow(
         contentStart = {
@@ -152,7 +156,8 @@ fun DefaultTableRow(
                     )
                 }
             }
-        }
+        },
+        backgroundColor = backgroundColor
     )
 }
 

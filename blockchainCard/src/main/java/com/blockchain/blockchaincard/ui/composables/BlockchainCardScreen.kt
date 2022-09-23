@@ -33,6 +33,7 @@ import com.blockchain.blockchaincard.ui.composables.managecard.TransactionContro
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationFailed
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationInProgress
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationSuccess
+import com.blockchain.blockchaincard.ui.composables.ordercard.HowToOrderCard
 import com.blockchain.blockchaincard.ui.composables.ordercard.LegalDocument
 import com.blockchain.blockchaincard.ui.composables.ordercard.LegalDocumentsViewer
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCard
@@ -41,6 +42,7 @@ import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardContent
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardSsnKYC
 import com.blockchain.blockchaincard.ui.composables.ordercard.ProductDetails
 import com.blockchain.blockchaincard.ui.composables.ordercard.ProductLegalInfo
+import com.blockchain.blockchaincard.ui.composables.ordercard.ReviewAndSubmit
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardDestination
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardErrorState
@@ -90,10 +92,17 @@ fun BlockchainCardNavHost(
                 OrderCard(viewModel as OrderCardViewModel)
             }
 
+            bottomSheet(BlockchainCardDestination.HowToOrderCardDestination) {
+                HowToOrderCard(
+                    onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) },
+                    onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardKYCAddress) }
+                )
+            }
+
             composable(BlockchainCardDestination.OrderCardKycAddressDestination) {
                 state?.let { state ->
                     OrderCardAddressKYC(
-                        onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardSSNAddress) },
+                        onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardKYCSSN) },
                         onCheckBillingAddress = { viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress) },
                         line1 = state.residentialAddress?.line1,
                         city = state.residentialAddress?.city,
@@ -105,22 +114,39 @@ fun BlockchainCardNavHost(
 
             composable(BlockchainCardDestination.OrderCardKycSSNDestination) {
                 OrderCardSsnKYC(
-                    onContinue = { ssn -> viewModel.onIntent(BlockchainCardIntent.OrderCardKycComplete(ssn)) }
+                    onContinue = { ssn ->
+                        viewModel.onIntent(BlockchainCardIntent.OrderCardKycComplete(ssn))
+                    }
                 )
             }
 
-            composable(BlockchainCardDestination.OrderCardConfirmDestination) {
+            composable(BlockchainCardDestination.ChooseCardProductDestination) {
+                OrderCardContent(
+                    onContinue = {
+                        viewModel.onIntent(BlockchainCardIntent.OnOrderCardConfirm)
+                    },
+                    onSeeProductDetails = {
+                        viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails)
+                    }
+                )
+            }
+
+            composable(BlockchainCardDestination.ReviewAndSubmitCardDestination) {
                 state?.let { state ->
-                    OrderCardContent(
+                    ReviewAndSubmit(
+                        firstAndLastName = state.userFirstAndLastName,
+                        line1 = state.residentialAddress?.line1,
+                        city = state.residentialAddress?.city,
+                        postalCode = state.residentialAddress?.postCode,
                         isLegalDocReviewComplete = state.isLegalDocReviewComplete,
-                        onCreateCard = {
-                            viewModel.onIntent(BlockchainCardIntent.CreateCard)
-                        },
-                        onSeeProductDetails = {
-                            viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails)
+                        onCheckBillingAddress = {
+                            viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress)
                         },
                         onSeeLegalDocuments = {
                             viewModel.onIntent(BlockchainCardIntent.OnSeeLegalDocuments)
+                        },
+                        onCreateCard = {
+                            viewModel.onIntent(BlockchainCardIntent.CreateCard)
                         }
                     )
                 }
@@ -169,9 +195,6 @@ fun BlockchainCardNavHost(
                 ProductDetails(
                     onCloseProductDetailsBottomSheet = {
                         viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
-                    },
-                    onSeeProductLegalInfo = {
-                        viewModel.onIntent(BlockchainCardIntent.OnSeeProductLegalInfo)
                     }
                 )
             }

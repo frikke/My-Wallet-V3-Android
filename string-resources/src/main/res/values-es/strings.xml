@@ -2302,7 +2302,7 @@ Compre hoy criptomonedas.</string>
     <string name="feature_limits_daily_limit_period">Por día</string>
     <string name="feature_limits_monthly_limit_period">Por mes</string>
     <string name="feature_limits_yearly_limit_period">Por año</string>
-    <string name="see_card_details">Ver detalles de la tarjeta</string>
+    <string name="see_card_benefits">Ver detalles de la tarjeta</string>
     <string name="short_form_disclosure">Descripción de forma abreviada</string>
     <string name="title_cardPaymentNotSupported">Método de pago no admitido</string>
     <string name="virtual">Virtual</string>
@@ -2476,11 +2476,11 @@ Compre hoy criptomonedas.</string>
     <string name="order_card_intro">Una tarjeta digital que puede usar instantáneamente para pagos en línea.</string>
     <string name="card_creation_failed">No se pudo crear correctamente su tarjeta</string>
     <string name="card_creation_failed_description">A veces esto puede suceder cuando los sistemas están atascados. Puede volver a intentarlo tocando \"Intentar de nuevo\" a continuación</string>
-    <string name="no_fees">Sin comisiones</string>
+    <string name="no_fees_title">Sin comisiones</string>
     <string name="no_fees_description">Sin cuotas de registro. Sin cuotas anuales. Sin tarifas de transacción.</string>
     <string name="terms_and_conditions_label">Acepto los Términos del servicio de Blockchain.com</string>
-    <string name="crypto_rewards">Recompensas de criptomonedas</string>
-    <string name="crypto_rewards_description">Gane un 1%% en recompensas de criptomonedas en todas sus compras.</string>
+    <string name="crypto_back_title">Recompensas de criptomonedas</string>
+    <string name="crypto_back_description">Gane un 1%% en recompensas de criptomonedas en todas sus compras.</string>
     <string name="legal_info_title">Cuestiones legales</string>
     <string name="continue_to_card_dashboard">Continúe para ver el panel de control de su tarjeta.</string>
     <string name="go_to_dashboard">Ir al panel de control</string>

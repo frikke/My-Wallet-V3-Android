@@ -2266,7 +2266,7 @@ Compra criptomonedas hoy.</string>
     <string name="feature_limits_daily_limit_period">Por día</string>
     <string name="feature_limits_monthly_limit_period">Por mes</string>
     <string name="feature_limits_yearly_limit_period">Por año</string>
-    <string name="see_card_details">Ver datos de la tarjeta</string>
+    <string name="see_card_benefits">Ver datos de la tarjeta</string>
     <string name="short_form_disclosure">Divulgación de forma abreviada</string>
     <string name="title_cardPaymentNotSupported">Método de pago no admitido</string>
     <string name="virtual">Virtual</string>
@@ -2439,11 +2439,11 @@ Compra criptomonedas hoy.</string>
     <string name="order_card_intro">Una tarjeta digital que puedes usar instantáneamente para pagos en línea.</string>
     <string name="card_creation_failed">No se pudo crear correctamente la tarjeta</string>
     <string name="card_creation_failed_description">A veces, esto puede suceder cuando los sistemas están atascados. Puedes volver a intentarlo. Para hacerlo, toca “Volver a intentarlo” a continuación.</string>
-    <string name="no_fees">Sin comisiones</string>
+    <string name="no_fees_title">Sin comisiones</string>
     <string name="no_fees_description">Sin comisiones para registrarse. Sin comisiones anuales. Sin comisiones por transacción.</string>
     <string name="terms_and_conditions_label">Acepto los Términos de servicio de Blockchain.com</string>
-    <string name="crypto_rewards">Recompensas en criptomonedas</string>
-    <string name="crypto_rewards_description">Obtén un 1%% de recompensas en criptomonedas en todas las compras.</string>
+    <string name="crypto_back_title">Recompensas en criptomonedas</string>
+    <string name="crypto_back_description">Obtén un 1%% de recompensas en criptomonedas en todas las compras.</string>
     <string name="legal_info_title">Asuntos legales</string>
     <string name="continue_to_card_dashboard">Continúa para ver el panel de la tarjeta.</string>
     <string name="go_to_dashboard">Ir al panel</string>

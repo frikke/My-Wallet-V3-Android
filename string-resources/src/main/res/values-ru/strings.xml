@@ -2356,7 +2356,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="feature_limits_daily_limit_period">В день</string>
     <string name="feature_limits_monthly_limit_period">В месяц</string>
     <string name="feature_limits_yearly_limit_period">В год</string>
-    <string name="see_card_details">См. данные карты</string>
+    <string name="see_card_benefits">См. данные карты</string>
     <string name="short_form_disclosure">Краткое раскрытие информации</string>
     <string name="title_cardPaymentNotSupported">Неподдерживаемый способ оплаты</string>
     <string name="virtual">Виртуально</string>
@@ -2530,11 +2530,11 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="order_card_intro">Цифровая карта, которую вы можете мгновенно использовать для онлайн-платежей.</string>
     <string name="card_creation_failed">Не удалось успешно создать карту</string>
     <string name="card_creation_failed_description">Иногда это может произойти, когда системы зависли. Вы можете повторить попытку, нажав «Попробовать еще раз» ниже</string>
-    <string name="no_fees">Без комиссий</string>
+    <string name="no_fees_title">Без комиссий</string>
     <string name="no_fees_description">Без платы за регистрацию. Без ежегодных сборов. Без комиссий за транзакции.</string>
     <string name="terms_and_conditions_label">Я согласен(-на) с Условиями использования Blockchain.com</string>
-    <string name="crypto_rewards">Крипто Rewards</string>
-    <string name="crypto_rewards_description">Получайте 1%% обратно в виде крипто-вознаграждений за все свои покупки.</string>
+    <string name="crypto_back_title">Крипто Rewards</string>
+    <string name="crypto_back_description">Получайте 1%% обратно в виде крипто-вознаграждений за все свои покупки.</string>
     <string name="legal_info_title">Юридическая информация</string>
     <string name="continue_to_card_dashboard">Перейти к панели управления картой.</string>
     <string name="go_to_dashboard">Перейти к панели управления</string>

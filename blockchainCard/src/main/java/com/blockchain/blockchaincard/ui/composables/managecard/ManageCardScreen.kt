@@ -39,7 +39,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -87,6 +86,7 @@ import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.UltraLight
+import com.blockchain.componentlib.theme.White
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.getMonthName
@@ -1901,7 +1901,7 @@ fun AccountPicker(
     onCloseBottomSheet: () -> Unit,
 ) {
     val backgroundColor = if (!isSystemInDarkTheme()) {
-        Color.White
+        White
     } else {
         Dark800
     }
