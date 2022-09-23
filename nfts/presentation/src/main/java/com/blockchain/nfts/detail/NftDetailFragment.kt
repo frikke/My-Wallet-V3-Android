@@ -10,13 +10,13 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import com.blockchain.commonarch.presentation.mvi_v2.forceExpanded
 import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.detail.screen.NftDetail
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.androidx.compose.getViewModel
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 
 class NftDetailFragment : BottomSheetDialogFragment() {
 

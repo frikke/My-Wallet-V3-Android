@@ -40,29 +40,30 @@ class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftSer
     }
 
     private fun NftAssetsDto.mapToDomain(): List<NftAsset> =
-        this.assets.map { nftAsset ->
-            NftAsset(
-                id = nftAsset.id.orEmpty(),
-                imageUrl = nftAsset.imageUrl ?: nftAsset.imagePreviewUrl.orEmpty(),
-                name = nftAsset.name.orEmpty(),
-                description = nftAsset.description.orEmpty(),
-                creator = NftCreator(
-                    imageUrl = nftAsset.creator.imageUrl,
-                    name = nftAsset.creator.address.let {
-                        if (it.lowercase().startsWith("0x")) {
-                            it.drop(2).substring(0..5)
-                        } else {
-                            it
-                        }
-                    },
-                    isVerified = nftAsset.creator.isVerified
-                ),
-                traits = nftAsset.traits.map { nftTrait ->
-                    NftTrait(
-                        name = nftTrait.name,
-                        value = nftTrait.value
-                    )
-                }
-            )
-        }
+        this.assets.filterNot { it.imageUrl.isNullOrBlank() }
+            .map { nftAsset ->
+                NftAsset(
+                    id = nftAsset.id.orEmpty(),
+                    imageUrl = nftAsset.imageUrl ?: nftAsset.imagePreviewUrl.orEmpty(),
+                    name = nftAsset.name.orEmpty(),
+                    description = nftAsset.description.orEmpty(),
+                    creator = NftCreator(
+                        imageUrl = nftAsset.creator.imageUrl,
+                        name = nftAsset.creator.address.let {
+                            if (it.lowercase().startsWith("0x")) {
+                                it.drop(2).substring(0..5)
+                            } else {
+                                it
+                            }
+                        },
+                        isVerified = nftAsset.creator.isVerified
+                    ),
+                    traits = nftAsset.traits.map { nftTrait ->
+                        NftTrait(
+                            name = nftTrait.name,
+                            value = nftTrait.value
+                        )
+                    }
+                )
+            }
 }

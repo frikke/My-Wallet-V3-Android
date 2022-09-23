@@ -3,22 +3,23 @@ package com.blockchain.nfts.collection.screen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.media.UrlType
@@ -50,30 +51,24 @@ fun NftCollectionDataScreen(
             verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
             horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
         ) {
-            itemsIndexed(
+            items(
                 items = collection,
-                itemContent = { index, nftAsset ->
+                itemContent = { nftAsset ->
                     AsyncMediaItem(
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1F)
+                            .clip(RoundedCornerShape(size = AppTheme.dimensions.borderRadiiSmall))
                             .clickableNoEffect { onItemClick(nftAsset) },
                         url = nftAsset.imageUrl,
-                        urlType = UrlType.GIF
+                        fallbackUrlType = UrlType.GIF
                     )
-
-//                    Image(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .aspectRatio(1F)
-//                            .clickableNoEffect { onItemClick(nftAsset) },
-//                        imageResource = ImageResource.Remote(
-//                            url = nftAsset.iconUrl,
-//                            shape = RoundedCornerShape(size = AppTheme.dimensions.borderRadiiSmall)
-//                        )
-//                    )
                 }
             )
+
+            item {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.xHugeSpacing))
+            }
         }
 
         PrimaryButton(
@@ -104,7 +99,7 @@ fun PreviewNftCollectionDataScreen() {
             NftAsset(
                 "",
                 "https://lh3.googleusercontent.com/DWlQUXP_Y3obWxNTxfj3bBg2COuSONsa36DCiBpo5-8wvd5FpCcSg3ZRWILS1tvcAq7SwyQY-fC6wpkr2lJWDtzM1LhJnbi_NpCLng",
-                 "", "", creator = NftCreator("", "", true), listOf()
+                "", "", creator = NftCreator("", "", true), listOf()
             ),
             NftAsset(
                 "",

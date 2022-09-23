@@ -16,15 +16,16 @@ import coil.annotation.ExperimentalCoilApi
 import coil.compose.AsyncImage
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
+import coil.decode.SvgDecoder
 import coil.imageLoader
 import coil.request.ImageRequest
-import coil.size.Size
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottieRetrySignal
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.ImageResource.None.contentDescription
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -33,7 +34,7 @@ import com.blockchain.componentlib.theme.AppTheme
 fun AsyncMediaItem(
     modifier: Modifier = Modifier,
     url: String,
-    urlType: UrlType? = null,
+    fallbackUrlType: UrlType? = null,
     contentDescription: String? = "async media item",
     contentScale: ContentScale = ContentScale.Fit,
     @DrawableRes onLoadingPlaceholder: Int = R.drawable.bkgd_grey_900_rounded,
@@ -42,7 +43,7 @@ fun AsyncMediaItem(
     val context = LocalContext.current
 
     Column(modifier = modifier) {
-        when (urlType?.name ?: url.getUrlType()) {
+        when (url.getUrlType().ifEmpty { fallbackUrlType?.name }) {
             UrlType.MP4.name,
             UrlType.WAV.name,
             UrlType.FLV.name -> {
@@ -68,8 +69,7 @@ fun AsyncMediaItem(
                 )
             }
             UrlType.JPG.name,
-            UrlType.PNG.name,
-            UrlType.SVG.name -> {
+            UrlType.PNG.name-> {
                 val imageRequest = ImageRequest.Builder(context)
                     .data(url)
                     .placeholder(onLoadingPlaceholder)
@@ -86,9 +86,11 @@ fun AsyncMediaItem(
                     contentScale = contentScale
                 )
             }
+            UrlType.SVG.name,
             UrlType.GIF.name -> {
                 val imageLoader = ImageLoader.Builder(context)
                     .components {
+                        add(SvgDecoder.Factory())
                         if (Build.VERSION.SDK_INT >= 28) {
                             add(ImageDecoderDecoder.Factory())
                         } else {
