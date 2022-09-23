@@ -12,6 +12,7 @@ import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
@@ -205,6 +206,7 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
                 availableTargets = targets,
+                selectedTarget = NullAddress,
                 currentStep = selectStep(oldState.passwordRequired)
             ).updateBackstack(oldState)
 
@@ -643,6 +645,28 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         override fun reduce(oldState: TransactionState) = oldState.copy(
             shouldShowSendToDomainBanner = shouldShowSendToDomain
         )
+    }
+
+    class FilterOutTradingTargets(val showTrading: Boolean) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState) = oldState.copy(
+            selectedTarget = NullAddress,
+            nextEnabled = false
+        )
+
+        override fun isValidFor(oldState: TransactionState): Boolean {
+            return if (showTrading) {
+                oldState.availableTargets.none { it is TradingAccount }
+            } else {
+                oldState.availableTargets.any { it is TradingAccount }
+            }
+        }
+    }
+
+    class UpdateTradingAccountsFilterState(private val canFilterTradingAccounts: Boolean) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                canFilterOutTradingAccounts = canFilterTradingAccounts
+            )
     }
 }
 

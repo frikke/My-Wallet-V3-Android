@@ -33,6 +33,7 @@ import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -69,6 +70,7 @@ class PrefsUtil(
     SecureChannelPrefs,
     SimpleBuyPrefs,
     WalletStatusPrefs,
+    TransactionPrefs,
     EncryptedPrefs,
     AuthPrefs,
     BankLinkingPrefs,
@@ -126,6 +128,11 @@ class PrefsUtil(
         get() = getValue(KEY_PRE_IDV_FAILED, false)
         set(value) = setValue(KEY_PRE_IDV_FAILED, value)
 
+    override var showTradingAccountsOnPkwMode: Boolean
+        get() = getValue(KEY_SHOW_TRADING_ON_PKW_MODE, false)
+        set(value) {
+            setValue(KEY_SHOW_TRADING_ON_PKW_MODE, value)
+        }
     override var isOnboardingComplete: Boolean
         get() = getValue(KEY_ONBOARDING_COMPLETE, false)
         set(completed) = setValue(KEY_ONBOARDING_COMPLETE, completed)
@@ -814,6 +821,7 @@ class PrefsUtil(
         private const val SWAP_KYC_PROMO = "SWAP_KYC_PROMO"
         private const val KEY_NEWLY_CREATED_WALLET = "newly_created_wallet"
         private const val KEY_RESTORED_WALLET = "restored_wallet"
+        private const val KEY_SHOW_TRADING_ON_PKW_MODE = "SHOW_TRADING_ON_PKW_MODE"
 
         private const val TWO_FA_SMS_RETRIES = "TWO_FA_SMS_RETRIES"
         private const val KEY_EMAIL = "KEY_EMAIL"

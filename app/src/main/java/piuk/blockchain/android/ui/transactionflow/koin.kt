@@ -214,6 +214,7 @@ val transactionModule = module {
                 initialState = TransactionState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
+                walletModeService = get(),
                 errorLogger = get(),
                 environmentConfig = get(),
                 remoteLogger = get()

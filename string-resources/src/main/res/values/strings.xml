@@ -3232,5 +3232,6 @@
     <string name="kyc_autocomplete_addresses_error">Failed to retrieve addresses</string>
     <string name="kyc_autocomplete_selected_address_error">Failed to retrieve address</string>
 
-
+    <string name="show_trading_accounts">Show trading accounts</string>
+    <string name="secured_by_bchain">Secured by Blockchain.com</string>
 </resources>
