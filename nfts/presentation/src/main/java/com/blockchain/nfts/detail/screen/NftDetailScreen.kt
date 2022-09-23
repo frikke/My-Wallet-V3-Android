@@ -3,6 +3,7 @@ package com.blockchain.nfts.detail.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -47,6 +49,8 @@ import com.blockchain.nfts.detail.NftDetailViewModel
 import com.blockchain.nfts.detail.NftDetailViewState
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftCreator
+
+private const val COLUMN_COUNT = 2
 
 @Composable
 fun NftDetail(viewModel: NftDetailViewModel) {
@@ -84,7 +88,7 @@ fun NftDetailDataScreen(nftAsset: NftAsset) {
     LazyVerticalGrid(
         modifier = Modifier
             .fillMaxWidth(),
-        columns = GridCells.Fixed(count = 2),
+        columns = GridCells.Fixed(count = COLUMN_COUNT),
         contentPadding = PaddingValues(
             start = dimensionResource(R.dimen.small_spacing),
             end = dimensionResource(R.dimen.small_spacing),
@@ -94,7 +98,7 @@ fun NftDetailDataScreen(nftAsset: NftAsset) {
         verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
         horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
     ) {
-        item(span = { GridItemSpan(2) }) {
+        item(span = { GridItemSpan(COLUMN_COUNT) }) {
             NftBasicInfo(nftAsset)
         }
 
@@ -198,24 +202,34 @@ fun NftCreator(creator: NftCreator) {
             .padding(vertical = AppTheme.dimensions.smallSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            imageResource = ImageResource.Remote(
-                url = creator.imageUrl,
-                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall),
-                size = 40.dp
+        Box(modifier = Modifier.size(42.5.dp)) { // 2.5 extra to account for verified icon
+            Image(
+                imageResource = ImageResource.Remote(
+                    url = creator.imageUrl,
+                    shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall),
+                    size = 40.dp
+                )
             )
-        )
+
+            if (creator.isVerified) {
+                Image(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd),
+                    imageResource = ImageResource.Local(R.drawable.ic_verified)
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-        Column {
+        Column(modifier = Modifier.padding(bottom = 2.5.dp)) { // 2.5 extra to account for verified icon
             Text(
                 text = creator.name,
                 style = AppTheme.typography.paragraph2,
                 color = AppTheme.colors.title
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallestSpacing))
 
             Text(
                 text = stringResource(R.string.nft_creator),
@@ -229,12 +243,6 @@ fun NftCreator(creator: NftCreator) {
 // ///////////////
 // PREVIEWS
 // ///////////////
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewNftCollectionScreen_Empty() {
-    //    NftDetailScreen(nftCollection = DataResource.Data())
-}
 
 @Preview(showBackground = true)
 @Composable
@@ -255,16 +263,4 @@ fun PreviewNftCollectionScreen_Data() {
             )
         )
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewNftCollectionScreen_Loading() {
-    NftCollectionScreen(nftCollection = DataResource.Loading, {})
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewNftCollectionScreen_Error() {
-    NftCollectionScreen(nftCollection = DataResource.Error(Exception()), {})
 }
