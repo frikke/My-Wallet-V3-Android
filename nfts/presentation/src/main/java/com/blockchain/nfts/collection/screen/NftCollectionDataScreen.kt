@@ -20,11 +20,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.media.AsyncMediaItem
+import com.blockchain.componentlib.media.UrlType
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.nfts.R
 import com.blockchain.nfts.domain.models.NftAsset
-import com.blockchain.nfts.domain.models.NftData
+import com.blockchain.nfts.domain.models.NftCreator
 
 private const val COLUMN_COUNT = 2
 
@@ -51,16 +53,25 @@ fun NftCollectionDataScreen(
             itemsIndexed(
                 items = collection,
                 itemContent = { index, nftAsset ->
-                    Image(
+                    AsyncMediaItem(
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1F)
                             .clickableNoEffect { onItemClick(nftAsset) },
-                        imageResource = ImageResource.Remote(
-                            url = nftAsset.iconUrl,
-                            shape = RoundedCornerShape(size = AppTheme.dimensions.borderRadiiSmall)
-                        )
+                        url = nftAsset.imageUrl,
+                        urlType = UrlType.GIF
                     )
+
+//                    Image(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .aspectRatio(1F)
+//                            .clickableNoEffect { onItemClick(nftAsset) },
+//                        imageResource = ImageResource.Remote(
+//                            url = nftAsset.iconUrl,
+//                            shape = RoundedCornerShape(size = AppTheme.dimensions.borderRadiiSmall)
+//                        )
+//                    )
                 }
             )
         }
@@ -93,17 +104,17 @@ fun PreviewNftCollectionDataScreen() {
             NftAsset(
                 "",
                 "https://lh3.googleusercontent.com/DWlQUXP_Y3obWxNTxfj3bBg2COuSONsa36DCiBpo5-8wvd5FpCcSg3ZRWILS1tvcAq7SwyQY-fC6wpkr2lJWDtzM1LhJnbi_NpCLng",
-                NftData("", "", listOf())
+                 "", "", creator = NftCreator("", "", true), listOf()
             ),
             NftAsset(
                 "",
                 "https://lh3.googleusercontent.com/DWlQUXP_Y3obWxNTxfj3bBg2COuSONsa36DCiBpo5-8wvd5FpCcSg3ZRWILS1tvcAq7SwyQY-fC6wpkr2lJWDtzM1LhJnbi_NpCLng",
-                NftData("", "", listOf())
+                "", "", creator = NftCreator("", "", true), listOf()
             ),
             NftAsset(
                 "",
                 "https://lh3.googleusercontent.com/DWlQUXP_Y3obWxNTxfj3bBg2COuSONsa36DCiBpo5-8wvd5FpCcSg3ZRWILS1tvcAq7SwyQY-fC6wpkr2lJWDtzM1LhJnbi_NpCLng",
-                NftData("", "", listOf())
+                "", "", creator = NftCreator("", "", true), listOf()
             )
         ),
         {}

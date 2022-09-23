@@ -5,7 +5,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nfts.data.dataresources.NftCollectionStore
 import com.blockchain.nfts.domain.models.NftAsset
-import com.blockchain.nfts.domain.models.NftData
+import com.blockchain.nfts.domain.models.NftCreator
 import com.blockchain.nfts.domain.models.NftTrait
 import com.blockchain.nfts.domain.service.NftService
 import com.blockchain.store.mapData
@@ -42,18 +42,21 @@ class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftSer
     private fun NftAssetsDto.mapToDomain(): List<NftAsset> =
         this.assets.map { nftAsset ->
             NftAsset(
-                id = nftAsset.tokenId.orEmpty(),
-                iconUrl = nftAsset.imageUrl ?: nftAsset.imagePreviewUrl.orEmpty(),
-                nftData = NftData(
-                    name = nftAsset.name.orEmpty(),
-                    description = nftAsset.description.orEmpty(),
-                    traits = nftAsset.traits.map { nftTrait ->
-                        NftTrait(
-                            name = nftTrait.name,
-                            value = nftTrait.value
-                        )
-                    }
-                )
+                id = nftAsset.id.orEmpty(),
+                imageUrl = nftAsset.imageUrl ?: nftAsset.imagePreviewUrl.orEmpty(),
+                name = nftAsset.name.orEmpty(),
+                description = nftAsset.description.orEmpty(),
+                creator = NftCreator(
+                    imageUrl = nftAsset.creator.imageUrl,
+                    name = nftAsset.creator.address,
+                    isVerified = nftAsset.creator.isVerified
+                ),
+                traits = nftAsset.traits.map { nftTrait ->
+                    NftTrait(
+                        name = nftTrait.name,
+                        value = nftTrait.value
+                    )
+                }
             )
         }
 }

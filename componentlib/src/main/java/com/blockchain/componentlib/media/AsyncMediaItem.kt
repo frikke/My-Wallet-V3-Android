@@ -2,6 +2,7 @@
 
 package com.blockchain.componentlib.media
 
+import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
@@ -10,10 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import coil.ImageLoader
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.AsyncImage
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
 import coil.imageLoader
 import coil.request.ImageRequest
+import coil.size.Size
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -28,6 +33,7 @@ import com.blockchain.componentlib.theme.AppTheme
 fun AsyncMediaItem(
     modifier: Modifier = Modifier,
     url: String,
+    urlType: UrlType? = null,
     contentDescription: String? = "async media item",
     contentScale: ContentScale = ContentScale.Fit,
     @DrawableRes onLoadingPlaceholder: Int = R.drawable.bkgd_grey_900_rounded,
@@ -36,7 +42,7 @@ fun AsyncMediaItem(
     val context = LocalContext.current
 
     Column(modifier = modifier) {
-        when (url.getUrlType()) {
+        when (urlType?.name ?: url.getUrlType()) {
             UrlType.MP4.name,
             UrlType.WAV.name,
             UrlType.FLV.name -> {
@@ -63,7 +69,6 @@ fun AsyncMediaItem(
             }
             UrlType.JPG.name,
             UrlType.PNG.name,
-            UrlType.GIF.name,
             UrlType.SVG.name -> {
                 val imageRequest = ImageRequest.Builder(context)
                     .data(url)
@@ -76,6 +81,28 @@ fun AsyncMediaItem(
 
                 AsyncImage(
                     model = imageRequest,
+                    modifier = modifier,
+                    contentDescription = contentDescription,
+                    contentScale = contentScale
+                )
+            }
+            UrlType.GIF.name -> {
+                val imageLoader = ImageLoader.Builder(context)
+                    .components {
+                        if (Build.VERSION.SDK_INT >= 28) {
+                            add(ImageDecoderDecoder.Factory())
+                        } else {
+                            add(GifDecoder.Factory())
+                        }
+                    }
+                    .build()
+
+                val imageRequest = ImageRequest.Builder(context).data(data = url).build()
+                context.imageLoader.enqueue(imageRequest)
+
+                AsyncImage(
+                    model = imageRequest,
+                    imageLoader = imageLoader,
                     modifier = modifier,
                     contentDescription = contentDescription,
                     contentScale = contentScale
