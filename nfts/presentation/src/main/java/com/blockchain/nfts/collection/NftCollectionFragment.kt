@@ -20,6 +20,8 @@ class NftCollectionFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+//        showBottomSheet(ReceiveDetailSheet.newInstance(navigationEvent.cvAccount.account as CryptoAccount))
+
         return ComposeView(requireContext()).apply {
             setContent {
                 val viewModel: NftCollectionViewModel = getViewModel(scope = payloadScope)

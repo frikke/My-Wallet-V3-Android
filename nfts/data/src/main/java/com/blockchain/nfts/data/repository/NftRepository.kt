@@ -1,10 +1,12 @@
 package com.blockchain.nfts.data.repository
 
 import com.blockchain.api.nfts.data.NftAssetsDto
+import com.blockchain.api.nfts.data.NftContractDto
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nfts.data.dataresources.NftCollectionStore
 import com.blockchain.nfts.domain.models.NftAsset
+import com.blockchain.nfts.domain.models.NftContract
 import com.blockchain.nfts.domain.models.NftCreator
 import com.blockchain.nfts.domain.models.NftTrait
 import com.blockchain.nfts.domain.service.NftService
@@ -44,9 +46,11 @@ class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftSer
             .map { nftAsset ->
                 NftAsset(
                     id = nftAsset.id.orEmpty(),
+                    tokenId = nftAsset.tokenId.orEmpty(),
                     imageUrl = nftAsset.imageUrl ?: nftAsset.imagePreviewUrl.orEmpty(),
                     name = nftAsset.name.orEmpty(),
                     description = nftAsset.description.orEmpty(),
+                    contract = NftContract(nftAsset.contract.address),
                     creator = NftCreator(
                         imageUrl = nftAsset.creator.imageUrl,
                         name = nftAsset.creator.address.let {

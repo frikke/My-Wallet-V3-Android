@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
@@ -48,9 +49,11 @@ import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.data.DataResource
 import com.blockchain.nfts.R
+import com.blockchain.nfts.detail.NftDetailIntent
 import com.blockchain.nfts.detail.NftDetailViewModel
 import com.blockchain.nfts.detail.NftDetailViewState
 import com.blockchain.nfts.domain.models.NftAsset
+import com.blockchain.nfts.domain.models.NftContract
 import com.blockchain.nfts.domain.models.NftCreator
 import com.blockchain.nfts.domain.models.NftTrait
 
@@ -65,12 +68,20 @@ fun NftDetail(viewModel: NftDetailViewModel) {
     val viewState: NftDetailViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        NftDetailScreen(state.asset)
+        NftDetailScreen(
+            state.asset,
+            onExternalViewClick = { nftAsset ->
+                viewModel.onIntent(NftDetailIntent.ExternalViewRequested(nftAsset))
+            }
+        )
     }
 }
 
 @Composable
-fun NftDetailScreen(nftAsset: DataResource<NftAsset?>) {
+fun NftDetailScreen(
+    nftAsset: DataResource<NftAsset?>,
+    onExternalViewClick: (NftAsset) -> Unit
+) {
     when (nftAsset) {
         DataResource.Loading -> {
         }
@@ -81,14 +92,20 @@ fun NftDetailScreen(nftAsset: DataResource<NftAsset?>) {
 
         is DataResource.Data -> {
             nftAsset.data?.let {
-                NftDetailDataScreen(nftAsset = it)
+                NftDetailDataScreen(
+                    nftAsset = it,
+                    onExternalViewClick = { onExternalViewClick(it) }
+                )
             }
         }
     }
 }
 
 @Composable
-fun NftDetailDataScreen(nftAsset: NftAsset) {
+fun NftDetailDataScreen(
+    nftAsset: NftAsset,
+    onExternalViewClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -109,7 +126,10 @@ fun NftDetailDataScreen(nftAsset: NftAsset) {
             horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
         ) {
             item(span = { GridItemSpan(COLUMN_COUNT) }) {
-                NftBasicInfo(nftAsset)
+                NftBasicInfo(
+                    nftAsset = nftAsset,
+                    onExternalViewClick = onExternalViewClick
+                )
             }
 
             items(
@@ -123,7 +143,10 @@ fun NftDetailDataScreen(nftAsset: NftAsset) {
 }
 
 @Composable
-fun NftBasicInfo(nftAsset: NftAsset) {
+fun NftBasicInfo(
+    nftAsset: NftAsset,
+    onExternalViewClick: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -151,13 +174,13 @@ fun NftBasicInfo(nftAsset: NftAsset) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(AppTheme.dimensions.tinySpacing),
-            text = stringResource(R.string.nft_cta_shop),
-            //                icon = ImageResource.Local(
-            //                    data.start.logo.value,
-            //                    colorFilter = ColorFilter.tint(AppTheme.colors.background),
-            //                    size = AppTheme.dimensions.standardSpacing
-            //                ),
-            onClick = { /*todo*/ }
+            text = stringResource(R.string.nft_cta_view),
+            icon = ImageResource.Local(
+                R.drawable.ic_external,
+                colorFilter = ColorFilter.tint(AppTheme.colors.primary),
+                size = AppTheme.dimensions.standardSpacing
+            ),
+            onClick = onExternalViewClick
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
@@ -278,9 +301,11 @@ fun PreviewNftCollectionScreen_Data() {
         nftAsset = DataResource.Data(
             NftAsset(
                 id = "",
+                tokenId = "",
                 imageUrl = "",
                 name = "Kyotoangels #8260",
                 description = "Kyoto Angels is a Collection of 10000 Kawaii Dolls Manufactured by UwU",
+                contract = NftContract(address = ""),
                 creator = NftCreator(
                     imageUrl = "",
                     name = "Kyotoangels",
@@ -288,6 +313,7 @@ fun PreviewNftCollectionScreen_Data() {
                 ),
                 traits = listOf()
             )
-        )
+        ),
+        {}
     )
 }

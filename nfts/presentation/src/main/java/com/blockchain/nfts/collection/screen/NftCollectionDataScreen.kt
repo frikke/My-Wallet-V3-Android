@@ -17,9 +17,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.media.UrlType
@@ -27,6 +29,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.nfts.R
 import com.blockchain.nfts.domain.models.NftAsset
+import com.blockchain.nfts.domain.models.NftContract
 import com.blockchain.nfts.domain.models.NftCreator
 
 private const val COLUMN_COUNT = 2
@@ -77,11 +80,11 @@ fun NftCollectionDataScreen(
                 .padding(AppTheme.dimensions.tinySpacing)
                 .align(Alignment.BottomCenter),
             text = stringResource(R.string.nft_cta_shop),
-            //                icon = ImageResource.Local(
-            //                    data.start.logo.value,
-            //                    colorFilter = ColorFilter.tint(AppTheme.colors.background),
-            //                    size = AppTheme.dimensions.standardSpacing
-            //                ),
+            icon = ImageResource.Local(
+                R.drawable.ic_external,
+                colorFilter = ColorFilter.tint(AppTheme.colors.background),
+                size = AppTheme.dimensions.standardSpacing
+            ),
             onClick = { /*todo*/ }
         )
     }
@@ -97,19 +100,34 @@ fun PreviewNftCollectionDataScreen() {
     NftCollectionDataScreen(
         listOf(
             NftAsset(
-                "",
-                "https://lh3.googleusercontent.com/DWlQUXP_Y3obWxNTxfj3bBg2COuSONsa36DCiBpo5-8wvd5FpCcSg3ZRWILS1tvcAq7SwyQY-fC6wpkr2lJWDtzM1LhJnbi_NpCLng",
-                "", "", creator = NftCreator("", "", true), listOf()
+                id = "",
+                tokenId = "",
+                imageUrl = "",
+                name = "",
+                description = "",
+                contract  = NftContract(address = ""),
+                creator = NftCreator(imageUrl = "", name = "", isVerified = true),
+                traits = listOf()
             ),
             NftAsset(
-                "",
-                "https://lh3.googleusercontent.com/DWlQUXP_Y3obWxNTxfj3bBg2COuSONsa36DCiBpo5-8wvd5FpCcSg3ZRWILS1tvcAq7SwyQY-fC6wpkr2lJWDtzM1LhJnbi_NpCLng",
-                "", "", creator = NftCreator("", "", true), listOf()
+                id = "",
+                tokenId = "",
+                imageUrl = "",
+                name = "",
+                description = "",
+                contract  = NftContract(address = ""),
+                creator = NftCreator(imageUrl = "", name = "", isVerified = true),
+                traits = listOf()
             ),
             NftAsset(
-                "",
-                "https://lh3.googleusercontent.com/DWlQUXP_Y3obWxNTxfj3bBg2COuSONsa36DCiBpo5-8wvd5FpCcSg3ZRWILS1tvcAq7SwyQY-fC6wpkr2lJWDtzM1LhJnbi_NpCLng",
-                "", "", creator = NftCreator("", "", true), listOf()
+                id = "",
+                tokenId = "",
+                imageUrl = "",
+                name = "",
+                description = "",
+                contract  = NftContract(address = ""),
+                creator = NftCreator(imageUrl = "", name = "", isVerified = true),
+                traits = listOf()
             )
         ),
         {}

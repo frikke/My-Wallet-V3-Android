@@ -2,11 +2,17 @@ package com.blockchain.nfts.domain.models
 
 data class NftAsset(
     val id: String,
+    val tokenId: String,
     val imageUrl: String,
     val name: String,
     val description: String,
+    val contract: NftContract,
     val creator: NftCreator,
     val traits: List<NftTrait>
+)
+
+data class NftContract(
+    val address: String
 )
 
 data class NftCreator(

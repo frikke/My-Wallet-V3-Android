@@ -16,12 +16,19 @@ data class NftAssetsDto(
 @Serializable
 data class NftAssetDto(
     @SerialName("id") val id: String?,
+    @SerialName("token_id") val tokenId: String?,
     @SerialName("name") val name: String?,
     @SerialName("description") val description: String?,
     @SerialName("image_url") val imageUrl: String?,
     @SerialName("image_preview_url") val imagePreviewUrl: String?,
+    @SerialName("asset_contract") val contract: NftContractDto,
     @SerialName("creator") val creator: NftCreatorDto,
     @SerialName("traits") val traits: List<NftTraitDto>
+)
+
+@Serializable
+data class NftContractDto(
+    @SerialName("address") val address: String
 )
 
 @Serializable

@@ -13,6 +13,7 @@ dependencies {
     implementation project(':commonarch')
     implementation project(':componentlib')
     implementation project(':common:interface')
+    implementation project(':common:presentation')
     implementation project(':analytics:domain')
 
     // Compose

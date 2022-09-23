@@ -12,6 +12,7 @@ import com.blockchain.data.DataResource
 import com.blockchain.nfts.collection.NftCollectionViewModel
 import com.blockchain.nfts.collection.NftCollectionViewState
 import com.blockchain.nfts.domain.models.NftAsset
+import com.blockchain.nfts.domain.models.NftContract
 import com.blockchain.nfts.domain.models.NftCreator
 
 @Composable
@@ -75,7 +76,16 @@ fun PreviewNftCollectionScreen_Data() {
     NftCollectionScreen(
         nftCollection = DataResource.Data(
             listOf(
-                NftAsset("", "","", "", creator = NftCreator("", "", true), listOf())
+                NftAsset(
+                    id = "",
+                    tokenId = "",
+                    imageUrl = "",
+                    name = "",
+                    description = "",
+                    contract  = NftContract(address = ""),
+                    creator = NftCreator(imageUrl = "", name = "", isVerified = true),
+                    traits = listOf()
+                )
             )
         ),
         onItemClick = {}

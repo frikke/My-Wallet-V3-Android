@@ -9,30 +9,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.nfts.R
-import com.blockchain.nfts.collection.NftCollectionViewModel
-import com.blockchain.nfts.collection.NftCollectionViewState
-import com.blockchain.nfts.comingsoon.screen.NftComingSoonScreen
-
 
 @Composable
 fun NftEmptyCollectionScreen() {
@@ -70,11 +59,11 @@ fun NftEmptyCollectionScreen() {
             SecondaryButton(
                 modifier = Modifier.weight(1F),
                 text = stringResource(R.string.nft_cta_buy),
-//                icon = ImageResource.Local(
-//                    data.start.logo.value,
-//                    colorFilter = ColorFilter.tint(AppTheme.colors.background),
-//                    size = AppTheme.dimensions.standardSpacing
-//                ),
+                icon = ImageResource.Local(
+                    R.drawable.ic_external,
+                    colorFilter = ColorFilter.tint(AppTheme.colors.background),
+                    size = AppTheme.dimensions.standardSpacing
+                ),
                 onClick = { /*todo*/ }
             )
 
@@ -83,11 +72,11 @@ fun NftEmptyCollectionScreen() {
             PrimaryButton(
                 modifier = Modifier.weight(1F),
                 text = stringResource(R.string.common_receive),
-//                icon = ImageResource.Local(
-//                    data.start.logo.value,
-//                    colorFilter = ColorFilter.tint(AppTheme.colors.background),
-//                    size = AppTheme.dimensions.standardSpacing
-//                ),
+                icon = ImageResource.Local(
+                    R.drawable.ic_qr_code,
+                    colorFilter = ColorFilter.tint(AppTheme.colors.background),
+                    size = AppTheme.dimensions.standardSpacing
+                ),
                 onClick = { /*todo*/ }
             )
         }

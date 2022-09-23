@@ -39,6 +39,7 @@ import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.nfts.NftHost
 import com.blockchain.nfts.collection.NftCollectionFragment
 import com.blockchain.nfts.comingsoon.NftComingSoonFragment
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
@@ -133,6 +134,7 @@ class MainActivity :
     ScanAndConnectBottomSheet.Host,
     UiTourView.Host,
     KycUpgradeNowSheet.Host,
+//    NftHost,
     NavigationRouter<PricesNavigationEvent> {
 
     override val alwaysDisableScreenshots: Boolean
