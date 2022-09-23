@@ -48,7 +48,13 @@ class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftSer
                 description = nftAsset.description.orEmpty(),
                 creator = NftCreator(
                     imageUrl = nftAsset.creator.imageUrl,
-                    name = nftAsset.creator.address,
+                    name = nftAsset.creator.address.let {
+                        if (it.lowercase().startsWith("0x")) {
+                            it.drop(2).substring(0..5)
+                        } else {
+                            it
+                        }
+                    },
                     isVerified = nftAsset.creator.isVerified
                 ),
                 traits = nftAsset.traits.map { nftTrait ->

@@ -1,36 +1,49 @@
 package com.blockchain.nfts.detail.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.media.UrlType
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Grey700
+import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.data.DataResource
 import com.blockchain.nfts.R
 import com.blockchain.nfts.collection.screen.NftCollectionScreen
 import com.blockchain.nfts.detail.NftDetailViewModel
 import com.blockchain.nfts.detail.NftDetailViewState
 import com.blockchain.nfts.domain.models.NftAsset
+import com.blockchain.nfts.domain.models.NftCreator
 
 @Composable
 fun NftDetail(viewModel: NftDetailViewModel) {
@@ -65,12 +78,64 @@ fun NftDetailScreen(nftAsset: DataResource<NftAsset?>) {
 
 @Composable
 fun NftDetailDataScreen(nftAsset: NftAsset) {
-    Column(
+    LazyVerticalGrid(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(AppTheme.dimensions.smallSpacing)
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing),
+        columns = GridCells.Fixed(count = 2),
+        verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
+        horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
     ) {
+        item(span = { GridItemSpan(2) }) {
+            NftBasicInfo(nftAsset)
+        }
 
+        items(
+            items = nftAsset.traits,
+            itemContent = { trait ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = UltraLight,
+                            shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall)
+                        )
+                        .border(
+                            width = AppTheme.dimensions.borderSmall,
+                            color = AppTheme.colors.medium,
+                            shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall)
+                        )
+                        .padding(
+                            start = AppTheme.dimensions.tinySpacing,
+                            end = AppTheme.dimensions.tinySpacing,
+                            top = AppTheme.dimensions.tinySpacing,
+                            bottom = AppTheme.dimensions.smallSpacing,
+                        )
+                ) {
+                    Text(
+                        text = trait.name,
+                        style = AppTheme.typography.caption1,
+                        color = AppTheme.colors.primaryMuted
+                    )
+
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+                    Text(
+                        text = trait.value,
+                        style = AppTheme.typography.paragraph1,
+                        color = AppTheme.colors.primary
+                    )
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun NftBasicInfo(nftAsset: NftAsset) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
         AsyncMediaItem(
             modifier = Modifier
                 .fillMaxWidth()
@@ -98,13 +163,48 @@ fun NftDetailDataScreen(nftAsset: NftAsset) {
         Spacer(modifier = Modifier.size(AppTheme.dimensions.largeSpacing))
 
         Text(
-            text = stringResource(R.string.nft_empty_title),
+            text = nftAsset.name,
             style = AppTheme.typography.title2,
-            textAlign = TextAlign.Center,
             color = AppTheme.colors.title
         )
 
+        NftCreator(creator = nftAsset.creator)
+    }
+}
 
+@Composable
+fun NftCreator(creator: NftCreator) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = AppTheme.dimensions.smallSpacing),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            imageResource = ImageResource.Remote(
+                url = creator.imageUrl,
+                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiSmall),
+                size = 40.dp
+            )
+        )
+
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+        Column {
+            Text(
+                text = creator.name,
+                style = AppTheme.typography.paragraph2,
+                color = AppTheme.colors.title
+            )
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
+
+            Text(
+                text = stringResource(R.string.nft_creator),
+                style = AppTheme.typography.caption1,
+                color = Grey700
+            )
+        }
     }
 }
 
@@ -121,13 +221,22 @@ fun PreviewNftCollectionScreen_Empty() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewNftCollectionScreen_Data() {
-    //    NftDetailScreen(
-    //        nftCollection = DataResource.Data(
-    //            listOf(
-    //                NftAsset("", "", NftData("", "", listOf()))
-    //            )
-    //        )
-    //    )
+    NftDetailScreen(
+        nftAsset = DataResource.Data(
+            NftAsset(
+                id = "",
+                imageUrl = "",
+                name = "Kyotoangels #8260",
+                description = "Kyoto Angels is a Collection of 10000 Kawaii Dolls Manufactured by UwU",
+                creator = NftCreator(
+                    imageUrl = "",
+                    name = "Kyotoangels",
+                    isVerified = true
+                ),
+                traits = listOf()
+            )
+        )
+    )
 }
 
 @Preview(showBackground = true)
