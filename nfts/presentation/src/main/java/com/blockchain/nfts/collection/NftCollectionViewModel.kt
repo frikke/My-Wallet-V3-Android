@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
+import com.blockchain.nfts.OPENSEA_URL
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.domain.service.NftService
 import kotlinx.coroutines.flow.collectLatest
@@ -29,6 +30,11 @@ class NftCollectionViewModel(
     }
 
     override suspend fun handleIntent(modelState: NftCollectionModelState, intent: NftCollectionIntent) {
+        when(intent){
+            NftCollectionIntent.ExternalShop -> {
+                navigate(NftCollectionNavigationEvent.ShopExternal(OPENSEA_URL))
+            }
+        }
     }
 
     private fun loadNftCollection() {

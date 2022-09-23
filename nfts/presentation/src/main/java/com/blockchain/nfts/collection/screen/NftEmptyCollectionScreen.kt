@@ -24,7 +24,9 @@ import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.nfts.R
 
 @Composable
-fun NftEmptyCollectionScreen() {
+fun NftEmptyCollectionScreen(
+    onExternalShopClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -64,7 +66,7 @@ fun NftEmptyCollectionScreen() {
                     colorFilter = ColorFilter.tint(AppTheme.colors.background),
                     size = AppTheme.dimensions.standardSpacing
                 ),
-                onClick = { /*todo*/ }
+                onClick = onExternalShopClick
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
@@ -101,5 +103,5 @@ fun NftEmptyCollectionScreen() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewNftEmptyCollectionScreen() {
-    NftEmptyCollectionScreen()
+    NftEmptyCollectionScreen({})
 }

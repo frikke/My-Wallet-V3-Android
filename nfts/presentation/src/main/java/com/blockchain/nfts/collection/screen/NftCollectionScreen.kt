@@ -9,6 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.data.DataResource
+import com.blockchain.nfts.collection.NftCollectionIntent
 import com.blockchain.nfts.collection.NftCollectionViewModel
 import com.blockchain.nfts.collection.NftCollectionViewState
 import com.blockchain.nfts.domain.models.NftAsset
@@ -27,14 +28,21 @@ fun NftCollection(
     val viewState: NftCollectionViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        NftCollectionScreen(nftCollection = state.collection, onItemClick = onItemClick)
+        NftCollectionScreen(
+            nftCollection = state.collection,
+            onItemClick = onItemClick,
+            onExternalShopClick = {
+                viewModel.onIntent(NftCollectionIntent.ExternalShop)
+            }
+        )
     }
 }
 
 @Composable
 fun NftCollectionScreen(
     nftCollection: DataResource<List<NftAsset>>,
-    onItemClick: (NftAsset) -> Unit
+    onItemClick: (NftAsset) -> Unit,
+    onExternalShopClick: () -> Unit
 ) {
     when (nftCollection) {
         DataResource.Loading -> {
@@ -47,9 +55,15 @@ fun NftCollectionScreen(
         is DataResource.Data -> {
             with(nftCollection.data) {
                 if (isEmpty()) {
-                    NftEmptyCollectionScreen()
+                    NftEmptyCollectionScreen(
+                        onExternalShopClick = onExternalShopClick
+                    )
                 } else {
-                    NftCollectionDataScreen(collection = this, onItemClick = onItemClick)
+                    NftCollectionDataScreen(
+                        collection = this,
+                        onItemClick = onItemClick,
+                        onExternalShopClick = onExternalShopClick
+                    )
                 }
             }
         }
@@ -66,7 +80,8 @@ fun NftCollectionScreen(
 fun PreviewNftCollectionScreen_Empty() {
     NftCollectionScreen(
         nftCollection = DataResource.Data(emptyList()),
-        onItemClick = {}
+        onItemClick = {},
+        {}
     )
 }
 
@@ -82,13 +97,14 @@ fun PreviewNftCollectionScreen_Data() {
                     imageUrl = "",
                     name = "",
                     description = "",
-                    contract  = NftContract(address = ""),
+                    contract = NftContract(address = ""),
                     creator = NftCreator(imageUrl = "", name = "", isVerified = true),
                     traits = listOf()
                 )
             )
         ),
-        onItemClick = {}
+        onItemClick = {},
+        {}
     )
 }
 
@@ -97,7 +113,8 @@ fun PreviewNftCollectionScreen_Data() {
 fun PreviewNftCollectionScreen_Loading() {
     NftCollectionScreen(
         nftCollection = DataResource.Loading,
-        onItemClick = {}
+        onItemClick = {},
+        {}
     )
 }
 
@@ -106,6 +123,7 @@ fun PreviewNftCollectionScreen_Loading() {
 fun PreviewNftCollectionScreen_Error() {
     NftCollectionScreen(
         nftCollection = DataResource.Error(Exception()),
-        onItemClick = {}
+        onItemClick = {},
+        {}
     )
 }

@@ -22,7 +22,9 @@ import com.blockchain.presentation.openUrl
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.koin.androidx.compose.getViewModel
 
-class NftDetailFragment : MVIBottomSheet<NftDetailViewState>(), NavigationRouter<NftDetailNavigationEvent> {
+class NftDetailFragment :
+    MVIBottomSheet<NftDetailViewState>(),
+    NavigationRouter<NftDetailNavigationEvent> {
 
     val args: NftDetailNavArgs by lazy {
         arguments?.getParcelable<NftDetailNavArgs>(NftDetailNavArgs.ARGS_KEY)

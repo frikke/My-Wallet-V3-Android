@@ -37,7 +37,8 @@ private const val COLUMN_COUNT = 2
 @Composable
 fun NftCollectionDataScreen(
     collection: List<NftAsset>,
-    onItemClick: (NftAsset) -> Unit
+    onItemClick: (NftAsset) -> Unit,
+    onExternalShopClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -85,7 +86,7 @@ fun NftCollectionDataScreen(
                 colorFilter = ColorFilter.tint(AppTheme.colors.background),
                 size = AppTheme.dimensions.standardSpacing
             ),
-            onClick = { /*todo*/ }
+            onClick = onExternalShopClick
         )
     }
 }
@@ -105,7 +106,7 @@ fun PreviewNftCollectionDataScreen() {
                 imageUrl = "",
                 name = "",
                 description = "",
-                contract  = NftContract(address = ""),
+                contract = NftContract(address = ""),
                 creator = NftCreator(imageUrl = "", name = "", isVerified = true),
                 traits = listOf()
             ),
@@ -115,7 +116,7 @@ fun PreviewNftCollectionDataScreen() {
                 imageUrl = "",
                 name = "",
                 description = "",
-                contract  = NftContract(address = ""),
+                contract = NftContract(address = ""),
                 creator = NftCreator(imageUrl = "", name = "", isVerified = true),
                 traits = listOf()
             ),
@@ -125,11 +126,12 @@ fun PreviewNftCollectionDataScreen() {
                 imageUrl = "",
                 name = "",
                 description = "",
-                contract  = NftContract(address = ""),
+                contract = NftContract(address = ""),
                 creator = NftCreator(imageUrl = "", name = "", isVerified = true),
                 traits = listOf()
             )
         ),
+        {},
         {}
     )
 }
