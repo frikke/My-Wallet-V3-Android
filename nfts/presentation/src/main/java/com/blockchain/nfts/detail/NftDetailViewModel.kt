@@ -63,7 +63,7 @@ class NftDetailViewModel(
     }
 
     private fun NftAsset.getOpenSeaUrl(): String = run {
-        //https://opensea.io/assets/ethereum/0x2809a8737477a534df65c4b4cae43d0365e52035/475
+        // https://opensea.io/assets/ethereum/0x2809a8737477a534df65c4b4cae43d0365e52035/475
         String.format(OPENSEA_ASSET_URL, NFT_NETWORK, contract.address, tokenId)
     }
 }

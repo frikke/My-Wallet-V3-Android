@@ -29,16 +29,3 @@ class NftComingSoonFragment :
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

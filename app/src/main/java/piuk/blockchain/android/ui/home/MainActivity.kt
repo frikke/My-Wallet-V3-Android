@@ -58,6 +58,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.net.URLDecoder
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -120,7 +121,6 @@ import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.openUrl
 import timber.log.Timber
-import java.net.URLDecoder
 
 class MainActivity :
     MviActivity<MainModel, MainIntent, MainState, ActivityMainBinding>(),
@@ -170,8 +170,8 @@ class MainActivity :
                 it.data?.getSerializableExtra(SettingsActivity.SETTINGS_RESULT_DATA)
                     as? SettingsActivity.Companion.SettingsAction
                 )?.let { action ->
-                    startSettingsAction(action)
-                }
+                startSettingsAction(action)
+            }
         }
     }
 
@@ -346,8 +346,8 @@ class MainActivity :
             checkSelfPermission(Manifest.permission.CAMERA) ==
                 PackageManager.PERMISSION_GRANTED
             ).also {
-                analytics.logEvent(CameraAnalytics.CameraPermissionChecked(it))
-            }
+            analytics.logEvent(CameraAnalytics.CameraPermissionChecked(it))
+        }
     }
 
     private fun launchQrScan() {
@@ -1231,7 +1231,7 @@ class MainActivity :
     }
 
     override fun openExternalUrl(url: String) {
-       openUrl(url)
+        openUrl(url)
     }
 
     companion object {

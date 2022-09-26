@@ -69,7 +69,7 @@ fun AsyncMediaItem(
                 )
             }
             UrlType.JPG.name,
-            UrlType.PNG.name-> {
+            UrlType.PNG.name -> {
                 val imageRequest = ImageRequest.Builder(context)
                     .data(url)
                     .placeholder(onLoadingPlaceholder)

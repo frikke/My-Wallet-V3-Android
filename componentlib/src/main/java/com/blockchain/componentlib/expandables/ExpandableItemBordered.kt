@@ -19,9 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
@@ -95,7 +93,7 @@ fun ExpandableItemBordered(
 fun PreviewExpandableItemBordered() {
     ExpandableItemBordered(
         title = "Description",
-        text = "Kyoto Angels is a Collection of 10000 Kawaii Dolls Manufactured by Collection of 10000 Kawaii Dolls Manufactured",
+        text = "Kyoto Angels is a Collection of 10000 Kawaii Dolls Manufactured by Collection of 10000 Kawaii Dolls",
         numLinesVisible = 2,
         textButtonToExpand = "See More",
         textButtonToCollapse = "See Less",

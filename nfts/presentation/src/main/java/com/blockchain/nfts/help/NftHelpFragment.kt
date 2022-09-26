@@ -13,11 +13,9 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import com.blockchain.analytics.Analytics
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi_v2.forceExpanded
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.nfts.OPENSEA_URL
-import com.blockchain.nfts.collection.NftCollectionFragment
 import com.blockchain.nfts.help.screen.NftHelpScreen
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -72,16 +70,3 @@ class NftHelpFragment :
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
