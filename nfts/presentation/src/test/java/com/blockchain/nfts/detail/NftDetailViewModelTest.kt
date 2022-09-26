@@ -5,9 +5,6 @@ import app.cash.turbine.test
 import com.blockchain.data.DataResource
 import com.blockchain.nfts.NFT_NETWORK
 import com.blockchain.nfts.OPENSEA_ASSET_URL
-import com.blockchain.nfts.OPENSEA_URL
-import com.blockchain.nfts.collection.NftCollectionIntent
-import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.detail.navigation.NftDetailNavigationEvent
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftContract
@@ -16,13 +13,13 @@ import com.blockchain.testutils.CoroutineTestRule
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import kotlin.test.assertEquals
 
 class NftDetailViewModelTest {
     @get:Rule
@@ -42,7 +39,7 @@ class NftDetailViewModelTest {
     private val address = "address"
 
     private val nftDetailNavArgs = NftDetailNavArgs(
-        nftId  = "nftId",
+        nftId = "nftId",
         address = "address"
     )
 
