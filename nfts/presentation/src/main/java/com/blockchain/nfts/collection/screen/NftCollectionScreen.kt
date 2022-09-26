@@ -29,11 +29,15 @@ fun NftCollection(
     viewState?.let { state ->
         NftCollectionScreen(
             nftCollection = state.collection,
+            isRefreshing = state.isRefreshing,
             onItemClick = { nftAsset ->
                 viewModel.onIntent(NftCollectionIntent.ShowDetail(nftId = nftAsset.id))
             },
             onExternalShopClick = {
                 viewModel.onIntent(NftCollectionIntent.ExternalShop)
+            },
+            onRefresh = {
+                viewModel.onIntent(NftCollectionIntent.LoadData)
             },
             onReceiveClick = {
                 viewModel.onIntent(NftCollectionIntent.ShowReceiveAddress)
@@ -48,8 +52,10 @@ fun NftCollection(
 @Composable
 fun NftCollectionScreen(
     nftCollection: DataResource<List<NftAsset>>,
+    isRefreshing: Boolean,
     onItemClick: (NftAsset) -> Unit,
     onExternalShopClick: () -> Unit,
+    onRefresh: () -> Unit,
     onReceiveClick: () -> Unit,
     onHelpClick: () -> Unit
 ) {
@@ -72,8 +78,10 @@ fun NftCollectionScreen(
                 } else {
                     NftCollectionDataScreen(
                         collection = this,
+                        isRefreshing = isRefreshing,
                         onItemClick = onItemClick,
-                        onExternalShopClick = onExternalShopClick
+                        onExternalShopClick = onExternalShopClick,
+                        onRefresh = onRefresh
                     )
                 }
             }
@@ -90,8 +98,10 @@ fun NftCollectionScreen(
 fun PreviewNftCollectionScreen_Empty() {
     NftCollectionScreen(
         nftCollection = DataResource.Data(emptyList()),
+        isRefreshing = false,
         onItemClick = {},
         onExternalShopClick = {},
+        onRefresh = {},
         onReceiveClick = {},
         onHelpClick = {}
     )
@@ -115,8 +125,10 @@ fun PreviewNftCollectionScreen_Data() {
                 )
             )
         ),
+        isRefreshing = false,
         onItemClick = {},
         onExternalShopClick = {},
+        onRefresh = {},
         onReceiveClick = {},
         onHelpClick = {}
     )
@@ -127,10 +139,12 @@ fun PreviewNftCollectionScreen_Data() {
 fun PreviewNftCollectionScreen_Loading() {
     NftCollectionScreen(
         nftCollection = DataResource.Loading,
+        isRefreshing = false,
         onItemClick = {},
         onExternalShopClick = {},
+        onRefresh = {},
         onReceiveClick = {},
-        onHelpClick = {}
+        onHelpClick = {},
     )
 }
 
@@ -139,8 +153,10 @@ fun PreviewNftCollectionScreen_Loading() {
 fun PreviewNftCollectionScreen_Error() {
     NftCollectionScreen(
         nftCollection = DataResource.Error(Exception()),
+        isRefreshing = false,
         onItemClick = {},
         onExternalShopClick = {},
+        onRefresh = {},
         onReceiveClick = {},
         onHelpClick = {}
     )

@@ -26,7 +26,7 @@ class NftDetailViewModel(
 
     override fun reduce(state: NftDetailModelState): NftDetailViewState = state.run {
         NftDetailViewState(
-            asset = asset
+            nftAsset = asset
         )
     }
 

@@ -54,6 +54,7 @@ dependencies {
     implementation Libraries.koinAndroid
     implementation Libraries.lifecycleRuntime
     implementation Libraries.composeMarkdown
+    implementation Libraries.accompanistSwipeRefresh
 
     androidTestImplementation Libraries.composeUiTest
     debugImplementation Libraries.composeUiTooling

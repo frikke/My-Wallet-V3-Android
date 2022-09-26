@@ -36,6 +36,7 @@ class NftCollectionViewModel(
 
     override fun reduce(state: NftCollectionModelState): NftCollectionViewState = state.run {
         NftCollectionViewState(
+            isRefreshing = isRefreshing,
             collection = collection
         )
     }
@@ -90,6 +91,7 @@ class NftCollectionViewModel(
             ).collectLatest { dataResource ->
                 updateState {
                     it.copy(
+                        isRefreshing = dataResource is DataResource.Loading,
                         collection = if (dataResource is DataResource.Loading && it.collection is DataResource.Data) {
                             // if data is present already - don't show loading
                             it.collection

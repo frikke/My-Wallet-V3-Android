@@ -68,7 +68,7 @@ fun NftDetail(viewModel: NftDetailViewModel) {
 
     viewState?.let { state ->
         NftDetailScreen(
-            state.asset,
+            state.nftAsset,
             onExternalViewClick = { nftAsset ->
                 viewModel.onIntent(NftDetailIntent.ExternalViewRequested(nftAsset))
             }

@@ -21,11 +21,9 @@ dependencies {
     // Compose
     implementation Libraries.accompanistFlowLayout
     implementation Libraries.composeUiPoolingContainer
+    implementation Libraries.accompanistSwipeRefresh
 
     // Rx
     implementation Libraries.rxJava
     implementation Libraries.rxjava3Coroutines
-
-    // koin
-    implementation Libraries.koinCompose
 }

@@ -15,6 +15,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,69 +30,78 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.media.UrlType
+import com.blockchain.componentlib.swiperefresh.SwipeRefreshWithoutOverscroll
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.nfts.R
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftContract
 import com.blockchain.nfts.domain.models.NftCreator
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 private const val COLUMN_COUNT = 2
 
 @Composable
 fun NftCollectionDataScreen(
     collection: List<NftAsset>,
+    isRefreshing: Boolean,
     onItemClick: (NftAsset) -> Unit,
-    onExternalShopClick: () -> Unit
+    onExternalShopClick: () -> Unit,
+    onRefresh: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
+    SwipeRefreshWithoutOverscroll(
+        state = rememberSwipeRefreshState(isRefreshing),
+        onRefresh = onRefresh
     ) {
-        LazyVerticalGrid(
+        Box(
             modifier = Modifier
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(
-                horizontal = dimensionResource(R.dimen.small_spacing),
-                vertical = dimensionResource(R.dimen.small_spacing)
-            ),
-            columns = GridCells.Fixed(count = COLUMN_COUNT),
-            verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
-            horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
+                .fillMaxSize()
         ) {
-            items(
-                items = collection,
-                itemContent = { nftAsset ->
-                    AsyncMediaItem(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1F)
-                            .clip(RoundedCornerShape(size = AppTheme.dimensions.borderRadiiSmall))
-                            .clickableNoEffect { onItemClick(nftAsset) },
-                        url = nftAsset.imageUrl,
-                        fallbackUrlType = UrlType.GIF
-                    )
+            LazyVerticalGrid(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(
+                    horizontal = dimensionResource(R.dimen.small_spacing),
+                    vertical = dimensionResource(R.dimen.small_spacing)
+                ),
+                columns = GridCells.Fixed(count = COLUMN_COUNT),
+                verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
+                horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
+            ) {
+                items(
+                    items = collection,
+                    itemContent = { nftAsset ->
+                        AsyncMediaItem(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1F)
+                                .clip(RoundedCornerShape(size = AppTheme.dimensions.borderRadiiSmall))
+                                .clickableNoEffect { onItemClick(nftAsset) },
+                            url = nftAsset.imageUrl,
+                            fallbackUrlType = UrlType.GIF
+                        )
+                    }
+                )
+
+                item(span = { GridItemSpan(COLUMN_COUNT) }) {
+                    Spacer(modifier = Modifier.size(AppTheme.dimensions.xHugeSpacing))
                 }
-            )
-
-            item(span = { GridItemSpan(COLUMN_COUNT) }) {
-                Spacer(modifier = Modifier.size(AppTheme.dimensions.xHugeSpacing))
             }
-        }
 
-        PrimaryButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(AppTheme.dimensions.tinySpacing)
-                .align(Alignment.BottomCenter),
-            text = stringResource(R.string.nft_cta_shop),
-            icon = ImageResource.Local(
-                R.drawable.ic_external,
-                colorFilter = ColorFilter.tint(AppTheme.colors.background),
-                size = AppTheme.dimensions.standardSpacing
-            ),
-            onClick = onExternalShopClick
-        )
+            PrimaryButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.tinySpacing)
+                    .align(Alignment.BottomCenter),
+                text = stringResource(R.string.nft_cta_shop),
+                icon = ImageResource.Local(
+                    R.drawable.ic_external,
+                    colorFilter = ColorFilter.tint(AppTheme.colors.background),
+                    size = AppTheme.dimensions.standardSpacing
+                ),
+                onClick = onExternalShopClick
+            )
+        }
     }
 }
 
@@ -100,7 +113,7 @@ fun NftCollectionDataScreen(
 @Composable
 fun PreviewNftCollectionDataScreen() {
     NftCollectionDataScreen(
-        listOf(
+        collection = listOf(
             NftAsset(
                 id = "",
                 tokenId = "",
@@ -132,7 +145,9 @@ fun PreviewNftCollectionDataScreen() {
                 traits = listOf()
             )
         ),
-        {},
-        {}
+        isRefreshing = false,
+        onItemClick = {},
+        onExternalShopClick = {},
+        onRefresh = {}
     )
 }
