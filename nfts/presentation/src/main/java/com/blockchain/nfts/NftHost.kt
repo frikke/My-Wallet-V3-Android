@@ -1,9 +1,6 @@
 package com.blockchain.nfts
 
-import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.CryptoAccount
+import com.blockchain.nfts.collection.NftCollectionFragment
+import com.blockchain.nfts.help.NftHelpFragment
 
-interface NftHost {
-    fun showReceiveSheet(account: BlockchainAccount)
-    fun showNftDetail(nftId: String, address: String)
-}
+interface NftHost : NftCollectionFragment.Host, NftHelpFragment.Host

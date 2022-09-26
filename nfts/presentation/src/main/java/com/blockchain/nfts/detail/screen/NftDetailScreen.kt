@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -176,9 +175,7 @@ fun NftBasicInfo(
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
         MinimalButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(AppTheme.dimensions.tinySpacing),
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.nft_cta_view),
             icon = ImageResource.Local(
                 R.drawable.ic_external,

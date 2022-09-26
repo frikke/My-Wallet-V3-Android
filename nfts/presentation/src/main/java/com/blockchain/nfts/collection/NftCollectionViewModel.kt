@@ -56,6 +56,10 @@ class NftCollectionViewModel(
                 navigate(NftCollectionNavigationEvent.ShowReceiveAddress(modelState.account))
             }
 
+            NftCollectionIntent.ShowHelp -> {
+                navigate(NftCollectionNavigationEvent.ShowHelp)
+            }
+
             is NftCollectionIntent.ShowDetail -> {
                 check(modelState.account != null) { "account not initialized" }
 

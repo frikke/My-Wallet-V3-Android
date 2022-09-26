@@ -5,15 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.koin.payloadScope
-import com.blockchain.nfts.NftHost
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.collection.screen.NftCollection
-import com.blockchain.presentation.openUrl
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
@@ -23,13 +22,20 @@ class NftCollectionFragment :
     KoinScopeComponent,
     NavigationRouter<NftCollectionNavigationEvent> {
 
+    interface Host {
+        fun showReceiveSheet(account: BlockchainAccount)
+        fun showNftDetail(nftId: String, address: String)
+        fun showNftHelp()
+        fun openExternalUrl(url: String)
+    }
+
     override val scope: Scope
         get() = payloadScope
 
     private val viewModel by viewModel<NftCollectionViewModel>()
 
-    private val host: NftHost by lazy {
-        activity as? NftHost ?: error("Host activity is not a NftCollectionFragment.Host")
+    private val host: Host by lazy {
+        activity as? Host ?: error("Host activity is not a NftCollectionFragment.Host")
     }
 
     override fun onCreateView(
@@ -54,11 +60,15 @@ class NftCollectionFragment :
     override fun route(navigationEvent: NftCollectionNavigationEvent) {
         when (navigationEvent) {
             is NftCollectionNavigationEvent.ShopExternal -> {
-                requireContext().openUrl(navigationEvent.url)
+                host.openExternalUrl(navigationEvent.url)
             }
 
             is NftCollectionNavigationEvent.ShowReceiveAddress -> {
                 host.showReceiveSheet(navigationEvent.account)
+            }
+
+            NftCollectionNavigationEvent.ShowHelp -> {
+                host.showNftHelp()
             }
 
             is NftCollectionNavigationEvent.ShowDetail -> {

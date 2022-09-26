@@ -37,6 +37,9 @@ fun NftCollection(
             },
             onReceiveClick = {
                 viewModel.onIntent(NftCollectionIntent.ShowReceiveAddress)
+            },
+            onHelpClick = {
+                viewModel.onIntent(NftCollectionIntent.ShowHelp)
             }
         )
     }
@@ -47,7 +50,8 @@ fun NftCollectionScreen(
     nftCollection: DataResource<List<NftAsset>>,
     onItemClick: (NftAsset) -> Unit,
     onExternalShopClick: () -> Unit,
-    onReceiveClick: () -> Unit
+    onReceiveClick: () -> Unit,
+    onHelpClick: () -> Unit
 ) {
     when (nftCollection) {
         DataResource.Loading -> {
@@ -62,7 +66,8 @@ fun NftCollectionScreen(
                 if (isEmpty()) {
                     NftEmptyCollectionScreen(
                         onExternalShopClick = onExternalShopClick,
-                        onReceiveClick = onReceiveClick
+                        onReceiveClick = onReceiveClick,
+                        onHelpClick = onHelpClick
                     )
                 } else {
                     NftCollectionDataScreen(
@@ -87,7 +92,8 @@ fun PreviewNftCollectionScreen_Empty() {
         nftCollection = DataResource.Data(emptyList()),
         onItemClick = {},
         onExternalShopClick = {},
-        onReceiveClick = {}
+        onReceiveClick = {},
+        onHelpClick = {}
     )
 }
 
@@ -111,7 +117,8 @@ fun PreviewNftCollectionScreen_Data() {
         ),
         onItemClick = {},
         onExternalShopClick = {},
-        onReceiveClick = {}
+        onReceiveClick = {},
+        onHelpClick = {}
     )
 }
 
@@ -122,7 +129,8 @@ fun PreviewNftCollectionScreen_Loading() {
         nftCollection = DataResource.Loading,
         onItemClick = {},
         onExternalShopClick = {},
-        onReceiveClick = {}
+        onReceiveClick = {},
+        onHelpClick = {}
     )
 }
 
@@ -133,6 +141,7 @@ fun PreviewNftCollectionScreen_Error() {
         nftCollection = DataResource.Error(Exception()),
         onItemClick = {},
         onExternalShopClick = {},
-        onReceiveClick = {}
+        onReceiveClick = {},
+        onHelpClick = {}
     )
 }

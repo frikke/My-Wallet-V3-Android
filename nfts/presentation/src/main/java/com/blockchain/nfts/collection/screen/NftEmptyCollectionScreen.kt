@@ -21,12 +21,14 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey700
+import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.nfts.R
 
 @Composable
 fun NftEmptyCollectionScreen(
     onExternalShopClick: () -> Unit,
-    onReceiveClick: () -> Unit
+    onReceiveClick: () -> Unit,
+    onHelpClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -87,6 +89,7 @@ fun NftEmptyCollectionScreen(
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
         Text(
+            modifier = Modifier.clickableNoEffect { onHelpClick() },
             text = stringResource(R.string.nft_help),
             style = AppTheme.typography.body1,
             textAlign = TextAlign.Center,
@@ -106,6 +109,7 @@ fun NftEmptyCollectionScreen(
 fun PreviewNftEmptyCollectionScreen() {
     NftEmptyCollectionScreen(
         onExternalShopClick = {},
-        onReceiveClick = {}
+        onReceiveClick = {},
+        onHelpClick = {}
     )
 }
