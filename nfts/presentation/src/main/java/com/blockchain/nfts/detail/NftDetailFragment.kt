@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -76,9 +75,15 @@ class NftDetailFragment :
     }
 
     companion object {
-        fun newInstance(nftId: String): NftDetailFragment {
+        fun newInstance(
+            nftId: String,
+            address: String
+        ): NftDetailFragment {
             val bundle = Bundle()
-            bundle.putParcelable(NftDetailNavArgs.ARGS_KEY, NftDetailNavArgs(nftId = nftId))
+            bundle.putParcelable(
+                NftDetailNavArgs.ARGS_KEY,
+                NftDetailNavArgs(nftId = nftId, address = address)
+            )
             return NftDetailFragment().apply {
                 arguments = bundle
             }

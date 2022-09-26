@@ -57,7 +57,12 @@ class NftCollectionViewModel(
             }
 
             is NftCollectionIntent.ShowDetail -> {
-                navigate(NftCollectionNavigationEvent.ShowDetail(intent.nftId))
+                check(modelState.account != null) { "account not initialized" }
+
+                viewModelScope.launch {
+                    val address = modelState.account.receiveAddress.await().address
+                    navigate(NftCollectionNavigationEvent.ShowDetail(nftId = intent.nftId, address = address))
+                }
             }
         }
     }

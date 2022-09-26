@@ -5,5 +5,5 @@ import com.blockchain.coincore.CryptoAccount
 
 interface NftHost {
     fun showReceiveSheet(account: BlockchainAccount)
-    fun showNftDetail(nftId: String)
+    fun showNftDetail(nftId: String, address: String)
 }

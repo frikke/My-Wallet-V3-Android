@@ -11,5 +11,5 @@ sealed interface NftCollectionNavigationEvent : NavigationEvent {
 
     data class ShowReceiveAddress(val account: BlockchainAccount) : NftCollectionNavigationEvent
 
-    data class ShowDetail(val nftId: String) : NftCollectionNavigationEvent
+    data class ShowDetail(val nftId: String, val address: String) : NftCollectionNavigationEvent
 }

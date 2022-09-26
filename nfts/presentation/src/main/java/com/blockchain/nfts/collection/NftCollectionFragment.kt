@@ -62,7 +62,7 @@ class NftCollectionFragment :
             }
 
             is NftCollectionNavigationEvent.ShowDetail -> {
-                host.showNftDetail(navigationEvent.nftId)
+                host.showNftDetail(nftId = navigationEvent.nftId, address = navigationEvent.address)
             }
         }
     }
