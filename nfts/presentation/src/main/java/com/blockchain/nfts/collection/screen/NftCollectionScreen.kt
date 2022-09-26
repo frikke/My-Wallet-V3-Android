@@ -18,8 +18,7 @@ import com.blockchain.nfts.domain.models.NftCreator
 
 @Composable
 fun NftCollection(
-    viewModel: NftCollectionViewModel,
-    onItemClick: (NftAsset) -> Unit
+    viewModel: NftCollectionViewModel
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -30,9 +29,14 @@ fun NftCollection(
     viewState?.let { state ->
         NftCollectionScreen(
             nftCollection = state.collection,
-            onItemClick = onItemClick,
+            onItemClick = { nftAsset ->
+                viewModel.onIntent(NftCollectionIntent.ShowDetail(nftId = nftAsset.id))
+            },
             onExternalShopClick = {
                 viewModel.onIntent(NftCollectionIntent.ExternalShop)
+            },
+            onReceiveClick = {
+                viewModel.onIntent(NftCollectionIntent.ShowReceiveAddress)
             }
         )
     }
@@ -42,7 +46,8 @@ fun NftCollection(
 fun NftCollectionScreen(
     nftCollection: DataResource<List<NftAsset>>,
     onItemClick: (NftAsset) -> Unit,
-    onExternalShopClick: () -> Unit
+    onExternalShopClick: () -> Unit,
+    onReceiveClick: () -> Unit
 ) {
     when (nftCollection) {
         DataResource.Loading -> {
@@ -56,7 +61,8 @@ fun NftCollectionScreen(
             with(nftCollection.data) {
                 if (isEmpty()) {
                     NftEmptyCollectionScreen(
-                        onExternalShopClick = onExternalShopClick
+                        onExternalShopClick = onExternalShopClick,
+                        onReceiveClick = onReceiveClick
                     )
                 } else {
                     NftCollectionDataScreen(
@@ -81,7 +87,8 @@ fun PreviewNftCollectionScreen_Empty() {
     NftCollectionScreen(
         nftCollection = DataResource.Data(emptyList()),
         onItemClick = {},
-        {}
+        onExternalShopClick = {},
+        onReceiveClick = {}
     )
 }
 
@@ -104,7 +111,8 @@ fun PreviewNftCollectionScreen_Data() {
             )
         ),
         onItemClick = {},
-        {}
+        onExternalShopClick = {},
+        onReceiveClick = {}
     )
 }
 
@@ -114,7 +122,8 @@ fun PreviewNftCollectionScreen_Loading() {
     NftCollectionScreen(
         nftCollection = DataResource.Loading,
         onItemClick = {},
-        {}
+        onExternalShopClick = {},
+        onReceiveClick = {}
     )
 }
 
@@ -124,6 +133,7 @@ fun PreviewNftCollectionScreen_Error() {
     NftCollectionScreen(
         nftCollection = DataResource.Error(Exception()),
         onItemClick = {},
-        {}
+        onExternalShopClick = {},
+        onReceiveClick = {}
     )
 }

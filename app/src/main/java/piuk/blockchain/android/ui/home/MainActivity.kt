@@ -41,7 +41,7 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nfts.NftHost
 import com.blockchain.nfts.collection.NftCollectionFragment
-import com.blockchain.nfts.comingsoon.NftComingSoonFragment
+import com.blockchain.nfts.detail.NftDetailFragment
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.preferences.DashboardPrefs
@@ -57,7 +57,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import java.net.URLDecoder
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -119,6 +118,7 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
 import timber.log.Timber
+import java.net.URLDecoder
 
 class MainActivity :
     MviActivity<MainModel, MainIntent, MainState, ActivityMainBinding>(),
@@ -134,7 +134,7 @@ class MainActivity :
     ScanAndConnectBottomSheet.Host,
     UiTourView.Host,
     KycUpgradeNowSheet.Host,
-//    NftHost,
+    NftHost,
     NavigationRouter<PricesNavigationEvent> {
 
     override val alwaysDisableScreenshots: Boolean
@@ -168,8 +168,8 @@ class MainActivity :
                 it.data?.getSerializableExtra(SettingsActivity.SETTINGS_RESULT_DATA)
                     as? SettingsActivity.Companion.SettingsAction
                 )?.let { action ->
-                startSettingsAction(action)
-            }
+                    startSettingsAction(action)
+                }
         }
     }
 
@@ -344,8 +344,8 @@ class MainActivity :
             checkSelfPermission(Manifest.permission.CAMERA) ==
                 PackageManager.PERMISSION_GRANTED
             ).also {
-            analytics.logEvent(CameraAnalytics.CameraPermissionChecked(it))
-        }
+                analytics.logEvent(CameraAnalytics.CameraPermissionChecked(it))
+            }
     }
 
     private fun launchQrScan() {
@@ -1214,6 +1214,14 @@ class MainActivity :
             .setMessage(message)
             .setPositiveButton(android.R.string.ok, null)
             .show()
+    }
+
+    override fun showReceiveSheet(account: BlockchainAccount) {
+        launchAssetAction(AssetAction.Receive, account)
+    }
+
+    override fun showNftDetail(nftId: String) {
+        replaceBottomSheet(NftDetailFragment.newInstance(nftId))
     }
 
     companion object {

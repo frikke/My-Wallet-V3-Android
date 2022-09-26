@@ -25,7 +25,8 @@ import com.blockchain.nfts.R
 
 @Composable
 fun NftEmptyCollectionScreen(
-    onExternalShopClick: () -> Unit
+    onExternalShopClick: () -> Unit,
+    onReceiveClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -79,7 +80,7 @@ fun NftEmptyCollectionScreen(
                     colorFilter = ColorFilter.tint(AppTheme.colors.background),
                     size = AppTheme.dimensions.standardSpacing
                 ),
-                onClick = { /*todo*/ }
+                onClick = onReceiveClick
             )
         }
 
@@ -103,5 +104,8 @@ fun NftEmptyCollectionScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewNftEmptyCollectionScreen() {
-    NftEmptyCollectionScreen({})
+    NftEmptyCollectionScreen(
+        onExternalShopClick = {},
+        onReceiveClick = {}
+    )
 }

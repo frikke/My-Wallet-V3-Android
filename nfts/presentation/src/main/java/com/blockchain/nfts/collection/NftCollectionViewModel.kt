@@ -28,6 +28,10 @@ class NftCollectionViewModel(
     initialState = NftCollectionModelState()
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
+        viewModelScope.launch {
+            loadAccount()
+            onIntent(NftCollectionIntent.LoadData)
+        }
     }
 
     override fun reduce(state: NftCollectionModelState): NftCollectionViewState = state.run {
@@ -39,16 +43,21 @@ class NftCollectionViewModel(
     override suspend fun handleIntent(modelState: NftCollectionModelState, intent: NftCollectionIntent) {
         when (intent) {
             NftCollectionIntent.LoadData -> {
-                if (modelState.account == null) {
-                    loadAccount()
-                }
-
-                check(this@NftCollectionViewModel.modelState.account != null) { "account not initialized" }
-                loadNftCollection(this@NftCollectionViewModel.modelState.account!!)
+                check(modelState.account != null) { "account not initialized" }
+                loadNftCollection(modelState.account)
             }
 
             NftCollectionIntent.ExternalShop -> {
                 navigate(NftCollectionNavigationEvent.ShopExternal(OPENSEA_URL))
+            }
+
+            NftCollectionIntent.ShowReceiveAddress -> {
+                check(modelState.account != null) { "account not initialized" }
+                navigate(NftCollectionNavigationEvent.ShowReceiveAddress(modelState.account))
+            }
+
+            is NftCollectionIntent.ShowDetail -> {
+                navigate(NftCollectionNavigationEvent.ShowDetail(intent.nftId))
             }
         }
     }

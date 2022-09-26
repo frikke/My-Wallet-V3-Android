@@ -5,15 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
-import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.koin.payloadScope
+import com.blockchain.nfts.NftHost
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.collection.screen.NftCollection
-import com.blockchain.nfts.detail.NftDetailFragment
 import com.blockchain.presentation.openUrl
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.KoinScopeComponent
@@ -29,22 +28,22 @@ class NftCollectionFragment :
 
     private val viewModel by viewModel<NftCollectionViewModel>()
 
+    private val host: NftHost by lazy {
+        activity as? NftHost ?: error("Host activity is not a NftCollectionFragment.Host")
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        //        showBottomSheet(ReceiveDetailSheet.newInstance(navigationEvent.cvAccount.account as CryptoAccount))
-
         return ComposeView(requireContext()).apply {
             setContent {
                 bindViewModel(
                     viewModel = viewModel, navigator = this@NftCollectionFragment, args = ModelConfigArgs.NoArgs
                 )
 
-                NftCollection(
-                    viewModel,
-                    { (requireActivity() as BlockchainActivity).showBottomSheet(NftDetailFragment.newInstance(it.id)) })
+                NftCollection(viewModel)
             }
         }
     }
@@ -57,11 +56,14 @@ class NftCollectionFragment :
             is NftCollectionNavigationEvent.ShopExternal -> {
                 requireContext().openUrl(navigationEvent.url)
             }
-        }
-    }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.onIntent(NftCollectionIntent.LoadData)
+            is NftCollectionNavigationEvent.ShowReceiveAddress -> {
+                host.showReceiveSheet(navigationEvent.account)
+            }
+
+            is NftCollectionNavigationEvent.ShowDetail -> {
+                host.showNftDetail(navigationEvent.nftId)
+            }
+        }
     }
 }
