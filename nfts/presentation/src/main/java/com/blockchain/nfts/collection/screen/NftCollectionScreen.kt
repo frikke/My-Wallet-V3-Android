@@ -29,7 +29,7 @@ fun NftCollection(
     viewState?.let { state ->
         NftCollectionScreen(
             nftCollection = state.collection,
-            isRefreshing = state.isRefreshing,
+            isRefreshing = state.isPullToRefreshLoading,
             onItemClick = { nftAsset ->
                 viewModel.onIntent(NftCollectionIntent.ShowDetail(nftId = nftAsset.id))
             },
@@ -37,7 +37,7 @@ fun NftCollection(
                 viewModel.onIntent(NftCollectionIntent.ExternalShop)
             },
             onRefresh = {
-                viewModel.onIntent(NftCollectionIntent.LoadData)
+                viewModel.onIntent(NftCollectionIntent.LoadData(isFromPullToRefresh = true))
             },
             onReceiveClick = {
                 viewModel.onIntent(NftCollectionIntent.ShowReceiveAddress)

@@ -3207,6 +3207,7 @@
     <string name="nft_cta_shop">Shop on Opensea</string>
     <string name="nft_cta_view">View on Opensea</string>
     <string name="nft_creator">Creator</string>
+    <string name="nft_description">Description</string>
     <string name="nft_help_title">How does this work?</string>
     <string name="nft_help_buy_title">Purchase NFTs</string>
     <string name="nft_help_buy_description">Buy an NFT using your Blockchain.com app and Walletconnect on Opensea or Rarible.</string>

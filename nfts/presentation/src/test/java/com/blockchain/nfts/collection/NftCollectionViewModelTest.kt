@@ -68,7 +68,6 @@ class NftCollectionViewModelTest {
 
         viewModel.viewState.test {
             viewModel.viewCreated(ModelConfigArgs.NoArgs)
-            expectMostRecentItem()
 
             // first loading - should be loading
             dataResource.emit(DataResource.Loading)
@@ -84,9 +83,8 @@ class NftCollectionViewModelTest {
 
             // following loading - should be data
             dataResource.emit(DataResource.Loading)
-            awaitItem().run {
-                assertEquals(DataResource.Data(listOf(nftAsset)), collection)
-            }
+            // trying to emit viewState with same data will not emit anything since the new object equals the old
+            expectNoEvents()
         }
     }
 

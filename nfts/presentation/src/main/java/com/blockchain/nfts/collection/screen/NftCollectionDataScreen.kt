@@ -15,13 +15,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
@@ -52,15 +49,14 @@ fun NftCollectionDataScreen(
         onRefresh = onRefresh
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             LazyVerticalGrid(
                 modifier = Modifier
                     .fillMaxWidth(),
                 contentPadding = PaddingValues(
-                    horizontal = dimensionResource(R.dimen.small_spacing),
-                    vertical = dimensionResource(R.dimen.small_spacing)
+                    horizontal = AppTheme.dimensions.smallSpacing,
+                    vertical = AppTheme.dimensions.smallSpacing
                 ),
                 columns = GridCells.Fixed(count = COLUMN_COUNT),
                 verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),

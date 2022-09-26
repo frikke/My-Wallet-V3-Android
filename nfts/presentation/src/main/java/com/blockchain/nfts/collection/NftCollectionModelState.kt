@@ -7,6 +7,6 @@ import com.blockchain.nfts.domain.models.NftAsset
 
 data class NftCollectionModelState(
     val account: BlockchainAccount? = null,
-    val isRefreshing: Boolean = false,
+    val isPullToRefreshLoading: Boolean = false,
     val collection: DataResource<List<NftAsset>> = DataResource.Loading
 ) : ModelState

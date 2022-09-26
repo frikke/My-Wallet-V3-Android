@@ -20,13 +20,20 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.detail.navigation.NftDetailNavigationEvent
 import com.blockchain.nfts.detail.screen.NftDetail
-import com.blockchain.presentation.openUrl
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.koin.androidx.compose.getViewModel
 
 class NftDetailFragment :
     MVIBottomSheet<NftDetailViewState>(),
     NavigationRouter<NftDetailNavigationEvent> {
+
+    interface Host {
+        fun openExternalUrl(url: String)
+    }
+
+    private val host: Host by lazy {
+        activity as? Host ?: error("Host activity is not a NftDetailFragment.Host")
+    }
 
     val args: NftDetailNavArgs by lazy {
         arguments?.getParcelable<NftDetailNavArgs>(NftDetailNavArgs.ARGS_KEY)
@@ -69,7 +76,7 @@ class NftDetailFragment :
     override fun route(navigationEvent: NftDetailNavigationEvent) {
         when (navigationEvent) {
             is NftDetailNavigationEvent.ExternalView -> {
-                requireContext().openUrl(navigationEvent.url)
+                host.openExternalUrl(navigationEvent.url)
             }
         }
     }

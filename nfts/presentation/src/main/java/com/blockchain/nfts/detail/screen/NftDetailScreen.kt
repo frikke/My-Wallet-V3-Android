@@ -106,8 +106,7 @@ fun NftDetailDataScreen(
     onExternalViewClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
         Box(
             modifier = Modifier
@@ -196,7 +195,7 @@ fun NftBasicInfo(
         NftCreator(creator = nftAsset.creator)
 
         ExpandableItemBordered(
-            title = "Description",
+            title = stringResource(R.string.nft_description),
             text = nftAsset.description,
             numLinesVisible = 2,
             textButtonToExpand = stringResource(R.string.coinview_expandable_button),
@@ -209,13 +208,19 @@ fun NftBasicInfo(
 
 @Composable
 fun NftCreator(creator: NftCreator) {
+    val verifiedIconPadding = 2.5.dp
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = AppTheme.dimensions.smallSpacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(modifier = Modifier.size(42.5.dp)) { // 2.5 extra to account for verified icon
+        Box(
+            modifier = Modifier.size(
+                AppTheme.dimensions.hugeSpacing + verifiedIconPadding // 2.5 extra to account for verified icon
+            )
+        ) {
             Image(
                 imageResource = ImageResource.Remote(
                     url = creator.imageUrl,
@@ -235,7 +240,7 @@ fun NftCreator(creator: NftCreator) {
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
-        Column(modifier = Modifier.padding(bottom = 2.5.dp)) { // 2.5 extra to account for verified icon
+        Column(modifier = Modifier.padding(bottom = verifiedIconPadding)) { // 2.5 extra to account for verified icon
             Text(
                 text = creator.name,
                 style = AppTheme.typography.paragraph2,

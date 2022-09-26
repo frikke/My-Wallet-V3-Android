@@ -8,6 +8,7 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nfts.OPENSEA_URL
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.domain.service.NftService
@@ -30,22 +31,22 @@ class NftCollectionViewModel(
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         viewModelScope.launch {
             loadAccount()
-            onIntent(NftCollectionIntent.LoadData)
+            onIntent(NftCollectionIntent.LoadData(isFromPullToRefresh = false))
         }
     }
 
     override fun reduce(state: NftCollectionModelState): NftCollectionViewState = state.run {
         NftCollectionViewState(
-            isRefreshing = isRefreshing,
+            isPullToRefreshLoading = isPullToRefreshLoading,
             collection = collection
         )
     }
 
     override suspend fun handleIntent(modelState: NftCollectionModelState, intent: NftCollectionIntent) {
         when (intent) {
-            NftCollectionIntent.LoadData -> {
+            is NftCollectionIntent.LoadData -> {
                 check(modelState.account != null) { "account not initialized" }
-                loadNftCollection(modelState.account)
+                loadNftCollection(account = modelState.account, isFromPullToRefresh = intent.isFromPullToRefresh)
             }
 
             NftCollectionIntent.ExternalShop -> {
@@ -83,15 +84,20 @@ class NftCollectionViewModel(
         } ?: error("asset ${CryptoCurrency.ETHER.networkTicker} not found")
     }
 
-    private fun loadNftCollection(account: BlockchainAccount) {
+    private fun loadNftCollection(account: BlockchainAccount, isFromPullToRefresh: Boolean) {
         viewModelScope.launch {
             val address = account.receiveAddress.await().address
             nftService.getNftCollectionForAddress(
+                freshnessStrategy = if (isFromPullToRefresh) {
+                    FreshnessStrategy.Fresh
+                } else {
+                    FreshnessStrategy.Cached(forceRefresh = true)
+                },
                 address = address
             ).collectLatest { dataResource ->
                 updateState {
                     it.copy(
-                        isRefreshing = dataResource is DataResource.Loading,
+                        isPullToRefreshLoading = isFromPullToRefresh && dataResource is DataResource.Loading,
                         collection = if (dataResource is DataResource.Loading && it.collection is DataResource.Data) {
                             // if data is present already - don't show loading
                             it.collection
