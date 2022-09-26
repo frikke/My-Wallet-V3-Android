@@ -3,6 +3,7 @@ package com.blockchain.analytics.data
 import android.content.res.Resources
 import android.os.Build
 import com.blockchain.analytics.AnalyticsContextProvider
+import com.blockchain.analytics.TraitsService
 import com.blockchain.api.analytics.AnalyticsContext
 import com.blockchain.api.analytics.DeviceInfo
 import com.blockchain.api.analytics.ScreenInfo
@@ -13,14 +14,14 @@ class AnalyticsContextProviderImpl constructor(
     private val traitsServices: List<TraitsService>
 ) : AnalyticsContextProvider {
 
-    override fun context(experiments: Map<String, String>): AnalyticsContext {
+    override suspend fun context(): AnalyticsContext {
         return AnalyticsContext(
             device = getDeviceInfo(),
             locale = Locale.getDefault().toString(),
             screen = getScreenInfo(),
             timezone = TimeZone.getDefault().id,
             traits = traitsServices.map { traitsService -> traitsService.traits() }
-                .reduce { acc, map -> acc.plus(map) } + experiments
+                .reduce { acc, map -> acc.plus(map) }
         )
     }
 
@@ -39,8 +40,4 @@ class AnalyticsContextProviderImpl constructor(
             density = Resources.getSystem().displayMetrics.density
         )
     }
-}
-
-interface TraitsService {
-    fun traits(): Map<String, String>
 }

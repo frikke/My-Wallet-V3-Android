@@ -5,9 +5,6 @@ import com.blockchain.analytics.AnalyticsLocalPersistence
 import com.blockchain.api.analytics.AnalyticsContext
 import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.NabuAnalyticsEvent
-import com.blockchain.core.experiments.cache.ExperimentsStore
-import com.blockchain.data.DataResource
-import com.blockchain.data.FreshnessStrategy
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
@@ -22,13 +19,14 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito
 import piuk.blockchain.androidcore.utils.SessionPrefs
 
-class NabuAnalyticsTest {
+@OptIn(ExperimentalCoroutinesApi::class) class NabuAnalyticsTest {
     private val localAnalyticsPersistence = mock<AnalyticsLocalPersistence>()
 
     private val token: Optional<NabuSessionTokenResponse> = Optional.Some(
@@ -50,11 +48,8 @@ class NabuAnalyticsTest {
     private val mockedContext: AnalyticsContext = mock()
 
     private val analyticsService = mock<AnalyticsService>()
-    private val experimentsStore = mock<ExperimentsStore>()
 
-    private val analyticsContextProvider: AnalyticsContextProvider = mock {
-        on { context(emptyMap()) }.thenReturn(mockedContext)
-    }
+    private val analyticsContextProvider = mock<AnalyticsContextProvider>()
 
     private val lifecycleObservable = mock<LifecycleObservable> {
         on { onStateUpdated }.thenReturn(Observable.just(AppState.FOREGROUNDED))
@@ -64,22 +59,19 @@ class NabuAnalyticsTest {
         localAnalyticsPersistence = localAnalyticsPersistence, prefs = prefs,
         remoteLogger = mock(), analyticsService = analyticsService, tokenStore = tokenStore,
         analyticsContextProvider = analyticsContextProvider,
-        lifecycleObservable = lifecycleObservable,
-        experimentsStore = experimentsStore
+        lifecycleObservable = lifecycleObservable
     )
 
-    @Ignore("refactoring analytics - will change at the end of the week")
+    @Ignore
     @Test
-    fun flushIsWorking() {
-        val mapReturned = emptyMap<String, Int>()
-        val flowResult = flowOf(DataResource.Data(mapReturned))
-        whenever(experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))).thenReturn(flowResult)
+    fun flushIsWorking() = runTest {
+        whenever(analyticsContextProvider.context()).thenReturn(mockedContext)
 
         whenever(
             analyticsService.postEvents(
                 events = any(),
                 id = any(),
-                analyticsContext = any(),
+                analyticsContext = analyticsContextProvider.context(),
                 platform = any(),
                 device = any(),
                 authorization = anyOrNull()
@@ -92,7 +84,7 @@ class NabuAnalyticsTest {
 
         testSubscriber.assertComplete()
         Mockito.verify(analyticsService, times(3))
-            .postEvents(any(), any(), any(), any(), any(), anyOrNull())
+            .postEvents(any(), any(), analyticsContextProvider.context(), any(), any(), anyOrNull())
 
         Mockito.verify(localAnalyticsPersistence, times(2)).removeOldestItems(30)
         Mockito.verify(localAnalyticsPersistence).removeOldestItems(24)

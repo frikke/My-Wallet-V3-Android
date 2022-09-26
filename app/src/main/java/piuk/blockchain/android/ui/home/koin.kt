@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.home
 
-import com.blockchain.analytics.data.TraitsService
+import com.blockchain.analytics.TraitsService
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.superAppModeService

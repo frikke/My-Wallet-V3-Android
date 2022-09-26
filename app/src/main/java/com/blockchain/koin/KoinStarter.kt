@@ -7,6 +7,7 @@ import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
 import com.blockchain.blockchaincard.koin.blockchainCardModule
 import com.blockchain.coincore.coincoreModule
+import com.blockchain.core.experiments.experimentsTraitsModule
 import com.blockchain.core.price.pricesModule
 import com.blockchain.deeplinking.koin.deeplinkModule
 import com.blockchain.defiwalletbackup.data.koin.backupPhraseDataModule
@@ -138,6 +139,7 @@ object KoinStarter {
                     loggingModule,
                     analyticsModule,
                     accessibilityModule,
+                    experimentsTraitsModule,
                     customerSupportModule,
                     storeCachesInMemoryModule,
                     storeCachesPersistedJsonSqlDelightModule,

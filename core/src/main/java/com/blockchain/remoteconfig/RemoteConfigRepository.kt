@@ -57,7 +57,8 @@ class RemoteConfigRepository(
                         error("experimentsStore illegal argument exception -  we should never reach this point")
                     }
                 }
-            }.firstOrNull().orEmpty()
+            }
+            .firstOrNull().orEmpty()
     }
 
     /*
