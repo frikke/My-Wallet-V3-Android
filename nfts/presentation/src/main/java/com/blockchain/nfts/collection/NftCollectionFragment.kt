@@ -15,11 +15,19 @@ import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.collection.screen.NftCollection
 import com.blockchain.nfts.detail.NftDetailFragment
 import com.blockchain.presentation.openUrl
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.component.KoinScopeComponent
+import org.koin.core.scope.Scope
 
 class NftCollectionFragment :
     MVIFragment<NftCollectionViewState>(),
+    KoinScopeComponent,
     NavigationRouter<NftCollectionNavigationEvent> {
+
+    override val scope: Scope
+        get() = payloadScope
+
+    private val viewModel by viewModel<NftCollectionViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,9 +38,9 @@ class NftCollectionFragment :
 
         return ComposeView(requireContext()).apply {
             setContent {
-                val viewModel: NftCollectionViewModel = getViewModel(scope = payloadScope)
-
-                bindViewModel(viewModel = viewModel, navigator = this@NftCollectionFragment, args = ModelConfigArgs.NoArgs)
+                bindViewModel(
+                    viewModel = viewModel, navigator = this@NftCollectionFragment, args = ModelConfigArgs.NoArgs
+                )
 
                 NftCollection(
                     viewModel,
@@ -50,5 +58,10 @@ class NftCollectionFragment :
                 requireContext().openUrl(navigationEvent.url)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.onIntent(NftCollectionIntent.LoadData)
     }
 }

@@ -9,7 +9,10 @@ import org.koin.dsl.module
 val nftPresentationModule = module {
     scope(payloadScopeQualifier) {
         viewModel {
-            NftCollectionViewModel(nftService = get())
+            NftCollectionViewModel(
+                coincore = get(),
+                nftService = get()
+            )
         }
 
         viewModel {

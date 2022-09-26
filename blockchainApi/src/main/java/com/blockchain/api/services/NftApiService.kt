@@ -7,12 +7,12 @@ import io.reactivex.rxjava3.core.Single
 class NftApiService internal constructor(
     private val nftApi: NftApi
 ) {
-    fun getNftsForAddress(network: String = "ETH", address: String): Single<NftAssetsDto> =
+    fun getNftsForAddress(
+        address: String,
+        pageKey: String? = null
+    ): Single<NftAssetsDto> =
         nftApi.getAssetsForAddress(
-            ownerAddress = address
-            //            requestBody = NftAssetRequestBody(
-            //                network = network,
-            //                address = address
-            //            )
+            ownerAddress = address,
+            pageKey = pageKey
         )
 }

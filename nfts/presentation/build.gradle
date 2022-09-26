@@ -10,6 +10,8 @@ android {
 
 dependencies {
     implementation project(':nfts:domain')
+    implementation project(':balance')
+    implementation project(':coincore')
     implementation project(':commonarch')
     implementation project(':componentlib')
     implementation project(':common:interface')
@@ -19,6 +21,10 @@ dependencies {
     // Compose
     implementation Libraries.accompanistFlowLayout
     implementation Libraries.composeUiPoolingContainer
+
+    // Rx
+    implementation Libraries.rxJava
+    implementation Libraries.rxjava3Coroutines
 
     // koin
     implementation Libraries.koinCompose

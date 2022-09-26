@@ -1,9 +1,9 @@
 package com.blockchain.nfts.data.repository
 
 import com.blockchain.api.nfts.data.NftAssetsDto
-import com.blockchain.api.nfts.data.NftContractDto
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.nfts.data.dataresources.NftCollectionStore
 import com.blockchain.nfts.domain.models.NftAsset
 import com.blockchain.nfts.domain.models.NftContract
@@ -17,24 +17,22 @@ class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftSer
 
     override suspend fun getNftCollectionForAddress(
         freshnessStrategy: FreshnessStrategy,
-        network: String,
         address: String
     ): Flow<DataResource<List<NftAsset>>> {
-        return nftCollectionStore.stream(freshnessStrategy)
-            .mapData {
-                it.mapToDomain()
-            }
+        return nftCollectionStore.stream(
+            freshnessStrategy.withKey(NftCollectionStore.Key(address = address))
+        ).mapData {
+            it.mapToDomain()
+        }
     }
 
     override suspend fun getNftAsset(
         freshnessStrategy: FreshnessStrategy,
-        network: String,
         address: String,
         nftId: String
     ): Flow<DataResource<NftAsset?>> {
         return getNftCollectionForAddress(
             freshnessStrategy = freshnessStrategy,
-            network = network,
             address = address
         ).mapData {
             it.firstOrNull { it.id == nftId }
