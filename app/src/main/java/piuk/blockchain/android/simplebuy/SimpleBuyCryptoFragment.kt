@@ -205,7 +205,8 @@ class SimpleBuyCryptoFragment :
     override fun showAvailableToAddPaymentMethods() =
         showPaymentMethodsBottomSheet(
             paymentOptions = lastState?.paymentOptions ?: PaymentOptions(),
-            state = PaymentMethodsChooserState.AVAILABLE_TO_ADD
+            state = PaymentMethodsChooserState.AVAILABLE_TO_ADD,
+            cardRejectionFFEnabled = false
         )
 
     override fun onCardTagClicked(cardInfo: CardRejectionState) {
@@ -260,7 +261,11 @@ class SimpleBuyCryptoFragment :
         )
     }
 
-    private fun showPaymentMethodsBottomSheet(paymentOptions: PaymentOptions, state: PaymentMethodsChooserState) {
+    private fun showPaymentMethodsBottomSheet(
+        paymentOptions: PaymentOptions,
+        state: PaymentMethodsChooserState,
+        cardRejectionFFEnabled: Boolean
+    ) {
         showBottomSheet(
             when (state) {
                 PaymentMethodsChooserState.AVAILABLE_TO_PAY ->
@@ -271,7 +276,8 @@ class SimpleBuyCryptoFragment :
                                     method is PaymentMethod.UndefinedBankAccount
                             },
                         mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHODS,
-                        canAddNewPayment = paymentOptions.availablePaymentMethods.any { method -> method.canBeAdded() }
+                        canAddNewPayment = paymentOptions.availablePaymentMethods.any { method -> method.canBeAdded() },
+                        cardRejectionFFEnabled = cardRejectionFFEnabled
                     )
                 PaymentMethodsChooserState.AVAILABLE_TO_ADD ->
                     PaymentMethodChooserBottomSheet.newInstance(
@@ -281,7 +287,8 @@ class SimpleBuyCryptoFragment :
                             },
                         mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES,
                         canAddNewPayment = true,
-                        canUseCreditCards = canUseCreditCards()
+                        canUseCreditCards = canUseCreditCards(),
+                        cardRejectionFFEnabled = cardRejectionFFEnabled
                     )
             }
         )
@@ -466,7 +473,8 @@ class SimpleBuyCryptoFragment :
             if (shouldShowPaymentMethodSheet) {
                 showPaymentMethodsBottomSheet(
                     paymentOptions = newState.paymentOptions,
-                    state = PaymentMethodsChooserState.AVAILABLE_TO_PAY
+                    state = PaymentMethodsChooserState.AVAILABLE_TO_PAY,
+                    cardRejectionFFEnabled = newState.featureFlagSet.cardRejectionFF
                 )
                 shouldShowPaymentMethodSheet = false
             }
@@ -665,7 +673,8 @@ class SimpleBuyCryptoFragment :
                 onClick = {
                     showPaymentMethodsBottomSheet(
                         state = state.paymentOptions.availablePaymentMethods.toPaymentMethodChooserState(),
-                        paymentOptions = state.paymentOptions
+                        paymentOptions = state.paymentOptions,
+                        cardRejectionFFEnabled = state.featureFlagSet.cardRejectionFF
                     )
                 }
             }

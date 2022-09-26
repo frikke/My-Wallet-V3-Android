@@ -51,6 +51,10 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         arguments?.getBoolean(CAN_USE_CREDIT_CARDS) ?: true
     }
 
+    private val cardRejectionFFEnabled: Boolean by lazy {
+        arguments?.getBoolean(CARD_REJECTION_FF_ENABLED) ?: false
+    }
+
     private val assetResources: AssetResources by inject()
     private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
 
@@ -67,7 +71,8 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
                     adapterItems = paymentMethods.map { it.toPaymentMethodItem() },
                     assetResources = assetResources,
                     canUseCreditCards = canUseCreditCards,
-                    onCardTagClicked = ::onCardTagClicked
+                    onCardTagClicked = ::onCardTagClicked,
+                    cardRejectionFFEnabled = cardRejectionFFEnabled
                 )
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
             layoutManager = LinearLayoutManager(context)
@@ -112,18 +117,21 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         private const val CAN_ADD_NEW_PAYMENT = "CAN_ADD_NEW_PAYMENT"
         private const val DISPLAY_MODE = "DISPLAY_MODE"
         private const val CAN_USE_CREDIT_CARDS = "CAN_USE_CREDIT_CARDS"
+        private const val CARD_REJECTION_FF_ENABLED = "CARD_REJECTION_FF_ENABLED"
 
         fun newInstance(
             paymentMethods: List<PaymentMethod>,
             mode: DisplayMode,
             canAddNewPayment: Boolean,
-            canUseCreditCards: Boolean = true
+            canUseCreditCards: Boolean = true,
+            cardRejectionFFEnabled: Boolean
         ): PaymentMethodChooserBottomSheet {
             val bundle = Bundle()
             bundle.putSerializable(SUPPORTED_PAYMENT_METHODS, paymentMethods as Serializable)
             bundle.putSerializable(DISPLAY_MODE, mode)
             bundle.putBoolean(CAN_ADD_NEW_PAYMENT, canAddNewPayment)
             bundle.putBoolean(CAN_USE_CREDIT_CARDS, canUseCreditCards)
+            bundle.putBoolean(CARD_REJECTION_FF_ENABLED, cardRejectionFFEnabled)
             return PaymentMethodChooserBottomSheet().apply {
                 arguments = bundle
             }
@@ -141,11 +149,15 @@ private class PaymentMethodsAdapter(
     adapterItems: List<PaymentMethodItem>,
     assetResources: AssetResources,
     canUseCreditCards: Boolean,
-    onCardTagClicked: (cardInfo: CardRejectionState) -> Unit
+    onCardTagClicked: (cardInfo: CardRejectionState) -> Unit,
+    cardRejectionFFEnabled: Boolean
 ) :
     DelegationAdapter<PaymentMethodItem>(AdapterDelegatesManager(), adapterItems) {
     init {
-        val cardPaymentDelegate = CardPaymentDelegate(onCardTagClicked)
+        val cardPaymentDelegate = CardPaymentDelegate(
+            onCardTagClicked = onCardTagClicked,
+            cardRejectionFFEnabled = cardRejectionFFEnabled
+        )
         val bankPaymentDelegate = BankPaymentDelegate()
         val depositTooltipDelegate = DepositTooltipDelegate()
         val addCardPaymentDelegate = AddCardDelegate(canUseCreditCards)
