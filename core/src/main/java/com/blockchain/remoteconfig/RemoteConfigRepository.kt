@@ -124,12 +124,16 @@ class RemoteConfigRepository(
     }
 
     suspend fun deepMap(remoteConfigValue: String): Any {
-        return try {
-            val json = json.decodeFromString<JsonObject>(remoteConfigValue)
-            getMapToReturn(mapOf<String, Any>("key" to json))["key"] as Any
-        } catch (noSuchElementException: NoSuchElementException) {
-            noSuchElementException
-        } catch (e: Exception) {
+        return if (remoteConfigValue.contains("{returns}")) {
+            try {
+                val json = json.decodeFromString<JsonObject>(remoteConfigValue)
+                getMapToReturn(mapOf<String, Any>("key" to json))["key"] as Any
+            } catch (noSuchElementException: NoSuchElementException) {
+                noSuchElementException
+            } catch (e: Exception) {
+                remoteConfigValue
+            }
+        } else {
             remoteConfigValue
         }
     }
