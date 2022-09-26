@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -15,6 +17,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.forceExpanded
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.koin.payloadScope
 import com.blockchain.nfts.detail.navigation.NftDetailNavigationEvent
 import com.blockchain.nfts.detail.screen.NftDetail
@@ -50,7 +53,10 @@ class NftDetailFragment :
                 bindViewModel(viewModel = viewModel, navigator = this@NftDetailFragment, args = args)
 
                 Surface(
-                    modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection())
+                    modifier = Modifier
+                        .nestedScroll(rememberNestedScrollInteropConnection()),
+                    color = AppTheme.colors.background,
+                    shape = RoundedCornerShape(AppTheme.dimensions.tinySpacing)
                 ) {
                     NftDetail(viewModel)
                 }

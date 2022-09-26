@@ -7,13 +7,13 @@ import kotlinx.coroutines.flow.Flow
 
 interface NftService {
     suspend fun getNftCollectionForAddress(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Fresh/*Cached(forceRefresh = true)*/,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true),
         network: String = "ETH",
         address: String
     ): Flow<DataResource<List<NftAsset>>>
 
     suspend fun getNftAsset(
-        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Fresh,
+        freshnessStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true),
         network: String = "ETH",
         address: String,
         nftId: String

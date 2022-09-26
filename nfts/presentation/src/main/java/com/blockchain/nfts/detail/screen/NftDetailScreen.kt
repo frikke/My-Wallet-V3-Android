@@ -109,18 +109,23 @@ fun NftDetailDataScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.background),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        SheetNub(Modifier.padding(top = 8.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            SheetNub(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
+        }
+
         LazyVerticalGrid(
             modifier = Modifier.fillMaxWidth(),
             columns = GridCells.Fixed(count = COLUMN_COUNT),
             contentPadding = PaddingValues(
-                start = dimensionResource(R.dimen.small_spacing),
-                end = dimensionResource(R.dimen.small_spacing),
-                top = dimensionResource(R.dimen.small_spacing),
-                bottom = dimensionResource(R.dimen.standard_spacing)
+                start = AppTheme.dimensions.smallSpacing,
+                top = AppTheme.dimensions.verySmallSpacing,
+                end = AppTheme.dimensions.smallSpacing,
+                bottom = AppTheme.dimensions.standardSpacing
             ),
             verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
             horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
