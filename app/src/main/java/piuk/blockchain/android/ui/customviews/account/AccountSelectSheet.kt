@@ -12,6 +12,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
+import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -47,7 +48,7 @@ class AccountSelectSheet(
             .map { listOf(it) + activityRepo.accountsWithActivity() }
             .map { it.map(AccountListViewItem.Companion::create) }
 
-    private var sheetTitle: Int = R.string.select_account_sheet_title
+    private var sheetTitle: Int = walletModeService.enabledWalletMode().selectAccountsTitle()
     private var sheetSubtitle: Int = R.string.empty
     private var statusDecorator: StatusDecorator = { DefaultCellDecorator() }
 
@@ -105,6 +106,13 @@ class AccountSelectSheet(
     override fun onSheetHidden() {
         super.onSheetHidden()
         disposables.dispose()
+    }
+
+    @StringRes
+    private fun WalletMode.selectAccountsTitle(): Int = when (this) {
+        WalletMode.NON_CUSTODIAL_ONLY -> R.string.select_account_sheet_title_defi
+        WalletMode.CUSTODIAL_ONLY -> R.string.select_account_sheet_title_brokerage
+        WalletMode.UNIVERSAL -> R.string.select_account_sheet_title
     }
 
     companion object {
