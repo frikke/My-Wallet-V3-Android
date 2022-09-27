@@ -204,8 +204,7 @@ fun MultiAppChromeScreen(
     var switcherScrollAlpha by remember { mutableStateOf(1F) }
     switcherScrollAlpha =
         (
-            1 -
-                (toolbarState.scrollOffset - toolbarState.halfCollapsedOffset) /
+            1 - (toolbarState.scrollOffset - toolbarState.halfCollapsedOffset) /
                 (toolbarState.fullCollapsedOffset - toolbarState.halfCollapsedOffset)
             ).coerceIn(0F, 1F)
 

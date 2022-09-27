@@ -94,14 +94,10 @@ fun ModeSwitcher(
                     modifier = Modifier,
                     style = AppTheme.typography.title3,
                     color = AppTheme.colors.background.copy(
-                        alpha = if (currentMode == mode || mode == previousMode) {
-                            if (currentMode == mode) {
-                                textAlpha.value
-                            } else {
-                                fullTextAlpha - textAlpha.value + minTextAlpha
-                            }
-                        } else {
-                            minTextAlpha
+                        alpha = when (mode) {
+                            currentMode -> textAlpha.value
+                            previousMode -> fullTextAlpha - textAlpha.value + minTextAlpha
+                            else -> minTextAlpha
                         }
                     ),
                     text = stringResource(mode.titleSuperApp())
@@ -111,26 +107,18 @@ fun ModeSwitcher(
                     modifier = Modifier
                         .height(AppTheme.dimensions.smallestSpacing)
                         .width(
-                            if (mode == currentMode || mode == previousMode) {
-                                if (currentMode == mode) {
-                                    animatableIndicatorWidthPx.value.dp
-                                } else {
-                                    (fullIndicatorWidthPx - animatableIndicatorWidthPx.value).dp
-                                }
-                            } else {
-                                0.dp
+                            when (mode) {
+                                currentMode -> animatableIndicatorWidthPx.value.dp
+                                previousMode -> (fullIndicatorWidthPx - animatableIndicatorWidthPx.value).dp
+                                else -> 0.dp
                             }
                         )
                         .background(
                             color = AppTheme.colors.background.copy(
-                                alpha = if (mode == currentMode || mode == previousMode) {
-                                    if (currentMode == mode) {
-                                        animatableIndicatorWidthPx.value / fullIndicatorWidthPx
-                                    } else {
-                                        1 - (animatableIndicatorWidthPx.value / fullIndicatorWidthPx)
-                                    }
-                                } else {
-                                    0F
+                                alpha = when (mode) {
+                                    currentMode -> animatableIndicatorWidthPx.value / fullIndicatorWidthPx
+                                    previousMode -> 1 - (animatableIndicatorWidthPx.value / fullIndicatorWidthPx)
+                                    else -> 0F
                                 }
                             ),
                             shape = RoundedCornerShape(AppTheme.dimensions.standardSpacing)
