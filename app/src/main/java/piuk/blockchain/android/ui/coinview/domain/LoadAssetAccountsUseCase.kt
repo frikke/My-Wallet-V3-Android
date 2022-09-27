@@ -114,7 +114,7 @@ class LoadAssetAccountsUseCase(
             }
             .map { account ->
                 combine(
-                    account.balance.asFlow().map { DataResource.Data(it) },
+                    account.balanceRx.asFlow().map { DataResource.Data(it) },
                     flowOf(account.stateAwareActions.await()).map { DataResource.Data(it) }
                 ) { balance, actions ->
 

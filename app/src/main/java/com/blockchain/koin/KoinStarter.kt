@@ -11,6 +11,8 @@ import com.blockchain.core.experiments.experimentsTraitsModule
 import com.blockchain.core.price.pricesModule
 import com.blockchain.deeplinking.koin.deeplinkModule
 import com.blockchain.defiwalletbackup.data.koin.backupPhraseDataModule
+import com.blockchain.home.data.koin.homeDataModule
+import com.blockchain.home.presentation.koin.homePresentationModule
 import com.blockchain.koin.modules.apiInterceptorsModule
 import com.blockchain.koin.modules.appProperties
 import com.blockchain.koin.modules.applicationModule
@@ -99,6 +101,8 @@ object KoinStarter {
                     apiInterceptorsModule,
                     apiModule,
                     blockchainApiModule,
+                    homePresentationModule,
+                    homeDataModule,
                     applicationModule,
                     jsonSerializers,
                     coroutinesModule,
@@ -113,7 +117,6 @@ object KoinStarter {
                     pricesModule,
                     dashboardAnnouncementsModule,
                     environmentModule,
-
                     coinviewPresentationModule, coinviewDomainModule,
                     internalFeatureFlagsModule,
                     kycUiModule,

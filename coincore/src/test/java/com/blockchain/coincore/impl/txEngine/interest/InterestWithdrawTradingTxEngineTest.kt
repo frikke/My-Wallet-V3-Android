@@ -167,7 +167,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
         verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
         verify(currencyPrefs).selectedFiatCurrency
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
         verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -201,7 +201,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
         verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -240,7 +240,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(
             ASSET, Product.SAVINGS
         )
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -295,7 +295,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(ASSET),
     ) = mock<CryptoInterestAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balance }.thenReturn(
+        on { balanceRx }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,

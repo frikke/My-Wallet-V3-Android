@@ -40,7 +40,7 @@ class InterestWithdrawOnChainTxEngine(
         get() = listOf(interestBalanceStore)
 
     private val availableBalance: Single<Money>
-        get() = sourceAccount.balance.firstOrError().map { it.withdrawable }
+        get() = sourceAccount.balanceRx.firstOrError().map { it.withdrawable }
 
     override fun assertInputsValid() {
         check(sourceAccount is InterestAccount)

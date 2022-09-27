@@ -86,30 +86,30 @@ class CoinViewInteractorTest {
     private val defaultNcAccount: CryptoNonCustodialAccount = mock {
         on { isDefault }.thenReturn(true)
         on { label }.thenReturn("default nc account")
-        on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+        on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
     private val secondNcAccount: CryptoNonCustodialAccount = mock {
         on { isDefault }.thenReturn(false)
         on { label }.thenReturn("second nc account")
-        on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+        on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
     private val archivedNcAccount: CryptoNonCustodialAccount = mock {
         on { isDefault }.thenReturn(false)
         on { label }.thenReturn("second nc account")
-        on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+        on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
         on { isArchived }.thenReturn(true)
     }
     private val custodialAccount: FiatCustodialAccount = mock {
         on { label }.thenReturn("default c account")
-        on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+        on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
     private val interestAccount: CryptoInterestAccount = mock {
         on { label }.thenReturn("default i account")
-        on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+        on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
     private val nonCustodialGroup: AccountGroup = mock {
@@ -478,7 +478,7 @@ class CoinViewInteractorTest {
         val account: CryptoInterestAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
-            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+            on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(asset, account).test()
@@ -496,7 +496,7 @@ class CoinViewInteractorTest {
         val account: CryptoNonCustodialAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
-            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+            on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(asset, account).test()
@@ -515,7 +515,7 @@ class CoinViewInteractorTest {
         val account: CryptoNonCustodialAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
-            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+            on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(asset, account).test()
@@ -533,7 +533,7 @@ class CoinViewInteractorTest {
         val account: CryptoNonCustodialAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
-            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+            on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(asset, account).test()
@@ -551,7 +551,7 @@ class CoinViewInteractorTest {
         val account: CryptoNonCustodialAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
-            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+            on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(asset, account).test()

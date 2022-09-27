@@ -124,7 +124,7 @@ class BtcOnChainTxEngine(
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> =
         Single.zip(
-            sourceAccount.balance.firstOrError().map { it.total as CryptoValue },
+            sourceAccount.balanceRx.firstOrError().map { it.total as CryptoValue },
             getDynamicFeesPerKb(pendingTx),
             getUnspentApiResponse(btcSource.xpubs)
         ) { total, optionsAndFeesPerKb, coins ->

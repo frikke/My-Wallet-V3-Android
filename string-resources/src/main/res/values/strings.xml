@@ -49,6 +49,7 @@
     <string name="common_sell">Sell</string>
     <string name="common_sign">Sign</string>
     <string name="common_buy">Buy</string>
+    <string name="common_balance">Balance</string>
     <string name="common_search">Search</string>
     <string name="common_approve">Approve</string>
     <string name="common_deny">Deny</string>

@@ -42,7 +42,8 @@ class AccountSelectSheet(
     private val disposables = CompositeDisposable()
 
     private var accountList: Single<List<AccountListViewItem>> =
-        coincore.activeWalletsInMode(walletModeService.enabledWalletMode())
+        coincore.activeWalletsInModeRx(walletModeService.enabledWalletMode())
+            .firstOrError()
             .map { listOf(it) + activityRepo.accountsWithActivity() }
             .map { it.map(AccountListViewItem.Companion::create) }
 

@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.blockchain.home.presentation.ui.HomeScreen
 import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
 
 @Composable
@@ -18,14 +19,7 @@ fun MultiAppNavigationGraph(
 ) {
     NavHost(navController, startDestination = ChromeBottomNavigationItem.Home.route) {
         composable(ChromeBottomNavigationItem.Home.route) {
-            DemoScreen(
-                modifier = modifier,
-                tag = "Home",
-                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Home, it)) },
-                isPullToRefreshEnabled = enableRefresh,
-                refreshStarted = refreshStarted,
-                refreshComplete = refreshComplete
-            )
+            HomeScreen()
         }
         composable(ChromeBottomNavigationItem.Trade.route) {
             DemoScreen(

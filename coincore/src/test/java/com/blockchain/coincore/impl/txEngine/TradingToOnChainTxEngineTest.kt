@@ -248,7 +248,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             .assertNoErrors()
 
         verify(sourceAccount, atLeastOnce()).currency
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -422,7 +422,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
         )
         return mock {
             on { currency }.thenReturn(ASSET)
-            on { balance }.thenReturn(
+            on { balanceRx }.thenReturn(
                 Observable.just(
                     accountBalance
                 )

@@ -178,7 +178,7 @@ internal class BlockchainCardRepositoryImpl(
     override suspend fun loadAccountBalance(
         tradingAccount: BlockchainAccount
     ): Outcome<BlockchainCardError, AccountBalance> =
-        tradingAccount.balance.firstOrError().awaitOutcome().wrapBlockchainCardError()
+        tradingAccount.balanceRx.firstOrError().awaitOutcome().wrapBlockchainCardError()
 
     override suspend fun getAsset(networkTicker: String): Outcome<BlockchainCardError, AssetInfo> =
         assetCatalogue.assetInfoFromNetworkTicker(networkTicker)?.let { asset ->

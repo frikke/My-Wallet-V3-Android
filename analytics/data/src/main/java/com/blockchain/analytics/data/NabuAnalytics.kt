@@ -4,9 +4,9 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsContextProvider
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.AnalyticsLocalPersistence
+import com.blockchain.analytics.NabuAnalyticsEvent
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.services.AnalyticsService
-import com.blockchain.api.services.NabuAnalyticsEvent
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.RemoteLogger

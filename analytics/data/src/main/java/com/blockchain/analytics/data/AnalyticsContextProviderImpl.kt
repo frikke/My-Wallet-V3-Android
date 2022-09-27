@@ -2,11 +2,11 @@ package com.blockchain.analytics.data
 
 import android.content.res.Resources
 import android.os.Build
+import com.blockchain.analytics.AnalyticsContext
 import com.blockchain.analytics.AnalyticsContextProvider
+import com.blockchain.analytics.DeviceInfo
+import com.blockchain.analytics.ScreenInfo
 import com.blockchain.analytics.TraitsService
-import com.blockchain.api.analytics.AnalyticsContext
-import com.blockchain.api.analytics.DeviceInfo
-import com.blockchain.api.analytics.ScreenInfo
 import java.util.Locale
 import java.util.TimeZone
 

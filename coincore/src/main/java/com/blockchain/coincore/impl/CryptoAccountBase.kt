@@ -144,7 +144,7 @@ abstract class CryptoAccountBase : CryptoAccount {
     override fun matches(other: CryptoAccount): Boolean =
         other is CryptoExchangeAccount && other.currency == currency
 
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Observable.just(AccountBalance.zero(currency))
 
     override val receiveAddress: Single<ReceiveAddress>
@@ -196,7 +196,7 @@ abstract class CryptoNonCustodialAccount(
             WalletMode.UNIVERSAL -> defaultActions
         }
 
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Observable.combineLatest(
             getOnChainBalance(),
             exchangeRates.exchangeRateToUserFiat(currency)
@@ -222,7 +222,7 @@ abstract class CryptoNonCustodialAccount(
     override val directions: Set<TransferDirection> = setOf(TransferDirection.FROM_USERKEY, TransferDirection.ON_CHAIN)
 
     override val sourceState: Single<TxSourceState>
-        get() = balance.firstOrError().map {
+        get() = balanceRx.firstOrError().map {
             if (it.withdrawable.isZero) {
                 TxSourceState.NO_FUNDS
             } else {

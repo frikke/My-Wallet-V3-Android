@@ -67,7 +67,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
 
         whenever(xlmDataManager.getBalanceAndMin()).thenReturn(Single.just(xlmBalanceAndMin))
 
-        subject.balance
+        subject.balanceRx
             .test()
             .assertValue {
                 it.total == xlmBalance &&
@@ -88,7 +88,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
 
         whenever(xlmDataManager.getBalanceAndMin()).thenReturn(Single.just(xlmBalanceAndMin))
 
-        subject.balance
+        subject.balanceRx
             .test()
             .assertValue {
                 it == AccountBalance(
@@ -114,7 +114,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
 
         whenever(xlmDataManager.getBalanceAndMin()).thenReturn(Single.just(xlmBalanceAndMin))
 
-        subject.balance.map { it.pending }
+        subject.balanceRx.map { it.pending }
             .test()
             .assertValue { it.isZero }
 
@@ -133,7 +133,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
 
         whenever(xlmDataManager.getBalanceAndMin()).thenReturn(Single.just(xlmBalanceAndMin))
 
-        subject.balance
+        subject.balanceRx
             .test()
             .assertValue {
                 it.total == xlmBalance &&
@@ -157,7 +157,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
 
         whenever(xlmDataManager.getBalanceAndMin()).thenReturn(Single.just(xlmBalanceAndMin))
 
-        subject.balance
+        subject.balanceRx
             .test()
             .assertValue {
                 it.total == 5.lumens() &&
@@ -182,7 +182,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
         whenever(xlmDataManager.getBalanceAndMin())
             .thenReturn(Single.just(xlmBalanceAndMin))
 
-        subject.balance
+        subject.balanceRx
             .test()
             .assertValue {
                 it.total.isZero &&

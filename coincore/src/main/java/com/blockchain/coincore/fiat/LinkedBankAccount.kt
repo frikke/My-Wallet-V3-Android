@@ -36,7 +36,7 @@ class LinkedBankAccount(
     fun getWithdrawalFeeAndMinLimit(): Single<FiatWithdrawalFeeAndLimit> =
         custodialWalletManager.fetchFiatWithdrawFeeAndMinLimit(currency, Product.BUY, paymentMethodType = type)
 
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Money.zero(currency).let { zero ->
             Observable.just(
                 AccountBalance(

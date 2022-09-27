@@ -2,14 +2,13 @@
 
 package com.blockchain.api.services
 
+import com.blockchain.analytics.AnalyticsContext
+import com.blockchain.analytics.NabuAnalyticsEvent
 import com.blockchain.api.analytics.AnalyticsApiInterface
-import com.blockchain.api.analytics.AnalyticsContext
 import com.blockchain.api.analytics.AnalyticsRequestBody
 import com.blockchain.serializers.BigDecimalSerializer
 import io.reactivex.rxjava3.core.Completable
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import kotlinx.serialization.json.JsonElement
 
 class AnalyticsService internal constructor(
     private val api: AnalyticsApiInterface
@@ -35,11 +34,3 @@ class AnalyticsService internal constructor(
         )
     }
 }
-
-@Serializable
-data class NabuAnalyticsEvent(
-    val name: String,
-    val type: String,
-    val originalTimestamp: String,
-    val properties: Map<String, JsonElement>,
-)

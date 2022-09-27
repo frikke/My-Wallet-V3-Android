@@ -25,7 +25,7 @@ internal class SwapTrendingPairsProvider(
 ) : TrendingPairsProvider {
 
     override fun getTrendingPairs(): Single<List<TrendingPair>> {
-        return coincore.activeWalletsInMode(walletModeService.enabledWalletMode()).map { grp ->
+        return coincore.activeWalletsInModeRx(walletModeService.enabledWalletMode()).map { grp ->
             grp.accounts.filterIsInstance<CryptoAccount>()
                 .filterNot { it is InterestAccount }
                 .filter {
@@ -49,7 +49,7 @@ internal class SwapTrendingPairsProvider(
             buildPairs(accountMap)
         }.onErrorReturn {
             emptyList()
-        }
+        }.firstOrError()
     }
 
     private fun makeRequiredAssetSet() =
@@ -69,7 +69,7 @@ internal class SwapTrendingPairsProvider(
                 TrendingPair(
                     sourceAccount = source,
                     destinationAccount = target,
-                    enabled = source.balance.firstOrError().map {
+                    enabled = source.balanceRx.firstOrError().map {
 
                         it.total.isPositive
                     }

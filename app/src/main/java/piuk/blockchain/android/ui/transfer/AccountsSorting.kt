@@ -73,7 +73,7 @@ class SwapTargetAccountsSorting(
                 val sortedList = Single.zip(
                     Observable.fromIterable(list).flatMapSingle { account ->
                         Single.zip(
-                            account.balance.firstOrError(),
+                            account.balanceRx.firstOrError(),
                             coincore[account.currency].getPricesWith24hDeltaLegacy(),
                             exchangeRatesDataManager.getCurrentAssetPrice(account.currency, FiatCurrency.Dollars)
                         ) { accountBalance, pricesHistory, priceRecord ->
@@ -132,7 +132,7 @@ class SellAccountsSorting(
                 momentLogger.startEvent(MomentEvent.SELL_LIST_FF_ON)
                 val sortedList = Observable.fromIterable(accountList).flatMap { account ->
                     coincore[account.currency].getPricesWith24hDeltaLegacy().flatMapObservable { prices ->
-                        account.balance.map { balance ->
+                        account.balanceRx.map { balance ->
                             Pair(account, prices.currentRate.convert(balance.total))
                         }
                     }
@@ -188,7 +188,7 @@ class DefaultAccountsSorting(
             momentLogger.startEvent(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
             val sortedList = Observable.fromIterable(list).flatMapSingle { account ->
                 Single.zip(
-                    account.balance.firstOrError(),
+                    account.balanceRx.firstOrError(),
                     coincore[account.currency].getPricesWith24hDeltaLegacy(),
                 ) { balance, prices ->
                     AccountData(
@@ -263,7 +263,7 @@ class BuyListAccountSorting(
             Observable.fromIterable(assets).flatMapMaybe { asset ->
                 Maybe.zip(
                     coincore[asset].accountGroup(AssetFilter.All).flatMap {
-                        it.balance.firstOrError().toMaybe()
+                        it.balanceRx.firstOrError().toMaybe()
                     },
                     asset.getAssetPriceInformation(),
                     // trading volumes are only returned in USD, so request them in that fiat here

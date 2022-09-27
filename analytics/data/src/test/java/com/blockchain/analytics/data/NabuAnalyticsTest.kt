@@ -1,10 +1,10 @@
 package com.blockchain.analytics.data
 
+import com.blockchain.analytics.AnalyticsContext
 import com.blockchain.analytics.AnalyticsContextProvider
 import com.blockchain.analytics.AnalyticsLocalPersistence
-import com.blockchain.api.analytics.AnalyticsContext
+import com.blockchain.analytics.NabuAnalyticsEvent
 import com.blockchain.api.services.AnalyticsService
-import com.blockchain.api.services.NabuAnalyticsEvent
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse

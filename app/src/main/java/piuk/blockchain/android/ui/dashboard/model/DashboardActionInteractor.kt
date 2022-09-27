@@ -271,7 +271,7 @@ class DashboardActionInteractor(
         coincore[currency].accountGroup(defFilter)
             .logGroupLoadError(currency, defFilter)
             .flatMapObservable { group ->
-                group.balance
+                group.balanceRx
                     .logBalanceLoadError(currency, defFilter)
             }
             .doOnSubscribe {

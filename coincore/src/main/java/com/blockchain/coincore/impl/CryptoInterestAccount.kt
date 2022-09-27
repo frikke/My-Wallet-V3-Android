@@ -84,7 +84,7 @@ class CryptoInterestAccount(
     override fun matches(other: CryptoAccount): Boolean =
         other is CryptoInterestAccount && other.currency == currency
 
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Observable.combineLatest(
             interestService.getBalanceFor(currency),
             exchangeRates.exchangeRateToUserFiat(currency)
@@ -146,7 +146,7 @@ class CryptoInterestAccount(
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.zip(
             kycService.getHighestApprovedTierLevelLegacy(),
-            balance.firstOrError(),
+            balanceRx.firstOrError(),
             identity.userAccessForFeature(Feature.DepositInterest)
         ) { tier, balance, depositInterestEligibility ->
             return@zip when (tier) {
