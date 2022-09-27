@@ -10,6 +10,7 @@ import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -55,7 +56,12 @@ sealed class ViewToLaunch {
     class LaunchOpenBankingApprovalDepositComplete(val amount: Money, val estimatedDepositCompletionTime: String) :
         ViewToLaunch()
 
+    class LaunchWalletConnectSessionNetworkSelection(val walletConnectSession: WalletConnectSession) : ViewToLaunch()
     class LaunchWalletConnectSessionApproval(val walletConnectSession: WalletConnectSession) : ViewToLaunch()
+    class LaunchWalletConnectSessionApprovalWithNetwork(
+        val walletConnectSession: WalletConnectSession,
+        val networkInfo: NetworkInfo
+    ) : ViewToLaunch()
     class LaunchWalletConnectSessionApproved(val walletConnectSession: WalletConnectSession) : ViewToLaunch()
     class LaunchWalletConnectSessionRejected(val walletConnectSession: WalletConnectSession) : ViewToLaunch()
     object LaunchSimpleBuyFromDeepLinkApproval : ViewToLaunch()

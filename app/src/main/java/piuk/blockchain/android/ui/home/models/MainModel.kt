@@ -248,6 +248,7 @@ class MainModel(
             is MainIntent.RejectWCSession -> walletConnectServiceAPI.denyConnection(intent.session).emptySubscribe()
             is MainIntent.StartWCSession -> walletConnectServiceAPI.attemptToConnect(intent.url).emptySubscribe()
             MainIntent.ResetViewState,
+            is MainIntent.SelectNetworkForWCSession,
             is MainIntent.UpdateViewToLaunch -> null
             is MainIntent.UpdateDeepLinkResult -> null
             is MainIntent.ReferralCodeIntent -> null

@@ -45,6 +45,8 @@ import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Compan
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletconnect.ui.networks.NetworkInfo
+import com.blockchain.walletconnect.ui.networks.SelectNetworkBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
 import com.blockchain.walletmode.WalletMode
@@ -124,6 +126,7 @@ class MainActivity :
     SlidingModalBottomDialog.Host,
     AuthNewLoginSheet.Host,
     AccountWalletLinkAlertSheet.Host,
+    SelectNetworkBottomSheet.Host,
     WCApproveSessionBottomSheet.Host,
     BuyDefiBottomSheet.Host,
     ActionBottomSheetHost,
@@ -663,9 +666,15 @@ class MainActivity :
             is ViewToLaunch.None -> {
                 // do nothing
             }
-            is ViewToLaunch.LaunchWalletConnectSessionApproval -> launchWalletConnectSessionApproval(
-                view.walletConnectSession
-            )
+            is ViewToLaunch.LaunchWalletConnectSessionNetworkSelection ->
+                launchWalletConnectSessionSelectNetwork(view.walletConnectSession)
+            is ViewToLaunch.LaunchWalletConnectSessionApproval ->
+                launchWalletConnectSessionApproval(view.walletConnectSession)
+            is ViewToLaunch.LaunchWalletConnectSessionApprovalWithNetwork ->
+                launchWalletConnectSessionApprovalWithNetwork(
+                    view.walletConnectSession,
+                    view.networkInfo
+                )
             is ViewToLaunch.LaunchWalletConnectSessionApproved -> launchWalletConnectSessionApproved(
                 view.walletConnectSession
             )
@@ -852,9 +861,27 @@ class MainActivity :
         model.process(MainIntent.ClearDeepLinkResult)
     }
 
+    private fun launchWalletConnectSessionSelectNetwork(walletConnectSession: WalletConnectSession) {
+        showBottomSheet(
+            SelectNetworkBottomSheet.newInstance(walletConnectSession)
+        )
+    }
+
     private fun launchWalletConnectSessionApproval(walletConnectSession: WalletConnectSession) {
         showBottomSheet(
             WCApproveSessionBottomSheet.newInstance(walletConnectSession)
+        )
+    }
+
+    private fun launchWalletConnectSessionApprovalWithNetwork(
+        walletConnectSession: WalletConnectSession,
+        networkInfo: NetworkInfo
+    ) {
+        showBottomSheet(
+            WCApproveSessionBottomSheet.newInstance(
+                walletConnectSession,
+                networkInfo
+            )
         )
     }
 
@@ -981,8 +1008,23 @@ class MainActivity :
         }
     }
 
+    override fun onSelectNetworkClicked(session: WalletConnectSession) {
+        model.process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchWalletConnectSessionNetworkSelection(session)))
+    }
+
+    override fun onNetworkSelected(session: WalletConnectSession, networkInfo: NetworkInfo) {
+        model.process(
+            MainIntent.UpdateViewToLaunch(
+                ViewToLaunch.LaunchWalletConnectSessionApprovalWithNetwork(
+                    session,
+                    networkInfo
+                )
+            )
+        )
+    }
+
     override fun onSessionApproved(session: WalletConnectSession) {
-        model.process(MainIntent.ApproveWCSession(session))
+        model.process(MainIntent.SelectNetworkForWCSession(session))
         analytics.logEvent(
             WalletConnectAnalytics.DappConnectionConfirmed
         )

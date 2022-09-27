@@ -5,10 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.walletconnect.R
 import com.blockchain.walletconnect.databinding.SessionApprovalBottomSheetBinding
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.bumptech.glide.Glide
 
 class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBottomSheetBinding>() {
@@ -17,7 +19,14 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
         arguments?.getSerializable(SESSION_KEY) as WalletConnectSession
     }
 
+    private val selectedNetwork: NetworkInfo by lazy {
+        arguments?.getSerializable(NETWORK_KEY)?.let {
+            it as? NetworkInfo
+        } ?: NetworkInfo.defaultEvmNetworkInfo
+    }
+
     interface Host : SlidingModalBottomDialog.Host {
+        fun onSelectNetworkClicked(session: WalletConnectSession)
         fun onSessionApproved(session: WalletConnectSession)
         fun onSessionRejected(session: WalletConnectSession)
     }
@@ -37,6 +46,16 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
         with(binding) {
             title.text = getString(R.string.dapp_wants_to_connect, session.dAppInfo.peerMeta.name)
             description.text = session.dAppInfo.peerMeta.url
+            walletAndNetwork.apply {
+                primaryText = getString(R.string.common_network)
+                secondaryText = selectedNetwork.name
+                startImageResource = selectedNetwork.logo?.let { ImageResource.Remote(it) }
+                    ?: ImageResource.Local(R.drawable.ic_default_asset_logo)
+                onClick = {
+                    host.onSelectNetworkClicked(session)
+                    dismiss()
+                }
+            }
             cancelButton.apply {
                 text = getString(R.string.common_cancel)
                 onClick = {
@@ -59,10 +78,19 @@ class WCApproveSessionBottomSheet : SlidingModalBottomDialog<SessionApprovalBott
 
     companion object {
         private const val SESSION_KEY = "SESSION_KEY"
+        private const val NETWORK_KEY = "NETWORK_KEY"
         fun newInstance(session: WalletConnectSession) =
             WCApproveSessionBottomSheet().apply {
                 arguments = Bundle().also {
                     it.putSerializable(SESSION_KEY, session)
+                }
+            }
+
+        fun newInstance(session: WalletConnectSession, selectedNetwork: NetworkInfo) =
+            WCApproveSessionBottomSheet().apply {
+                arguments = Bundle().also {
+                    it.putSerializable(SESSION_KEY, session)
+                    it.putSerializable(NETWORK_KEY, selectedNetwork)
                 }
             }
     }

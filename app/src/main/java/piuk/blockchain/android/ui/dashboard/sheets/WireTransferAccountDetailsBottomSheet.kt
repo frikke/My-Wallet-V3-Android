@@ -218,6 +218,9 @@ class WireTransferAccountDetailsBottomSheet :
         fetchAndDisplayAccountDetails()
     }
 
+    override fun onSheetClosed() {
+    }
+
     companion object {
         private const val FIAT_CURRENCY = "FIAT_CURRENCY_KEY"
         private const val IS_FOR_LINK = "IS_FOR_LINK"

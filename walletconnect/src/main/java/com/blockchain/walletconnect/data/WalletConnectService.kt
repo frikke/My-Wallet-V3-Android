@@ -153,7 +153,7 @@ class WalletConnectService(
         walletConnectAccountProvider.address().map { address ->
             wcClients[session.url]?.approveSession(
                 listOf(address),
-                WalletConnectSession.DEFAULT_WALLET_CONNECT_CHAIN_ID
+                session.dAppInfo.chainId
             ) ?: throw IllegalStateException("No connected client found")
         }.map { approved ->
             if (approved == true) {

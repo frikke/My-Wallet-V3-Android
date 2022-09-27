@@ -2737,6 +2737,7 @@
     <string name="go_back_to_your_browser">Go back to your browser and try again.</string>
     <string name="dapp_confirmation_warning">This dapp is requesting an action, which could take money from your wallet. Make sure you trust this site.</string>
     <string name="common_chain">Chain</string>
+    <string name="common_network">Network</string>
     <string name="message_from_dapp">Message from %1s</string>
     <string name="signing_confirmation_progress_title">Signing…</string>
     <string name="signed">Signed</string>
@@ -2747,6 +2748,7 @@
     <string name="signature_request">Signature Request</string>
     <string name="no_dapps_connected">No Connected Dapps</string>
     <string name="connect_with_wallet_connect">Connect to a dapp using WalletConnect.</string>
+    <string name="wallet_connect_switch_network_title">Switch Network</string>
     <string name="are_you_sure">Are you sure?</string>
     <string name="you_are_about_disconnect">You\'re about to disconnect %1$s.</string>
     <plurals name="wallet_connect_connected_apps">

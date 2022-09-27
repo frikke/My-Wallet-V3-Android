@@ -62,7 +62,7 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    class UpdateViewToLaunch(private val nextState: ViewToLaunch) : MainIntent() {
+    class UpdateViewToLaunch(val nextState: ViewToLaunch) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(
                 viewToLaunch = nextState
@@ -96,6 +96,10 @@ sealed class MainIntent : MviIntent<MainState> {
     }
 
     class StartWCSession(val url: String) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    class SelectNetworkForWCSession(val session: WalletConnectSession) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
