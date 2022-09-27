@@ -140,6 +140,7 @@ class PortfolioFragment :
             assetCatalogue = get(),
             onCardClicked = { onAssetClicked(it) },
             analytics = get(),
+            walletModeService = get(),
             onFundsItemClicked = { onFundsClicked(it) },
             assetResources = assetResources,
             onHoldAmountClicked = { onHoldAmountClicked(it) }

@@ -4,6 +4,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
@@ -19,6 +20,7 @@ class PortfolioDelegateAdapter(
     prefs: CurrencyPrefs,
     onCardClicked: (AssetInfo) -> Unit,
     analytics: Analytics,
+    walletModeService: WalletModeService,
     onFundsItemClicked: (FiatAccount) -> Unit,
     onHoldAmountClicked: (Locks) -> Unit,
     assetResources: AssetResources,
@@ -43,8 +45,8 @@ class PortfolioDelegateAdapter(
             addAdapterDelegate(CardAnnouncementDelegate(analytics))
             addAdapterDelegate(
                 BalanceCardDelegate(
-                    prefs.selectedFiatCurrency,
-                    assetResources,
+                    walletModeService = walletModeService,
+                    assetResources = assetResources,
                 )
             )
 
