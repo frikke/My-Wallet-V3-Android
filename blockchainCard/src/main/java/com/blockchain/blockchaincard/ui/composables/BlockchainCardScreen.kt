@@ -423,6 +423,9 @@ fun BlockchainCardNavHost(
                                 viewModel.onIntent(BlockchainCardIntent.RefreshTransactions)
                             },
                             isTransactionListRefreshing = state.isTransactionListRefreshing,
+                            onGetNextPage = {
+                                viewModel.onIntent(BlockchainCardIntent.LoadNextTransactionsPage)
+                            }
                         )
                     }
                 }

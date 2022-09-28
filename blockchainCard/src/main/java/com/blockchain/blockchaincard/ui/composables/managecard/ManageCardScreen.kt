@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -74,6 +73,7 @@ import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.DropdownMenuSearch
 import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.lazylist.PaginatedLazyColumn
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
@@ -568,6 +568,7 @@ fun CardTransactionHistory(
     pendingTransactions: List<BlockchainCardTransaction>,
     completedTransactionsGroupedByMonth: Map<String?, List<BlockchainCardTransaction>>,
     onSeeTransactionDetails: (transaction: BlockchainCardTransaction) -> Unit,
+    onGetNextPage: () -> Unit,
     onRefreshTransactions: () -> Unit,
     isTransactionListRefreshing: Boolean,
 ) {
@@ -575,9 +576,10 @@ fun CardTransactionHistory(
         state = rememberSwipeRefreshState(isRefreshing = isTransactionListRefreshing),
         onRefresh = onRefreshTransactions
     ) {
-        LazyColumn(
+        PaginatedLazyColumn(
             modifier = Modifier.padding(AppTheme.dimensions.standardSpacing),
-            verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.standardSpacing)
+            verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.standardSpacing),
+            onGetNextPage = onGetNextPage
         ) {
             if (pendingTransactions.isNotEmpty()) {
                 item {
@@ -664,7 +666,6 @@ fun CardTransactionHistory(
 @Preview(showBackground = true)
 @Composable
 fun PreviewCardTransactionHistory() {
-
     val transactionList = listOf(
         BlockchainCardTransaction(
             merchantName = "Coffee Beans Inc.",
@@ -777,8 +778,9 @@ fun PreviewCardTransactionHistory() {
         pendingTransactions = pendingTransactions,
         completedTransactionsGroupedByMonth = completedTransactionsGroupedByMonth,
         onSeeTransactionDetails = {},
-        onRefreshTransactions = { /*TODO*/ },
-        isTransactionListRefreshing = false
+        onRefreshTransactions = {},
+        isTransactionListRefreshing = false,
+        onGetNextPage = {}
     )
 }
 

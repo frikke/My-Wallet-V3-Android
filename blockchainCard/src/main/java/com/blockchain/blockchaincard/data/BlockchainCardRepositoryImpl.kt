@@ -213,8 +213,11 @@ internal class BlockchainCardRepositoryImpl(
                 response.firstName + " " + response.lastName
             }.wrapBlockchainCardError()
 
-    override suspend fun getTransactions(): Outcome<BlockchainCardError, List<BlockchainCardTransaction>> =
-        blockchainCardService.getTransactions().map { response ->
+    override suspend fun getTransactions(
+        limit: Int?,
+        toId: String?
+    ): Outcome<BlockchainCardError, List<BlockchainCardTransaction>> =
+        blockchainCardService.getTransactions(limit = limit, toId = toId).map { response ->
             response.map { it.toDomainModel() }
         }.wrapBlockchainCardError()
 

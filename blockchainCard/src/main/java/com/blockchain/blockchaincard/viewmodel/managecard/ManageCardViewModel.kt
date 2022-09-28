@@ -2,6 +2,9 @@ package com.blockchain.blockchaincard.viewmodel.managecard
 
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
+import com.blockchain.blockchaincard.util.BlockchainCardTransactionUtils
+import com.blockchain.blockchaincard.util.getCompletedTransactionsGroupedByMonth
+import com.blockchain.blockchaincard.util.getPendingTransactions
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardErrorState
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
@@ -21,6 +24,8 @@ import com.blockchain.utils.getMonthName
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import timber.log.Timber
+
+const val TRANSACTIONS_PAGE_SIZE = 30
 
 class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRepository) : BlockchainCardViewModel() {
 
@@ -351,7 +356,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             }
 
             is BlockchainCardIntent.LoadTransactions -> {
-                blockchainCardRepository.getTransactions().fold(
+                blockchainCardRepository.getTransactions(limit = TRANSACTIONS_PAGE_SIZE).fold(
                     onSuccess = { transactions ->
                         Timber.d("Transactions loaded: $transactions")
 
@@ -369,7 +374,8 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                                 shortTransactionList = transactions.take(4), // We only display the first 4
                                 pendingTransactions = pendingTransactions,
                                 completedTransactionsGroupedByMonth = completedTransactionsGroupedByMonth,
-                                isTransactionListRefreshing = false
+                                isTransactionListRefreshing = false,
+                                nextPageId = if (transactions.isNotEmpty()) transactions.last().id else null
                             )
                         }
                     },
@@ -378,6 +384,54 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                     }
                 )
+            }
+
+            is BlockchainCardIntent.LoadNextTransactionsPage -> {
+
+                if (!modelState.nextPageId.isNullOrEmpty()) {
+                    blockchainCardRepository.getTransactions(
+                        limit = TRANSACTIONS_PAGE_SIZE,
+                        toId = modelState.nextPageId
+                    ).fold(
+                        onSuccess = { transactions ->
+                            Timber.d(
+                                "Loaded Next Page. Elements loaded: ${transactions.size}"
+                            )
+
+                            val pendingTransactions =
+                                transactions.getPendingTransactions()
+
+                            val finalPendingTransactions = BlockchainCardTransactionUtils.mergeTransactionList(
+                                firstList = modelState.pendingTransactions,
+                                secondList = pendingTransactions
+                            )
+
+                            val completedTransactionsGroupedByMonth =
+                                transactions.getCompletedTransactionsGroupedByMonth()
+
+                            val finalCompletedTransactionsGroupedByMonth =
+                                modelState.completedTransactionsGroupedByMonth?.let {
+                                    BlockchainCardTransactionUtils.mergeGroupedTransactionList(
+                                        firstGroupedList = it,
+                                        secondGroupedList = completedTransactionsGroupedByMonth
+                                    )
+                                } ?: completedTransactionsGroupedByMonth
+
+                            updateState {
+                                it.copy(
+                                    pendingTransactions = finalPendingTransactions,
+                                    completedTransactionsGroupedByMonth = finalCompletedTransactionsGroupedByMonth,
+                                    isTransactionListRefreshing = false,
+                                    nextPageId = if (transactions.isNotEmpty()) transactions.last().id else null
+                                )
+                            }
+                        },
+                        onFailure = { error ->
+                            Timber.e("Unable to get transactions: $error")
+                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                        }
+                    )
+                }
             }
 
             is BlockchainCardIntent.RefreshTransactions -> {
