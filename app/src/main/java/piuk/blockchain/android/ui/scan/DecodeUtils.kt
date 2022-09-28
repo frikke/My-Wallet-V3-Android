@@ -53,7 +53,7 @@ fun parseDecodeFormats(
         scanFormats != null -> {
             try {
                 scanFormats.map {
-                    BarcodeFormat.valueOf(it)
+                    BarcodeFormat.valueOf(it.trim())
                 }.toCollection(barcodeFormats)
             } catch (exception: IllegalArgumentException) {
                 // ignore it then
