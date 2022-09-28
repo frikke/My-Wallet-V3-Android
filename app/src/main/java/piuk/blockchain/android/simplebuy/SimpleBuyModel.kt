@@ -878,6 +878,7 @@ class SimpleBuyModel(
     ): String? =
         preselectedId?.let { availablePaymentMethods.firstOrNull { it.id == preselectedId }?.id }
             ?: interactor.getLastPaymentMethodId()
+                ?.let { lastPaymentMethod -> availablePaymentMethods.firstOrNull { it.id == lastPaymentMethod }?.id }
             ?: previousSelectedId?.let { availablePaymentMethods.firstOrNull { it.id == previousSelectedId }?.id }
             ?: let {
                 val paymentMethodsThatCanBePreselected =
