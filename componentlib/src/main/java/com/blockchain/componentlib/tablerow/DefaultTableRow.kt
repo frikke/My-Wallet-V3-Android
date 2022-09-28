@@ -39,7 +39,9 @@ fun DefaultTableRow(
         id = R.drawable.ic_chevron_end,
         contentDescription = null
     ),
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.background,
+    primaryTextColor: Color = AppTheme.colors.title,
+    secondaryTextColor: Color = AppTheme.colors.body
 ) {
     DefaultTableRow(
         primaryText = buildAnnotatedString { append(primaryText) },
@@ -51,7 +53,9 @@ fun DefaultTableRow(
         endTag = endTag,
         startImageResource = startImageResource,
         endImageResource = endImageResource,
-        backgroundColor = backgroundColor
+        backgroundColor = backgroundColor,
+        primaryTextColor = primaryTextColor,
+        secondaryTextColor = secondaryTextColor
     )
 }
 
@@ -69,7 +73,9 @@ fun DefaultTableRow(
         id = R.drawable.ic_chevron_end,
         contentDescription = null
     ),
-    backgroundColor: Color = AppTheme.colors.background
+    backgroundColor: Color = AppTheme.colors.background,
+    primaryTextColor: Color = AppTheme.colors.title,
+    secondaryTextColor: Color = AppTheme.colors.body
 ) {
     TableRow(
         contentStart = {
@@ -94,14 +100,14 @@ fun DefaultTableRow(
                 Text(
                     text = primaryText,
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.title
+                    color = primaryTextColor
                 )
                 if (secondaryText != null) {
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = secondaryText,
                         style = AppTheme.typography.paragraph1,
-                        color = AppTheme.colors.body
+                        color = secondaryTextColor
                     )
                 }
             }

@@ -31,7 +31,7 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
     interface Host : SlidingModalBottomDialog.Host {
         fun onPaymentMethodChanged(paymentMethod: PaymentMethod)
         fun showAvailableToAddPaymentMethods()
-        fun onCardTagClicked(cardInfo: CardRejectionState)
+        fun onRejectableCardSelected(cardInfo: CardRejectionState)
     }
 
     private val paymentMethods: List<PaymentMethod> by unsafeLazy {
@@ -71,7 +71,7 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
                     adapterItems = paymentMethods.map { it.toPaymentMethodItem() },
                     assetResources = assetResources,
                     canUseCreditCards = canUseCreditCards,
-                    onCardTagClicked = ::onCardTagClicked,
+                    onRejectableCardSelected = ::onRejectableCardSelected,
                     cardRejectionFFEnabled = cardRejectionFFEnabled
                 )
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
@@ -97,8 +97,8 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         }
     }
 
-    private fun onCardTagClicked(cardInfo: CardRejectionState) {
-        (host as? Host)?.onCardTagClicked(cardInfo)
+    private fun onRejectableCardSelected(cardInfo: CardRejectionState) {
+        (host as? Host)?.onRejectableCardSelected(cardInfo)
         dismiss()
     }
 
@@ -149,13 +149,13 @@ private class PaymentMethodsAdapter(
     adapterItems: List<PaymentMethodItem>,
     assetResources: AssetResources,
     canUseCreditCards: Boolean,
-    onCardTagClicked: (cardInfo: CardRejectionState) -> Unit,
+    onRejectableCardSelected: (cardInfo: CardRejectionState) -> Unit,
     cardRejectionFFEnabled: Boolean
 ) :
     DelegationAdapter<PaymentMethodItem>(AdapterDelegatesManager(), adapterItems) {
     init {
         val cardPaymentDelegate = CardPaymentDelegate(
-            onCardTagClicked = onCardTagClicked,
+            onRejectableCardSelected = onRejectableCardSelected,
             cardRejectionFFEnabled = cardRejectionFFEnabled
         )
         val bankPaymentDelegate = BankPaymentDelegate()

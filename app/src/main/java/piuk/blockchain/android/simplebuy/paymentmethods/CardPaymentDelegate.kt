@@ -20,7 +20,7 @@ import piuk.blockchain.android.databinding.CardPaymentMethodLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 
 class CardPaymentDelegate(
-    private val onCardTagClicked: (cardInfo: CardRejectionState) -> Unit,
+    private val onRejectableCardSelected: (cardInfo: CardRejectionState) -> Unit,
     private val cardRejectionFFEnabled: Boolean
 ) : AdapterDelegate<PaymentMethodItem> {
 
@@ -34,7 +34,7 @@ class CardPaymentDelegate(
                 parent,
                 false
             ),
-            onCardTagClicked = onCardTagClicked,
+            onRejectableCardSelected = onRejectableCardSelected,
             cardRejectionFFEnabled = cardRejectionFFEnabled
         )
 
@@ -44,7 +44,7 @@ class CardPaymentDelegate(
 
     private class CardPaymentViewHolder(
         private val binding: CardPaymentMethodLayoutBinding,
-        private val onCardTagClicked: (cardInfo: CardRejectionState) -> Unit,
+        private val onRejectableCardSelected: (cardInfo: CardRejectionState) -> Unit,
         private val cardRejectionFFEnabled: Boolean
     ) :
         RecyclerView.ViewHolder(binding.root), KoinComponent {
@@ -73,37 +73,42 @@ class CardPaymentDelegate(
                         }
                         onClick = {
                             paymentMethodItem.clickAction()
-                        }
 
-                        if (cardRejectionFFEnabled) {
-                            tags = when (val cardState = it.cardRejectionState) {
-                                is CardRejectionState.AlwaysRejected -> {
-                                    listOf(
-                                        TagViewState(
-                                            value = cardState.title ?: context.getString(
-                                                R.string.card_issuer_always_rejects_title
-                                            ),
-                                            type = TagType.Error(),
-                                            onClick = {
-                                                onCardTagClicked(cardState)
-                                            }
-                                        )
+                            if (cardRejectionFFEnabled &&
+                                (
+                                    it.cardRejectionState is CardRejectionState.AlwaysRejected ||
+                                        it.cardRejectionState is CardRejectionState.MaybeRejected
                                     )
+                            ) {
+                                it.cardRejectionState?.let { state ->
+                                    onRejectableCardSelected(state)
                                 }
-                                is CardRejectionState.MaybeRejected -> {
-                                    listOf(
-                                        TagViewState(
-                                            value = cardState.title ?: context.getString(
-                                                R.string.card_issuer_sometimes_rejects_title
-                                            ),
-                                            type = TagType.Warning(),
-                                            onClick = {
-                                                onCardTagClicked(cardState)
-                                            }
+                            }
+
+                            if (cardRejectionFFEnabled) {
+                                tags = when (val cardState = it.cardRejectionState) {
+                                    is CardRejectionState.AlwaysRejected -> {
+                                        listOf(
+                                            TagViewState(
+                                                value = cardState.title ?: context.getString(
+                                                    R.string.card_issuer_always_rejects_title
+                                                ),
+                                                type = TagType.Error(),
+                                            )
                                         )
-                                    )
+                                    }
+                                    is CardRejectionState.MaybeRejected -> {
+                                        listOf(
+                                            TagViewState(
+                                                value = cardState.title ?: context.getString(
+                                                    R.string.card_issuer_sometimes_rejects_title
+                                                ),
+                                                type = TagType.Warning(),
+                                            )
+                                        )
+                                    }
+                                    else -> null
                                 }
-                                else -> null
                             }
                         }
                     }

@@ -215,7 +215,7 @@ class DashboardOnboardingActivity :
         throw UnsupportedOperationException()
     }
 
-    override fun onCardTagClicked(cardInfo: CardRejectionState) {
+    override fun onRejectableCardSelected(cardInfo: CardRejectionState) {
         // do nothing
     }
 

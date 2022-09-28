@@ -16,8 +16,10 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.switcher.SwitcherState
+import com.blockchain.componentlib.tablerow.DefaultTableRowView
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
@@ -209,7 +211,7 @@ class SimpleBuyCryptoFragment :
             cardRejectionFFEnabled = false
         )
 
-    override fun onCardTagClicked(cardInfo: CardRejectionState) {
+    override fun onRejectableCardSelected(cardInfo: CardRejectionState) {
         when (cardInfo) {
             is CardRejectionState.AlwaysRejected ->
                 showCardRejectionInfo(
@@ -754,6 +756,7 @@ class SimpleBuyCryptoFragment :
         binding.paymentMethodDetailsRoot.apply {
             primaryText = paymentMethod.fiatCurrency.name
             secondaryText = paymentMethod.limits.max.toStringWithSymbol()
+            showDefaultTextColours()
             startImageResource = if (paymentMethod.fiatCurrency.logo.isNotEmpty()) {
                 ImageResource.Remote(paymentMethod.fiatCurrency.logo, shape = RoundedCornerShape(2.dp))
             } else {
@@ -766,6 +769,7 @@ class SimpleBuyCryptoFragment :
         binding.paymentMethodDetailsRoot.apply {
             primaryText = paymentMethod.bankName
             secondaryText = getString(R.string.payment_method_limit, paymentMethod.limits.max.toStringWithSymbol())
+            showDefaultTextColours()
             startImageResource = if (paymentMethod.iconUrl.isNotEmpty()) {
                 ImageResource.Remote(paymentMethod.iconUrl)
             } else {
@@ -783,6 +787,7 @@ class SimpleBuyCryptoFragment :
             }
             secondaryText =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+            showDefaultTextColours()
             startImageResource =
                 ImageResource.Local(contentDescription = "UndefinedCard", id = R.drawable.ic_payment_card)
         }
@@ -793,6 +798,7 @@ class SimpleBuyCryptoFragment :
             primaryText = getString(R.string.easy_bank_transfer)
             secondaryText =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+            showDefaultTextColours()
             startImageResource = ImageResource.Local(
                 contentDescription = "UndefinedBankTransfer",
                 id = R.drawable.ic_bank_icon
@@ -807,6 +813,7 @@ class SimpleBuyCryptoFragment :
             )
             secondaryText =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+            showDefaultTextColours()
             startImageResource = ImageResource.Local(
                 contentDescription = "UndefinedBankTransfer",
                 id = R.drawable.ic_bank_icon
@@ -827,12 +834,15 @@ class SimpleBuyCryptoFragment :
                     when (val cardState = selectedPaymentMethod.cardRejectionState) {
                         is CardRejectionState.AlwaysRejected -> {
                             cardState.renderAlwaysRejectedCardError()
+                            showErrorColours()
                             btnContinue.gone()
                             tags = emptyList()
                         }
                         is CardRejectionState.MaybeRejected -> {
+                            showDefaultTextColours()
                             btnError.gone()
                             btnContinue.visible()
+                            secondaryText = null
                             tags = listOf(
                                 TagViewState(
                                     cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
@@ -841,6 +851,7 @@ class SimpleBuyCryptoFragment :
                             )
                         }
                         else -> {
+                            showDefaultTextColours()
                             tags = emptyList()
                             btnError.gone()
                             btnContinue.visible()
@@ -851,9 +862,20 @@ class SimpleBuyCryptoFragment :
         }
     }
 
+    private fun DefaultTableRowView.showErrorColours() {
+        primaryTextColor = ComposeColors.Error
+        secondaryTextColor = ComposeColors.Error
+    }
+
+    private fun DefaultTableRowView.showDefaultTextColours() {
+        primaryTextColor = ComposeColors.Title
+        secondaryTextColor = ComposeColors.Body
+    }
+
     private fun renderGooglePayPayment(selectedPaymentMethod: PaymentMethod.GooglePay) {
         binding.paymentMethodDetailsRoot.apply {
             primaryText = selectedPaymentMethod.detailedLabel()
+            showDefaultTextColours()
             startImageResource = ImageResource.Local(
                 contentDescription = "googlePayIcon",
                 id = R.drawable.google_pay_mark
