@@ -48,6 +48,7 @@ import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
+import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 class MainInteractorTest {
 
@@ -70,6 +71,7 @@ class MainInteractorTest {
     private val bankService: BankService = mock()
     private val referralPrefs: ReferralPrefs = mock()
     private val referralRepository: ReferralRepository = mock()
+    private val ethDataManager: EthDataManager = mock()
 
     private val jsonSerializers = module {
         single {
@@ -110,7 +112,8 @@ class MainInteractorTest {
             cancelOrderUseCase = cancelOrderUseCase,
             bankService = bankService,
             referralPrefs = referralPrefs,
-            referralRepository = referralRepository
+            referralRepository = referralRepository,
+            ethDataManager = ethDataManager
         )
     }
 

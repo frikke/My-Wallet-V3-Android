@@ -3,7 +3,6 @@ package com.blockchain.walletconnect.domain
 import com.trustwallet.walletconnect.models.WCPeerMeta
 import com.trustwallet.walletconnect.models.session.WCSession
 import java.io.Serializable
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 class WalletConnectSession(val url: String, val dAppInfo: DAppInfo, val walletInfo: WalletInfo) : Serializable {
     companion object {
@@ -11,7 +10,8 @@ class WalletConnectSession(val url: String, val dAppInfo: DAppInfo, val walletIn
             wcSession: WCSession,
             peerMeta: WCPeerMeta,
             remotePeerId: String,
-            peerId: String
+            peerId: String,
+            chainId: Int
         ) =
             WalletConnectSession(
                 url = wcSession.toUri(),
@@ -23,7 +23,7 @@ class WalletConnectSession(val url: String, val dAppInfo: DAppInfo, val walletIn
                         icons = peerMeta.icons,
                         name = peerMeta.name
                     ),
-                    chainId = EthDataManager.ethChain.chainId,
+                    chainId = chainId,
                 ),
                 walletInfo = WalletInfo(
                     clientId = peerId,

@@ -1024,7 +1024,7 @@ class MainActivity :
     }
 
     override fun onSessionApproved(session: WalletConnectSession) {
-        model.process(MainIntent.SelectNetworkForWCSession(session))
+        model.process(MainIntent.ApproveWCSession(session))
         analytics.logEvent(
             WalletConnectAnalytics.DappConnectionConfirmed
         )

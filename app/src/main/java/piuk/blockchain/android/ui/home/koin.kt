@@ -55,7 +55,8 @@ val mainModule = module {
                 secureChannelService = get(),
                 cancelOrderUseCase = get(),
                 referralPrefs = get(),
-                referralRepository = get()
+                referralRepository = get(),
+                ethDataManager = get()
             )
         }
 

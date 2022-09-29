@@ -2751,7 +2751,7 @@
     <string name="signature_request">Signature Request</string>
     <string name="no_dapps_connected">No Connected Dapps</string>
     <string name="connect_with_wallet_connect">Connect to a dapp using WalletConnect.</string>
-    <string name="wallet_connect_switch_network_title">Switch Network</string>
+    <string name="wallet_connect_switch_network">Switch Network</string>
     <string name="are_you_sure">Are you sure?</string>
     <string name="you_are_about_disconnect">You\'re about to disconnect %1$s.</string>
     <plurals name="wallet_connect_connected_apps">

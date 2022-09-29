@@ -44,6 +44,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
+import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 class MainInteractor internal constructor(
     private val deepLinkProcessor: DeepLinkProcessor,
@@ -62,7 +63,8 @@ class MainInteractor internal constructor(
     private val secureChannelService: SecureChannelService,
     private val cancelOrderUseCase: CancelOrderUseCase,
     private val referralPrefs: ReferralPrefs,
-    private val referralRepository: ReferralRepository
+    private val referralRepository: ReferralRepository,
+    private val ethDataManager: EthDataManager
 ) {
 
     fun checkForDeepLinks(intent: Intent): Single<LinkState> =
@@ -159,4 +161,6 @@ class MainInteractor internal constructor(
     fun storeReferralClicked() {
         referralPrefs.hasReferralIconBeenClicked = true
     }
+
+    fun getSupportedEvmNetworks() = ethDataManager.supportedNetworks
 }

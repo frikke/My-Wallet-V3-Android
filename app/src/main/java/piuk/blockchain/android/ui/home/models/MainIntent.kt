@@ -103,6 +103,10 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
+    class GetNetworkInfoForWCSession(val session: WalletConnectSession) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
     class SwitchWalletMode(val walletMode: WalletMode) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }

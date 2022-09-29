@@ -1,6 +1,5 @@
 package com.blockchain.walletconnect.ui.networks
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -38,13 +37,13 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.Radio
 import com.blockchain.componentlib.control.RadioButtonState
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletconnect.R
 import com.blockchain.walletconnect.domain.WalletConnectSession
@@ -88,20 +87,6 @@ class SelectNetworkBottomSheet :
         }
     }
 
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        host.onNetworkSelected(
-            session = WalletConnectSession(
-                url = session.url,
-                dAppInfo = session.dAppInfo.copy(
-                    chainId = selectedNetwork.chainId
-                ),
-                walletInfo = session.walletInfo
-            ),
-            networkInfo = selectedNetwork
-        )
-    }
-
     @Composable
     private fun SheetContent() {
         val lifecycleOwner = LocalLifecycleOwner.current
@@ -124,30 +109,20 @@ class SelectNetworkBottomSheet :
                         .align(Alignment.CenterHorizontally),
                     imageResource = ImageResource.Local(R.drawable.vector_sheet_indicator_small)
                 )
-                Row(
+                SimpleText(
                     modifier = Modifier
-                        .padding(bottom = AppTheme.dimensions.standardSpacing)
-                ) {
-                    SimpleText(
-                        modifier = Modifier
-                            .padding(top = AppTheme.dimensions.smallestSpacing)
-                            .weight(1.0f),
-                        text = stringResource(
-                            com.blockchain.stringResources.R.string.wallet_connect_switch_network_title
-                        ),
-                        style = ComposeTypographies.Title3,
-                        color = ComposeColors.Title,
-                        gravity = ComposeGravities.Start
-                    )
-                    Image(
-                        modifier = Modifier
-                            .padding(
-                                top = AppTheme.dimensions.smallestSpacing
-                            )
-                            .clickableNoEffect { dismiss() },
-                        imageResource = ImageResource.Local(R.drawable.ic_close_circle)
-                    )
-                }
+                        .padding(
+                            top = AppTheme.dimensions.smallestSpacing,
+                            bottom = AppTheme.dimensions.standardSpacing
+                        )
+                        .weight(1.0f),
+                    text = stringResource(
+                        com.blockchain.stringResources.R.string.wallet_connect_switch_network
+                    ),
+                    style = ComposeTypographies.Title3,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Start
+                )
                 NetworksList(
                     currentState.networks.map {
                         NetworkItem(
@@ -156,6 +131,27 @@ class SelectNetworkBottomSheet :
                             it.logo,
                             it.chainId == currentState.selectedNetwork?.chainId
                         )
+                    }
+                )
+                PrimaryButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    text = stringResource(
+                        com.blockchain.stringResources.R.string.wallet_connect_switch_network
+                    ),
+                    onClick = {
+                        host.onNetworkSelected(
+                            session = WalletConnectSession(
+                                url = session.url,
+                                dAppInfo = session.dAppInfo.copy(
+                                    chainId = selectedNetwork.chainId
+                                ),
+                                walletInfo = session.walletInfo
+                            ),
+                            networkInfo = selectedNetwork
+                        )
+                        dismiss()
                     }
                 )
             }
@@ -168,7 +164,7 @@ class SelectNetworkBottomSheet :
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(bottom = AppTheme.dimensions.epicSpacing)
+                .padding(bottom = AppTheme.dimensions.standardSpacing)
                 .background(Grey000, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))),
         ) {
             itemsIndexed(
