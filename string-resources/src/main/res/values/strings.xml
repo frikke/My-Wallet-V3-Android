@@ -3119,6 +3119,7 @@
     <string name="type">Type</string>
     <string name="state">State</string>
     <string name="transaction_details_title">Card Transaction</string>
+    <string name="bc_card_transaction_created">Created</string>
     <string name="bc_card_transaction_pending">Pending</string>
     <string name="bc_card_transaction_cancelled">Cancelled</string>
     <string name="bc_card_transaction_declined">Declined</string>
@@ -3133,7 +3134,9 @@
     <string name="bc_card_terms_and_conditions_label">I understand and accept the terms and conditions of the Blockchain.com Visa Card Program, the Pathward Bank Cardholder Agreement, the Pathward Bank E-Sign Agreement and the Pathward Bank Privacy Policy. I also understand and accept that these terms operate in addition to the Blockchain.com Terms of Service and Blockchain.com Privacy Policy.</string>
     <string name="bc_card_transaction_payment">Payment</string>
     <string name="bc_card_transaction_refund">Refund</string>
-    <string name="bc_card_transaction_cashback">Cashback</string>
+    <string name="bc_card_transaction_payment_with_cashback">Payment with Cashback</string>
+    <string name="bc_card_transaction_funding">Funding</string>
+    <string name="bc_card_transaction_chargeback">Chargeback</string>
     <string name="bc_card_change_asset_title">Change Asset</string>
     <string name="bc_card_change_asset_description">Change the asset that will fund the card</string>
     <string name="bc_card_add_funds_title">Add Funds</string>

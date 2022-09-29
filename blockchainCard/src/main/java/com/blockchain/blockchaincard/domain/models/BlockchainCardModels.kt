@@ -29,7 +29,8 @@ data class BlockchainCard(
     val expiry: String,
     val brand: BlockchainCardBrand,
     val status: BlockchainCardStatus,
-    val createdAt: String
+    val orderStatus: BlockchainCardOrderStatus?,
+    val createdAt: String,
 ) : Parcelable
 
 @Parcelize
@@ -93,16 +94,18 @@ enum class BlockchainCardType {
 }
 
 enum class BlockchainCardStatus {
-    CREATED,
+    INITIATED,
+    UNACTIVATED,
     ACTIVE,
     LOCKED,
     TERMINATED
 }
 
 enum class BlockchainCardTransactionState {
+    CREATED,
     PENDING,
-    CANCELLED,
     DECLINED,
+    CANCELLED,
     COMPLETED;
 
     override fun toString(): String {
@@ -113,9 +116,10 @@ enum class BlockchainCardTransactionState {
 
     fun getStringResource(): Int {
         return when (this) {
+            CREATED -> R.string.bc_card_transaction_created
             PENDING -> R.string.bc_card_transaction_pending
-            CANCELLED -> R.string.bc_card_transaction_cancelled
             DECLINED -> R.string.bc_card_transaction_declined
+            CANCELLED -> R.string.bc_card_transaction_cancelled
             COMPLETED -> R.string.bc_card_transaction_completed
         }
     }
@@ -123,14 +127,24 @@ enum class BlockchainCardTransactionState {
 
 enum class BlockchainCardTransactionType {
     PAYMENT,
+    PAYMENT_WITH_CASHBACK,
     REFUND,
-    CASHBACK;
+    FUNDING,
+    CHARGEBACK;
 
     fun getStringResource(): Int {
         return when (this) {
             PAYMENT -> R.string.bc_card_transaction_payment
+            PAYMENT_WITH_CASHBACK -> R.string.bc_card_transaction_payment_with_cashback
             REFUND -> R.string.bc_card_transaction_refund
-            CASHBACK -> R.string.bc_card_transaction_cashback
+            FUNDING -> R.string.bc_card_transaction_funding
+            CHARGEBACK -> R.string.bc_card_transaction_chargeback
         }
     }
+}
+
+enum class BlockchainCardOrderStatus {
+    ORDERED,
+    SHIPPED,
+    DELIVERED
 }

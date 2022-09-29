@@ -17,6 +17,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
+import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
@@ -262,6 +263,7 @@ internal class BlockchainCardRepositoryImpl(
             expiry = expiry,
             brand = BlockchainCardBrand.valueOf(brand),
             status = BlockchainCardStatus.valueOf(status),
+            orderStatus = orderStatus?.let { BlockchainCardOrderStatus.valueOf(it) },
             createdAt = createdAt
         )
 

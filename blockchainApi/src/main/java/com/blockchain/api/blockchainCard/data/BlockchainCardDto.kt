@@ -18,6 +18,7 @@ data class CardDto(
     val expiry: String,
     val brand: String,
     val status: String,
+    val orderStatus: String?,
     val createdAt: String
 )
 
