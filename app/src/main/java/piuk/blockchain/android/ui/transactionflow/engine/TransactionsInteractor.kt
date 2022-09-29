@@ -50,12 +50,13 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
-import okio.`-DeprecatedOkio`.source
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
+import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
+import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.androidcore.utils.extensions.mapList
 import timber.log.Timber
@@ -76,7 +77,8 @@ class TransactionInteractor(
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val dismissRecorder: DismissRecorder,
     private val fiatCurrenciesService: FiatCurrenciesService,
-    private val swapSellQuickFillFF: FeatureFlag
+    private val swapSellQuickFillFF: FeatureFlag,
+    private val quickFillRoundingService: QuickFillRoundingService
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
@@ -344,6 +346,9 @@ class TransactionInteractor(
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess> = identity.userAccessForFeature(feature)
 
     fun isSwapSellQuickFillFFEnabled() = swapSellQuickFillFF.enabled
+
+    fun getRoundingDataForAction(action: AssetAction): Single<List<QuickFillRoundingData>> =
+        quickFillRoundingService.getQuickFillRoundingForAction(action)
 }
 
 private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair>): Boolean =

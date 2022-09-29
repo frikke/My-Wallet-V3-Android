@@ -118,7 +118,7 @@ class FiatValue private constructor(
     }
 
     override fun multiply(multiplier: Float): Money {
-        return fromMinor(currency, (amount * multiplier.toBigDecimal()).toBigInteger())
+        return fromMajor(currency, (amount * multiplier.toBigDecimal()))
     }
 
     override fun ensureComparable(operation: String, other: Money) {

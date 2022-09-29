@@ -4,6 +4,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
@@ -93,6 +94,8 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
+import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
+import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
 
@@ -124,7 +127,8 @@ class SimpleBuyInteractor(
     private val rbFrequencySuggestionFF: FeatureFlag,
     private val cardRejectionFF: FeatureFlag,
     private val rbExperimentFF: FeatureFlag,
-    private val remoteConfigRepository: RemoteConfigRepository
+    private val remoteConfigRepository: RemoteConfigRepository,
+    private val quickFillRoundingService: QuickFillRoundingService
 ) {
 
     // Hack until we have a proper limits api.
@@ -616,68 +620,63 @@ class SimpleBuyInteractor(
         limits: TxLimits,
         assetCode: String,
         fiatCurrency: FiatCurrency,
-    ): Single<Pair<Money, QuickFillButtonData?>> {
+    ): Single<Pair<Money, QuickFillButtonData?>> =
+        quickFillRoundingService.getQuickFillRoundingForAction(AssetAction.Buy).map { roundingInfo ->
 
-        val amountString = simpleBuyPrefs.getLastAmount("$assetCode-${fiatCurrency.networkTicker}")
+            val amountString = simpleBuyPrefs.getLastAmount("$assetCode-${fiatCurrency.networkTicker}")
+            val listOfAmounts = mutableListOf<Money>()
 
-        var prefilledAmount = when {
-            amountString.isEmpty() -> {
-                Money.fromMajor(fiatCurrency, BigDecimal(DEFAULT_MIN_PREFILL_AMOUNT))
+            var prefilledAmount = when {
+                amountString.isEmpty() -> {
+                    Money.fromMajor(fiatCurrency, BigDecimal(DEFAULT_MIN_PREFILL_AMOUNT))
+                }
+                amountString.isNotEmpty() -> Money.fromMajor(fiatCurrency, BigDecimal(amountString))
+                else -> Money.fromMajor(fiatCurrency, BigDecimal.ZERO)
             }
-            amountString.isNotEmpty() -> Money.fromMajor(fiatCurrency, BigDecimal(amountString))
-            else -> Money.fromMajor(fiatCurrency, BigDecimal.ZERO)
-        }
 
-        val isMaxLimited = limits.isAmountOverMax(prefilledAmount)
-        val isMinLimited = limits.isAmountUnderMin(prefilledAmount)
+            val isMaxLimited = limits.isAmountOverMax(prefilledAmount)
+            val isMinLimited = limits.isAmountUnderMin(prefilledAmount)
 
-        val listOfAmounts = mutableListOf<Money>()
+            prefilledAmount = when {
+                isMinLimited && isMaxLimited -> Money.fromMajor(fiatCurrency, BigDecimal.ZERO)
+                isMinLimited -> limits.minAmount
+                isMaxLimited -> limits.maxAmount
+                else -> prefilledAmount
+            }
 
-        prefilledAmount = when {
-            isMinLimited && isMaxLimited -> Money.fromMajor(fiatCurrency, BigDecimal.ZERO)
-            isMinLimited -> limits.minAmount
-            isMaxLimited -> limits.maxAmount
-            else -> prefilledAmount
-        }
+            roundingInfo.forEachIndexed { index, data ->
+                val roundingData = data as QuickFillRoundingData.BuyRoundingData
+                val multiplier = roundingData.multiplier.toFloat()
+                val lastAmount = if (index == 0) {
+                    prefilledAmount.times(multiplier)
+                } else if (listOfAmounts.size >= index) {
+                    listOfAmounts[index - 1].times(multiplier)
+                } else {
+                    Money.zero(fiatCurrency)
+                }
 
-        val lowestPrefillAmount = roundToNearest(
-            Money.fromMajor(fiatCurrency, (2 * prefilledAmount.toFloat()).toBigDecimal()),
-            ROUND_TO_NEAREST_10
-        )
-
-        if (limits.isAmountInRange(lowestPrefillAmount)) {
-            listOfAmounts.add(lowestPrefillAmount)
-        }
-
-        val mediumPrefillAmount = roundToNearest(
-            Money.fromMajor(fiatCurrency, (2 * lowestPrefillAmount.toFloat()).toBigDecimal()),
-            ROUND_TO_NEAREST_50
-        )
-
-        if (limits.isAmountInRange(mediumPrefillAmount)) {
-            listOfAmounts.add(mediumPrefillAmount)
-        }
-
-        val largestPrefillAmount = roundToNearest(
-            Money.fromMajor(fiatCurrency, (2 * mediumPrefillAmount.toFloat()).toBigDecimal()),
-            ROUND_TO_NEAREST_100
-        )
-        if (limits.isAmountInRange(largestPrefillAmount)) {
-            listOfAmounts.add(largestPrefillAmount)
-        }
-
-        val quickFillButtonData = QuickFillButtonData(
-            maxAmount = (limits.max as? TxLimit.Limited)?.amount ?: Money.zero(fiatCurrency),
-            quickFillButtons = listOfAmounts.map { amount ->
-                QuickFillDisplayAndAmount(
-                    displayValue = amount.toStringWithSymbol(includeDecimalsWhenWhole = false),
-                    amount = amount
+                val prefillAmount = roundToNearest(
+                    lastAmount = lastAmount,
+                    nearest = roundingData.rounding
                 )
-            }
-        )
 
-        return Single.just(Pair(prefilledAmount, quickFillButtonData))
-    }
+                if (limits.isAmountInRange(prefillAmount)) {
+                    listOfAmounts.add(prefillAmount)
+                }
+            }
+
+            val quickFillButtonData = QuickFillButtonData(
+                maxAmount = (limits.max as? TxLimit.Limited)?.amount ?: Money.zero(fiatCurrency),
+                quickFillButtons = listOfAmounts.map { amount ->
+                    QuickFillDisplayAndAmount(
+                        displayValue = amount.toStringWithSymbol(includeDecimalsWhenWhole = false),
+                        amount = amount
+                    )
+                }
+            )
+
+            return@map Pair(prefilledAmount, quickFillButtonData)
+        }
 
     fun getListOfStates(countryCode: String): Single<List<Region.State>> =
         rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
@@ -710,9 +709,6 @@ class SimpleBuyInteractor(
         private const val RETRIES_DEFAULT = 12
         private const val EMPTY_PAYMENT_TOKEN: PaymentToken = ""
 
-        private const val ROUND_TO_NEAREST_10 = 10
-        private const val ROUND_TO_NEAREST_50 = 50
-        private const val ROUND_TO_NEAREST_100 = 100
         private const val DEFAULT_MIN_PREFILL_AMOUNT = "50"
     }
 }

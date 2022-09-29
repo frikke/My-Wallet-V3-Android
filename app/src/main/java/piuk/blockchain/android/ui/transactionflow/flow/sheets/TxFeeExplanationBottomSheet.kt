@@ -25,7 +25,6 @@ import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tag.SuccessTag
 import com.blockchain.componentlib.tag.TagSize
-import com.blockchain.componentlib.theme.AppDimensions
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import info.blockchain.balance.CryptoCurrency
@@ -141,7 +140,7 @@ fun TransactionFeeExplanationSheet(
         Spacer(Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
         SimpleText(
-            modifier = Modifier.padding(horizontal = AppDimensions().standardSpacing),
+            modifier = Modifier.padding(horizontal = AppTheme.dimensions.standardSpacing),
             text = stringResource(R.string.tx_enter_amount_fee_sheet_description),
             style = ComposeTypographies.Body1,
             color = ComposeColors.Body,
@@ -176,8 +175,8 @@ fun TransactionFeeExplanationSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = AppDimensions().standardSpacing,
-                    vertical = AppDimensions().standardSpacing
+                    horizontal = AppTheme.dimensions.standardSpacing,
+                    vertical = AppTheme.dimensions.standardSpacing
                 ),
             text = stringResource(R.string.common_ok),
             onClick = onCloseClick
@@ -195,7 +194,7 @@ fun TransactionFeeRowItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = AppDimensions().standardSpacing)
+            .padding(horizontal = AppTheme.dimensions.standardSpacing)
     ) {
 
         SimpleText(
@@ -221,7 +220,7 @@ fun TransactionFeeRowItem(
     if (showBottomDivider) {
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
-        HorizontalDivider(dividerColor = AppTheme.colors.light, modifier = Modifier.fillMaxWidth())
+        HorizontalDivider(dividerColor = AppTheme.colors.medium, modifier = Modifier.fillMaxWidth())
 
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
     }

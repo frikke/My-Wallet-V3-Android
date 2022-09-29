@@ -454,7 +454,8 @@ val applicationModule = module {
                 rbFrequencySuggestionFF = get(rbFrequencyFeatureFlag),
                 cardRejectionFF = get(cardRejectionCheckFeatureFlag),
                 rbExperimentFF = get(rbExperimentFeatureFlag),
-                remoteConfigRepository = get()
+                remoteConfigRepository = get(),
+                quickFillRoundingService = get()
             )
         }
 

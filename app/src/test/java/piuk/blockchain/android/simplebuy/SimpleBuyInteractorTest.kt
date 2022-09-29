@@ -2,6 +2,7 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.banking.BankPartnerCallbackProvider
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.limits.LimitsDataManager
@@ -32,6 +33,8 @@ import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.remoteconfig.RemoteConfigRepository
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
@@ -41,6 +44,8 @@ import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
+import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
+import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 
 class SimpleBuyInteractorTest {
 
@@ -83,6 +88,7 @@ class SimpleBuyInteractorTest {
             )
         )
     }
+    private val quickFillRoundingService: QuickFillRoundingService = mock()
 
     @Before
     fun setup() {
@@ -114,7 +120,18 @@ class SimpleBuyInteractorTest {
             rbFrequencySuggestionFF = rbFrequencySuggestion,
             cardRejectionFF = cardRejectionCheckFeatureFlag,
             rbExperimentFF = rbExperimentFF,
-            remoteConfigRepository = remoteConfigRepository
+            remoteConfigRepository = remoteConfigRepository,
+            quickFillRoundingService = quickFillRoundingService
+        )
+
+        whenever(quickFillRoundingService.getQuickFillRoundingForAction(AssetAction.Buy)).thenReturn(
+            Single.just(
+                listOf(
+                    QuickFillRoundingData.BuyRoundingData(2, 10),
+                    QuickFillRoundingData.BuyRoundingData(2, 50),
+                    QuickFillRoundingData.BuyRoundingData(2, 100)
+                )
+            )
         )
     }
 
@@ -137,6 +154,9 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200)) &&
                 it.second!!.quickFillButtons[2].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
+
+        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
+        verifyNoMoreInteractions(quickFillRoundingService)
     }
 
     @Test
@@ -158,6 +178,9 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200)) &&
                 it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
+
+        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
+        verifyNoMoreInteractions(quickFillRoundingService)
     }
 
     @Test
@@ -177,6 +200,9 @@ class SimpleBuyInteractorTest {
             it.first == prefilledAmount &&
                 it.second?.maxAmount == maxAmount
         }
+
+        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
+        verifyNoMoreInteractions(quickFillRoundingService)
     }
 
     @Test
@@ -196,6 +222,9 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400)) &&
                 it.second!!.quickFillButtons[2].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(800))
         }
+
+        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
+        verifyNoMoreInteractions(quickFillRoundingService)
     }
 
     @Test
@@ -213,6 +242,9 @@ class SimpleBuyInteractorTest {
                 it.second?.maxAmount == maxAmount &&
                 it.second!!.quickFillButtons.isEmpty()
         }
+
+        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
+        verifyNoMoreInteractions(quickFillRoundingService)
     }
 
     @Test
@@ -231,6 +263,9 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons.size == 1 &&
                 it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200))
         }
+
+        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
+        verifyNoMoreInteractions(quickFillRoundingService)
     }
 
     @Test
@@ -250,6 +285,9 @@ class SimpleBuyInteractorTest {
                 it.second!!.quickFillButtons[0].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(200)) &&
                 it.second!!.quickFillButtons[1].amount == FiatValue.fromMajor(fiatCurrency, BigDecimal(400))
         }
+
+        verify(quickFillRoundingService).getQuickFillRoundingForAction(AssetAction.Buy)
+        verifyNoMoreInteractions(quickFillRoundingService)
     }
 
     @Test

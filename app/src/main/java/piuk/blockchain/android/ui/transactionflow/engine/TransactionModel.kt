@@ -51,10 +51,11 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Maybes
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.Stack
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
+import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
 import timber.log.Timber
 
@@ -144,7 +145,8 @@ data class TransactionState(
     val quickFillButtonData: QuickFillButtonData? = null,
     val amountsToPrefill: PrefillAmounts? = null,
     val ffSwapSellQuickFillsEnabled: Boolean = false,
-    val canFilterOutTradingAccounts: Boolean = false
+    val canFilterOutTradingAccounts: Boolean = false,
+    val quickFillRoundingData: List<QuickFillRoundingData> = emptyList()
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -597,50 +599,53 @@ class TransactionModel(
         action: AssetAction,
         passwordRequired: Boolean
     ): Disposable =
-        fetchProductEligibility(action, sourceAccount, transactionTarget)
-            .zipWith(interactor.isSwapSellQuickFillFFEnabled().toMaybe())
-            .subscribeBy(
-                onSuccess = { (featureAccess, swapSellFFEnabled) ->
-                    if (featureAccess is FeatureAccess.Blocked) {
-                        process(TransactionIntent.ShowFeatureBlocked(featureAccess.reason))
-                    } else {
-                        process(
-                            TransactionIntent.InitialiseTransaction(
-                                sourceAccount = sourceAccount,
-                                amount = amount,
-                                transactionTarget = transactionTarget,
-                                action = action,
-                                passwordRequired = passwordRequired,
-                                eligibility = featureAccess,
-                                isSellSwapQuickFillFlagEnabled = swapSellFFEnabled
-                            )
-                        )
-                    }
-                },
-                onComplete = {
+        Maybes.zip(
+            fetchProductEligibility(action, sourceAccount, transactionTarget),
+            interactor.isSwapSellQuickFillFFEnabled().toMaybe(),
+            interactor.getRoundingDataForAction(action).toMaybe()
+        ).subscribeBy(
+            onSuccess = { (featureAccess, swapSellFFEnabled, roundingData) ->
+                if (featureAccess is FeatureAccess.Blocked) {
+                    process(TransactionIntent.ShowFeatureBlocked(featureAccess.reason))
+                } else {
                     process(
                         TransactionIntent.InitialiseTransaction(
                             sourceAccount = sourceAccount,
                             amount = amount,
                             transactionTarget = transactionTarget,
                             action = action,
-                            passwordRequired = passwordRequired
+                            passwordRequired = passwordRequired,
+                            eligibility = featureAccess,
+                            isSellSwapQuickFillFlagEnabled = swapSellFFEnabled,
+                            quickFillRoundingData = roundingData
                         )
                     )
-                },
-                onError = {
-                    process(
-                        TransactionIntent.InitialiseTransaction(
-                            sourceAccount = sourceAccount,
-                            amount = amount,
-                            transactionTarget = transactionTarget,
-                            action = action,
-                            passwordRequired = passwordRequired
-                        )
-                    )
-                    Timber.i(it)
                 }
-            )
+            },
+            onComplete = {
+                process(
+                    TransactionIntent.InitialiseTransaction(
+                        sourceAccount = sourceAccount,
+                        amount = amount,
+                        transactionTarget = transactionTarget,
+                        action = action,
+                        passwordRequired = passwordRequired
+                    )
+                )
+            },
+            onError = {
+                process(
+                    TransactionIntent.InitialiseTransaction(
+                        sourceAccount = sourceAccount,
+                        amount = amount,
+                        transactionTarget = transactionTarget,
+                        action = action,
+                        passwordRequired = passwordRequired
+                    )
+                )
+                Timber.i(it)
+            }
+        )
 
     private fun initialiseTransaction(
         sourceAccount: BlockchainAccount,
