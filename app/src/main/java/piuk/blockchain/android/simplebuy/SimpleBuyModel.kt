@@ -111,21 +111,19 @@ class SimpleBuyModel(
             }
             is SimpleBuyIntent.GetRecurringBuyFrequencyRemote -> {
                 if (previousState.featureFlagSet.rbFrequencySuggestionFF) {
-                    rxSingle {
-                        getRemoteRecurringBuy().subscribeBy(
-                            onSuccess = {
-                                process(SimpleBuyIntent.UpdateRecurringFrequencyRemote(it))
-                            },
-                            onError = {
-                                Timber.e("SimpleBuyModel - getRemoteRecurringBuy error: " + it.message)
-                                process(
-                                    SimpleBuyIntent.UpdateRecurringFrequencyRemote(
-                                        RecurringBuyFrequency.ONE_TIME
-                                    )
+                    getRemoteRecurringBuy().subscribeBy(
+                        onSuccess = {
+                            process(SimpleBuyIntent.UpdateRecurringFrequencyRemote(it))
+                        },
+                        onError = {
+                            Timber.e("SimpleBuyModel - getRemoteRecurringBuy error: " + it.message)
+                            process(
+                                SimpleBuyIntent.UpdateRecurringFrequencyRemote(
+                                    RecurringBuyFrequency.ONE_TIME
                                 )
-                            }
-                        )
-                    }
+                            )
+                        }
+                    )
                 }
                 if (previousState.featureFlagSet.buyQuoteRefreshFF) {
                     process(SimpleBuyIntent.ListenToQuotesUpdate)
@@ -912,6 +910,7 @@ class SimpleBuyModel(
     ): String? =
         preselectedId?.let { availablePaymentMethods.firstOrNull { it.id == preselectedId }?.id }
             ?: interactor.getLastPaymentMethodId()
+                ?.let { lastPaymentMethod -> availablePaymentMethods.firstOrNull { it.id == lastPaymentMethod }?.id }
             ?: previousSelectedId?.let { availablePaymentMethods.firstOrNull { it.id == previousSelectedId }?.id }
             ?: let {
                 val paymentMethodsThatCanBePreselected =
@@ -978,7 +977,7 @@ class SimpleBuyModel(
         )
     }
 
-    private suspend fun getRemoteRecurringBuy(): Single<RecurringBuyFrequency> =
+    private fun getRemoteRecurringBuy(): Single<RecurringBuyFrequency> =
         interactor.getRecurringBuyFrequency()
 
     private fun createRecurringBuy(

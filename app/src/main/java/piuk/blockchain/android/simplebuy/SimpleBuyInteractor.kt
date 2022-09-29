@@ -175,7 +175,7 @@ class SimpleBuyInteractor(
 
     fun cancelOrder(orderId: String): Completable = cancelOrderUseCase.invoke(orderId)
 
-    suspend fun getRecurringBuyFrequency(): Single<RecurringBuyFrequency> =
+    fun getRecurringBuyFrequency(): Single<RecurringBuyFrequency> =
         rxSingle {
             mapToFrequency(
                 remoteConfigRepository.getValueForFeature(rbExperimentFF.key)
