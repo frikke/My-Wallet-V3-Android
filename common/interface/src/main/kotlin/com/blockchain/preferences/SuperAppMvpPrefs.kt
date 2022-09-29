@@ -1,5 +1,6 @@
 package com.blockchain.preferences
 
-interface EducationalScreensPrefs {
+interface SuperAppMvpPrefs {
     var hasSeenEducationalWalletMode: Boolean
+    var shouldHighlightModeSwitch: Boolean
 }

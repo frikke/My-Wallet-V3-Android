@@ -43,6 +43,7 @@ import com.blockchain.nfts.comingsoon.NftComingSoonFragment
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
@@ -149,6 +150,7 @@ class MainActivity :
 
     private val dashboardPrefs: DashboardPrefs by scopedInject()
     private val walletModeService: WalletModeService by inject()
+    private val mvpPrefs: SuperAppMvpPrefs by inject()
 
     @Deprecated("Use MVI loop instead")
     private val compositeDisposable = CompositeDisposable()
@@ -298,8 +300,10 @@ class MainActivity :
             updateToolbarStartItem(
                 NavigationBarButton.DropdownIndicator(
                     dropDownClicked = {
+                        mvpPrefs.shouldHighlightModeSwitch = false
                         showBottomSheet(WalletModeSelectionBottomSheet.newInstance())
                     },
+                    isHighlighted = mvpPrefs.shouldHighlightModeSwitch,
                     text = getString(walletModeService.enabledWalletMode().title()),
                     rightIcon = walletModeService.enabledWalletMode().icon(),
                     contentDescription = walletModeService.enabledWalletMode().name

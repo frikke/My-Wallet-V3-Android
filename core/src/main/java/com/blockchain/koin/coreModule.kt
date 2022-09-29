@@ -89,7 +89,6 @@ import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.preferences.EducationalScreensPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
@@ -99,6 +98,7 @@ import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.remoteconfig.RemoteConfigRepository
@@ -676,7 +676,7 @@ val coreModule = module {
         bind(NftAnnouncementPrefs::class)
         bind(ReferralPrefs::class)
         bind(LocalSettingsPrefs::class)
-        bind(EducationalScreensPrefs::class)
+        bind(SuperAppMvpPrefs::class)
         bind(CowboysPrefs::class)
     }
 
