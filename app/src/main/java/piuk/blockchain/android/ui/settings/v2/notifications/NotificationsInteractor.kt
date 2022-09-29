@@ -5,10 +5,6 @@ import com.blockchain.preferences.NotificationPrefs
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.zipWith
-import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.rx3.asCoroutineDispatcher
-import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
@@ -20,23 +16,20 @@ class NotificationsInteractor internal constructor(
 ) {
 
     fun getNotificationsEnabled(): Single<Pair<Boolean, Boolean>> =
-        settingsDataManager.getSettings().firstOrError().zipWith(arePushNotificationsEnabled())
-            .map { (settings, pushNotificationsEnabled) ->
-                val emailNotificationsEnabled = settings.notificationsType.any {
-                    it == Settings.NOTIFICATION_TYPE_EMAIL ||
-                        it == Settings.NOTIFICATION_TYPE_ALL
-                }
-
-                Pair(emailNotificationsEnabled, pushNotificationsEnabled)
+        settingsDataManager.getSettings().firstOrError().map { settings ->
+            val emailNotificationsEnabled = settings.notificationsType.any {
+                it == Settings.NOTIFICATION_TYPE_EMAIL ||
+                    it == Settings.NOTIFICATION_TYPE_ALL
             }
+
+            Pair(emailNotificationsEnabled, arePushNotificationsEnabled())
+        }
 
     fun enablePushNotifications(): Completable = notificationTokenManager.enableNotifications()
 
     fun disablePushNotifications(): Completable = notificationTokenManager.disableNotifications()
 
-    fun arePushNotificationsEnabled(): Single<Boolean> = rxSingle(Schedulers.io().asCoroutineDispatcher()) {
-        notificationPrefs.arePushNotificationsEnabled()
-    }
+    fun arePushNotificationsEnabled(): Boolean = notificationPrefs.arePushNotificationsEnabled
 
     fun toggleEmailNotifications(areEmailNotificationsEnabled: Boolean): Completable =
         settingsDataManager.getSettings().firstOrError().flatMapCompletable {

@@ -653,8 +653,7 @@ val coreModule = module {
             idGenerator = get(),
             uuidGenerator = get(),
             assetCatalogue = get(),
-            environmentConfig = get(),
-            defaultSharedPreferencesName = PreferenceManager.getDefaultSharedPreferencesName(get())
+            environmentConfig = get()
         )
     }.apply {
         bind(SessionPrefs::class)
