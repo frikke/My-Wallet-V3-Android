@@ -81,17 +81,22 @@ class ReceiveFragment :
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
         }
 
-        assetsAdapter.items = newState.assets.filter { asset -> asset.filteredBy(newState.input) }.map { assetInfo ->
-            ExpandableCryptoItem(
-                assetInfo = assetInfo,
-                newState.loadAccountsForAsset,
-                ::doOnAccountSelected
+        assetsAdapter.items = newState.assets.filter { asset -> asset.assetInfo.filteredBy(newState.input) }
+            .sortedWith(
+                compareByDescending<ReceiveItem> { it.priceWithDelta?.marketCap }
+                    .thenBy { it.assetInfo.name }
             )
-        }
+            .map { receiveItem ->
+                ExpandableCryptoItem(
+                    assetInfo = receiveItem.assetInfo,
+                    newState.loadAccountsForAsset,
+                    ::doOnAccountSelected
+                )
+            }
 
         binding.searchBoxLayout.apply {
             updateResults(
-                resultCount = newState.assets.size.toString(),
+                resultCount = assetsAdapter.itemCount.toString(),
                 shouldShow = newState.input.isNotEmpty()
             )
             updateLayoutState()
