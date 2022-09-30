@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.coinview.domain
 
 import com.blockchain.koin.payloadScopeQualifier
+import kotlinx.coroutines.Dispatchers
 import org.koin.dsl.module
 
 val coinviewDomainModule = module {
@@ -15,6 +16,14 @@ val coinviewDomainModule = module {
                 interestService = get(),
                 watchlistDataManager = get(),
                 currencyPrefs = get()
+            )
+        }
+
+        scoped {
+            GetAccountActionsUseCase(
+                assetActionsComparator = get(),
+                dashboardPrefs = get(),
+                dispatcher = Dispatchers.IO
             )
         }
 

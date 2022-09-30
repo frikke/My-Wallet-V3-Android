@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.coinview.presentation
 import androidx.lifecycle.viewModelScope
 import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
@@ -13,6 +14,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.data.DataResource
+import com.blockchain.data.doOnData
+import com.blockchain.data.doOnError
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
@@ -23,10 +26,12 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import java.text.DecimalFormat
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
+import piuk.blockchain.android.ui.coinview.domain.GetAccountActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetRecurringBuysUseCase
@@ -48,19 +53,31 @@ class CoinviewViewModel(
     private val coincore: Coincore,
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
+
     private val getAssetPriceUseCase: GetAssetPriceUseCase,
+
     private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase,
+    private val getAccountActionsUseCase: GetAccountActionsUseCase,
+
     private val loadAssetRecurringBuysUseCase: LoadAssetRecurringBuysUseCase,
+
     private val loadQuickActionsUseCase: LoadQuickActionsUseCase,
+
     private val assetService: AssetService
 ) : MviViewModel<
-    CoinviewIntents,
+    CoinviewIntent,
     CoinviewViewState,
     CoinviewModelState,
     CoinviewNavigationEvent,
     CoinviewArgs>(CoinviewModelState(walletMode = walletModeService.enabledWalletMode())) {
 
+    companion object {
+        const val SNACKBAR_MESSAGE_DURATION: Long = 3000L
+    }
+
     private var loadPriceDataJob: Job? = null
+    private var accountActionsJob: Job? = null
+    private var snackbarMessageJob: Job? = null
 
     private val fiatCurrency: FiatCurrency
         get() = currencyPrefs.selectedFiatCurrency
@@ -86,7 +103,9 @@ class CoinviewViewModel(
             centerQuickAction = reduceCenterQuickActions(this),
             recurringBuys = reduceRecurringBuys(this),
             bottomQuickAction = reduceBottomQuickActions(this),
-            assetInfo = reduceAssetInfo(this)
+            assetInfo = reduceAssetInfo(this),
+
+            snackbarError = reduceSnackbarError(this)
         )
     }
 
@@ -223,6 +242,7 @@ class CoinviewViewModel(
                                     when (cvAccount) {
                                         is CoinviewAccount.Universal -> {
                                             Available(
+                                                cvAccount = cvAccount,
                                                 title = when (cvAccount.filter) {
                                                     AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
                                                     AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
@@ -274,6 +294,7 @@ class CoinviewViewModel(
                                         }
                                         is CoinviewAccount.Custodial.Trading -> {
                                             Available(
+                                                cvAccount = cvAccount,
                                                 title = labels.getDefaultCustodialWalletLabel(),
                                                 subtitle = SimpleValue.IntResValue(R.string.coinview_c_available_desc),
                                                 cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
@@ -284,6 +305,7 @@ class CoinviewViewModel(
                                         }
                                         is CoinviewAccount.Custodial.Interest -> {
                                             Available(
+                                                cvAccount = cvAccount,
                                                 title = labels.getDefaultInterestWalletLabel(),
                                                 subtitle = SimpleValue.IntResValue(
                                                     R.string.coinview_interest_with_balance,
@@ -297,6 +319,7 @@ class CoinviewViewModel(
                                         }
                                         is CoinviewAccount.Defi -> {
                                             Available(
+                                                cvAccount = cvAccount,
                                                 title = account.label,
                                                 subtitle = SimpleValue.StringValue(account.currency.displayTicker),
                                                 cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
@@ -312,6 +335,7 @@ class CoinviewViewModel(
                                     when (cvAccount) {
                                         is CoinviewAccount.Universal -> {
                                             Unavailable(
+                                                cvAccount = cvAccount,
                                                 title = when (cvAccount.filter) {
                                                     AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
                                                     AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
@@ -356,6 +380,7 @@ class CoinviewViewModel(
                                         }
                                         is CoinviewAccount.Custodial.Trading -> {
                                             Unavailable(
+                                                cvAccount = cvAccount,
                                                 title = labels.getDefaultCustodialWalletLabel(),
                                                 subtitle = SimpleValue.IntResValue(
                                                     R.string.coinview_c_unavailable_desc,
@@ -366,6 +391,7 @@ class CoinviewViewModel(
                                         }
                                         is CoinviewAccount.Custodial.Interest -> {
                                             Unavailable(
+                                                cvAccount = cvAccount,
                                                 title = labels.getDefaultInterestWalletLabel(),
                                                 subtitle = SimpleValue.IntResValue(
                                                     R.string.coinview_interest_no_balance,
@@ -376,6 +402,7 @@ class CoinviewViewModel(
                                         }
                                         is CoinviewAccount.Defi -> {
                                             Unavailable(
+                                                cvAccount = cvAccount,
                                                 title = account.currency.name,
                                                 subtitle = SimpleValue.IntResValue(R.string.coinview_nc_desc),
                                                 logo = LogoSource.Remote(account.currency.logo)
@@ -532,17 +559,36 @@ class CoinviewViewModel(
         }
     }
 
-    override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntents) {
+    private fun reduceSnackbarError(state: CoinviewModelState): CoinviewSnackbarAlertState = state.run {
+        when (state.error) {
+            CoinviewError.ActionsLoadError -> CoinviewSnackbarAlertState.ActionsLoadError
+            CoinviewError.None -> CoinviewSnackbarAlertState.None
+        }.also {
+            // reset to None
+            if (it != CoinviewSnackbarAlertState.None) {
+                snackbarMessageJob?.cancel()
+                snackbarMessageJob = viewModelScope.launch {
+                    delay(SNACKBAR_MESSAGE_DURATION)
+
+                    updateState {
+                        it.copy(error = CoinviewError.None)
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntent) {
         when (intent) {
-            is CoinviewIntents.LoadAllData -> {
+            is CoinviewIntent.LoadAllData -> {
                 check(modelState.asset != null) { "asset not initialized" }
-                onIntent(CoinviewIntents.LoadPriceData)
-                onIntent(CoinviewIntents.LoadAccountsData)
-                onIntent(CoinviewIntents.LoadRecurringBuysData)
-                onIntent(CoinviewIntents.LoadAssetInfo)
+                onIntent(CoinviewIntent.LoadPriceData)
+                onIntent(CoinviewIntent.LoadAccountsData)
+                onIntent(CoinviewIntent.LoadRecurringBuysData)
+                onIntent(CoinviewIntent.LoadAssetInfo)
             }
 
-            CoinviewIntents.LoadPriceData -> {
+            CoinviewIntent.LoadPriceData -> {
                 check(modelState.asset != null) { "asset not initialized" }
 
                 loadPriceData(
@@ -552,7 +598,7 @@ class CoinviewViewModel(
                 )
             }
 
-            CoinviewIntents.LoadAccountsData -> {
+            CoinviewIntent.LoadAccountsData -> {
                 check(modelState.asset != null) { "asset not initialized" }
 
                 loadAccountsData(
@@ -560,7 +606,7 @@ class CoinviewViewModel(
                 )
             }
 
-            CoinviewIntents.LoadRecurringBuysData -> {
+            CoinviewIntent.LoadRecurringBuysData -> {
                 check(modelState.asset != null) { "asset not initialized" }
 
                 loadRecurringBuysData(
@@ -568,7 +614,7 @@ class CoinviewViewModel(
                 )
             }
 
-            is CoinviewIntents.LoadQuickActions -> {
+            is CoinviewIntent.LoadQuickActions -> {
                 check(modelState.asset != null) { "asset not initialized" }
 
                 loadQuickActionsData(
@@ -578,7 +624,7 @@ class CoinviewViewModel(
                 )
             }
 
-            CoinviewIntents.LoadAssetInfo -> {
+            CoinviewIntent.LoadAssetInfo -> {
                 check(modelState.asset != null) { "asset not initialized" }
 
                 loadAssetInformation(
@@ -586,7 +632,7 @@ class CoinviewViewModel(
                 )
             }
 
-            is CoinviewIntents.UpdatePriceForChartSelection -> {
+            is CoinviewIntent.UpdatePriceForChartSelection -> {
                 check(modelState.assetPriceHistory is DataResource.Data) { "price data not initialized" }
 
                 updatePriceForChartSelection(
@@ -595,11 +641,11 @@ class CoinviewViewModel(
                 )
             }
 
-            is CoinviewIntents.ResetPriceSelection -> {
+            is CoinviewIntent.ResetPriceSelection -> {
                 resetPriceSelection()
             }
 
-            is CoinviewIntents.NewTimeSpanSelected -> {
+            is CoinviewIntent.NewTimeSpanSelected -> {
                 check(modelState.asset != null) { "asset not initialized" }
 
                 updateState { it.copy(requestedTimeSpan = intent.timeSpan) }
@@ -610,12 +656,123 @@ class CoinviewViewModel(
                 )
             }
 
-            CoinviewIntents.RecurringBuysUpsell -> {
-                // todo
+            is CoinviewIntent.AccountSelected -> {
+                check(modelState.asset != null) { "asset not initialized" }
+
+                handleAccountSelected(
+                    account = intent.account,
+                    asset = modelState.asset
+                )
             }
 
-            is CoinviewIntents.ShowRecurringBuyDetail -> {
-                // todo
+            is CoinviewIntent.AccountExplainerAcknowledged -> {
+                check(modelState.accounts != null) { "accounts not initialized" }
+
+                val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
+                navigate(
+                    CoinviewNavigationEvent.ShowAccountActions(
+                        cvAccount = cvAccount,
+                        interestRate = cvAccount.interestRate(),
+                        actions = intent.actions
+                    )
+                )
+            }
+
+            is CoinviewIntent.AccountActionSelected -> {
+                require(modelState.asset != null) { "asset not initialized" }
+                require(modelState.accounts != null) { "accounts not initialized" }
+
+                val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
+
+                handleAccountActionSelected(
+                    account = cvAccount,
+                    asset = modelState.asset,
+                    action = intent.action
+                )
+            }
+
+            is CoinviewIntent.NoBalanceUpsell -> {
+                require(modelState.accounts != null) { "accounts not initialized" }
+
+                val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
+
+                navigate(
+                    CoinviewNavigationEvent.ShowNoBalanceUpsell(
+                        cvAccount,
+                        intent.action,
+                        true
+                    )
+                )
+            }
+
+            CoinviewIntent.LockedAccountSelected -> {
+                navigate(
+                    CoinviewNavigationEvent.ShowKycUpgrade
+                )
+            }
+
+            CoinviewIntent.RecurringBuysUpsell -> {
+                require(modelState.asset != null) { "asset not initialized" }
+
+                navigate(
+                    CoinviewNavigationEvent.NavigateToRecurringBuyUpsell(modelState.asset)
+                )
+            }
+
+            is CoinviewIntent.ShowRecurringBuyDetail -> {
+                navigate(
+                    CoinviewNavigationEvent.ShowRecurringBuyInfo(
+                        recurringBuyId = intent.recurringBuyId
+                    )
+                )
+            }
+
+            is CoinviewIntent.QuickActionSelected -> {
+                require(modelState.asset != null) { "asset not initialized" }
+
+                when (intent.quickAction) {
+                    is CoinviewQuickAction.Buy -> {
+                        navigate(
+                            CoinviewNavigationEvent.NavigateToBuy(
+                                asset = modelState.asset
+                            )
+                        )
+                    }
+
+                    is CoinviewQuickAction.Sell -> {
+                        navigate(
+                            CoinviewNavigationEvent.NavigateToSell(
+                                cvAccount = modelState.actionableAccount
+                            )
+                        )
+                    }
+
+                    is CoinviewQuickAction.Send -> {
+                        navigate(
+                            CoinviewNavigationEvent.NavigateToSend(
+                                cvAccount = modelState.actionableAccount
+                            )
+                        )
+                    }
+
+                    is CoinviewQuickAction.Receive -> {
+                        navigate(
+                            CoinviewNavigationEvent.NavigateToReceive(
+                                cvAccount = modelState.actionableAccount
+                            )
+                        )
+                    }
+
+                    is CoinviewQuickAction.Swap -> {
+                        navigate(
+                            CoinviewNavigationEvent.NavigateToSwap(
+                                cvAccount = modelState.actionableAccount
+                            )
+                        )
+                    }
+
+                    CoinviewQuickAction.None -> error("None action doesn't have an action")
+                }
             }
         }
     }
@@ -741,7 +898,7 @@ class CoinviewViewModel(
                 if (dataResource is DataResource.Data && dataResource.data is CoinviewAssetDetail.Tradeable) {
                     with(dataResource.data as CoinviewAssetDetail.Tradeable) {
                         onIntent(
-                            CoinviewIntents.LoadQuickActions(
+                            CoinviewIntent.LoadQuickActions(
                                 accounts = accounts,
                                 totalBalance = totalBalance
                             )
@@ -749,6 +906,125 @@ class CoinviewViewModel(
                     }
                 }
             }
+        }
+    }
+
+    private fun handleAccountSelected(account: CoinviewAccount, asset: CryptoAsset) {
+        accountActionsJob?.cancel()
+        accountActionsJob = viewModelScope.launch {
+            getAccountActionsUseCase(account)
+                .doOnData { actions ->
+                    getAccountActionsUseCase.getSeenAccountExplainerState(account).let { (hasSeen, markAsSeen) ->
+                        if (hasSeen.not()) {
+                            // show explainer
+                            navigate(
+                                CoinviewNavigationEvent.ShowAccountExplainer(
+                                    cvAccount = account,
+                                    networkTicker = asset.currency.networkTicker,
+                                    interestRate = account.interestRate(),
+                                    actions = actions
+                                )
+                            )
+                            markAsSeen()
+                        } else {
+                            navigate(
+                                CoinviewNavigationEvent.ShowAccountActions(
+                                    cvAccount = account,
+                                    interestRate = account.interestRate(),
+                                    actions = actions
+                                )
+                            )
+                        }
+                    }
+                }
+                .doOnError {
+                    updateState {
+                        it.copy(error = CoinviewError.ActionsLoadError)
+                    }
+                }
+        }
+    }
+
+    private fun CoinviewAccount.interestRate(): Double {
+        val noInterestRate = 0.0
+        return when (this) {
+            is CoinviewAccount.Universal -> {
+                if (filter == AssetFilter.Interest) {
+                    interestRate
+                } else {
+                    noInterestRate
+                }
+            }
+            is CoinviewAccount.Custodial.Interest -> {
+                interestRate
+            }
+            else -> {
+                noInterestRate
+            }
+        }
+    }
+
+    private fun handleAccountActionSelected(
+        account: CoinviewAccount,
+        asset: CryptoAsset,
+        action: AssetAction
+    ) {
+        when (action) {
+            AssetAction.Send -> navigate(
+                CoinviewNavigationEvent.NavigateToSend(
+                    cvAccount = account
+                )
+            )
+
+            AssetAction.Receive -> navigate(
+                CoinviewNavigationEvent.NavigateToReceive(
+                    cvAccount = account
+                )
+            )
+
+            AssetAction.Sell -> navigate(
+                CoinviewNavigationEvent.NavigateToSell(
+                    cvAccount = account
+                )
+            )
+
+            AssetAction.Buy -> navigate(
+                CoinviewNavigationEvent.NavigateToBuy(
+                    asset = asset
+                )
+            )
+
+            AssetAction.Swap -> navigate(
+                CoinviewNavigationEvent.NavigateToSwap(
+                    cvAccount = account
+                )
+            )
+
+            AssetAction.ViewActivity -> navigate(
+                CoinviewNavigationEvent.NavigateToActivity(
+                    cvAccount = account
+                )
+            )
+
+            AssetAction.ViewStatement -> navigate(
+                CoinviewNavigationEvent.NavigateToInterestStatement(
+                    cvAccount = account
+                )
+            )
+
+            AssetAction.InterestDeposit -> navigate(
+                CoinviewNavigationEvent.NavigateToInterestDeposit(
+                    cvAccount = account
+                )
+            )
+
+            AssetAction.InterestWithdraw -> navigate(
+                CoinviewNavigationEvent.NavigateToInterestWithdraw(
+                    cvAccount = account
+                )
+            )
+
+            else -> throw IllegalStateException("Action $action is not supported in this flow")
         }
     }
 

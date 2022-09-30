@@ -16,7 +16,8 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 
 @Composable
 fun CenterQuickActions(
-    data: CoinviewCenterQuickActionsState
+    data: CoinviewCenterQuickActionsState,
+    onQuickActionClick: (CoinviewQuickActionState) -> Unit
 ) {
     when (data) {
         CoinviewCenterQuickActionsState.Loading -> {
@@ -25,7 +26,8 @@ fun CenterQuickActions(
 
         is CoinviewCenterQuickActionsState.Data -> {
             CenterQuickActionsData(
-                data = data
+                data = data,
+                onQuickActionClick = onQuickActionClick
             )
         }
     }
@@ -33,24 +35,28 @@ fun CenterQuickActions(
 
 @Composable
 fun CenterQuickActionsData(
-    data: CoinviewCenterQuickActionsState.Data
+    data: CoinviewCenterQuickActionsState.Data,
+    onQuickActionClick: (CoinviewQuickActionState) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(AppTheme.dimensions.standardSpacing)
-    ) {
-        PrimaryButton(
-            modifier = Modifier.fillMaxWidth(),
-            text = data.center.name.value(),
-            icon = ImageResource.Local(
-                data.center.logo.value,
-                colorFilter = ColorFilter.tint(AppTheme.colors.background),
-                size = AppTheme.dimensions.standardSpacing
-            ),
-            state = if (data.center.enabled) ButtonState.Enabled else ButtonState.Disabled,
-            onClick = { /*todo*/ }
-        )
+    if (data.center !is CoinviewQuickActionState.None) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.standardSpacing)
+        ) {
+
+            PrimaryButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = data.center.name.value(),
+                icon = ImageResource.Local(
+                    data.center.logo.value,
+                    colorFilter = ColorFilter.tint(AppTheme.colors.background),
+                    size = AppTheme.dimensions.standardSpacing
+                ),
+                state = if (data.center.enabled) ButtonState.Enabled else ButtonState.Disabled,
+                onClick = { onQuickActionClick(data.center) }
+            )
+        }
     }
 }
 
@@ -60,7 +66,8 @@ fun PreviewCenterQuickActions_Data_Enabled() {
     CenterQuickActions(
         CoinviewCenterQuickActionsState.Data(
             center = CoinviewQuickActionState.Swap(true)
-        )
+        ),
+        {}
     )
 }
 
@@ -70,6 +77,7 @@ fun PreviewCenterQuickActions_Data_Disabled() {
     CenterQuickActions(
         CoinviewCenterQuickActionsState.Data(
             center = CoinviewQuickActionState.Swap(false)
-        )
+        ),
+        {}
     )
 }
