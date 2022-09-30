@@ -48,7 +48,6 @@ class SwapSourceAccountSortingTest {
 
         verify(defaultAccountsSorting).sorter()
         verify(momentLogger).startEvent(MomentEvent.SWAP_SOURCE_LIST_FF_OFF)
-        verify(momentLogger).endEvent(MomentEvent.SWAP_SOURCE_LIST_FF_OFF)
         verifyNoMoreInteractions(defaultAccountsSorting)
         verifyNoMoreInteractions(sellAccountsSorting)
         verifyNoMoreInteractions(momentLogger)
@@ -64,7 +63,6 @@ class SwapSourceAccountSortingTest {
 
         verify(sellAccountsSorting).sorter()
         verify(momentLogger).startEvent(MomentEvent.SWAP_SOURCE_LIST_FF_ON)
-        verify(momentLogger).endEvent(MomentEvent.SWAP_SOURCE_LIST_FF_ON)
         verifyNoMoreInteractions(defaultAccountsSorting)
         verifyNoMoreInteractions(momentLogger)
     }

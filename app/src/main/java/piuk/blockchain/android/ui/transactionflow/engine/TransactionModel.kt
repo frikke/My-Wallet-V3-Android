@@ -146,7 +146,8 @@ data class TransactionState(
     val amountsToPrefill: PrefillAmounts? = null,
     val ffSwapSellQuickFillsEnabled: Boolean = false,
     val canFilterOutTradingAccounts: Boolean = false,
-    val quickFillRoundingData: List<QuickFillRoundingData> = emptyList()
+    val quickFillRoundingData: List<QuickFillRoundingData> = emptyList(),
+    val isLoading: Boolean = false
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -349,7 +350,7 @@ class TransactionModel(
             )
             is TransactionIntent.NavigateBackFromEnterAmount ->
                 processTransactionInvalidation(previousState.action)
-            is TransactionIntent.FilterOutTradingTargets -> interactor.getTargetAccounts(
+            is TransactionIntent.FilterTradingTargets -> interactor.getTargetAccounts(
                 previousState.sendingAccount, previousState.action
             ).map { accounts ->
                 accounts.filter {

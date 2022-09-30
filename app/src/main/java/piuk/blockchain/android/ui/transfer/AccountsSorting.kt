@@ -39,13 +39,15 @@ class SwapSourceAccountsSorting(
             if (enabled) {
                 momentLogger.startEvent(MomentEvent.SWAP_SOURCE_LIST_FF_ON)
                 val sortedList = sellAccountsSorting.sorter().invoke(list)
-                momentLogger.endEvent(MomentEvent.SWAP_SOURCE_LIST_FF_ON)
-                return@flatMap sortedList
+                return@flatMap sortedList.doFinally {
+                    momentLogger.endEvent(MomentEvent.SWAP_SOURCE_LIST_FF_ON)
+                }
             } else {
                 momentLogger.startEvent(MomentEvent.SWAP_SOURCE_LIST_FF_OFF)
                 val sortedList = dashboardAccountsSorter.sorter().invoke(list)
-                momentLogger.endEvent(MomentEvent.SWAP_SOURCE_LIST_FF_OFF)
-                return@flatMap sortedList
+                return@flatMap sortedList.doFinally {
+                    momentLogger.endEvent(MomentEvent.SWAP_SOURCE_LIST_FF_OFF)
+                }
             }
         }
     }
@@ -108,13 +110,16 @@ class SwapTargetAccountsSorting(
                     }
                 }
 
-                momentLogger.endEvent(MomentEvent.SWAP_TARGET_LIST_FF_ON)
-                return@flatMap sortedList
+                return@flatMap sortedList.doFinally {
+                    momentLogger.endEvent(MomentEvent.SWAP_TARGET_LIST_FF_ON)
+                }
             } else {
                 momentLogger.startEvent(MomentEvent.SWAP_TARGET_LIST_FF_OFF)
                 val sortedList = dashboardAccountsSorter.sorter().invoke(list)
-                momentLogger.endEvent(MomentEvent.SWAP_TARGET_LIST_FF_OFF)
-                return@flatMap sortedList
+
+                return@flatMap sortedList.doFinally {
+                    momentLogger.endEvent(MomentEvent.SWAP_TARGET_LIST_FF_OFF)
+                }
             }
         }
     }
@@ -130,36 +135,39 @@ class SellAccountsSorting(
         assetListOrderingFF.enabled.flatMap { enabled ->
             if (enabled) {
                 momentLogger.startEvent(MomentEvent.SELL_LIST_FF_ON)
-                val sortedList = Observable.fromIterable(accountList).flatMap { account ->
-                    coincore[account.currency].getPricesWith24hDeltaLegacy().flatMapObservable { prices ->
-                        account.balanceRx.map { balance ->
+                val sortedList = Observable.fromIterable(accountList).flatMapSingle { account ->
+                    coincore[account.currency].getPricesWith24hDeltaLegacy().flatMap { prices ->
+                        account.balanceRx.firstOrError().map { balance ->
                             Pair(account, prices.currentRate.convert(balance.total))
                         }
                     }
-                }.toList().flatMap { list ->
-                    val groupedList = list.groupBy { (account, _) ->
-                        account.currency.networkTicker
-                    }
-
-                    val sortedGroups = groupedList.values.map { group ->
-                        group.sortedByDescending { (_, balance) ->
-                            balance
+                }.toList()
+                    .flatMap { list ->
+                        val groupedList = list.groupBy { (account, _) ->
+                            account.currency.networkTicker
                         }
-                    }.sortedByDescending { sortedGroup ->
-                        sortedGroup.first().second
-                    }.flatten().map { (account, _) ->
-                        account
-                    }
 
-                    Single.just(sortedGroups)
+                        val sortedGroups = groupedList.values.map { group ->
+                            group.sortedByDescending { (_, balance) ->
+                                balance
+                            }
+                        }.sortedByDescending { sortedGroup ->
+                            sortedGroup.first().second
+                        }.flatten().map { (account, _) ->
+                            account
+                        }
+
+                        Single.just(sortedGroups)
+                    }
+                return@flatMap sortedList.doFinally {
+                    momentLogger.endEvent(MomentEvent.SELL_LIST_FF_ON)
                 }
-                momentLogger.endEvent(MomentEvent.SELL_LIST_FF_ON)
-                return@flatMap sortedList
             } else {
                 momentLogger.startEvent(MomentEvent.SELL_LIST_FF_OFF)
                 val sortedList = dashboardAccountsSorter.sorter().invoke(accountList)
-                momentLogger.endEvent(MomentEvent.SELL_LIST_FF_OFF)
-                return@flatMap sortedList
+                return@flatMap sortedList.doFinally {
+                    momentLogger.endEvent(MomentEvent.SELL_LIST_FF_OFF)
+                }
             }
         }
     }
@@ -182,8 +190,9 @@ class DefaultAccountsSorting(
         if (walletModeService.enabledWalletMode() != WalletMode.CUSTODIAL_ONLY) {
             momentLogger.startEvent(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
             val sortedList = universalOrdering(list)
-            momentLogger.endEvent(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
-            sortedList
+            sortedList.doFinally {
+                momentLogger.endEvent(MomentEvent.DEFAULT_SORTING_NC_AND_UNIVERSAL)
+            }
         } else {
             momentLogger.startEvent(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
             val sortedList = Observable.fromIterable(list).flatMapSingle { account ->
@@ -203,8 +212,9 @@ class DefaultAccountsSorting(
                             accountData.account
                         }
                 }
-            momentLogger.endEvent(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
-            sortedList
+            sortedList.doFinally {
+                momentLogger.endEvent(MomentEvent.DEFAULT_SORTING_CUSTODIAL_ONLY)
+            }
         }
     }
 
@@ -246,15 +256,17 @@ class BuyListAccountSorting(
             if (enabled) {
                 momentLogger.startEvent(MomentEvent.BUY_LIST_ORDERING_FF_ON)
                 val sortedList = getAssetListOrdering(assets)
-                momentLogger.endEvent(MomentEvent.BUY_LIST_ORDERING_FF_ON)
-                return@flatMap sortedList
+                return@flatMap sortedList.doFinally {
+                    momentLogger.endEvent(MomentEvent.BUY_LIST_ORDERING_FF_ON)
+                }
             } else {
                 momentLogger.startEvent(MomentEvent.BUY_LIST_ORDERING_FF_OFF)
                 val sortedList = Observable.fromIterable(assets).flatMapMaybe { asset ->
                     asset.getAssetPriceInformation()
                 }.toList()
-                momentLogger.endEvent(MomentEvent.BUY_LIST_ORDERING_FF_OFF)
-                return@flatMap sortedList
+                return@flatMap sortedList.doFinally {
+                    momentLogger.endEvent(MomentEvent.BUY_LIST_ORDERING_FF_OFF)
+                }
             }
         }
 

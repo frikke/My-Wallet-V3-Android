@@ -111,6 +111,8 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
         with(binding) {
 
+            listLoadingProgress.visibleIf { newState.isLoading }
+
             if (sourceSlot == null) {
                 sourceSlot = customiser.installAddressSheetSource(requireContext(), fromDetails, newState)
                 setupLabels(newState)
@@ -166,11 +168,11 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             if (canFilterOutTradingAccounts) {
                 tradingAccountsSwitch.onCheckChanged = { isChecked ->
                     transactionPrefs.showTradingAccountsOnPkwMode = isChecked
-                    model.process(TransactionIntent.FilterOutTradingTargets(isChecked))
+                    model.process(TransactionIntent.FilterTradingTargets(showTrading = isChecked))
                 }
                 val showTrading = transactionPrefs.showTradingAccountsOnPkwMode
                 binding.tradingAccountsSwitch.isChecked = showTrading
-                model.process(TransactionIntent.FilterOutTradingTargets(showTrading))
+                model.process(TransactionIntent.FilterTradingTargets(showTrading = showTrading))
             }
         }
     }

@@ -210,7 +210,8 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             oldState.copy(
                 availableTargets = targets,
                 selectedTarget = NullAddress,
-                currentStep = selectStep(oldState.passwordRequired)
+                currentStep = selectStep(oldState.passwordRequired),
+                isLoading = false
             ).updateBackstack(oldState)
 
         private fun selectStep(passwordRequired: Boolean): TransactionStep =
@@ -224,7 +225,8 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
                 availableSources = accounts,
-                currentStep = TransactionStep.SELECT_SOURCE
+                currentStep = TransactionStep.SELECT_SOURCE,
+                isLoading = false
             ).updateBackstack(oldState)
     }
 
@@ -650,10 +652,11 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         )
     }
 
-    class FilterOutTradingTargets(val showTrading: Boolean) : TransactionIntent() {
+    class FilterTradingTargets(val showTrading: Boolean) : TransactionIntent() {
         override fun reduce(oldState: TransactionState) = oldState.copy(
             selectedTarget = NullAddress,
-            nextEnabled = false
+            nextEnabled = false,
+            isLoading = true
         )
 
         override fun isValidFor(oldState: TransactionState): Boolean {
