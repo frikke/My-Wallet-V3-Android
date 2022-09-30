@@ -40,7 +40,7 @@ import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.payments.googlepay.interceptor.response.PaymentDataResponse
-import com.blockchain.payments.googlepay.manager.GooglePayManager
+import com.blockchain.payments.googlepay.manager.GooglePayViewUtils
 import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.payments.googlepay.manager.request.defaultAllowedAuthMethods
@@ -88,7 +88,7 @@ class SimpleBuyCheckoutFragment :
     OnGooglePayDataReceivedListener {
 
     override val model: SimpleBuyModel by scopedInject()
-    private val googlePayManager: GooglePayManager by inject()
+    private val googlePayViewUtils: GooglePayViewUtils by inject()
     private var updateRecurringBuy: Boolean = false
 
     private var lastState: SimpleBuyState? = null
@@ -323,7 +323,7 @@ class SimpleBuyCheckoutFragment :
         newState.googlePayDetails?.let { googlePayInfo ->
             googlePayInfo.tokenizationInfo?.let { tokenizationMap ->
                 if (tokenizationMap.isNotEmpty()) {
-                    googlePayManager.requestPayment(
+                    googlePayViewUtils.requestPayment(
                         GooglePayRequestBuilder.buildForPaymentRequest(
                             allowedAuthMethods = googlePayInfo.allowedAuthMethods ?: defaultAllowedAuthMethods,
                             allowedCardNetworks = googlePayInfo.allowedCardNetworks ?: defaultAllowedCardNetworks,

@@ -2,7 +2,6 @@ package com.blockchain.koin
 
 import android.content.Context
 import android.preference.PreferenceManager
-import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.Database
 import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
@@ -623,12 +622,6 @@ val coreModule = module {
     single<AssetService> {
         AssetRepository(
             assetInformationStore = get()
-        )
-    }
-
-    factory {
-        AndroidDeviceIdGenerator(
-            ctx = get()
         )
     }
 

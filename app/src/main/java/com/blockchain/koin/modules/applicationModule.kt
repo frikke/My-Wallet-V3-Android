@@ -42,11 +42,6 @@ import com.blockchain.network.websocket.newBlockchainWebSocket
 import com.blockchain.payments.checkoutcom.CheckoutCardProcessor
 import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
-import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
-import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptorImpl
-import com.blockchain.payments.googlepay.interceptor.PaymentDataMapper
-import com.blockchain.payments.googlepay.manager.GooglePayManager
-import com.blockchain.payments.googlepay.manager.GooglePayManagerImpl
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.ui.password.SecondPasswordHandler
@@ -59,7 +54,6 @@ import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -884,24 +878,6 @@ val applicationModule = module {
             checkoutFactory = get()
         )
     }.bind(CardProcessor::class)
-
-    single {
-        GooglePayManagerImpl(
-            environmentConfig = get(),
-            context = get()
-        )
-    }.bind(GooglePayManager::class)
-
-    single {
-        PaymentDataMapper()
-    }
-
-    factory {
-        GooglePayResponseInterceptorImpl(
-            paymentDataMapper = get(),
-            coroutineContext = Dispatchers.IO
-        )
-    }.bind(GooglePayResponseInterceptor::class)
 }
 
 fun getCardProcessors(): List<CardProcessor> {
