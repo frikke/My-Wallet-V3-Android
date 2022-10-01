@@ -272,7 +272,7 @@ fun PreviewAssetAccounts_Data_Boxed() {
 private val previewBlockchainAccount = object : BlockchainAccount {
     override val label: String
         get() = error("preview")
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = error("preview")
     override val activity: Single<ActivitySummaryList>
         get() = error("preview")
