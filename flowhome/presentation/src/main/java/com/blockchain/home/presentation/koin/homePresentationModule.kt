@@ -9,7 +9,8 @@ val homePresentationModule = module {
     scope(payloadScopeQualifier) {
         viewModel {
             HomeViewModel(
-                homeAccountsService = get()
+                homeAccountsService = get(),
+                currencyPrefs = get()
             )
         }
     }

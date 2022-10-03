@@ -1,30 +1,9 @@
 package piuk.blockchain.android.ui.multiapp.composable
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.lazy.LazyListState
 import com.blockchain.walletmode.WalletMode
-import com.google.accompanist.swiperefresh.SwipeRefreshState
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
-
-const val ANIMATION_DURATION = 400
-
-data class ListStateInfo(
-    val firstVisibleItemIndex: Int,
-    val firstVisibleItemScrollOffset: Int,
-    val isSwipeInProgress: Boolean
-)
-
-fun extractStatesInfo(
-    listState: LazyListState,
-    swipeRefreshState: SwipeRefreshState?
-): ListStateInfo {
-    return ListStateInfo(
-        firstVisibleItemIndex = listState.firstVisibleItemIndex,
-        firstVisibleItemScrollOffset = listState.firstVisibleItemScrollOffset,
-        isSwipeInProgress = swipeRefreshState?.isSwipeInProgress ?: false
-    )
-}
 
 @StringRes
 fun WalletMode.titleSuperApp(): Int = when (this) {

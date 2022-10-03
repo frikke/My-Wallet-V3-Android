@@ -31,6 +31,8 @@ dependencies {
     implementation project(':flowhome:domain')
     implementation project(':coincore')
     implementation project(':balance')
+    implementation project(':componentlib')
+
     // android
     implementation Libraries.design
 
@@ -51,6 +53,7 @@ dependencies {
     implementation Libraries.accompanistFlowLayout
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.composeUiPoolingContainer
+    implementation Libraries.accompanistSwipeRefresh
 
     // test
     testImplementation project(':testutils')

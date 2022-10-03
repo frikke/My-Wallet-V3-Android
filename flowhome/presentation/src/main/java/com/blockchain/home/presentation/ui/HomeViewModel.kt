@@ -1,18 +1,20 @@
 package com.blockchain.home.presentation.ui
 
 import com.blockchain.coincore.AccountBalance
-import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
-import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.domain.HomeAccountsService
-import info.blockchain.balance.Currency
-import info.blockchain.balance.FiatCurrency.Companion.Dollars
+import com.blockchain.home.presentation.HomeCryptoAsset
+import com.blockchain.home.presentation.HomeViewState
+import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.Money
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
@@ -23,11 +25,11 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 
 class HomeViewModel(
-    private val homeAccountsService: HomeAccountsService
-) :
-    MviViewModel<HomeIntent, HomeViewState, HomeModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
-        HomeModelState(accounts = DataResource.Data(emptyList()))
-    ) {
+    private val homeAccountsService: HomeAccountsService,
+    private val currencyPrefs: CurrencyPrefs,
+) : MviViewModel<HomeIntent, HomeViewState, HomeModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
+    HomeModelState(accounts = DataResource.Data(emptyList()))
+) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         updateState { state ->
             state.copy(accounts = DataResource.Data(emptyList()))
@@ -38,10 +40,50 @@ class HomeViewModel(
         return with(state) {
             HomeViewState(
                 balance = accounts.totalBalance(),
-                homeAssets = DataResource.Data(emptyList()),
+                cryptoAssets = state.accounts.map {
+                    it.filter { modelAccount -> modelAccount.singleAccount is CryptoAccount }.toHomeCryptoAssets()
+                },
+                fiatAssets = DataResource.Data(emptyList()),
                 activity = DataResource.Data(emptyList())
             )
         }
+    }
+
+    private fun List<ModelAccount>.toHomeCryptoAssets(): List<HomeCryptoAsset> {
+        val grouped = sortedWith(
+            compareByDescending<ModelAccount> { it.singleAccount.currency.index }
+                .thenBy {
+                    it.singleAccount.currency.name
+                }
+        )
+            .groupBy(
+                keySelector = {
+                    it.singleAccount.currency.networkTicker
+                }
+            )
+
+        val allAssets = grouped.values.map {
+            HomeCryptoAsset(
+                icon = it.first().singleAccount.currency.logo,
+                name = it.first().singleAccount.currency.name,
+                balance = it.map { acc -> acc.balance }.sumAvailableBalances(),
+                fiatBalance = it.map { acc -> acc.fiatBalance }.sumAvailableBalances(),
+                change = DataResource.Data(
+                    ValueChange.Up(
+                        value = .26
+                    )
+                )
+            )
+        }.sortedWith(
+            object : Comparator<HomeCryptoAsset> {
+                override fun compare(p0: HomeCryptoAsset, p1: HomeCryptoAsset): Int {
+                    val p0Balance = (p0.fiatBalance as? DataResource.Data) ?: return 0
+                    val p1Balance = (p1.fiatBalance as? DataResource.Data) ?: return 0
+                    return p1Balance.data.compareTo(p0Balance.data)
+                }
+            }
+        )
+        return allAssets.take(allAssets.size.coerceAtMost(8))
     }
 
     override suspend fun handleIntent(modelState: HomeModelState, intent: HomeIntent) {
@@ -58,7 +100,7 @@ class HomeViewModel(
                     accounts = it.map { accounts ->
                         accounts.map {
                             ModelAccount(
-                                blockchainAccount = it,
+                                singleAccount = it,
                                 balance = DataResource.Loading,
                                 fiatBalance = DataResource.Loading
                             )
@@ -66,7 +108,7 @@ class HomeViewModel(
                     }
                 )
             }
-        }.filterIsInstance<DataResource.Data<List<BlockchainAccount>>>()
+        }.filterIsInstance<DataResource.Data<List<SingleAccount>>>()
             .flatMapLatest { accounts ->
                 val balances = accounts.data.map { account ->
                     account.balance.map { balance ->
@@ -83,32 +125,50 @@ class HomeViewModel(
                 }
             }.collect()
     }
-}
 
-private fun DataResource<List<ModelAccount>>.totalBalance(): DataResource<Money> {
-    return this.map {
-        it.totalAccounts()
+    private fun DataResource<List<ModelAccount>>.totalBalance(): DataResource<Money> {
+        return this.map {
+            it.totalAccounts()
+        }
+    }
+
+    private fun List<ModelAccount>.totalAccounts(): Money {
+        return map { it.fiatBalance }.filterIsInstance<DataResource.Data<Money>>()
+            .map { it.data }
+            .fold(Money.zero(currencyPrefs.selectedFiatCurrency)) { acc, t ->
+                acc.plus(t)
+            }
     }
 }
 
-private fun List<ModelAccount>.totalAccounts(): Money {
-    return map { it.fiatBalance }.filterIsInstance<DataResource.Data<Money>>()
-        .map { it.data }
-        .fold(Money.zero(Dollars)) { acc, t ->
-            acc.plus(t)
+private fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money> {
+    var total: DataResource<Money>? = null
+    forEach { money ->
+        total = when (total) {
+            is DataResource.Loading,
+            is DataResource.Error,
+            null -> money
+            is DataResource.Data -> DataResource.Data(
+                (total as DataResource.Data<Money>).data.plus(
+                    (money as? DataResource.Data)?.data
+                        ?: Money.zero((total as DataResource.Data<Money>).data.currency)
+                )
+            )
         }
+    }
+    return total!!
 }
 
 private fun DataResource<List<ModelAccount>>.withBalancedAccount(
-    account: BlockchainAccount,
+    account: SingleAccount,
     balance: AccountBalance
 ): DataResource<List<ModelAccount>> {
     return this.map { modelAccounts ->
         modelAccounts.filterNot {
-            it.blockchainAccount == account
+            it.singleAccount == account
         }.plus(
             ModelAccount(
-                blockchainAccount = account,
+                singleAccount = account,
                 balance = DataResource.Data(balance.total),
                 fiatBalance = DataResource.Data(balance.totalFiat),
             )
@@ -125,36 +185,12 @@ data class HomeModelState(
 ) : ModelState
 
 data class ModelAccount(
-    val blockchainAccount: BlockchainAccount,
+    val singleAccount: SingleAccount,
     val balance: DataResource<Money>,
     val fiatBalance: DataResource<Money>,
 )
 
-data class HomeViewState(
-    val balance: DataResource<Money>,
-    val homeAssets: DataResource<List<HomeAsset>>,
-    val activity: DataResource<List<HomeActivity>>
-) : ViewState
-
 sealed class HomeNavEvent : NavigationEvent
-
-sealed interface HomeAsset {
-    val currency: Currency
-    val balance: DataResource<Money>
-    val userFiatBalance: DataResource<Money>
-}
-
-data class HomeCryptoAsset(
-    override val currency: Currency,
-    override val balance: DataResource<Money>,
-    override val userFiatBalance: DataResource<Money>
-) : HomeAsset
-
-data class HomeFiatAsset(
-    override val currency: Currency,
-    override val balance: DataResource<Money>,
-    override val userFiatBalance: DataResource<Money>
-) : HomeAsset
 
 data class HomeActivity(
     val icon: Int,

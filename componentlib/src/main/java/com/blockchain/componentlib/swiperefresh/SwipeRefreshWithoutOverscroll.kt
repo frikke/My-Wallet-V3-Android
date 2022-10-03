@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.multiapp.composable
+package com.blockchain.componentlib.swiperefresh
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration

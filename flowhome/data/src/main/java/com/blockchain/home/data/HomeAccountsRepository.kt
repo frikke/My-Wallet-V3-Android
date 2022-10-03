@@ -1,7 +1,7 @@
 package com.blockchain.home.data
 
-import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.data.DataResource
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.walletmode.WalletModeService
@@ -13,11 +13,11 @@ import kotlinx.coroutines.flow.onStart
 
 class HomeAccountsRepository(private val coincore: Coincore, private val walletModeService: WalletModeService) :
     HomeAccountsService {
-    override fun accounts(): Flow<DataResource<List<BlockchainAccount>>> {
+    override fun accounts(): Flow<DataResource<List<SingleAccount>>> {
         return walletModeService.walletMode.flatMapLatest { wMode ->
             coincore.activeWalletsInMode(wMode)
                 .map {
-                    DataResource.Data(it.accounts) as DataResource<List<BlockchainAccount>>
+                    DataResource.Data(it.accounts) as DataResource<List<SingleAccount>>
                 }.onStart {
                     emit(DataResource.Loading)
                 }.catch {

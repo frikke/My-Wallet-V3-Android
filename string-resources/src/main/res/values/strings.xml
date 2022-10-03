@@ -3269,4 +3269,8 @@
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
+
+    <!-- multi app home-->
+    <string name="ma_home_assets_title">Assets</string>
+
 </resources>

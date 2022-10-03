@@ -102,9 +102,10 @@ abstract class MviViewModel<TIntent : Intent<TModelState>,
     /**
      * [viewState] flow always has a value
      */
-    val viewState: StateFlow<TViewState> = _modelState.map {
-        reduce(it)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, reduce(initialState))
+    val viewState: StateFlow<TViewState>
+        get() = _modelState.map {
+            reduce(it)
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, reduce(initialState))
 
     /**
      * Method that should be override in every Model created. In this method, base on the latest internal
