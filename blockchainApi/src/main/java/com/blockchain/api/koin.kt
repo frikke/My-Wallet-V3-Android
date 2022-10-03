@@ -66,6 +66,8 @@ import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.api.services.WatchlistService
 import com.blockchain.api.session.SessionApi
+import com.blockchain.api.staking.StakingApi
+import com.blockchain.api.staking.StakingApiService
 import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
@@ -414,6 +416,13 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(nabuApi).create(ExperimentsApi::class.java)
         ExperimentsApiService(
             api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(StakingApi::class.java)
+        StakingApiService(
+            stakingApi = api
         )
     }
 }

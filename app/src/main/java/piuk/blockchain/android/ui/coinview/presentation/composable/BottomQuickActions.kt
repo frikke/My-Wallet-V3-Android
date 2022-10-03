@@ -41,8 +41,6 @@ fun BottomQuickActionLoading() {
     Column(modifier = Modifier.fillMaxWidth()) {
         Separator()
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -78,8 +76,6 @@ fun BottomQuickActionData(
     if (atLeastOneButton) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Separator()
-
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
             Row(
                 modifier = Modifier

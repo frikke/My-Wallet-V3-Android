@@ -9,8 +9,8 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.fiat.FiatCustodialAccount
-import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.kyc.domain.KycService
@@ -107,7 +107,7 @@ class CoinViewInteractorTest {
         on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
-    private val interestAccount: CryptoInterestAccount = mock {
+    private val interestAccount: CustodialInterestAccount = mock {
         on { label }.thenReturn("default i account")
         on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
@@ -413,7 +413,7 @@ class CoinViewInteractorTest {
                 it.accountsList[0].account.label == "default nc account" &&
                 it.accountsList[1].account is FiatCustodialAccount &&
                 it.accountsList[1].account.label == "default c account" &&
-                it.accountsList[2].account is CryptoInterestAccount &&
+                it.accountsList[2].account is CustodialInterestAccount &&
                 it.accountsList[2].account.label == "default i account" &&
                 it.accountsList[3].account is CryptoNonCustodialAccount &&
                 it.accountsList[3].account.label == "second nc account" &&
@@ -475,7 +475,7 @@ class CoinViewInteractorTest {
         val actions = setOf<StateAwareAction>()
         whenever(dashboardPrefs.isRewardsIntroSeen).thenReturn(true)
         whenever(custodialWalletManager.isCurrencyAvailableForTradingLegacy(any())).thenReturn(Single.just(true))
-        val account: CryptoInterestAccount = mock {
+        val account: CustodialInterestAccount = mock {
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
             on { balanceRx }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))

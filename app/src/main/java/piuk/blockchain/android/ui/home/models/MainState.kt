@@ -27,7 +27,8 @@ data class MainState(
     val currentTab: NavigationItem = NavigationItem.Home,
     val tabs: List<NavigationItem> = emptyList(),
     val walletMode: WalletMode = WalletMode.UNIVERSAL,
-    val referral: ReferralState = ReferralState(ReferralInfo.NotAvailable)
+    val referral: ReferralState = ReferralState(ReferralInfo.NotAvailable),
+    val isStakingEnabled: Boolean = false
 ) : MviState
 
 sealed class ViewToLaunch {

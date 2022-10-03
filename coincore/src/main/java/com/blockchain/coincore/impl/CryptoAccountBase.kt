@@ -372,10 +372,12 @@ abstract class CryptoNonCustodialAccount(
         )
 }
 
-// Currently only one custodial account is supported for each asset,
-// so all the methods on this can just delegate directly
-// to the (required) CryptoSingleAccountCustodialBase
-
+/**
+ * Shared group between all custodial accounts
+ * Currently only one custodial account per type (Interest, Custodial, Staking) is supported for each asset,
+ * so all the methods on this can just delegate directly
+ * to the (required) CryptoSingleAccountCustodialBase
+ */
 class CryptoAccountTradingGroup(
     override val label: String,
     override val accounts: SingleAccountList,
@@ -383,7 +385,11 @@ class CryptoAccountTradingGroup(
 
     init {
         require(accounts.size == 1)
-        require(accounts[0] is CryptoInterestAccount || accounts[0] is CustodialTradingAccount)
+        require(
+            accounts[0] is CustodialInterestAccount ||
+                accounts[0] is CustodialTradingAccount ||
+                accounts[0] is CustodialStakingAccount
+        )
     }
 
     override val currency: Currency
@@ -391,7 +397,7 @@ class CryptoAccountTradingGroup(
 }
 
 /**
- * Group for Trading and Interest accounts
+ * Group for Trading, Staking and Interest accounts
  */
 class CryptoAccountCustodialGroup(
     override val label: String,
@@ -399,10 +405,20 @@ class CryptoAccountCustodialGroup(
 ) : SameCurrencyAccountGroup {
 
     init {
-        require(accounts.size in 1..2)
-        require(accounts.map { it is CustodialTradingAccount || it is CryptoInterestAccount }.all { it })
-        if (accounts.size == 2) {
-            require(accounts[0].currency == accounts[1].currency)
+        require(accounts.size in 1..3)
+        require(
+            accounts.map {
+                it is CustodialTradingAccount ||
+                    it is CustodialInterestAccount ||
+                    it is CustodialStakingAccount
+            }.all { it }
+        )
+        if (accounts.size == 3) {
+            require(
+                accounts[0].currency == accounts[1].currency &&
+                    accounts[0].currency == accounts[2].currency &&
+                    accounts[1].currency == accounts[2].currency
+            )
         }
     }
 

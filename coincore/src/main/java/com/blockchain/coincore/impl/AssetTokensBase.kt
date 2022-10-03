@@ -21,12 +21,18 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.core.staking.domain.model.StakingService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.store.asSingle
+import com.blockchain.store.filterNotLoading
+import com.blockchain.store.mapData
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletModeService
 import exchange.ExchangeLinking
@@ -60,6 +66,8 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     private val walletModeService: WalletModeService by inject()
     protected val identity: UserIdentity by scopedInject()
     private val kycService: KycService by scopedInject()
+    private val stakingService: StakingService by scopedInject()
+    private val stakingEnabledFlag: FeatureFlag by inject(stakingAccountFeatureFlag)
 
     private val activeAccounts: ActiveAccountList by unsafeLazy {
         ActiveAccountList(currency, interestService)
@@ -95,10 +103,16 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             loadNonCustodialAccounts(
                 labels
             ),
-            loadCustodialAccounts(),
-            loadInterestAccounts()
-        ) { nc, c, i ->
-            nc + c + i
+            loadTradingAccounts(),
+            loadInterestAccounts(),
+            loadStakingAccounts().asSingle(),
+            stakingEnabledFlag.enabled
+        ) { nonCustodial, trading, interest, staking, isStakingEnabled ->
+            nonCustodial + trading + interest + if (isStakingEnabled) {
+                staking
+            } else {
+                emptyList()
+            }
         }.doOnError {
             val errorMsg = "Error loading accounts for ${currency.networkTicker}"
             Timber.e("$errorMsg: $it")
@@ -116,23 +130,25 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         activeAccounts.setForceRefresh()
     }
 
-    private fun loadCustodialAccounts(): Single<SingleAccountList> =
-        if (currency.isCustodial) Single.just(
-            listOf(
-                CustodialTradingAccount(
-                    currency = currency,
-                    label = labels.getDefaultCustodialWalletLabel(),
-                    exchangeRates = exchangeRates,
-                    custodialWalletManager = custodialManager,
-                    tradingService = tradingService,
-                    identity = identity,
-                    kycService = kycService,
-                    walletModeService = walletModeService
+    private fun loadTradingAccounts(): Single<SingleAccountList> =
+        if (currency.isCustodial) {
+            Single.just(
+                listOf(
+                    CustodialTradingAccount(
+                        currency = currency,
+                        label = labels.getDefaultCustodialWalletLabel(),
+                        exchangeRates = exchangeRates,
+                        custodialWalletManager = custodialManager,
+                        tradingService = tradingService,
+                        identity = identity,
+                        kycService = kycService,
+                        walletModeService = walletModeService
+                    )
                 )
             )
-        )
-        else
+        } else {
             Single.just(emptyList())
+        }
 
     abstract fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList>
 
@@ -141,10 +157,34 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             .map {
                 if (it) {
                     listOf(
-                        CryptoInterestAccount(
+                        CustodialInterestAccount(
                             currency = currency,
                             label = labels.getDefaultInterestWalletLabel(),
                             interestService = interestService,
+                            custodialWalletManager = custodialManager,
+                            exchangeRates = exchangeRates,
+                            identity = identity,
+                            kycService = kycService,
+                            internalAccountLabel = labels.getDefaultCustodialWalletLabel()
+                        )
+                    )
+                } else {
+                    emptyList()
+                }
+            }
+
+    private fun loadStakingAccounts(): Flow<DataResource<SingleAccountList>> =
+        stakingService.getEligibilityForAsset(
+            currency.networkTicker,
+            FreshnessStrategy.Cached(false)
+        ).filterNotLoading()
+            .mapData {
+                if (it) {
+                    listOf(
+                        CustodialStakingAccount(
+                            currency = currency,
+                            label = labels.getDefaultStakingWalletLabel(),
+                            stakingService = stakingService,
                             custodialWalletManager = custodialManager,
                             exchangeRates = exchangeRates,
                             identity = identity,
@@ -237,7 +277,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         interestService.getEligibilityForAsset(currency).flatMapMaybe { eligibility ->
             if (eligibility == InterestEligibility.Eligible) {
                 accounts.flatMapMaybe {
-                    Maybe.just(it.filterIsInstance<CryptoInterestAccount>())
+                    Maybe.just(it.filterIsInstance<CustodialInterestAccount>())
                 }
             } else {
                 Maybe.empty()

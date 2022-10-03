@@ -23,7 +23,8 @@ enum class AssetFilter {
     NonCustodial,
     Trading,
     Interest,
-    Custodial // Trading + Interest (Whatever lives in our backend)
+    Staking,
+    Custodial // Trading + Interest + Staking (Accounts held by Blockchain.com)
 }
 
 fun WalletMode.defaultFilter(): AssetFilter =

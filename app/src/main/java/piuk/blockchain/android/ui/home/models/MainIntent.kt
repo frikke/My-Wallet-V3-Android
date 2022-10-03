@@ -128,4 +128,13 @@ sealed class MainIntent : MviIntent<MainState> {
     data class ProcessPendingDeeplinkIntent(val deeplinkIntent: Intent) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
+
+    object LoadStakingFlag : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState.copy()
+    }
+
+    class UpdateStakingFlag(private val isStakingEnabled: Boolean) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState =
+            oldState.copy(isStakingEnabled = isStakingEnabled)
+    }
 }

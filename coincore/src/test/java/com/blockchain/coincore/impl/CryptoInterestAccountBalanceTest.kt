@@ -26,7 +26,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
     private val identity: UserIdentity = mock()
     private val kycService: KycService = mock()
 
-    private val subject = CryptoInterestAccount(
+    private val subject = CustodialInterestAccount(
         currency = TEST_ASSET,
         label = "Test Account",
         exchangeRates = exchangeRates,

@@ -5,7 +5,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
-import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
@@ -31,7 +31,7 @@ import org.junit.Test
 
 class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
-    private fun mockTransactionTarget() = mock<CryptoInterestAccount> {
+    private fun mockTransactionTarget() = mock<CustodialInterestAccount> {
         on { currency }.thenReturn(ASSET)
     }
 
@@ -75,7 +75,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when assets mismatched`() {
         val sourceAccount = mockSourceAccount()
-        val txTarget: CryptoInterestAccount = mock {
+        val txTarget: CustodialInterestAccount = mock {
             on { currency }.thenReturn(WRONG_ASSET)
         }
 

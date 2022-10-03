@@ -6,6 +6,7 @@ import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.sellOrder
+import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.swapSourceOrder
 import com.blockchain.koin.swapTargetOrder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -74,7 +75,8 @@ val dashboardModule = module {
                 cowboysDataProvider = get(),
                 referralService = get(),
                 cowboysPrefs = get(),
-                productsEligibilityStore = get()
+                productsEligibilityStore = get(),
+                stakingFeatureFlag = get(stakingAccountFeatureFlag)
             )
         }
 

@@ -103,7 +103,7 @@ fun NavigationBar(
         Row(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .padding(horizontal = dimensionResource(R.dimen.standard_spacing))
+                .padding(horizontal = dimensionResource(R.dimen.medium_spacing))
         ) {
             startNavigationBarButton?.let { button ->
                 when (button) {

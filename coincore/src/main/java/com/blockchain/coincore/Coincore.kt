@@ -4,7 +4,7 @@ import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.AllCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllNonCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
-import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.loader.AssetCatalogueImpl
@@ -159,7 +159,11 @@ class Coincore internal constructor(
             .flatMapMaybe { account ->
                 account.stateAwareActions.flatMapMaybe { availableActions ->
                     val assetActions = availableActions.filter { it.state == ActionState.Available }.map { it.action }
-                    if (assetActions.containsAll(actions)) Maybe.just(account) else Maybe.empty()
+                    if (assetActions.containsAll(actions)) {
+                        Maybe.just(account)
+                    } else {
+                        Maybe.empty()
+                    }
                 }
             }
             .toList()
@@ -176,7 +180,7 @@ class Coincore internal constructor(
             AssetAction.Sell -> allFiats()
             AssetAction.Send -> sameCurrencyTransactionTargets
             AssetAction.InterestDeposit -> sameCurrencyTransactionTargets.map {
-                it.filterIsInstance<CryptoInterestAccount>()
+                it.filterIsInstance<CustodialInterestAccount>()
             }
             AssetAction.InterestWithdraw -> sameCurrencyTransactionTargets.map {
                 it.filterIsInstance<CustodialTradingAccount>()

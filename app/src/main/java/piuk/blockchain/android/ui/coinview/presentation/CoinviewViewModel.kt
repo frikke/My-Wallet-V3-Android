@@ -212,6 +212,7 @@ class CoinviewViewModel(
             assetDetail is DataResource.Data && assetDetail.data is CoinviewAssetDetail.Tradeable -> {
                 check(asset != null) { "asset not initialized" }
 
+                // TODO (dserrano) - STAKING - this existing code chunk is huge and needs to be broken down
                 with(assetDetail.data as CoinviewAssetDetail.Tradeable) {
                     CoinviewAccountsState.Data(
                         style = when (accounts) {
@@ -246,16 +247,18 @@ class CoinviewViewModel(
                                                 title = when (cvAccount.filter) {
                                                     AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
                                                     AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
+                                                    AssetFilter.Staking -> labels.getDefaultStakingWalletLabel()
                                                     AssetFilter.NonCustodial -> account.label
                                                     else -> error(
-                                                        "Filer ${cvAccount.filter} not supported for account label"
+                                                        "Filter ${cvAccount.filter} not supported for account label"
                                                     )
                                                 },
                                                 subtitle = when (cvAccount.filter) {
                                                     AssetFilter.Trading -> {
                                                         SimpleValue.IntResValue(R.string.coinview_c_available_desc)
                                                     }
-                                                    AssetFilter.Interest -> {
+                                                    AssetFilter.Interest,
+                                                    AssetFilter.Staking -> {
                                                         SimpleValue.IntResValue(
                                                             R.string.coinview_interest_with_balance,
                                                             listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
@@ -282,6 +285,9 @@ class CoinviewViewModel(
                                                         }
                                                         AssetFilter.Interest -> {
                                                             R.drawable.ic_interest_account_indicator
+                                                        }
+                                                        AssetFilter.Staking -> {
+                                                            R.drawable.ic_staking_account_indicator
                                                         }
                                                         AssetFilter.NonCustodial -> {
                                                             R.drawable.ic_non_custodial_account_indicator
@@ -317,6 +323,20 @@ class CoinviewViewModel(
                                                 assetColor = asset.currency.colour
                                             )
                                         }
+                                        is CoinviewAccount.Custodial.Staking -> {
+                                            Available(
+                                                cvAccount = cvAccount,
+                                                title = labels.getDefaultStakingWalletLabel(),
+                                                subtitle = SimpleValue.IntResValue(
+                                                    R.string.coinview_interest_with_balance,
+                                                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
+                                                ),
+                                                cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+                                                fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+                                                logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator),
+                                                assetColor = asset.currency.colour
+                                            )
+                                        }
                                         is CoinviewAccount.Defi -> {
                                             Available(
                                                 cvAccount = cvAccount,
@@ -339,6 +359,7 @@ class CoinviewViewModel(
                                                 title = when (cvAccount.filter) {
                                                     AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
                                                     AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
+                                                    AssetFilter.Staking -> labels.getDefaultStakingWalletLabel()
                                                     AssetFilter.NonCustodial -> account.label
                                                     else -> error(
                                                         "Filer ${cvAccount.filter} not supported for account label"
@@ -351,7 +372,8 @@ class CoinviewViewModel(
                                                             listOf(asset.currency.name)
                                                         )
                                                     }
-                                                    AssetFilter.Interest -> {
+                                                    AssetFilter.Interest,
+                                                    AssetFilter.Staking -> {
                                                         SimpleValue.IntResValue(
                                                             R.string.coinview_interest_no_balance,
                                                             listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
@@ -398,6 +420,17 @@ class CoinviewViewModel(
                                                     listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
                                                 ),
                                                 logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
+                                            )
+                                        }
+                                        is CoinviewAccount.Custodial.Staking -> {
+                                            Unavailable(
+                                                cvAccount = cvAccount,
+                                                title = labels.getDefaultStakingWalletLabel(),
+                                                subtitle = SimpleValue.IntResValue(
+                                                    R.string.coinview_interest_no_balance,
+                                                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
+                                                ),
+                                                logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator)
                                             )
                                         }
                                         is CoinviewAccount.Defi -> {

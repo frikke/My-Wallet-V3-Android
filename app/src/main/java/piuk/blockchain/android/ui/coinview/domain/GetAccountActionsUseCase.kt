@@ -74,6 +74,10 @@ data class GetAccountActionsUseCase(
             is CoinviewAccount.Custodial.Trading -> {
                 Pair(dashboardPrefs.isRewardsIntroSeen) { dashboardPrefs.isRewardsIntroSeen = true }
             }
+            is CoinviewAccount.Custodial.Staking -> {
+                // TODO(dserrano) - STAKING - ask about interstitial when tapping on staking account
+                Pair(true) {}
+            }
             is CoinviewAccount.Defi -> {
                 Pair(dashboardPrefs.isPrivateKeyIntroSeen) { dashboardPrefs.isPrivateKeyIntroSeen = true }
             }

@@ -6,6 +6,7 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -154,6 +155,7 @@ class LoadAssetAccountsUseCase(
                         filter = when (it.account) {
                             is TradingAccount -> AssetFilter.Trading
                             is InterestAccount -> AssetFilter.Interest
+                            is StakingAccount -> AssetFilter.Staking
                             is NonCustodialAccount -> AssetFilter.NonCustodial
                             else -> error("account type not supported")
                         },
@@ -177,7 +179,6 @@ class LoadAssetAccountsUseCase(
                                 fiatBalance = exchangeRate.convert(it.balance)
                             )
                         }
-
                         is InterestAccount -> {
                             CoinviewAccount.Custodial.Interest(
                                 isEnabled = it.isAvailable,
@@ -185,6 +186,16 @@ class LoadAssetAccountsUseCase(
                                 cryptoBalance = it.balance,
                                 fiatBalance = exchangeRate.convert(it.balance),
                                 interestRate = interestRate
+                            )
+                        }
+                        is StakingAccount -> {
+                            CoinviewAccount.Custodial.Staking(
+                                isEnabled = it.isAvailable,
+                                account = it.account,
+                                cryptoBalance = it.balance,
+                                fiatBalance = exchangeRate.convert(it.balance),
+                                // TODO(dserrano) - STAKING - load interest rates
+                                interestRate = 0.0
                             )
                         }
 

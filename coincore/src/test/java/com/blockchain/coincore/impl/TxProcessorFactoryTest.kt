@@ -124,7 +124,7 @@ class TxProcessorFactoryTest {
         val mockBaseEngine: BtcOnChainTxEngine = mock()
 
         val mockReceiveAddress: ReceiveAddress = mock()
-        val target: CryptoInterestAccount = mock {
+        val target: CustodialInterestAccount = mock {
             on { receiveAddress }.thenReturn(Single.just(mockReceiveAddress))
         }
         val action = AssetAction.Send
@@ -316,7 +316,7 @@ class TxProcessorFactoryTest {
             on { currency }.thenReturn(TEST_ASSET)
         }
 
-        val target: CryptoInterestAccount = mock {
+        val target: CustodialInterestAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
         }
 
@@ -447,7 +447,7 @@ class TxProcessorFactoryTest {
 
     @Test
     fun interestWithdrawalToTradingProcessor() {
-        val source: CryptoInterestAccount = mock {
+        val source: CustodialInterestAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
         }
         val target: CustodialTradingAccount = mock {
@@ -469,7 +469,7 @@ class TxProcessorFactoryTest {
 
     @Test
     fun interestWithdrawalToOnChainProcessor() {
-        val source: CryptoInterestAccount = mock {
+        val source: CustodialInterestAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
         }
         val target: CryptoNonCustodialAccount = mock {
@@ -491,7 +491,7 @@ class TxProcessorFactoryTest {
 
     @Test
     fun interestWithdrawalUnknownProcessor() {
-        val source: CryptoInterestAccount = mock()
+        val source: CustodialInterestAccount = mock()
         val target: LinkedBankAccount.BankAccountAddress = mock()
 
         subject.createProcessor(source, target, AssetAction.Send)

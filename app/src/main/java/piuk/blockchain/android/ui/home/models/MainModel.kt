@@ -250,13 +250,23 @@ class MainModel(
             is MainIntent.RejectWCSession -> walletConnectServiceAPI.denyConnection(intent.session).emptySubscribe()
             is MainIntent.StartWCSession -> walletConnectServiceAPI.attemptToConnect(intent.url).emptySubscribe()
             is MainIntent.GetNetworkInfoForWCSession -> getNetworkInfoForWCSession(intent.session)
+            is MainIntent.LoadStakingFlag ->
+                interactor.isStakingEnabled().subscribeBy(
+                    onSuccess = {
+                        process(MainIntent.UpdateStakingFlag(it))
+                    },
+                    onError = {
+                        process(MainIntent.UpdateStakingFlag(false))
+                    }
+                )
+            is MainIntent.UpdateStakingFlag,
             MainIntent.ResetViewState,
             is MainIntent.SelectNetworkForWCSession,
-            is MainIntent.UpdateViewToLaunch -> null
-            is MainIntent.UpdateDeepLinkResult -> null
-            is MainIntent.ReferralCodeIntent -> null
-            is MainIntent.ShowReferralWhenAvailable -> null
-            is MainIntent.UpdateCurrentTab -> null
+            is MainIntent.UpdateViewToLaunch,
+            is MainIntent.UpdateDeepLinkResult,
+            is MainIntent.ReferralCodeIntent,
+            is MainIntent.ShowReferralWhenAvailable,
+            is MainIntent.UpdateCurrentTab,
             is MainIntent.UpdateTabs -> null
         }
 

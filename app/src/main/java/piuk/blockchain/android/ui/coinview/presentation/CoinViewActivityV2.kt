@@ -37,7 +37,8 @@ import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.util.putAccount
 
-class CoinviewActivity :
+// TODO (dserrano) - STAKING - rename this when staking FF is removed & old [CoinViewActivity] is obsolete
+class CoinViewActivityV2 :
     MVIActivity<CoinviewViewState>(),
     KoinScopeComponent,
     NavigationRouter<CoinviewNavigationEvent>,
@@ -305,7 +306,7 @@ class CoinviewActivity :
 
     companion object {
         fun newIntent(context: Context, asset: AssetInfo): Intent {
-            return Intent(context, CoinviewActivity::class.java).apply {
+            return Intent(context, CoinViewActivityV2::class.java).apply {
                 putExtra(
                     CoinviewArgs.ARGS_KEY,
                     CoinviewArgs(networkTicker = asset.networkTicker)

@@ -130,6 +130,7 @@ interface TradingAccount
 interface NonCustodialAccount
 interface BankAccount
 interface ExchangeAccount
+interface StakingAccount
 
 typealias SingleAccountList = List<SingleAccount>
 

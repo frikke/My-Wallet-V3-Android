@@ -19,6 +19,7 @@ import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.staking.domain.model.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -44,6 +45,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -76,7 +78,8 @@ internal class DynamicAssetLoader(
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
     private val selfCustodyService: NonCustodialService,
     private val layerTwoFeatureFlag: FeatureFlag,
-    private val stxForAllFeatureFlag: FeatureFlag,
+    private val stakingService: StakingService,
+    private val stakingEnabledFlag: FeatureFlag
 ) : AssetLoader {
 
     private val assetMap = mutableMapOf<Currency, Asset>()
@@ -274,6 +277,10 @@ internal class DynamicAssetLoader(
             .mapList { loadCustodialOnlyAsset(it) }
             .catch { emit(emptyList()) }
 
+        val activeStakingFlow = stakingService.getActiveAssets()
+            .mapList { loadCustodialOnlyAsset(it) }
+            .catch { emit(emptyList()) }
+
         val supportedFiatsFlow = custodialWalletManager.getSupportedFundsFiats()
             .mapList { FiatAsset(currency = it) }
             .catch { emit(emptyList()) }
@@ -281,11 +288,17 @@ internal class DynamicAssetLoader(
         return combine(
             activeTradingFlow,
             activeInterestFlow,
-            supportedFiatsFlow
-        ) { activeTrading, activeInterest, supportedFiats ->
+            supportedFiatsFlow,
+            activeStakingFlow,
+            flowOf(stakingEnabledFlag.enabled.blockingGet())
+        ) { activeTrading, activeInterest, supportedFiats, activeStaking, isStakingEnabled ->
             activeTrading +
                 activeInterest.filter { it.currency !in activeTrading.map { active -> active.currency } } +
-                supportedFiats
+                if (isStakingEnabled) {
+                    activeStaking.filter { it.currency !in activeTrading.map { active -> active.currency } }
+                } else {
+                    emptyList()
+                } + supportedFiats
         }
     }
 

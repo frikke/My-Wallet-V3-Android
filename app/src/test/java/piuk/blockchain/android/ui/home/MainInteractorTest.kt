@@ -6,6 +6,7 @@ import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
@@ -72,6 +73,7 @@ class MainInteractorTest {
     private val referralPrefs: ReferralPrefs = mock()
     private val referralRepository: ReferralRepository = mock()
     private val ethDataManager: EthDataManager = mock()
+    private val stakingFF: FeatureFlag = mock()
 
     private val jsonSerializers = module {
         single {
@@ -113,7 +115,8 @@ class MainInteractorTest {
             bankService = bankService,
             referralPrefs = referralPrefs,
             referralRepository = referralRepository,
-            ethDataManager = ethDataManager
+            ethDataManager = ethDataManager,
+            stakingAccountFlag = stakingFF
         )
     }
 

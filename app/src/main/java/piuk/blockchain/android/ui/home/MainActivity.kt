@@ -78,6 +78,7 @@ import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginSheet
 import piuk.blockchain.android.ui.auth.newlogin.presentation.SecureChannelBrowserMessageArg
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
@@ -162,8 +163,6 @@ class MainActivity :
 
     private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
 
-    private var onEmailVerificationCompleteAction: () -> Unit = {}
-
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
             (
@@ -192,6 +191,8 @@ class MainActivity :
             }
         }
     }
+
+    private var isStakingAccountEnabled: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -241,6 +242,7 @@ class MainActivity :
         if (savedInstanceState == null) {
             model.process(MainIntent.PerformInitialChecks(intent))
             model.process(MainIntent.CheckReferralCode)
+            model.process(MainIntent.LoadStakingFlag)
             if (startUiTour) {
                 binding.uiTour.host = this
                 showUiTour()
@@ -549,6 +551,8 @@ class MainActivity :
     private var launchSellAction: () -> Unit = {}
 
     override fun render(newState: MainState) {
+        isStakingAccountEnabled = newState.isStakingEnabled
+
         when (val view = newState.viewToLaunch) {
             is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
             is ViewToLaunch.LaunchAssetAction -> launchAssetAction(view.action, view.account)
@@ -759,12 +763,20 @@ class MainActivity :
             is Destination.AssetViewDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     activityResultsContract.launch(
-                        CoinViewActivity.newIntent(
-                            context = this,
-                            asset = assetInfo,
-                            originScreen = LaunchOrigin.DEEPLINK.name,
-                            recurringBuyId = destination.recurringBuyId
-                        )
+                        // TODO(dserrano) - STAKING - Ask Othman about recurring buy deeplinks
+                        if (isStakingAccountEnabled) {
+                            CoinViewActivityV2.newIntent(
+                                context = this,
+                                asset = assetInfo
+                            )
+                        } else {
+                            CoinViewActivity.newIntent(
+                                context = this,
+                                asset = assetInfo,
+                                originScreen = LaunchOrigin.DEEPLINK.name,
+                                recurringBuyId = destination.recurringBuyId
+                            )
+                        }
                     )
                 } ?: run {
                     Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")

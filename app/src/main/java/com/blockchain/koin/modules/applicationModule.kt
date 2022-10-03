@@ -30,6 +30,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
+import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -665,7 +666,8 @@ val applicationModule = module {
                 deeplinkRedirector = get(),
                 destinationArgs = get(),
                 notificationManager = get(),
-                analytics = get()
+                analytics = get(),
+                stakingFF = get(stakingAccountFeatureFlag)
             )
         }
 

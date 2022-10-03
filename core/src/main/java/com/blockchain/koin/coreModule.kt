@@ -65,6 +65,9 @@ import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.core.sdd.data.SddRepository
 import com.blockchain.core.sdd.data.datasources.SddEligibilityStore
 import com.blockchain.core.sdd.domain.SddService
+import com.blockchain.core.staking.data.StakingRepository
+import com.blockchain.core.staking.data.datasources.StakingRatesStore
+import com.blockchain.core.staking.domain.model.StakingService
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.core.user.WatchlistDataManager
@@ -594,6 +597,18 @@ val coreModule = module {
             NonCustodialSubscriptionsStore(
                 dynamicSelfCustodyService = get(),
                 authPrefs = get()
+            )
+        }
+
+        scoped {
+            StakingRatesStore(
+                stakingApiService = get()
+            )
+        }
+
+        scoped<StakingService> {
+            StakingRepository(
+                stakingRatesStore = get()
             )
         }
     }

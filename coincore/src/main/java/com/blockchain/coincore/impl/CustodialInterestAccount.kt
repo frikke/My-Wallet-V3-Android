@@ -35,7 +35,7 @@ import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.utils.extensions.mapList
 
-class CryptoInterestAccount(
+class CustodialInterestAccount(
     override val currency: AssetInfo,
     override val label: String,
     private val internalAccountLabel: String,
@@ -82,7 +82,7 @@ class CryptoInterestAccount(
         Single.just(false)
 
     override fun matches(other: CryptoAccount): Boolean =
-        other is CryptoInterestAccount && other.currency == currency
+        other is CustodialInterestAccount && other.currency == currency
 
     override val balanceRx: Observable<AccountBalance>
         get() = Observable.combineLatest(

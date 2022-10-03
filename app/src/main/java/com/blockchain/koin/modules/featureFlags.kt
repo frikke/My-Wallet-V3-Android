@@ -21,6 +21,7 @@ import com.blockchain.koin.quickFillSellSwapFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
 import com.blockchain.koin.sessionIdFeatureFlag
+import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.superappRedesignFeatureFlag
@@ -216,6 +217,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "ff_x_session_id",
                 "Send X-Session-ID Header"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(stakingAccountFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_staking_account",
+                "Enable Staking Account & New Coinview"
             )
         )
     }.bind(FeatureFlag::class)

@@ -63,6 +63,16 @@ sealed interface CoinviewAccount {
         ) : Custodial {
             override val filter: AssetFilter = AssetFilter.Interest
         }
+
+        data class Staking(
+            override val isEnabled: Boolean,
+            override val account: BlockchainAccount,
+            override val cryptoBalance: Money,
+            override val fiatBalance: Money,
+            val interestRate: Double
+        ) : Custodial {
+            override val filter: AssetFilter = AssetFilter.Staking
+        }
     }
 
     /**
