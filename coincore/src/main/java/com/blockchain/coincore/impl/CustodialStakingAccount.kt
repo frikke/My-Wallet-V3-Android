@@ -15,7 +15,7 @@ import com.blockchain.coincore.TxSourceState
 import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.core.staking.domain.model.StakingService
+import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection

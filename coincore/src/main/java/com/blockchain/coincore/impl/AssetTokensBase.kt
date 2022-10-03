@@ -21,7 +21,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.core.staking.domain.model.StakingService
+import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.featureflag.FeatureFlag
@@ -174,7 +174,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             }
 
     private fun loadStakingAccounts(): Flow<DataResource<SingleAccountList>> =
-        stakingService.getEligibilityForAsset(
+        stakingService.getAvailabilityForAsset(
             currency.networkTicker,
             FreshnessStrategy.Cached(false)
         ).filterNotLoading()

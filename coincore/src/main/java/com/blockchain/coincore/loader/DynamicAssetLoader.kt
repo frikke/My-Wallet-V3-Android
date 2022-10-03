@@ -19,7 +19,7 @@ import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.staking.domain.model.StakingService
+import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
