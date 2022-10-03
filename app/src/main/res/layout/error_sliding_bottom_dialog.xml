@@ -1,19 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
+    android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/medium_margin">
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <com.blockchain.componentlib.basic.SimpleImageView
         android:id="@+id/error_sheet_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/tiny_margin"
         android:layout_gravity="center"
-        app:srcCompat="@drawable/vector_sheet_indicator_small" />
+        android:layout_marginTop="@dimen/tiny_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.blockchain.componentlib.basic.SimpleImageView
+        android:id="@+id/error_sheet_icon"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_width="@dimen/xhuge_margin"
+        android:layout_height="@dimen/xhuge_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/error_sheet_indicator" />
+
+    <com.blockchain.componentlib.basic.SimpleImageView
+        android:id="@+id/error_sheet_status"
+        android:layout_width="@dimen/medium_margin"
+        android:layout_height="@dimen/medium_margin"
+        android:visibility="gone"
+        app:layout_constraintCircle="@+id/error_sheet_icon"
+        app:layout_constraintCircleAngle="45"
+        app:layout_constraintCircleRadius="30dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/title"
@@ -24,6 +47,7 @@
         android:layout_marginTop="@dimen/standard_margin"
         android:layout_marginEnd="@dimen/standard_margin"
         android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@id/error_sheet_icon"
         tools:text="Ooops!" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -34,14 +58,39 @@
         android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="@dimen/standard_margin"
+        app:layout_constraintTop_toBottomOf="@id/title"
         tools:text="Something went wrong. Please try again." />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/cta_button"
-        style="@style/CtaButton.Blue"
+    <com.blockchain.componentlib.button.SmallMinimalButtonView
+        android:id="@+id/tertiary_cta_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/small_margin"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/description"
+        tools:visibility="visible" />
+
+    <com.blockchain.componentlib.button.PrimaryButtonView
+        android:id="@+id/primary_cta_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/small_margin"
+        android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/small_margin"
-        tools:text="Ok" />
-</LinearLayout>
+        android:layout_marginEnd="@dimen/standard_margin"
+        app:layout_constraintTop_toBottomOf="@id/tertiary_cta_button" />
+
+    <com.blockchain.componentlib.button.MinimalButtonView
+        android:id="@+id/secondary_cta_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/medium_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/small_margin"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/primary_cta_button"
+        tools:visibility="visible" />
+</androidx.constraintlayout.widget.ConstraintLayout>

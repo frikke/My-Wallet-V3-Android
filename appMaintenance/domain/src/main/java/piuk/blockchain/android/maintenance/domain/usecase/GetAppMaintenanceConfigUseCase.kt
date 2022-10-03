@@ -1,18 +1,22 @@
 package piuk.blockchain.android.maintenance.domain.usecase
 
 import com.blockchain.extensions.exhaustive
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.getOrDefault
+import com.blockchain.outcome.map
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.maintenance.domain.model.UpdateLocation
 import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceService
 
 class GetAppMaintenanceConfigUseCase(private val service: AppMaintenanceService) {
     suspend operator fun invoke(): AppMaintenanceStatus {
-        return service.getAppMaintenanceConfig().fold(
-            onFailure = { AppMaintenanceStatus.NonActionable.Unknown },
-            onSuccess = { config ->
+        return service.getAppMaintenanceConfig()
+            .map { config ->
                 with(config) {
                     when {
+                        isRemoteConfigIgnored -> {
+                            AppMaintenanceStatus.NonActionable.AllClear
+                        }
+
                         currentOsVersion < minimumOSVersion -> {
                             AppMaintenanceStatus.Actionable.OSNotSupported(websiteUrl)
                         }
@@ -50,6 +54,6 @@ class GetAppMaintenanceConfigUseCase(private val service: AppMaintenanceService)
                     }.exhaustive
                 }
             }
-        )
+            .getOrDefault(AppMaintenanceStatus.NonActionable.Unknown)
     }
 }

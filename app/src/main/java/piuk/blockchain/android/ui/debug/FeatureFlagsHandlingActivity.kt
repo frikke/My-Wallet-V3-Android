@@ -3,41 +3,58 @@ package piuk.blockchain.android.ui.debug
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.demo.ComponentLibDemoActivity
+import com.blockchain.componentlib.viewextensions.getTextString
+import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.nabu.api.getuser.data.GetUserStore
+import com.blockchain.preferences.AppMaintenancePrefs
+import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.NotificationPrefs
+import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.snackbar.Snackbar
-import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityLocalFeatureFlagsBinding
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
-import piuk.blockchain.android.ui.referral.domain.model.ReferralData
-import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
+import piuk.blockchain.android.ui.referral.presentation.ReferralInviteNowSheet
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
-// todo (othman): revert this back to AppCompatActivity once referrals api is implemented
-// PR - https://github.com/blockchain/wallet-android-private/pull/3266/
-// jira - https://blockchain.atlassian.net/browse/AND-6144
+// todo (gabor): revert this back to AppCompatActivity once trigger mechanism in place
 class FeatureFlagsHandlingActivity : BlockchainActivity() {
 
     private lateinit var binding: ActivityLocalFeatureFlagsBinding
     private val featureFlagHandler: FeatureFlagHandler by inject()
     private val compositeDisposable = CompositeDisposable()
-    private val prefs: PersistentPrefs by inject()
+    private val notificationPrefs: NotificationPrefs by inject()
+    private val sessionPrefs: SessionPrefs by inject()
     private val appUtils: AppUtil by inject()
     private val loginState: PinRepository by inject()
     private val remoteLogger: RemoteLogger by inject()
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
+    private val appMaintenancePrefs: AppMaintenancePrefs by inject()
+    private val appRatingPrefs: AppRatingPrefs by inject()
+    private val walletModeService: WalletModeService by inject()
+    private val remoteConfigPrefs: RemoteConfigPrefs by inject()
+    private val getUserStore: GetUserStore by scopedInject()
+    private val kycTiersStore: KycTiersStore by scopedInject()
 
     private val featuresAdapter: FeatureFlagAdapter = FeatureFlagAdapter()
 
@@ -68,35 +85,92 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
                 adapter = featuresAdapter
             }
             val parent = nestedParent
+
+            btnResetUserCache.setOnClickListener { onResetUserCache() }
+            btnShowReferralSheet.setOnClickListener { showInviteNow() }
+            resetAppRating.setOnClickListener { resetAppRating() }
             btnRndDeviceId.setOnClickListener { onRndDeviceId() }
             btnResetWallet.setOnClickListener { onResetWallet() }
             btnResetAnnounce.setOnClickListener { onResetAnnounce() }
             btnResetPrefs.setOnClickListener { onResetPrefs() }
-            showReferral.setOnClickListener { showReferral() }
-            clearSimpleBuyState.setOnClickListener { clearSimpleBuyState() }
-            btnStoreLinkId.setOnClickListener { prefs.pitToWalletLinkId = "11111111-2222-3333-4444-55556666677" }
             btnComponentLib.setOnClickListener { onComponentLib() }
             deviceCurrency.text = "Select a new currency. Current one is ${currencyPrefs.selectedFiatCurrency}"
-            firebaseToken.text = prefs.firebaseToken
+            firebaseToken.text = notificationPrefs.firebaseToken
 
-            radioEur.setOnCheckedChangeListener { _, isChecked ->
+            radioDefi.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    currencyPrefs.selectedFiatCurrency = FiatCurrency.fromCurrencyCode("EUR")
-                    showSnackbar("Currency changed to EUR")
+                    walletModeService.updateEnabledWalletMode(WalletMode.NON_CUSTODIAL_ONLY)
+                    showSnackbar("Currency mode changed to Non custodial")
                 }
             }
 
-            radioUsd.setOnCheckedChangeListener { _, isChecked ->
+            radioTrading.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    currencyPrefs.selectedFiatCurrency = FiatCurrency.fromCurrencyCode("USD")
-                    showSnackbar("Currency changed to USD")
+                    walletModeService.updateEnabledWalletMode(WalletMode.CUSTODIAL_ONLY)
+                    showSnackbar("Currency mode changed to Trading")
                 }
             }
 
-            radioGbp.setOnCheckedChangeListener { _, isChecked ->
+            radioBoth.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    currencyPrefs.selectedFiatCurrency = FiatCurrency.fromCurrencyCode("GBP")
-                    showSnackbar("Currency changed to GBP")
+                    walletModeService.updateEnabledWalletMode(
+                        WalletMode.UNIVERSAL
+                    )
+                    showSnackbar("Currency mode changed to Trading + Pkw")
+                }
+            }
+            radioBoth.isChecked = walletModeService.enabledWalletMode() == WalletMode.UNIVERSAL
+            radioTrading.isChecked = walletModeService.enabledWalletMode() == WalletMode.CUSTODIAL_ONLY
+            radioDefi.isChecked = walletModeService.enabledWalletMode() == WalletMode.NON_CUSTODIAL_ONLY
+
+            brokerageErrorSwitch.setOnCheckedChangeListener { _, isChecked ->
+                brokerageErrorInput.visibleIf { isChecked }
+                brokerageErrorCta.visibleIf { isChecked }
+                brokerageLink.visibleIf { isChecked }
+                brokerageErrorInput.setText(remoteConfigPrefs.brokerageErrorsCode, TextView.BufferType.EDITABLE)
+
+                remoteConfigPrefs.updateBrokerageErrorStatus(isChecked)
+                if (!isChecked) {
+                    remoteConfigPrefs.updateBrokerageErrorCode("")
+                    BlockchainSnackbar.make(this@with.root, "Error message reset", type = SnackbarType.Success).show()
+                }
+            }
+
+            brokerageErrorCta.setOnClickListener {
+                remoteConfigPrefs.updateBrokerageErrorCode(brokerageErrorInput.text?.toString()?.trim().orEmpty())
+                BlockchainSnackbar.make(this@with.root, "Updated error message", type = SnackbarType.Success).show()
+            }
+
+            brokerageErrorSwitch.isChecked = remoteConfigPrefs.brokerageErrorsEnabled
+
+            // app maintenance
+            ignoreAppMaintenanceRcSwitch.setOnCheckedChangeListener { _, isChecked ->
+                appMaintenancePrefs.isAppMaintenanceRemoteConfigIgnored = isChecked
+            }
+            ignoreAppMaintenanceRcSwitch.isChecked = appMaintenancePrefs.isAppMaintenanceRemoteConfigIgnored
+
+            appMaintenanceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                appMaintenanceJson.visibleIf { isChecked }
+                btnSaveAppMaintenanceJson.visibleIf { isChecked }
+
+                if (isChecked.not()) {
+                    appMaintenancePrefs.isAppMaintenanceDebugOverrideEnabled = false
+                }
+            }
+            appMaintenanceSwitch.isChecked = appMaintenancePrefs.isAppMaintenanceDebugOverrideEnabled
+
+            appMaintenanceJson.setText(appMaintenancePrefs.appMaintenanceDebugJson)
+
+            btnSaveAppMaintenanceJson.setOnClickListener {
+                appMaintenanceJson.getTextString().let { json ->
+                    try {
+                        Json.parseToJsonElement(json)
+                        appMaintenancePrefs.isAppMaintenanceDebugOverrideEnabled = true
+                        appMaintenancePrefs.appMaintenanceDebugJson = json
+                        BlockchainSnackbar.make(this@with.root, "Json saved", type = SnackbarType.Success).show()
+                    } catch (e: SerializationException) {
+                        BlockchainSnackbar.make(this@with.root, "Malformed Json!", type = SnackbarType.Error).show()
+                    }
                 }
             }
         }
@@ -110,16 +184,14 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
         ).show()
     }
 
-    private fun showReferral() {
+    private fun onResetUserCache() {
+        getUserStore.markAsStale()
+        kycTiersStore.invalidate()
+    }
+
+    private fun showInviteNow() {
         showBottomSheet(
-            ReferralSheet.newInstance(
-                ReferralData(
-                    rewardTitle = "Invite friends, get $30.00!",
-                    rewardSubtitle = "Increase your earnings on each successful invite",
-                    code = "DIEG4321",
-                    criteria = listOf("Sign up using your code", "Verify their identity", "Trade (min 50)")
-                )
-            )
+            ReferralInviteNowSheet()
         )
     }
 
@@ -128,8 +200,12 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
         showSnackbar("Local SB State cleared")
     }
 
+    private fun resetAppRating() {
+        appRatingPrefs.resetAppRatingData()
+    }
+
     private fun onRndDeviceId() {
-        prefs.qaRandomiseDeviceId = true
+        sessionPrefs.qaRandomiseDeviceId = true
         showSnackbar("Device ID randomisation enabled")
     }
 
@@ -142,13 +218,13 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
         val announcementList: AnnouncementList by scopedInject()
         val dismissRecorder: DismissRecorder by scopedInject()
 
-        dismissRecorder.undismissAll(announcementList)
+        dismissRecorder.reinstateAllAnnouncements(announcementList)
 
         showSnackbar("Announcement reset")
     }
 
     private fun onResetPrefs() {
-        prefs.clear()
+        sessionPrefs.clear()
 
         remoteLogger.logEvent("debug clear prefs. Pin reset")
         loginState.clearPin()

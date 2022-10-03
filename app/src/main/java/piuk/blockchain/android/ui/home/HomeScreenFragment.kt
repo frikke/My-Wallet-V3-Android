@@ -17,7 +17,6 @@ import piuk.blockchain.android.ui.sell.BuySellFragment
 
 interface HomeScreenFragment {
     fun navigator(): HomeNavigator
-    fun onBackPressed(): Boolean
 }
 
 interface HomeNavigator {
@@ -27,11 +26,9 @@ interface HomeNavigator {
     )
 
     fun launchKyc(campaignType: CampaignType)
-    fun launchThePitLinking(linkId: String = "")
-    fun launchThePit()
     fun launchBackupFunds(fragment: Fragment? = null, requestCode: Int = 0)
     fun launchSetup2Fa()
-    fun launchVerifyEmail()
+    fun launchOpenExternalEmailApp()
     fun launchSetupFingerprintLogin()
     fun launchReceive()
     fun launchSend()
@@ -40,7 +37,7 @@ interface HomeNavigator {
         asset: AssetInfo? = null,
         reload: Boolean = false
     )
-    fun launchSimpleBuy(asset: AssetInfo)
+    fun launchSimpleBuy(asset: AssetInfo, paymentMethodId: String? = null)
     fun launchInterestDashboard(origin: LaunchOrigin)
     fun launchFiatDeposit(currency: String)
     fun launchTransfer()

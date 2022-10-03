@@ -20,7 +20,6 @@ import com.blockchain.analytics.data.logEvent
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.coincore.AssetAction
-import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
@@ -28,8 +27,8 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.veriff.VeriffApplicantAndToken
 import com.blockchain.veriff.VeriffLauncher
@@ -57,8 +56,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class VeriffSplashFragment :
     BaseFragment<VeriffSplashView, VeriffSplashPresenter>(),
-    VeriffSplashView,
-    FlowFragment {
+    VeriffSplashView {
 
     private var _binding: FragmentKycVeriffSplashBinding? = null
     private val binding: FragmentKycVeriffSplashBinding
@@ -80,7 +78,7 @@ class VeriffSplashFragment :
         onError = {
             analytics.logEvent(
                 VeriffAnalytics.VerifSubmissionFailed(
-                    tierUserIsAboutToUpgrade = Tier.GOLD,
+                    tierUserIsAboutToUpgrade = KycTier.GOLD,
                     failureReason = it
                 )
             )
@@ -269,7 +267,7 @@ class VeriffSplashFragment :
 
     private fun showContentState() {
         dismissProgressDialog()
-        progressListener.setHostTitle(R.string.kyc_veriff_splash_title)
+        progressListener.setupHostToolbar(R.string.kyc_veriff_splash_title)
         with(binding) {
             errorLayout.gone()
             contentView.visible()
@@ -279,7 +277,7 @@ class VeriffSplashFragment :
 
     private fun showErrorState() {
         dismissProgressDialog()
-        progressListener.setHostTitle(R.string.kyc_veriff_splash_error_silver)
+        progressListener.setupHostToolbar(R.string.kyc_veriff_splash_error_silver)
         with(binding) {
             errorLayout.visible()
             contentView.gone()
@@ -293,8 +291,6 @@ class VeriffSplashFragment :
     private fun showEmptyState() {
         throw IllegalStateException("UiState == EMPTY. This should never happen")
     }
-
-    override fun onBackPressed(): Boolean = true
 
     companion object {
         private const val REQUEST_CODE_VERIFF = 1440

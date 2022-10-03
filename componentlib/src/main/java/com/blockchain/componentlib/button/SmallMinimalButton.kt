@@ -20,6 +20,7 @@ fun SmallMinimalButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     state: ButtonState = ButtonState.Enabled,
+    icon: ImageResource = ImageResource.None
 ) {
 
     val contentPadding = PaddingValues(
@@ -42,19 +43,20 @@ fun SmallMinimalButton(
         state = state,
         modifier = modifier.requiredHeightIn(min = dimensionResource(R.dimen.large_margin)),
         contentPadding = contentPadding,
+        icon = icon,
         buttonContent = {
             state: ButtonState,
             text: String,
             textColor: Color,
             textAlpha: Float,
             loadingIconResId: Int,
-            _: ImageResource,
-            ->
+            icon: ImageResource, ->
             ButtonContentSmall(
                 state = state,
                 text = text,
                 textColor = textColor,
-                textAlpha = textAlpha,
+                contentAlpha = textAlpha,
+                icon = icon,
                 loadingIconResId = loadingIconResId,
             )
         },
@@ -69,6 +71,20 @@ private fun SmallMinimalButton_Basic() {
             SmallMinimalButton(
                 onClick = { },
                 text = "Small Minimal button"
+            )
+        }
+    }
+}
+
+@Preview(name = "Default with icon", group = "Small minimal button")
+@Composable
+private fun SmallMinimalButton_Basic_Icon() {
+    AppTheme {
+        AppSurface {
+            SmallMinimalButton(
+                onClick = { },
+                text = "Small Minimal button",
+                icon = ImageResource.Local(R.drawable.ic_bottom_nav_prices)
             )
         }
     }

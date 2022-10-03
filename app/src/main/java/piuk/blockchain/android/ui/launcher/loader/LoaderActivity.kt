@@ -21,18 +21,23 @@ import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
+import piuk.blockchain.android.ui.educational.walletmodes.EducationalWalletModeActivity
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
-import piuk.blockchain.android.ui.termsconditions.TermsAndConditionsFragment
 import piuk.blockchain.android.util.AppUtil
 
 class LoaderActivity :
     MviActivity<LoaderModel, LoaderIntents, LoaderState, ActivityLoaderBinding>(),
-    EmailEntryHost,
-    TermsAndConditionsFragment.Host {
+    EmailEntryHost {
+
+    private val referralCode: String? by lazy {
+        intent?.getStringExtra(PinActivity.KEY_REFERRAL_CODE)
+    }
+
+    private val compositeDisposable = CompositeDisposable()
 
     override val model: LoaderModel by scopedInject()
 
@@ -40,8 +45,8 @@ class LoaderActivity :
 
     override fun initBinding(): ActivityLoaderBinding = ActivityLoaderBinding.inflate(layoutInflater)
 
-    private var state: LoaderState? = null
-    private val compositeDisposable = CompositeDisposable()
+    override val toolbarBinding: ToolbarGeneralBinding
+        get() = binding.toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,13 +54,10 @@ class LoaderActivity :
 
         val extras = intent?.extras
         val isPinValidated = extras?.getBoolean(INTENT_EXTRA_VERIFIED, false) ?: false
-        val isAfterWalletCreation = extras?.getBoolean(AppUtil.INTENT_EXTRA_IS_AFTER_WALLET_CREATION, false) == true
-
-        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation))
+        val loginMethod = (extras?.getSerializable(AppUtil.LOGIN_METHOD) as? LoginMethod)
+            ?: LoginMethod.UNDEFINED
+        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, loginMethod, referralCode))
     }
-
-    override val toolbarBinding: ToolbarGeneralBinding
-        get() = binding.toolbar
 
     override fun render(newState: LoaderState) {
         when (val loaderStep = newState.nextLoadingStep) {
@@ -63,15 +65,17 @@ class LoaderActivity :
             is LoadingStep.RequestPin -> onRequestPin()
             // These below should always come only after a ProgressStep.FINISH has been emitted
             is LoadingStep.EmailVerification -> launchEmailVerification()
+            is LoadingStep.EducationalWalletMode -> launchEducationalWalletMode(
+                data = loaderStep.data,
+                isUserInCowboysPromo = newState.isUserInCowboysPromo
+            )
             is LoadingStep.Main -> onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
-            is LoadingStep.NewTermsAndConditions -> launchTermsAndConditions(loaderStep.url)
-            null -> {
+            else -> {
+                // do nothing
             }
         }
 
         updateUi(newState)
-
-        state = newState
     }
 
     private fun updateUi(newState: LoaderState) {
@@ -94,6 +98,7 @@ class LoaderActivity :
             ProgressStep.FINISH -> {
                 updateProgressVisibility(false)
             }
+            else -> {}
         }
 
         if (newState.shouldShowSecondPasswordDialog) {
@@ -135,16 +140,12 @@ class LoaderActivity :
         )
 
     override fun onEmailVerified() {
-        model.process(LoaderIntents.OnEmailVerificationFinished)
+        model.process(LoaderIntents.LaunchDashboard(data = null, shouldLaunchUiTour = true))
     }
 
     override fun onEmailVerificationSkipped() {
-        model.process(LoaderIntents.OnEmailVerificationFinished)
+        model.process(LoaderIntents.LaunchDashboard(data = null, shouldLaunchUiTour = true))
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffSkipped(LaunchOrigin.SIGN_UP))
-    }
-
-    override fun termsAndConditionsAccepted() {
-        model.process(LoaderIntents.OnTermsAndConditionsSigned)
     }
 
     override fun onDestroy() {
@@ -158,7 +159,8 @@ class LoaderActivity :
                 context = this,
                 startForResult = false,
                 originScreen = PinActivity.Companion.OriginScreenToPin.LOADER_SCREEN,
-                addFlagsToClear = true
+                addFlagsToClear = true,
+                referralCode = referralCode
             )
         )
     }
@@ -175,24 +177,26 @@ class LoaderActivity :
         finish()
     }
 
+    private fun launchEducationalWalletMode(isUserInCowboysPromo: Boolean, data: String?) {
+        startActivity(
+            EducationalWalletModeActivity.newIntent(
+                context = this,
+                data = data,
+                redirectToCowbowsPromo = isUserInCowboysPromo
+            )
+        )
+        finish()
+    }
+
     private fun launchEmailVerification() {
         binding.progress.gone()
         binding.contentFrame.visible()
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))
         supportFragmentManager.beginTransaction()
-            .replace(R.id.content_frame, KycEmailEntryFragment(), KycEmailEntryFragment::class.simpleName)
-            .commitAllowingStateLoss()
-    }
-
-    private fun launchTermsAndConditions(url: String) {
-        updateToolbarTitle(getString(R.string.terms_and_conditions_toolbar))
-        binding.progress.gone()
-        binding.contentFrame.visible()
-        supportFragmentManager.beginTransaction()
             .replace(
                 R.id.content_frame,
-                TermsAndConditionsFragment.newInstance(url),
-                TermsAndConditionsFragment::class.simpleName
+                KycEmailEntryFragment.newInstance(canBeSkipped = true),
+                KycEmailEntryFragment::class.simpleName
             )
             .commitAllowingStateLoss()
     }

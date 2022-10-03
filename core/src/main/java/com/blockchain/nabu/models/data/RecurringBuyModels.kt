@@ -1,6 +1,7 @@
 package com.blockchain.nabu.models.data
 
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.RecurringBuyPaymentDetails
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import java.io.Serializable
@@ -27,10 +28,6 @@ data class EligibleAndNextPaymentRecurringBuy(
     val nextPaymentDate: String,
     val eligibleMethods: List<PaymentMethodType>
 )
-
-interface RecurringBuyPaymentDetails : Serializable {
-    val paymentDetails: PaymentMethodType
-}
 
 data class FundsAccount(val currency: String) : RecurringBuyPaymentDetails {
     override val paymentDetails: PaymentMethodType

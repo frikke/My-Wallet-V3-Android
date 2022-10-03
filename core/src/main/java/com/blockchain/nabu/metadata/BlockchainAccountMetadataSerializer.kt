@@ -1,6 +1,8 @@
 package com.blockchain.nabu.metadata
 
+import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.element
@@ -29,8 +31,12 @@ object BlockchainAccountMetadataSerializer : KSerializer<BlockchainAccountCreden
                 when (val index = decodeElementIndex(descriptor)) {
                     0 -> userId = decodeStringElement(descriptor, 0)
                     1 -> lifetimeToken = decodeStringElement(descriptor, 1)
-                    2 -> exchangeUserId = decodeStringElement(descriptor, 2)
-                    3 -> exchangeLifetimeToken = decodeStringElement(descriptor, 3)
+                    2 -> exchangeUserId = decodeNullableSerializableElement(
+                        descriptor, 2, String.serializer() as DeserializationStrategy<String?>
+                    )
+                    3 -> exchangeLifetimeToken = decodeNullableSerializableElement(
+                        descriptor, 3, String.serializer() as DeserializationStrategy<String?>
+                    )
                     4 -> corrupted = decodeBooleanElement(descriptor, 4)
                     CompositeDecoder.DECODE_DONE -> break
                     else -> error("Unexpected index: $index")

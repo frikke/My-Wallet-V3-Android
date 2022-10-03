@@ -59,7 +59,7 @@ class AnalyticsImpl internal constructor(
 
     private val nabuAnalyticsNames = AnalyticsNames.values().map { it.eventName }
 
-    override fun logSingUp(success: Boolean) {
+    override fun logSignUp(success: Boolean) {
         val b = Bundle()
         b.putString(FirebaseAnalytics.Param.METHOD, success.toString())
         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, b)

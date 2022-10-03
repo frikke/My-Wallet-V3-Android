@@ -45,7 +45,7 @@ class UiTourView @JvmOverloads constructor(
         binding.subtitle.text = step.subtitle
         binding.buttonNext.text =
             if (step == UiTourStep.values().last()) context.getString(R.string.buy_now)
-            else context.getString(R.string.next)
+            else context.getString(R.string.common_next)
     }
 
     private fun updateNavigationIndicators(step: UiTourStep) {
@@ -77,6 +77,13 @@ class UiTourView @JvmOverloads constructor(
         binding.pagerIndicator.count = UiTourStep.values().size
         binding.pagerIndicator.selectedIndex = 0
         binding.bottomNavigation.apply {
+            navigationItems = listOf(
+                NavigationItem.Home,
+                NavigationItem.Prices,
+                NavigationItem.BuyAndSell,
+                NavigationItem.Activity
+            )
+            hasMiddleButton = true
             onNavigationItemClick = {
                 val step = when (it) {
                     NavigationItem.Home -> null

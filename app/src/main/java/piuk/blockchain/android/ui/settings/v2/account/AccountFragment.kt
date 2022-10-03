@@ -17,6 +17,8 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.scopedInject
@@ -32,8 +34,6 @@ import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.v2.SettingsNavigator
 import piuk.blockchain.android.ui.settings.v2.SettingsScreen
-import piuk.blockchain.android.ui.thepit.ExchangeConnectionSheet
-import piuk.blockchain.android.urllinks.URL_THE_PIT_LAUNCH_SUPPORT
 import piuk.blockchain.android.util.launchUrlInBrowser
 
 class AccountFragment :
@@ -48,8 +48,6 @@ class AccountFragment :
         (activity as? SettingsNavigator) ?: throw IllegalStateException(
             "Parent must implement SettingsNavigator"
         )
-
-    override fun onBackPressed(): Boolean = true
 
     override val model: AccountModel by scopedInject()
     private val blockchainCardFF: FeatureFlag by scopedInject(blockchainCardFeatureFlag)
@@ -103,17 +101,38 @@ class AccountFragment :
                 }
             }
 
-            settingsCurrency.apply {
+            settingsDisplayCurrency.apply {
                 primaryText = getString(R.string.account_currency_title)
                 onClick = {
-                    model.process(AccountIntent.LoadFiatList)
+                    model.process(AccountIntent.LoadDisplayCurrencies)
+                }
+            }
+
+            settingsTradingCurrency.apply {
+                primaryText = getString(R.string.account_trading_currency_title)
+                onClick = {
+                    model.process(AccountIntent.LoadTradingCurrencies)
                 }
             }
 
             settingsExchange.apply {
                 primaryText = getString(R.string.account_exchange_title)
+                secondaryText = getString(R.string.account_exchange_launch)
+                tags = listOf(TagViewState(getString(R.string.common_launch), TagType.InfoAlt()))
                 onClick = {
-                    model.process(AccountIntent.LoadExchange)
+                    showBottomSheet(
+                        ExchangeConnectionSheet.newInstance(
+                            ErrorBottomDialog.Content(
+                                title = getString(R.string.account_exchange_connected_title),
+                                ctaButtonText = R.string.account_exchange_connected_cta,
+                                icon = R.drawable.ic_exchange_logo
+                            ),
+                            tags = emptyList(),
+                            primaryCtaClick = {
+                                requireActivity().launchUrlInBrowser(BuildConfig.EXCHANGE_LAUNCH_URL)
+                            },
+                        )
+                    )
                 }
             }
 
@@ -146,14 +165,20 @@ class AccountFragment :
                     navigator().goToAddresses()
                 }
             }
+
+            settingsChartVibration.apply {
+                primaryText = getString(R.string.settings_chart_vibration)
+                secondaryText = getString(R.string.settings_chart_vibration_desc)
+                onCheckedChange = {
+                    model.process(AccountIntent.ToggleChartVibration)
+                }
+            }
         }
     }
 
     override fun onResume() {
         super.onResume()
         model.process(AccountIntent.LoadAccountInformation)
-        model.process(AccountIntent.LoadExchangeInformation)
-
         compositeDisposable += blockchainCardFF.enabled.onErrorReturn { false }.subscribe { enabled ->
             if (enabled) model.process(AccountIntent.LoadBCDebitCardInformation)
         }
@@ -168,24 +193,10 @@ class AccountFragment :
             renderViewToLaunch(newState)
         }
 
-        renderExchangeInformation(newState.exchangeLinkingState)
         renderDebitCardInformation(newState.blockchainCardOrderState)
         renderErrorState(newState.errorState)
+        renderReferral(newState.referralInfo)
     }
-
-    private fun renderExchangeInformation(exchangeLinkingState: ExchangeLinkingState) =
-        when (exchangeLinkingState) {
-            ExchangeLinkingState.UNKNOWN,
-            ExchangeLinkingState.NOT_LINKED -> {
-                binding.settingsExchange.secondaryText = getString(R.string.account_exchange_not_connected)
-            }
-            ExchangeLinkingState.LINKED -> {
-                with(binding.settingsExchange) {
-                    secondaryText = null
-                    tags = listOf(TagViewState(getString(R.string.account_exchange_connected), TagType.Success()))
-                }
-            }
-        }
 
     private fun renderDebitCardInformation(blockchainCardOrderState: BlockchainCardOrderState) =
         with(binding.settingsDebitCard) {
@@ -204,12 +215,27 @@ class AccountFragment :
                 is BlockchainCardOrderState.Ordered -> {
                     visibility = VISIBLE
                     secondaryText = null
+                    tags = null
                     onClick = {
                         navigator().goToManageBlockchainCard(blockchainCardOrderState.blockchainCard)
                     }
                 }
             }
         }
+
+    private fun renderReferral(referralInfo: ReferralInfo) {
+        with(binding) {
+            settingsReferAFriend.visibleIf { referralInfo is ReferralInfo.Data }
+            settingsReferAFriendDiv.visibleIf { referralInfo is ReferralInfo.Data }
+        }
+
+        if (referralInfo is ReferralInfo.Data) {
+            with(binding.settingsReferAFriend) {
+                primaryText = getString(R.string.account_refer_a_friend)
+                onClick = { navigator().goToReferralCode(referralInfo) }
+            }
+        }
+    }
 
     private fun renderErrorState(error: AccountError) =
         when (error) {
@@ -221,12 +247,6 @@ class AccountFragment :
             }
             AccountError.ACCOUNT_FIAT_UPDATE_FAIL -> {
                 showErrorSnackbar(R.string.account_fiat_update_error)
-            }
-            AccountError.EXCHANGE_INFO_FAIL -> {
-                showErrorSnackbar(R.string.account_exchange_info_error)
-            }
-            AccountError.EXCHANGE_LOAD_FAIL -> {
-                showErrorSnackbar(R.string.account_load_exchange_error)
             }
             AccountError.BLOCKCHAIN_CARD_LOAD_FAIL -> {
                 showErrorSnackbar(R.string.account_load_bc_card_error)
@@ -247,62 +267,37 @@ class AccountFragment :
     private fun renderWalletInformation(accountInformation: AccountInformation) {
         walletId = accountInformation.walletId
 
-        binding.settingsCurrency.apply {
-            secondaryText = accountInformation.userCurrency.nameWithSymbol()
+        with(binding) {
+            settingsChartVibration.isChecked = accountInformation.isChartVibrationEnabled
+            settingsDisplayCurrency.apply {
+                secondaryText = accountInformation.displayCurrency.nameWithSymbol()
+            }
+
+            settingsTradingCurrency.apply {
+                secondaryText = accountInformation.tradingCurrency.nameWithSymbol()
+            }
         }
     }
 
     private fun renderViewToLaunch(newState: AccountState) {
         when (val view = newState.viewToLaunch) {
-            is ViewToLaunch.CurrencySelection -> {
+            is ViewToLaunch.DisplayCurrencySelection -> {
                 showBottomSheet(
                     CurrencySelectionSheet.newInstance(
                         currencies = view.currencyList,
                         selectedCurrency = view.selectedCurrency,
-                        currencySelectionType = CurrencySelectionSheet.Companion.CurrencySelectionType.DISPLAY_CURRENCY
+                        currencySelectionType = CurrencySelectionSheet.CurrencySelectionType.DISPLAY_CURRENCY
                     )
                 )
             }
-            is ViewToLaunch.ExchangeLink -> {
-                when (view.exchangeLinkingState) {
-                    ExchangeLinkingState.UNKNOWN,
-                    ExchangeLinkingState.NOT_LINKED -> {
-                        showBottomSheet(
-                            ExchangeConnectionSheet.newInstance(
-                                ErrorBottomDialog.Content(
-                                    title = getString(R.string.account_exchange_connect_title),
-                                    description = getString(R.string.account_exchange_connect_subtitle),
-                                    ctaButtonText = R.string.common_connect,
-                                    icon = R.drawable.ic_exchange_logo
-                                ),
-                                tags = emptyList(),
-                                primaryCtaClick = {
-                                    navigator().goToExchange()
-                                }
-                            )
-                        )
-                    }
-                    ExchangeLinkingState.LINKED -> {
-                        showBottomSheet(
-                            ExchangeConnectionSheet.newInstance(
-                                ErrorBottomDialog.Content(
-                                    title = getString(R.string.account_exchange_connected_title),
-                                    ctaButtonText = R.string.account_exchange_connected_cta,
-                                    dismissText = R.string.contact_support,
-                                    icon = R.drawable.ic_exchange_logo
-                                ),
-                                listOf(TagViewState(getString(R.string.account_exchange_connected), TagType.Success())),
-                                // TODO this will be changed to support the Exchange app?
-                                primaryCtaClick = {
-                                    requireActivity().launchUrlInBrowser(BuildConfig.PIT_LAUNCHING_URL)
-                                },
-                                secondaryCtaClick = {
-                                    requireActivity().launchUrlInBrowser(URL_THE_PIT_LAUNCH_SUPPORT)
-                                }
-                            )
-                        )
-                    }
-                }
+            is ViewToLaunch.TradingCurrencySelection -> {
+                showBottomSheet(
+                    CurrencySelectionSheet.newInstance(
+                        currencies = view.currencyList,
+                        selectedCurrency = view.selectedCurrency,
+                        currencySelectionType = CurrencySelectionSheet.CurrencySelectionType.TRADING_CURRENCY
+                    )
+                )
             }
             ViewToLaunch.None -> {
                 // do nothing
@@ -311,8 +306,16 @@ class AccountFragment :
         model.process(AccountIntent.ResetViewState)
     }
 
-    override fun onCurrencyChanged(currency: FiatCurrency) {
-        model.process(AccountIntent.UpdateFiatCurrency(currency))
+    override fun onCurrencyChanged(
+        currency: FiatCurrency,
+        selectionType: CurrencySelectionSheet.CurrencySelectionType
+    ) {
+        when (selectionType) {
+            CurrencySelectionSheet.CurrencySelectionType.DISPLAY_CURRENCY ->
+                model.process(AccountIntent.UpdateSelectedDisplayCurrency(currency))
+            CurrencySelectionSheet.CurrencySelectionType.TRADING_CURRENCY ->
+                model.process(AccountIntent.UpdateSelectedTradingCurrency(currency))
+        }
     }
 
     override fun onSheetClosed() {

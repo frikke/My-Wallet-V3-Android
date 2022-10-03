@@ -1,28 +1,23 @@
 package com.blockchain.nabu.service
 
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.TransactionError
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.ApplicantIdRequest
 import com.blockchain.nabu.models.responses.nabu.NabuBasicUser
-import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
 import com.blockchain.nabu.models.responses.nabu.NabuJwt
 import com.blockchain.nabu.models.responses.nabu.NabuRecoverAccountRequest
 import com.blockchain.nabu.models.responses.nabu.NabuRecoverAccountResponse
-import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RecordCountryRequest
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
-import com.blockchain.nabu.models.responses.nabu.Scope
-import com.blockchain.nabu.models.responses.nabu.SendToMercuryAddressRequest
-import com.blockchain.nabu.models.responses.nabu.SendToMercuryAddressResponse
-import com.blockchain.nabu.models.responses.nabu.SendWithdrawalAddressesRequest
+import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
+import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
-import com.blockchain.nabu.models.responses.nabu.WalletMercuryLink
 import com.blockchain.nabu.models.responses.sdd.SDDEligibilityResponse
 import com.blockchain.nabu.models.responses.sdd.SDDStatusResponse
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
@@ -44,17 +39,20 @@ import com.blockchain.nabu.models.responses.swap.QuoteRequest
 import com.blockchain.nabu.models.responses.swap.QuoteResponse
 import com.blockchain.nabu.models.responses.swap.SwapLimitsResponse
 import com.blockchain.nabu.models.responses.swap.UpdateSwapOrderBody
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenRequest
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
+import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.veriff.VeriffApplicantAndToken
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
 
 class NabuService internal constructor(
-    private val nabu: Nabu
+    private val nabu: Nabu,
+    private val remoteConfigPrefs: RemoteConfigPrefs,
+    private val environmentConfig: EnvironmentConfig
 ) {
     internal fun getAuthToken(
         jwt: String
@@ -107,20 +105,6 @@ class NabuService internal constructor(
     ): Single<NabuUser> = nabu.updateWalletInformation(
         NabuJwt(jwt),
         sessionToken.authHeader
-    ).wrapErrorMessage()
-
-    internal fun getCountriesList(
-        scope: Scope
-    ): Single<List<NabuCountryResponse>> = nabu.getCountriesList(
-        scope.value
-    ).wrapErrorMessage()
-
-    internal fun getStatesList(
-        countryCode: String,
-        scope: Scope
-    ): Single<List<NabuStateResponse>> = nabu.getStatesList(
-        countryCode,
-        scope.value
     ).wrapErrorMessage()
 
     internal fun getSupportedDocuments(
@@ -178,7 +162,7 @@ class NabuService internal constructor(
     internal fun submitVeriffVerification(
         sessionToken: NabuSessionTokenResponse
     ): Completable = nabu.submitVerification(
-        ApplicantIdRequest(sessionToken.userId),
+        ApplicantIdRequest(sessionToken.userId), // FLAG_AUTH_REMOVAL
         sessionToken.authHeader
     ).wrapErrorMessage()
 
@@ -195,19 +179,19 @@ class NabuService internal constructor(
     ).wrapErrorMessage()
 
     internal fun recoverUser(
-        offlineToken: NabuOfflineTokenResponse,
+        offlineToken: NabuOfflineToken,
         jwt: String
     ): Completable = nabu.recoverUser(
-        offlineToken.userId,
+        offlineToken.userId, // FLAG_AUTH_REMOVAL
         NabuJwt(jwt),
         authorization = "Bearer ${offlineToken.token}"
     ).wrapErrorMessage()
 
     internal fun resetUserKyc(
-        offlineToken: NabuOfflineTokenResponse,
+        offlineToken: NabuOfflineToken,
         jwt: String
     ): Completable = nabu.resetUserKyc(
-        offlineToken.userId,
+        offlineToken.userId, // FLAG_AUTH_REMOVAL
         NabuJwt(jwt),
         authorization = "Bearer ${offlineToken.token}"
     ).wrapErrorMessage()
@@ -222,35 +206,12 @@ class NabuService internal constructor(
         sessionToken.authHeader
     ).wrapErrorMessage()
 
-    internal fun linkWalletWithMercury(
-        sessionToken: NabuSessionTokenResponse
-    ): Single<String> = nabu.connectWalletWithMercury(
-        sessionToken.authHeader
-    ).map { it.linkId }
-        .wrapErrorMessage()
-
-    internal fun linkMercuryWithWallet(
-        sessionToken: NabuSessionTokenResponse,
-        linkId: String
-    ): Completable = nabu.connectMercuryWithWallet(
-        sessionToken.authHeader,
-        WalletMercuryLink(linkId)
-    ).wrapErrorMessage()
-
-    internal fun sendWalletAddressesToThePit(
-        sessionToken: NabuSessionTokenResponse,
-        request: SendWithdrawalAddressesRequest
-    ): Completable = nabu.sharePitReceiveAddresses(
-        sessionToken.authHeader,
-        request
-    ).wrapErrorMessage()
-
-    internal fun fetchPitSendToAddressForCrypto(
+    internal fun fetchExchangeSendToAddressForCrypto(
         sessionToken: NabuSessionTokenResponse,
         cryptoSymbol: String
-    ): Single<SendToMercuryAddressResponse> = nabu.fetchPitSendAddress(
+    ): Single<SendToExchangeAddressResponse> = nabu.fetchExchangeSendAddress(
         sessionToken.authHeader,
-        SendToMercuryAddressRequest(cryptoSymbol)
+        SendToExchangeAddressRequest(cryptoSymbol)
     ).wrapErrorMessage()
 
     internal fun isSDDEligible(): Single<SDDEligibilityResponse> =
@@ -273,8 +234,9 @@ class NabuService internal constructor(
         sessionToken: NabuSessionTokenResponse,
         createOrderRequest: CreateOrderRequest
     ): Single<CustodialOrderResponse> = nabu.createCustodialOrder(
-        sessionToken.authHeader,
-        createOrderRequest
+        authorization = sessionToken.authHeader,
+        order = createOrderRequest,
+        localisedError = getLocalisedErrorIfEnabled()
     ).wrapErrorMessage()
 
     internal fun fetchProductLimits(
@@ -319,15 +281,26 @@ class NabuService internal constructor(
 
     internal fun getTransactions(
         sessionToken: NabuSessionTokenResponse,
-        currency: String,
         product: String,
         type: String?
     ): Single<TransactionsResponse> =
         nabu.getTransactions(
-            sessionToken.authHeader,
-            currency,
-            product,
-            type
+            authorization = sessionToken.authHeader,
+            product = product,
+            type = type
+        ).wrapErrorMessage()
+
+    internal fun getCurrencyTransactions(
+        sessionToken: NabuSessionTokenResponse,
+        product: String,
+        currency: String,
+        type: String?
+    ): Single<TransactionsResponse> =
+        nabu.getTransactions(
+            authorization = sessionToken.authHeader,
+            product = product,
+            currency = currency,
+            type = type
         ).wrapErrorMessage()
 
     internal fun isEligibleForSimpleBuy(
@@ -343,7 +316,10 @@ class NabuService internal constructor(
         order: CustodialWalletOrder,
         action: String?
     ) = nabu.createOrder(
-        authorization = sessionToken.authHeader, action = action, order = order
+        authorization = sessionToken.authHeader,
+        action = action,
+        order = order,
+        localisedError = getLocalisedErrorIfEnabled()
     ).onErrorResumeNext {
         if (it is HttpException && it.code() == 409) {
             Single.error(TransactionError.OrderLimitReached)
@@ -417,8 +393,9 @@ class NabuService internal constructor(
         sessionToken: NabuSessionTokenResponse,
         pendingOnly: Boolean
     ) = nabu.getOrders(
-        sessionToken.authHeader,
-        pendingOnly
+        authorization = sessionToken.authHeader,
+        pendingOnly = pendingOnly,
+        localisedError = getLocalisedErrorIfEnabled()
     ).wrapErrorMessage()
 
     internal fun getSwapTrades(sessionToken: NabuSessionTokenResponse) = nabu.getSwapOrders(sessionToken.authHeader)
@@ -430,7 +407,9 @@ class NabuService internal constructor(
         sessionToken: NabuSessionTokenResponse,
         orderId: String
     ) = nabu.deleteBuyOrder(
-        sessionToken.authHeader, orderId
+        authorization = sessionToken.authHeader,
+        orderId = orderId,
+        localisedError = getLocalisedErrorIfEnabled()
     ).onErrorResumeNext {
         if (it is HttpException && it.code() == 409) {
             Completable.error(TransactionError.OrderNotCancelable)
@@ -443,7 +422,9 @@ class NabuService internal constructor(
         sessionToken: NabuSessionTokenResponse,
         orderId: String
     ) = nabu.getBuyOrder(
-        sessionToken.authHeader, orderId
+        authHeader = sessionToken.authHeader,
+        orderId = orderId,
+        localisedError = getLocalisedErrorIfEnabled()
     ).wrapErrorMessage()
 
     fun confirmOrder(
@@ -451,7 +432,10 @@ class NabuService internal constructor(
         orderId: String,
         confirmBody: ConfirmOrderRequestBody
     ) = nabu.confirmOrder(
-        sessionToken.authHeader, orderId, confirmBody
+        authHeader = sessionToken.authHeader,
+        orderId = orderId,
+        confirmBody = confirmBody,
+        localisedError = getLocalisedErrorIfEnabled()
     ).wrapErrorMessage()
 
     fun transferFunds(
@@ -480,59 +464,12 @@ class NabuService internal constructor(
         sessionToken: NabuSessionTokenResponse
     ) = nabu.getCardAcquirers(sessionToken.authHeader).wrapErrorMessage()
 
-    /**
-     * If there is no rate for a given asset, this endpoint returns a 204, which must be parsed
-     */
-    fun getInterestRates(
-        sessionToken: NabuSessionTokenResponse,
-        currency: String
-    ) = nabu.getInterestRates(authorization = sessionToken.authHeader, currency = currency)
-        .flatMapMaybe {
-            when (it.code()) {
-                200 -> Maybe.just(it.body())
-                204 -> Maybe.empty()
-                else -> Maybe.error(HttpException(it))
-            }
-        }
-        .wrapErrorMessage()
-
-    fun getInterestAddress(
-        sessionToken: NabuSessionTokenResponse,
-        currency: String
-    ) = nabu.getInterestAddress(authorization = sessionToken.authHeader, currency = currency)
-        .wrapErrorMessage()
-
-    fun getInterestLimits(
-        sessionToken: NabuSessionTokenResponse,
-        currency: String
-    ) = nabu.getInterestLimits(authorization = sessionToken.authHeader, currency = currency)
-        .wrapErrorMessage()
-
-    fun createInterestWithdrawal(
-        sessionToken: NabuSessionTokenResponse,
-        body: InterestWithdrawalBody
-    ) = nabu.createInterestWithdrawal(authorization = sessionToken.authHeader, body = body)
-        .wrapErrorMessage()
-
-    fun getInterestEnabled(
-        sessionToken: NabuSessionTokenResponse
-    ) = nabu.getInterestEnabled(authorization = sessionToken.authHeader)
-        .wrapErrorMessage()
-
     fun executeTransfer(
         sessionToken: NabuSessionTokenResponse,
         body: ProductTransferRequestBody
     ) = nabu.executeTransfer(
         authorization = sessionToken.authHeader,
         body = body
-    ).wrapErrorMessage()
-
-    fun getRecurringBuysForAsset(
-        sessionToken: NabuSessionTokenResponse,
-        assetTicker: String
-    ) = nabu.getRecurringBuysForAsset(
-        authorization = sessionToken.authHeader,
-        assetTicker = assetTicker
     ).wrapErrorMessage()
 
     fun getRecurringBuyForId(
@@ -550,6 +487,13 @@ class NabuService internal constructor(
         authorization = sessionToken.authHeader,
         id = id
     ).wrapErrorMessage()
+
+    private fun getLocalisedErrorIfEnabled(): String? =
+        if (environmentConfig.isRunningInDebugMode() && remoteConfigPrefs.brokerageErrorsEnabled) {
+            remoteConfigPrefs.brokerageErrorsCode
+        } else {
+            null
+        }
 
     companion object {
         internal const val CLIENT_TYPE = "APP"

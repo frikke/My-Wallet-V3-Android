@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
@@ -14,43 +13,46 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemDashboardBalanceCardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
-import piuk.blockchain.android.ui.dashboard.model.BalanceState
+import piuk.blockchain.android.ui.dashboard.model.BrokerageBalanceState
+import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
 
-class BalanceCardDelegate<in T>(
+class BalanceCardDelegate(
     private val selectedFiat: FiatCurrency,
-    private val assetResources: AssetResources
-) : AdapterDelegate<T> {
+    private val assetResources: AssetResources,
+) : AdapterDelegate<DashboardItem> {
 
-    override fun isForViewType(items: List<T>, position: Int): Boolean =
-        items[position] is BalanceState
+    override fun isForViewType(items: List<DashboardItem>, position: Int): Boolean =
+        items[position] is BrokerageBalanceState
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         BalanceCardViewHolder(
-            ItemDashboardBalanceCardBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-            selectedFiat,
-            assetResources
+            binding = ItemDashboardBalanceCardBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            selectedFiat = selectedFiat,
+            assetResources = assetResources,
         )
 
     override fun onBindViewHolder(
-        items: List<T>,
+        items: List<DashboardItem>,
         position: Int,
-        holder: RecyclerView.ViewHolder
-    ) = (holder as BalanceCardViewHolder).bind(items[position] as BalanceState)
+        holder: RecyclerView.ViewHolder,
+    ) = (holder as BalanceCardViewHolder).bind(
+        items[position] as BrokerageBalanceState,
+    )
 }
 
 private class BalanceCardViewHolder(
     private val binding: ItemDashboardBalanceCardBinding,
     private val selectedFiat: FiatCurrency,
-    private val assetResources: AssetResources
+    private val assetResources: AssetResources,
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private var isFirstLoad = true
 
-    fun bind(state: BalanceState) {
+    fun bind(state: BrokerageBalanceState) {
         configurePieChart()
 
         if (state.isLoading) {
@@ -73,17 +75,17 @@ private class BalanceCardViewHolder(
     }
 
     @SuppressLint("SetTextI18n")
-    private fun renderLoaded(state: BalanceState) {
+    private fun renderLoaded(state: BrokerageBalanceState) {
 
         with(binding) {
             totalBalance.text = state.fiatBalance?.toStringWithSymbol().orEmpty()
+            label.text = context.getString(R.string.dashboard_total_balance)
 
             if (state.delta == null) {
                 balanceDeltaValue.text = ""
                 balanceDeltaPercent.text = ""
             } else {
                 val (deltaVal, deltaPercent) = state.delta!!
-
                 balanceDeltaValue.text = deltaVal.toStringWithSymbol()
                 balanceDeltaValue.setDeltaColour(deltaPercent)
                 balanceDeltaPercent.asDeltaPercent(deltaPercent, "(", ")")
@@ -112,7 +114,7 @@ private class BalanceCardViewHolder(
         }
     }
 
-    private fun populatePieChart(state: BalanceState) {
+    private fun populatePieChart(state: BrokerageBalanceState) {
         with(binding) {
             val assets = state.assetList
 
@@ -121,9 +123,6 @@ private class BalanceCardViewHolder(
                     val point = assetState.fiatBalance?.toFloat() ?: 0f
                     add(PieEntry(point))
                 }
-
-                // Add all fiat from Funds
-                add(PieEntry(state.getFundsFiat(selectedFiat).toFloat()))
             }
 
             if (entries.all { it.value == 0.0f }) {
@@ -131,10 +130,7 @@ private class BalanceCardViewHolder(
             } else {
                 val sliceColours = assets.map {
                     assetResources.assetColor(it.currency)
-                }.toMutableList()
-
-                // Add colour for Funds
-                sliceColours.add(ContextCompat.getColor(itemView.context, R.color.green_500))
+                }
 
                 pieChart.data = PieData(
                     PieDataSet(entries, null).apply {

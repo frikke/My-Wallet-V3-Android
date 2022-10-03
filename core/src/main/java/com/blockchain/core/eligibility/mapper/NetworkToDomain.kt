@@ -1,18 +1,19 @@
 package com.blockchain.core.eligibility.mapper
 
-import com.blockchain.api.NabuApiException
-import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.eligibility.data.BuyEligibilityResponse
+import com.blockchain.api.eligibility.data.CountryResponse
 import com.blockchain.api.eligibility.data.DefaultEligibilityResponse
 import com.blockchain.api.eligibility.data.ProductEligibilityResponse
 import com.blockchain.api.eligibility.data.ReasonNotEligibleReasonResponse
 import com.blockchain.api.eligibility.data.ReasonNotEligibleResponse
 import com.blockchain.api.eligibility.data.ReasonNotEligibleTypeResponse
+import com.blockchain.api.eligibility.data.StateResponse
 import com.blockchain.api.eligibility.data.SwapEligibilityResponse
-import com.blockchain.domain.eligibility.model.EligibilityError
 import com.blockchain.domain.eligibility.model.EligibleProduct
+import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.ProductEligibility
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
+import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.extensions.enumValueOfOrNull
 
@@ -61,26 +62,35 @@ fun ReasonNotEligibleResponse.toDomain(): ProductNotEligibleReason {
     val reason = enumValueOfOrNull<ReasonNotEligibleReasonResponse>(reason, ignoreCase = true)
     return when (type) {
         ReasonNotEligibleTypeResponse.INSUFFICIENT_TIER -> when (reason) {
+            ReasonNotEligibleReasonResponse.TIER_1_REQUIRED -> ProductNotEligibleReason.InsufficientTier.Tier1Required
             ReasonNotEligibleReasonResponse.TIER_2_REQUIRED -> ProductNotEligibleReason.InsufficientTier.Tier2Required
             ReasonNotEligibleReasonResponse.TIER_1_TRADE_LIMIT ->
                 ProductNotEligibleReason.InsufficientTier.Tier1TradeLimitExceeded
-            else -> ProductNotEligibleReason.Unknown(message)
+            else -> ProductNotEligibleReason.InsufficientTier.Unknown(message)
         }
         ReasonNotEligibleTypeResponse.SANCTIONS -> when (reason) {
             ReasonNotEligibleReasonResponse.EU_5_SANCTION -> ProductNotEligibleReason.Sanctions.RussiaEU5
-            else -> ProductNotEligibleReason.Unknown(message)
+            else -> ProductNotEligibleReason.Sanctions.Unknown(message)
         }
         null -> ProductNotEligibleReason.Unknown(message)
     }
 }
 
-internal fun Throwable.toError(): EligibilityError =
-    EligibilityError.RequestFailed(
-        message = (this as? NabuApiException)?.getErrorDescription().takeIf { !it.isNullOrBlank() } ?: this.message
-    )
+fun CountryResponse.toDomain(): Region.Country = Region.Country(
+    countryCode = code,
+    name = name,
+    isKycAllowed = scopes.any { it.toGetRegionScope() == GetRegionScope.Kyc },
+    states = states
+)
 
-internal fun ApiError.toError(): EligibilityError =
-    EligibilityError.RequestFailed(
-        message = (this as? ApiError.KnownError)?.errorDescription.takeIf { !it.isNullOrBlank() }
-            ?: this.throwable.message
-    )
+fun StateResponse.toDomain(): Region.State = Region.State(
+    countryCode = countryCode,
+    name = name,
+    isKycAllowed = scopes.any { it.toGetRegionScope() == GetRegionScope.Kyc },
+    stateCode = code
+)
+
+fun String.toGetRegionScope(): GetRegionScope? = GetRegionScope.values().find {
+    val key = it.toNetwork()
+    this.equals(key, ignoreCase = true)
+}

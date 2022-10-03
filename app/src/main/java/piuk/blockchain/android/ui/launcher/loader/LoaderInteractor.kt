@@ -3,17 +3,22 @@ package piuk.blockchain.android.ui.launcher.loader
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.domain.referral.ReferralService
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.notifications.NotificationTokenManager
+import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
@@ -21,28 +26,32 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.io.Serializable
+import kotlinx.coroutines.rx3.rxCompletable
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
 import piuk.blockchain.androidcore.utils.extensions.then
-import piuk.blockchain.androidcore.utils.extensions.thenMaybe
 
 class LoaderInteractor(
     private val payloadDataManager: PayloadDataManager,
     private val prerequisites: Prerequisites,
-    private val prefs: PersistentPrefs,
     private val deepLinkPersistence: DeepLinkPersistence,
     private val settingsDataManager: SettingsDataManager,
     private val notificationTokenManager: NotificationTokenManager,
     private val currencyPrefs: CurrencyPrefs,
     private val nabuUserDataManager: NabuUserDataManager,
-    private val walletPrefs: WalletStatus,
+    private val walletPrefs: WalletStatusPrefs,
     private val analytics: Analytics,
     private val assetCatalogue: AssetCatalogue,
     private val ioScheduler: Scheduler,
-    private val termsAndConditionsFeatureFlag: FeatureFlag
+    private val referralService: ReferralService,
+    private val fiatCurrenciesService: FiatCurrenciesService,
+    private val cowboysPromoFeatureFlag: FeatureFlag,
+    private val cowboysPrefs: CowboysPrefs,
+    private val userIdentity: UserIdentity,
+    private val kycService: KycService
 ) {
 
     private val wallet: Wallet
@@ -71,12 +80,12 @@ class LoaderInteractor(
     private val notificationTokenUpdate: Completable
         get() = notificationTokenManager.resendNotificationToken().onErrorComplete()
 
-    fun initSettings(isAfterWalletCreation: Boolean): Disposable {
+    fun initSettings(isAfterWalletCreation: Boolean, referralCode: String?): Disposable {
         return settings
             .flatMap {
                 metadata.toSingle { it }
             }.flatMapCompletable {
-                syncFiatCurrency(it)
+                syncFiatCurrencies(it)
             }.then {
                 saveInitialCountry()
             }.then {
@@ -89,20 +98,18 @@ class LoaderInteractor(
                         LoaderIntents.UpdateProgressStep(ProgressStep.LOADING_PRICES)
                     )
                 }
-            }.thenMaybe {
-                termsAndConditionsFeatureFlag.enabled
-                    .flatMapMaybe { enabled ->
-                        if (enabled) checkNewTermsAndConditions(isAfterWalletCreation)
-                        else Maybe.empty()
-                    }
-            }.doOnSubscribe {
+            }.then {
+                rxCompletable {
+                    referralService.associateReferralCodeIfPresent(referralCode)
+                }
+            }.then {
+                checkForCowboysUser()
+            }
+            .doOnSubscribe {
                 emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))
             }.subscribeBy(
-                onSuccess = { terms ->
-                    onInitSettingsSuccess(terms, isAfterWalletCreation && shouldCheckForEmailVerification())
-                },
                 onComplete = {
-                    onInitSettingsSuccess(null, isAfterWalletCreation && shouldCheckForEmailVerification())
+                    onInitSettingsSuccess(isAfterWalletCreation && shouldCheckForEmailVerification())
                 },
                 onError = { throwable ->
                     emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.Error(throwable)))
@@ -110,17 +117,27 @@ class LoaderInteractor(
             )
     }
 
-    private fun checkNewTermsAndConditions(isAfterWalletCreation: Boolean): Maybe<String> =
-        if (isAfterWalletCreation) Maybe.empty()
-        else nabuUserDataManager.getLatestTermsAndConditions().flatMapMaybe {
-            val latestTerms = it.termsAndConditionsUrl
-            if (latestTerms != null) Maybe.just(latestTerms)
-            else Maybe.empty()
-        }.onErrorComplete()
+    private fun checkForCowboysUser() = Single.zip(
+        userIdentity.isCowboysUser(),
+        kycService.getHighestApprovedTierLevelLegacy(),
+        cowboysPromoFeatureFlag.enabled,
+    ) { isCowboysUser, highestTier, isCowboysFlagEnabled ->
+        if (isCowboysFlagEnabled && isCowboysUser) {
+            // reset flag on login
+            cowboysPrefs.hasCowboysReferralBeenDismissed = false
 
-    private fun syncFiatCurrency(settings: Settings): Completable =
-        when {
-            prefs.isNewlyCreated -> settingsDataManager.setDefaultUserFiat().ignoreElement()
+            if (highestTier == KycTier.BRONZE && !cowboysPrefs.hasSeenCowboysFlow) {
+                cowboysPrefs.hasSeenCowboysFlow = true
+                emitter.onNext(
+                    LoaderIntents.UpdateCowboysPromo(isCowboysPromoUser = true)
+                )
+            }
+        }
+    }.ignoreElement()
+
+    private fun syncFiatCurrencies(settings: Settings): Completable {
+        val syncDisplayCurrency = when {
+            walletPrefs.isNewlyCreated -> settingsDataManager.setDefaultUserFiat().ignoreElement()
             settings.currency != currencyPrefs.selectedFiatCurrency.networkTicker -> Completable.fromAction {
                 currencyPrefs.selectedFiatCurrency =
                     assetCatalogue.fiatFromNetworkTicker(settings.currency) ?: Dollars
@@ -128,16 +145,21 @@ class LoaderInteractor(
             else -> Completable.complete()
         }
 
-    private fun onInitSettingsSuccess(newTermsThatNeedSigning: String?, shouldLaunchEmailVerification: Boolean) {
+        // warm selectedTradingCurrency cache
+        val syncTradingCurrency = rxCompletableOutcome { fiatCurrenciesService.getTradingCurrencies() }
+
+        return syncDisplayCurrency.mergeWith(syncTradingCurrency)
+    }
+
+    private fun onInitSettingsSuccess(shouldLaunchEmailVerification: Boolean) {
         emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.FINISH))
-        if (newTermsThatNeedSigning != null) {
-            emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.NewTermsAndConditions(newTermsThatNeedSigning)))
-        } else if (shouldLaunchEmailVerification) {
+        if (shouldLaunchEmailVerification) {
             emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.EmailVerification))
         } else {
             emitter.onNext(
-                LoaderIntents.UpdateLoadingStep(
-                    LoadingStep.Main(deepLinkPersistence.popDataFromSharedPrefs(), false)
+                LoaderIntents.LaunchDashboard(
+                    data = deepLinkPersistence.popDataFromSharedPrefs(),
+                    shouldLaunchUiTour = false
                 )
             )
         }
@@ -154,7 +176,7 @@ class LoaderInteractor(
         }
     }
 
-    private fun shouldCheckForEmailVerification() = prefs.isNewlyCreated && !prefs.isRestored
+    private fun shouldCheckForEmailVerification() = walletPrefs.isNewlyCreated && !walletPrefs.isRestored
 
     private fun saveInitialCountry(): Completable {
         val countrySelected = walletPrefs.countrySelectedOnSignUp
@@ -164,7 +186,7 @@ class LoaderInteractor(
                 countrySelected,
                 stateSelected.takeIf { it.isNotEmpty() }
             ).doOnComplete {
-                prefs.clearGeolocationPreferences()
+                walletPrefs.clearGeolocationPreferences()
             }.onErrorComplete()
         } else Completable.complete()
     }

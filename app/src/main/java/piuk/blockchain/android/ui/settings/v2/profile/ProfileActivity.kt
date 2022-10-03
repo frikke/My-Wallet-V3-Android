@@ -8,8 +8,8 @@ import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.nabu.BasicProfileInfo
-import com.blockchain.nabu.Tier
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityProfileBinding
 import piuk.blockchain.android.ui.base.showFragment
@@ -36,14 +36,14 @@ class ProfileActivity :
     }
 
     private val userTier by lazy {
-        intent.getSerializableExtra(USER_TIER) as Tier
+        intent.getSerializableExtra(USER_TIER) as KycTier
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        updateToolbarBackAction { onBackPressed() }
+        updateToolbarBackAction { onBackPressedDispatcher.onBackPressed() }
 
         supportFragmentManager.showFragment(
             fragment = ProfileFragment.newInstance(basicProfileInfo, userTier),
@@ -80,7 +80,7 @@ class ProfileActivity :
     }
 
     companion object {
-        fun newIntent(context: Context, basicProfileInfo: BasicProfileInfo, tier: Tier) =
+        fun newIntent(context: Context, basicProfileInfo: BasicProfileInfo, tier: KycTier) =
             Intent(context, ProfileActivity::class.java).apply {
                 putExtra(BASIC_INFO, basicProfileInfo)
                 putExtra(USER_TIER, tier)

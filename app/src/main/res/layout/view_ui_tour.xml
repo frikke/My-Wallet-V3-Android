@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:animateLayoutChanges="true"
-    >
+    android:clickable="true"
+    android:focusable="true">
 
     <View
         android:id="@+id/scrim"

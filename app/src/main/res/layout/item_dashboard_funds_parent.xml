@@ -24,7 +24,10 @@
 
         <View style="@style/SeparatorWithoutMargins" />
 
-        <include layout="@layout/item_dashboard_funds" />
+        <include
+            android:id="@+id/item_dashboard_funds"
+            layout="@layout/item_dashboard_funds"
+            />
 
         <View style="@style/SeparatorWithoutMargins" />
     </LinearLayout>

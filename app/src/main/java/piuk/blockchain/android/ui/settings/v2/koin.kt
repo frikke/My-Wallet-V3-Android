@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.koin.intercomChatFeatureFlag
-import com.blockchain.koin.ioDispatcher
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.presentation.BackupPhrasePinService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.Dispatchers
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -38,6 +38,7 @@ import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeSt
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinInteractor
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinModel
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinState
+import piuk.blockchain.android.ui.settings.v2.security.pin.requests.BackupPhrasePinRequest
 import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationInteractor
 import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationModel
 import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationState
@@ -59,11 +60,15 @@ val redesignSettingsModule = module {
         factory {
             SettingsInteractor(
                 userIdentity = get(),
+                kycService = get(),
                 database = get(),
                 credentialsWiper = get(),
-                paymentsDataManager = get(),
+                bankService = get(),
+                cardService = get(),
                 getAvailablePaymentMethodsTypesUseCase = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                referralService = get(),
+                nabuUserIdentity = get()
             )
         }
 
@@ -119,7 +124,8 @@ val redesignSettingsModule = module {
             PhoneInteractor(
                 settingsDataManager = get(),
                 authPrefs = get(),
-                nabuUserSync = get()
+                nabuUserSync = get(),
+                getUserStore = get()
             )
         }
 
@@ -138,7 +144,8 @@ val redesignSettingsModule = module {
             EmailInteractor(
                 emailUpdater = get(),
                 settingsDataManager = get(),
-                authPrefs = get()
+                authPrefs = get(),
+                getUserStore = get()
             )
         }
 
@@ -175,6 +182,7 @@ val redesignSettingsModule = module {
 
         viewModel {
             NotificationPreferencesDetailsViewModel(get(), get())
+            NotificationPreferencesDetailsViewModel(get(), get())
         }
 
         factory {
@@ -197,7 +205,9 @@ val redesignSettingsModule = module {
                 exchangeRates = get(),
                 blockchainCardRepository = get(),
                 currencyPrefs = get(),
-                exchangeLinkingState = get()
+                exchangeLinkingState = get(),
+                localSettingsPrefs = get(),
+                fiatCurrenciesService = get()
             )
         }
 
@@ -262,13 +272,19 @@ val redesignSettingsModule = module {
                 pinRepository = get(),
                 biometricsController = get(),
                 mobileNoticeRemoteConfig = get(),
-                persistentPrefs = get(),
-                walletStatus = get(),
+                sessionPrefs = get(),
+                walletStatusPrefs = get(),
                 authPrefs = get(),
                 credentialsWiper = get(),
                 walletOptionsDataManager = get(),
                 defaultLabels = get(),
                 isIntercomEnabledFlag = get(intercomChatFeatureFlag)
+            )
+        }
+
+        scoped<BackupPhrasePinService> {
+            BackupPhrasePinRequest(
+                secondPasswordHandler = get()
             )
         }
 
@@ -285,6 +301,7 @@ val redesignSettingsModule = module {
         factory {
             SupportInteractor(
                 userIdentity = get(),
+                kycService = get(),
                 isIntercomEnabledFlag = get(intercomChatFeatureFlag)
             )
         }

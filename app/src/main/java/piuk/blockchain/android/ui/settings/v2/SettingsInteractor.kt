@@ -1,45 +1,64 @@
 package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.core.Database
-import com.blockchain.core.payments.LinkedPaymentMethod
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.BankState
-import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.CardService
+import com.blockchain.domain.paymentmethods.model.BankState
+import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.referral.ReferralService
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.datamanagers.NabuUserIdentity
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.math.BigInteger
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.ui.home.CredentialsWiper
 
 class SettingsInteractor internal constructor(
     private val userIdentity: UserIdentity,
+    private val kycService: KycService,
     private val database: Database,
     private val credentialsWiper: CredentialsWiper,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val bankService: BankService,
+    private val cardService: CardService,
     private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase,
-    private val currencyPrefs: CurrencyPrefs
+    private val currencyPrefs: CurrencyPrefs,
+    private val referralService: ReferralService,
+    private val nabuUserIdentity: NabuUserIdentity
 ) {
     private val userSelectedFiat: FiatCurrency
         get() = currencyPrefs.selectedFiatCurrency
 
-    fun getUserFiat() = userSelectedFiat
-
-    fun getSupportEligibilityAndBasicInfo(): Single<UserDetails> =
-        Singles.zip(
-            userIdentity.getHighestApprovedKycTier(),
-            userIdentity.getBasicProfileInformation()
-        ).map { (tier, basicInfo) ->
-            UserDetails(userTier = tier, userInfo = basicInfo)
+    fun getSupportEligibilityAndBasicInfo(): Single<UserDetails> {
+        return Singles.zip(
+            kycService.getHighestApprovedTierLevelLegacy(),
+            userIdentity.getBasicProfileInformation(),
+            getReferralData()
+        ).map { (kycTier, basicInfo, referral) ->
+            UserDetails(kycTier = kycTier, userInfo = basicInfo, referralInfo = referral)
         }
+    }
+
+    private fun getReferralData(): Single<ReferralInfo> {
+        return rxSingle {
+            referralService.fetchReferralData()
+                .getOrDefault(ReferralInfo.NotAvailable)
+        }
+            .onErrorResumeWith { ReferralInfo.NotAvailable }
+    }
 
     fun unpairWallet(): Completable = Completable.fromAction {
         credentialsWiper.wipe()
@@ -49,18 +68,44 @@ class SettingsInteractor internal constructor(
     fun getExistingPaymentMethods(): Single<PaymentMethods> {
         val fiatCurrency = userSelectedFiat
         return getAvailablePaymentMethodsTypes(fiatCurrency).flatMap { available ->
-            val limitsInfo = available.find { it.type == PaymentMethodType.PAYMENT_CARD }?.limits ?: PaymentLimits(
+            val limitsInfoCards = available.find { it.type == PaymentMethodType.PAYMENT_CARD }?.limits ?: PaymentLimits(
                 BigInteger.ZERO,
                 BigInteger.ZERO,
                 fiatCurrency
             )
 
+            val limitsInfoBanks =
+                available.find {
+                    it.type == PaymentMethodType.BANK_ACCOUNT ||
+                        it.type == PaymentMethodType.BANK_TRANSFER
+                }?.limits
+                    ?: PaymentLimits(
+                        BigInteger.ZERO,
+                        BigInteger.ZERO,
+                        fiatCurrency
+                    )
+
             val getLinkedCards =
-                if (available.any { it.type == PaymentMethodType.PAYMENT_CARD }) getLinkedCards(limitsInfo)
-                else Single.just(emptyList())
+                if (available.any { it.type == PaymentMethodType.PAYMENT_CARD }) {
+                    getLinkedCards(limitsInfoCards)
+                } else {
+                    Single.just(emptyList())
+                }
+
+            val getLinkedBanks =
+                if (available.any {
+                    it.type == PaymentMethodType.BANK_TRANSFER ||
+                        it.type == PaymentMethodType.BANK_ACCOUNT
+                }
+                ) {
+                    getLinkedBanks(fiatCurrency, available, limitsInfoBanks)
+                } else {
+                    Single.just(emptyList())
+                }
+
             Singles.zip(
                 getLinkedCards,
-                getLinkedBanks(fiatCurrency, available)
+                getLinkedBanks
             ).map { (linkedCards, linkedBanks) ->
                 PaymentMethods(
                     availablePaymentMethodTypes = available,
@@ -71,8 +116,10 @@ class SettingsInteractor internal constructor(
         }
     }
 
+    fun canPayWithBind(): Single<Boolean> = nabuUserIdentity.isArgentinian()
+
     fun getBankLinkingInfo(): Single<LinkBankTransfer> =
-        paymentsDataManager.linkBank(userSelectedFiat)
+        bankService.linkBank(userSelectedFiat)
 
     fun getAvailablePaymentMethodsTypes(): Single<List<AvailablePaymentMethodType>> =
         getAvailablePaymentMethodsTypes(userSelectedFiat)
@@ -94,15 +141,16 @@ class SettingsInteractor internal constructor(
         }
 
     private fun getLinkedCards(limits: PaymentLimits): Single<List<PaymentMethod.Card>> =
-        paymentsDataManager.getLinkedCards(CardStatus.ACTIVE, CardStatus.EXPIRED).map { cards ->
+        cardService.getLinkedCards(CardStatus.ACTIVE, CardStatus.EXPIRED).map { cards ->
             cards.map { it.toPaymentCard(limits) }
         }
 
     private fun getLinkedBanks(
         fiatCurrency: FiatCurrency,
-        available: List<AvailablePaymentMethodType>
+        available: List<AvailablePaymentMethodType>,
+        limits: PaymentLimits,
     ): Single<List<BankItem>> =
-        paymentsDataManager.getLinkedBanks()
+        bankService.getLinkedBanks()
             .map { banks ->
                 val linkedBanks = banks.filter { it.state == BankState.ACTIVE }
                 val availableBankPaymentMethodTypes = available.filter {
@@ -113,7 +161,7 @@ class SettingsInteractor internal constructor(
                 linkedBanks.map { bank ->
                     val canBeUsedToTransact = availableBankPaymentMethodTypes.contains(bank.type) &&
                         fiatCurrency == bank.currency
-                    BankItem(bank, canBeUsedToTransact = canBeUsedToTransact)
+                    BankItem(bank, canBeUsedToTransact = canBeUsedToTransact, limits)
                 }
             }
 
@@ -126,6 +174,7 @@ class SettingsInteractor internal constructor(
         expireDate = expireDate,
         cardType = cardType,
         status = status,
-        isEligible = true
+        isEligible = true,
+        cardRejectionState = cardRejectionState
     )
 }

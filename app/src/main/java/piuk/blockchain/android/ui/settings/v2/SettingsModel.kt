@@ -1,13 +1,17 @@
 package piuk.blockchain.android.ui.settings.v2
 
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorCodes.MaxPaymentBankAccountLinkAttempts
+import com.blockchain.api.NabuErrorCodes.MaxPaymentBankAccounts
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.Tier
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
 import timber.log.Timber
 
 class SettingsModel(
@@ -34,36 +38,46 @@ class SettingsModel(
                         onSuccess = { userDetails ->
                             process(
                                 SettingsIntent.UpdateContactSupportEligibility(
-                                    tier = userDetails.userTier,
-                                    userInformation = userDetails.userInfo
+                                    tier = userDetails.kycTier,
+                                    userInformation = userDetails.userInfo,
+                                    referralInfo = userDetails.referralInfo
                                 )
                             )
                         }, onError = {
-                        process(SettingsIntent.UpdateContactSupportEligibility(tier = Tier.BRONZE))
+                        process(SettingsIntent.UpdateContactSupportEligibility(tier = KycTier.BRONZE))
                     }
                     )
             }
             is SettingsIntent.LoadPaymentMethods ->
-                interactor.getExistingPaymentMethods()
+                interactor.getExistingPaymentMethods().zipWith(interactor.canPayWithBind())
                     .subscribeBy(
-                        onSuccess = { paymentMethodInfo ->
-                            process(SettingsIntent.UpdatePaymentMethodsInfo(paymentMethodInfo = paymentMethodInfo))
-                        }, onError = {
-                        process(SettingsIntent.UpdateErrorState(SettingsError.PAYMENT_METHODS_LOAD_FAIL))
-                    }
+                        onSuccess = { (paymentMethodInfo, canPayWithBind) ->
+                            process(
+                                SettingsIntent.UpdatePaymentMethodsInfo(
+                                    paymentMethodInfo = paymentMethodInfo,
+                                    canPayWithBind = canPayWithBind
+                                )
+                            )
+                        },
+                        onError = {
+                            process(SettingsIntent.UpdateErrorState(SettingsError.PaymentMethodsLoadFail))
+                        }
                     )
-            is SettingsIntent.AddBankTransferSelected -> interactor.getBankLinkingInfo()
+            is SettingsIntent.AddLinkBankSelected -> interactor.getBankLinkingInfo()
                 .subscribeBy(
                     onSuccess = { bankTransferInfo ->
                         process(SettingsIntent.UpdateViewToLaunch(ViewToLaunch.BankTransfer(bankTransferInfo)))
                     }, onError = {
-                    process(SettingsIntent.UpdateErrorState(SettingsError.BANK_LINK_START_FAIL))
+                    when ((it as? NabuApiException)?.getErrorCode()) {
+                        MaxPaymentBankAccounts ->
+                            process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkMaxAccountsReached(it)))
+                        MaxPaymentBankAccountLinkAttempts ->
+                            process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkMaxAttemptsReached(it)))
+                        else ->
+                            process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkStartFail))
+                    }
                 }
                 )
-            is SettingsIntent.AddBankAccountSelected -> {
-                process(SettingsIntent.UpdateViewToLaunch(ViewToLaunch.BankAccount(interactor.getUserFiat())))
-                null
-            }
             is SettingsIntent.Logout -> interactor.unpairWallet()
                 .subscribeBy(
                     onComplete = {
@@ -71,7 +85,7 @@ class SettingsModel(
                     },
                     onError = {
                         Timber.e("Unpair wallet failed $it")
-                        process(SettingsIntent.UpdateErrorState(SettingsError.UNPAIR_FAILED))
+                        process(SettingsIntent.UpdateErrorState(SettingsError.UnpairFailed))
                     }
                 )
             is SettingsIntent.OnCardRemoved ->
@@ -80,7 +94,7 @@ class SettingsModel(
                         onSuccess = { available ->
                             process(SettingsIntent.UpdateAvailablePaymentMethods(available))
                         }, onError = {
-                        process(SettingsIntent.UpdateErrorState(SettingsError.PAYMENT_METHODS_LOAD_FAIL))
+                        process(SettingsIntent.UpdateErrorState(SettingsError.PaymentMethodsLoadFail))
                     }
                     )
             is SettingsIntent.UserLoggedOut,

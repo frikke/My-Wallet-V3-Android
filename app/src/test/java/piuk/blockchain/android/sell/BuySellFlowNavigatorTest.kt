@@ -1,15 +1,12 @@
 package piuk.blockchain.android.sell
 
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.testutils.EUR
-import com.blockchain.testutils.GBP
-import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -27,8 +24,9 @@ class BuySellFlowNavigatorTest {
     private val simpleBuySyncFactory: SimpleBuySyncFactory = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val userIdentity: UserIdentity = mock {
-        on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
-        on { isEligibleFor(Feature.SimpleBuy) }.thenReturn(Single.just(true))
+        on { isVerifiedFor(Feature.TierLevel(KycTier.GOLD)) }.thenReturn(Single.just(true))
+        on { isEligibleFor(Feature.Buy) }.thenReturn(Single.just(true))
+        on { isEligibleFor(Feature.Sell) }.thenReturn(Single.just(true))
     }
     private lateinit var subject: BuySellFlowNavigator
 
@@ -44,18 +42,11 @@ class BuySellFlowNavigatorTest {
     }
 
     @Test
-    fun `when user is not eligible, corresponding state should be propagated to the UI`() {
-        whenever(userIdentity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
-            Single.just(
-                FeatureAccess.Blocked(
-                    BlockedReason.NotEligible
-                )
-            )
-        )
-
-        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(EUR, GBP)))
-        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(GBP))
-            .thenReturn(Single.just(true))
+    fun `when user is not eligible to neither buy nor sell, corresponding state should be propagated to the UI`() {
+        whenever(userIdentity.userAccessForFeature(Feature.Buy))
+            .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.NotEligible(null))))
+        whenever(userIdentity.userAccessForFeature(Feature.Sell))
+            .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.NotEligible(null))))
 
         val test = subject.navigateTo().test()
 
@@ -64,14 +55,10 @@ class BuySellFlowNavigatorTest {
 
     @Test
     fun `whenBuyStateIsNotPendingCurrencyIsSupportedAndSellIsEnableNormalBuySellUiIsDisplayed`() {
-        whenever(userIdentity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
-            Single.just(
-                FeatureAccess.Granted()
-            )
-        )
-        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(EUR, USD)))
-        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(USD))
-            .thenReturn(Single.just(true))
+        whenever(userIdentity.userAccessForFeature(Feature.Buy))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(userIdentity.userAccessForFeature(Feature.Sell))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
 
         val test = subject.navigateTo().test()
 
@@ -87,15 +74,11 @@ class BuySellFlowNavigatorTest {
             )
         )
 
-        whenever(userIdentity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
-            Single.just(
-                FeatureAccess.Granted()
-            )
-        )
+        whenever(userIdentity.userAccessForFeature(Feature.Buy))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(userIdentity.userAccessForFeature(Feature.Sell))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
 
-        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(EUR, USD)))
-        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(USD))
-            .thenReturn(Single.just(true))
         whenever(custodialWalletManager.deleteBuyOrder("ORDERID"))
             .thenReturn(Completable.complete())
 

@@ -3,8 +3,9 @@ package piuk.blockchain.android.ui.kyc.profile
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.util.toISO8601DateString
 import com.google.common.base.Optional
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -19,7 +20,6 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlin.properties.Delegates
-import kotlinx.serialization.InternalSerializationApi
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.kyc.BaseKycPresenter
@@ -27,11 +27,11 @@ import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.util.StringUtils
 import timber.log.Timber
 
-@OptIn(InternalSerializationApi::class)
 class KycProfilePresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
-    private val stringUtils: StringUtils
+    private val userService: UserService,
+    private val stringUtils: StringUtils,
 ) : BaseKycPresenter<KycProfileView>(nabuToken) {
 
     var firstNameSet by Delegates.observable(false) { _, _, _ -> enableButtonIfComplete() }
@@ -61,7 +61,6 @@ class KycProfilePresenter(
                         lastName = view.lastName,
                         countryCode = view.countryCode,
                         stateCode = view.stateCode,
-                        stateName = view.stateName
                     ).run { view.continueSignUp(this) }
                 },
                 onError = {
@@ -81,11 +80,8 @@ class KycProfilePresenter(
         // may have edited themselves
         if (!firstNameSet && !lastNameSet && !dateSet) {
             compositeDisposable +=
-                fetchOfflineToken
-                    .flatMap {
-                        nabuDataManager.getUser(it)
-                            .subscribeOn(Schedulers.io())
-                    }
+                userService.getUser()
+                    .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(
                         onSuccess = {
@@ -111,7 +107,7 @@ class KycProfilePresenter(
         }
     }
 
-    private fun createBasicUser(offlineToken: NabuOfflineTokenResponse): Completable =
+    private fun createBasicUser(offlineToken: NabuOfflineToken): Completable =
         nabuDataManager.createBasicUser(
             view.firstName,
             view.lastName,
@@ -119,6 +115,9 @@ class KycProfilePresenter(
                 ?: throw IllegalStateException("DoB has not been set"),
             offlineToken
         ).subscribeOn(Schedulers.io())
+            .doOnComplete {
+                userService.markAsStale()
+            }
 
     private fun enableButtonIfComplete() {
         view.setButtonEnabled(firstNameSet && lastNameSet && dateSet)

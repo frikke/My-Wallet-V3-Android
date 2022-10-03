@@ -6,6 +6,8 @@ import kotlin.math.roundToInt
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import piuk.blockchain.androidcore.utils.extensions.then
+import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 class PasswordChangeInteractor internal constructor(
     private val payloadManager: PayloadDataManager,
@@ -37,13 +39,13 @@ class PasswordChangeInteractor internal constructor(
                 PasswordChangeIntent.UpdateErrorState(PasswordChangeError.NEW_PASSWORD_TOO_WEAK)
             )
             else -> {
-                payloadManager.tempPassword = newPasswordConfirmation
-                authDataManager.createPin(newPasswordConfirmation, pinRepository.pin)
-                    .andThen(authDataManager.verifyCloudBackup())
-                    .andThen(payloadManager.syncPayloadWithServer())
-                    .andThen(
+                payloadManager.updatePassword(password = newPasswordConfirmation).then {
+                    authDataManager.createPin(newPasswordConfirmation, pinRepository.pin)
+                }
+                    .then { authDataManager.verifyCloudBackup() }
+                    .thenSingle {
                         Single.just(PasswordChangeIntent.UpdateViewState(PasswordViewState.PasswordUpdated))
-                    )
+                    }
             }
         }
     }

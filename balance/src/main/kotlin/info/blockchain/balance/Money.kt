@@ -6,7 +6,7 @@ import java.math.BigInteger
 import java.math.RoundingMode
 import java.util.Locale
 
-abstract class Money : Serializable {
+abstract class Money : Serializable, Comparable<Money> {
 
     abstract val currency: Currency
 
@@ -31,7 +31,12 @@ abstract class Money : Serializable {
     abstract fun toZero(): Money
 
     // Format for display
-    abstract fun toStringWithSymbol(): String
+    /**
+     * includeDecimalsWhenWhole is by default set to true so in case
+     * amount value is a whole number then trailing zeros are returned normally.
+     * Set this flag to false, in order to get only the integer part in the case above .
+     */
+    abstract fun toStringWithSymbol(includeDecimalsWhenWhole: Boolean = true): String
     abstract fun toStringWithoutSymbol(): String
 
     // Format for network transmission
@@ -94,7 +99,7 @@ abstract class Money : Serializable {
         return division(other)
     }
 
-    operator fun compareTo(other: Money): Int {
+    override operator fun compareTo(other: Money): Int {
         ensureComparable("compare", other)
         return compare(other)
     }
@@ -162,3 +167,6 @@ open class ValueTypeMismatchException(
 fun String.removeComma(): String {
     return replace(",", "")
 }
+
+fun Money.valueIsWholeNumber() =
+    toBigDecimal().rem(BigDecimal.ONE).compareTo(BigDecimal.ZERO) == 0

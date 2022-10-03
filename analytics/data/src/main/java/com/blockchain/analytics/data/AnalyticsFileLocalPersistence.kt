@@ -16,6 +16,7 @@ class AnalyticsFileLocalPersistence(context: Context) : AnalyticsLocalPersistenc
 
     private val json = Json {
         encodeDefaults = true
+        ignoreUnknownKeys = true
     }
 
     private val queueFile: QueueFile by lazy {
@@ -30,8 +31,10 @@ class AnalyticsFileLocalPersistence(context: Context) : AnalyticsLocalPersistenc
     }
 
     override fun removeOldestItems(n: Int): Completable = Completable.fromAction {
-        if (!queueFile.isEmpty && n >= queueFile.size()) {
+        if (n <= queueFile.size()) {
             queueFile.remove(n)
+        } else {
+            queueFile.clear()
         }
     }
 

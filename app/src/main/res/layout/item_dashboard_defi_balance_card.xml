@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardLayout"
+    style="@style/DashboardCard">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        style="@style/DashboardCardLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/label"
+            style="@style/Text.Light.16"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/defi_current_balance"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.elyeproj.loaderviewlibrary.LoaderTextView
+            android:id="@+id/total_balance"
+            style="@style/Text.Standard.24"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="@dimen/small_margin"
+            app:height_weight="0.8"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label"
+            app:use_gradient="true"
+            app:width_weight="0.9"
+            tools:text="$19,668.37" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

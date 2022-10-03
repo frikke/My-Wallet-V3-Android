@@ -3,17 +3,23 @@ package piuk.blockchain.android.cards
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
-import com.blockchain.core.payments.model.CardToBeActivated
-import com.blockchain.core.payments.model.Partner
+import com.blockchain.domain.paymentmethods.model.BillingAddress
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
+import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.CardToBeActivated
+import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
+import com.blockchain.domain.paymentmethods.model.Partner
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.nabu.datamanagers.BillingAddress
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.serializers.BigDecimalSerializer
+import com.blockchain.serializers.BigIntSerializer
+import com.blockchain.serializers.IsoDateSerializer
+import com.blockchain.serializers.KZonedDateTimeSerializer
+import com.blockchain.testutils.USD
 import com.braintreepayments.cardform.utils.CardType
-import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -22,8 +28,11 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.Calendar
 import java.util.Date
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,6 +54,19 @@ class CardModelTest {
     private val currencyPrefs: CurrencyPrefs = mock()
     private val sbPrefs: SimpleBuyPrefs = mock()
 
+    val json = Json {
+        explicitNulls = false
+        ignoreUnknownKeys = true
+        isLenient = true
+        encodeDefaults = true
+        serializersModule = SerializersModule {
+            contextual(BigDecimalSerializer)
+            contextual(BigIntSerializer)
+            contextual(IsoDateSerializer)
+            contextual(KZonedDateTimeSerializer)
+        }
+    }
+
     @get:Rule
     val rx = rxInit {
         mainTrampoline()
@@ -52,28 +74,43 @@ class CardModelTest {
         computationTrampoline()
     }
 
+    private val paymentCard = LinkedPaymentMethod.Card(
+        cardId = "cardId",
+        label = "label",
+        endDigits = "endDigits",
+        partner = Partner.CARDPROVIDER,
+        expireDate = Calendar.getInstance().time,
+        cardType = "cardType",
+        status = CardStatus.ACTIVE,
+        cardFundSources = listOf(),
+        mobilePaymentType = MobilePaymentType.UNKNOWN,
+        currency = USD
+    )
+
     @Before
     fun setUp() {
-        val cardStateString = "{ mock card state }"
+        val cardStateString =
+            """{"fiatCurrency":{"currencyCode":"USD"},"cardId":"123","billingAddress":{"countryCode":"countryCode","fullName":"fullName","addressLine1":"address1","addressLine2":"address2","city":"city","postCode":"postCode","state":"state"}}"""
         whenever(sbPrefs.cardState()).thenReturn(cardStateString)
         doNothing().whenever(sbPrefs).updateCardState(anyString())
 
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn(FiatCurrency.Dollars)
 
-        defaultState = spy(CardState(fiatCurrency = FiatCurrency.Dollars, billingAddress = mock(), cardId = "123"))
-
-        val gson: Gson = mock {
-            on { fromJson(sbPrefs.cardState(), CardState::class.java) }.thenReturn(defaultState)
-            on { toJson(any<CardState>()) }.thenReturn(cardStateString)
-        }
-
-        val json = Json {
-            ignoreUnknownKeys = true
-        }
-
-        val replaceGsonKtxFF: FeatureFlag = mock {
-            on { enabled }.thenReturn(Single.just(true))
-        }
+        defaultState = spy(
+            CardState(
+                fiatCurrency = FiatCurrency.Dollars,
+                billingAddress = BillingAddress(
+                    countryCode = "countryCode",
+                    fullName = "fullName",
+                    addressLine1 = "address1",
+                    addressLine2 = "address2",
+                    city = "city",
+                    postCode = "postCode",
+                    state = "state"
+                ),
+                cardId = "123"
+            )
+        )
 
         model = CardModel(
             uiScheduler = Schedulers.io(),
@@ -83,9 +120,7 @@ class CardModelTest {
             cardActivator = cardActivator,
             currencyPrefs = currencyPrefs,
             prefs = sbPrefs,
-            gson = gson,
-            json = json,
-            replaceGsonKtxFF = replaceGsonKtxFF
+            json = json
         )
     }
 
@@ -104,11 +139,10 @@ class CardModelTest {
             Partner.CARDPROVIDER, cardId
         )
 
-        whenever(interactor.addNewCard(any(), any(), any())).thenReturn(
-            Single.just(cardToBeActivated)
-        )
+        whenever(interactor.addNewCard(any(), any(), any())).thenReturn(Single.just(cardToBeActivated))
 
         whenever(cardActivator.activateCard(cardData, cardId)).thenReturn(Single.error(Exception()))
+
         val test = model.state.test()
         model.process(CardIntent.AddNewCard(cardData))
 
@@ -124,9 +158,52 @@ class CardModelTest {
     }
 
     @Test
-    fun `add new card fails`() {
+    fun `add new card fails with nabu exception`() {
         val cardData: CardData = mock()
-        val billingAddress: BillingAddress = mock()
+        val billingAddress = BillingAddress(
+            countryCode = "countryCode",
+            fullName = "fullName",
+            addressLine1 = "address1",
+            addressLine2 = "address2",
+            city = "city",
+            postCode = "postCode",
+            state = "state"
+        )
+        whenever(defaultState.billingAddress).thenReturn(billingAddress)
+
+        val intent = CardIntent.AddNewCard(cardData)
+        val exception: NabuApiException = mock {
+            on { getErrorCode() }.thenReturn(NabuErrorCodes.CardCreateNoToken)
+        }
+        whenever(interactor.addNewCard(cardData, FiatCurrency.Dollars, billingAddress)).thenReturn(
+            Single.error(exception)
+        )
+
+        val test = model.state.test()
+        model.process(intent)
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.cardRequestStatus == CardRequestStatus.Loading
+        }.assertValueAt(2) {
+            it.cardRequestStatus is CardRequestStatus.Error &&
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.CardCreateNoToken
+        }
+    }
+
+    @Test
+    fun `add new card fails with other exception`() {
+        val cardData: CardData = mock()
+        val billingAddress = BillingAddress(
+            countryCode = "countryCode",
+            fullName = "fullName",
+            addressLine1 = "address1",
+            addressLine2 = "address2",
+            city = "city",
+            postCode = "postCode",
+            state = "state"
+        )
         whenever(defaultState.billingAddress).thenReturn(billingAddress)
 
         val intent = CardIntent.AddNewCard(cardData)
@@ -143,7 +220,7 @@ class CardModelTest {
             it.cardRequestStatus == CardRequestStatus.Loading
         }.assertValueAt(2) {
             it.cardRequestStatus is CardRequestStatus.Error &&
-                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.CREATION_FAILED
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.CreationFailed
         }
     }
 
@@ -213,7 +290,7 @@ class CardModelTest {
             it.cardRequestStatus == CardRequestStatus.Loading
         }.assertValueAt(2) {
             (it.cardRequestStatus is CardRequestStatus.Error) &&
-                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.INSUFFICIENT_CARD_BALANCE
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.InsufficientCardBalance
         }
     }
 
@@ -244,7 +321,7 @@ class CardModelTest {
             it.cardRequestStatus == CardRequestStatus.Loading
         }.assertValueAt(2) {
             (it.cardRequestStatus is CardRequestStatus.Error) &&
-                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.ACTIVATION_FAIL
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.ActivationFailed
         }
     }
 
@@ -257,7 +334,7 @@ class CardModelTest {
             endDigits = "1234",
             partner = Partner.CARDPROVIDER,
             expireDate = Date(),
-            cardType = CardType.HIPERCARD,
+            cardType = CardType.HIPERCARD.name,
             status = CardStatus.ACTIVE,
             isEligible = true
         )
@@ -291,7 +368,7 @@ class CardModelTest {
             endDigits = "1234",
             partner = Partner.CARDPROVIDER,
             expireDate = Date(),
-            cardType = CardType.HIPERCARD,
+            cardType = CardType.HIPERCARD.name,
             status = CardStatus.BLOCKED,
             isEligible = true
         )
@@ -311,7 +388,7 @@ class CardModelTest {
             it.cardStatus == card.status
         }.assertValueAt(3) {
             it.cardRequestStatus is CardRequestStatus.Error &&
-                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.LINK_FAILED
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.LinkFailed
         }
     }
 
@@ -330,7 +407,109 @@ class CardModelTest {
             it.cardRequestStatus == CardRequestStatus.Loading
         }.assertValueAt(2) {
             it.cardRequestStatus is CardRequestStatus.Error &&
-                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.PENDING_AFTER_POLL
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.PendingAfterPoll
+        }
+    }
+
+    @Test
+    fun `getting active cards returns list`() {
+        val expectedCards = listOf(paymentCard)
+        whenever(interactor.loadLinkedCards()).thenReturn(Single.just(expectedCards))
+
+        val test = model.state.test()
+        model.process(CardIntent.LoadLinkedCards)
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.linkedCards == expectedCards
+        }
+    }
+
+    @Test
+    fun `when card rejection state returns always rejected then state is updated`() {
+        val binNumber = "1234"
+        val expectedResult = CardRejectionState.AlwaysRejected(
+            errorId = "errorId",
+            title = "title",
+            description = "description",
+            actions = emptyList(),
+            iconUrl = null,
+            statusIconUrl = null,
+            analyticsCategories = emptyList()
+        )
+        whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
+            Single.just(expectedResult)
+        )
+
+        val test = model.state.test()
+        model.process(CardIntent.CheckProviderFailureRate(binNumber))
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.cardRejectionState == expectedResult
+        }
+    }
+
+    @Test
+    fun `when card rejection state returns sometimes rejected then state is updated`() {
+        val binNumber = "1234"
+        val expectedResult = CardRejectionState.MaybeRejected(
+            errorId = "errorId",
+            title = "title",
+            description = "description",
+            actions = emptyList(),
+            iconUrl = null,
+            statusIconUrl = null,
+            analyticsCategories = emptyList()
+        )
+        whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
+            Single.just(expectedResult)
+        )
+
+        val test = model.state.test()
+        model.process(CardIntent.CheckProviderFailureRate(binNumber))
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.cardRejectionState == expectedResult
+        }
+    }
+
+    @Test
+    fun `when card rejection state returns not rejected then state is updated`() {
+        val binNumber = "1234"
+        val expectedResult = CardRejectionState.NotRejected
+        whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
+            Single.just(expectedResult)
+        )
+
+        val test = model.state.test()
+        model.process(CardIntent.CheckProviderFailureRate(binNumber))
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.cardRejectionState == expectedResult
+        }
+    }
+
+    @Test
+    fun `when card rejection state errors then state shows not rejected`() {
+        val binNumber = "1234"
+        whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
+            Single.error(Exception())
+        )
+
+        val test = model.state.test()
+        model.process(CardIntent.CheckProviderFailureRate(binNumber))
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.cardRejectionState is CardRejectionState.NotRejected
         }
     }
 }

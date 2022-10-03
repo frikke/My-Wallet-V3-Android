@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public abstract class WalletApiMockedResponseTest extends MockedResponseTest {
@@ -31,13 +32,14 @@ public abstract class WalletApiMockedResponseTest extends MockedResponseTest {
 
     @Before
     public void setWalletApiAccess() {
-        walletApi = new WalletApi(
+        walletApi = spy(new WalletApi(
             getRetrofit(
                 "https://explorer.staging.blockchain.info/",
                 newOkHttpClient()
             ).create(WalletExplorerEndpoints.class),
-            api
-        );
+            api,
+            ""
+        ));
     }
 
     @After

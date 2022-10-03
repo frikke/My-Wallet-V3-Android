@@ -1,25 +1,31 @@
 package info.blockchain.wallet.payload.data
 
 import com.blockchain.serialization.JsonSerializableAccount
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
 
+@Serializable(with = AccountSerializer::class)
 interface Account : JsonSerializableAccount {
-    override var label: String
-
-    var isArchived: Boolean
-
-    var xpriv: String
-
+    override val label: String
+    val xpriv: String
     val xpubs: XPubs
-
-    val addressCache: AddressCache
-
-    val addressLabels: MutableList<AddressLabel>
+    val addressLabels: List<AddressLabel>
 
     fun xpubForDerivation(derivation: String): String?
 
     fun containsXpub(xpub: String): Boolean
 
-    fun addAddressLabel(index: Int, reserveLabel: String)
+    fun withEncryptedPrivateKey(encryptedKey: String): Account
+    fun addAddressLabel(index: Int, reserveLabel: String): Account
+    fun updateLabel(label: String): Account
+    override fun updateArchivedState(isArchived: Boolean): Account
+}
 
-    fun upgradeToV4(): AccountV4
+object AccountSerializer : JsonContentPolymorphicSerializer<Account>(Account::class) {
+    override fun selectDeserializer(element: JsonElement) = when {
+        "derivations" in element.jsonObject -> AccountV4.serializer()
+        else -> AccountV3.serializer()
+    }
 }

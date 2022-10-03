@@ -9,6 +9,7 @@ buildscript {
         maven { url 'https://jitpack.io' }
         maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
         maven { url 'https://cache-redirector.jetbrains.com/intellij-dependencies' }
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         // NOTE: Do not place your application dependencies here; they belong
@@ -22,6 +23,7 @@ buildscript {
         classpath Libraries.sqlDelightPlugin
         classpath Libraries.embraceIOSwazzler
         classpath Libraries.kotlin
+        classpath Libraries.detekt
         classpath Libraries.kotlinGradlePlugin
     }
 }
@@ -32,11 +34,15 @@ allprojects {
         mavenCentral()
         maven { url "https://jitpack.io" }
         maven { url 'https://zendesk.jfrog.io/zendesk/repo' }
-        maven { url "https://cdn.veriff.me/android/" } // veriff
+        maven { url "https://cdn.veriff.me/android/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
     configurations.all {
         resolutionStrategy.force Libraries.findbugs
         resolutionStrategy.force Libraries.kotlinReflect
+        resolutionStrategy {
+            force("org.objenesis:objenesis:3.2")
+        }
     }
 }
 

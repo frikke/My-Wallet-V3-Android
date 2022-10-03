@@ -4,24 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.sheets.BottomSheetButton
-import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
-import com.blockchain.componentlib.sheets.ButtonType
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent.get
-import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.customersupport.composable.CustomerSupportScreen
 import piuk.blockchain.android.urllinks.URL_CONTACT_SUBMIT_REQUEST
 import piuk.blockchain.android.urllinks.URL_FAQ
+import piuk.blockchain.android.util.copyToClipboard
 import piuk.blockchain.android.util.openUrl
 
 class CustomerSupportSheet :
@@ -29,51 +23,24 @@ class CustomerSupportSheet :
     NavigationRouter<CustomerSupportNavigationEvent>,
     Analytics by get(Analytics::class.java) {
 
-    private lateinit var composeView: ComposeView
-
     private val viewModel: CustomerSupportViewModel by viewModel()
 
     override fun onStateUpdated(state: CustomerSupportViewState) {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return ComposeView(requireContext()).also { composeView = it }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        setupViews()
         setupViewModel()
-    }
 
-    private fun setupViews() {
-        composeView.apply {
+        return ComposeView(requireContext()).apply {
             setContent {
-                SheetContent()
+                CustomerSupportScreen(
+                    onDismiss = ::dismiss,
+                    contactUsClicked = ::contactUsClicked,
+                    faqClicked = ::faqClicked,
+                    copyCommitHash = ::copyCommitHash
+                )
             }
         }
-    }
-
-    @Composable
-    private fun SheetContent() {
-        BottomSheetTwoButtons(
-            onCloseClick = { dismiss() },
-            title = stringResource(id = R.string.customer_support_title),
-            subtitle = stringResource(id = R.string.customer_support_description),
-            headerImageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_blockchain),
-            button1 = BottomSheetButton(
-                text = stringResource(id = R.string.customer_support_contact_us),
-                onClick = ::contactUsClicked,
-                type = ButtonType.MINIMAL
-            ),
-            button2 = BottomSheetButton(
-                text = stringResource(id = R.string.customer_support_faq),
-                onClick = ::faqClicked,
-                type = ButtonType.MINIMAL
-            ),
-            shouldShowHeaderDivider = false
-        )
     }
 
     private fun setupViewModel() {
@@ -90,6 +57,10 @@ class CustomerSupportSheet :
         viewUrl(URL_FAQ)
     }
 
+    private fun copyCommitHash(hash: String) {
+        context?.copyToClipboard(label = "commit hash", text = hash)
+    }
+
     private fun viewUrl(url: String) {
         context.openUrl(url)
     }
@@ -99,11 +70,5 @@ class CustomerSupportSheet :
 
     companion object {
         fun newInstance() = CustomerSupportSheet()
-    }
-
-    @Preview
-    @Composable
-    private fun SheetContentPreview() {
-        SheetContent()
     }
 }

@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
@@ -29,6 +30,9 @@ class RecurringBuysAnnouncement(
             it || currencyPrefs.selectedFiatCurrency == Dollars
         }
     }
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(

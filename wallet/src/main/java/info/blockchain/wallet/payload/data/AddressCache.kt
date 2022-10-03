@@ -10,15 +10,21 @@ This class is used for iOS and Web only.
 @Serializable
 data class AddressCache(
     @SerialName("receiveAccount")
-    var receiveAccount: String? = null,
+    private val _receiveAccount: String? = null,
     @SerialName("changeAccount")
-    var changeAccount: String? = null
+    private val _changeAccount: String? = null
 ) {
+    val receiveAccount: String
+        get() = _receiveAccount.orEmpty()
+
+    val changeAccount: String
+        get() = _changeAccount.orEmpty()
+
     companion object {
         fun setCachedXPubs(account: HDAccount): AddressCache {
             return AddressCache(
-                receiveAccount = account.receive.xpub,
-                changeAccount = account.change.xpub
+                _receiveAccount = account.receive.xpub,
+                _changeAccount = account.change.xpub
             )
         }
     }

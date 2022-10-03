@@ -1,10 +1,18 @@
 package piuk.blockchain.android.ui.dashboard
 
+import com.blockchain.koin.assetOrderingFeatureFlag
+import com.blockchain.koin.buyOrder
+import com.blockchain.koin.cowboysPromoFeatureFlag
+import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.sellOrder
+import com.blockchain.koin.swapSourceOrder
+import com.blockchain.koin.swapTargetOrder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
+import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewInteractor
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewModel
@@ -18,7 +26,11 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardState
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingInteractor
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModel
 import piuk.blockchain.android.ui.transfer.AccountsSorting
-import piuk.blockchain.android.ui.transfer.DashboardAccountsSorting
+import piuk.blockchain.android.ui.transfer.BuyListAccountSorting
+import piuk.blockchain.android.ui.transfer.DefaultAccountsSorting
+import piuk.blockchain.android.ui.transfer.SellAccountsSorting
+import piuk.blockchain.android.ui.transfer.SwapSourceAccountsSorting
+import piuk.blockchain.android.ui.transfer.SwapTargetAccountsSorting
 
 val dashboardModule = module {
 
@@ -30,7 +42,8 @@ val dashboardModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
-                remoteLogger = get()
+                remoteLogger = get(),
+                appRatingService = get()
             )
         }
 
@@ -42,13 +55,26 @@ val dashboardModule = module {
                 currencyPrefs = get(),
                 onboardingPrefs = get(),
                 custodialWalletManager = get(),
-                paymentsDataManager = get(),
+                bankService = get(),
                 simpleBuyPrefs = get(),
                 userIdentity = get(),
+                kycService = get(),
+                dataRemediationService = get(),
+                walletModeService = get(),
                 analytics = get(),
+                walletModeBalanceCache = get(),
                 remoteLogger = get(),
                 linkedBanksFactory = get(),
-                getDashboardOnboardingStepsUseCase = get()
+                getDashboardOnboardingStepsUseCase = get(),
+                nftWaitlistService = get(),
+                nftAnnouncementPrefs = get(),
+                referralPrefs = get(),
+                cowboysFeatureFlag = get(cowboysPromoFeatureFlag),
+                settingsDataManager = get(),
+                cowboysDataProvider = get(),
+                referralService = get(),
+                cowboysPrefs = get(),
+                productsEligibilityStore = get()
             )
         }
 
@@ -58,23 +84,64 @@ val dashboardModule = module {
 
         factory {
             BalanceAnalyticsReporter(
-                analytics = get(),
-                coincore = get()
+                analytics = get()
             )
         }
 
-        factory {
-            DashboardAccountsSorting(
+        factory(defaultOrder) {
+            DefaultAccountsSorting(
                 dashboardPrefs = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                walletModeService = get(),
+                coincore = get(),
+                momentLogger = get()
             )
         }.bind(AccountsSorting::class)
+
+        factory(swapSourceOrder) {
+            SwapSourceAccountsSorting(
+                assetListOrderingFF = get(assetOrderingFeatureFlag),
+                dashboardAccountsSorter = get(defaultOrder),
+                sellAccountsSorting = get(sellOrder),
+                momentLogger = get()
+            )
+        }.bind(AccountsSorting::class)
+
+        factory(swapTargetOrder) {
+            SwapTargetAccountsSorting(
+                assetListOrderingFF = get(assetOrderingFeatureFlag),
+                dashboardAccountsSorter = get(defaultOrder),
+                coincore = get(),
+                exchangeRatesDataManager = get(),
+                watchlistDataManager = get(),
+                momentLogger = get()
+            )
+        }.bind(AccountsSorting::class)
+
+        factory(sellOrder) {
+            SellAccountsSorting(
+                assetListOrderingFF = get(assetOrderingFeatureFlag),
+                dashboardAccountsSorter = get(defaultOrder),
+                coincore = get(),
+                momentLogger = get()
+            )
+        }.bind(AccountsSorting::class)
+
+        factory(buyOrder) {
+            BuyListAccountSorting(
+                assetListOrderingFF = get(assetOrderingFeatureFlag),
+                coincore = get(),
+                exchangeRatesDataManager = get(),
+                watchlistDataManager = get(),
+                momentLogger = get()
+            )
+        }
 
         factory { params ->
             DashboardOnboardingModel(
                 initialSteps = params.getOrNull<List<CompletableDashboardOnboardingStep>>() ?: emptyList(),
                 interactor = get(),
-                currencyPrefs = get(),
+                fiatCurrenciesService = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
                 remoteLogger = get()
@@ -84,8 +151,7 @@ val dashboardModule = module {
         factory {
             DashboardOnboardingInteractor(
                 getDashboardOnboardingUseCase = get(),
-                custodialWalletManager = get(),
-                paymentsDataManager = get(),
+                bankService = get(),
                 getAvailablePaymentMethodsTypesUseCase = get()
             )
         }
@@ -96,7 +162,8 @@ val dashboardModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
-                remoteLogger = get()
+                remoteLogger = get(),
+                walletModeService = get()
             )
         }
         factory {
@@ -106,9 +173,11 @@ val dashboardModule = module {
                 currencyPrefs = get(),
                 dashboardPrefs = get(),
                 identity = get(),
+                kycService = get(),
                 custodialWalletManager = get(),
                 assetActionsComparator = get(),
                 assetsManager = get(),
+                walletModeService = get(),
                 watchlistDataManager = get(),
             )
         }
@@ -126,7 +195,17 @@ val dashboardModule = module {
         factory {
             RecurringBuyInteractor(
                 tradeDataService = get(),
-                paymentsDataManager = get()
+                bankService = get(),
+                cardService = get()
+            )
+        }
+
+        scoped { WalletModeBalanceCache(coincore = get()) }
+
+        scoped {
+            CowboysPromoDataProvider(
+                config = get(),
+                json = get()
             )
         }
     }

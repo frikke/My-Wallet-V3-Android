@@ -58,6 +58,12 @@ class KycAutocompleteAddressModel(
                         }
                     )
             }
+            KycAutocompleteAddressIntents.ClearNavigation,
+            is KycAutocompleteAddressIntents.DisplayErrorToast,
+            KycAutocompleteAddressIntents.HideErrorToast,
+            is KycAutocompleteAddressIntents.NavigateToAddress,
+            is KycAutocompleteAddressIntents.UpdateAddresses -> {
+            }
         }
 
         return null

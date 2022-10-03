@@ -12,7 +12,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.LinkBankMethodChooserSheetLayoutBinding
 import piuk.blockchain.android.databinding.LinkBankMethodItemBinding
@@ -95,6 +95,10 @@ class LinkBankMethodChooserBottomSheet : SlidingModalBottomDialog<LinkBankMethod
                 arguments = Bundle().apply {
                     putSerializable(LINKABLE_METHODS, linkablePaymentMethodsForAction)
                     putBoolean(FOR_PAYMENT, isForPayment)
+                    putString(
+                        TARGET_CURRENCY_TICKER,
+                        linkablePaymentMethodsForAction.linkablePaymentMethods.currency.networkTicker
+                    )
                 }
             }
 
@@ -166,23 +170,15 @@ private fun PaymentMethodType.toLinkBankMethodItemUI(
     when (this) {
         PaymentMethodType.BANK_ACCOUNT -> LinkBankMethodItem(
             title = StringLocalizationUtil.getBankDepositTitle(targetCurrencyTicker),
-            subtitle = R.string.payment_wire_transfer_subtitle,
-            blurb = if (isForPayment) {
-                R.string.payment_wire_transfer_blurb
-            } else {
-                R.string.bank_transfer_blurb
-            },
+            subtitle = StringLocalizationUtil.subtitleForBankAccount(targetCurrencyTicker),
+            blurb = StringLocalizationUtil.blurbForBankAccount(targetCurrencyTicker),
             icon = R.drawable.ic_funds_deposit
         )
         PaymentMethodType.BANK_TRANSFER -> LinkBankMethodItem(
             title = R.string.easy_bank_transfer,
-            subtitle = R.string.payment_deposit_subtitle,
-            blurb = if (isForPayment) {
-                R.string.payment_deposit_blurb
-            } else {
-                R.string.easy_bank_transfer_blurb
-            },
-            icon = R.drawable.ic_bank_transfer
+            subtitle = StringLocalizationUtil.subtitleForEasyTransfer(targetCurrencyTicker),
+            blurb = R.string.easy_bank_transfer_blurb,
+            icon = R.drawable.ic_bank_icon
         )
         else -> throw IllegalStateException("Not supported linking method")
     }

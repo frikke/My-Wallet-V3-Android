@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings.profile.email
 
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -19,6 +20,7 @@ class EmailInteractorTest {
     private val emailSyncUpdater = mock<EmailSyncUpdater>()
     private val authPrefs = mock<AuthPrefs>()
     private val settingsDataManager = mock<SettingsDataManager>()
+    private val getUserStore = mock<GetUserStore>()
 
     @Before
     fun setup() {
@@ -28,7 +30,8 @@ class EmailInteractorTest {
         interactor = EmailInteractor(
             emailUpdater = emailSyncUpdater,
             authPrefs = authPrefs,
-            settingsDataManager = settingsDataManager
+            settingsDataManager = settingsDataManager,
+            getUserStore = getUserStore
         )
     }
 
@@ -41,6 +44,7 @@ class EmailInteractorTest {
 
         interactor.saveEmail(emailAddress).test()
 
+        verify(getUserStore).invalidate()
         verify(emailSyncUpdater).updateEmailAndSync(emailAddress)
     }
 

@@ -72,7 +72,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
-            <intent-filter android:autoVerify="true">
+            <intent-filter android:autoVerify="true" >
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -91,10 +91,14 @@
             android:name=".ui.linkbank.yodlee.YodleeEntryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme.Splash">
-            <intent-filter android:autoVerify="true">
+            <intent-filter
+                android:autoVerify="true"
+                android:priority="100">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="${DYNAMIC_LINK_HOST}"
                     android:path="/fastlink"
@@ -106,15 +110,14 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.Loader" />
-        <activity
-            android:name=".ui.debug.FeatureFlagsHandlingActivity"
-            android:clearTaskOnLaunch="true"
-            android:screenOrientation="fullSensor"
-            android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity" />
+
         <activity
             android:name="com.blockchain.componentlib.demo.ComponentLibDemoActivity"
             android:clearTaskOnLaunch="true"
             android:screenOrientation="fullSensor" />
+        <activity
+            android:name=".ui.educational.walletmodes.EducationalWalletModeActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.home.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -171,6 +174,12 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name="com.blockchain.presentation.onboarding.DeFiOnboardingActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.blockchain.presentation.backup.BackupPhraseActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
             android:name=".ui.addresses.AddressesActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
@@ -202,12 +211,6 @@
             android:name=".ui.ssl.SSLVerifyActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
-            android:name=".ui.thepit.PitPermissionsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
-            android:name=".ui.thepit.PitVerifyEmailActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-        <activity
             android:name=".ui.kyc.navhost.KycNavHostActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask" />
@@ -233,6 +236,9 @@
             android:name=".ui.linkbank.BankAuthActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
+            android:name=".ui.linkbank.alias.BankAliasLinkActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
             android:name=".ui.transactionflow.flow.TransactionFlowActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
@@ -243,11 +249,15 @@
             android:name=".ui.locks.LocksDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity android:name=".ui.home.ActionActivity" />
-        <activity android:name=".ui.settings.v2.SettingsActivity" />
+        <activity
+            android:name=".ui.settings.v2.SettingsActivity"
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".ui.settings.v2.profile.ProfileActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.dashboard.coinview.CoinViewActivity" />
+        <activity android:name=".ui.coinview.presentation.CoinviewActivity" />
+        <activity android:name=".ui.cowboys.CowboysFlowActivity" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

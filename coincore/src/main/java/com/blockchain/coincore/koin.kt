@@ -3,8 +3,6 @@ package com.blockchain.coincore
 import com.blockchain.coincore.bch.BchAsset
 import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.eth.EthAsset
-import com.blockchain.coincore.evm.MaticAsset
-import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
@@ -14,13 +12,18 @@ import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.loader.DynamicAssetLoader
+import com.blockchain.coincore.loader.DynamicAssetsService
+import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetRepository
+import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
-import com.blockchain.koin.ethMemoHotWalletFeatureFlag
+import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.stxForAllFeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -33,21 +36,11 @@ val coincoreModule = module {
 
         scoped {
             BtcAsset(
-                exchangeRates = get(),
+                payloadManager = get(),
                 sendDataManager = get(),
                 feeDataManager = get(),
-                currencyPrefs = get(),
-                payloadManager = get(),
-                custodialManager = get(),
-                tradingBalances = get(),
-                interestBalances = get(),
-                pitLinking = get(),
-                remoteLogger = get(),
-                labels = get(),
                 walletPreferences = get(),
                 notificationUpdater = get(),
-                coinsWebsocket = get(),
-                identity = get(),
                 addressResolver = get()
             )
         }.bind(CryptoAsset::class)
@@ -56,20 +49,13 @@ val coincoreModule = module {
             BchAsset(
                 payloadManager = get(),
                 bchDataManager = get(),
-                exchangeRates = get(),
-                currencyPrefs = get(),
-                remoteLogger = get(),
-                custodialManager = get(),
-                interestBalances = get(),
-                tradingBalances = get(),
+                labels = get(),
                 feeDataManager = get(),
                 sendDataManager = get(),
-                pitLinking = get(),
-                labels = get(),
                 walletPreferences = get(),
                 beNotifyUpdate = get(),
-                identity = get(),
-                addressResolver = get()
+                addressResolver = get(),
+                bchBalanceCache = get()
             )
         }.bind(CryptoAsset::class)
 
@@ -79,80 +65,24 @@ val coincoreModule = module {
                 xlmDataManager = get(),
                 xlmFeesFetcher = get(),
                 walletOptionsDataManager = get(),
-                exchangeRates = get(),
-                currencyPrefs = get(),
-                custodialManager = get(),
-                tradingBalances = get(),
-                interestBalances = get(),
-                pitLinking = get(),
-                remoteLogger = get(),
-                labels = get(),
                 walletPreferences = get(),
-                identity = get(),
                 addressResolver = get()
             )
         }.bind(CryptoAsset::class)
 
         scoped {
             EthAsset(
-                payloadManager = get(),
                 ethDataManager = get(),
+                l1BalanceStore = get(),
                 feeDataManager = get(),
-                exchangeRates = get(),
-                currencyPrefs = get(),
                 walletPrefs = get(),
-                remoteLogger = get(),
-                custodialManager = get(),
-                tradingBalances = get(),
-                interestBalances = get(),
-                pitLinking = get(),
                 labels = get(),
                 notificationUpdater = get(),
-                identity = get(),
                 assetCatalogue = lazy { get() },
                 formatUtils = get(),
-                addressResolver = get(),
-                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
+                addressResolver = get()
             )
         }.bind(CryptoAsset::class)
-
-        scoped {
-            MaticAsset(
-                availableNonCustodialActions = setOf(
-                    AssetAction.Send,
-                    AssetAction.Receive,
-                    AssetAction.ViewActivity,
-                ),
-                ethDataManager = get(),
-                erc20DataManager = get(),
-                feeDataManager = get(),
-                walletPreferences = get(),
-                payloadManager = get(),
-                exchangeRates = get(),
-                currencyPrefs = get(),
-                remoteLogger = get(),
-                custodialManager = get(),
-                tradingBalances = get(),
-                interestBalances = get(),
-                pitLinking = get(),
-                labels = get(),
-                identity = get(),
-                formatUtils = get(),
-                addressResolver = get(),
-                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
-            )
-        }.bind(CryptoAsset::class)
-
-        scoped {
-            FiatAsset(
-                labels = get(),
-                tradingBalanceDataManager = get(),
-                exchangeRateDataManager = get(),
-                custodialWalletManager = get(),
-                paymentsDataManager = get(),
-                currencyPrefs = get()
-            )
-        }
 
         scoped {
             val flag: FeatureFlag = get(ethLayerTwoFeatureFlag)
@@ -164,49 +94,48 @@ val coincoreModule = module {
             Coincore(
                 assetCatalogue = get(),
                 payloadManager = get(),
-                fiatAsset = get<FiatAsset>(),
                 assetLoader = get(),
                 txProcessorFactory = get(),
                 defaultLabels = get(),
-                remoteLogger = get(),
-                paymentsDataManager = get(),
                 currencyPrefs = get(),
-                disabledEvmAssets = ncAssetList.toList()
+                remoteLogger = get(),
+                bankService = get(),
+                walletModeService = get(),
+                disabledEvmAssets = ncAssetList.toList(),
             )
         }
 
         scoped {
             val ncAssets: List<CryptoAsset> = payloadScope.getAll()
+
             // For some unknown reason `getAll()` adds the last element twice. Which means
             // that last element calls init() twice. So make it a set, to remove any duplicates.
             DynamicAssetLoader(
-                nonCustodialAssets = ncAssets.toSet(),
-                experimentalL1EvmAssets = experimentalL1EvmAssetList(),
+                nonCustodialAssets = ncAssets.toSet(), // All the non custodial L1s that we support
+                experimentalL1EvmAssets = experimentalL1EvmAssetList(), // Only Matic ATM
                 assetCatalogue = get(),
                 payloadManager = get(),
+                l1BalanceStore = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
-                exchangeRates = get(),
-                currencyPrefs = get(),
-                custodialManager = get(),
-                tradingBalances = get(),
-                interestBalances = get(),
+                tradingService = get(),
+                interestService = get(),
                 remoteLogger = get(),
                 labels = get(),
-                pitLinking = get(),
                 walletPreferences = get(),
-                identity = get(),
                 formatUtils = get(),
                 identityAddressResolver = get(),
+                selfCustodyService = get(),
                 ethHotWalletAddressResolver = get(),
-                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
+                custodialWalletManager = get(),
+                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
+                stxForAllFeatureFlag = get(stxForAllFeatureFlag)
             )
         }.bind(AssetLoader::class)
 
         scoped {
             HotWalletService(
-                walletApi = get(),
-                ethMemoForHotWalletFeatureFlag = get(ethMemoHotWalletFeatureFlag)
+                walletApi = get()
             )
         }
 
@@ -224,9 +153,11 @@ val coincoreModule = module {
             TxProcessorFactory(
                 bitPayManager = get(),
                 exchangeRates = get(),
-                interestBalances = get(),
+                interestBalanceStore = get(),
+                interestService = get(),
+                tradingStore = get(),
                 walletManager = get(),
-                paymentsDataManager = get(),
+                bankService = get(),
                 ethMessageSigner = get(),
                 limitsDataManager = get(),
                 walletPrefs = get(),
@@ -236,7 +167,9 @@ val coincoreModule = module {
                 ethDataManager = get(),
                 bankPartnerCallbackProvider = get(),
                 userIdentity = get(),
-                withdrawLocksRepository = get()
+                withdrawLocksRepository = get(),
+                plaidFeatureFlag = get(plaidFeatureFlag),
+                swapTransactionsCache = get()
             )
         }
 
@@ -250,7 +183,8 @@ val coincoreModule = module {
         scoped {
             BackendNotificationUpdater(
                 prefs = get(),
-                walletApi = get()
+                walletApi = get(),
+                json = get(),
             )
         }
 
@@ -261,38 +195,50 @@ val coincoreModule = module {
         factory {
             LinkedBanksFactory(
                 custodialWalletManager = get(),
-                paymentsDataManager = get()
+                bankService = get(),
+                paymentMethodService = get()
             )
         }
 
         factory {
             SwapTrendingPairsProvider(
                 coincore = get(),
-                assetCatalogue = get(),
-                identity = get()
+                assetCatalogue = get()
             )
         }.bind(TrendingPairsProvider::class)
     }
 
     single {
         AssetCatalogueImpl(
-            fixedAssets = nonCustodialAssetList(),
+            assetsService = get(),
             assetsDataManager = get()
         )
     }.bind(AssetCatalogue::class)
+
+    single {
+        UniversalDynamicAssetRepository(
+            dominantL1Assets = setOf(
+                CryptoCurrency.MATIC,
+                CryptoCurrency.BTC,
+                CryptoCurrency.BCH,
+                CryptoCurrency.XLM,
+                CryptoCurrency.ETHER,
+                CryptoCurrency.BNB
+            ),
+            discoveryService = get(),
+            l2sDynamicAssetRepository = get()
+        )
+    }.bind(DynamicAssetsService::class)
+
+    single {
+        NonCustodialL2sDynamicAssetRepository(
+            l1EvmAssets = experimentalL1EvmAssetList(),
+            discoveryService = get(),
+            layerTwoFeatureFlag = lazy { get(ethLayerTwoFeatureFlag) }
+        )
+    }
 
     factory {
         FormatUtilities()
     }
 }
-
-fun experimentalL1EvmAssetList(): Set<CryptoCurrency> =
-    setOf(CryptoCurrency.MATIC)
-
-fun nonCustodialAssetList() =
-    setOf(
-        CryptoCurrency.BTC,
-        CryptoCurrency.BCH,
-        CryptoCurrency.ETHER,
-        CryptoCurrency.XLM
-    ).plus(experimentalL1EvmAssetList())

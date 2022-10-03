@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
+import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.nabu.datamanagers.TransactionError
 import java.util.Locale
 import org.koin.android.ext.android.inject
@@ -36,27 +37,37 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.TRADING_
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.UNKNOWN_ERROR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.WITHDRAW_ALREADY_PENDING
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.WITHDRAW_BALANCE_LOCKED
+import piuk.blockchain.android.ui.customviews.TransactionProgressView
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
+import piuk.blockchain.android.ui.linkbank.BankAuthRefreshContract
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.ErrorStateIcon
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.SettlementErrorStateAction
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionProgressCustomisations
 import timber.log.Timber
 
 class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProgressBinding>() {
 
+    private val refreshBankResultLauncher = registerForActivityResult(BankAuthRefreshContract()) { refreshSuccess ->
+        if (refreshSuccess) {
+            activity.finish()
+        }
+    }
+
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxFlowInProgressBinding =
         FragmentTxFlowInProgressBinding.inflate(inflater, container, false)
 
     private val customiser: TransactionProgressCustomisations by inject()
-    private val MAX_STACKTRACE_CHARS = 400
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.txProgressView.onCtaClick(
-            text = getString(R.string.common_ok)
-        ) { activity.finish() }
+        binding.txProgressView.setupPrimaryCta(
+            text = getString(R.string.common_ok),
+            onClick = { activity.finish() }
+        )
     }
 
     override fun render(newState: TransactionState) {
@@ -70,7 +81,7 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
     }
 
     private fun handleStatusUpdates(
-        newState: TransactionState
+        newState: TransactionState,
     ) {
         when (newState.executionStatus) {
             is TxExecutionStatus.InProgress -> binding.txProgressView.showTxInProgress(
@@ -97,16 +108,64 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                     ),
                     PAYMENT_APPROVAL
                 )
-                // dismiss()
             }
             is TxExecutionStatus.Error -> {
                 analyticsHooks.onTransactionFailure(
                     newState, collectStackTraceString(newState.executionStatus.exception)
                 )
-                binding.txProgressView.showTxError(
-                    customiser.transactionProgressExceptionMessage(newState),
-                    getString(R.string.send_progress_error_subtitle)
-                )
+                customiser.transactionProgressExceptionIcon(newState).run {
+                    with(binding.txProgressView) {
+                        when (val iconResource = this@run) {
+                            is ErrorStateIcon.Local -> {
+                                showTxError(
+                                    customiser.transactionProgressExceptionTitle(newState),
+                                    customiser.transactionProgressExceptionDescription(newState),
+                                    iconResource.resourceId
+                                )
+                            }
+                            is ErrorStateIcon.RemoteIcon ->
+                                showServerSideError(
+                                    iconUrl = iconResource.iconUrl,
+                                    title = customiser.transactionProgressExceptionTitle(newState),
+                                    description = customiser.transactionProgressExceptionDescription(newState),
+                                )
+                            is ErrorStateIcon.RemoteIconWithStatus ->
+                                showServerSideError(
+                                    iconUrl = iconResource.iconUrl,
+                                    statusIconUrl = iconResource.statusIconUrl,
+                                    title = customiser.transactionProgressExceptionTitle(newState),
+                                    description = customiser.transactionProgressExceptionDescription(newState),
+                                )
+                        }
+                        val settlementActions = customiser.transactionSettlementExceptionAction(newState)
+                        val actions = customiser.transactionProgressExceptionActions(newState)
+                        when {
+                            settlementActions != SettlementErrorStateAction.None ->
+                                handleActionForErrorState(settlementActions)
+                            else -> {
+                                showServerSideActionErrorCtas(
+                                    list = actions,
+                                    currencyCode = newState.sendingAccount.currency.networkTicker,
+                                    onActionsClickedCallback = object :
+                                        TransactionProgressView.TransactionProgressActions {
+                                        override fun onPrimaryButtonClicked() {
+                                            activity.finish()
+                                        }
+
+                                        override fun onSecondaryButtonClicked() {
+                                            activity.finish()
+                                        }
+
+                                        override fun onTertiaryButtonClicked() {
+                                            activity.finish()
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
                 logClientErrorToAnalytics(newState)
             }
             else -> {
@@ -115,19 +174,27 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
         }
     }
 
+    override fun onPause() {
+        binding.txProgressView.clearSubscriptions()
+        super.onPause()
+    }
+
     private fun sendAnalyticsEvent(
         analyticsPair: Pair<String, String>,
         action: String,
         nabuApiException: NabuApiException?,
+        errorDescription: String?,
     ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
                 nabuApiException = nabuApiException,
+                errorDescription = errorDescription,
                 error = analyticsPair.second,
                 source = nabuApiException?.let { ClientErrorAnalytics.Companion.Source.NABU }
                     ?: ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = analyticsPair.first,
                 action = action,
+                categories = nabuApiException?.getServerSideErrorInfo()?.categories ?: emptyList()
             )
         )
     }
@@ -239,7 +306,7 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
             )
             TransactionError.InvalidPostcode -> Pair(
                 getString(
-                    R.string.kyc_postcode_error
+                    R.string.address_verification_postcode_error
                 ),
                 INVALID_POSTCODE
             )
@@ -270,29 +337,72 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                 INVALID_ADDRESS
             )
             TransactionError.TransactionDenied -> Pair(getString(R.string.transaction_denied), UNKNOWN_ERROR)
+            is TransactionError.FiatDepositError -> Pair(
+                customiser.transactionProgressExceptionTitle(state),
+                error.errorCode
+            )
+            is TransactionError.SettlementRefreshRequired -> Pair(
+                customiser.transactionProgressExceptionTitle(state),
+                SettlementReason.REQUIRES_UPDATE.toString()
+            )
+            TransactionError.SettlementGenericError -> Pair(
+                customiser.transactionProgressExceptionTitle(state),
+                SettlementReason.GENERIC.toString()
+            )
+            TransactionError.SettlementInsufficientBalance -> Pair(
+                customiser.transactionProgressExceptionTitle(state),
+                SettlementReason.INSUFFICIENT_BALANCE.toString()
+            )
+            TransactionError.SettlementStaleBalance -> Pair(
+                customiser.transactionProgressExceptionTitle(state),
+                SettlementReason.STALE_BALANCE.toString()
+            )
         }
 
         // Making it uppercase to match "BUY" in ClientErrorAnalytics
-        sendAnalyticsEvent(pair, state.action.name.uppercase(Locale.getDefault()), nabuApiException)
+        sendAnalyticsEvent(
+            analyticsPair = pair,
+            action = state.action.name.uppercase(Locale.getDefault()),
+            nabuApiException = nabuApiException,
+            errorDescription = error.message
+        )
     }
 
     private fun getActionStringResource(action: AssetAction): String =
         resources.getString(
             when (action) {
                 AssetAction.Send -> R.string.common_send
-                AssetAction.Withdraw,
-                AssetAction.InterestWithdraw -> R.string.common_withdraw
+                AssetAction.FiatWithdraw,
+                AssetAction.InterestWithdraw,
+                -> R.string.common_withdraw
                 AssetAction.Swap -> R.string.common_swap
                 AssetAction.Sell -> R.string.common_sell
                 AssetAction.Sign -> R.string.common_sign
                 AssetAction.InterestDeposit,
-                AssetAction.FiatDeposit -> R.string.common_deposit
+                AssetAction.FiatDeposit,
+                -> R.string.common_deposit
                 AssetAction.ViewActivity -> R.string.common_activity
                 AssetAction.Receive -> R.string.common_receive
                 AssetAction.ViewStatement -> R.string.common_summary
                 AssetAction.Buy -> R.string.common_buy
             }
         )
+
+    private fun handleActionForErrorState(settlementErrorStateAction: SettlementErrorStateAction) {
+        when (settlementErrorStateAction) {
+            is SettlementErrorStateAction.RelinkBank -> {
+                binding.txProgressView.setupPrimaryCta(
+                    text = settlementErrorStateAction.message,
+                    onClick = {
+                        refreshBankResultLauncher.launch(
+                            Pair(settlementErrorStateAction.bankAccountId, BankAuthSource.DEPOSIT)
+                        )
+                    }
+                )
+            }
+            SettlementErrorStateAction.None -> {}
+        }
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -317,5 +427,6 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
     companion object {
         fun newInstance(): TransactionProgressFragment = TransactionProgressFragment()
         private const val PAYMENT_APPROVAL = 3974
+        private const val MAX_STACKTRACE_CHARS = 400
     }
 }

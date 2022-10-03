@@ -13,28 +13,33 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.disableDragging
 import com.blockchain.commonarch.presentation.mvi_v2.withArgs
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.koin.payloadScope
-import org.koin.androidx.viewmodel.ViewModelOwner
+import org.koin.android.ext.android.inject
+import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.androidx.viewmodel.scope.getViewModel
+import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent.get
-import piuk.blockchain.android.ui.referral.domain.model.ReferralData
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.referral.presentation.composable.ReferralScreen
 import piuk.blockchain.android.util.copyToClipboard
-import piuk.blockchain.android.util.shareText
+import piuk.blockchain.android.util.shareTextWithSubject
 
 class ReferralSheet :
     MVIBottomSheet<ReferralViewState>(),
     NavigationRouter<ReferralNavigationEvent>,
-    Analytics by get(Analytics::class.java) {
+    Analytics by get(Analytics::class.java),
+    AndroidScopeComponent {
 
     private val args: ReferralArgs by lazy {
         arguments?.getParcelable<ReferralArgs>(ReferralArgs.ARGS_KEY) ?: error("missing ReferralArgs")
     }
 
-    private val viewModel: ReferralViewModel by lazy {
-        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
-    }
+    override val scope: Scope = payloadScope
+
+    private val viewModel: ReferralViewModel by viewModel()
+
+    private val analytics: Analytics by inject()
 
     override fun onStateUpdated(state: ReferralViewState) {
     }
@@ -43,6 +48,7 @@ class ReferralSheet :
         disableDragging()
 
         setupViewModel()
+        analytics.logEvent(ReferralAnalyticsEvents.ReferralView(args.campaignId))
 
         return ComposeView(requireContext()).apply {
             setContent {
@@ -66,7 +72,8 @@ class ReferralSheet :
                 criteria = criteria,
                 onBackPressed = ::onBackPressed,
                 copyToClipboard = ::copyToClipboard,
-                shareCode = ::shareCode
+                shareCode = ::shareCode,
+                promotionData = promotionData
             )
         }
     }
@@ -76,21 +83,29 @@ class ReferralSheet :
     }
 
     private fun copyToClipboard(code: String) {
-        context?.copyToClipboard("referralCode", code)
+        analytics.logEvent(ReferralAnalyticsEvents.ReferralCopyCode(code, args.campaignId))
+        context?.copyToClipboard(CLIPBOARD_LABEL, code)
         viewModel.onIntent(ReferralIntents.ConfirmCopiedToClipboard)
     }
 
     private fun shareCode(code: String) {
-        context?.shareText(code)
+        analytics.logEvent(ReferralAnalyticsEvents.ReferralShareCode(code, args.campaignId))
+        context?.shareTextWithSubject(
+            text = getString(R.string.referral_share_template, code),
+            subject = getString(R.string.referral_share_template_subject)
+        )
     }
 
     override fun route(navigationEvent: ReferralNavigationEvent) {
     }
 
     companion object {
-        fun newInstance(referralData: ReferralData) = ReferralSheet().withArgs(
-            key = ReferralArgs.ARGS_KEY,
-            args = referralData.mapArgs()
-        )
+        private const val CLIPBOARD_LABEL = "referralCode"
+
+        fun newInstance(referralData: ReferralInfo.Data) =
+            ReferralSheet().withArgs(
+                key = ReferralArgs.ARGS_KEY,
+                args = referralData.mapArgs()
+            )
     }
 }

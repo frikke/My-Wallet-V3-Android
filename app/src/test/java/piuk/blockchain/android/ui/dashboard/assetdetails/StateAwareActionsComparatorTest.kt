@@ -41,7 +41,7 @@ class StateAwareActionsComparatorTest {
             StateAwareAction(ActionState.Available, AssetAction.FiatDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw),
-            StateAwareAction(ActionState.Available, AssetAction.Withdraw),
+            StateAwareAction(ActionState.Available, AssetAction.FiatWithdraw),
             StateAwareAction(ActionState.Available, AssetAction.ViewStatement),
             StateAwareAction(ActionState.Available, AssetAction.ViewActivity),
             StateAwareAction(ActionState.Available, AssetAction.Sign)
@@ -69,7 +69,7 @@ class StateAwareActionsComparatorTest {
             StateAwareAction(ActionState.Available, AssetAction.FiatDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw),
-            StateAwareAction(ActionState.Available, AssetAction.Withdraw),
+            StateAwareAction(ActionState.Available, AssetAction.FiatWithdraw),
             StateAwareAction(ActionState.Available, AssetAction.ViewStatement),
             StateAwareAction(ActionState.Available, AssetAction.ViewActivity),
             StateAwareAction(ActionState.Available, AssetAction.Sign)
@@ -97,7 +97,7 @@ class StateAwareActionsComparatorTest {
             StateAwareAction(ActionState.Available, AssetAction.FiatDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw),
-            StateAwareAction(ActionState.Available, AssetAction.Withdraw),
+            StateAwareAction(ActionState.Available, AssetAction.FiatWithdraw),
             StateAwareAction(ActionState.Available, AssetAction.ViewStatement),
             StateAwareAction(ActionState.Available, AssetAction.ViewActivity),
             StateAwareAction(ActionState.Available, AssetAction.Sign)
@@ -126,7 +126,7 @@ class StateAwareActionsComparatorTest {
             StateAwareAction(ActionState.Available, AssetAction.FiatDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestDeposit),
             StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw),
-            StateAwareAction(ActionState.Available, AssetAction.Withdraw),
+            StateAwareAction(ActionState.Available, AssetAction.FiatWithdraw),
             StateAwareAction(ActionState.Available, AssetAction.ViewStatement),
             StateAwareAction(ActionState.Available, AssetAction.ViewActivity),
             StateAwareAction(ActionState.Available, AssetAction.Sign)

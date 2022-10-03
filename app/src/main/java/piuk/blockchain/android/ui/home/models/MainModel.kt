@@ -1,13 +1,17 @@
 package piuk.blockchain.android.ui.home.models
 
 import android.content.Intent
+import android.net.Uri
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.NabuApiException
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviModel
-import com.blockchain.core.payments.model.BankTransferDetails
-import com.blockchain.core.payments.model.BankTransferStatus
+import com.blockchain.componentlib.navigation.NavigationItem
+import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.domain.paymentmethods.model.BankTransferDetails
+import com.blockchain.domain.paymentmethods.model.BankTransferStatus
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.extensions.exhaustive
@@ -18,15 +22,17 @@ import com.blockchain.network.PollResult
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
-import com.google.gson.JsonSyntaxException
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.rx3.asObservable
+import kotlinx.serialization.SerializationException
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.deeplink.BlockchainLinkState
-import piuk.blockchain.android.deeplink.EmailVerifiedLinkState
 import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.deeplink.OpenBankingLinkType
 import piuk.blockchain.android.kyc.KycLinkState
@@ -45,8 +51,9 @@ class MainModel(
     mainScheduler: Scheduler,
     private val interactor: MainInteractor,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
+    private val walletModeService: WalletModeService,
     environmentConfig: EnvironmentConfig,
-    remoteLogger: RemoteLogger
+    remoteLogger: RemoteLogger,
 ) : MviModel<MainState, MainIntent>(
     initialState,
     mainScheduler,
@@ -78,47 +85,84 @@ class MainModel(
         }
     }
 
+    private fun updateTabs(walletMode: WalletMode, currentTab: NavigationItem): MainIntent {
+        val tabs = when (walletMode) {
+            WalletMode.UNIVERSAL,
+            WalletMode.CUSTODIAL_ONLY ->
+                listOf(
+                    NavigationItem.Home,
+                    NavigationItem.Prices,
+                    NavigationItem.BuyAndSell,
+                    NavigationItem.Activity
+                )
+            WalletMode.NON_CUSTODIAL_ONLY -> {
+                listOf(
+                    NavigationItem.Home,
+                    NavigationItem.Prices,
+                    NavigationItem.Nfts,
+                    NavigationItem.Activity
+                )
+            }
+        }
+        return MainIntent.UpdateTabs(
+            tabs = tabs,
+            selectedTab = if (tabs.contains(currentTab)) currentTab else NavigationItem.Home
+        )
+    }
+
     override fun performAction(previousState: MainState, intent: MainIntent): Disposable? =
         when (intent) {
+            MainIntent.NavigationTabs -> walletModeService.walletMode.asObservable().subscribeBy {
+                process(MainIntent.RefreshTabs(it))
+            }
+            is MainIntent.RefreshTabs -> {
+                process(updateTabs(intent.walletMode, previousState.currentTab))
+                null
+            }
             is MainIntent.PerformInitialChecks -> {
-                interactor.checkForUserWalletErrors()
-                    .subscribeBy(
-                        onComplete = {
-                            if (previousState.deeplinkIntent != null) {
-                                previousState.deeplinkIntent.data?.let { uri ->
-                                    interactor.processDeepLinkV2(uri).subscribeBy(
-                                        onComplete = {
-                                            // Nothing to do. Deeplink V2 was parsed successfully
-                                        },
-                                        onError = {
-                                            // Deeplink V2 parsing failed, fallback to legacy
-                                            Timber.e(it)
-                                            process(MainIntent.CheckForPendingLinks(previousState.deeplinkIntent))
-                                        }
-                                    )
-                                }
+                interactor.checkForUserWalletErrors().subscribeBy(
+                    onComplete = {
+                        process(MainIntent.ProcessPendingDeeplinkIntent(intent.deeplinkIntent))
+                    },
+                    onError = { throwable ->
+                        if (throwable is NabuApiException && throwable.isUserWalletLinkError()) {
+                            process(
+                                MainIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.CheckForAccountWalletLinkErrors(throwable.getWalletIdHint())
+                                )
+                            )
+                        }
+                    }
+                )
+            }
+            is MainIntent.ProcessPendingDeeplinkIntent -> {
+                intent.deeplinkIntent.data.takeIf { it != Uri.EMPTY }?.let { uri ->
+                    interactor.processDeepLinkV2(uri).subscribeBy(
+                        onSuccess = {
+                            if (it is DeepLinkResult.DeepLinkResultUnknownLink) {
+                                process(MainIntent.CheckForPendingLinks(intent.deeplinkIntent))
                             }
                         },
-                        onError = { throwable ->
-                            if (throwable is NabuApiException && throwable.isUserWalletLinkError()) {
-                                process(
-                                    MainIntent.UpdateViewToLaunch(
-                                        ViewToLaunch.CheckForAccountWalletLinkErrors(throwable.getWalletIdHint())
-                                    )
-                                )
-                            }
+                        onError = {
+                            // fail silently
+                            Timber.e(it)
                         }
                     )
+                }
             }
-            is MainIntent.CheckForInitialDialogs -> if (intent.shouldStartUiTour) {
-                process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowUiTour))
-                null
-            } else {
-                interactor.shouldShowEntitySwitchSilverKycUpsell()
-                    .onErrorReturnItem(false)
-                    .subscribeBy { show ->
-                        if (show) process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowEntitySwitchSilverKycUpsell))
+            is MainIntent.CheckReferralCode -> {
+                interactor.checkReferral()
+                    .onErrorReturn { ReferralState(ReferralInfo.NotAvailable) }
+                    .subscribeBy { referralState ->
+                        if (previousState.referral.referralDeeplink) {
+                            process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowReferralSheet))
+                        }
+                        process(MainIntent.ReferralCodeIntent(referralState))
                     }
+            }
+            is MainIntent.ReferralIconClicked -> {
+                interactor.storeReferralClicked()
+                null
             }
             is MainIntent.CheckForPendingLinks -> {
                 interactor.checkForDeepLinks(intent.appIntent)
@@ -132,7 +176,9 @@ class MainModel(
                                 dispatchDeepLink(linkState)
                             }
                         },
-                        onError = { Timber.e(it) }
+                        onError = {
+                            Timber.e(it)
+                        }
                     )
             }
             is MainIntent.ClearDeepLinkResult -> interactor.clearDeepLink()
@@ -162,8 +208,6 @@ class MainModel(
                     )
             is MainIntent.UnpairWallet -> interactor.unpairWallet()
                 .onErrorComplete()
-                .subscribe()
-            is MainIntent.CancelAnyPendingConfirmationBuy -> interactor.cancelAnyPendingConfirmationBuy()
                 .subscribe()
             is MainIntent.ProcessScanResult -> interactor.processQrScanResult(intent.decodedData)
                 .subscribeBy(
@@ -196,13 +240,20 @@ class MainModel(
                         }
                     }
                 )
-            is MainIntent.LaunchExchange -> handleExchangeLaunchingFromLinkingState()
             is MainIntent.ApproveWCSession -> walletConnectServiceAPI.acceptConnection(intent.session).emptySubscribe()
+            is MainIntent.SwitchWalletMode -> {
+                walletModeService.updateEnabledWalletMode(intent.walletMode)
+                null
+            }
             is MainIntent.RejectWCSession -> walletConnectServiceAPI.denyConnection(intent.session).emptySubscribe()
+            is MainIntent.StartWCSession -> walletConnectServiceAPI.attemptToConnect(intent.url).emptySubscribe()
             MainIntent.ResetViewState,
             is MainIntent.UpdateViewToLaunch -> null
             is MainIntent.UpdateDeepLinkResult -> null
-            is MainIntent.SaveDeeplinkIntent -> null
+            is MainIntent.ReferralCodeIntent -> null
+            is MainIntent.ShowReferralWhenAvailable -> null
+            is MainIntent.UpdateCurrentTab -> null
+            is MainIntent.UpdateTabs -> null
         }
 
     private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) {
@@ -217,10 +268,10 @@ class MainModel(
 
     private fun dispatchDeepLink(linkState: LinkState) {
         when (linkState) {
-            is LinkState.EmailVerifiedDeepLink -> handleEmailVerifiedForExchangeLinking(linkState)
+            is LinkState.EmailVerifiedDeepLink -> {
+                // no-op - keeping the event for email verification
+            }
             is LinkState.KycDeepLink -> handleKycDeepLink(linkState)
-            is LinkState.ThePitDeepLink ->
-                process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchExchange(linkState.linkId)))
             is LinkState.OpenBankingLink -> handleOpenBankingDeepLink(linkState)
             is LinkState.BlockchainLink -> handleBlockchainDeepLink(linkState)
             else -> {
@@ -286,31 +337,6 @@ class MainModel(
         }
     }
 
-    private fun handleEmailVerifiedForExchangeLinking(linkState: LinkState.EmailVerifiedDeepLink) {
-        if (linkState.link === EmailVerifiedLinkState.FromPitLinking) {
-            compositeDisposable += handleExchangeLaunchingFromLinkingState()
-        }
-    }
-
-    private fun handleExchangeLaunchingFromLinkingState() =
-        interactor.getExchangeLinkingState()
-            .subscribeBy(
-                onSuccess = { isLinked ->
-                    if (isLinked) {
-                        process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchExchange()))
-                    } else {
-                        process(
-                            MainIntent.UpdateViewToLaunch(
-                                ViewToLaunch.LaunchExchange(interactor.getExchangeToWalletLinkId())
-                            )
-                        )
-                    }
-                },
-                onError = {
-                    Timber.e(it)
-                }
-            )
-
     private fun handleKycDeepLink(linkState: LinkState.KycDeepLink) {
         when (linkState.link) {
             is KycLinkState.Resubmit -> process(
@@ -366,7 +392,7 @@ class MainModel(
                             bankLinkingState.bankLinkingInfo?.let {
                                 process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(it)))
                             }
-                        } catch (e: JsonSyntaxException) {
+                        } catch (e: SerializationException) {
                             process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
                         }
                     },
@@ -481,9 +507,19 @@ class MainModel(
                         }
                     }
                 },
-                onError = {
+                onError = { error ->
                     interactor.resetLocalBankAuthState()
-                    process(
+                    (error as? NabuApiException)?.getServerSideErrorInfo()?.let { info ->
+                        process(
+                            MainIntent.UpdateViewToLaunch(
+                                ViewToLaunch.LaunchServerDrivenOpenBankingError(
+                                    currencyCode = paymentData.orderValue.currencyCode,
+                                    title = info.title,
+                                    description = info.description
+                                )
+                            )
+                        )
+                    } ?: process(
                         MainIntent.UpdateViewToLaunch(
                             ViewToLaunch.LaunchOpenBankingError(paymentData.orderValue.currencyCode)
                         )
@@ -497,7 +533,7 @@ class MainModel(
         paymentData: BankPaymentApproval
     ) {
         when (it.status) {
-            BankTransferStatus.COMPLETE -> {
+            BankTransferStatus.Complete -> {
                 process(
                     MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchOpenBankingApprovalDepositComplete(
@@ -506,15 +542,15 @@ class MainModel(
                     )
                 )
             }
-            BankTransferStatus.PENDING -> {
+            BankTransferStatus.Pending -> {
                 process(
                     MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchOpenBankingApprovalTimeout(paymentData.orderValue.currencyCode)
                     )
                 )
             }
-            BankTransferStatus.ERROR,
-            BankTransferStatus.UNKNOWN -> {
+            is BankTransferStatus.Error,
+            BankTransferStatus.Unknown -> {
                 process(
                     MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchOpenBankingError(paymentData.orderValue.currencyCode)

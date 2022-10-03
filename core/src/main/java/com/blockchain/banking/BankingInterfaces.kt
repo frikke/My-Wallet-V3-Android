@@ -1,7 +1,7 @@
 package com.blockchain.banking
 
-import com.blockchain.core.payments.model.BankPartner
-import com.blockchain.core.payments.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.LinkedBank
 import info.blockchain.balance.FiatValue
 import java.io.Serializable
 
@@ -13,6 +13,7 @@ interface BankPartnerCallbackProvider {
     fun callback(partner: BankPartner, action: BankTransferAction): String
 }
 
+@kotlinx.serialization.Serializable
 data class BankPaymentApproval(
     val paymentId: String,
     val authorisationUrl: String,

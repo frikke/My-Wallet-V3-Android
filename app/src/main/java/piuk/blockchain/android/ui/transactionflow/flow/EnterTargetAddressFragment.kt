@@ -8,18 +8,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -29,6 +35,8 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAddressBinding
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.ui.customviews.EditTextUpdateThrottle
+import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
+import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkContract
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
@@ -45,10 +53,17 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
     private val customiser: TargetSelectionCustomisations by inject()
     private val qrProcessor: QrScanResultProcessor by scopedInject()
+    private val nabuUserIdentity: NabuUserIdentity by scopedInject()
     private var sourceSlot: TxFlowWidget? = null
     private var state = TransactionState()
 
     private val disposables = CompositeDisposable()
+
+    private val bankAliasLinkLauncher = registerForActivityResult(BankAliasLinkContract()) { linkSuccess ->
+        if (linkSuccess) {
+            // TODO Do we need to refresh? Will verify once APIs are available.
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -63,6 +78,11 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 onListLoaded = {
                     if (it) hideTransferList()
                 }
+            }
+
+            ctaButton.apply {
+                buttonState = ButtonState.Disabled
+                text = getString(R.string.common_next)
             }
         }
         model.process(TransactionIntent.LoadSendToDomainBannerPref(DOMAIN_ALERT_DISMISS_KEY))
@@ -108,9 +128,9 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 warningMessage.gone()
             } ?: hideErrorState()
 
-            ctaButton.isEnabled = newState.nextEnabled
-            ctaButton.setOnClickListener {
-                onCtaClick(newState)
+            ctaButton.apply {
+                buttonState = if (newState.nextEnabled) ButtonState.Enabled else ButtonState.Disabled
+                onClick = { onCtaClick(newState) }
             }
         }
         state = newState
@@ -197,11 +217,24 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
         with(binding.walletSelect) {
             initialise(
-                source = Single.just(fragmentState.accounts.filterIsInstance<BlockchainAccount>()),
+                source = Single.just(
+                    fragmentState.accounts.filterIsInstance<BlockchainAccount>().map {
+                        if (state.action == AssetAction.Send && it is CryptoAccount) {
+                            mapToSendRecipientAccountItem(it)
+                        } else {
+                            AccountListViewItem.create(it)
+                        }
+                    }
+                ),
                 status = customiser.selectTargetStatusDecorator(state),
                 shouldShowSelectionStatus = true,
+                shouldShowAddNewBankAccount = nabuUserIdentity.isArgentinian(),
                 assetAction = state.action
             )
+
+            onAddNewBankAccountClicked = {
+                bankAliasLinkLauncher.launch(state.sendingAccount.currency.networkTicker)
+            }
 
             when (fragmentState) {
                 is TargetAddressSheetState.SelectAccountWhenWithinMaxLimit -> {
@@ -223,6 +256,13 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             }
         }
     }
+
+    private fun mapToSendRecipientAccountItem(it: CryptoAccount) = AccountListViewItem.Crypto(
+        title = it.label,
+        subTitle = it.currency.name,
+        showRewardsUpsell = it is InterestAccount,
+        account = it
+    )
 
     private fun hideTransferList() {
         binding.titlePick.gone()
@@ -270,6 +310,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             data.getRawScanData()?.let { rawScan ->
                 disposables += qrProcessor.processScan(rawScan, false)
                     .flatMapMaybe { qrProcessor.selectAssetTargetFromScan(state.sendingAsset.asAssetInfoOrThrow(), it) }
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(
                         onSuccess = {
                             // TODO update the selected target (address type) instead so the render method knows what to show  & hide

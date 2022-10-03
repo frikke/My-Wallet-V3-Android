@@ -2,10 +2,11 @@ package piuk.blockchain.android.ui.activity.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.outcome.fold
+import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
+import com.blockchain.outcome.doOnFailure
+import com.blockchain.outcome.doOnSuccess
 import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,7 @@ data class FiatActivityDetailsViewState(
 
 class FiatActivityDetailsModel(
     private val assetActivityRepository: AssetActivityRepository,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val paymentMethodService: PaymentMethodService,
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -46,22 +47,20 @@ class FiatActivityDetailsModel(
     fun loadPaymentDetails(activityItem: FiatActivitySummaryItem) {
         viewModelScope.launch {
             withContext(dispatcher) {
-                paymentsDataManager.getPaymentMethodDetailsForId(activityItem.paymentMethodId.orEmpty())
-                    .fold(
-                        onSuccess = { paymentMethodDetails ->
-                            internalState.value = internalState.value.copy(
-                                activityItem = activityItem,
-                                paymentDetails = paymentMethodDetails
-                            )
-                        },
-                        onFailure = { error ->
-                            Timber.e("Failed to get PaymentMethodDetails: ${error.name}")
-                            // TODO Map error types to error messages
-                            internalState.value = internalState.value.copy(
-                                errorMessage = "Error: Something went wrong."
-                            )
-                        }
-                    )
+                paymentMethodService.getPaymentMethodDetailsForId(activityItem.paymentMethodId.orEmpty())
+                    .doOnFailure { error ->
+                        Timber.e("Failed to get PaymentMethodDetails: ${error.message}")
+                        // TODO Map error types to error messages
+                        internalState.value = internalState.value.copy(
+                            errorMessage = "Error: Something went wrong."
+                        )
+                    }
+                    .doOnSuccess { paymentMethodDetails ->
+                        internalState.value = internalState.value.copy(
+                            activityItem = activityItem,
+                            paymentDetails = paymentMethodDetails
+                        )
+                    }
             }
         }
     }

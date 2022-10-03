@@ -1,8 +1,9 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.nabu.Tier
-import com.blockchain.nabu.UserIdentity
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
@@ -13,7 +14,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCa
 
 class FiatFundsNoKycAnnouncement(
     dismissRecorder: DismissRecorder,
-    private val userIdentity: UserIdentity
+    private val kycService: KycService
 ) : AnnouncementRule(dismissRecorder) {
 
     override val dismissKey = DISMISS_KEY
@@ -23,10 +24,13 @@ class FiatFundsNoKycAnnouncement(
             return Single.just(false)
         }
 
-        return userIdentity.getHighestApprovedKycTier().map {
-            it != Tier.GOLD
+        return kycService.getHighestApprovedTierLevelLegacy().map {
+            it != KycTier.GOLD
         }
     }
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(
@@ -37,7 +41,7 @@ class FiatFundsNoKycAnnouncement(
                 iconImage = R.drawable.vector_new_badge,
                 titleText = R.string.fiat_funds_no_kyc_announcement_title,
                 bodyText = R.string.fiat_funds_no_kyc_announcement_description,
-                ctaText = R.string.learn_more,
+                ctaText = R.string.common_learn_more,
                 ctaFunction = {
                     host.dismissAnnouncementCard()
                     host.showFiatFundsKyc()

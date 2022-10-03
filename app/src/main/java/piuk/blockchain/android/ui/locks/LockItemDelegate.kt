@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.locks
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.core.payments.model.FundsLock
+import com.blockchain.domain.paymentmethods.model.FundsLock
 import com.blockchain.utils.capitalizeFirstChar
 import piuk.blockchain.android.databinding.LockItemBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate

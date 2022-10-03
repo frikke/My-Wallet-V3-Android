@@ -3,14 +3,16 @@ package piuk.blockchain.android.ui.activity.detail.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.api.services.MobilePaymentType
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.utils.toFormattedString
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.Currency
+import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemListInfoRowBinding
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
@@ -178,9 +180,7 @@ private class InfoItemViewHolder(
             is BuyCryptoWallet -> context.getString(
                 R.string.custodial_wallet_default_label_2, infoType.crypto.displayTicker
             )
-            is SellCryptoWallet -> context.getString(
-                R.string.fiat_currency_funds_wallet_name_1, infoType.currency
-            )
+            is SellCryptoWallet -> infoType.currency.name
             is SellPurchaseAmount -> infoType.value.toStringWithSymbol()
             is BuyPaymentMethod -> {
                 with(infoType.paymentDetails) {
@@ -212,7 +212,9 @@ private class InfoItemViewHolder(
                             context.getString(R.string.credit_or_debit_card)
                         }
                         paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
-                            context.getString(R.string.checkout_funds_label_1, label)
+                            label?.let {
+                                Currency.getInstance(label).getDisplayName(Locale.getDefault())
+                            } ?: ""
                         }
                         mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> {
                             context.getString(R.string.google_pay)

@@ -24,11 +24,11 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.payments.model.FundsLocks
-import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.canConvert
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
@@ -387,13 +387,24 @@ class TransactionModel(
 
     private fun processAccountsListUpdate(
         previousState: TransactionState,
-        fromAccount: BlockchainAccount,
+        fromAccount: SingleAccount,
         action: AssetAction
     ): Disposable? =
         if (previousState.selectedTarget is NullAddress) {
             interactor.getTargetAccounts(fromAccount, action).subscribeBy(
                 onSuccess = {
-                    process(TransactionIntent.AvailableAccountsListUpdated(it))
+                    if (action == AssetAction.Sell && it.size == 1) {
+                        process(
+                            TransactionIntent.InitialiseWithSourceAndTargetAccount(
+                                action = action,
+                                fromAccount = fromAccount,
+                                target = it.first(),
+                                passwordRequired = previousState.passwordRequired
+                            )
+                        )
+                    } else {
+                        process(TransactionIntent.AvailableAccountsListUpdated(it))
+                    }
                 },
                 onError = {
                     process(TransactionIntent.FatalTransactionError(it))
@@ -519,7 +530,7 @@ class TransactionModel(
                 Maybe.empty()
             }
         AssetAction.Sell -> interactor.userAccessForFeature(Feature.Sell).toMaybe()
-        AssetAction.Withdraw -> interactor.userAccessForFeature(Feature.WithdrawFiat).toMaybe()
+        AssetAction.FiatWithdraw -> interactor.userAccessForFeature(Feature.WithdrawFiat).toMaybe()
         AssetAction.FiatDeposit -> interactor.userAccessForFeature(Feature.DepositFiat).toMaybe()
         AssetAction.Buy,
         AssetAction.Receive,

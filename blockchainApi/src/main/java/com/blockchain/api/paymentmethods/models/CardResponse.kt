@@ -1,5 +1,6 @@
 package com.blockchain.api.paymentmethods.models
 
+import com.blockchain.api.NabuUxErrorResponse
 import com.blockchain.api.nabu.data.AddressRequest
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -19,7 +20,9 @@ data class AddNewCardResponse(
     @SerialName("id")
     val id: String,
     @SerialName("partner")
-    val partner: String
+    val partner: String,
+    @SerialName("ux")
+    val ux: NabuUxErrorResponse? = null
 )
 
 @Serializable
@@ -37,7 +40,33 @@ data class SimpleBuyConfirmationAttributes(
     @SerialName("googlePayPayload")
     private val googlePayPayload: String? = null,
     @SerialName("cvv")
-    private val cvv: String? = null
+    private val cvv: String? = null,
+    @SerialName("isAsync")
+    val isAsync: Boolean? = null,
+    @SerialName("paymentContact")
+    private val paymentContact: PaymentContact? = null
+)
+
+@Serializable
+data class PaymentContact(
+    @SerialName("line1")
+    private val line1: String? = "",
+    @SerialName("line2")
+    private val line2: String? = "",
+    @SerialName("city")
+    private val city: String? = "",
+    @SerialName("state")
+    private val state: String? = "",
+    @SerialName("country")
+    private val country: String? = "",
+    @SerialName("postCode")
+    private val postCode: String? = "",
+    @SerialName("firstname")
+    private val firstname: String? = "",
+    @SerialName("lastname")
+    private val lastname: String? = "",
+    @SerialName("phone")
+    private val phone: String? = ""
 )
 
 @Serializable
@@ -45,12 +74,15 @@ data class EveryPayAttrs(
     @SerialName("customerUrl")
     private val customerUrl: String
 )
+
 @Serializable
 data class ActivateCardResponse(
     @SerialName("everypay")
     val everypay: EveryPayCardCredentialsResponse?,
     @SerialName("cardProvider")
-    val cardProvider: CardProviderResponse?
+    val cardProvider: CardProviderResponse?,
+    @SerialName("ux")
+    val ux: NabuUxErrorResponse? = null
 )
 
 @Serializable
@@ -86,4 +118,10 @@ data class CardProviderResponse(
     val clientSecret: String?, // use when client secret is needed (stripe)
     @SerialName("publishableApiKey")
     val publishableApiKey: String?
+)
+
+@Serializable
+data class CardRejectionStateResponse(
+    val block: Boolean,
+    val ux: NabuUxErrorResponse?
 )

@@ -1,25 +1,24 @@
 package com.blockchain.core.price.impl
 
+import app.cash.turbine.test
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.AssetPrice
 import com.blockchain.api.services.AssetPriceService
-import com.blockchain.api.services.PriceTimescale
 import com.blockchain.core.price.HistoricalTimeSpan
-import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore2
-import com.blockchain.core.price.model.AssetPriceRecord2
+import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore
+import com.blockchain.core.price.model.AssetPriceRecord
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.USD
-import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyBlocking
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
 import java.util.Calendar
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -52,264 +51,143 @@ class ExchangeRatesDataManagerImplTest {
         timeInMillis = DATE_NOW_MILLIS
     }
 
-    private val priceStore: AssetPriceStore = mock()
-    private val priceStore2: AssetPriceStore2 = mock() {
-        onBlocking {
+    private val priceStore: AssetPriceStore = mock() {
+        on {
             getHistoricalPriceForAsset(
                 base = any(),
                 quote = any(),
-                timeSpan = any()
+                timeSpan = any(),
+                freshnessStrategy = any()
             )
-        }.thenReturn(Outcome.Success(PRICE_DATA))
+        }.thenReturn(flowOf(DataResource.Data(PRICE_DATA)))
     }
     private val newAssetPriceStoreFF: FeatureFlag = mock() {
         on { enabled }.thenReturn(Single.just(true))
     }
-    private val sparklineCall: SparklineCallCache = mock()
 
     private val subject = ExchangeRatesDataManagerImpl(
         priceStore = priceStore,
-        priceStore2 = priceStore2,
-        newAssetPriceStoreFeatureFlag = newAssetPriceStoreFF,
-        sparklineCall = sparklineCall,
         assetCatalogue = mock(),
         assetPriceService = priceService,
         currencyPrefs = currencyPrefs
     )
 
     @Test
-    fun `get All Time Price`() {
-        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.ALL_TIME)
-            .test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-
-        verifyBlocking(priceStore2) {
-            getHistoricalPriceForAsset(
-                OLD_ASSET,
-                SELECTED_FIAT,
-                HistoricalTimeSpan.ALL_TIME
-            )
+    fun `get All Time Price`() = runTest {
+        subject.getHistoricPriceSeries(
+            asset = OLD_ASSET,
+            span = HistoricalTimeSpan.ALL_TIME,
+            freshnessStrategy = FreshnessStrategy.Cached(false)
+        ).test {
+            awaitEvent()
+            verify(priceStore)
+                .getHistoricalPriceForAsset(
+                    OLD_ASSET, SELECTED_FIAT, HistoricalTimeSpan.ALL_TIME, FreshnessStrategy.Cached(false)
+                )
+            awaitComplete()
         }
     }
 
     @Test
-    fun `get All Time Price OLD`() {
-        whenever(newAssetPriceStoreFF.enabled).thenReturn(Single.just(false))
-        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.ALL_TIME)
-            .test()
-            .assertComplete()
-            .assertNoErrors()
-
-        verify(priceService).getHistoricPriceSeriesSince(
-            base = OLD_ASSET.networkTicker,
-            quote = SELECTED_FIAT.networkTicker,
-            start = OLD_ASSET.startDate!!,
-            scale = PriceTimescale.FIVE_DAYS
+    fun getYearPrice() = runTest {
+        subject.getHistoricPriceSeries(
+            asset = OLD_ASSET,
+            span = HistoricalTimeSpan.YEAR,
+            now = calendar,
+            freshnessStrategy = FreshnessStrategy.Cached(false)
         )
-        verifyNoMoreInteractions(priceService)
+            .test {
+                awaitEvent()
+                verify(priceStore)
+                    .getHistoricalPriceForAsset(
+                        OLD_ASSET,
+                        SELECTED_FIAT,
+                        HistoricalTimeSpan.YEAR,
+                        FreshnessStrategy.Cached(false)
+                    )
+                awaitComplete()
+            }
     }
 
     @Test
-    fun getYearPrice() {
+    fun getMonthPrice() = runTest {
         subject.getHistoricPriceSeries(
-            OLD_ASSET,
-            HistoricalTimeSpan.YEAR,
-            calendar
-        ).test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-
-        verifyBlocking(priceStore2) {
-            getHistoricalPriceForAsset(
-                OLD_ASSET,
-                SELECTED_FIAT,
-                HistoricalTimeSpan.YEAR
-            )
-        }
-    }
-
-    @Test
-    fun getYearPriceOld() {
-        whenever(newAssetPriceStoreFF.enabled).thenReturn(Single.just(false))
-        subject.getHistoricPriceSeries(
-            OLD_ASSET,
-            HistoricalTimeSpan.YEAR,
-            calendar
-        ).test()
-            .assertComplete()
-            .assertNoErrors()
-
-        verify(priceService).getHistoricPriceSeriesSince(
-            OLD_ASSET.networkTicker,
-            SELECTED_FIAT.networkTicker,
-            DATE_ONE_YEAR_AGO_SECS,
-            PriceTimescale.ONE_DAY
+            asset = OLD_ASSET,
+            span = HistoricalTimeSpan.MONTH,
+            now = calendar,
+            freshnessStrategy = FreshnessStrategy.Cached(false)
         )
-        verifyNoMoreInteractions(priceService)
-    }
-
-    @Test
-    fun getMonthPrice() {
-        subject.getHistoricPriceSeries(
-            OLD_ASSET,
-            HistoricalTimeSpan.MONTH,
-            calendar
-        ).test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-
-        verifyBlocking(priceStore2) {
-            getHistoricalPriceForAsset(
-                OLD_ASSET,
-                SELECTED_FIAT,
-                HistoricalTimeSpan.MONTH
-            )
-        }
-    }
-
-    @Test
-    fun getMonthPriceOld() {
-        whenever(newAssetPriceStoreFF.enabled).thenReturn(Single.just(false))
-
-        subject.getHistoricPriceSeries(
-            OLD_ASSET,
-            HistoricalTimeSpan.MONTH,
-            calendar
-        ).test()
-            .assertComplete()
-            .assertNoErrors()
-
-        verify(priceService).getHistoricPriceSeriesSince(
-            OLD_ASSET.networkTicker,
-            SELECTED_FIAT.networkTicker,
-            DATE_ONE_MONTH_AGO_SECS,
-            PriceTimescale.TWO_HOURS
-        )
-        verifyNoMoreInteractions(priceService)
+            .test {
+                awaitEvent()
+                verify(priceStore)
+                    .getHistoricalPriceForAsset(
+                        OLD_ASSET,
+                        SELECTED_FIAT,
+                        HistoricalTimeSpan.MONTH,
+                        FreshnessStrategy.Cached(false)
+                    )
+                awaitComplete()
+            }
     }
 
     @Test
     fun getWeekPrice() = runTest {
         subject.getHistoricPriceSeries(
-            OLD_ASSET,
-            HistoricalTimeSpan.WEEK,
-            calendar
-        ).test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-
-        verifyBlocking(priceStore2) {
-            getHistoricalPriceForAsset(
-                OLD_ASSET,
-                SELECTED_FIAT,
-                HistoricalTimeSpan.WEEK
-            )
+            asset = OLD_ASSET,
+            span = HistoricalTimeSpan.WEEK,
+            now = calendar,
+            freshnessStrategy = FreshnessStrategy.Cached(false)
+        ).test {
+            awaitEvent()
+            verify(priceStore)
+                .getHistoricalPriceForAsset(
+                    OLD_ASSET,
+                    SELECTED_FIAT,
+                    HistoricalTimeSpan.WEEK,
+                    FreshnessStrategy.Cached(false)
+                )
+            awaitComplete()
         }
     }
 
     @Test
-    fun getWeekPriceOld() {
-        whenever(newAssetPriceStoreFF.enabled).thenReturn(Single.just(false))
+    fun getDayPrice() = runTest {
         subject.getHistoricPriceSeries(
-            OLD_ASSET,
-            HistoricalTimeSpan.WEEK,
-            calendar
-        ).test()
-            .assertComplete()
-            .assertNoErrors()
-
-        verify(priceService).getHistoricPriceSeriesSince(
-            OLD_ASSET.networkTicker,
-            SELECTED_FIAT.networkTicker,
-            DATE_ONE_WEEK_AGO_SECS,
-            PriceTimescale.ONE_HOUR
-        )
-        verifyNoMoreInteractions(priceService)
-    }
-
-    @Test
-    fun getDayPrice() {
-        subject.getHistoricPriceSeries(
-            OLD_ASSET,
-            HistoricalTimeSpan.DAY,
-            calendar
-        ).test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-
-        verifyBlocking(priceStore2) {
-            getHistoricalPriceForAsset(
-                OLD_ASSET,
-                SELECTED_FIAT,
-                HistoricalTimeSpan.DAY
-            )
+            asset = OLD_ASSET,
+            span = HistoricalTimeSpan.DAY,
+            now = calendar,
+            freshnessStrategy = FreshnessStrategy.Cached(false)
+        ).test {
+            awaitEvent()
+            verify(priceStore)
+                .getHistoricalPriceForAsset(
+                    OLD_ASSET,
+                    SELECTED_FIAT,
+                    HistoricalTimeSpan.DAY,
+                    FreshnessStrategy.Cached(false)
+                )
+            awaitComplete()
         }
     }
 
     @Test
-    fun getDayPriceOld() {
-        whenever(newAssetPriceStoreFF.enabled).thenReturn(Single.just(false))
+    fun `get year price on new asset`() = runTest {
         subject.getHistoricPriceSeries(
-            OLD_ASSET,
-            HistoricalTimeSpan.DAY,
-            calendar
-        ).test()
-            .assertComplete()
-            .assertNoErrors()
-
-        verify(priceService).getHistoricPriceSeriesSince(
-            OLD_ASSET.networkTicker,
-            SELECTED_FIAT.networkTicker,
-            DATE_ONE_DAY_AGO_SECS,
-            PriceTimescale.FIFTEEN_MINUTES
-        )
-        verifyNoMoreInteractions(priceService)
-    }
-
-    @Test
-    fun `get year price on new asset`() {
-        subject.getHistoricPriceSeries(
-            NEW_ASSET,
-            HistoricalTimeSpan.WEEK,
-            calendar
-        ).test()
-            .await()
-            .assertComplete()
-            .assertNoErrors()
-
-        verifyBlocking(priceStore2) {
-            getHistoricalPriceForAsset(
-                OLD_ASSET,
-                SELECTED_FIAT,
-                HistoricalTimeSpan.WEEK
-            )
+            asset = NEW_ASSET,
+            span = HistoricalTimeSpan.WEEK,
+            now = calendar,
+            freshnessStrategy = FreshnessStrategy.Cached(false)
+        ).test {
+            awaitEvent()
+            verify(priceStore)
+                .getHistoricalPriceForAsset(
+                    OLD_ASSET,
+                    SELECTED_FIAT,
+                    HistoricalTimeSpan.WEEK,
+                    FreshnessStrategy.Cached(false)
+                )
+            awaitComplete()
         }
-    }
-
-    @Test
-    fun `get year price on new asset OLD`() {
-        whenever(newAssetPriceStoreFF.enabled).thenReturn(Single.just(false))
-        subject.getHistoricPriceSeries(
-            NEW_ASSET,
-            HistoricalTimeSpan.WEEK,
-            calendar
-        ).test()
-            .assertComplete()
-            .assertNoErrors()
-
-        verify(priceService).getHistoricPriceSeriesSince(
-            OLD_ASSET.networkTicker,
-            SELECTED_FIAT.networkTicker,
-            NEW_ASSET.startDate!!,
-            PriceTimescale.ONE_HOUR
-        )
-        verifyNoMoreInteractions(priceService)
     }
 
     companion object {
@@ -350,10 +228,11 @@ class ExchangeRatesDataManagerImplTest {
                 price = 100.toDouble(),
                 timestampSeconds = 200000,
                 marketCap = 0.0,
+                tradingVolume24h = 0.0
             )
         )
         private val PRICE_DATA = listOf(
-            AssetPriceRecord2(
+            AssetPriceRecord(
                 base = OLD_ASSET.networkTicker,
                 quote = SELECTED_FIAT.networkTicker,
                 rate = 100.toBigDecimal(),

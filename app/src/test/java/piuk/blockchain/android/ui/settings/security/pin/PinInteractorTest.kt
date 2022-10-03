@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.settings.security.pin
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.AuthPrefs
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -25,7 +25,7 @@ import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class PinInteractorTest {
     private lateinit var interactor: PinInteractor
@@ -33,8 +33,8 @@ class PinInteractorTest {
     private val authDataManager = mock<AuthDataManager>()
     private val apiStatus = mock<ApiStatus>()
     private val authPrefs = mock<AuthPrefs>()
-    private val persistentPrefs = mock<PersistentPrefs>()
-    private val walletStatus = mock<WalletStatus>()
+    private val sessionPrefs = mock<SessionPrefs>()
+    private val walletStatusPrefs = mock<WalletStatusPrefs>()
     private val walletOptionsDataManager = mock<WalletOptionsDataManager>()
     private val credentialsWiper = mock<CredentialsWiper>()
     private val payloadDataManager = mock<PayloadDataManager>()
@@ -59,8 +59,8 @@ class PinInteractorTest {
                 authDataManager = authDataManager,
                 apiStatus = apiStatus,
                 authPrefs = authPrefs,
-                persistentPrefs = persistentPrefs,
-                walletStatus = walletStatus,
+                sessionPrefs = sessionPrefs,
+                walletStatusPrefs = walletStatusPrefs,
                 defaultLabels = defaultLabels,
                 isIntercomEnabledFlag = isIntercomEnabledFlag
             )
@@ -113,7 +113,7 @@ class PinInteractorTest {
             )
         ).thenReturn(Completable.complete())
 
-        interactor.doUpgradeWallet(secondPassword, false).test()
+        interactor.doUpgradeWallet(secondPassword).test()
 
         verify(payloadDataManager).upgradeWalletPayload(
             secondPassword, defaultLabels.getDefaultNonCustodialWalletLabel()

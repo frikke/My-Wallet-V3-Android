@@ -28,9 +28,10 @@ val analyticsModule = module {
             remoteLogger = get(embraceLogger),
             store = get()
         )
+    }.apply {
+        bind(Analytics::class)
+        bind(ProviderSpecificAnalytics::class)
     }
-        .bind(Analytics::class)
-        .bind(ProviderSpecificAnalytics::class)
 
     factory { UserAnalyticsImpl(get()) }
         .bind(UserAnalytics::class)
@@ -45,13 +46,14 @@ val analyticsModule = module {
             tokenStore = get(),
             lifecycleObservable = get()
         )
+    }.apply {
+        bind(AppStartUpFlushable::class)
+        bind(Analytics::class)
     }
-        .bind(AppStartUpFlushable::class)
-        .bind(Analytics::class)
 
     factory {
         AnalyticsContextProviderImpl(
-            context = get()
+            traitsServices = getAll()
         )
     }.bind(AnalyticsContextProvider::class)
 

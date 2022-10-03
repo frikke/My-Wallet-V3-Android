@@ -9,12 +9,13 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/title"
         style="@style/Text.Light.14"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/small_margin"
         android:layout_marginTop="@dimen/small_margin"
         android:layout_marginEnd="@dimen/small_margin"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="start"
+        app:layout_constraintEnd_toStartOf="@id/copy_tap_target"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Bank name" />
@@ -23,11 +24,12 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/value"
         style="@style/Text.Semibold.16"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/small_margin"
         android:layout_marginEnd="@dimen/small_margin"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="start"
+        app:layout_constraintEnd_toStartOf="@id/copy_tap_target"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title"
         tools:text="LHV" />
@@ -36,9 +38,9 @@
         android:id="@+id/copy_tap_target"
         android:layout_width="50dp"
         android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/value"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="@id/title">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ic_copy"
@@ -51,5 +53,23 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_copy" />
     </FrameLayout>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tooltip"
+        style="@style/Text.Light.Centered.12"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/small_margin"
+        android:layout_marginTop="@dimen/tiny_margin"
+        android:layout_marginEnd="@dimen/small_margin"
+        android:background="@drawable/bkgd_grey_000_rounded"
+        android:padding="@dimen/small_margin"
+        android:textColor="@color/grey_700"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/value"
+        tools:text="@tools:sample/lorem"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

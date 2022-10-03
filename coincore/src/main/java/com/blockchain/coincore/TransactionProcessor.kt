@@ -11,6 +11,7 @@ import com.blockchain.extensions.replace
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
@@ -49,7 +50,7 @@ enum class ValidationState {
 }
 
 class TxValidationFailure(val state: ValidationState) : TransferError("Invalid Tx: $state")
-class NeedsApprovalException(val bankPaymentData: BankPaymentApproval) : Throwable()
+class NeedsApprovalException(val bankPaymentData: BankPaymentApproval) : Exception()
 
 enum class FeeLevel {
     None,
@@ -60,7 +61,7 @@ enum class FeeLevel {
 
 data class FeeLevelRates(
     val regularFee: Long,
-    val priorityFee: Long
+    val priorityFee: Long,
 )
 
 data class FeeSelection(
@@ -70,7 +71,7 @@ data class FeeSelection(
     val customLevelRates: FeeLevelRates? = null,
     val feeState: FeeState? = null,
     val asset: AssetInfo? = null,
-    val feesForLevels: Map<FeeLevel, Money> = emptyMap()
+    val feesForLevels: Map<FeeLevel, Money> = emptyMap(),
 )
 
 data class PendingTx(
@@ -86,7 +87,7 @@ data class PendingTx(
     val limits: TxLimits? = null,
     val transactionsLimit: TransactionsLimit? = null,
     val validationState: ValidationState = ValidationState.UNINITIALISED,
-    val engineState: Map<String, Any> = emptyMap()
+    val engineState: Map<String, Any> = emptyMap(),
 ) {
     fun hasOption(confirmation: TxConfirmation): Boolean =
         confirmations.find { it.confirmation == confirmation } != null
@@ -95,7 +96,7 @@ data class PendingTx(
         confirmations.find { it.confirmation == confirmation } as? T
 
     // Internal, coincore only helper methods for managing option lists. If you're using these in
-    // UI are client code, you're doing something wrong!
+    // UI or client code, you're doing something wrong!
     internal fun removeOption(confirmation: TxConfirmation): PendingTx =
         this.copy(
             confirmations = confirmations.filter { it.confirmation != confirmation }
@@ -141,7 +142,8 @@ enum class TxConfirmation {
     EXPANDABLE_SINGLE_VALUE_READ_ONLY,
     LARGE_TRANSACTION_WARNING,
     ERROR_NOTICE,
-    INVOICE_COUNTDOWN
+    INVOICE_COUNTDOWN,
+    QUOTE_COUNTDOWN
 }
 
 sealed class FeeState {
@@ -151,7 +153,7 @@ sealed class FeeState {
     object FeeOverRecommended : FeeState()
     object ValidCustomFee : FeeState()
     data class FeeDetails(
-        val absoluteFee: Money
+        val absoluteFee: Money,
     ) : FeeState()
 }
 
@@ -181,6 +183,8 @@ abstract class TxEngine : KoinComponent {
     protected val exchangeRates: ExchangeRatesDataManager
         get() = _exchangeRates
 
+    abstract val flushableDataSources: List<FlushableDataSource>
+
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     fun refreshConfirmations(revalidate: Boolean = false) =
         _refresh.refreshConfirmations(revalidate).emptySubscribe()
@@ -202,7 +206,7 @@ abstract class TxEngine : KoinComponent {
         exchangeRates: ExchangeRatesDataManager,
         refreshTrigger: RefreshTrigger = object : RefreshTrigger {
             override fun refreshConfirmations(revalidate: Boolean): Completable = Completable.complete()
-        }
+        },
     ) {
         this._sourceAccount = sourceAccount
         this._txTarget = txTarget
@@ -295,20 +299,25 @@ abstract class TxEngine : KoinComponent {
     // is that it will succeed.
     open fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable = Completable.complete()
 
+    // Runs after transaction is fully complete
+    fun doOnTransactionComplete() {
+        flushableDataSources.forEach { it.invalidate() }
+    }
+
     // Action to be executed when confirmations have been built and we want to start checking for updates on them
     open fun startConfirmationsUpdate(pendingTx: PendingTx): Single<PendingTx> =
         Single.just(pendingTx)
 }
 
 class TransactionProcessor(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val sourceAccount: BlockchainAccount,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val txTarget: TransactionTarget,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val exchangeRates: ExchangeRatesDataManager,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val engine: TxEngine
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val engine: TxEngine,
 ) : TxEngine.RefreshTrigger {
 
     init {
@@ -443,6 +452,7 @@ class TransactionProcessor(
                     val updatedPendingTransaction = pendingTx.copy(txResult = result)
                     updatePendingTx(updatedPendingTransaction)
                     engine.doPostExecute(updatedPendingTransaction, result)
+                        .doOnComplete { engine.doOnTransactionComplete() }
                 }
             }
             ValidationState.UNINITIALISED -> Completable.error(IllegalStateException("Transaction is not initialised"))
@@ -454,7 +464,8 @@ class TransactionProcessor(
             ValidationState.INVALID_DOMAIN -> Completable.error(TransactionError.InvalidDomainAddress)
             ValidationState.ADDRESS_IS_CONTRACT -> Completable.error(TransactionError.InvalidCryptoAddress)
             ValidationState.OPTION_INVALID,
-            ValidationState.MEMO_INVALID -> Completable.error(
+            ValidationState.MEMO_INVALID,
+            -> Completable.error(
                 IllegalStateException("Transaction cannot be executed with an invalid memo")
             )
             ValidationState.UNDER_MIN_LIMIT -> Completable.error(TransactionError.OrderBelowMin)
@@ -462,7 +473,8 @@ class TransactionProcessor(
                 Completable.error(TransactionError.OrderLimitReached)
             ValidationState.ABOVE_PAYMENT_METHOD_LIMIT,
             ValidationState.OVER_SILVER_TIER_LIMIT,
-            ValidationState.OVER_GOLD_TIER_LIMIT -> Completable.error(TransactionError.OrderAboveMax)
+            ValidationState.OVER_GOLD_TIER_LIMIT,
+            -> Completable.error(TransactionError.OrderAboveMax)
             ValidationState.INVOICE_EXPIRED -> Completable.error(TransactionError.InvalidOrExpiredQuote)
         }
 

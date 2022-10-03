@@ -13,11 +13,12 @@ import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
@@ -41,12 +42,14 @@ import org.junit.Test
 class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
-    private val interestBalances: InterestBalanceDataManager = mock()
+    private val interestService: InterestService = mock()
     private val onChainEngine: OnChainTxEngineBase = mock()
+    private val interestBalanceStore: InterestBalancesStore = mock()
 
     private val subject = InterestDepositOnChainTxEngine(
+        interestBalanceStore = interestBalanceStore,
+        interestService = interestService,
         walletManager = walletManager,
-        interestBalances = interestBalances,
         onChainEngine = onChainEngine
     )
 
@@ -203,10 +206,9 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
 
         val limits = mock<InterestLimits> {
             on { minDepositFiatValue }.thenReturn(MIN_DEPOSIT_AMOUNT_FIAT)
-            on { cryptoCurrency }.thenReturn(ASSET)
         }
 
-        whenever(walletManager.getInterestLimits(ASSET)).thenReturn(Single.just(limits))
+        whenever(interestService.getLimitsForAsset(ASSET)).thenReturn(Single.just(limits))
 
         // Act
         subject.doInitialiseTx()
@@ -230,7 +232,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
         verifyOnChainEngineStarted(sourceAccount)
 
         verify(onChainEngine).doInitialiseTx()
-        verify(walletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
         verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -263,7 +265,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
         )
 
         whenever(onChainEngine.doInitialiseTx()).thenReturn(Single.just(pendingTx))
-        whenever(walletManager.getInterestLimits(ASSET))
+        whenever(interestService.getLimitsForAsset(ASSET))
             .thenReturn(Single.error(NoSuchElementException()))
 
         // Act
@@ -275,7 +277,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
         verifyOnChainEngineStarted(sourceAccount)
 
         verify(onChainEngine).doInitialiseTx()
-        verify(walletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -493,7 +495,7 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
 
     private fun mockSourceAccount(
         totalBalance: Money = CryptoValue.zero(ASSET),
-        availableBalance: Money = CryptoValue.zero(ASSET)
+        availableBalance: Money = CryptoValue.zero(ASSET),
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(ASSET)
         on { balance }.thenReturn(

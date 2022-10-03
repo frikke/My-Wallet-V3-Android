@@ -17,17 +17,19 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.koin.payloadScope
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ViewModelOwner
-import org.koin.androidx.viewmodel.scope.getViewModel
+import org.koin.android.scope.AndroidScopeComponent
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.scope.Scope
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.settings.v2.SettingsNavigator
 
-class NotificationPreferencesFragment : MVIFragment<NotificationPreferencesViewState>() {
+class NotificationPreferencesFragment : MVIFragment<NotificationPreferencesViewState>(), AndroidScopeComponent {
 
     private val analytics: Analytics by inject()
 
-    private val model: NotificationPreferencesViewModel by lazy {
-        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
-    }
+    override val scope: Scope = payloadScope
+
+    private val model: NotificationPreferencesViewModel by viewModel()
 
     private val navigator: NavigationRouter<NotificationPreferencesNavigation> =
         object : NavigationRouter<NotificationPreferencesNavigation> {
@@ -65,7 +67,7 @@ class NotificationPreferencesFragment : MVIFragment<NotificationPreferencesViewS
         analytics.logEvent(NotificationPreferencesAnalyticsEvents.NotificationViewed)
 
         updateToolbar(
-            menuItems = emptyList()
+            toolbarTitle = getString(R.string.notifications_toolbar)
         )
     }
 
@@ -74,7 +76,7 @@ class NotificationPreferencesFragment : MVIFragment<NotificationPreferencesViewS
         model.onIntent(NotificationPreferencesIntent.Fetch)
     }
 
-    override fun onStateUpdated(state: NotificationPreferencesViewState) { }
+    override fun onStateUpdated(state: NotificationPreferencesViewState) {}
 
     companion object {
         fun newInstance() = NotificationPreferencesFragment()

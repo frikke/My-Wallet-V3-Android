@@ -1,5 +1,6 @@
 package com.blockchain.api.paymentmethods.models
 
+import com.blockchain.api.NabuUxErrorResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -64,7 +65,11 @@ data class CardResponse(
     @SerialName("card")
     val card: CardDetailsResponse? = null,
     @SerialName("mobilePaymentType")
-    val mobilePaymentType: String? = null
+    val mobilePaymentType: String? = null,
+    @SerialName("block")
+    val block: Boolean = false,
+    @SerialName("ux")
+    val ux: NabuUxErrorResponse? = null
 ) {
     companion object {
         const val ACTIVE = "ACTIVE"

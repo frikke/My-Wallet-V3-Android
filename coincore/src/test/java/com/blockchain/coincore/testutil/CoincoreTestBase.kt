@@ -37,7 +37,7 @@ open class CoincoreTestBase {
         computationTrampoline()
     }
 
-    protected open val currencyPrefs: CurrencyPrefs = mock {
+    protected val currencyPrefs: CurrencyPrefs = mock {
         on { selectedFiatCurrency }.thenReturn(TEST_USER_FIAT)
     }
 
@@ -107,9 +107,65 @@ open class CoincoreTestBase {
             requiredConfirmations = 3,
             colour = "000000"
         ) {}
+
+        val TEST_ASSET_NC = object : CryptoCurrency(
+            displayTicker = "NOPE",
+            networkTicker = "NOPE",
+            name = "Not a real thing",
+            categories = setOf(AssetCategory.NON_CUSTODIAL),
+            precisionDp = 8,
+            requiredConfirmations = 3,
+            colour = "000000"
+        ) {}
     }
 }
 
 internal val USD = FiatCurrency.fromCurrencyCode("USD")
 internal val EUR = FiatCurrency.fromCurrencyCode("EUR")
 internal val GBP = FiatCurrency.fromCurrencyCode("GBP")
+
+object CoinCoreFakeData {
+    val TEST_USER_FIAT = EUR
+    val TEST_API_FIAT = USD
+    val TEST_ASSET = object : CryptoCurrency(
+        displayTicker = "NOPE",
+        networkTicker = "NOPE",
+        name = "Not a real thing",
+        categories = setOf(AssetCategory.CUSTODIAL),
+        precisionDp = 8,
+        requiredConfirmations = 3,
+        colour = "000000"
+    ) {}
+
+    val SECONDARY_TEST_ASSET = object : CryptoCurrency(
+        displayTicker = "NOPE2",
+        networkTicker = "NOPE2",
+        name = "Not a real thing",
+        categories = setOf(AssetCategory.CUSTODIAL),
+        precisionDp = 8,
+        requiredConfirmations = 3,
+        colour = "000000"
+    ) {}
+
+    val TEST_ASSET_NC = object : CryptoCurrency(
+        displayTicker = "NOPE",
+        networkTicker = "NOPE",
+        name = "Not a real thing",
+        categories = setOf(AssetCategory.NON_CUSTODIAL),
+        precisionDp = 8,
+        requiredConfirmations = 3,
+        colour = "000000"
+    ) {}
+
+    val userFiatToUserFiat = ExchangeRate(
+        from = TEST_USER_FIAT,
+        to = TEST_USER_FIAT,
+        rate = 1.0.toBigDecimal()
+    )
+
+    val TEST_TO_USER_RATE = ExchangeRate(
+        from = TEST_API_FIAT,
+        to = TEST_USER_FIAT,
+        rate = 2.0.toBigDecimal()
+    )
+}

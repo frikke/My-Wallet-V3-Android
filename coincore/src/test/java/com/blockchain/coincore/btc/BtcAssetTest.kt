@@ -2,20 +2,17 @@ package com.blockchain.coincore.btc
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.impl.BackendNotificationUpdater
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.NabuUserIdentity
-import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.websocket.CoinsWebSocketInterface
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import exchange.ExchangeLinking
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.keys.SigningKey
@@ -29,12 +26,14 @@ import io.reactivex.rxjava3.core.Single
 import org.bitcoinj.crypto.BIP38PrivateKey.BadPassphraseException
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
-import thepit.PitLinking
 
-class BtcAssetTest {
+class BtcAssetTest : KoinTest {
 
     @get:Rule
     val initSchedulers = rxInit {
@@ -46,37 +45,22 @@ class BtcAssetTest {
     private val payloadManager: PayloadDataManager = mock()
     private val sendDataManager: SendDataManager = mock()
     private val feeDataManager: FeeDataManager = mock()
-    private val coinsWebsocket: CoinsWebSocketInterface = mock()
-    private val custodialManager: CustodialWalletManager = mock()
-    private val exchangeRates: ExchangeRatesDataManager = mock()
-    private val tradingBalances: TradingBalanceDataManager = mock()
-    private val interestBalances: InterestBalanceDataManager = mock()
-    private val currencyPrefs: CurrencyPrefs = mock()
-    private val labels: DefaultLabels = mock()
-    private val pitLinking: PitLinking = mock()
-    private val remoteLogger: RemoteLogger = mock()
-    private val walletPreferences: WalletStatus = mock()
-    private val identity: NabuUserIdentity = mock()
+    private val walletPreferences: WalletStatusPrefs = mock()
     private val notificationUpdater: BackendNotificationUpdater = mock()
 
     private val subject = BtcAsset(
         payloadManager = payloadManager,
         sendDataManager = sendDataManager,
         feeDataManager = feeDataManager,
-        coinsWebsocket = coinsWebsocket,
-        custodialManager = custodialManager,
-        tradingBalances = tradingBalances,
-        interestBalances = interestBalances,
-        exchangeRates = exchangeRates,
-        currencyPrefs = currencyPrefs,
-        labels = labels,
-        pitLinking = pitLinking,
-        remoteLogger = remoteLogger,
         notificationUpdater = notificationUpdater,
         walletPreferences = walletPreferences,
-        identity = identity,
         addressResolver = mock()
     )
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(mockAssetDependenciesModule)
+    }
 
     @Test
     fun createAccountSuccessNoSecondPassword() {
@@ -96,8 +80,6 @@ class BtcAssetTest {
                     !it.isArchived &&
                     it.xpubAddress == NEW_XPUB
             }.assertComplete()
-
-        verify(coinsWebsocket).subscribeToXpubBtc(NEW_XPUB)
     }
 
     @Test
@@ -109,8 +91,6 @@ class BtcAssetTest {
         subject.createAccount(TEST_LABEL, null)
             .test()
             .assertError(Exception::class.java)
-
-        verifyNoMoreInteractions(coinsWebsocket)
     }
 
     @Test
@@ -128,15 +108,13 @@ class BtcAssetTest {
         whenever(payloadManager.addImportedAddressFromKey(ecKey, null))
             .thenReturn(Single.just(internalAccount))
 
-        subject.importAddressFromKey(KEY_DATA, NON_BIP38_FORMAT, null, null)
+        subject.importWalletFromKey(KEY_DATA, NON_BIP38_FORMAT, null, null)
             .test()
             .assertValue {
                 !it.isHDAccount &&
                     !it.isArchived &&
                     it.xpubAddress == IMPORTED_ADDRESS
             }.assertComplete()
-
-        verify(coinsWebsocket).subscribeToExtraBtcAddress(IMPORTED_ADDRESS)
     }
 
     @Test
@@ -148,11 +126,9 @@ class BtcAssetTest {
         whenever(payloadManager.getKeyFromImportedData(NON_BIP38_FORMAT, KEY_DATA))
             .thenReturn(Single.just(ecKey))
 
-        subject.importAddressFromKey(KEY_DATA, NON_BIP38_FORMAT, null, null)
+        subject.importWalletFromKey(KEY_DATA, NON_BIP38_FORMAT, null, null)
             .test()
             .assertError(Exception::class.java)
-
-        verifyNoMoreInteractions(coinsWebsocket)
     }
 
     @Test
@@ -160,11 +136,9 @@ class BtcAssetTest {
         whenever(payloadManager.getKeyFromImportedData(NON_BIP38_FORMAT, KEY_DATA))
             .thenReturn(Single.error(Exception()))
 
-        subject.importAddressFromKey(KEY_DATA, NON_BIP38_FORMAT, null, null)
+        subject.importWalletFromKey(KEY_DATA, NON_BIP38_FORMAT, null, null)
             .test()
             .assertError(Exception::class.java)
-
-        verifyNoMoreInteractions(coinsWebsocket)
     }
 
     @Test
@@ -182,15 +156,13 @@ class BtcAssetTest {
         whenever(payloadManager.addImportedAddressFromKey(ecKey, null))
             .thenReturn(Single.just(internalAccount))
 
-        subject.importAddressFromKey(KEY_DATA, BIP38_FORMAT, KEY_PASSWORD, null)
+        subject.importWalletFromKey(KEY_DATA, BIP38_FORMAT, KEY_PASSWORD, null)
             .test()
             .assertValue {
                 !it.isHDAccount &&
                     !it.isArchived &&
                     it.xpubAddress == IMPORTED_ADDRESS
             }.assertComplete()
-
-        verify(coinsWebsocket).subscribeToExtraBtcAddress(IMPORTED_ADDRESS)
     }
 
     @Test
@@ -198,11 +170,9 @@ class BtcAssetTest {
         whenever(payloadManager.getBip38KeyFromImportedData(KEY_DATA, KEY_PASSWORD))
             .thenReturn(Single.error(BadPassphraseException()))
 
-        subject.importAddressFromKey(KEY_DATA, BIP38_FORMAT, KEY_PASSWORD, null)
+        subject.importWalletFromKey(KEY_DATA, BIP38_FORMAT, KEY_PASSWORD, null)
             .test()
             .assertError(BadPassphraseException::class.java)
-
-        verifyNoMoreInteractions(coinsWebsocket)
     }
 
     @Test
@@ -328,5 +298,37 @@ class BtcAssetTest {
         private const val BIP38_FORMAT = PrivateKeyFactory.BIP38
         private const val KEY_PASSWORD = "SuperSecurePassword"
         private const val IMPORTED_ADDRESS = "aeoiawfohiawiawiohawdfoihawdhioadwfohiafwoih"
+    }
+}
+
+private val mockAssetDependenciesModule = module {
+    factory {
+        mock<ExchangeRatesDataManager>()
+    }
+    factory {
+        mock<CustodialWalletManager>()
+    }
+
+    factory {
+        mock<TradingService>()
+    }
+
+    factory {
+        mock<InterestService>()
+    }
+
+    factory {
+        mock<ExchangeLinking>()
+    }
+    factory {
+        mock<DefaultLabels>()
+    }
+
+    factory {
+        mock<RemoteLogger>()
+    }
+
+    factory {
+        mock<UserIdentity>()
     }
 }

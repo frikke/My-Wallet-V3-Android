@@ -6,10 +6,18 @@ compileKotlin {
         jvmTarget = Versions.kotlinJvmTarget
     }
 }
+java {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}
 dependencies {
     implementation project(':common:interface')
+    implementation project(':balance')
+    implementation project(':store:core')
 
     implementation Libraries.kotlin
     implementation Libraries.kotlinJson
+    implementation Libraries.kotlinCoroutines
+    implementation Libraries.rxjava3Coroutines
     implementation Libraries.rxJava
 }

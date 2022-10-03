@@ -40,13 +40,7 @@ fun NotificationPreferenceDetailsScreen(
         ) {
 
             SimpleText(
-                text = state.title,
-                style = ComposeTypographies.Title3,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Start
-            )
-
-            SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = state.description,
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,

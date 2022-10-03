@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.linkbank
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
-import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.extensions.exhaustive
 import java.io.Serializable
 import java.util.Locale
@@ -81,7 +81,7 @@ private enum class BankPartnerTypes {
         fun toAnalyticsType(partner: BankPartner) =
             when (partner) {
                 BankPartner.YAPILY -> OB.name
-                BankPartner.YODLEE -> ACH.name
+                BankPartner.YODLEE, BankPartner.PLAID -> ACH.name
             }.exhaustive
     }
 }

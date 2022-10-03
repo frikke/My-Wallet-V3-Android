@@ -15,10 +15,13 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -27,11 +30,16 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 
 class InterestWithdrawTradingTxEngine(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    private val interestBalanceStore: InterestBalancesStore,
+    private val interestService: InterestService,
+    private val tradingStore: TradingStore,
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestBalances: InterestBalanceDataManager
-) : InterestBaseEngine(walletManager) {
+) : InterestBaseEngine(interestService) {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf(interestBalanceStore, tradingStore)
+
     private val availableBalance: Single<Money>
         get() = sourceAccount.balance.firstOrError().map { it.withdrawable }
 
@@ -45,7 +53,7 @@ class InterestWithdrawTradingTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> =
         Singles.zip(
             walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.SAVINGS),
-            walletManager.getInterestLimits(sourceAssetInfo),
+            interestService.getLimitsForAsset(sourceAssetInfo),
             availableBalance
         ).map { (minLimits, maxLimits, balance) ->
             PendingTx(
@@ -122,7 +130,7 @@ class InterestWithdrawTradingTxEngine(
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
         walletManager.executeCustodialTransfer(pendingTx.amount, Product.SAVINGS, Product.BUY)
             .doOnComplete {
-                interestBalances.flushCaches(sourceAssetInfo)
+                interestBalanceStore.invalidate()
             }.toSingle {
                 TxResult.UnHashedTxResult(pendingTx.amount)
             }

@@ -2,20 +2,14 @@
 
 package piuk.blockchain.android.ui.kyc.koin
 
-import com.blockchain.koin.metadataMigrationFeatureFlag
+import com.blockchain.koin.loqateFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.nabu.CurrentTier
-import com.blockchain.nabu.EthEligibility
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoModel
-import piuk.blockchain.android.ui.kyc.additional_info.StateMachine
-import piuk.blockchain.android.ui.kyc.address.CurrentTierAdapter
-import piuk.blockchain.android.ui.kyc.address.EligibilityForFreeEthAdapter
 import piuk.blockchain.android.ui.kyc.address.KycHomeAddressNextStepDecision
 import piuk.blockchain.android.ui.kyc.address.KycHomeAddressPresenter
+import piuk.blockchain.android.ui.kyc.address.KycOldHomeAddressPresenter
 import piuk.blockchain.android.ui.kyc.countryselection.KycCountrySelectionPresenter
 import piuk.blockchain.android.ui.kyc.invalidcountry.KycInvalidCountryPresenter
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsInteractor
@@ -38,14 +32,14 @@ val kycUiModule = module {
 
         factory {
             TiersReentryDecision(
-                kycDataManager = get()
+                dataRemediationService = get(),
+                loqateFeatureFlag = get(loqateFeatureFlag),
             )
         }.bind(ReentryDecision::class)
 
         factory {
             ReentryDecisionKycNavigator(
-                token = get(),
-                dataManager = get(),
+                userService = get(),
                 reentryDecision = get(),
                 analytics = get()
             )
@@ -53,14 +47,14 @@ val kycUiModule = module {
 
         factory {
             KycTierSplashPresenter(
-                tierService = get(),
+                kycService = get(),
                 analytics = get()
             )
         }
 
         factory {
             KycCountrySelectionPresenter(
-                nabuDataManager = get()
+                eligibilityService = get()
             )
         }
 
@@ -68,6 +62,7 @@ val kycUiModule = module {
             KycProfilePresenter(
                 nabuToken = get(),
                 nabuDataManager = get(),
+                userService = get(),
                 stringUtils = get(),
             )
         }
@@ -76,9 +71,27 @@ val kycUiModule = module {
             KycHomeAddressPresenter(
                 nabuToken = get(),
                 nabuDataManager = get(),
+                eligibilityService = get(),
+                userService = get(),
+                nabuUserSync = get(),
                 custodialWalletManager = get(),
                 kycNextStepDecision = get(),
-                analytics = get()
+                analytics = get(),
+                kycTiersStore = get(),
+            )
+        }
+
+        factory {
+            KycOldHomeAddressPresenter(
+                nabuToken = get(),
+                nabuDataManager = get(),
+                eligibilityService = get(),
+                userService = get(),
+                nabuUserSync = get(),
+                custodialWalletManager = get(),
+                kycNextStepDecision = get(),
+                analytics = get(),
+                kycTiersStore = get(),
             )
         }
 
@@ -93,8 +106,7 @@ val kycUiModule = module {
             KycMobileValidationPresenter(
                 nabuUserSync = get(),
                 phoneNumberUpdater = get(),
-                kycDataManager = get(),
-                analytics = get()
+                dataRemediationService = get()
             )
         }
 
@@ -102,6 +114,7 @@ val kycUiModule = module {
             VeriffSplashPresenter(
                 nabuToken = get(),
                 nabuDataManager = get(),
+                kycTiersStore = get(),
                 analytics = get(),
                 prefs = get()
             )
@@ -118,19 +131,19 @@ val kycUiModule = module {
         factory {
             KycNavHostPresenter(
                 nabuToken = get(),
-                nabuDataManager = get(),
+                userService = get(),
                 reentryDecision = get(),
-                tierUpdater = get(),
                 kycNavigator = get(),
+                kycTiersStore = get(),
+                getUserStore = get(),
+                productEligibilityStore = get(),
                 analytics = get()
             )
         }
 
         factory {
             KycInvalidCountryPresenter(
-                nabuDataManager = get(),
-                metadataRepository = get(),
-                accountMetadataMigrationFF = get(metadataMigrationFeatureFlag)
+                nabuDataManager = get()
             )
         }
 
@@ -146,7 +159,7 @@ val kycUiModule = module {
         factory {
             KycLimitsInteractor(
                 limitsDataManager = get(),
-                userIdentity = get()
+                kycService = get()
             )
         }
     }
@@ -158,31 +171,8 @@ val kycUiNabuModule = module {
 
         factory {
             KycHomeAddressNextStepDecision(
-                nabuToken = get(),
-                nabuDataManager = get(),
-                kycDataManager = get()
-            )
-        }
-
-        factory {
-            CurrentTierAdapter(
-                nabuToken = get(),
-                nabuDataManager = get()
-            )
-        }.bind(CurrentTier::class)
-
-        factory {
-            EligibilityForFreeEthAdapter(
-                nabuToken = get(),
-                nabuDataManager = get()
-            )
-        }.bind(EthEligibility::class)
-
-        viewModel {
-            KycAdditionalInfoModel(
-                kycDataManager = get(),
-                stateMachine = StateMachine(),
-                analytics = get()
+                userService = get(),
+                dataRemediationService = get()
             )
         }
     }

@@ -1,12 +1,13 @@
 package piuk.blockchain.android.simplebuy
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.CardService
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.asAssetInfoOrThrow
@@ -30,7 +31,8 @@ import timber.log.Timber
 
 class SimpleBuySyncFactory(
     private val custodialWallet: CustodialWalletManager,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val bankService: BankService,
+    private val cardService: CardService,
     private val serializer: SimpleBuyPrefsSerializer
 ) {
 
@@ -56,6 +58,20 @@ class SimpleBuySyncFactory(
 
     fun clear() {
         serializer.clear()
+    }
+
+    fun cancelAnyPendingConfirmationBuy(): Completable {
+        val currentOrder = currentState() ?: return Completable.complete()
+        val pendingOrderId = currentOrder.takeIf { it.orderState == OrderState.PENDING_CONFIRMATION }?.id
+            ?: return Completable.complete()
+
+        return custodialWallet.deleteBuyOrder(pendingOrderId)
+            .doOnComplete {
+                clear()
+            }
+            .doOnError {
+                Timber.e("Failed to cancel buy order $pendingOrderId")
+            }
     }
 
     private fun syncStates(): Maybe<SimpleBuyState> {
@@ -108,7 +124,7 @@ class SimpleBuySyncFactory(
 
     private fun BuySellOrder.toSimpleBuyStateMaybe(): Maybe<SimpleBuyState> = when {
         isDefinedCardPayment() -> {
-            paymentsDataManager.getCardDetails(paymentMethodId).flatMapMaybe {
+            cardService.getCardDetails(paymentMethodId).flatMapMaybe {
                 Maybe.just(
                     this.toSimpleBuyState().copy(
                         selectedPaymentMethod = SelectedPaymentMethod(
@@ -123,7 +139,7 @@ class SimpleBuySyncFactory(
             }
         }
         isDefinedBankTransferPayment() -> {
-            paymentsDataManager.getLinkedBank(paymentMethodId).flatMapMaybe {
+            bankService.getLinkedBank(paymentMethodId).flatMapMaybe {
                 Maybe.just(
                     toSimpleBuyState().copy(
                         selectedPaymentMethod = SelectedPaymentMethod(

@@ -22,7 +22,11 @@ import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.backup.BackupPhraseActivity
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
@@ -56,8 +60,6 @@ class SecurityFragment :
             "Parent must implement SettingsNavigator"
         )
 
-    override fun onBackPressed(): Boolean = true
-
     override val model: SecurityModel by scopedInject()
 
     private val biometricsController: BiometricsController by scopedInject()
@@ -67,6 +69,8 @@ class SecurityFragment :
     ) {
         model.process(SecurityIntent.ToggleBiometrics)
     }
+
+    private val backupFeatureFlag: FeatureFlag by inject(backupPhraseFeatureFlag)
 
     private val onBackupResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -119,7 +123,7 @@ class SecurityFragment :
                 primaryText = getString(R.string.security_backup_phrase_title)
                 secondaryText = getString(R.string.security_backup_phrase_subtitle)
                 onClick = {
-                    onBackupResult.launch(BackupWalletActivity.newIntent(requireContext()))
+                    startBackupPhraseFlow()
                 }
             }
 
@@ -346,7 +350,7 @@ class SecurityFragment :
             BottomSheetInformation.newInstance(
                 title = getString(R.string.security_missing_phone_number),
                 description = getString(R.string.security_missing_phone_number_description),
-                ctaPrimaryText = getString(R.string.security_missing_phone_number_cta),
+                primaryCtaText = getString(R.string.security_missing_phone_number_cta),
             )
         )
     }
@@ -383,7 +387,21 @@ class SecurityFragment :
     }
 
     override fun onBackupNow() {
-        onBackupResult.launch(BackupWalletActivity.newIntent(requireContext()))
+        startBackupPhraseFlow()
+    }
+
+    private fun startBackupPhraseFlow() {
+        backupFeatureFlag.enabled.subscribe { isEnabled ->
+            if (isEnabled) {
+                launchPhraseRecovery()
+            } else {
+                onBackupResult.launch(BackupWalletActivity.newIntent(requireContext()))
+            }
+        }
+    }
+
+    private fun launchPhraseRecovery() {
+        startActivity(BackupPhraseActivity.newIntent(context = activity))
     }
 
     override fun onSheetClosed() {

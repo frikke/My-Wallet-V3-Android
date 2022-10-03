@@ -96,7 +96,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     fun updateToolbar(
         toolbarTitle: String = "",
         menuItems: List<NavigationBarButton>? = null,
-        backAction: (() -> Unit)? = null
+        backAction: (() -> Unit)? = null,
     ) {
         updateToolbarTitle(toolbarTitle)
         menuItems?.let { items ->
@@ -108,15 +108,19 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     fun updateToolbarTitle(title: String) {
-        toolbarBinding?.toolbarRedesign?.title = title
+        toolbarBinding?.navigationToolbar?.title = title
     }
 
     fun updateToolbarMenuItems(menuItems: List<NavigationBarButton>) {
-        toolbarBinding?.toolbarRedesign?.endNavigationBarButtons = menuItems
+        toolbarBinding?.navigationToolbar?.endNavigationBarButtons = menuItems
     }
 
     fun updateToolbarBackAction(backAction: (() -> Unit)?) {
-        toolbarBinding?.toolbarRedesign?.onBackButtonClick = backAction
+        toolbarBinding?.navigationToolbar?.onBackButtonClick = backAction
+    }
+
+    fun updateToolbarStartItem(startItem: NavigationBarButton) {
+        toolbarBinding?.navigationToolbar?.startNavigationButton = startItem
     }
 
     @CallSuper
@@ -244,31 +248,6 @@ abstract class BlockchainActivity : ToolBarActivity() {
     fun replaceBottomSheet(bottomSheet: BottomSheetDialogFragment) {
         clearBottomSheet()
         showBottomSheet(bottomSheet)
-    }
-
-    override fun onBackPressed() {
-        val fragments = supportFragmentManager.fragments
-        for (fragment in fragments) {
-            if (fragment is FlowFragment && backActionShouldBeHandledByFragment(fragment)) {
-                return
-            }
-        }
-        super.onBackPressed()
-    }
-
-    private fun backActionShouldBeHandledByFragment(flowFragment: FlowFragment): Boolean =
-        flowFragment.onBackPressed() && handleByScreenOrPop(flowFragment)
-
-    private fun handleByScreenOrPop(flowFragment: FlowFragment): Boolean =
-        flowFragment.backPressedHandled() || pop()
-
-    private fun pop(): Boolean {
-        val backStackEntryCount = supportFragmentManager.backStackEntryCount
-        if (backStackEntryCount > 1) {
-            supportFragmentManager.popBackStack()
-            return true
-        }
-        return false
     }
 
     companion object {

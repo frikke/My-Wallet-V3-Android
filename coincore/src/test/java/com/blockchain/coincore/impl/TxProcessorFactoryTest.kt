@@ -15,6 +15,7 @@ import com.blockchain.coincore.btc.BtcOnChainTxEngine
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.txEngine.FiatDepositTxEngine
 import com.blockchain.coincore.impl.txEngine.FiatWithdrawalTxEngine
+import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TradingToOnChainTxEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.impl.txEngine.interest.InterestDepositOnChainTxEngine
@@ -28,18 +29,20 @@ import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.SECONDARY_TEST_ASSET
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.coincore.testutil.EUR
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
-import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
-import java.lang.IllegalStateException
 import org.junit.Before
 import org.junit.Test
 
@@ -48,15 +51,18 @@ class TxProcessorFactoryTest {
     private val bitPayManager: BitPayDataManager = mock()
     private val exchangeRates: ExchangeRatesDataManager = mock()
     private val walletManager: CustodialWalletManager = mock()
-    private val interestBalances: InterestBalanceDataManager = mock()
-    private val walletPrefs: WalletStatus = mock()
+    private val interestBalanceStore: InterestBalancesStore = mock()
+    private val interestService: InterestService = mock()
+    private val tradingStore: TradingStore = mock()
+    private val walletPrefs: WalletStatusPrefs = mock()
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val analytics: Analytics = mock()
     private val limitsDataManager: LimitsDataManager = mock()
     private val userIdentity: UserIdentity = mock()
     private val withdrawalLocksRepository: WithdrawLocksRepository = mock()
-    private val paymentsDataManager: PaymentsDataManager = mock()
+    private val bankService: BankService = mock()
+    private val plaidFeatureFlag: FeatureFlag = mock()
 
     private lateinit var subject: TxProcessorFactory
 
@@ -66,7 +72,9 @@ class TxProcessorFactoryTest {
             bitPayManager = bitPayManager,
             exchangeRates = exchangeRates,
             walletManager = walletManager,
-            interestBalances = interestBalances,
+            interestBalanceStore = interestBalanceStore,
+            interestService = interestService,
+            tradingStore = tradingStore,
             walletPrefs = walletPrefs,
             limitsDataManager = limitsDataManager,
             bankPartnerCallbackProvider = bankPartnerCallbackProvider,
@@ -75,9 +83,11 @@ class TxProcessorFactoryTest {
             analytics = analytics,
             userIdentity = userIdentity,
             withdrawLocksRepository = withdrawalLocksRepository,
-            paymentsDataManager = paymentsDataManager,
+            bankService = bankService,
             ethDataManager = mock(),
-            fees = mock()
+            fees = mock(),
+            swapTransactionsCache = mock(),
+            plaidFeatureFlag = plaidFeatureFlag
         )
     }
 
@@ -132,7 +142,6 @@ class TxProcessorFactoryTest {
                     it.engine is InterestDepositOnChainTxEngine &&
                     (it.engine as InterestDepositOnChainTxEngine).run {
                         this.walletManager == walletManager &&
-                            this.interestBalances == interestBalances &&
                             this.onChainEngine == mockBaseEngine
                     }
             }
@@ -241,10 +250,14 @@ class TxProcessorFactoryTest {
 
     @Test
     fun onChainToUnknownProcessor() {
-        val source: CryptoNonCustodialAccount = mock()
+        val mockBaseEngine: OnChainTxEngineBase = mock()
+        val action = AssetAction.Send
         val target: LinkedBankAccount.BankAccountAddress = mock()
+        val source: CryptoNonCustodialAccount = mock {
+            on { createTxEngine(target, action) }.thenReturn(mockBaseEngine)
+        }
 
-        subject.createProcessor(source, target, AssetAction.Send)
+        subject.createProcessor(source, target, action)
             .test()
             .assertError {
                 it is TransferError
@@ -255,7 +268,6 @@ class TxProcessorFactoryTest {
     fun tradingToOnChainNoteSupportedSendProcessor() {
         val source: CustodialTradingAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
-            on { isNoteSupported }.thenReturn(true)
         }
 
         val target: CryptoAddress = mock {
@@ -270,8 +282,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is TradingToOnChainTxEngine &&
                     (it.engine as TradingToOnChainTxEngine).run {
-                        this.isNoteSupported == source.isNoteSupported &&
-                            this.walletManager == walletManager
+                        this.walletManager == walletManager
                     }
             }
     }
@@ -280,7 +291,6 @@ class TxProcessorFactoryTest {
     fun tradingToOnChainNoteNotSupportedSendProcessor() {
         val source: CustodialTradingAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
-            on { isNoteSupported }.thenReturn(false)
         }
 
         val target: CryptoAddress = mock {
@@ -295,8 +305,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is TradingToOnChainTxEngine &&
                     (it.engine as TradingToOnChainTxEngine).run {
-                        this.isNoteSupported == source.isNoteSupported &&
-                            this.walletManager == walletManager
+                        this.walletManager == walletManager
                     }
             }
     }
@@ -319,8 +328,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is InterestDepositTradingEngine &&
                     (it.engine as InterestDepositTradingEngine).run {
-                        this.interestBalances == interestBalances &&
-                            this.walletManager == walletManager
+                        this.walletManager == walletManager
                     }
             }
     }
@@ -377,7 +385,6 @@ class TxProcessorFactoryTest {
     fun tradingToOnChainNoteSupportedProcessor() {
         val source: CustodialTradingAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
-            on { isNoteSupported }.thenReturn(true)
         }
 
         val mockReceiveAddress: CryptoAddress = mock {
@@ -395,8 +402,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is TradingToOnChainTxEngine &&
                     (it.engine as TradingToOnChainTxEngine).run {
-                        this.isNoteSupported == source.isNoteSupported &&
-                            this.walletManager == walletManager
+                        this.walletManager == walletManager
                     }
             }
     }
@@ -405,7 +411,6 @@ class TxProcessorFactoryTest {
     fun tradingToOnChainNoteNotSupportedProcessor() {
         val source: CustodialTradingAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
-            on { isNoteSupported }.thenReturn(false)
         }
 
         val mockReceiveAddress: CryptoAddress = mock {
@@ -423,8 +428,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is TradingToOnChainTxEngine &&
                     (it.engine as TradingToOnChainTxEngine).run {
-                        this.isNoteSupported == source.isNoteSupported &&
-                            this.walletManager == walletManager
+                        this.walletManager == walletManager
                     }
             }
     }
@@ -458,8 +462,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is InterestWithdrawTradingTxEngine &&
                     (it.engine as InterestWithdrawTradingTxEngine).run {
-                        this.walletManager == walletManager &&
-                            this.interestBalances == interestBalances
+                        this.walletManager == walletManager
                     }
             }
     }
@@ -481,8 +484,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is InterestWithdrawOnChainTxEngine &&
                     (it.engine as InterestWithdrawOnChainTxEngine).run {
-                        this.walletManager == walletManager &&
-                            this.interestBalances == interestBalances
+                        this.walletManager == walletManager
                     }
             }
     }

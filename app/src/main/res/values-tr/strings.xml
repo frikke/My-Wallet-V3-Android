@@ -64,7 +64,7 @@
     <string name="pair_wallet_step_1">PC\'niz veya Mac\'iniz ile %1$s üzerinden Blockchain Wallet cüzdanınıza giriş yapın.</string>
     <string name="pair_wallet_step_2">Ayarlar / Genel bölümüne gidin.</string>
     <string name="landing_body">Dijital para <b>göndermenin</b>, <b>almanın</b>, <b>saklamanın</b> ve <b>trade etmenin</b> kolay yolu.</string>
-    <string name="pair_wallet_step_3">Kare şeklindeki siyah ve beyaz QR kodunu görüntülemek için Eşleştirme Kodunu Göster 
+    <string name="pair_wallet_step_3">Kare şeklindeki siyah ve beyaz QR kodunu görüntülemek için Eşleştirme Kodunu Göster
         seçeneğine tıklayın. Kameranızla kodu tarayın.
     </string>
     <string name="wallet_id">Wallet Kimliği</string>
@@ -129,7 +129,6 @@ Her hakkı saklıdır.</string>
     </string>
     <string name="profile_label_name">ad</string>
     <string name="content_desc_edit_account_label">Hesap Etiketini Düzenle</string>
-    <string name="next">İleri</string>
     <string name="received_ethereum">%1$s alındı</string>
     <string name="received_usd_pax_1">Alınan USD Digital</string>
     <string name="received_bitcoin_cash">Alınan Bitcoin Cash</string>
@@ -176,7 +175,7 @@ Her hakkı saklıdır.</string>
     <string name="password_changed_explanation">Şifreniz değiştirildi, lütfen cüzdanınızı
         yeniden eşleştirin
     </string>
-    <string name="verify_email2">Doğrulanan e-posta adresiniz şüpheli veya olağan dışı aktivite 
+    <string name="verify_email2">Doğrulanan e-posta adresiniz şüpheli veya olağan dışı aktivite
         tespit edildiğinde giriş kodları göndermek, cüzdana giriş kimliğinizi hatırlatmak 
         ve para geldiğinde bitcoin ödeme uyarıları göndermek için kullanılmaktadır.
     </string>
@@ -221,7 +220,7 @@ Her hakkı saklıdır.</string>
     <string name="edit_wallet_name">İsmi Düzenle</string>
     <string name="edit_wallet_name_helper_text">Bu yeni cüzdana bir ad ver.</string>
     <string name="create_a_new_wallet">Yeni Bir Blockchain.com Wallet Oluşturun</string>
-    <string name="create_a_new_wallet_helper_text">Bu yeni cüzdana bir ad verin.</string>
+    <string name="create_a_new_wallet_helper_text">Bu yeni cüzdana bir isim verin.</string>
     <string name="create_now">Yeni Oluştur</string>
     <string name="copy_address">Adres kopyala</string>
     <string name="archive">Arşiv</string>
@@ -336,7 +335,7 @@ Bunun yerine
         bu cüzdandaki bitcoin\'ler erişilemez olacak!!
     </string>
     <string name="api_fail">Sunucuya bağlanamadı. Lütfen daha sonra tekrar deneyin.</string>
-    <string name="large_tx_warning">Bu yüksek tutarlı bir bitcoin işlemi. Önceden aldığınız 
+    <string name="large_tx_warning">Bu yüksek tutarlı bir bitcoin işlemi. Önceden aldığınız
         ufak tutarlardaki birçok ödemenin cüzdanınızda birleştirilmesi gerekiyor. Bu işlemin
         hızlı bir şekilde onaylanması için nispeten yükek bir ücret alınır.
     </string>
@@ -432,6 +431,7 @@ Bunun yerine
     <string name="common_connect">Bağlan</string>
     <string name="account_exchange_connected_cta">Exchange\'i Başlat</string>
     <string name="open_email_cta">E-posta Uygulamasını Aç</string>
+    <string name="common_maybe_later">Belki sonra</string>
     <string name="verify_email_card_title">Eposta adresinizi doğrulayın</string>
     <string name="verify_email_card_body">Blockchain cüzdanınızı kullanmaya başlamak için e-posta adresinizi onaylamanız gerekiyor.</string>
     <string name="verify_email_card_cta">E-posta Adresini doğrulayın</string>
@@ -444,7 +444,7 @@ Bunun yerine
     <string name="recovery_card_cta">Yedekleme İfadesi</string>
     <string name="simple_buy_finish_signup_card_title">Kaydolmayı bitirin. Kripto satın al.</string>
     <string name="simple_buy_finish_signup_card_body">Blockchain.com Wallet\'ınıza kaydolma işlemini neredeyse bitirdiniz. Tamamladıktan ve onaylandıktan sonra kripto para satın almaya başlayabilirsiniz.</string>
-    <string name="simple_buy_finish_signup_card_cta">Devam</string>
+    <string name="simple_buy_finish_signup_card_cta">Devam et</string>
     <string name="simple_buy_pending_buy_card_title">Alım Beklemede</string>
     <string name="simple_buy_pending_buy_card_body">Banka havaleniz ulaşınca satın alma emriniz tamamlanacak.</string>
     <string name="register_fingerprint_card_cta">Şimdi Etkinleştir</string>
@@ -455,19 +455,16 @@ Bunun yerine
     <string name="activity_details_title_received_1">Alınan</string>
     <string name="airdrop_status_pending">Bekliyor</string>
     <string name="airdrop_status_unknown">-</string>
-    <string name="airdrop_sheet_stx_body">Blockstack ile oluşturulmuş yüzlerce merkezi olmayan uygulama ile dijital kimliğinize ve verilerinize sahip olun.</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks_title">Stack kriptolarım nerede?</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks">Stack kriptolar (STX), Blockchain Wallet cüzdanınızda saklanır. Bakiyenin şu anda transfer edilemediğini lütfen unutmayın.</string>
     <string name="backup_before_send_title">Cüzdanınızı Yedekleyin</string>
     <string name="backup_before_send_cta">Şimdi yedekle</string>
     <string name="airdrop_status_date_active">%1s tarihinde başlıyor</string>
     <string name="airdrop_status_date_inactive">%1s tarihinde sona erdi</string>
     <string name="kyc_non_specific_server_error">Hata, lütfen tekrar deneyin</string>
-    <string name="kyc_splash_title">Swap Yap</string>
+    <string name="kyc_splash_title">Takas Yap</string>
     <string name="kyc_splash_apply_now">Şimdi başla</string>
     <string name="kyc_splash_message">Blockchain ile Swap Duyurusu - kripto paranızla al-sat işlemleri yapmak için daha hızlı ve akıllı bir yol.</string>
     <string name="kyc_splash_terms_and_conditions_submit">Gönder\'e dokunarak Blockchain\'in</string>
-    <string name="kyc_splash_terms_and_conditions_terms">Kullanım Şartları</string>
+    <string name="kyc_splash_terms_and_conditions_terms">Hizmet Şartları</string>
     <string name="kyc_splash_terms_and_conditions_privacy">Gizlilik Politikası</string>
     <string name="kyc_country_selection_title">İkamet Edilen Ülke</string>
     <string name="kyc_country_selection_state_title">Eyalet</string>
@@ -485,7 +482,7 @@ Bunun yerine
     <string name="kyc_profile_last_name_hint">Soyadı</string>
     <string name="kyc_profile_dob_hint">Doğum Tarihi</string>
     <string name="kyc_profile_next">İleri</string>
-    <string name="kyc_profile_submit">Sunmak</string>
+    <string name="common_submit">Sunmak</string>
     <string name="kyc_profile_error">Kullanıcı bilgileri oluşturulurken hata yaşandı, lütfen tekrar deneyin</string>
     <string name="kyc_profile_error_conflict">Bu e-posta adresini kullanan bir kullanıcı zaten var</string>
     <string name="kyc_invalid_country_message_me">Geldiğinde mesaj gönder</string>
@@ -545,7 +542,7 @@ Bunun yerine
     <string name="kyc_veriff_splash_drivers_license">Sürücü Ehliyeti</string>
     <string name="kyc_veriff_splash_id_card">Ulusal kimlik kartı</string>
     <string name="kyc_veriff_splash_residence_permit">Ev kartı</string>
-    <string name="kyc_veriff_splash_continue">Devam</string>
+    <string name="kyc_veriff_splash_continue">Devam et</string>
     <string name="kyc_complete_title">Başvuru Tamamlandı</string>
     <string name="kyc_complete_header">Hepsi tamam!</string>
     <string name="kyc_complete_subtitle">Bilgilerinizi başarıyla gönderdiniz. Hesabınız şu an incelemede!</string>
@@ -605,11 +602,6 @@ Bunun yerine
     <string name="buy_sell_please_wait">Lütfen bekleyin...</string>
     <string name="tiers_splash_header_text">Kripto paranızla al-sat yapmak kontrolü başkalarına devretmek anlamına gelmez</string>
     <string name="announcing_swap">Blockchain.com ile Swap, tüm paranızı tam olarak kontrol ederken, en iyi fiyatlarla kripto al-sat işlemleri yapmanızı ve hızlı bir şekilde paraya çevirmenizi sağlar.</string>
-    <string name="stacks_airdrop_complete_card_title">AirDrop başladı</string>
-    <string name="stacks_airdrop_complete_card_description">Yığınlarınız artık cüzdanınızda. Bunlar kullanıma hazır olur olmaz size haber vereceğiz.</string>
-    <string name="stacks_airdrop_complete_card_button">Detayları göster</string>
-    <string name="stacks_airdrop_registered_mini_card_title">Tamamen Doğrulanmış Olma Ödülü</string>
-    <string name="stacks_airdrop_registered_mini_card_body">2020\'de ücretsiz kripto para dağıtıyoruz</string>
     <string name="unlock">Kilidini aç</string>
     <string name="_1_000">1.000 $</string>
     <string name="_25_000">25.000 $</string>
@@ -687,7 +679,7 @@ Bunun yerine
     <string name="kyc_manual_review_required">Manuel İnceleme Gerekli</string>
     <string name="kyc_pending_review">Bekleyen yorum</string>
     <string name="kyc_veriff_but_not_eligible_review">Başarılı Başvuru</string>
-    <string name="kyc_veriff_but_not_eligible_review_info">Kimliğiniz başarıyla doğrulandı. Artık Tam Erişime sahipsiniz ve günde 25.000 $\'a kadar işlem yapabilirsiniz. 
+    <string name="kyc_veriff_but_not_eligible_review_info">Kimliğiniz başarıyla doğrulandı. Artık Tam Erişime sahipsiniz ve günde 25.000 $\'a kadar işlem yapabilirsiniz.
 
  Satın alma özelliği henüz bölgenizde kullanıma açık değil. Kullanıma açılır açılmaz size haber vereceğiz.</string>
     <string name="simple_buy_securely_transfer">Banka hesabınızdan Blockchain\'e güvenli bir şekilde %1$s transfer gerçekleştirin. Transfer yöntemine ve para mevcutluk durumuna bağlı olarak bu işlem 1 iş günü kadar sürebilir.</string>
@@ -704,7 +696,6 @@ Bu hesaba para yatırarak bankacılık işlemlerindeki iş ortağımız <annotat
     <string name="cancel_order_go_back_dashboard">Hayır, Emri Tut</string>
     <string name="cancel_token_instruction">Böylece %1$s Satın alma emriniz kaldırılacak.</string>
     <string name="transfer_details">Transfer Ayrıntıları</string>
-    <string name="ops">Hata!</string>
     <string name="something_went_wrong_try_again">Bir şeyler yanlış gitti. Lütfen tekrar deneyin.</string>
     <string name="simple_buy_copied_to_clipboard">%1s panonuzda.</string>
     <string name="bank_code_swift_bic">Banka Kodu (SWIFT / BIC)</string>
@@ -716,8 +707,9 @@ Bu hesaba para yatırarak bankacılık işlemlerindeki iş ortağımız <annotat
     <string name="security_two_fa_title">2-Aşamalı Doğrulama</string>
     <string name="coinview_chart_tab_all">Tümü</string>
     <string name="default_label_all_wallets">Tüm Cüzdanlar</string>
-    <string name="kyc_upgrade_now_basic_active">Onaylandı</string>
+    <string name="kyc_upgrade_now_basic_active">Aktif</string>
     <string name="funds_locked_summary_available_send">Gönderilebilir</string>
+    <string name="account_exchange_title">Blockchain Exchange</string>
     <string name="common_buy">Satın Al</string>
     <string name="common_cancel">İptal etmek</string>
     <string name="order_complete">Tamamla</string>
@@ -735,6 +727,7 @@ Bu hesaba para yatırarak bankacılık işlemlerindeki iş ortağımız <annotat
     <string name="fiat_funds_no_kyc_negative_action">Şimdi değil</string>
     <string name="password_required">Şifre Gerekli</string>
     <string name="biometrics_enrollment_desc">PIN\'inizi kullanmak yerine cüzdanınıza hızlıca giriş yapın.</string>
+    <string name="coinview_expandable_button">Devamını Oku</string>
     <string name="activity_state_refunded">Geri Ödendi</string>
     <string name="common_save">Kayıt etmek</string>
     <string name="send_scan_qr_code">QR Kodu Tara</string>
@@ -746,7 +739,7 @@ Bu hesaba para yatırarak bankacılık işlemlerindeki iş ortağımız <annotat
     <string name="common_try_again">Tekrar deneyin</string>
     <string name="activity_details_value">değer</string>
     <string name="view_activity">Etkinliği görüntüle</string>
-    <string name="common_yes">Evet</string>
+    <string name="yes">Evet</string>
     <string name="profile_verify_email_msg">Doğrulanmış e-posta adresiniz ödeme uyarısı, kimlik hatırlatıcı ve giriş kodu göndermek için kullanılmaktadır.</string>
     <string name="send_confirmation_deposit_cta_button">Şimdi Transfer Yap</string>
     <string name="daily_swap_and_buy_limit">Günlük Swap ve Satın Alma Limiti</string>
@@ -773,7 +766,6 @@ Bu hesaba para yatırarak bankacılık işlemlerindeki iş ortağımız <annotat
     <string name="simple_buy_select_currency">Para Biriminizi Seçin</string>
     <string name="linking_card_subtitle">Bu işlem 1 dakika kadar sürebilir.</string>
     <string name="activity_details_buy_tx_id">İşlem Kimliği</string>
-    <string name="entity_switch_silver_dialog_verify_now">Şimdi doğrulayın</string>
     <string name="we_will_notify_order_complete">Emriniz tamamlandığında sizi bilgilendireceğiz.</string>
     <string name="completing_card_buy">Satın alma işleminizi şimdi tamamlanıyoruz.</string>
     <string name="simple_buy_currency_selection_header">Paranın Blockchain.com Wallet cüzdanınızda saklanacağı yerel para biriminiz.</string>
@@ -798,7 +790,7 @@ Bu hesaba para yatırarak bankacılık işlemlerindeki iş ortağımız <annotat
     <string name="approximately_symbol">~ %1$s</string>
     <string name="activity_state_initialised">Başlatıldı</string>
     <string name="activity_state_uninitialised">Başlatılmadı</string>
-    <string name="activity_state_pending">Bekliyor</string>
+    <string name="activity_state_pending">Beklemede</string>
     <string name="activity_state_unknown">Bilinmiyor</string>
     <string name="activity_state_failed">Başarısız</string>
     <string name="activity_wallet_total_balance">Toplam Bakiye</string>
@@ -818,7 +810,7 @@ Bu hesaba para yatırarak bankacılık işlemlerindeki iş ortağımız <annotat
     <string name="activity_custodial_pending_value">Banka Transferi</string>
     <string name="checkout_bank_transfer_label">Banka Transferi</string>
     <string name="activity_loading_error">Etkinlik yüklenemedi. Lütfen daha sonra tekrar deneyin.</string>
-    <string name="order_pending">Bekliyor</string>
+    <string name="order_pending">Beklemede</string>
     <string name="expired">Süresi doldu</string>
     <string name="save_my_card">Kartımı Kaydet</string>
     <string name="activity_details_label_waiting_on_funds">Fonlar Bekleniyor</string>
@@ -831,7 +823,7 @@ Bu hesaba para yatırarak bankacılık işlemlerindeki iş ortağımız <annotat
     <string name="activity_details_cancel_action">Satın Alma İşlemini İptal Et</string>
     <string name="activity_detail_description_action">Bir tanım ekle</string>
     <string name="activity_detail_description_label">Açıklama</string>
-    <string name="activity_details_label_pending">Bekliyor</string>
+    <string name="activity_details_label_pending">Beklemede</string>
     <string name="activity_details_title_transferred">Transfer</string>
     <string name="activity_details_label_confirmations">%1$d / %2$d
 Onay</string>
@@ -867,11 +859,12 @@ Onay</string>
     <string name="fiat_funds_kyc_announcement_title">Kripto Satın Almak için Bir Banka Bağlayın</string>
     <string name="most_popular">En popüler</string>
     <string name="processing_time">İşlem Süresi</string>
+    <string name="terms_and_conditions">Şartlar ve Koşullar</string>
     <string name="fiat_funds_no_kyc_step_2_description">Bankanızdan nakit aktarın ve nakit bakiyenizi etkinleştirin.</string>
     <string name="fiat_funds_no_kyc_step_3_description">BTC, ETH, XLM ve daha fazlasını satın almak için nakit cüzdanınızı ödeme yöntemi olarak kullanın.</string>
     <string name="fiat_funds_no_kyc_announcement_description">Cüzdana nakit para yatırmak ve kripto satın almak için kimliğinizi doğrulayın.</string>
     <string name="received_usdt">Alınan Tether</string>
-    <string name="watch_only_not_supported">Harcama yapılamayan bir adresi (adres veya karşılık gelen özel anahtar olmayan 
+    <string name="watch_only_not_supported">Harcama yapılamayan bir adresi (adres veya karşılık gelen özel anahtar olmayan
 ortak anahtar komut dosyası) içe aktarma 
 desteklenmez. Lütfen  bir adres ve özel anahtar
  ile tekrar deneyin.
@@ -916,7 +909,7 @@ desteklenmez. Lütfen  bir adres ve özel anahtar
     <string name="send_state_not_enough_gas">ETH bakiyesi düşük, ağ ücreti ödenemiyor</string>
     <string name="send_state_send_in_flight">Bekleyen işlem nedeniyle kullanılamıyor.</string>
     <string name="common_send">Gönder</string>
-    <string name="common_swap">Swap Yap</string>
+    <string name="common_swap">Takas Yap</string>
     <string name="common_from">Gönderen</string>
     <string name="common_to">Alıcı</string>
     <string name="common_ok">Tamam</string>
@@ -948,7 +941,7 @@ desteklenmez. Lütfen  bir adres ve özel anahtar
     <string name="activity_state_rejected">Reddedildi</string>
     <string name="activity_details_label_manual_review">Manuel İnceleme</string>
     <string name="activity_details_label_processing">İşleniyor</string>
-    <string name="activity_details_title_deposit">Transfer Et</string>
+    <string name="activity_details_title_deposit">Transfer</string>
     <string name="activity_details_title_withdraw">Para çekme</string>
     <string name="send_enter_amount_from">Gönderen: %1$s</string>
     <string name="send_enter_amount_to">Alıcı: %1$s</string>
@@ -1006,7 +999,7 @@ desteklenmez. Lütfen  bir adres ve özel anahtar
     <string name="sell_confirmation_success_message">Nakdiniz artık %1$s Cüzdanınızda.</string>
     <string name="sell_progress_complete_title">%1$s Satıldı</string>
     <string name="rewards_dashboard_verify_point_one_label">Kimlik hırsızlığını veya sahtekarlığı önlemek için, bir kimlik yükleyerek gerçekten siz olduğunuzu teyit etmenizi isteyeceğiz.</string>
-    <string name="buy_and_sell">Al ve Sat</string>
+    <string name="buy_and_sell">Al &amp; Sat</string>
     <string name="buy_with_cash">Nakit veya Kart İle Satın Al.</string>
     <string name="select_crypto_you_want">Satın almak istediğiniz kripto parayı seçin.</string>
     <string name="sell_intro_kyc_title_1">Kimliğinizi Doğrulayın</string>
@@ -1054,8 +1047,8 @@ Kripto paranızı yönetmek için cüzdanı kullanmaya devam edebilirsiniz.</str
         <item quantity="other">Kalan yedeklemesiz %1$d gönderiminiz var</item>
     </plurals>
     <string name="backup_before_send_now_label">Göndermeden önce yedeklemelisiniz</string>
-    <string name="card_info_title">Kabul Edilmeyen Sanal Kartlar</string>
-    <string name="card_info_description">Şu anda sanal kredi ve banka kartlarıyla kripto satın almayı desteklemiyoruz. Fiziksel bir kartın numarasını, tarihini ve güvenlik kodunu kullanmalısınız.</string>
+    <string name="card_info_title">Biliyor muydunuz?</string>
+    <string name="card_info_description">Birçok kredi kartı kripto satın alma işlemlerini desteklemez. Genellikle banka kartları bu açıdan en kullanışlı olanlardır.</string>
     <string name="send_confirmation_insufficient_fee">Öncelik ücreti için yeterli para yok, lütfen gönderim miktarınızı ayarlayın.</string>
     <string name="send_state_locked_funds_1">Bekleyen işlemleriniz var.</string>
     <string name="sell_info_title">Diğer Cüzdanlarınızdan mı satmak istiyorsunuz?</string>
@@ -1063,7 +1056,7 @@ Kripto paranızı yönetmek için cüzdanı kullanmaya devam edebilirsiniz.</str
     <string name="sell_info_blurb_2"> Al-Sat Cüzdanları. </string>
     <string name="sell_info_blurb_3">Gönderim tamamlandığında, kriptoyu nakit karşılığı sat.</string>
     <string name="sell_info_action">Şimdi Gönder →</string>
-    <string name="common_pending">Bekliyor</string>
+    <string name="common_pending">Beklemede</string>
     <string name="confirm_status_msg_insufficient_funds">Bu hesapta bu işlemi gerçekleştirmek için yeterli paranız yok</string>
     <string name="confirm_status_msg_insufficient_gas">Bu işlemi gerçekleştirmek için yeterli tutarda ETH\'ye sahip değilsiniz.</string>
     <string name="confirm_status_msg_option_invalid">Lütfen Şartlarımızı kabul ettiğinizden emin olun.</string>
@@ -1082,7 +1075,7 @@ Kripto paranızı yönetmek için cüzdanı kullanmaya devam edebilirsiniz.</str
     <string name="select_account_sheet_empty">Bu eylemi gerçekleştirmek için uygun Cüzdanınız yok.</string>
     <string name="swap_enter_amount_min_swap">Minimum %1$s takas gerekli</string>
     <string name="too_many_pending_orders_error_message">%1$s Cüzdanınızda işlemde olan çok fazla takas var. Lütfen farklı bir cüzdan seçin.</string>
-    <string name="swap_confirmation_cta_button">Şimdi Swap Yap</string>
+    <string name="swap_confirmation_cta_button">Şimdi Takas Yap</string>
     <string name="swap_confirmation_progress_message">Şimdi Swap işleminizi tamamlıyoruz.</string>
     <string name="swap_confirmation_success_message">%1$s artık Cüzdanınızda kullanılabilir.</string>
     <string name="swap_progress_title">%2$s için %1$s takas ediliyor</string>
@@ -1107,21 +1100,21 @@ Kripto paranızı yönetmek için cüzdanı kullanmaya devam edebilirsiniz.</str
     <string name="swap_kyc_1_title">Ülkenizi Seçin</string>
     <string name="swap_kyc_1_label">Yerel yasalar uyarınca Blockchain.com hangi ülkede ikamet ettiğiniz bilgisine sahip olmalıdır.</string>
     <string name="swap_kyc_2_title">Kimliğinizi Doğrulayın</string>
-    <string name="swap_kyc_2_label">Dolandırıcılığı önlemek için kimlik belgesi yüklemenizi isteyerek gerçekten siz olduğunuzu teyit etmemiz gerekmektedir.</string>
+    <string name="swap_kyc_2_label">Dolandırıcılığı önlemek için kimlik belgesi yüklemenizi isteyerek gerçekten siz olduğunuzu teyit etmemiz gerekiyor.</string>
     <string name="swap_kyc_3_title">Swap Yapmaya Başlayın</string>
     <string name="swap_kyc_3_label">Kimliğiniz doğrulanınca Swap bölümüne geri dönüp kripto takasına başlayabilirsiniz.</string>
-    <string name="swap_cta">Yeni Swap</string>
+    <string name="swap_cta">Yeni Takas</string>
     <string name="swap_account_select_subtitle">Hangi cüzdandan Swap yapacaksınız?</string>
     <string name="select_target_account_for_swap">Gelen tutarı hangi cüzdana almak istiyorsunuz?</string>
     <string name="swap_kyc_upsell_title">Swap Limitinize Yaklaştınız. Daha Büyük Tutarlarda Swap Yapabilmek İçin Hesabınızı Yükseltin.</string>
     <string name="swap_kyc_upsell_desc">Yapabileceğiniz günlük Swap miktarını artırmak için kimliğinizi doğrulayın.
 </string>
     <string name="swap_kyc_upsell_1_title">Kimlik belgenizi yükleyin</string>
-    <string name="swap_kyc_upsell_1_desc">Dolandırıcılığı önlemek için kimlik belgesi yüklemenizi isteyerek gerçekten siz olduğunuzu teyit etmemiz gerekmektedir.</string>
+    <string name="swap_kyc_upsell_1_desc">Dolandırıcılığı önlemek için kimlik belgesi yüklemenizi isteyerek gerçekten siz olduğunuzu teyit etmemiz gerekiyor.</string>
     <string name="swap_kyc_upsell_2_title">Selfie Yükleyin</string>
     <string name="swap_kyc_upsell_2_desc">İnsan olduğunuzdan emin olmak istiyoruz. Robot hesaplara karşı bir önlem.</string>
     <string name="swap_kyc_upsell_3_title">25.000 USD tutara kadar takas yapın</string>
-    <string name="swap_kyc_upsell_3_desc">Kimliğiniz doğrulanınca Swap bölümüne dönüp kripto para alışverişi yapabilirsiniz.</string>
+    <string name="swap_kyc_upsell_3_desc">Kimliğiniz doğrulanınca Takas bölümüne dönüp kripto para takası yapabilirsiniz.</string>
     <string name="trending_label">Trendde</string>
     <string name="trending_swap">%1$s Swap Et</string>
     <string name="trending_empty">Daha düşük ücretlerle Trenddeki Swapları görmek için Al-Sat Cüzdanlarınıza para yatırın.</string>
@@ -1137,9 +1130,6 @@ Kripto paranızı yönetmek için cüzdanı kullanmaya devam edebilirsiniz.</str
         ister misiniz?
     </string>
     <string name="received_dgld">Alınan Wrapped-DGLD</string>
-    <string name="wdgld_available_card_title">Hemen wDGLD Al-Sat İ̇şlemi Yapın</string>
-    <string name="wdgld_available_card_body">Wrapped Digital Gold (wDGLD), altın destekli bir tokeni Ethereum\'un gücü ve esnekliğiyle birleştiren, DGLD\'nin ERC-20 olarak tokenleştirilmiş bir versiyonudur.</string>
-    <string name="wdgld_available_card_cta">Hemen wDGLD al-sat işlemi yapın</string>
     <string name="swap_faster">Daha hızlı</string>
     <string name="swap_trading_sheet_title">Daha Hızlı. Daha Ucuz. Al-Sat Cüzdanınızla
 Daha İyi Kripto Para Swap Yapın.</string>
@@ -1169,14 +1159,11 @@ Daha İyi Kripto Para Swap Yapın.</string>
     <string name="remote_save_failed">Kaydetme başarısız oldu</string>
     <string name="dont_ask_again">Bir daha sorma.</string>
     <string name="share_failed">%1$s ile paylaşılamıyor.</string>
-    <string name="security_locked_card_funds_explanation">Güvenliğiniz için, kredi kartıyla ilk kez yapılan satın alımlarda satın aldığınız kripto parayı Göndermeden veya Çekmeden önce %1$s günlük bekletme süresi uygulanır. Blokaj kalktığında sizi bilgilendireceğiz.
-
-Bu sırada Blockchain.com üzerinden nakde geçebilir veya swap ve al-sat işlemleri yapabilirsiniz.</string>
     <string name="security_locked_funds_bank_transfer_explanation">Nihai tutarınız piyasa hareketliliği nedeniyle değişebilir. Paranıza %s günlük bir ilk blokaj süresi uygulanacaktır. Bu süre zarfında Alış, Satış ve Swap işlemi yapabilirsiniz.</string>
     <string name="security_locked_funds_bank_transfer_payment_screen_explanation">Bu paralar şu an Satılabilir ve Swap Edilebilir.
 
 Not: Gelecek %1$s gün bu paraları Cüzdanınızdan Gönderemeyecek veya Çekemeyeceksiniz.</string>
-    <string name="link_a_bank">Banka Bağla</string>
+    <string name="link_a_bank">Banka bağlayın</string>
     <string name="instantly_buy_crypto_with_link_a_bank">Bankanızı bağlayın ve istediğiniz zaman anında kripto satın alın.</string>
     <string name="add_payment_method">+ Yeni Ekle</string>
     <string name="yodlee_splash_blurb">Yodlee, veri güvenliği, düzenlemelere uygunluk ve gizlilik için sektörün önde gelen uygulamalarına bağlı kalarak kimlik bilgilerinizi güvenli bir şekilde saklar.
@@ -1235,18 +1222,17 @@ Not: Gelecek %1$s gün bu paraları Cüzdanınızdan Gönderemeyecek veya Çekem
     <string name="backup_button_begin">Kurtarma İfadesini Görüntüle</string>
     <string name="backup_instructions_warn">Uyarı: Biri yedekleme ifadenize sahipse, Özel Anahtar Cüzdanınıza erişebilir ve para çekebilir.</string>
     <string name="pin_max_strikes">%1$d başarısız PIN denemesi. Lütfen şifrenizi girin.</string>
-    <string name="recovery_passphrase_1">Gizli Özel Anahtar Kurtarma İfadesi</string>
+    <string name="recovery_passphrase_1">Gizli Private Key Kurtarma İfadesi</string>
     <string name="invalid_recovery_phrase_1">Geçersiz Gizli Özel Anahtar Kurtarma İfadesi. Lütfen tekrar deneyin</string>
-    <string name="password_disclaimer">Blockchain.com\'un şifremi benim için kurtaramayacağını anlıyorum. Wallet cüzdanıma erişimi kaybedersem parama erişmek için <annotation link="backup">Gizli İfademi</annotation> kullanmalıyım.</string>
     <string name="transfer_funds_description_1">İçe aktarılan adresler Gizli Özel Anahtar Kurtarma İfadeniz tarafından yedeklenmez. Bu paraları güvence altına almak için, bu bakiyeleri Blockchain.com gözetimsiz Wallet cüzdanınıza aktarmanızı öneririz.
     </string>
     <string name="backup_subtitle">Gizli Özel Anahtar Kurtarma İfadesi</string>
     <string name="backup_instructions_3">1. Bir sonraki ekranda 12 kelimelik ifadeyi tam olarak göründüğü sırada yazın.</string>
-    <string name="backup_complete_message_1">Gizli Özel Anahtar Yedekleme İfadenizi, aşağıdaki durumlarda paranızı geri yüklemek için kullanabilirsiniz 
+    <string name="backup_complete_message_1">Gizli Özel Anahtar Yedekleme İfadenizi, aşağıdaki durumlarda paranızı geri yüklemek için kullanabilirsiniz
  şifrenizi kaybedersiniz. Gizli Özel Anahtar Yedekleme İfadenize erişimi olan herkes paranıza erişebilir. 
  güvenli bir yerde çevrimdışı tutmayı unutmayın. 
 </string>
-    <string name="backup_verify_heading_1">Gizli Özel Anahtar Kurtarma İfadenizden şu kelimeleri girin: 
+    <string name="backup_verify_heading_1">Gizli Özel Anahtar Kurtarma İfadenizden şu kelimeleri girin:
  Yedekleme işlemini tamamlayın.
 </string>
     <string name="backup_lost_mnemonic_1">12 kelimelik Gizli Özel Anahtar Kurtarma İfadenizi mi kaybettiniz?</string>
@@ -1256,25 +1242,25 @@ Not: Gelecek %1$s gün bu paraları Cüzdanınızdan Gönderemeyecek veya Çekem
 Devam etmek için parmak izini onaylayın</string>
     <string name="biometric_disable_message">Biyometrik girişi devre dışı bırakmak istediğinizden emin misiniz?</string>
     <string name="biometrics_key_invalidated_title">Biyometrik bilgiler değiştirildi</string>
-    <string name="biometrics_key_invalidated_description">Bu cihazda depolanan biyometrik bilgiler değişmiş veya tuş kilidi devre dışı bırakılmış. Lütfen bunun yerine PIN kodunuzu kullanın. 
+    <string name="biometrics_key_invalidated_description">Bu cihazda depolanan biyometrik bilgiler değişmiş veya tuş kilidi devre dışı bırakılmış. Lütfen bunun yerine PIN kodunuzu kullanın.
 
  Daha sonra Biyometrik Oturum Açmayı Ayarlar\'dan tekrar kurabilirsiniz.</string>
-    <string name="biometrics_key_invalidated_settings_description">Bu cihazda depolanan biyometrik bilgiler değişmiş veya tuş kilidi devre dışı bırakılmış. Lütfen bunun yerine PIN kodunuzu kullanın. 
+    <string name="biometrics_key_invalidated_settings_description">Bu cihazda depolanan biyometrik bilgiler değişmiş veya tuş kilidi devre dışı bırakılmış. Lütfen bunun yerine PIN kodunuzu kullanın.
 
 Lütfen biyometrik bilgilerinizi tekrar ekleyin.</string>
-    <string name="fingerprint_fatal_error_desc">Biyometrik bilgileri kullanmaya çalışırken bir hata meydana geldi, lütfen PIN kodunuzu kullanın. 
+    <string name="fingerprint_fatal_error_desc">Biyometrik bilgileri kullanmaya çalışırken bir hata meydana geldi, lütfen PIN kodunuzu kullanın.
 
  Daha sonra Biyometrik Oturum Açmayı Ayarlar\'dan tekrar kurabilirsiniz.
  Hata: %1$s</string>
     <string name="biometrics_disabled_lockout_title">Kimlik doğrulama hatası</string>
     <string name="biometrics_disabled_lockout_desc">Çok fazla başarısız kimlik doğrulama girişiminde bulundunuz, lütfen 30 saniye bekleyin ve tekrar deneyin</string>
-    <string name="biometrics_disabled_lockout_perm_desc">Biyometrik sensörleriniz devre dışı bırakıldı, lütfen cihazınızı kilitleyin ve yeniden etkinleştirmek için PIN\'inizi, Modelinizi veya Parolanızı kullanarak kilidini açın. 
+    <string name="biometrics_disabled_lockout_perm_desc">Biyometrik sensörleriniz devre dışı bırakıldı, lütfen cihazınızı kilitleyin ve yeniden etkinleştirmek için PIN\'inizi, Modelinizi veya Parolanızı kullanarak kilidini açın.
 
  Bu işlemi tamamladıktan sonra lütfen tekrar deneyin.</string>
     <string name="biometrics_enrollment_title">Biyometrik Bilgileri Etkinleştir</string>
-    <string name="recovery_card_title_1">Gizli Özel Anahtar Kurtarma İfadesi</string>
+    <string name="recovery_card_title_1">Gizli Private Key Kurtarma İfadesi</string>
     <string name="recovery_card_body_1">Kripto paranızı siz kontrol edin. Parolanızı kaybetmeniz durumunda tüm paranızı geri yüklemek için Gizli Özel Anahtar Kurtarma İfadenizi not edin.</string>
-    <string name="backup_before_send_body_1">Gizli Özel Anahtar Kurtarma İfadeniz, cüzdanınıza erişiminizi kaybederseniz kripto parayı kurtarmanıza izin verecektir. 
+    <string name="backup_before_send_body_1">Gizli Özel Anahtar Kurtarma İfadeniz, cüzdanınıza erişiminizi kaybederseniz kripto parayı kurtarmanıza izin verecektir.
 
 Lütfen bu 12 kelimeyi sırayla yazın ve güvenli bir yerde saklayın. Asla kimseyle paylaşmayın. Gizli Özel Anahtar Kurtarma İfadeniz, sisteme giremediğinizde kripto parayı kurtarmanızı sağlar.</string>
     <string name="kyc_address_address_zip_code_hint_1">Posta kodu</string>
@@ -1291,8 +1277,8 @@ Lütfen bu 12 kelimeyi sırayla yazın ve güvenli bir yerde saklayın. Asla kim
     <string name="link_a_bank_wire_transfer">Banka havalesi yoluyla herhangi bir tutar göndererek Cüzdanınıza banka bağlayın. Not: Bu yöntem çok daha yavaştır, ayrıca yüksek banka ücretleri geçerli olabilir.</string>
     <string name="link_a_bank_bank_transfer">Kripto satın almak, para yatırmak ve istediğiniz zaman bankanıza aktarmak için bankanızı güvenli bir şekilde hesabınıza bağlayın.</string>
     <string name="add_credit_or_debit_card_1">Kredi veya Banka Kartı</string>
-    <string name="first_name">Ad</string>
-    <string name="last_name">Soyadı</string>
+    <string name="first_name">Adınız</string>
+    <string name="last_name">Soyadınız</string>
     <string name="as_it_shows_in_id">Resmi kimliğinizde veya Pasaportunuzda gösterildiği gibi</string>
     <string name="date_of_birth">Doğum Tarihi</string>
     <string name="date_of_birth_instructions">Kripto Satın Alabilmek için 18 yaşında veya daha büyük olmalısınız.</string>
@@ -1303,11 +1289,7 @@ Lütfen bu 12 kelimeyi sırayla yazın ve güvenli bir yerde saklayın. Asla kim
     <string name="preferences_rate_app">Uygulamayı derecelendirin</string>
     <string name="bank_account_info_default">Hrsap Sonu</string>
     <string name="bank_wire_transfer_fee_default">Havale Ücreti</string>
-    <string name="payment_wire_transfer_subtitle">3-5 İş Günü</string>
-    <string name="payment_wire_transfer_blurb">Banka hesabınızdan Blockchain.com Wallet cüzdanınıza doğrudan para gönderin. Banka ücretleri geçerli olabilir.</string>
     <string name="payment_deposit">Mevduat hesabı</string>
-    <string name="payment_deposit_subtitle">Hemen Kullanılabilir</string>
-    <string name="payment_deposit_blurb">İstediğiniz zaman Blockchain.com Wallet cüzdanınıza nakit gönderebilmek için güvenli bir şekilde bir banka bağlantısı kurun.</string>
     <string name="routing_number">Banka Kodu</string>
     <string name="bank_transfer_in_progress_title">%1$s Satın Alma Başlatıldı</string>
     <string name="bank_transfer_in_progress_blurb">Şimdi satın alma işleminizi tamamlıyoruz. banka hesabınızdan %1$s tutarında para çekilebilir. Aktivite sekmesinde emrinizin durumunu istediğiniz zaman görüntüleyebilirsiniz.</string>
@@ -1345,12 +1327,12 @@ Banka transferiniz %3$s tarihinde tamamlanınca para çekme işlemi gerçekleşt
     <string name="bank_wire_transfer_min_withdrawal">%1$sMin. Çekim</string>
     <string name="select_a_bank">Banka Seçin</string>
     <string name="want_to_buy_more">Daha fazla satın almak ister misiniz?</string>
-    <string name="unlock_gold_level_trading">Doğrulanmış Seviye Alım Satım Kilidini Açın</string>
+    <string name="unlock_gold_level_trading">Tam Erişim Alım Satım Kilidini Açın</string>
     <string name="apply_and_unlock">Hemen Başvur ve Kilidi Aç&gt;</string>
     <string name="cash_accounts">Nakit Hesaplar</string>
     <string name="cash_accounts_description">Cüzdanınızda USD, GBP veya EUR tutun. Kripto para satın almak için bakiyeyi kullanın. İstediğiniz zaman nakit karşılığında kripto para satın.</string>
     <string name="link_a_bank_description">Cüzdanınızda USD, GBP veya EUR tutun. Kripto para satın almak için bakiyeyi kullanın. İstediğiniz zaman nakit karşılığında kripto para satın.</string>
-    <string name="sb_checkout_daily_limit_title">Günlük limit aşıldı</string>
+    <string name="sb_checkout_daily_limit_title">Limit aşıldı</string>
     <string name="sb_checkout_daily_limit_blurb">Oops! Satın Alma ve Para Yatırma için günlük işlem limitinizi tüketmiş gözüküyorsunuz, lütfen yarın tekrar deneyin.</string>
     <string name="sb_checkout_weekly_limit_title">Haftalık limit aşıldı</string>
     <string name="sb_checkout_weekly_limit_blurb">Oops! Satın Alma ve Para Yatırma için haftalık işlem limitinizi tüketmiş gözüküyorsunuz, lütfen yarın tekrar deneyin.</string>
@@ -1373,12 +1355,8 @@ Banka transferiniz %3$s tarihinde tamamlanınca para çekme işlemi gerçekleşt
     <string name="onboarding_fingerprint_enable_1">Biyometrik bilgileri etkinleştir</string>
     <string name="register_fingerprint_card_title_1">Biyometrik Oturum Açma</string>
     <string name="register_fingerprint_card_body_1">PIN\'inizi kullanmak yerine cüzdanınızda hızla oturum açmak için biyometriyi etkinleştirin.</string>
-    <string name="aave_yfi_dot_available_card_title">Aave, YFI ve DOT artık mevcut!</string>
-    <string name="aave_yfi_dot_available_card_body">Aave, YFI ve Polkadot tokenleri artık Cüzdanınızda Satın Alma, Satma, Swap Etme ve Gönderme için kullanılabilir.</string>
-    <string name="aave_yfi_dot_available_card_cta">Hemen Satın Alın</string>
     <string name="old_default_non_custodial_wallet_label">%1s Cüzdanım</string>
     <string name="bank_transfer_in_progress_ob_blurb">Emriniz işleniyor. Biz arka planda emri güncellerken bu ekranı güvenle kapatabilirsiniz.</string>
-    <string name="fiat_currency_funds_wallet_name_1">%1s Hesabı</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">Cüzdanınızda mevcut ağ ücretleriyle satmak için yeterli %1$s yok.</string>
     <string name="send_enter_amount_network_fees">Ağ Ücretleri</string>
     <string name="send_enter_amount_total">Toplam</string>
@@ -1400,15 +1378,15 @@ Banka transferiniz %3$s tarihinde tamamlanınca para çekme işlemi gerçekleşt
     <string name="yapily_agreement_title_2">Güvenli Bağlantı</string>
     <string name="yapily_agreement_blurb_2">Veriler, salt okunur biçimde ve yalnızca sizinle kararlaştırılan süre boyunca güvenli bir şekilde alınır. Onayınızı istediğiniz zaman geri çekme hakkına sahipsiniz.</string>
     <string name="yapily_agreement_title_3">Litvanya Merkez Bankası Yetki Yazısı</string>
-    <string name="yapily_agreement_blurb_3">Blockchain bir SafeConnect Ltd aracısıdır. SafeConnect Ltd, Hesap Bilgisi ve Ödeme Başlatma hizmetlerinin sağlanması için 2017 tarihli Ödeme Hizmeti Yönetmeliği [827001] kapsamında Finansal Yürütme Kurumu tarafından yetkilendirilip denetlenmektedir.</string>
+    <string name="yapily_agreement_blurb_3">Blockchain bir YapilyConnect Ltd aracısıdır. YapilyConnect Ltd tarafından sunulan Hesap Bilgisi ve Ödeme Başlatma hizmetleri, 2017 tarihli Ödeme Hizmeti Yönetmeliği [827001] kapsamında Finansal Yürütme Kurumu\'nun yetkilendirme ve denetimine tabidir.</string>
     <string name="yapily_agreement_title_4">Erişim hakkında</string>
-    <string name="yapily_agreement_blurb_5">%1$s verilerinizi Blockchain ile paylaşmak amacıyla, SafeConnect\'in aşağıdaki bilgileri okumasına izin verdiğinizi onaylamak için şimdi güvenli bir şekilde bankanıza yönlendirileceksiniz:
+    <string name="yapily_agreement_blurb_5">%1$s verilerinizi Blockchain ile paylaşmak amacıyla YapilyConnect\'in şu bilgileri okumasına onay vermek için şimdi güvenli bir şekilde bankanıza yönlendirileceksiniz:
 
 • Kimlik bilgileri
 
-• Hesap(larınızın) bilgileri</string>
+• Hesap bilgileri</string>
     <string name="yapily_linking_pending_title">%1$s sayfasına yönlendiriliyorsunuz</string>
-    <string name="yapily_linking_pending_subtitle">Bu işlem 30 saniye kadar sürebilir. Lütfen geri dönmeyin veya uygulamayı kapatmayın.</string>
+    <string name="yapily_linking_pending_subtitle">Bu işlem 30 saniye kadar sürebilir. Lütfen geri gitmeyin veya uygulamayı kapatmayın.</string>
     <string name="yapily_linking_in_progress_title">%1$s adlı kişinin kabul etmesi bekleniyor</string>
     <string name="yapily_linking_in_progress_subtitle">Devam etmek için bankanızla eşleştirme onayını tamamlayın.</string>
     <string name="yapily_approval_in_progress_subtitle">Devam etmek için bankanızla işlem onayını tamamlayın.</string>
@@ -1429,13 +1407,13 @@ Banka transferiniz %3$s tarihinde tamamlanınca para çekme işlemi gerçekleşt
     <string name="yapily_approval_subtitle_2_eu">IBAN</string>
     <string name="yapily_approval_subtitle_3_uk">Hesap Numarası</string>
     <string name="yapily_approval_subtitle_3_eu">SWIFT/BIC</string>
-    <string name="yapily_approval_blurb">Bankanızdan Blockchain\'e kolayca ödeme ayarlamak amacıyla, Blockchain için FCA tarafından denetlenen bir ödeme başlatma sağlayıcısı olan SafeConnect aracılığıyla ödemeyi onaylamanızın isteneceği bankanıza sizi güvenli bir şekilde yeniden yönlendirmek üzereyiz.
+    <string name="yapily_approval_blurb">Bankanızdan Blockchain\'e kolayca ödeme yapmak amacıyla, Blockchain\'in FCA denetimli ödeme başlatma sağlayıcısı  YapilyConnect aracılığıyla ödemeyi onaylamanızın isteneceği bankanıza sizi güvenli bir şekilde yeniden yönlendirmek üzereyiz.
 
-SafeConnect bu bilgileri bankanızla paylaşacak ve daha sonra sizden aşağıdaki ödeme ayarını onaylamanız istenecek.</string>
+YapilyConnect bu bilgileri bankanızla paylaşacak ve daha sonra sizden aşağıdaki ödemeyi onaylamanız istenecektir.</string>
     <string name="yapily_payment_to_fiat_wallet_title">İptal edilen satın alma miktarı %1$s Cüzdanına eklendi</string>
     <string name="yapily_payment_to_fiat_wallet_subtitle">Kısa süre önce bankanızla  %1$s değerinde satın alma işlemini onayladınız ve siparişi buradan iptal ettiniz. Bankanızla onayladığınız için satın alma tutarınızı %2$s Cüzdanınıza yatırdık.</string>
     <string name="yapily_payment_to_fiat_wallet_default">kripto</string>
-    <string name="yapily_fiat_deposit_success_subtitle">Bankanızın parayı göndermesini beklerken hemen kripto para satın alabilmeniz için %2$s Nakit Hesabınızdan %1$s tutarında paraya erken ulaşabilirsiniz.
+    <string name="yapily_fiat_deposit_success_subtitle">Bankanızın parayı göndermesini beklerken hemen kripto para satın alabilmeniz için %2$s Nakit Hesabınızdan %1$s tutarında paraya hemen ulaşabilirsiniz.
 
 Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştirebileceksiniz.</string>
     <string name="bank_linking_generic_error_title">Hay aksi! Bir şeyler ters gitti</string>
@@ -1456,8 +1434,6 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="bank_linking_declined_title">Hesap Erişimi Engellendi</string>
     <string name="bank_linking_declined_subtitle">Ödemenin onaylanmasıyla ilgili bir oluştu. Lütfen tekrar deneyin. Sorun devam ederse lütfen destek ile iletişime geçin.</string>
     <string name="web_login">Webde Oturum Aç</string>
-    <string name="debug_app_shortcut">BC Hata Düzeltme Tercihleri</string>
-    <string name="debug_app_shortcut_short">BC Tercihleri</string>
     <string name="landing_log_in">Oturum aç</string>
     <string name="landing_version">v%1$s (%2$d) %3$s</string>
     <string name="purchase">Satın al</string>
@@ -1490,17 +1466,17 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="simple_buy_confirmation_error">Ödeme işleminizle ilgili bir sorun oldu, lütfen tekrar deneyin veya sorun devam ederse destek ekibiyle iletişime geçin.</string>
     <string name="send_enter_amount_error_invalid_amount_1">%1$s veya daha fazlasını gönderin</string>
     <string name="tx_confirmation_free_fee_learn_more_2_1">Al-Sat Hesapları</string>
-    <string name="error_email_veriff_title">Hay aksi! Bir sorun oluştu.</string>
+    <string name="error_email_veriff_title">Hay aksi! Bir şeyler ters gitti.</string>
     <string name="error_email_veriff">E-postanızı doğrulayamıyoruz. Lütfen tekrar deneyin veya size yeni bir e-posta gönderebiliriz.</string>
     <string name="yapily_agreement_blurb_1_1">%1$s, isteğinize göre banka verilerinizi alacak ve bu bilgileri Blockchain\'e sağlayacaktır.</string>
     <string name="yapily_agreement_blurb_3_1">%1$s, Hesap Bilgileri ve Ödeme Başlatma hizmetlerinin verilmesi için Litvanya Merkez Bankası tarafından Ödemeler Kanunu (LB002045) kapsamında yetkilendirilip düzenlenmektedir.</string>
     <string name="yapily_agreement_blurb_4_1">%1$s daha sonra bu bilgileri Blockchain ile yalnızca kripto para satın almak amacıyla kullanacaktır. Bu erişim %2$s tarihine kadar geçerlidir. İzni dilediğiniz zaman Blockchain ayarları veya bankanız aracılığıyla iptal edebilirsiniz. Bu talep tek seferlik değildir, eski sürümlerin süresi doldukça izin talepleri almaya devam edeceksiniz.</string>
     <string name="yapily_agreement_blurb_4_2">%1$s Hüküm ve Koşullara <a> https://yapi.ly/GDNT </a> bağlantısı kullanılarak erişilebilir</string>
-    <string name="yapily_agreement_blurb_5_1">%1$s verilerinizi Blockchain.com ile paylaşmak amacıyla, SafeConnect\'in aşağıdaki bilgileri okumasına izin verdiğinizi onaylamak için şimdi güvenli bir şekilde bankanıza yönlendirileceksiniz:
+    <string name="yapily_agreement_blurb_5_1">%1$s verilerinizi Blockchain.com ile paylaşmak amacıyla YapilyConnect\'in aşağıdaki bilgileri okumasına izin verdiğinizi onaylamak için şimdi güvenli bir şekilde bankanıza yönlendirileceksiniz:
 
 • Kimlik bilgileri
 
-• Hesap(larınızın) bilgileri</string>
+• Hesap bilgileri</string>
     <string name="bank_linking_invalid_title">Geçersiz banka</string>
     <string name="bank_linking_invalid_subtitle">Geçerli olmayan bir hesabı bağlamayı denediniz. Lütfen tekrar kontrol edin veya destek ekibiyle iletişime geçin.</string>
     <string name="receive_memo_warning">%1$s Not Metni olmadan para gönderirseniz, paranız kaybolacak ve hesabınıza alacak kaydedilmeyecektir. Lütfen bu adrese yalnızca %1$s gönderin.</string>
@@ -1535,7 +1511,7 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="checkout_both_erc_20_fee_note">%1$s ve %2$s ERC-20 tokenleridir. Ağ ücretleri Ethereum ağı tarafından belirlenmektedir.</string>
     <string name="checkout_fee_link"><annotation link="learn_more_link">Ücretler hakkında daha fazlasını öğrenin</annotation></string>
     <string name="checkout_fee_free">Al-Sat Hesaplarını kullanırken, ağ ücreti yoktur</string>
-    <string name="private_key_wallet_explanation">%s Özel Anahtarlı cüzdanlarının yanı sıra gönderme ve alma işlemleri şu anda desteklenmemektedir.</string>
+    <string name="private_key_wallet_explanation">%s Özel Anahtarlı cüzdanlar, gönderme ve alma işlemleri şu anda desteklenmemektedir.</string>
     <string name="pairing_wallet_title">Cüzdanınızı Eşleştirin</string>
     <string name="pairing_wallet_description">Eşleştirme kodunuzu kullanarak cüzdanınızı başka bir Blockchain.com varlığı ile eşleştirebilirsiniz. Uygulamanızı web portalıyla (%1$s üzerinde) eşleştiriyorsanız bilgisayarınızın web kamerasını kullanmanız gereklidir.</string>
     <string name="pairing_wallet_qr_code_description">Bu benzersiz bir QR kodudur.</string>
@@ -1552,8 +1528,6 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="verify_device_title">Cihazı Doğrula</string>
     <string name="verify_device_desc">Bu e-posta adresine kayıtlı bir hesabınız varsa cihazınızı doğrulamak için kullanacağınız bir bağlantıyı içeren e-posta alacaksınız.</string>
     <string name="recurring_buy_toolbar">Yinelenen Satın Almalar</string>
-    <string name="recurring_buy_one_time_short">Tek sefer</string>
-    <string name="recurring_buy_one_time">Tek seferlik satın alma</string>
     <string name="recurring_buy_frequency_subtitle">%s tarihinde</string>
     <string name="recurring_buy_frequency_subtitle_each_day">%s civarında</string>
     <string name="recurring_buy_frequency_subtitle_monthly">%s günde</string>
@@ -1566,7 +1540,7 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="recurring_buy_payment_message">%3$s piyasa eşdeğeri için %1$s%2$s ücretlendirileceksiniz. Yinelenen Satın Alma işlemlerinizi %4$s Cüzdanlar ve Hesaplar Sayfasından yönetebilirsiniz.</string>
     <string name="recurring_buy_creation_error">Size ait Yinelenen Satın Alma işlemi oluşturulurken hata oluştu. Lütfen tekrar deneyin</string>
     <string name="common_unknown">Bilinmeyen</string>
-    <string name="common_wallets">Cüzdanlar</string>
+    <string name="common_wallets">Wallet\'lar</string>
     <string name="common_go_back">Geri Dön</string>
     <string name="exit">Çık</string>
     <string name="screen_overlay_warning">Ekran yer paylaşımı algılandı!</string>
@@ -1576,12 +1550,12 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     </string>
     <string name="unexpected_error">Beklenmedik hata. Lütfen daha sonra tekrar deneyin.</string>
     <string name="dialog_continue">Devam Et</string>
-    <string name="receive_rotating_address_title">Bunu Biliyor musunuz?</string>
+    <string name="receive_rotating_address_title">Bunları biliyor muydunuz?</string>
     <string name="receive_rotating_address_desc">Daha fazla güvenlik adına, yaptığınız her talep için yeni bir %1$s adresi oluşturulur. Her benzersiz adres ile size ait %2$s bağlantılanır.</string>
     <string name="dashboard_asset_actions_buy_dsc">Al-Sat Hesabınıza %1$s ekleyin</string>
     <string name="custody_intro_title_1">Al-Sat Hesabınız</string>
     <string name="custody_intro_body">Kripto satın aldığınızda paranızı sizin için bir kripto Al-Sat Hesabında güvenli bir şekilde saklarız. Paraları bizimle güvende tutabilir veya elinizde bulundurmak ve kendiniz saklamak için Özel Anahtarlı (veya gözetimsiz) Cüzdanınıza aktarabilirsiniz.</string>
-    <string name="activity_details_label_failed">Başarısız oldu</string>
+    <string name="activity_details_label_failed">Başarısız</string>
     <string name="activity_details_title_recurring_buy">Yinelenen Satın Alım</string>
     <string name="checkout_item_withdraw_to">Şu Hesaba Para Çek:</string>
     <string name="checkout_item_fee_to">Para Çekme Ücreti</string>
@@ -1618,11 +1592,10 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="recurring_buy_cancelled_toast">Yinelenen satın alma işlemi iptal edildi</string>
     <string name="recurring_buy_cancelled_error_toast">Hay aksi! Yinelenen satın alma işleminizi iptal ederken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.</string>
     <string name="recurring_buy_cancel_dialog_desc">Bu Yinelenen Satın Alma İşlemini iptal etmek istediğinizden emin misiniz?</string>
-    <string name="recurring_buy_activity_pending">Bekliyor</string>
+    <string name="recurring_buy_activity_pending">Beklemede</string>
     <string name="recurring_buy_details_next_payment">Sonraki Ödeme</string>
     <string name="recurring_buy_details_recurring">Yinelenen</string>
     <string name="activity_details_label_btn_cash">Nakit Ekle</string>
-    <string name="recurring_buy_funds_label">%s Hesabı</string>
     <string name="recurring_buy_short_error">Başarısız oldu</string>
     <string name="recurring_buy_insufficient_funds_short_error">Başarısız oldu. Bakiye Düşük</string>
     <string name="recurring_buy_internal_server_error">Satın alma işleminizde bir hata oluştu. Az sonra tekrar deneyeceğiniz.</string>
@@ -1640,7 +1613,7 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="password">Şifre</string>
     <string name="email">E-posta Adresiniz</string>
     <string name="sign_up_email">E-posta</string>
-    <string name="password_disclaimer_1">Blockchain.com\'un şifreleri saklamadığını ve dolayısıyla şifremi kurtaramayacağını veya sıfırlayamayacağını anlıyorum. Cüzdanıma erişimi kaybedersem parama erişmek için <annotation link="backup">Gizli Özel Anahtar Kurtarma İ̇fademi</annotation> kullanmalıyım. Hesap oluşturarak Blockchain\'in <annotation link="terms">Hizmet Şartları\'nı</annotation> ve <annotation link="privacy">Gizlilik Politikası\'nı</annotation> kabul etmiş olursunuz.</string>
+    <string name="password_disclaimer">Blockchain.com\'in <annotation link="terms">Hizmet Şartları\'nı</annotation> ve <annotation link="privacy">Gizlilik Politikası\'nı</annotation> kabul ediyorum.</string>
     <string name="new_account_title_1">Yeni Hesap</string>
     <string name="create_wallet_state">Eyalet</string>
     <string name="create_wallet_country">İkamet Edilen Ülke</string>
@@ -1648,8 +1621,6 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="fee">Ücret</string>
     <string name="address">Adres</string>
     <string name="amount">Tutar</string>
-    <string name="pax_renamed_card_title">USD Dijital artık Paxos Standart oldu</string>
-    <string name="pax_renamed_card_body">USD Dijital (USD-D) adını Paxos Standart (PAX) olarak güncelledik. Hesaptaki paralar bundan etkilenmez.</string>
     <string name="airdrop_received_sheet_amount_label">Tutar</string>
     <string name="kyc_email_hint_focused">E-posta Adresiniz</string>
     <string name="available">Kullanılabilir</string>
@@ -1657,14 +1628,14 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="xlm_memo_text">Not Metni</string>
     <string name="xlm_memo_id">Not Kimliği</string>
     <string name="cancel_order">Emri İptal Et</string>
-    <string name="activity_details_label_cancelled">İ̇ptal Edildi</string>
+    <string name="activity_details_label_cancelled">İ̇ptal edildi</string>
     <string name="activity_details_buy_fee">Ücret</string>
     <string name="enter_amount_not_enough_balance">Ücret için yetersiz bakiye</string>
     <string name="send_enter_unexpected_error">Beklenmedik bir hata oluştu. Lütfen tekrar deneyin.</string>
     <string name="scan_no_available_account">%1$s gönderecek tutara sahip kaynak hesap mevcut değil.</string>
     <string name="confirm_status_memo_invalid">Lütfen not etleyin.</string>
     <string name="receive">Al</string>
-    <string name="restore_wallet_cta">Wallet\'i Geri Yükle</string>
+    <string name="restore_wallet_cta">Wallet\'ı Geri Yükle</string>
     <string name="recurring_buy_cta_1">Hemen Başlayın</string>
     <string name="recurring_buy_title_1_1">Çoğu akıllı yatırımcı, piyasada uygun zamanı yakalamak yerine</string>
     <string name="recurring_buy_title_1_2">
@@ -1810,20 +1781,20 @@ Bu sırada Blockchain.com üzerinden nakde geçebilir veya Swap ve Al-Sat işlem
     <string name="rewards_summary_rate">Ödül Oranı</string>
     <string name="rewards_dashboard_title">Rewards Hesabı</string>
     <string name="rewards_dashboard_item_balance_title">%1$s Bakiye</string>
-    <string name="rewards_dashboard_item_accrued_title">Kazanılan Toplam Ödül</string>
-    <string name="rewards_dashboard_item_action_earn">Ödül Kazan</string>
+    <string name="rewards_dashboard_item_accrued_title">Kazanılan Toplam Rewards</string>
+    <string name="rewards_dashboard_item_action_earn">Rewards Kazan</string>
     <string name="rewards_dashboard_item_action_view">Görünüm</string>
     <string name="rewards_item_issue_region">Bölgenizde kullanılamıyor</string>
-    <string name="rewards_item_issue_kyc">Ödül Kazanmaya başlamak için hesabınız Doğrulanmış olmalıdır</string>
+    <string name="rewards_item_issue_kyc">Ödül kazanmaya başlamak için Tam Erişime sahip olmanız gerekir</string>
     <string name="rewards_item_issue_other">Şimdilik kullanılamıyor, lütfen daha sonra tekrar deneyin</string>
     <string name="rewards_dashboard_item_rate_1"> kadar kazanın</string>
     <string name="rewards_dashboard_item_rate_2"> %1$s üzerinden yıllık</string>
     <string name="rewards_dashboard_verify_title">Kripto Paranızdan Ödüller Kazanın</string>
-    <string name="rewards_dashboard_verify_label">Ödül Hesabınıza kripto para aktardığınızda anında %12\'ye kadar kazanın.</string>
+    <string name="rewards_dashboard_verify_label">Ödül Hesabınıza kripto para aktardığınızda anında %%12\'ye kadar kazanın.</string>
     <string name="rewards_dashboard_verify_point_one_title">Kimliğinizi Doğrulayın</string>
     <string name="rewards_dashboard_verify_point_two_title">Kripto Para Satın Al</string>
     <string name="rewards_dashboard_verify_point_two_label">Herhangi bir kripto satın alımını finanse etmek için banka veya kredi kartınızı kullanın.</string>
-    <string name="rewards_dashboard_verify_point_three_title">Ödül Kazan</string>
+    <string name="rewards_dashboard_verify_point_three_title">Rewards Kazan</string>
     <string name="rewards_dashboard_verify_point_three_label">Ödül Hesabınıza aktarın ve aylık Ödül Ödemeleri alın.</string>
     <string name="rewards_summary_disclaimer_label">Paranızı çekmek için Web Wallet kullanın.</string>
     <string name="rewards_error_title">Ödül Ayrıntıları yüklenemiyor</string>
@@ -1831,25 +1802,23 @@ Bu sırada Blockchain.com üzerinden nakde geçebilir veya Swap ve Al-Sat işlem
 Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam ederse Destek Ekibi ile İletişime Geçin.</string>
     <string name="verify_your_identity_limits_1">Kimliğinizi doğrulayın, ödüller kazanın ve günde %1$s</string>
     <string name="earn_rewards_description" formatted="false">Kripto paranızı çalıştırın. Hiçbir şey yapmadan ayda %10\'a kadar kazanın. Hemen yatırıp kazanmaya başlayın.</string>
-    <string name="checkout_rewards_confirmation_disclaimer">Bu para çekme işlemini onayladıktan sonra, çekilen tutar üzerinden ödül kazanmaya devam etmeyeceksiniz. 
+    <string name="checkout_rewards_confirmation_disclaimer">Bu para çekme işlemini onayladıktan sonra, çekilen tutar üzerinden ödül kazanmaya devam etmeyeceksiniz.
 
  %1$s 2 gün içinde %2$s \" Hesabınızda hazır olacak.</string>
     <string name="reset_kyc_notice_1">Güvenliğiniz için, al-sat veya ödül hesabınıza erişmeden önce kimliğinizi yeniden doğrulamanız gerekebilir.</string>
     <string name="reset_account_description_1">Sıfırlama, Al-Sat, Ödüller ve Exchange hesaplarınızı geri yükleyecektir.</string>
-    <string name="checkout_funds_label_1">%s Wallet</string>
     <string name="activity_details_buy_purchase_amount_1">Toplam</string>
     <string name="common_approve">Onayla</string>
     <string name="common_deny">Reddet</string>
-    <string name="toolbar_cmd_swap">Swap Yap</string>
+    <string name="toolbar_cmd_swap">Takas Yap</string>
     <string name="done">Bitti</string>
-    <string name="btn_close">Kapat</string>
     <string name="options_id">Wallet Kimliği</string>
     <string name="btn_logout">Çıkış</string>
-    <string name="options_tos">Kullanım Şartları</string>
+    <string name="options_tos">Hizmet Şartları</string>
     <string name="options_privacy">Gizlilik Politikası</string>
     <string name="btn_manual_pairing">Manuel Eşleştirme</string>
     <string name="create_a_wallet">Hesap Oluştur</string>
-    <string name="landing_title">Blockchain\'e Hoş Geldiniz</string>
+    <string name="landing_title">Blockchain\'e hoş geldiniz!</string>
     <string name="strength_medium">Normal</string>
     <string name="wipe_wallet">Cüzdanı unut</string>
     <string name="description">Açıklama</string>
@@ -1859,39 +1828,38 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="linked_banks">Bağlı Bankalar</string>
     <string name="shortcut_receive_copy_short">Adresi Kopyala</string>
     <string name="morph_exchange_rate">Kur</string>
-    <string name="two_fa_card_title">2 Adımlı Doğrulamayı Etkinleştirin</string>
+    <string name="two_fa_card_title">2 Adımlı Doğrulamayı Etkinleştir</string>
     <string name="buy_crypto_card_body">Sadece birkaç basit adımda satın almanıza yardımcı olabiliriz.</string>
     <string name="buy_crypto_card_cta">Şimdi Kripto Para Satın Al</string>
     <string name="simple_buy_pending_buy_card_cta">Banka Transferi Ayrıntılarını Görüntüle</string>
     <string name="airdrop_status_received">Alındı</string>
     <string name="airdrop_status_expired">Süresi doldu</string>
     <string name="kyc_address_address_city_hint">Şehir</string>
-    <string name="buy_sell_splash_title">Al ve Sat</string>
+    <string name="buy_sell_splash_title">Al &amp; Sat</string>
     <string name="recipient_name_must_match">Yalnızca kendi adınızla açılmış bir banka hesabından para gönderin. Aksi takdirde yatırdığınız para gecikebilir veya reddedilebilir.</string>
     <string name="are_ypu_sure">Emin misiniz?</string>
     <string name="account_number">Hesap Numarası</string>
     <string name="sort_code">Şube Kodu</string>
     <string name="iban">IBAN</string>
     <string name="select_account_sheet_title">Wallet Seçin</string>
-    <string name="activity_state_canceled">İ̇ptal Edildi</string>
+    <string name="activity_state_canceled">İ̇ptal edildi</string>
     <string name="fiat_funds_detail_withdraw_title">Çekilen</string>
     <string name="withdrawing_amount_message">Para çekme işleminizi şimdi tamamlıyoruz.</string>
     <string name="send_progress_error_subtitle">Merak etmeyin. Paranız güvende. Lütfen tekrar deneyin veya yardım için Destek Ekibimizle iletişime geçin.</string>
-    <string name="send_enter_insufficient_gas">Bu işlemi gerçekleştirmek için yeterli tutarda ETH\'ye sahip değilsiniz.</string>
-    <string name="swap_select_target_title">Yeni Swap</string>
+    <string name="send_enter_insufficient_gas">Bu işlemi gerçekleştirmek için yeterli ETH\'niz bulunmuyor.</string>
+    <string name="swap_select_target_title">Yeni Takas</string>
     <string name="yodlee_splash_title">Güvenli Bağlantı</string>
     <string name="please_try_linking_your_bank_again">Lütfen bankanızı tekrar bağlamayı deneyin. Sorun devam ederse lütfen destek ekibiyle iletişime geçin.</string>
     <string name="instantly_available">Hemen Kullanılabilir</string>
     <string name="send_again">Tekrar Gönder</string>
     <string name="login_email_hint">E-posta</string>
-    <string name="learn_more">Daha Fazla Bilgi</string>
     <string name="activity_details_buy_deposited_to">yatırılan</string>
     <string name="kyc_enter_address">Mevcut ev adresinizi girin.</string>
     <string name="kyc_enter_address_manually">Manuel olarak girin -&gt;</string>
     <string name="kyc_autocomplete_addresses_error">Adresler alınamadı</string>
     <string name="kyc_autocomplete_selected_address_error">Adres alınamadı</string>
-    <string name="min_with_value">En Az %1$s</string>
-    <string name="max_with_value">En Fazla %1$s</string>
+    <string name="min_with_value">En az %1$s</string>
+    <string name="max_with_value">En fazla %1$s</string>
     <string name="unification_sheet_title">Hesabı Yükselt</string>
     <string name="unification_sheet_later_cta">Bunu daha sonra yapacağım</string>
     <string name="unification_sheet_now_cta">Hesabımı Yükselt</string>
@@ -1921,11 +1889,8 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="rename_asset_card_title">%s yeni bir ada sahip</string>
     <string name="rename_asset_card_body">Dikkat: %1$s, %2$s olarak yeniden adlandırıldı. Hiçbir bakiye bundan etkilenmez.</string>
     <string name="rename_asset_card_cta">%s al sat</string>
-    <string name="ceur_announcement_title">Sınırlı Süreli cEUR Bonusu ve Reward\'ları</string>
-    <string name="ceur_announcement_description">25 cEUR satın alın, 10 cEUR bonus kazanın ve yıllık ödüllerde 16%% kazanın.</string>
-    <string name="ceur_announcement_action">Daha fazla bilgi</string>
-    <string name="minimum_with_value">Minimum %1$s</string>
-    <string name="maximum_with_value">Maksimum %1$s</string>
+    <string name="minimum_with_value">En az %1$s</string>
+    <string name="maximum_with_value">En fazla %1$s</string>
     <string name="not_enough_funds">Yetersiz %1$s</string>
     <string name="get_more">Daha fazla %1$s alın</string>
     <string name="not_enough_funds_send">Bu cüzdandan gönderebileceğiniz maksimum tutar şudur: %1$s Bu tutarı göndermek için şimdi %2$s satın alın.</string>
@@ -1966,8 +1931,8 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="bank_linking_already_linked_error_title">Bu hesap zaten bağlı.</string>
     <string name="bank_linking_account_ob_error_title">Lütfen bir Cari Hesap bağlayın.</string>
     <string name="bank_linking_account_ob_error_subtitle">Cari hesabınız olmadan kripto para satın alırsanız bankanız sizden ek ücret talep edebilir.</string>
-    <string name="bank_linking_account_ach_error_title">Lütfen bir Vadesiz Hesap bağlayın.</string>
-    <string name="bank_linking_account_ach_error_subtitle">Vadesiz hesap olmadan kripto para satın alırsanız bankanız sizden ekstra ücret tahsil edebilir.</string>
+    <string name="bank_linking_account_ach_error_title">Lütfen bir Cari Hesap bağlayın.</string>
+    <string name="bank_linking_account_ach_error_subtitle">Cari hesap olmadan kripto para satın alırsanız bankanız sizden ekstra ücret tahsil edebilir.</string>
     <string name="bank_linking_invalid_error_subtitle">%s hesabınız olmadan kripto para satın alırsanız bankanız sizden ek ücret talep edebilir.</string>
     <string name="bank_linking_try_another_method">Başka bir yöntem deneyin</string>
     <string name="bank_linking_failed_ob_title">Cari hesabınız bağlanırken bir sorun oluştu. Lütfen tekrar deneyin.</string>
@@ -2022,7 +1987,7 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="main_toolbar_prices">Fiyatlar</string>
     <string name="main_toolbar_buy_sell">Al ve Sat</string>
     <string name="main_toolbar_activity">Hareket</string>
-    <string name="toolbar_swap">Swap Yap</string>
+    <string name="toolbar_swap">Takas Yap</string>
     <string name="toolbar_send">Gönder</string>
     <string name="toolbar_receive">Al</string>
     <string name="select_a_trading_currency">Bir Al-Sat Para Birimi seçin.</string>
@@ -2047,22 +2012,22 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="feature_limits_header_bronze_title">Wallet\'ınızı Yükseltin</string>
     <string name="feature_limits_header_bronze_description">Blockchain.com, her biri kripto hedeflerinize ve ihtiyaçlarınıza göre tasarlanmış iki tür Hesap Limiti sunar.</string>
     <string name="feature_limits_header_bronze_cta">Hemen Başlayın</string>
-    <string name="feature_limits_header_silver_title">Doğrulanmış Seviye Limitlerine Yükselt</string>
+    <string name="feature_limits_header_silver_title">Tam Erişime Geç</string>
     <string name="feature_limits_header_silver_description">Doğrudan cüzdanınızdan Kripto Para Almak ve Satmak için kimliğinizi doğrulayıp bankanızı bağlayın.</string>
     <string name="feature_limits_header_silver_cta">Hemen Başvur</string>
     <string name="feature_limits_header_denied_description">Şu anda mevcut olan en yüksek Hesap Limitlerine ve özelliklere sahipsiniz.</string>
-    <string name="feature_limits_footer">Bazı bankalar ve kart veren kuruluşlar için işlem limitleri geçerli olabilir. 
+    <string name="feature_limits_footer">Bazı bankalar ve kart veren kuruluşlar için işlem limitleri geçerli olabilir.
 
 Satın alma veya para yatırma limitleri, hesabınızda tamamlanan doğrulama, satın alma geçmişiniz, ödeme türünüz ve daha fazlası dahil olmak üzere birçok faktörle belirlenir. 
 
 <annotation link="support_center_link">Destek Merkezimizi</annotation> ziyaret ederek Al-Sat Hesapları, Limitler ve özellikler hakkında daha fazla bilgi edinin.</string>
     <string name="feature_limits_silver_limits">Sınırlı Erişim Limitleri</string>
     <string name="feature_limits_gold_limits">Tam Erişim Limitleri</string>
-    <string name="feature_limits_gold_limits_description">Temel Seviye Özellikleri İçerir</string>
+    <string name="feature_limits_gold_limits_description">Sınırlı Erişim Özellikleri İçerir</string>
     <string name="feature_limits_error">Limit bilgileriniz alınırken bir sorun oluştu.</string>
     <string name="kyc_limits_upgrade_now_gold_description">Al ve Sat. Ödüller Kazan.</string>
     <string name="kyc_limits_upgrade_now_gold_info_1">Bankanızı veya kartınızı Cüzdanınıza bağlayın. Cüzdanınızda nakit bulundurun. Ödüllerle kripto kazanın.</string>
-    <string name="kyc_limits_upgrade_now_silver_description">Al-Sat Hesaplarının Kilidini Açıp Swap Yapın.</string>
+    <string name="kyc_limits_upgrade_now_silver_description">Alım Satım Hesaplarının Kilidini Açıp Swap Yapın.</string>
     <string name="kyc_limits_upgrade_now_tier_state_under_review">Manuel İncelemede</string>
     <string name="pending_buys_description">Şu an tek seferde sadece en fazla %d alım işleminin bekletilmesine izin veriyoruz.</string>
     <string name="pending_transaction_limit">Çok Fazla Alım İşlemi Bekletiliyor</string>
@@ -2076,6 +2041,7 @@ Satın alma veya para yatırma limitleri, hesabınızda tamamlanan doğrulama, s
     <string name="new_user_fee_waiver">Yeni Kullanıcı Ücretinden Feragat</string>
     <string name="common_disconnect">Bağlantıyı kes</string>
     <string name="go_back_to_your_browser">Tarayıcınıza geri dönüp tekrar deneyin.</string>
+    <string name="common_i_understand">Anladım, Devam Et</string>
     <string name="bank_transfer_payment_invalid_title">Geçersiz Hesap</string>
     <string name="signature_request">İmza Talebi</string>
     <string name="signed">Oturum Açıldı</string>
@@ -2116,7 +2082,7 @@ Bugün Kripto Satın Alın.</string>
     <string name="about_app_contact_support">Destek Ekibiyle İletişime Geçin</string>
     <string name="about_app_airdrops">Airdrop\'lar</string>
     <string name="about_app_rate_app">Uygulamamızı Değerlendirin</string>
-    <string name="about_app_terms_service">Kullanım Şartları</string>
+    <string name="about_app_terms_service">Hizmet Şartları</string>
     <string name="about_app_privacy_policy">Gizlilik Politikası</string>
     <string name="swap_empty_state_sheet_title">Önce biraz kriptoya ihtiyacınız olacak!</string>
     <string name="swap_empty_state_sheet_subtitle">Bir banka veya kart bağlayın ve şimdi satın alın veya bir arkadaşınızdan alın. Bir bakiyeniz olduğunda, istediğiniz zaman kriptoyu değiştirebilirsiniz.</string>
@@ -2126,10 +2092,9 @@ Bugün Kripto Satın Alın.</string>
     <string name="select_a_display_currency">Bir Para Birimi Görüntüle\'yi seçin.</string>
     <string name="account_toolbar">Hesap</string>
     <string name="account_limits_title">Limitler ve Özellikler</string>
-    <string name="account_limits_subtitle">İşlem Hesapları</string>
+    <string name="account_limits_subtitle">Alım Satım Hesapları</string>
     <string name="account_wallet_id_title">Wallet Kimliği</string>
     <string name="account_wallet_id_subtitle">Uyarı: Herkese Açık Olarak Paylaşmayın</string>
-    <string name="account_exchange_title">Blockchain Exchange</string>
     <string name="account_airdrops_title">Airdrop\'lar</string>
     <string name="account_wallet_id_copy_error">Wallet Kimliğiniz kopyalanırken bir hata oluştu, lütfen tekrar deneyin.</string>
     <string name="account_exchange_connect_title">Exchange\'e Bağlan</string>
@@ -2162,6 +2127,7 @@ Bugün Kripto Satın Alın.</string>
     <string name="profile_update_email">E-posta kaydedildi</string>
     <string name="profile_update_error_phone">Telefon numarası kaydedilemedi</string>
     <string name="profile_update_phone">Telefon numarası kaydedildi</string>
+    <string name="card">Kart</string>
     <string name="password_input_hint">Şifrenizi girin</string>
     <string name="google_pay_instructions">Form veya kart ayrıntıları gerekmeden Google Pay ile Satın Al\'a dokunun.</string>
     <string name="profile_toolbar_mobile">Telefon Numarası</string>
@@ -2189,7 +2155,7 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="code_verification_re_send_text">Metni Yeniden Gönder</string>
     <string name="code_verification_verify_code">Kodu doğrulayın</string>
     <string name="code_verification_placeholder">-----</string>
-    <string name="profile_verify_code">Kodu Doğrulayın</string>
+    <string name="profile_verify_code">Kodu Doğrula</string>
     <string name="profile_enter_code">Doğrulama Kodunu Girin</string>
     <string name="security_password_subtitle">Yeni bir şifre oluştur</string>
     <string name="security_pin_subtitle">Yeni bir 4 Haneli PIN Oluşturun</string>
@@ -2251,7 +2217,7 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="buy_large_amounts">Büyük Miktarda Satın Alın</string>
     <string name="buy_small_amounts">Küçük Miktarda Satın Alın</string>
     <string name="easy_bank_transfer">Kolay Banka Havalesi</string>
-    <string name="link_once_and_instantly_buy_crypto_anytime">Bir kez bağlanın ve istediğiniz zaman anında kripto satın alın.</string>
+    <string name="link_once_and_instantly_buy_crypto_anytime">Hesap bilgilerini girmeden hızlı ve güvenli.</string>
     <string name="ui_tour_prices_title">Yeni Koinleri Keşfedin</string>
     <string name="ui_tour_middle_button_title">Anında Alım Satım Yapın</string>
     <string name="ui_tour_activity_title">Tüm İşlemleri Görün</string>
@@ -2272,8 +2238,7 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="pin_mismatch_error_msg">PIN\'ler eşleşmiyor. Lütfen tekrar deneyin.</string>
     <string name="pin_num_digits">PIN 4 basamaklı olmalıdır.</string>
     <string name="account_wallet_connect">WalletConnect</string>
-    <string name="bank_transfer_blurb">Banka hesabınızdan Blockchain.com hesabınıza para yatırmak için bir sonraki ekrandaki talimatları izleyin. Banka ücretleri uygulanabilir.</string>
-    <string name="easy_bank_transfer_blurb">Bir kez bağlayın ve istediğiniz zaman Blockchain.com hesabınıza nakit gönderin.</string>
+    <string name="easy_bank_transfer_blurb">Hesap bilgilerini girmeden hızlı ve güvenli.</string>
     <string name="no_dapps_connected">Bağlı Dapp Yok</string>
     <string name="connect_with_wallet_connect">WalletConnect kullanarak bir dapp\'e bağlanın.</string>
     <string name="are_you_sure">Emin misiniz?</string>
@@ -2314,11 +2279,8 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="coinview_price_all">Tüm zamanlar</string>
     <string name="coinview_price_label">Mevcut %1$s Fiyatı</string>
     <string name="coinview_balance_label">Toplamınız: %1$s</string>
-    <string name="terms_and_conditions_toolbar">Yeni Şartlarımızı İnceleyin</string>
-    <string name="terms_and_conditions_accept_label">Blockchain.com\'un Hizmet Koşullarını ve Gizlilik Politikasını kabul ediyorum.</string>
-    <string name="terms_and_conditions_review_button">Gözden Geçir</string>
     <string name="coinview_rb_card_title">Ne zaman satın alacağınızı bilmiyor musunuz?</string>
-    <string name="coinview_rb_card_blurb">Piyasada doğru zamanı yakalamak zor olduğundan birçok yatırımcı ortalama maliyet yapıyor.</string>
+    <string name="coinview_rb_card_blurb">Piyasada doğru zamanı yakalamak zor. O nedenle birçok yatırımcı dolar maliyeti ortalaması yapıyor.</string>
     <string name="coinview_not_tradeable_title">%1$s ( %2$s ) ile işlem yapılamaz.</string>
     <string name="coinview_not_tradeable_subtitle">%1$s işlem için uygun duruma geldiğinde haberdar olmak için İzleme Listenize ekleyin.</string>
     <string name="change_pin_code">PIN Değiştir</string>
@@ -2330,7 +2292,7 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="security_pin_title">PIN Değiştir</string>
     <string name="email_notifications_title">E-posta Bildirimleri</string>
     <string name="options_currency">Yerel Para Birimi</string>
-    <string name="name">Ad</string>
+    <string name="name">İsim</string>
     <string name="update">Güncelle</string>
     <string name="security">Güvenlik</string>
     <string name="payment_methods">Ödeme Yöntemleri</string>
@@ -2363,7 +2325,7 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="kyc_upgrade_now_basic_cta">Sınırlı Erişime Geç</string>
     <string name="kyc_upgrade_now_verified_level">Tam Erişim</string>
     <string name="kyc_upgrade_now_verified_full_access">Hemen Başvur</string>
-    <string name="kyc_upgrade_now_verified_swap_title">Kripto para swap et</string>
+    <string name="kyc_upgrade_now_verified_swap_title">Kripto para takas et</string>
     <string name="kyc_upgrade_now_verified_swap_description">Tüm cüzdanlar ve hesaplar arasında</string>
     <string name="kyc_upgrade_now_verified_buy_title">Kripto para alın ve satın</string>
     <string name="kyc_upgrade_now_verified_buy_description">Kart veya banka yöntemleriyle</string>
@@ -2378,7 +2340,7 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="tax_center_announcement_description">CoinTracker ortaklığında yeni Vergi Merkezimiz artık yayında. <annotation font="bold">Web</annotation> üzerinden hesabınıza bağlanıp <annotation font="bold">Hesap -&gt; Vergi Merkezi</annotation> seçeneğine gidin.</string>
     <string name="tax_center_announcement_title">Vergi Merkezi Artık Hizmetinizde!</string>
     <string name="wallet_connect_announcement_card_title">WalletConnect Artık Hizmetinizde!</string>
-    <string name="wallet_connect_announcement_card_subtitle">Cüzdanınızı herhangi bir web 3.0 uygulamasına güvenli bir şekilde bağlayın.</string>
+    <string name="wallet_connect_announcement_card_subtitle">Cüzdanınızı istediğiniz web 3.0 uygulamasına güvenli bir şekilde bağlayın.</string>
     <string name="wallet_connect_announcement_action">Daha Fazla Bilgi</string>
     <string name="kyc_additional_info_toolbar">Hesap Bilgilerinin Kullanımı</string>
     <string name="kyc_additional_info_invalid_node_error">Form, hatalar veya eksik alanlar içeriyor</string>
@@ -2394,8 +2356,6 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="tx_enter_amount_transactions_limit_info_description">Sınırlı Erişim hesabıyla yalnızca %1$d tutarında işlem gerçekleştirebilirsiniz.</string>
     <string name="tx_enter_amount_transactions_limit_info_action_title">Doğrulayarak daha fazla özelliğin kilidini açın</string>
     <string name="tx_enter_amount_transactions_limit_info_action_description">Daha yüksek limitlere ve daha fazla ödeme yöntemine erişin</string>
-    <string name="entity_switch_silver_dialog_title">Hesap doğrulama şartlarımızı güncelliyoruz</string>
-    <string name="entity_switch_silver_dialog_subtitle">Alım, satım ve swap yapmak için kimliğinizi doğrulamanız gerekir.</string>
     <string name="gold_level">Tam Erişim</string>
     <string name="silver_level">Sınırlı Erişim</string>
     <string name="tx_enter_amount_transactions_limit_info_title">Şimdi Doğrula</string>
@@ -2411,8 +2371,8 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="coinview_no_asset_description">Görünüşe göre bu token için henüz bir açıklamamız yok, daha fazla bilgi almak için lütfen aşağıdaki düğmeye dokunarak web sitelerini kontrol edin.</string>
     <string name="default_crypto_non_custodial_wallet_label">Private Key Wallet</string>
     <string name="exchange_default_account_label_1">Exchange Hesabı</string>
-    <string name="custodial_wallet_default_label_1">İşlem Hesabı</string>
-    <string name="explainer_custodial_title">İşlem Hesabı</string>
+    <string name="custodial_wallet_default_label_1">Al-Sat Hesabı</string>
+    <string name="explainer_custodial_title">Al-Sat Hesabı</string>
     <string name="explainer_non_custodial_title">Private Key Wallet</string>
     <string name="card_activation_debit_only_title">Yalnızca banka kartları desteklenir</string>
     <string name="card_activation_debit_only_blurb">Herhangi bir Visa veya Mastercard banka kartı kullanın.</string>
@@ -2424,15 +2384,34 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="invalid_domain_address">Geçersiz alan adresi</string>
     <string name="coinview_prices_missing">Token verileri alınırken bir sorun oluştu</string>
     <string name="transaction_denied">İşlem reddedildi</string>
+    <string name="annual_fees">Yıllık Ücret</string>
+    <string name="blockchain_card">Blockchain.com Kartı</string>
     <string name="blockchain_debit_card">Blockchain Banka Kartı</string>
+    <string name="blockchain_terms_and_conditions">Blockchain.com Şart ve Koşulları</string>
     <string name="title_cardAcquirerDecline">Kartı Veren Tarafından Engellendi</string>
+    <string name="card_benefits">Kart Avantajları</string>
+    <string name="card_details">Kart Bilgileri</string>
+    <string name="cashback_rewards">Geri Ödeme Ödülleri</string>
+    <string name="choose_payment_method">Ödeme Yöntemini Seçin</string>
+    <string name="consumer_financial_protection_bureau">Tüketicinin Mali Haklarını Koruma Bürosu</string>
+    <string name="contactless_payment">Temassız Ödeme</string>
+    <string name="create_card">Kart Oluştur</string>
+    <string name="delivery_fee">Teslimat Ücreti</string>
     <string name="feature_limits_earn_rewards_description">Kriptonuz Üzerinden Ödüller Kazanın</string>
     <string name="title_cardCreateBankDeclined">Kart Eklenemedi</string>
+    <string name="fund_your_card_purchases">Kartla satın alımlarınıza kaynak sağlayın</string>
+    <string name="manage">Yönet</string>
     <string name="order_card">Sipariş Kartı</string>
+    <string name="order_my_card">Kartımı Sipariş Et</string>
+    <string name="virtual_card_product_description">Sadece dijital işlemlere açık kartımızı online ödemelerde anında kullanabilirsiniz.</string>
     <string name="feature_limits_daily_limit_period">Günlük</string>
-    <string name="feature_limits_monthly_limit_period">Her ay</string>
-    <string name="feature_limits_yearly_limit_period">Yıl başına</string>
+    <string name="feature_limits_monthly_limit_period">Aylık</string>
+    <string name="feature_limits_yearly_limit_period">Yıllık</string>
+    <string name="see_card_details">Kart Bilgilerini Gör</string>
+    <string name="short_form_disclosure">Açıklama Özeti</string>
     <string name="title_cardPaymentNotSupported">Desteklenmeyen Ödeme Yöntemi</string>
+    <string name="virtual">Sanal</string>
+    <string name="recent_purchases_here">En son satın aldığınız ürünler burada görünür</string>
     <string name="customer_support_title">Oturum Açmakta Sorun Mu Yaşıyorsunuz?</string>
     <string name="customer_support_description">Size yardımcı olmak için buradayız. Oturum açma ile ilgili sık yaşanan sorunları aşağıdaki SSS bölümünden inceleyebilirsiniz. Ayrıca destek ekibimizden biriyle görüşmek isterseniz, aşağıdaki bize ulaşın seçeneğini seçin.</string>
     <string name="customer_support_contact_us">Bize Ulaşın</string>
@@ -2447,16 +2426,16 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="feature_limits_card_purchases_description">Kripto Satın Alma</string>
     <string name="feature_limits_withdrawals_description">Kişisel Banka Hesabına</string>
     <string name="sb_card_provider_not_supported">Kart sağlayıcı desteklenmiyor</string>
-    <string name="common_oops_bank">Hay aksi! Bir sorun oluştu.</string>
-    <string name="common_oops_kyc">Hay aksi! Bir sorun oluştu.</string>
+    <string name="common_oops_bank">Hay aksi! Bir şeyler ters gitti.</string>
+    <string name="common_oops_kyc">Hay aksi! Bir şeyler ters gitti.</string>
     <string name="card_3ds">Hata! 3DS doğrulaması başarısız oldu</string>
-    <string name="payment_failed_title_with_reason">Ödeme Başarısız Oldu</string>
+    <string name="payment_failed_title_with_reason">Ödeme Gerçekleşmedi</string>
     <string name="account_load_bc_card_error">Blockchain Banka Kartı yüklenirken bir hata oluştu, lütfen tekrar deneyin</string>
     <string name="account_not_eligible">Uygun Değil</string>
     <string name="coinview_multi_nc_desc">%s Ağı</string>
     <string name="coinview_nc_accounts_label">Özel Anahtarlı Cüzdanlar</string>
     <string name="coinview_custodial_accounts_label">Emanet Hesapları</string>
-    <string name="title_cardInsufficientFunds">Yetersiz Para</string>
+    <string name="title_cardInsufficientFunds">Yetersiz Bakiye</string>
     <string name="msg_cardInsufficientFunds">Bu ödeme yönteminde yeterli bakiye yok. Para ekleyebilir veya farklı bir yöntem seçebilirsiniz.</string>
     <string name="title_cardBankDecline">Banka bu kartı reddetti</string>
     <string name="msg_cardBankDecline">Bankanız bu kartı reddetti. Lütfen tekrar deneyin veya başka bir ödeme yöntemi seçin.</string>
@@ -2468,21 +2447,20 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="msg_cardPaymentNotSupported">Blockchain.com bu karttan yapılan ödemeleri desteklemiyor. Lütfen farklı bir ödeme yöntemi seçin.</string>
     <string name="title_cardCreateFailed">Kart eklenemedi</string>
     <string name="msg_cardCreateFailed">Blockchain.com kartınızı ekleyemedi. Lütfen tekrar deneyin veya farklı bir ödeme yöntemi seçin.</string>
-    <string name="title_cardPaymentFailed">Ödeme Başarısız Oldu</string>
+    <string name="title_cardPaymentFailed">Ödeme Gerçekleşmedi</string>
     <string name="msg_cardPaymentFailed">Bu ödeme başarısız oldu. Lütfen tekrar deneyin veya farklı bir ödeme yöntemi seçin.</string>
     <string name="title_cardCreateAbandoned">Kartla ödeme işleminize izin verdiniz mi?</string>
     <string name="msg_cardCreateAbandoned">Ödemelerinizin kartla yapılmasına izin vermek, işlemlerinizin güvenliğini artırmanın harika bir yoludur. Bu mesajı tekrar tekrar görüyorsanız farklı bir ödeme yöntemi seçmeyi düşünün.</string>
     <string name="title_cardCreateExpired">Kartla ödeme işleminize izin vermeyi unuttunuz mu?</string>
-    <string name="msg_cardCreateExpired">Ödemelerinizin kartla yapılmasına izin vermek, işlemlerinizin güvenliğini artırmanın harika bir yoludur. Bu mesajı tekrar tekrar görüyorsanız farklı bir ödeme yöntemi seçmeyi düşünün.</string>
+    <string name="msg_cardCreateExpired">Ödemelerinizin kartla yapılmasına izin vermek, işlemlerinizin güvenliğini artırmanın harika bir yoludur. Bu mesajı tekrar tekrar görüyorsanız farklı bir ödeme yöntemi seçmeyi göz önünde bulundurun.</string>
     <string name="msg_cardCreateBankDeclined">Blockchain.com bu kart için yalnızca banka ödemelerine izin veriyor. Lütfen farklı bir ödeme yöntemi seçin.</string>
     <string name="title_cardCreateDebitOnly">Geçersiz Kart</string>
     <string name="msg_cardCreateDebitOnly">Blockchain.com bu kart için yalnızca banka ödemelerine izin veriyor. Lütfen farklı bir ödeme yöntemi seçin.</string>
-    <string name="title_cardPaymentDebitOnly">Ödeme Başarısız Oldu</string>
+    <string name="title_cardPaymentDebitOnly">Ödeme Gerçekleşmedi</string>
     <string name="msg_cardPaymentDebitOnly">Bu ödeme yöntemi başarısız oldu. Lütfen başka bir ödeme yöntemi deneyin.</string>
     <string name="msg_cardCreateNoToken">Kartınızı ekleyemedik. Lütfen tekrar deneyin veya farklı bir ödeme yöntemi seçin.</string>
     <string name="receive_network_alert_title">%2$s Ağında %1$s</string>
-    <string name="receive_network_alert_subtitle">Lütfen bu adrese sadece %2$s Ağı üzerinden %1$s gönderin. Kaybolan paraları geri getiremeyiz.</string>
-    <string name="settings_notification_preferences_title">Bildirim Tercihleri</string>
+    <string name="receive_network_alert_subtitle">Lütfen bu adrese sadece %2$s Ağı üzerinden %1$s alın. Kaybolan paraları geri getiremeyiz.</string>
     <string name="settings_notification_preferences_subtitle">Ne şekilde bilgilendirilmek istediğinizi seçin.</string>
     <string name="settings_notification_error">Bildirim ayarları yüklenemedi</string>
     <string name="settings_notification_error_details">Bildirim ayarlarınız getirilirken bir sorun oluştu. Lütfen yeniden yükleyin veya daha sonra tekrar deneyin.</string>
@@ -2503,92 +2481,324 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="security_missing_phone_number_description">2FA\'yı etkinleştirmek amacıyla cihazınızı doğrulayabilmemiz için önce telefon numaranızı güncellemeniz gerekir.</string>
     <string name="security_missing_phone_number_cta">Telefon numarası ekle</string>
     <string name="open_banking_permission_link_to_bank">%1$s bankasına bağla</string>
-    <string name="open_banking_permission_confirmation">Onayla\'ya dokunarak SafeConnect\'i kabul etmiş olursunuz</string>
-    <string name="open_banking_permission_confirmation_buy">Şimdi Satın Al\'a dokunarak SafeConnect <annotation link="terms">Kullanım Şartları</annotation> ve <annotation link="privacy">Gizlilik Politikasını</annotation> kabul etmiş olursunuz.</string>
-    <string name="open_banking_permission_terms_service">Kullanım Şartları</string>
+    <string name="open_banking_permission_confirmation">Onayla düğmesine dokunarak YapilyConnect\'i kabul etmiş olursunuz</string>
+    <string name="open_banking_permission_confirmation_buy">Şimdi Satın Al düğmesine dokunarak YapilyConnect <annotation link="terms">Hizmet Şartları</annotation> ve <annotation link="privacy">Gizlilik Politikasını</annotation> kabul etmiş olursunuz.</string>
+    <string name="open_banking_permission_terms_service">Hizmet Şartları</string>
     <string name="open_banking_permission_privacy_policy">Gizlilik Politikası</string>
     <string name="common_http_error_with_new_line_message">Hay aksi! Bir sorun oluştu.
 %1$s</string>
     <string name="common_copied">Kopyalandı</string>
     <string name="referral_code_title">Referans kodunuz</string>
-    <string name="referral_criteria_title">Davetli arkadaşlarımın ne yapması gerekiyor?</string>
+    <string name="referral_criteria_title">Davet ettiğim arkadaşlarımın ne yapması gerekiyor?</string>
     <string name="card_not_supported">Kart Desteklenmiyor</string>
     <string name="feature_limits_tier_state_approved">Aktif</string>
-    <string name="common_did_you_know">Bunu biliyor muydunuz?</string>
+    <string name="common_did_you_know">Bunları biliyor muydunuz?</string>
     <string name="send_select_a_wallet_warning">Yalnızca (%2$s) ağındaki cüzdanlara %1$s gönderin.
 <annotation link="send_network_options">Daha fazla bilgi edinin</annotation></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s), birden çok ağda bulunabilecek bir tokendir. Göndermeden önce, gönderdiğiniz cüzdan adresinin ağını bildiğinizden emin olun.</string>
-    <string name="coinview_expandable_button">Devamını Oku</string>
     <string name="coinview_collapsable_button">Daha Azını Oku</string>
-    <string name="common_submit">Gönder</string>
     <string name="app_rating_title">Uygulamamızı beğendiniz mi?</string>
     <string name="app_rating_description">Deneyiminizi değerlendirerek uygulamamızı geliştirmemize yardımcı olun.</string>
-    <string name="app_rating_completed_no_feedback_title">Uygulamamızı değerlendirdiğiniz için teşekkürler!</string>
-    <string name="app_rating_completed_feedback_title">Geri bildiriminiz için teşekkür ederiz!</string>
-    <string name="app_rating_completed_feedback_description">Geri bildiriminiz, hangi noktaları iyileştirebileceğimizi bilmemize yardımcı olur.</string>
     <string name="app_rating_feedback_title">Daha fazla bilgi verin.</string>
     <string name="app_rating_feedback_description">Uygulamayı nasıl geliştirebileceğimizi bize bildirin.</string>
     <string name="app_rating_feedback_hint">Daha fazla bilgi verin</string>
     <string name="app_version">Uygulama Sürümü: %1$s (%2$s)</string>
     <string name="settings_notification_required">%s (gerekli)</string>
     <string name="common_launch">Başlat</string>
-    <string name="common_maybe_later">Belki Sonra</string>
-    <string name="common_i_understand">Anladım</string>
     <string name="account_exchange_launch">Blockchain Exchange\'i Başlatın</string>
-    <string name="lets_backup_your_wallet">Wallet\'inizi Yedekleyelim</string>
-    <string name="back_up_splash_description">İleride ihtiyaç duyulması halinde cüzdanlarınızı kurtarmak için kullanılacak 12 kelimeniz sonraki birkaç ekranda verilecek.</string>
-    <string name="backup_phrase_checkbox_warning">Kurtarma ifademi kaybedersem DeFi cüzdanlarıma erişemeyeceğimi anlıyorum.</string>
     <string name="back_up_now">Şimdi Yedekle</string>
-    <string name="secure_defi_wallets">DeFi Cüzdanlarınızı Güvende Tutun</string>
     <string name="account_refer_a_friend">Arkadaşınıza tavsiye edin</string>
-    <string name="order_card_intro_primary">Blockchain Banka Kartına Açılan Kapınız</string>
-    <string name="order_card_intro_secundary">Doğrudan Blockchain hesabınızdan kripto para kazanmanıza ve harcamanıza izin veren bir kart.</string>
-    <string name="order_my_card">Kartımı Sipariş Et</string>
-    <string name="link_card_here">Zaten Bir Kartınız Var mı? Buraya Bağla\"</string>
-    <string name="virtual">Sanal</string>
-    <string name="virtual_card_product_description">Sadece dijital kartımız, online ödemelerde anında kullanın.</string>
-    <string name="see_card_details">Kart Ayrıntılarını Gör</string>
-    <string name="create_card">Kart Oluştur</string>
-    <string name="card_benefits">Kart Avantajları</string>
-    <string name="cashback_rewards">Geri Ödeme Ödülleri</string>
-    <string name="annual_fees">Yıllık ücret</string>
-    <string name="delivery_fee">Teslimat ücreti</string>
-    <string name="card">Kart</string>
-    <string name="contactless_payment">Temassız Ödeme</string>
-    <string name="yes">Evet</string>
-    <string name="consumer_financial_protection_bureau">Tüketici Mali Koruma Bürosu</string>
-    <string name="blockchain_terms_and_conditions">Blockchain.com Hüküm ve Koşulları</string>
-    <string name="short_form_disclosure">Kısa Form Açıklaması</string>
-    <string name="terms_and_conditions">Şartlar ve Koşullar</string>
-    <string name="card_created">Kart Oluşturuldu!</string>
-    <string name="your_card_is_now_linked">Kartınız artık Blockchain.com Cüzdanınıza bağlı.</string>
+    <string name="link_card_here">Zaten Bir Kartınız Var mı? Buraya Bağlayın\"</string>
+    <string name="card_created">Kart Başarılı Bir Şekilde Oluşturuldu</string>
+    <string name="your_card_is_now_linked">Kartınız artık Blockchain.com Wallet\'ınıza bağlı.</string>
     <string name="gpay_save_to_phone">Google Pay\'i Telefona Kaydet</string>
     <string name="do_it_later">Sonra yap</string>
-    <string name="failed">ARIZALI</string>
     <string name="delete_card">Kartı Sil</string>
-    <string name="manage">Yönet</string>
-    <string name="top_up">Doldur</string>
-    <string name="choose_payment_method">Ödeme yöntemini seçin</string>
-    <string name="fund_your_card_purchases">Kart satın alımlarınızı finanse edin</string>
-    <string name="earn_crypto_on_purchases">Satın alımlarda kripto kazanın</string>
-    <string name="recent_purchases_here">En son satın aldığınız ürünler burada görünecek</string>
+    <string name="earn_crypto_on_purchases">Satın alımlar üzerinden kripto para kazanın</string>
     <string name="copy_card_number">Kart Numarasını Kopyala</string>
     <string name="copy_to_clipboard">Panoya kopyala</string>
-    <string name="lock_card">Kilit Kartı</string>
+    <string name="lock_card">Kartı Kilitle</string>
     <string name="temporarily_lock_card">Kartınızı geçici olarak kilitleyin</string>
-    <string name="get_help_with_card_issues">Kartla ilgili sorunlarla ilgili yardım alın</string>
-    <string name="blockchain_card">Blok Zinciri Kartı</string>
+    <string name="get_help_with_card_issues">Kartla ilgili sorunlara ilişkin yardım alın</string>
     <string name="virtual_card">Sanal Kart</string>
     <string name="ready_to_use">Kullanıma hazır</string>
-    <string name="card_details">Kart detayları</string>
-    <string name="no_fee">Ücretsiz</string>
     <string name="processing">İşleniyor</string>
-    <string name="spend_from">Harcama</string>
+    <string name="spend_from">Harcama Kaynağı</string>
     <string name="accessibility_action_menu">Eylem Menüsü</string>
-    <string name="bank_linking_max_attempts_title">Deneme Sınırına Ulaşıldı</string>
-    <string name="bank_linking_max_attempts_subtitle">Bankanızı bağlamaya yönelik deneme sayısı sınırına ulaştınız. Limitler günlük olarak sıfırlanır, lütfen yarın tekrar deneyin.</string>
+    <string name="bank_linking_max_attempts_title">Deneme Limitine Ulaşıldı</string>
+    <string name="bank_linking_max_attempts_subtitle">Bankanızı bağlamaya yönelik deneme sayısı limitine ulaştınız. Limitler günlük olarak sıfırlanır; lütfen yarın tekrar deneyin.</string>
     <string name="bank_linking_max_accounts_title">Banka Limitine Ulaşıldı</string>
-    <string name="bank_linking_max_accounts_subtitle">Hesabınıza bağlayabileceğiniz banka sayısı sınırına ulaştınız. Yeni bir tane eklemek için lütfen bağlı bir bankayı silin.</string>
-    <string name="account_restricted">Hesap Kısıtlı</string>
-    <string name="russia_sanctions_eu5_sheet_subtitle">Şu anda, düzenleyici yaptırımlar nedeniyle 10.000 € üzerindeki bakiyeler için ticarete izin verilmemektedir. Ancak, yine de tutabilir veya geri çekebilirsiniz.</string>
+    <string name="bank_linking_max_accounts_subtitle">Hesabınıza bağlayabileceğiniz banka sayısı limitine ulaştınız. Yeni bir tane eklemek için lütfen bağlı bir bankayı silin.</string>
+    <string name="russia_sanctions_eu5_sheet_subtitle">Düzenleyici kurum yaptırımları nedeniyle şu an 10.000 € üzerindeki bakiyeler için alım satıma izin verilmemektedir. Ancak yine de bakiyenizi tutabilir veya çekebilirsiniz.</string>
+    <string name="common_close">Kapat</string>
+    <string name="customer_support_error_title">Sohbet başlatılırken bir hata oluştu</string>
+    <string name="customer_support_error_description">Görünüşe göre sohbetimizde sorun yaşanıyor, lütfen uygulamayı kapatıp açmayı deneyin ve sorun devam ederse bunun yerine destek talebi gönderin.</string>
+    <string name="customer_support_error_cta">Destek talebi gönder</string>
+    <string name="account_restricted">Hesap Kısıtlandı</string>
+    <string name="referral_program">Referans Programı</string>
+    <string name="common_yes">Evet</string>
+    <string name="kyc_profile_submit">Gönder</string>
+    <string name="new_account_referral_code">Referans kodunu girin (opsiyonlu)</string>
+    <string name="new_account_referral_code_invalid">Lütfen geçerli bir referans kodu girin</string>
+    <string name="backup_phrase_intro_title">Wallet\'inizi Yedekleyelim</string>
+    <string name="backup_phrase_intro_description">İleride ihtiyaç duyulması halinde cüzdanlarınızı kurtarmak için kullanılacak 12 kelimeniz sonraki birkaç ekranda verilecek.</string>
+    <string name="recovery_phrase_title">Kurtarma İfadeniz</string>
+    <string name="recovery_phrase_description">Bu 12 kelime, Özel Anahtar Cüzdanlarınıza erişmenizi sağlar. Lütfen bunu buluta yedekleyin veya elle bir yere yazın.</string>
+    <string name="manual_backup_title">Manuel Yedekleme</string>
+    <string name="manual_backup_description">Kurtarma ifadenizi aşağıda gördüğünüz sırada yazın.</string>
+    <string name="manual_backup_copy_description">Bir parola yöneticisine kopyalayın veya mürekkepli kalem ve kağıt kullanarak bir yere yazın. Hazırda bulundurun çünkü sonraki adımda, kullandığınız ifade doğrulanacak.</string>
+    <string name="manual_backup_copied">2 Dakikalığına Kopyalandı</string>
+    <string name="verify_phrase_title">İfadenizi Doğrulayın</string>
+    <string name="verify_phrase_description">Doğru sıraya sokmak için kelimelere dokunun.
+</string>
+    <string name="accessibility_back">Geri</string>
+    <string name="accessibility_qr_code_scanner">QR Kodu Okuyucu</string>
+    <string name="accessibility_user_settings">Kullanıcı Ayarları</string>
+    <string name="accessibility_close">Kapat</string>
+    <string name="accessibility_support">Destek</string>
+    <string name="nft_announcement_title">Cüzdanınızdaki NFT\'leri Görüntüleyin</string>
+    <string name="nft_announcement_description">Yakında NFT\'lerinizi doğrudan cüzdanınızın rahatlığında görüntüleyebileceksiniz.</string>
+    <string name="nft_announcement_action">Bekleme Listesine Katıl</string>
+    <string name="bottom_nav_home">Ana Sayfa</string>
+    <string name="bottom_nav_prices">Fiyatlar</string>
+    <string name="bottom_nav_buy_and_sell">Al &amp; Sat</string>
+    <string name="bottom_nav_activity">Hareket</string>
+    <string name="accessibility_asset_name">Varlık Adı</string>
+    <string name="accessibility_current_market_price">Mevcut Piyasa Fiyatı</string>
+    <string name="accessibility_24h_change">24 Saatlik Değişim</string>
+    <string name="tx_confirmation_countdown">%1$s cinsinden yeni fiyat teklifi</string>
+    <string name="backup_phrase_title_secure_wallet">Cüzdanınızı Güvende Tutun</string>
+    <string name="backup_phrase_title_steps">Adım %1$d / %2$d</string>
+    <string name="back_up_status_negative">Yedeklenmedi</string>
+    <string name="back_up_status_positive">Yedeklendi</string>
+    <string name="accessibility_referral">Referans Kodunu Göster</string>
+    <string name="trading_confirm_deposit">Yatırma İşlemini Onayla</string>
+    <string name="trading_deposit_description_generic">İşleminizi tamamlayamadık. Lütfen tekrar deneyin veya farklı bir ödeme yöntemi seçin.</string>
+    <string name="trading_deposit_description_insufficient">Aldığımız son bakiye bilgileri, banka hesabınızda bu işlemi yapmak için yeterli paranız olmadığını gösteriyor. Lütfen kontrol edip tekrar deneyin.</string>
+    <string name="trading_deposit_description_requires_update">Ödemenin daha hızlı bir şekilde gerçekleşmesini sağlamak için lütfen banka hesabınızı yeniden bağlayın.</string>
+    <string name="trading_deposit_description_stale">Banka hesabınızdaki bakiyeye dair güncel bilgi alamadık. Lütfen tekrar deneyin.</string>
+    <string name="referral_invite_now">Şimdi Davet Et</string>
+    <string name="order_card_intro">Online ödemelerde anında kullanabileceğiniz bir dijital kart.</string>
+    <string name="card_creation_failed">Kartınız Başarılı Bir Şekilde Oluşturulamadı</string>
+    <string name="card_creation_failed_description">Bu durum bazen sistemlerin tıkanması halinde görülebilir. Aşağıda yer alan \'Tekrar Dene\' düğmesine dokunarak tekrar deneyebilirsiniz</string>
+    <string name="no_fees">Ücret Yok</string>
+    <string name="no_fees_description">Kayıt ücreti yok. Yıllık ücret yok. İşlem ücreti yok.</string>
+    <string name="terms_and_conditions_label">Blockchain.com\'un Hizmet Şartlarını kabul ediyorum</string>
+    <string name="crypto_rewards">Kripto Ödülleri</string>
+    <string name="crypto_rewards_description">Tüm satın alım işlemlerinizde %%1 kripto ödül geri kazanın.</string>
+    <string name="legal_info_title">Yasal Bilgiler</string>
+    <string name="continue_to_card_dashboard">Kart kontrol panelinizi görüntülemeye devam edin.</string>
+    <string name="go_to_dashboard">Kontrol Paneline Git</string>
+    <string name="backup_phrase_intro_ack_1">Gizli ifademi kaybetmem durumunda fonlarım sonsuza dek kaybolur.</string>
+    <string name="backup_phrase_intro_ack_2">Gizli ifademi birine ifşa edersem veya paylaşırsam, fonlarım çalınabilir.</string>
+    <string name="backup_phrase_intro_ack_3">Gizli ifademi güvende tutmak tamamen benim sorumluluğumdadır.</string>
+    <string name="sell_confirmation_disclaimer">Nihai miktar, piyasa hareketliliği nedeniyle değişebilir. Bu Satışı onaylayarak Blockchain.com\'un <annotation link="refund_policy">Geri Ödeme Politikası\'nı</annotation> onaylamış olursunuz</string>
+    <string name="verify_phrase_incorrect_message">Yanlış talimat. Silmek için sıfırlayın veya tek tek kelimelere dokunun.</string>
+    <string name="verify_phrase_incorrect_button">Kelimeleri Sıfırla</string>
+    <string name="prices_error_title">Varlık fiyatları yüklenemiyor</string>
+    <string name="prices_error_desc">Varlık fiyatları yüklenirken bir hata oluştu.
+Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin veya sorun devam ederse destek birimimizle ile iletişime geçin.</string>
+    <string name="add_funds">Fon Ekle</string>
+    <string name="change_source">Kaynağı Değiştir</string>
+    <string name="manage_card">Kartı Yönet</string>
+    <string name="recent_transactions">Son İşlemler</string>
+    <string name="see_all">Hepsini Gör</string>
+    <string name="personal_details">Kişisel Bilgiler</string>
+    <string name="view_account_information">Hesap bilgilerini görüntüle</string>
+    <string name="transaction_controls">İşlem Kontrolleri</string>
+    <string name="settings_features_for_card_transactions">Kart işlemleri için Ayarlar ve Özellikler</string>
+    <string name="pin_settings">Pin Ayarları</string>
+    <string name="manage_pin">Pini Yönet</string>
+    <string name="manage_pin_description">Kart etkinliğiniz için yeni bir PIN seçin</string>
+    <string name="security_settings">Güvenlik Ayarları</string>
+    <string name="swipe_payments">Swipe Ödemeleri</string>
+    <string name="swipe_payments_description">Manyetik şeridi kapatın</string>
+    <string name="contactless_payments">Temassız Ödemeler</string>
+    <string name="contactless_payments_description">NFC tabanlı ödemeler</string>
+    <string name="transaction_amount_limit">İşlem Tutarı Limiti</string>
+    <string name="transaction_amount_limit_description">İşlem başına özel harcama limiti belirleyin</string>
+    <string name="billing_address">Fatura Adresi</string>
+    <string name="address_placeholder_1">1242 Johnnyappleseed Ln.</string>
+    <string name="address_placeholder_2">1234 Road Street</string>
+    <string name="address_city_placeholder">Walnut Creek</string>
+    <string name="address_state_placeholder">CA</string>
+    <string name="address_state">Eyalet</string>
+    <string name="address_zip_placeholder">94592</string>
+    <string name="save">Kaydet</string>
+    <string name="support_title">Blockchain.com Visa Kart Desteği</string>
+    <string name="card_lost">Kartım Kayboldu/Çalındı</string>
+    <string name="card_lost_description">Kayıp veya çalıntı kartınızı bildirin</string>
+    <string name="visit_faq">SSS sayfamızı ziyaret edin</string>
+    <string name="visit_faq_description">En sık sorulan sorularımıza göz atın</string>
+    <string name="contact_support_description">Diğer tüm sorularınız için bizimle iletişime geçebilirsiniz</string>
+    <string name="no_accounts_eligible_for_linking">Bağlanmak için uygun hesap yok</string>
+    <string name="address_updated">Fatura Adresi Güncellendi</string>
+    <string name="address_update_success">Adres Başarıyla Güncellendi</string>
+    <string name="address_update_success_description">Fatura adresiniz başarıyla değiştirildi ve hemen yürürlüğe girecek.</string>
+    <string name="address_update_failed">Adres Güncelleme Başarısız</string>
+    <string name="accessibility_price_not_available">Fiyat mevcut değil</string>
+    <string name="trading_deposit_relink_bank_account">Banka Hesabını Yeniden Bağla</string>
+    <string name="simple_buy_quote_message">%s temelinde yeni teklif</string>
+    <string name="verify_your_address">Adresinizi Doğrulayın</string>
+    <string name="verify_your_address_description">Gecikmeleri önlemek için aşağıda ikamet adresinizi onaylayın.</string>
+    <string name="residential_address">İkamet Adresi</string>
+    <string name="card_intro_title">Blockchain.com Visa Card\'ı alın</string>
+    <string name="backup_success_title">Yedekleme Başarılı!</string>
+    <string name="backup_success_description">Hesap kurtarma ifadenizi güvenli bir yerde saklayın ve asla kimseyle paylaşmayın.</string>
+    <string name="alias">Hesap adı</string>
+    <string name="account_holder">Hesap Sahibi</string>
+    <string name="alias_tooltip">Banka hesap adı, banka hesabınızı 22 haneli CBU numarasından çok daha kolay bir şekilde bulmanızı sağlar.</string>
+    <string name="processing_time_subtitle_ars">Fonlar, biz onları alır almaz ARS cüzdanınıza yatırılacaktır. Fonlar genellikle bir iş günü içinde kullanılabilmektedir.</string>
+    <string name="gpay_announcement_title">Yeni: Google Pay</string>
+    <string name="gpay_announcement_description">Google Pay ile hiçbir sorun yaşamadan kripto satın alma işlemlerinin keyfini çıkarın.</string>
+    <string name="gpay_announcement_action">Kripto Para Satın Al</string>
+    <string name="referral_share_template">Bana katıl, %1$s referans koduna sahip bir Blockchain.com Cüzdanına kaydol ve kripto bonusu kazan!
+
+Uygulama linki: https://blockchainwallet.page.link/join</string>
+    <string name="referral_share_template_subject">Blockchain.com\'da bana katıl</string>
+    <string name="scan_no_account_selected">%1$s göndermek için hesap seçilmedi, lütfen devam etmek için faturayı tekrar tarayın</string>
+    <string name="merchant">Ticari</string>
+    <string name="type">Yaz</string>
+    <string name="state">Eyalet</string>
+    <string name="transaction_details_title">İşlem Detayları</string>
+    <string name="bc_card_transaction_pending">Beklemede</string>
+    <string name="bc_card_transaction_cancelled">İ̇ptal Edildi</string>
+    <string name="bc_card_transaction_declined">Reddedildi</string>
+    <string name="bc_card_transaction_completed">Tamamlandı</string>
+    <string name="defi_current_balance">Cari Bakiye</string>
+    <string name="recovery_phrase_backup_again">Tekrar Yedekle</string>
+    <string name="setting_limits_load_error_title">Yükleme Hatası</string>
+    <string name="setting_limits_load_error_description">Şu anda limitlerinizi yükleyemiyoruz. Ayarlar\'a giderek hesap limitlerinizi kontrol edebilirsiniz.</string>
+    <string name="dashboard_onboarding_error_title">Yükleme Hatası</string>
+    <string name="dashboard_onboarding_error_description">Doğrulama ekranı yüklenirken bir sorunla karşılaştık. Lütfen önceki ekrana dönün ve tekrar deneyin.</string>
+    <string name="recovery_phrase_backup_manual">Manuel Olarak Yedekle</string>
+    <string name="defi_onboarding_nav_title">DeFi Wallet</string>
+    <string name="defi_onboarding_intro_title">%1$s ile tanışın</string>
+    <string name="defi_onboarding_intro_description">Tüm Web3 ve DeFi\'yi tek bir yerde keşfedin</string>
+    <string name="defi_onboarding_intro_property1_title">Varlıklarınızı Kişisel Olarak Saklama</string>
+    <string name="defi_onboarding_intro_property1_subtitle">DeFi cüzdanları zincir üzerindedir</string>
+    <string name="defi_onboarding_intro_property2_title">Çoklu Zincir Desteği</string>
+    <string name="defi_onboarding_intro_property2_subtitle">Portföyünüzü 7 zincirde yönetin</string>
+    <string name="defi_onboarding_intro_property3_title">Merkeziyetsiz Finansa Bağlanın</string>
+    <string name="defi_onboarding_intro_property3_subtitle">DApps\'te oturum açın ve işlemleri imzalayın</string>
+    <string name="defi_onboarding_intro_cta">DeFi Wallet\'ınızı Etkinleştirin</string>
+    <string name="defi_onboarding_complete_title">%1$s\'ınıza hoş geldiniz</string>
+    <string name="defi_onboarding_complete_description">DeFi Wallet\'ınız başarıyla oluşturuldu. DeFi cüzdanınız Bitcoin, Bitcoin Cash, Ethereum, |etc| ve 1500 jetonu destekliyor.</string>
+    <string name="payment_wire_transfer_subtitle_dollars">3-5 iş günü içinde gelmesi gerekir</string>
+    <string name="payment_wire_transfer_subtitle_pounds">Aynı gün gelmesi gerekir</string>
+    <string name="payment_wire_transfer_subtitle_euros">1 iş günü içinde gelmesi gerekir</string>
+    <string name="payment_deposit_subtitle_pounds">Anında gelmesi gerekir</string>
+    <string name="payment_deposit_subtitle_dollars">3 iş günü içinde gelmesi gerekir</string>
+    <string name="payment_deposit_subtitle_euros">Anında gelmesi gerekir</string>
+    <string name="bank_transfer_blurb_pounds">Transferler, Birleşik Krallık Faster Payments System aracılığıyla yapılır ve genellikle saniyeler içinde hesaba ulaşır.</string>
+    <string name="bank_transfer_blurb_dollars">Büyük miktarları aktarmak için. Banka ücret tahsil edebilir.</string>
+    <string name="bank_transfer_blurb_euros">Banka ücret tahsil edebilir.</string>
+    <string name="default_label_all_non_custodial_wallets">Tümü</string>
+    <string name="default_label_all_custodial_wallets">Tümü</string>
+    <string name="questionnaire_error_invalid_format">Geçersiz Format</string>
+    <string name="defi_onboarding_enable_wallet_title">Başlamak için etkinleştirin</string>
+    <string name="defi_onboarding_enable_wallet_description">Web3 uygulamalarına bağlanın, NFT toplayın ve DEX\'lerde takas yapın.</string>
+    <string name="settings_chart_vibration">Varlık Fiyat Tablosu</string>
+    <string name="settings_chart_vibration_desc">Grafik titreşimini aç/kapat</string>
+    <string name="purchase_title_error">Satın alma hatası</string>
+    <string name="purchase_description_error">Satın alma işleminde bir sorunla karşılaştık. Lütfen tekrar deneyin.</string>
+    <string name="recurring_buy_one_time_cta">Tek sefer</string>
+    <string name="recurring_buy_one_time_selector">Tek sefer</string>
+    <string name="verify_your_identity">Kimliğinizi Doğrulayın</string>
+    <string name="verify_your_identity_description">Başkalarının sizin adınıza sahte hesaplar oluşturmasını önlemek için lütfen aşağıda SSN veya Vergi Numaranızı onaylayın.</string>
+    <string name="ssn_title">SSN veya Bireysel Vergi Numarası</string>
+    <string name="ssn_hint">XXXXXXXXX</string>
+    <string name="common_next">İleri</string>
+    <string name="common_learn_more">Daha Fazla Bilgi</string>
+    <string name="card_issuer_always_rejects_title">Kripto alımı desteklenmiyor</string>
+    <string name="card_issuer_always_rejects_desc">Bu kart kripto işlemlerine izin vermiyor. Başka bir kart deneyin.</string>
+    <string name="card_issuer_sometimes_rejects_title">Kripto alımı sıklıkla reddediliyor</string>
+    <string name="recovery_phrase_backup_cloud">Buluta Yedekle</string>
+    <string name="add_new_bank_account">+ Yeni Banka Hesabı Ekle</string>
+    <string name="bank_alias_info">Lütfen adınıza yeni bir banka hesabı bağlamak için bankanızın Kısa Adını/CBU/CVU\'sunu girin.
+
+ Kısa ad girerseniz:
+ - 6 ila 20 karakter arasında olmalıdır (harfler, sayılar, tire ve nokta)
+ - “ñ” harfi, aksan işaretleri, boşluk ve diğer özel karakterleri kullanmayın.</string>
+    <string name="bank_alias_search_account">Hesap Ara</string>
+    <string name="trading_currency_selection_header">Bu, kripto alıp satmak için kullandığınız para birimidir.</string>
+    <string name="display_currency_selection_header">Bu, bakiyenizin görüntüleneceği para birimidir.</string>
+    <string name="account_trading_currency_title">Trading Para Birimi</string>
+    <string name="card_limit_reached_title">Çok Fazla Kart</string>
+    <string name="card_limit_reached_desc">İzin verilen maksimum kart sayısına ulaştınız. Lütfen daha fazlasını eklemeden önce birini kaldırın veya farklı bir ödeme yöntemi seçin.</string>
+    <string name="address_update_failed_description">Fatura adresiniz güncellenemedi. Lütfen tekrar deneyin.</string>
+    <string name="unable_to_load_list_of_states">ABD eyaletlerinin listesi yüklenemiyor</string>
+    <string name="payment_wire_transfer_subtitle_ars">1-3 iş günü içinde gelmesi gerekir</string>
+    <string name="payment_wire_transfer_subtitle_default">Settlement zamanı bölgeye göre değişir</string>
+    <string name="payment_deposit_subtitle_default">Daha hızlı transfer hizmeti verip vermediklerini öğrenmek için doğrudan bankanızla iletişime geçin.</string>
+    <string name="bank_transfer_blurb_ars">Doğrudan banka hesabınızdan para aktarın. Banka ücret tahsil edebilir.</string>
+    <string name="bank_transfer_blurb_default">Ödeme süreleri ve banka ücretleri hakkında bilgi için doğrudan bankanızla iletişime geçin.</string>
+    <string name="my_card">Kartım</string>
+    <string name="bc_card_locked">Kilitli</string>
+    <string name="new_asset_card_header">1 %1$s = %2$s</string>
+    <string name="new_asset_card_subheader">%1$s (%2$s)</string>
+    <string name="new_asset_card_subheader_suffix">Bugün</string>
+    <string name="card_issuer_sometimes_rejects_desc">Bu kart kripto işlemlerini sıklıkla reddediyor. Başka bir kart deneyin.</string>
+    <string name="educational_wallet_mode_intro_title">Wallet\'ınız artık daha da iyi</string>
+    <string name="educational_wallet_mode_intro_description">Blockchain.com uygulamasında bazı önemli iyileştirmeler yaptık.</string>
+    <string name="educational_wallet_mode_menu_title">Gezinmenin yeni yolu</string>
+    <string name="educational_wallet_mode_menu_description">Al-Sat Hesabı ve DeFi Wallet arasında kolayca geçiş yapın.</string>
+    <string name="educational_wallet_mode_defi_title">DeFi için yeni adresiniz</string>
+    <string name="educational_wallet_mode_defi_description">Private Key Wallet\'larınıza erişin, web3 ve merkeziyetsiz finans ile tanışın.</string>
+    <string name="educational_wallet_mode_defi_secure_tag">Sizin tarafınızdan güvence altına alındı</string>
+    <string name="educational_wallet_mode_trading_title">Al-Sat hesabınız</string>
+    <string name="educational_wallet_mode_trading_description">Trading ve Rewards hesaplarınıza erişin ve kripto satın alıp satın.</string>
+    <string name="educational_wallet_mode_trading_secure_tag">Blockchain.com tarafından güvence altına alındı</string>
+    <string name="educational_wallet_mode_cta">Hemen Başlayın</string>
+    <string name="skip_backup_title">Devam etmek istediğinize emin misiniz?</string>
+    <string name="skip_backup_description">DeFi Wallet yedeklemenizi atlarsanız paranıza erişiminizi kaybetme riskiyle karşı karşıya kalırsınız.</string>
+    <string name="linking_card_success_title">Kartınız başarıyla bağlandı!</string>
+    <string name="linking_card_success_subtitle">Artık kolayca ve güvenli bir şekilde kripto satın almak için kullanabilirsiniz.</string>
+    <string name="trading_deposit_title_stale_balance">Eski Bakiye</string>
+    <string name="bc_card_transactions_title">Son İşlemler</string>
+    <string name="bc_card_see_all">Hepsini Gör</string>
+    <string name="bc_card_terms_and_conditions_label">Blockchain.com Visa Card Programının hüküm ve koşullarını, Pathward Bank Kart Sahibi Sözleşmesini, Pathward Bank Elektronik İmza Sözleşmesini ve Pathward Bank Gizlilik Politikasını anlıyor ve kabul ediyorum. Ayrıca bu koşulların Blockchain.com Hizmet Koşulları ve Blockchain.com Gizlilik Politikasına ek olarak yürürlükte olduğunu anlıyor ve kabul ediyorum.</string>
+    <string name="skip_backup_cta_skip">Evet, yedeklemeyi atla</string>
+    <string name="skip_backup_cta_backup">Yedekle (Önerilir)</string>
+    <string name="terminate_card">Kartı Sonlandır</string>
+    <string name="terminate_card_confirm_description">Kartınızı kalıcı olarak sonlandırmak için lütfen \'SONLANDIR\' yazın</string>
+    <string name="terminate_card_confirmation_text">SONLANDIR</string>
+    <string name="bc_card_transaction_payment">Ödeme</string>
+    <string name="bc_card_transaction_refund">Geri ödeme</string>
+    <string name="nft_coming_soon_title">Çok yakında!</string>
+    <string name="nft_coming_soon_description">Cüzdandaki NFT\'lerinizi desteklemek için çok çalışıyoruz. Uygulamanızı güncelleme zamanı geldiğinde size bir e-posta göndereceğiz.</string>
+    <string name="accessibility_balance">Bakiye</string>
+    <string name="terminate_card_number">%1s kartı iptal edilsin mi?</string>
+    <string name="terminate_card_warning">Bu işlem onaylandıktan sonra geri alınamaz.</string>
+    <string name="bc_card_change_asset_title">Varlığı Değiştir</string>
+    <string name="bc_card_change_asset_description">Kartı finanse edecek varlığı değiştirin</string>
+    <string name="bc_card_add_funds_title">Para Ekle</string>
+    <string name="bc_card_add_funds_description">Güncel bakiyenizi yükseltin</string>
+    <string name="select_one">Birini Seçin</string>
+    <string name="bc_card_empty_transactions_title">İşlemleriniz Burada Görünür</string>
+    <string name="bc_card_empty_transactions_description">Kartınızla bir satın alma işlemi yaptığınızda, ilgili bilgiler burada görünecektir.</string>
+    <string name="bc_card_tap_here_to_refresh">Yenilemek için buraya dokunun</string>
+    <string name="bc_card_tap_here_to_try_again">Tekrar denemek için buraya dokunun</string>
+    <string name="bc_card_unable_to_load_card">Kart yüklenemedi</string>
+    <string name="accessibility_total_balance">Toplam Bakiye</string>
+    <string name="checkout_rb_weekly_title">Haftalık Yatırım Yapılsın mı?</string>
+    <string name="checkout_rb_biweekly_title">İki Haftada Bir Yatırım Yapılsın mı?</string>
+    <string name="checkout_rb_monthly_title">Aylık Yatırım Yapılsın mı?</string>
+    <string name="checkout_rb_subtitle">%1$s %2$s satın alın. İstediğiniz zaman iptal edin.</string>
+    <string name="shortcuts">Kısayollar</string>
+    <string name="exchange_your_crypto">Kriptonuzu takas edin</string>
+    <string name="transfer_to_another_wallet">Başka bir cüzdana aktar</string>
+    <string name="receive_to_your_wallet">Cüzdanınıza alın</string>
+    <string name="buy_crypto">Kripto Para Satın Al</string>
+    <string name="defi_buy_not_supported">Şu anda Özel Anahtar Cüzdanınıza kripto satın alımını desteklemiyoruz. Al-Sat Hesabınızdan satın alıp Özel Anahtar Cüzdanınıza gönderebilirsiniz.</string>
+    <string name="go_to_trading">Al-Sat Hesabına Git</string>
+    <string name="recurring_buy_view_rb">Yinelenen Satın Alımı Görüntüle</string>
+    <string name="recurring_buy_created_title">%s Satın Alma Oluşturuldu</string>
+    <string name="recurring_buy_created_subtitle">Şimdi %2$s %3$s içinde %1$s satın alacaksınız. İstediğiniz zaman iptal edebilirsiniz.</string>
+    <string name="top_up_trading_account">Al-Sat Hesabınıza para yatırın.</string>
+    <string name="use_your_card_or_cash">Nakitinizi veya Kartınızı Kullanın</string>
+    <string name="fiat_to_cash">Kriptoyu Nakite Çevirin</string>
+    <string name="rewards_to_your_cryptos">Kripto Paranızla Ödüller Kazanın</string>
+    <string name="recaptcha_failed">Tekrar denemek için lütfen Uygulamayı arka plana alın ve yeniden başlatın.</string>
+    <string name="error_scan_unrecognized">QR kodu tanınmadı. Desteklenen QR kodları arasında Bitpay, Crypto Addresses ve WalletConnect bulunur. Lütfen tekrar deneyin.</string>
 </resources>

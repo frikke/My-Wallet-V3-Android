@@ -2,7 +2,7 @@ package com.blockchain.coincore.erc20
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -41,7 +41,7 @@ class Erc20ActivitySummaryTest {
             transactionHash = TX_HASH,
             blockNumber = 7721219.toBigInteger(),
             timestamp = 1557334297,
-            fee = Single.just(CryptoValue.Companion.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
+            fee = Single.just(CryptoValue.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
         )
 
         val subject = Erc20ActivitySummaryItem(
@@ -52,8 +52,7 @@ class Erc20ActivitySummaryTest {
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
             account = mock(),
-            supportsDescription = true,
-            timeStampMultiplier = TX_TIMESTAMP_MULTIPLIER
+            supportsDescription = true
         )
 
         assertEquals(TransactionSummary.TransactionType.RECEIVED, subject.transactionType)
@@ -70,7 +69,7 @@ class Erc20ActivitySummaryTest {
             transactionHash = TX_HASH,
             blockNumber = 7721219.toBigInteger(),
             timestamp = 1557334297,
-            fee = Single.just(CryptoValue.Companion.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
+            fee = Single.just(CryptoValue.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
         )
 
         val subject = Erc20ActivitySummaryItem(
@@ -81,8 +80,7 @@ class Erc20ActivitySummaryTest {
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
             account = mock(),
-            supportsDescription = true,
-            timeStampMultiplier = TX_TIMESTAMP_MULTIPLIER
+            supportsDescription = true
         )
 
         assertEquals(TransactionSummary.TransactionType.TRANSFERRED, subject.transactionType)
@@ -99,7 +97,7 @@ class Erc20ActivitySummaryTest {
             transactionHash = TX_HASH,
             blockNumber = 7721219.toBigInteger(),
             timestamp = 1557334297,
-            fee = Single.just(CryptoValue.Companion.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
+            fee = Single.just(CryptoValue.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
         )
 
         val subject = Erc20ActivitySummaryItem(
@@ -110,8 +108,7 @@ class Erc20ActivitySummaryTest {
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
             account = mock(),
-            supportsDescription = true,
-            timeStampMultiplier = TX_TIMESTAMP_MULTIPLIER
+            supportsDescription = true
         )
 
         assertEquals(TransactionSummary.TransactionType.SENT, subject.transactionType)
@@ -132,7 +129,7 @@ class Erc20ActivitySummaryTest {
             transactionHash = TX_HASH,
             blockNumber = 7721219.toBigInteger(),
             timestamp = 1557334297,
-            fee = Single.just(CryptoValue.Companion.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
+            fee = Single.just(CryptoValue.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
         )
 
         val subject = Erc20ActivitySummaryItem(
@@ -143,8 +140,7 @@ class Erc20ActivitySummaryTest {
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
             account = mock(),
-            supportsDescription = true,
-            timeStampMultiplier = TX_TIMESTAMP_MULTIPLIER
+            supportsDescription = true
         )
 
         val result = subject.description
@@ -176,7 +172,7 @@ class Erc20ActivitySummaryTest {
             transactionHash = TX_HASH,
             blockNumber = 7721219.toBigInteger(),
             timestamp = 1557334297,
-            fee = Single.just(CryptoValue.Companion.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
+            fee = Single.just(CryptoValue.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
         )
 
         val subject = Erc20ActivitySummaryItem(
@@ -187,8 +183,7 @@ class Erc20ActivitySummaryTest {
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
             account = mock(),
-            supportsDescription = true,
-            timeStampMultiplier = TX_TIMESTAMP_MULTIPLIER
+            supportsDescription = true
         )
 
         subject.updateDescription(description).test().assertComplete()
@@ -205,7 +200,6 @@ class Erc20ActivitySummaryTest {
 
     companion object {
         private const val TX_HASH = "0xfd7d583fa54bf55f6cfbfec97c0c55cc6af8c121b71addb7d06a9e1e305ae8ff"
-        private const val TX_TIMESTAMP_MULTIPLIER = 1000
 
         @Suppress("ClassName")
         private object ERC20_TOKEN : CryptoCurrency(

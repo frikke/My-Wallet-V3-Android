@@ -1,8 +1,8 @@
 package com.blockchain.nabu.datamanagers.repositories
 
 import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger

@@ -1,33 +1,24 @@
 package com.blockchain.core.eligibility.cache
 
-import com.blockchain.api.adapters.ApiError
-import com.blockchain.api.services.ProductEligibilityApiService
+import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.core.eligibility.mapper.toDomain
-import com.blockchain.core.eligibility.mapper.toError
-import com.blockchain.domain.eligibility.model.EligibilityError
 import com.blockchain.nabu.Authenticator
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
-import com.blockchain.outcome.mapLeft
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
 import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
-import kotlinx.serialization.serializer
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 class ProductsEligibilityStore(
     private val authenticator: Authenticator,
-    private val productEligibilityApi: ProductEligibilityApiService
-) : Store<
-    EligibilityError,
-    ProductsEligibilityData
-    > by PersistedJsonSqlDelightStoreBuilder().build(
+    private val productEligibilityApi: EligibilityApiService
+) : Store<ProductsEligibilityData> by PersistedJsonSqlDelightStoreBuilder().build(
     storeId = STORE_ID,
     fetcher = Fetcher.ofOutcome {
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft(Throwable::toError)
             .flatMap {
                 productEligibilityApi.getProductEligibility(it)
                     .map {
@@ -35,12 +26,15 @@ class ProductsEligibilityStore(
                         val products = it.toDomain().associateBy { it.product }
                         ProductsEligibilityData(majorBlocked, products)
                     }
-                    .mapLeft(ApiError::toError)
             }
     },
     dataSerializer = ProductsEligibilityData.serializer(),
-    mediator = FreshnessMediator(Freshness.ofSeconds(5))
+    mediator = FreshnessMediator(Freshness.ofMinutes(15))
 ) {
+    fun invalidate() {
+        markAsStale()
+    }
+
     companion object {
         private const val STORE_ID = "ProductsEligibilityStore"
     }

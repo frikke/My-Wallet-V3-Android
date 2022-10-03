@@ -6,7 +6,6 @@ import com.blockchain.koin.everypayRetrofit
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.kotlinApiRetrofit
 import com.blockchain.koin.kotlinJsonConverterFactory
-import com.blockchain.koin.nabu
 import com.blockchain.koin.serializerExplorerRetrofit
 import com.blockchain.koin.status
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -19,6 +18,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 
 class OkHttpInterceptors(val list: List<Interceptor>) : List<Interceptor> by list
+class OkHttpAuthInterceptor(val interceptor: Interceptor) : Interceptor by interceptor
 
 val apiModule = module {
 
@@ -40,7 +40,7 @@ val apiModule = module {
      */
     single(serializerExplorerRetrofit) {
         Retrofit.Builder()
-            .baseUrl(getProperty("explorer-api"))
+            .baseUrl(getProperty<String>("explorer-api"))
             .client(get())
             .addConverterFactory(get(kotlinJsonConverterFactory))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
@@ -50,15 +50,6 @@ val apiModule = module {
     single(kotlinApiRetrofit) {
         Retrofit.Builder()
             .baseUrl(get<EnvironmentUrls>().apiUrl)
-            .client(get())
-            .addConverterFactory(get(kotlinJsonConverterFactory))
-            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
-            .build()
-    }
-
-    single(nabu) {
-        Retrofit.Builder()
-            .baseUrl(get<EnvironmentUrls>().nabuApi)
             .client(get())
             .addConverterFactory(get(kotlinJsonConverterFactory))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
@@ -76,7 +67,7 @@ val apiModule = module {
 
     single(apiRetrofit) {
         Retrofit.Builder()
-            .baseUrl(getProperty("blockchain-api"))
+            .baseUrl(getProperty<String>("blockchain-api"))
             .client(get())
             .addConverterFactory(get(kotlinJsonConverterFactory))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
@@ -85,7 +76,7 @@ val apiModule = module {
 
     single(explorerRetrofit) {
         Retrofit.Builder()
-            .baseUrl(getProperty("explorer-api"))
+            .baseUrl(getProperty<String>("explorer-api"))
             .client(get())
             .addConverterFactory(get(kotlinJsonConverterFactory))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())

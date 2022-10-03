@@ -1,18 +1,17 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
+import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.android.ui.dashboard.announcements.rule.AaveYfiDotAvailableAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BackupPhraseAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.BitpayAnnouncement
-import piuk.blockchain.android.ui.dashboard.announcements.rule.CeloEurAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.CloudBackupAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsKycAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsNoKycAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.GooglePayAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.IncreaseLimitsAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.InterestAvailableAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycIncompleteAnnouncement
@@ -21,10 +20,9 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.KycRecoveryResubm
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycResubmissionAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.MajorProductBlockedAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.NewAssetAnnouncement
-import piuk.blockchain.android.ui.dashboard.announcements.rule.PaxRenamedAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.NftAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RecurringBuysAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisterBiometricsAnnouncement
-import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisteredForAirdropMiniAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SellIntroAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SendToDomainAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SimpleBuyFinishSignupAnnouncement
@@ -46,7 +44,8 @@ val dashboardAnnouncementsModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 availableAnnouncements = availableAnnouncements,
                 orderAdapter = get(),
-                dismissRecorder = get()
+                dismissRecorder = get(),
+                walletModeService = get()
             )
         }
 
@@ -54,47 +53,53 @@ val dashboardAnnouncementsModule = module {
             AnnouncementConfigAdapterImpl(
                 config = get(),
                 json = get(),
-                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag)
+                userIdentity = get()
             )
         }.bind(AnnouncementConfigAdapter::class)
 
         factory {
             AnnouncementQueries(
-                nabuToken = get(),
-                settings = get(),
-                nabu = get(),
-                tierService = get(),
+                userService = get(),
+                kycService = get(),
                 sbStateFactory = get(),
                 userIdentity = get(),
                 coincore = get(),
                 remoteConfig = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                googlePayManager = get(),
+                googlePayEnabledFlag = get(googlePayFeatureFlag),
+                paymentMethodsService = get(),
+                authenticator = get(),
+                fiatCurrenciesService = get(),
+                exchangeRatesDataManager = get(),
+                currencyPrefs = get()
             )
         }
 
         factory {
-            PaxRenamedAnnouncement(
+            GooglePayAnnouncement(
+                announcementQueries = get(),
                 dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)
 
         factory {
             KycResubmissionAnnouncement(
-                userIdentity = get(),
+                kycService = get(),
                 dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)
 
         factory {
             KycIncompleteAnnouncement(
-                userIdentity = get(),
+                kycService = get(),
                 dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)
 
         factory {
             KycMoreInfoAnnouncement(
-                tierService = get(),
+                kycService = get(),
                 dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)
@@ -116,7 +121,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             BitpayAnnouncement(
                 dismissRecorder = get(),
-                walletStatus = get()
+                walletStatusPrefs = get()
             )
         }.bind(AnnouncementRule::class)
 
@@ -130,7 +135,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             TwoFAAnnouncement(
                 dismissRecorder = get(),
-                walletStatus = get(),
+                walletStatusPrefs = get(),
                 walletSettings = get()
             )
         }.bind(AnnouncementRule::class)
@@ -146,7 +151,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             BackupPhraseAnnouncement(
                 dismissRecorder = get(),
-                walletStatus = get()
+                walletStatusPrefs = get()
             )
         }.bind(AnnouncementRule::class)
 
@@ -168,14 +173,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             TransferCryptoAnnouncement(
                 dismissRecorder = get(),
-                walletStatus = get()
-            )
-        }.bind(AnnouncementRule::class)
-
-        factory {
-            RegisteredForAirdropMiniAnnouncement(
-                dismissRecorder = get(),
-                queries = get()
+                walletStatusPrefs = get()
             )
         }.bind(AnnouncementRule::class)
 
@@ -190,7 +188,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             FiatFundsNoKycAnnouncement(
                 dismissRecorder = get(),
-                userIdentity = get()
+                kycService = get()
             )
         }.bind(AnnouncementRule::class)
 
@@ -198,7 +196,7 @@ val dashboardAnnouncementsModule = module {
             FiatFundsKycAnnouncement(
                 dismissRecorder = get(),
                 userIdentity = get(),
-                paymentsDataManager = get()
+                bankService = get()
             )
         }.bind(AnnouncementRule::class)
 
@@ -224,12 +222,6 @@ val dashboardAnnouncementsModule = module {
         }.bind(AnnouncementRule::class)
 
         factory {
-            AaveYfiDotAvailableAnnouncement(
-                dismissRecorder = get()
-            )
-        }.bind(AnnouncementRule::class)
-
-        factory {
             SendToDomainAnnouncement(
                 dismissRecorder = get(),
                 coincore = get()
@@ -247,27 +239,28 @@ val dashboardAnnouncementsModule = module {
         factory {
             NewAssetAnnouncement(
                 dismissRecorder = get(),
-                announcementQueries = get()
+                announcementQueries = get(),
+                assetResources = get()
             )
         }.bind(AnnouncementRule::class)
 
         factory {
             KycRecoveryResubmissionAnnouncement(
                 dismissRecorder = get(),
-                userIdentity = get()
-            )
-        }.bind(AnnouncementRule::class)
-
-        factory {
-            CeloEurAnnouncement(
-                announcementQueries = get(),
-                dismissRecorder = get()
+                kycService = get()
             )
         }.bind(AnnouncementRule::class)
 
         factory {
             WalletConnectAnnouncement(
                 dismissRecorder = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            NftAnnouncement(
+                dismissRecorder = get(),
+                nftAnnouncementPrefs = get()
             )
         }.bind(AnnouncementRule::class)
     }

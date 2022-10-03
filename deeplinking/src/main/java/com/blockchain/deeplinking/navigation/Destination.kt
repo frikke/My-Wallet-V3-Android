@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 sealed class Destination : Parcelable {
     @Parcelize
-    data class AssetViewDestination(val networkTicker: String) : Destination()
+    data class AssetViewDestination(val networkTicker: String, val recurringBuyId: String?) : Destination()
 
     @Parcelize
     data class AssetBuyDestination(
@@ -22,4 +22,36 @@ sealed class Destination : Parcelable {
 
     @Parcelize
     data class ActivityDestination(val filter: String? = null) : Destination()
+
+    @Parcelize
+    data class AssetEnterAmountDestination(
+        val networkTicker: String
+    ) : Destination()
+
+    @Parcelize
+    data class AssetEnterAmountLinkCardDestination(
+        val networkTicker: String
+    ) : Destination()
+
+    @Parcelize
+    data class AssetEnterAmountNewMethodDestination(
+        val networkTicker: String
+    ) : Destination()
+
+    @Parcelize
+    object CustomerSupportDestination : Destination()
+
+    @Parcelize
+    object StartKycDestination : Destination()
+
+    @Parcelize
+    object ReferralDestination : Destination()
+
+    @Parcelize
+    object DashboardDestination : Destination()
+
+    @Parcelize
+    class WalletConnectDestination(
+        val url: String
+    ) : Destination()
 }

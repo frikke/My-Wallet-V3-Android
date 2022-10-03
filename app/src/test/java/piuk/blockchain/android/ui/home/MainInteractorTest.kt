@@ -2,29 +2,40 @@ package piuk.blockchain.android.ui.home
 
 import android.content.Intent
 import com.blockchain.core.Database
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.BankLinkingPrefs
-import com.blockchain.preferences.OnboardingPrefs
-import com.blockchain.preferences.ThePitLinkingPrefs
+import com.blockchain.preferences.ReferralPrefs
+import com.blockchain.serializers.BigDecimalSerializer
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import exchange.ExchangeLinking
 import exchangerate.HistoricRateQueries
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
+import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.scan.QrScanResultProcessor
@@ -33,9 +44,10 @@ import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.models.MainInteractor
+import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
+import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
-import thepit.PitLinking
 
 class MainInteractorTest {
 
@@ -43,8 +55,7 @@ class MainInteractorTest {
     private val deepLinkProcessor: DeepLinkProcessor = mock()
     private val deeplinkRedirector: DeeplinkRedirector = mock()
     private val deepLinkPersistence: DeepLinkPersistence = mock()
-    private val exchangeLinking: PitLinking = mock()
-    private val exchangePrefs: ThePitLinkingPrefs = mock()
+    private val exchangeLinking: ExchangeLinking = mock()
     private val assetCatalogue: AssetCatalogue = mock()
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
@@ -56,20 +67,39 @@ class MainInteractorTest {
     private val qrScanResultProcessor: QrScanResultProcessor = mock()
     private val secureChannelService: SecureChannelService = mock()
     private val cancelOrderUseCase: CancelOrderUseCase = mock()
-    private val paymentsDataManager: PaymentsDataManager = mock()
-    private val onboardingPrefs: OnboardingPrefs = mock()
+    private val bankService: BankService = mock()
+    private val referralPrefs: ReferralPrefs = mock()
+    private val referralRepository: ReferralRepository = mock()
+
+    private val jsonSerializers = module {
+        single {
+            Json {
+                explicitNulls = false
+                ignoreUnknownKeys = true
+                isLenient = true
+                encodeDefaults = true
+                serializersModule = SerializersModule {
+                    contextual(BigDecimalSerializer)
+                }
+            }
+        }
+    }
 
     @Before
     fun setup() {
+        GlobalContext.startKoin {
+            modules(
+                jsonSerializers,
+            )
+        }
+
         interactor = MainInteractor(
             deepLinkProcessor = deepLinkProcessor,
             deeplinkRedirector = deeplinkRedirector,
             deepLinkPersistence = deepLinkPersistence,
             exchangeLinking = exchangeLinking,
-            exchangePrefs = exchangePrefs,
             assetCatalogue = assetCatalogue,
             bankLinkingPrefs = bankLinkingPrefs,
-            custodialWalletManager = custodialWalletManager,
             simpleBuySync = simpleBuySync,
             userIdentity = userIdentity,
             upsellManager = upsellManager,
@@ -78,9 +108,15 @@ class MainInteractorTest {
             qrScanResultProcessor = qrScanResultProcessor,
             secureChannelService = secureChannelService,
             cancelOrderUseCase = cancelOrderUseCase,
-            paymentsDataManager = paymentsDataManager,
-            onboardingPrefs = onboardingPrefs,
+            bankService = bankService,
+            referralPrefs = referralPrefs,
+            referralRepository = referralRepository
         )
+    }
+
+    @After
+    fun cleanup() {
+        stopKoin()
     }
 
     @Test
@@ -113,16 +149,7 @@ class MainInteractorTest {
     @Test
     fun getExchangeLinkingState() {
         interactor.getExchangeLinkingState()
-        verify(exchangeLinking).isPitLinked()
-    }
-
-    @Test
-    fun getExchangeWalletLinkId() {
-        val id = "1245"
-        whenever(exchangePrefs.pitToWalletLinkId).thenReturn(id)
-        val resultId = interactor.getExchangeToWalletLinkId()
-        verify(exchangePrefs).pitToWalletLinkId
-        Assert.assertEquals(id, resultId)
+        verify(exchangeLinking).isExchangeLinked()
     }
 
     @Test
@@ -158,7 +185,7 @@ class MainInteractorTest {
     @Test
     fun setLocalBankState() {
         doNothing().whenever(bankLinkingPrefs).setBankLinkingState(any())
-        interactor.updateBankLinkingState(mock())
+        interactor.updateBankLinkingState(BankAuthDeepLinkState())
         verify(bankLinkingPrefs).setBankLinkingState(any())
     }
 
@@ -167,14 +194,14 @@ class MainInteractorTest {
         val consentToken = "1234"
         val tokenUrl = "token url"
         whenever(bankLinkingPrefs.getDynamicOneTimeTokenUrl()).thenReturn(tokenUrl)
-        whenever(paymentsDataManager.updateOpenBankingConsent(tokenUrl, consentToken)).thenReturn(
+        whenever(bankService.updateOpenBankingConsent(tokenUrl, consentToken)).thenReturn(
             Completable.complete()
         )
 
         interactor.updateOpenBankingConsent(consentToken)
 
         verify(bankLinkingPrefs).getDynamicOneTimeTokenUrl()
-        verify(paymentsDataManager).updateOpenBankingConsent(tokenUrl, consentToken)
+        verify(bankService).updateOpenBankingConsent(tokenUrl, consentToken)
         verifyNoMoreInteractions(bankLinkingPrefs)
         verifyNoMoreInteractions(custodialWalletManager)
     }
@@ -186,7 +213,7 @@ class MainInteractorTest {
         val exception = Exception("test")
 
         whenever(bankLinkingPrefs.getDynamicOneTimeTokenUrl()).thenReturn(tokenUrl)
-        whenever(paymentsDataManager.updateOpenBankingConsent(tokenUrl, consentToken)).thenReturn(
+        whenever(bankService.updateOpenBankingConsent(tokenUrl, consentToken)).thenReturn(
             Completable.error(exception)
         )
         doNothing().whenever(bankLinkingPrefs).setBankLinkingState(any())
@@ -198,7 +225,7 @@ class MainInteractorTest {
 
         verify(bankLinkingPrefs).getDynamicOneTimeTokenUrl()
         verify(bankLinkingPrefs).setBankLinkingState(any())
-        verify(paymentsDataManager).updateOpenBankingConsent(tokenUrl, consentToken)
+        verify(bankService).updateOpenBankingConsent(tokenUrl, consentToken)
         verifyNoMoreInteractions(bankLinkingPrefs)
         verifyNoMoreInteractions(custodialWalletManager)
     }
@@ -238,54 +265,6 @@ class MainInteractorTest {
     }
 
     @Test
-    fun cancelPendingOrder_No_Local_State() {
-        whenever(simpleBuySync.currentState()).thenReturn(null)
-
-        val observer = interactor.cancelAnyPendingConfirmationBuy().test()
-        observer.assertComplete()
-
-        verify(simpleBuySync).currentState()
-        verifyNoMoreInteractions(custodialWalletManager)
-        verifyNoMoreInteractions(simpleBuySync)
-    }
-
-    @Test
-    fun cancelPendingOrder_Order_Not_Pending() {
-        val sbState: SimpleBuyState = mock {
-            on { it.orderState }.thenReturn(OrderState.FINISHED)
-        }
-        whenever(simpleBuySync.currentState()).thenReturn(sbState)
-
-        interactor.cancelAnyPendingConfirmationBuy()
-
-        verify(simpleBuySync).currentState()
-        verifyNoMoreInteractions(custodialWalletManager)
-        verifyNoMoreInteractions(simpleBuySync)
-    }
-
-    @Test
-    fun cancelPendingOrder_Order_Delete_Success() {
-        val orderId = "1235"
-        val sbState: SimpleBuyState = mock {
-            on { orderState }.thenReturn(OrderState.PENDING_CONFIRMATION)
-            on { id }.thenReturn(orderId)
-        }
-
-        whenever(simpleBuySync.currentState()).thenReturn(sbState)
-        whenever(custodialWalletManager.deleteBuyOrder(orderId)).thenReturn(Completable.complete())
-
-        val observer = interactor.cancelAnyPendingConfirmationBuy().test()
-        observer.assertComplete()
-
-        verify(custodialWalletManager).deleteBuyOrder(orderId)
-        verify(simpleBuySync).currentState()
-        verify(simpleBuySync).clear()
-
-        verifyNoMoreInteractions(custodialWalletManager)
-        verifyNoMoreInteractions(simpleBuySync)
-    }
-
-    @Test
     fun cancelOrder() {
         // Arrange
         val orderId = "orderId"
@@ -295,5 +274,20 @@ class MainInteractorTest {
 
         // Assert
         verify(cancelOrderUseCase).invoke(orderId)
+    }
+
+    @Test
+    fun fetchReferralData() {
+        runBlocking {
+            val referralMock = mock<ReferralInfo.Data>()
+            whenever(referralRepository.fetchReferralData()).thenReturn(Outcome.Success(referralMock))
+            whenever(referralPrefs.hasReferralIconBeenClicked).thenReturn(true)
+
+            interactor.checkReferral()
+                .test()
+                .await()
+                .assertComplete()
+                .assertValue(ReferralState(referralMock, true))
+        }
     }
 }

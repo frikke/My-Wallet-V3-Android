@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>EmptyFunctionBlock:AppMaintenanceFragment.kt$AppMaintenanceFragment${ }</ID>
+    <ID>LongMethod:AppMaintenanceComposable.kt$ @Composable fun AppMaintenanceScreen( uiState: AppMaintenanceViewState, button1OnClick: (AppMaintenanceIntents) -> Unit, button2OnClick: (AppMaintenanceIntents) -> Unit )</ID>
+    <ID>MaxLineLength:AppMaintenanceViewModelTest.kt$AppMaintenanceViewModelTest$fun</ID>
+    <ID>MaxLineLength:AppUpdateSettingsTest.kt$AppUpdateSettingsTest$private val inAppUpdateSettings: InAppUpdateSettings = InAppUpdateSettingsImpl(appUpdateManager, appUpdateInfoFactory)</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.maintenance.presentation.AppMaintenanceViewModelTest.kt:224</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.maintenance.presentation.AppMaintenanceViewModelTest.kt:239</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.maintenance.presentation.appupdateapi.AppUpdateSettingsTest.kt:18</ID>
+    <ID>SwallowedException:AppMaintenanceFragment.kt$AppMaintenanceFragment$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:AppMaintenanceFragment.kt$AppMaintenanceFragment$e: Throwable</ID>
+  </CurrentIssues>
+</SmellBaseline>

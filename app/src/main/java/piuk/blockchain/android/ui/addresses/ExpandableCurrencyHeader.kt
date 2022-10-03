@@ -1,11 +1,9 @@
 package piuk.blockchain.android.ui.addresses
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.Outline
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -22,13 +20,17 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.MultipleWalletsAsset
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Locale
+import kotlinx.coroutines.rx3.asObservable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
@@ -41,6 +43,12 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : RelativeLayout(context, attrs), KoinComponent {
+
+    fun interface ExpandableCurrencyHeaderAnimationListener {
+        fun onHeaderAnimationEnd(isOpen: Boolean)
+    }
+
+    private var animationListener: ExpandableCurrencyHeaderAnimationListener? = null
 
     private lateinit var selectionListener: (AssetInfo) -> Unit
 
@@ -71,12 +79,14 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
 
     init {
         // Inflate layout
-        coincore.activeCryptoAssets()
-            .filter { it.multiWallet }
-            .map { it.assetInfo }
-            .forEach { asset ->
-                redesignTextView(asset)?.apply {
-                    setOnClickListener { closeLayout(asset) }
+        compositeDisposable += coincore.activeAssets().asObservable().firstOrError()
+            .map { it.filterIsInstance<MultipleWalletsAsset>() }
+            .map { it.map { asset -> asset.currency } }
+            .subscribeBy { assets ->
+                assets.forEach { asset ->
+                    redesignTextView(asset)?.apply {
+                        setOnClickListener { closeLayout(asset) }
+                    }
                 }
             }
 
@@ -122,6 +132,10 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         outlineProvider = CustomOutline(w, h)
+    }
+
+    fun setAnimationListener(animationListener: ExpandableCurrencyHeaderAnimationListener) {
+        this.animationListener = animationListener
     }
 
     fun setSelectionListener(selectionListener: (AssetInfo) -> Unit) {
@@ -183,6 +197,9 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
         animation.setAnimationListener {
             onAnimationEnd {
                 expanded = !expanded
+
+                animationListener?.onHeaderAnimationEnd(isOpen = expanded)
+
                 if (expanded) {
                     analytics.logEvent(AnalyticsEvents.OpenAssetsSelector)
                     binding.linearLayoutCoinSelection.visible()
@@ -239,7 +256,6 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
 
     fun getSelectedCurrency() = selectedCurrency
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private inner class CustomOutline constructor(
         var width: Int,
         var height: Int

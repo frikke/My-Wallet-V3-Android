@@ -18,12 +18,12 @@
     <com.blockchain.componentlib.tablerow.DefaultTableRowView
         android:id="@+id/asset_details_not_available"
         android:layout_width="match_parent"
-        android:visibility="gone"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
     <com.blockchain.componentlib.tablerow.BalanceTableRowView
         android:id="@+id/asset_details_available"
         android:layout_width="match_parent"
-        android:visibility="gone"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 </androidx.appcompat.widget.LinearLayoutCompat>

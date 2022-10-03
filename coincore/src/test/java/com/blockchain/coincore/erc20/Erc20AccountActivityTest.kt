@@ -1,17 +1,16 @@
 package com.blockchain.coincore.erc20
 
-import com.blockchain.coincore.impl.CryptoAccountBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -24,19 +23,16 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class Erc20AccountActivityTest : CoincoreTestBase() {
 
-    private val payloadManager: PayloadDataManager = mock()
     private val erc20DataManager: Erc20DataManager = mock()
 
-    private val walletPreferences: WalletStatus = mock()
+    private val walletPreferences: WalletStatusPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
 
     private val subject = Erc20NonCustodialAccount(
         asset = ERC20_TOKEN,
-        payloadManager = payloadManager,
         label = "Text Dgld Account",
         address = FROM_ADDRESS,
         fees = mock(),
@@ -44,8 +40,6 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
         exchangeRates = exchangeRates,
         walletPreferences = walletPreferences,
         custodialWalletManager = custodialWalletManager,
-        identity = mock(),
-        baseActions = CryptoAccountBase.defaultActions,
         addressResolver = mock(),
         l1Network = dummyEvmNetwork
     )
@@ -57,14 +51,15 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
 
     @Test
     fun getErc20TransactionsList() {
+        val eventTimestamp = 1557334297L
         val erc20HistoryEvent = Erc20HistoryEvent(
             from = FROM_ADDRESS,
             to = TO_ADDRESS,
             value = CryptoValue.fromMinor(ERC20_TOKEN, 10000.toBigInteger()),
             transactionHash = "0xfd7d583fa54bf55f6cfbfec97c0c55cc6af8c121b71addb7d06a9e1e305ae8ff",
             blockNumber = 7721219.toBigInteger(),
-            timestamp = 1557334297,
-            fee = Single.just(CryptoValue.Companion.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
+            timestamp = eventTimestamp,
+            fee = Single.just(CryptoValue.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
         )
 
         val erc20HistoryList = listOf(erc20HistoryEvent)
@@ -109,7 +104,7 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
                         !doubleSpend &&
                         !isFeeTransaction &&
                         confirmations == 3 &&
-                        timeStampMs == 1557334297L &&
+                        timeStampMs == eventTimestamp * 1000L &&
                         transactionType == TransactionSummary.TransactionType.SENT &&
                         txId == "0xfd7d583fa54bf55f6cfbfec97c0c55cc6af8c121b71addb7d06a9e1e305ae8ff" &&
                         confirmations == 3 &&

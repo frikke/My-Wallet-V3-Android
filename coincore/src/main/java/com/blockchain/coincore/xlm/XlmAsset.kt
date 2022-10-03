@@ -6,15 +6,8 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CryptoAssetBase
-import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.coincore.impl.StandardL1Asset
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.StellarPayment
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
@@ -24,7 +17,6 @@ import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
-import info.blockchain.balance.isCustodialOnly
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -32,43 +24,19 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
-import thepit.PitLinking
 
 internal class XlmAsset(
-    payloadManager: PayloadDataManager,
+    private val payloadManager: PayloadDataManager,
     private val xlmDataManager: XlmDataManager,
     private val xlmFeesFetcher: XlmFeesFetcher,
     private val walletOptionsDataManager: WalletOptionsDataManager,
-    custodialManager: CustodialWalletManager,
-    interestBalances: InterestBalanceDataManager,
-    tradingBalances: TradingBalanceDataManager,
-    exchangeRates: ExchangeRatesDataManager,
-    currencyPrefs: CurrencyPrefs,
-    labels: DefaultLabels,
-    pitLinking: PitLinking,
-    remoteLogger: RemoteLogger,
-    private val walletPreferences: WalletStatus,
-    identity: UserIdentity,
-    addressResolver: IdentityAddressResolver
-) : CryptoAssetBase(
-    payloadManager,
-    exchangeRates,
-    currencyPrefs,
-    labels,
-    custodialManager,
-    interestBalances,
-    tradingBalances,
-    pitLinking,
-    remoteLogger,
-    identity,
-    addressResolver
-) {
+    private val walletPreferences: WalletStatusPrefs,
+    private val addressResolver: IdentityAddressResolver,
+) : CryptoAssetBase(),
+    StandardL1Asset {
 
-    override val assetInfo: AssetInfo
+    override val currency: AssetInfo
         get() = CryptoCurrency.XLM
-
-    override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
-    override val multiWallet: Boolean = false
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         xlmDataManager.defaultAccount()
@@ -82,27 +50,11 @@ internal class XlmAsset(
                     walletOptionsDataManager = walletOptionsDataManager,
                     walletPreferences = walletPreferences,
                     custodialWalletManager = custodialManager,
-                    identity = identity,
                     addressResolver = addressResolver
                 )
             }.map {
                 listOf(it)
             }
-
-    override fun loadCustodialAccounts(): Single<SingleAccountList> =
-        Single.just(
-            listOf(
-                CustodialTradingAccount(
-                    currency = assetInfo,
-                    label = labels.getDefaultCustodialWalletLabel(),
-                    exchangeRates = exchangeRates,
-                    custodialWalletManager = custodialManager,
-                    tradingBalances = tradingBalances,
-                    identity = identity,
-                    isMemoSupported = true
-                )
-            )
-        )
 
     override fun parseAddress(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> =
         Maybe.fromCallable {

@@ -2,15 +2,17 @@ package com.blockchain.componentlib.tablerow
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
@@ -28,6 +30,35 @@ fun DefaultTableRow(
     onClick: () -> Unit,
     secondaryText: String? = null,
     paragraphText: String? = null,
+    endText: String? = null,
+    tags: List<TagViewState>? = null,
+    endTag: TagViewState? = null,
+    startImageResource: ImageResource = ImageResource.None,
+    endImageResource: ImageResource = ImageResource.Local(
+        id = R.drawable.ic_chevron_end,
+        contentDescription = null
+    ),
+) {
+    DefaultTableRow(
+        primaryText = buildAnnotatedString { append(primaryText) },
+        onClick = onClick,
+        secondaryText = secondaryText?.let { buildAnnotatedString { append(it) } },
+        paragraphText = paragraphText?.let { buildAnnotatedString { append(it) } },
+        endText = endText?.let { buildAnnotatedString { append(it) } },
+        tags = tags,
+        endTag = endTag,
+        startImageResource = startImageResource,
+        endImageResource = endImageResource
+    )
+}
+
+@Composable
+fun DefaultTableRow(
+    primaryText: AnnotatedString,
+    onClick: () -> Unit,
+    secondaryText: AnnotatedString? = null,
+    paragraphText: AnnotatedString? = null,
+    endText: AnnotatedString? = null,
     tags: List<TagViewState>? = null,
     endTag: TagViewState? = null,
     startImageResource: ImageResource = ImageResource.None,
@@ -62,6 +93,7 @@ fun DefaultTableRow(
                     color = AppTheme.colors.title
                 )
                 if (secondaryText != null) {
+                    Spacer(Modifier.height(8.dp))
                     Text(
                         text = secondaryText,
                         style = AppTheme.typography.paragraph1,
@@ -71,17 +103,30 @@ fun DefaultTableRow(
             }
         },
         contentEnd = {
-            if (endTag != null) {
-                Spacer(Modifier.width(8.dp))
-                TagsRow(listOf(endTag))
-            } else {
-                Image(
-                    imageResource = endImageResource,
-                    modifier = Modifier.requiredSizeIn(
-                        maxWidth = dimensionResource(R.dimen.standard_margin),
-                        maxHeight = dimensionResource(R.dimen.standard_margin),
-                    ),
-                )
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                if (endText != null) {
+                    Text(
+                        text = endText,
+                        style = AppTheme.typography.body2,
+                        color = AppTheme.colors.title
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+                }
+
+                if (endTag != null) {
+                    TagsRow(listOf(endTag))
+                } else {
+                    Image(
+                        imageResource = endImageResource,
+                        modifier = Modifier.requiredSizeIn(
+                            maxWidth = dimensionResource(R.dimen.standard_margin),
+                            maxHeight = dimensionResource(R.dimen.standard_margin),
+                        ),
+                    )
+                }
             }
         },
         onContentClicked = onClick,
@@ -148,6 +193,22 @@ fun DefaultTableRow_TwoLine_EndTag() {
                 secondaryText = "Text for more info",
                 onClick = {},
                 endTag = TagViewState("Complete", TagType.Success())
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultTableRow_TwoLine_EndTag_EndText() {
+    AppTheme {
+        AppSurface {
+            DefaultTableRow(
+                primaryText = "Coffee Beans Inc.",
+                onClick = {},
+                secondaryText = "Jun 21, 2022",
+                endText = "$100.00",
+                endTag = TagViewState("Completed", TagType.Success())
             )
         }
     }

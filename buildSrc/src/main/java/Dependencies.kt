@@ -5,31 +5,32 @@ object Versions {
     // Release info
     const val minSdk = 24
     const val targetSdk = 30
-    const val compileSdk = 31
+    const val compileSdk = 32
 
-    const val versionCode = 21515
-    const val versionName = "202205.2.3"
+    const val versionCode = 23519
+    const val versionName = "202209.2.5"
 
-    const val buildTools = "30.0.2"
+    const val buildTools = "30.0.3"
 
     // Build tools and languages
-    const val androidPlugin = "7.1.3"
-    const val kotlin = "1.6.10"
+    const val androidPlugin = "7.2.1"
+    const val kotlin = "1.7.0"
 
     // Coroutines
     const val coroutines = "1.5.2"
 
     const val googleServicesPlugin = "4.3.3"
     const val ktlint = "0.43.0"
+    const val detekt = "1.20.0"
     const val kotlinJvmTarget = "1.8"
     const val javaCompatibilityVersion = 1.8
 
     // Androidx Libraries
     const val appCompat = "1.3.1"
-    const val recyclerview = "1.1.0"
+    const val recyclerview = "1.2.1"
     const val cardview = "1.0.0"
     const val gridlayout = "1.0.0"
-    const val design = "1.1.0"
+    const val design = "1.4.0"
     const val preference = "1.1.0"
     const val dynamicanimation = "1.0.0"
     const val annotations = "1.2.0"
@@ -45,7 +46,7 @@ object Versions {
     // Support Libraries
     const val googleServices = "17.1.0"
     const val googleServicesAuth = "19.0.0"
-    const val googleServicesPlaces = "2.5.0"
+    const val googleServicesPlaces = "2.6.0"
     const val googleServicesReCaptcha = "16.0.0"
     const val googleServicesWallet = "19.0.1"
     const val googlePlayCore = "1.8.2"
@@ -65,7 +66,7 @@ object Versions {
     // SqlDelight
     const val sqlDelight = "1.5.0"
 
-    const val koin = "3.1.2"
+    const val koin = "3.2.0"
     const val rxJava = "3.0.7"
     const val rxKotlin = "3.0.1"
     const val rxAndroid = "3.0.0"
@@ -99,16 +100,23 @@ object Versions {
     const val countryPicker = "2.0.4"
 
     // Compose
-    const val compose = "1.1.1"
-    const val coil = "1.4.0"
-    const val composeActivity = "1.3.1"
-    const val constraintLayoutCompose = "1.0.0-beta02"
-    const val composeRx = "1.1.1"
-    const val composeNavigation = "2.4.1"
+    const val compose = "1.2.0"
+    const val composeShowkase = "1.1.1"
+    const val coil = "2.1.0"
+    const val composeActivity = "1.5.0"
+    const val constraintLayoutCompose = "1.0.1"
+    const val composeRx = "1.2.0"
+    const val composeNavigation = "2.5.1"
+    const val composeFlowLayout = "0.25.0"
+    const val composePoolingContainer = "1.0.0"
 
     // Accompanist
-    const val systemUi = "0.23.1"
-    const val navigationMaterial = "0.23.1"
+    const val systemUi = "0.25.0"
+    const val navigationMaterial = "0.25.0"
+    const val swipeRefresh = "0.25.0"
+    const val pager = "0.25.0"
+    const val pagerIndicators = "0.25.0"
+    const val drawablePainter = "0.25.0"
 
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
@@ -122,18 +130,28 @@ object Versions {
     const val sift = "0.11.1"
     const val cardForm = "4.2.0"
     const val xlmSunriver = "0.21.1"
-    const val lottieVersion = "3.5.0"
+    const val lottieVersion = "5.2.0"
     const val zendeskChatVersion = "3.3.4"
     const val zendeskMessagingVersion = "5.2.3"
     const val checkoutComVersion = "3.0.1"
-    const val stripeVersion = "18.2.0"
+    const val stripeVersion = "20.3.0"
     const val intercomVersion = "10.6.0"
+    const val plaidLinkVersion = "3.9.0"
+    const val exoPlayerVersion = "2.18.1"
+
+    /**
+     * [composeMarkdownVersion]
+     * If you are updating this dependency, please make sure to post in this ticket:
+     * https://blockchain.atlassian.net/browse/SEC-313
+     * So security can re-scan for vulnerabilities, as this is not a commonly used library
+     */
+    const val composeMarkdownVersion = "0.3.0"
 
     // Logging
     const val timber = "4.7.1"
     const val slf4j = "1.7.20"
     const val firebaseCrashlyticsPlugin = "2.8.1"
-    const val embraceIO = "4.15.0"
+    const val embraceIO = "5.0.4"
 
     // Debugging
     const val stetho = "1.5.1"
@@ -144,7 +162,7 @@ object Versions {
     const val kluent = "1.66"
     const val coroutinesTest = "1.6.0"
     const val coreTesting = "2.1.0"
-    const val turbine = "0.7.0"
+    const val turbine = "0.8.0"
     const val mockk = "1.12.2"
     const val hamcrestJunit = "2.0.0.0"
     const val junit = "4.12"
@@ -167,6 +185,8 @@ object Libraries {
     const val rxjava3Coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:${Versions.coroutines}"
     const val googleServicesPlugin = "com.google.gms:google-services:${Versions.googleServicesPlugin}"
     const val ktlint = "com.pinterest:ktlint:${Versions.ktlint}"
+    const val detekt = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Versions.detekt}"
+    const val detektFormat = "io.gitlab.arturbosch.detekt:detekt-formatting:${Versions.detekt}"
 
     // Support Libraries
     const val appCompat = "androidx.appcompat:appcompat:${Versions.appCompat}"
@@ -216,7 +236,6 @@ object Libraries {
     // Networking, RxJava
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
     const val retrofitRxJavaAdapter = "com.squareup.retrofit2:adapter-rxjava3:${Versions.retrofit}"
-    const val retrofitGsonConverter = "com.squareup.retrofit2:converter-gson:2.5.0"
     const val retrofitKotlinJsonConverter =
         "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:${Versions.kotlinJsonConverter}"
     const val okHttp = "com.squareup.okhttp3:okhttp:${Versions.okHttp}"
@@ -277,15 +296,28 @@ object Libraries {
     const val materialDatePicker = "com.wdullaer:materialdatetimepicker:${Versions.materialDatePicker}"
     const val sparkline = "com.robinhood.spark:spark:${Versions.sparkline}"
 
+    // Compose versions for Showkase app
+    const val composeFoundationShowkase = "androidx.compose.foundation:foundation:${Versions.composeShowkase}"
+    const val composeUiShowkase = "androidx.compose.ui:ui:${Versions.composeShowkase}"
+    const val composeMaterialShowkase = "androidx.compose.material:material:${Versions.composeShowkase}"
+    const val composePreviewShowkase = "androidx.compose.ui:ui-tooling-preview:${Versions.composeShowkase}"
+    const val composeUiToolingShowkase = "androidx.compose.ui:ui-tooling:${Versions.composeShowkase}"
+    const val composeUiTestShowkase = "androidx.compose.ui:ui-test-junit4:${Versions.composeShowkase}"
+
     // Compose
+    const val composeFoundation = "androidx.compose.foundation:foundation:${Versions.compose}"
     const val composeUi = "androidx.compose.ui:ui:${Versions.compose}"
+    const val composeUiUtil = "androidx.compose.ui:ui-util:${Versions.compose}"
     const val composeMaterial = "androidx.compose.material:material:${Versions.compose}"
     const val composePreview = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
     const val composeUiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
+    const val composeUiPoolingContainer = "androidx.customview:customview-poolingcontainer:${Versions.composePoolingContainer}"
     const val composeActivity = "androidx.activity:activity-compose:${Versions.composeActivity}"
     const val composeUiTest = "androidx.compose.ui:ui-test-junit4:${Versions.compose}"
     const val composeCoil = "io.coil-kt:coil-compose:${Versions.coil}"
     const val composeCoilSvg = "io.coil-kt:coil-svg:${Versions.coil}"
+    const val composeCoilGif = "io.coil-kt:coil-gif:${Versions.coil}"
+    const val composeLottie = "com.airbnb.android:lottie-compose:${Versions.lottieVersion}"
     const val constraintLayoutCompose =
         "androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayoutCompose}"
     const val composeRx = "androidx.compose.runtime:runtime-rxjava3:${Versions.composeRx}"
@@ -295,6 +327,13 @@ object Libraries {
     const val accompanistNavigationMaterial =
         "com.google.accompanist:accompanist-navigation-material:${Versions.navigationMaterial}"
     const val composeNavigation = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
+    const val accompanistFlowLayout = "com.google.accompanist:accompanist-flowlayout:${Versions.composeFlowLayout}"
+    const val accompanistSwipeRefresh = "com.google.accompanist:accompanist-swiperefresh:${Versions.swipeRefresh}"
+    const val accompanistPager = "com.google.accompanist:accompanist-pager:${Versions.pager}"
+    const val accompanistPagerIndicators =
+        "com.google.accompanist:accompanist-pager-indicators:${Versions.pagerIndicators}"
+    const val accompanistDrawablePainter =
+        "com.google.accompanist:accompanist-drawablepainter:${Versions.drawablePainter}"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"
@@ -307,6 +346,9 @@ object Libraries {
     const val checkoutCom = "com.github.checkout:frames-android:${Versions.checkoutComVersion}"
     const val stripe = "com.stripe:stripe-android:${Versions.stripeVersion}"
     const val intercom = "io.intercom.android:intercom-sdk-base:${Versions.intercomVersion}"
+    const val plaidLink = "com.plaid.link:sdk-core:${Versions.plaidLinkVersion}"
+    const val exoPlayer = "com.google.android.exoplayer:exoplayer:${Versions.exoPlayerVersion}"
+    const val composeMarkdown = "com.github.jeziellago:compose-markdown:${Versions.composeMarkdownVersion}"
 
     // Logging
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"

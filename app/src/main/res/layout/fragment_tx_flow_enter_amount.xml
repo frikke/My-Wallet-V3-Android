@@ -53,16 +53,13 @@
         android:paddingTop="@dimen/very_small_margin"
         app:layout_constraintTop_toBottomOf="@id/amount_sheet_input" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/amount_sheet_cta_button"
-        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
+        android:layout_marginHorizontal="@dimen/standard_margin"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/very_small_margin"
-        android:contentDescription="@string/next"
-        android:enabled="false"
-        android:minHeight="32dp"
-        android:text="@string/common_preview"
+        android:contentDescription="@string/common_next"
         app:layout_constraintTop_toBottomOf="@id/frame_lower_slot" />
 
     <include

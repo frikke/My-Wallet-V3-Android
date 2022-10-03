@@ -1,24 +1,35 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
+import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
+import com.blockchain.api.services.PaymentMethodsService
+import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycLimits
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTierDetail
+import com.blockchain.core.kyc.domain.model.KycTierState
+import com.blockchain.core.kyc.domain.model.KycTiers
+import com.blockchain.core.kyc.domain.model.TiersMap
+import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.models.responses.nabu.KycTierState
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.Limits
-import com.blockchain.nabu.models.responses.nabu.LimitsJson
-import com.blockchain.nabu.models.responses.nabu.Tier
-import com.blockchain.nabu.models.responses.nabu.Tiers
-import com.blockchain.nabu.service.TierService
+import com.blockchain.nabu.api.getuser.domain.UserService
+import com.blockchain.payments.googlepay.manager.GooglePayManager
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.RemoteConfig
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.FiatCurrency
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
@@ -26,37 +37,46 @@ import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementQueries.Companion.NEW_ASSET_TICKER
 import piuk.blockchain.android.ui.tiers
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class AnnouncementQueriesTest {
 
-    private val nabuToken: NabuToken = mock()
-    private val settings: SettingsDataManager = mock()
-    private val nabu: NabuDataManager = mock()
-    private val tierService: TierService = mock()
+    private val userService: UserService = mock()
+    private val kycService: KycService = mock()
     private val userIdentity: UserIdentity = mock()
     private val coincore: Coincore = mock()
     private val assetCatalogue: AssetCatalogue = mock()
     private val remoteConfig: RemoteConfig = mock()
+    private val googlePayManager: GooglePayManager = mock()
+    private val googlePayEnabledFlag: FeatureFlag = mock()
+    private val paymentMethodsService: PaymentMethodsService = mock()
+    private val authenticator: AuthHeaderProvider = mock()
+    private val fiatCurrenciesService: FiatCurrenciesService = mock()
+    private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
+    private val currencyPrefs: CurrencyPrefs = mock()
 
     private val sbSync: SimpleBuySyncFactory = mock()
-
-    private val sampleLimits = LimitsJson("", 0.toBigDecimal(), 0.toBigDecimal())
 
     private lateinit var subject: AnnouncementQueries
 
     @Before
     fun setUp() {
-        subject = AnnouncementQueries(
-            nabuToken = nabuToken,
-            settings = settings,
-            nabu = nabu,
-            tierService = tierService,
-            sbStateFactory = sbSync,
-            userIdentity = userIdentity,
-            coincore = coincore,
-            assetCatalogue = assetCatalogue,
-            remoteConfig = remoteConfig
+        subject = spy(
+            AnnouncementQueries(
+                userService = userService,
+                kycService = kycService,
+                sbStateFactory = sbSync,
+                userIdentity = userIdentity,
+                coincore = coincore,
+                assetCatalogue = assetCatalogue,
+                remoteConfig = remoteConfig,
+                googlePayManager = googlePayManager,
+                googlePayEnabledFlag = googlePayEnabledFlag,
+                paymentMethodsService = paymentMethodsService,
+                authenticator = authenticator,
+                fiatCurrenciesService = fiatCurrenciesService,
+                exchangeRatesDataManager = exchangeRatesDataManager,
+                currencyPrefs = currencyPrefs
+            )
         )
     }
 
@@ -98,25 +118,25 @@ class AnnouncementQueriesTest {
     @Test
     fun `isTier1Or2Verified returns true for tier1 verified`() {
 
-        whenever(tierService.tiers()).thenReturn(
+        whenever(kycService.getTiersLegacy()).thenReturn(
             Single.just(
                 KycTiers(
-                    Tiers(
+                    TiersMap(
                         mapOf(
-                            KycTierLevel.BRONZE to
-                                Tier(
+                            KycTier.BRONZE to
+                                KycTierDetail(
                                     KycTierState.None,
-                                    Limits(null, null)
+                                    KycLimits(null, null)
                                 ),
-                            KycTierLevel.SILVER to
-                                Tier(
+                            KycTier.SILVER to
+                                KycTierDetail(
                                     KycTierState.Verified,
-                                    Limits(null, null)
+                                    KycLimits(null, null)
                                 ),
-                            KycTierLevel.GOLD to
-                                Tier(
+                            KycTier.GOLD to
+                                KycTierDetail(
                                     KycTierState.None,
-                                    Limits(null, null)
+                                    KycLimits(null, null)
                                 )
                         )
                     )
@@ -133,25 +153,25 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `isTier1Or2Verified returns true for tier2 verified`() {
-        whenever(tierService.tiers()).thenReturn(
+        whenever(kycService.getTiersLegacy()).thenReturn(
             Single.just(
                 KycTiers(
-                    Tiers(
+                    TiersMap(
                         mapOf(
-                            KycTierLevel.BRONZE to
-                                Tier(
+                            KycTier.BRONZE to
+                                KycTierDetail(
                                     KycTierState.None,
-                                    Limits(null, null)
+                                    KycLimits(null, null)
                                 ),
-                            KycTierLevel.SILVER to
-                                Tier(
+                            KycTier.SILVER to
+                                KycTierDetail(
                                     KycTierState.Verified,
-                                    Limits(null, null)
+                                    KycLimits(null, null)
                                 ),
-                            KycTierLevel.GOLD to
-                                Tier(
+                            KycTier.GOLD to
+                                KycTierDetail(
                                     KycTierState.Verified,
-                                    Limits(null, null)
+                                    KycLimits(null, null)
                                 )
                         )
                     )
@@ -168,25 +188,25 @@ class AnnouncementQueriesTest {
 
     @Test
     fun `isTier1Or2Verified returns false if not verified`() {
-        whenever(tierService.tiers()).thenReturn(
+        whenever(kycService.getTiersLegacy()).thenReturn(
             Single.just(
                 KycTiers(
-                    Tiers(
+                    TiersMap(
                         mapOf(
-                            KycTierLevel.BRONZE to
-                                Tier(
+                            KycTier.BRONZE to
+                                KycTierDetail(
                                     KycTierState.None,
-                                    Limits(null, null)
+                                    KycLimits(null, null)
                                 ),
-                            KycTierLevel.SILVER to
-                                Tier(
+                            KycTier.SILVER to
+                                KycTierDetail(
                                     KycTierState.None,
-                                    Limits(null, null)
+                                    KycLimits(null, null)
                                 ),
-                            KycTierLevel.GOLD to
-                                Tier(
+                            KycTier.GOLD to
+                                KycTierDetail(
                                     KycTierState.None,
-                                    Limits(null, null)
+                                    KycLimits(null, null)
                                 )
                         )
 
@@ -217,7 +237,9 @@ class AnnouncementQueriesTest {
     fun `isSimpleBuyKycInProgress - local simple buy state exists but has finished kyc, return false`() {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(false)
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Verified)))
+        whenever(kycService.getTiersLegacy()).thenReturn(
+            Single.just(tiers(KycTierState.Verified, KycTierState.Verified))
+        )
         whenever(sbSync.currentState()).thenReturn(state)
 
         subject.isSimpleBuyKycInProgress()
@@ -233,7 +255,9 @@ class AnnouncementQueriesTest {
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
         whenever(state.kycVerificationState).thenReturn(null)
 
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.None)))
+        whenever(kycService.getTiersLegacy()).thenReturn(
+            Single.just(tiers(KycTierState.Verified, KycTierState.None))
+        )
         whenever(sbSync.currentState()).thenReturn(state)
 
         subject.isSimpleBuyKycInProgress()
@@ -247,9 +271,9 @@ class AnnouncementQueriesTest {
     fun `isSimpleBuyKycInProgress - simple buy state is not finished, and kyc state is pending - as expected`() {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
+        whenever(kycService.getTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
         whenever(sbSync.currentState()).thenReturn(state)
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
+        whenever(kycService.getTiersLegacy()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.None)))
 
         subject.isSimpleBuyKycInProgress()
             .test()
@@ -267,7 +291,9 @@ class AnnouncementQueriesTest {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
 
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.UnderReview)))
+        whenever(kycService.getTiersLegacy()).thenReturn(
+            Single.just(tiers(KycTierState.Pending, KycTierState.UnderReview))
+        )
         whenever(sbSync.currentState()).thenReturn(state)
 
         subject.isSimpleBuyKycInProgress()
@@ -281,7 +307,9 @@ class AnnouncementQueriesTest {
     fun `isSimpleBuyKycInProgress - SB state reports unfinished, but kyc docs are submitted - belt & braces case 2`() {
         val state: SimpleBuyState = mock()
         whenever(state.kycStartedButNotCompleted).thenReturn(true)
-        whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Pending, KycTierState.Verified)))
+        whenever(kycService.getTiersLegacy()).thenReturn(
+            Single.just(tiers(KycTierState.Pending, KycTierState.Verified))
+        )
         whenever(sbSync.currentState()).thenReturn(state)
 
         subject.isSimpleBuyKycInProgress()
@@ -312,7 +340,7 @@ class AnnouncementQueriesTest {
     }
 
     @Test
-    fun `user  SddEligible and not verified`() {
+    fun `user SddEligible and not verified`() {
         whenever(userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
         whenever(userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(false))
 
@@ -321,7 +349,137 @@ class AnnouncementQueriesTest {
             .assertValue { it }
     }
 
+    @Test
+    fun `when google pay feature flag disabled then return false`() {
+        val authToken = "1234"
+        whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(false))
+        whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
+        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
+        whenever(
+            paymentMethodsService.getAvailablePaymentMethodsTypes(
+                authToken, FiatCurrency.Dollars.networkTicker, null, true
+            )
+        ).thenReturn(
+            Single.just(
+                listOf(
+                    PaymentMethodResponse(
+                        type = GOOGLE_PAY,
+                        eligible = true,
+                        visible = true,
+                        limits = mock(),
+                        subTypes = mock(),
+                        currency = FiatCurrency.Dollars.networkTicker,
+                        mobilePayment = listOf(GOOGLE_PAY)
+                    )
+                )
+            )
+        )
+
+        subject.isGooglePayAvailable().test().assertValue {
+            !it
+        }
+    }
+
+    @Test
+    fun `when goggle pay not a supported payment method then return false`() {
+        val authToken = "1234"
+        whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
+        whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
+        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
+        whenever(
+            paymentMethodsService.getAvailablePaymentMethodsTypes(
+                authToken, FiatCurrency.Dollars.networkTicker, null, true
+            )
+        ).thenReturn(Single.just(emptyList()))
+
+        subject.isGooglePayAvailable().test().assertValue {
+            !it
+        }
+    }
+
+    @Test
+    fun `when google pay not supported by device then return false`() {
+        val authToken = "1234"
+        whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
+        whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(false))
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
+        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
+        whenever(
+            paymentMethodsService.getAvailablePaymentMethodsTypes(
+                authToken, FiatCurrency.Dollars.networkTicker, null, true
+            )
+        ).thenReturn(
+            Single.just(
+                listOf(
+                    PaymentMethodResponse(
+                        type = GOOGLE_PAY,
+                        eligible = true,
+                        visible = true,
+                        limits = mock(),
+                        subTypes = mock(),
+                        currency = FiatCurrency.Dollars.networkTicker,
+                        mobilePayment = listOf(GOOGLE_PAY)
+                    )
+                )
+            )
+        )
+
+        subject.isGooglePayAvailable().test().assertValue {
+            !it
+        }
+    }
+
+    @Test
+    fun `when google pay flag enabled and a supported payment method and supported by device then return true`() {
+        val authToken = "1234"
+        whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
+        whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
+        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
+        whenever(
+            paymentMethodsService.getAvailablePaymentMethodsTypes(
+                authToken, FiatCurrency.Dollars.networkTicker, null, true
+            )
+        ).thenReturn(
+            Single.just(
+                listOf(
+                    PaymentMethodResponse(
+                        type = GOOGLE_PAY,
+                        eligible = true,
+                        visible = true,
+                        limits = mock(),
+                        subTypes = mock(),
+                        currency = FiatCurrency.Dollars.networkTicker,
+                        mobilePayment = listOf(GOOGLE_PAY)
+                    )
+                )
+            )
+        )
+
+        subject.isGooglePayAvailable().test().assertValue {
+            it
+        }
+    }
+
+    @Test
+    fun `asset price returns price`() {
+        val asset = CryptoCurrency.BTC
+        val prices24HrWithDelta = Prices24HrWithDelta(
+            0.0,
+            ExchangeRate.zeroRateExchangeRate(asset, FiatCurrency.Dollars),
+            ExchangeRate.zeroRateExchangeRate(asset, FiatCurrency.Dollars)
+        )
+        whenever(currencyPrefs.selectedFiatCurrency)
+            .thenReturn(FiatCurrency.Dollars)
+        whenever(exchangeRatesDataManager.getPricesWith24hDeltaLegacy(asset, FiatCurrency.Dollars))
+            .thenReturn(Observable.just(prices24HrWithDelta))
+
+        subject.getAssetPrice(asset).test().assertValue(prices24HrWithDelta)
+    }
+
     companion object {
-        private const val BUY_ORDER_ID = "1234567890"
+        private const val GOOGLE_PAY = "GOOGLE_PAY"
     }
 }

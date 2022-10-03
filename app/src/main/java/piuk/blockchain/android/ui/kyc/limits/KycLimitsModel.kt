@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.kyc.limits
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.Tier
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
@@ -38,17 +38,17 @@ class KycLimitsModel(
             val header =
                 if (isKycDenied) Header.MAX_TIER_REACHED
                 else when (highestApprovedTier) {
-                    Tier.BRONZE -> Header.NEW_KYC
-                    Tier.SILVER -> Header.UPGRADE_TO_GOLD
-                    Tier.GOLD -> Header.MAX_TIER_REACHED
+                    KycTier.BRONZE -> Header.NEW_KYC
+                    KycTier.SILVER -> Header.UPGRADE_TO_GOLD
+                    KycTier.GOLD -> Header.MAX_TIER_REACHED
                 }
 
             val currentKycTierRow =
                 if (isKycDenied) CurrentKycTierRow.HIDDEN
                 else when (highestApprovedTier) {
-                    Tier.BRONZE -> CurrentKycTierRow.HIDDEN
-                    Tier.SILVER -> CurrentKycTierRow.SILVER
-                    Tier.GOLD -> CurrentKycTierRow.GOLD
+                    KycTier.BRONZE -> CurrentKycTierRow.HIDDEN
+                    KycTier.SILVER -> CurrentKycTierRow.SILVER
+                    KycTier.GOLD -> CurrentKycTierRow.GOLD
                 }
             process(KycLimitsIntent.LimitsAndTiersFetched(limits, header, currentKycTierRow))
         },

@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.analytics.events.ActivityAnalytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.annotations.CommonCode
-import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -27,10 +26,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.asAssetInfoOrThrow
 import info.blockchain.balance.asFiatCurrencyOrThrow
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -41,6 +37,7 @@ import piuk.blockchain.android.ui.activity.detail.FiatActivityDetailsBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
+import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -50,7 +47,6 @@ import piuk.blockchain.android.util.setAssetIconColoursNoTint
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import timber.log.Timber
 
 class ActivitiesFragment :
     HomeScreenMviFragment<ActivitiesModel, ActivitiesIntent, ActivitiesState, FragmentActivitiesBinding>(),
@@ -69,8 +65,6 @@ class ActivitiesFragment :
         )
     }
 
-    private val displayList = mutableListOf<ActivitySummaryItem>()
-
     private val disposables = CompositeDisposable()
     private val rxBus: RxBus by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
@@ -84,8 +78,10 @@ class ActivitiesFragment :
     private var state: ActivitiesState? = null
     private var selectedFiatCurrency: FiatCurrency? = null
 
-    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentActivitiesBinding =
-        FragmentActivitiesBinding.inflate(inflater, container, false)
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentActivitiesBinding {
+        analytics.logEvent(WalletClientAnalytics.WalletActivityViewed)
+        return FragmentActivitiesBinding.inflate(inflater, container, false)
+    }
 
     @UiThread
     override fun render(newState: ActivitiesState) {
@@ -127,6 +123,8 @@ class ActivitiesFragment :
                         )
                     }
                 }
+                null -> {
+                }
             }
         }
         this.state = newState
@@ -137,43 +135,30 @@ class ActivitiesFragment :
             when {
                 newState.isLoading && newState.activityList.isEmpty() -> {
                     headerLayout.gone()
-                    contentList.gone()
                     emptyView.gone()
                 }
                 newState.activityList.isEmpty() -> {
                     headerLayout.visible()
-                    contentList.gone()
                     emptyView.visible()
                 }
                 else -> {
                     headerLayout.visible()
-                    contentList.visible()
                     emptyView.gone()
                 }
             }
         }
     }
 
-    private fun sendAnalyticsOnItemClickEvent(type: ActivityType, assetInfo: AssetInfo) {
-        if (type == ActivityType.RECURRING_BUY) {
-            analytics.logEvent(
-                RecurringBuyAnalytics.RecurringBuyDetailsClicked(
-                    LaunchOrigin.TRANSACTION_LIST,
-                    assetInfo.networkTicker
-                )
+    private fun sendAnalyticsOnItemClickEvent(assetInfo: AssetInfo) {
+        analytics.logEvent(
+            RecurringBuyAnalytics.RecurringBuyDetailsClicked(
+                LaunchOrigin.TRANSACTION_LIST,
+                assetInfo.networkTicker
             )
-        }
+        )
     }
 
     private fun renderAccountDetails(newState: ActivitiesState) {
-        if (newState.account == state?.account && selectedFiatCurrency == currencyPrefs.selectedFiatCurrency) {
-            return
-        }
-
-        if (newState.account == null) {
-            // Should not happen! TODO: Crash
-            return
-        }
 
         with(binding) {
             disposables.clear()
@@ -196,43 +181,14 @@ class ActivitiesFragment :
             } ?: accountIndicator.gone()
 
             accountName.text = account.label
-            fiatBalance.text = ""
             selectedFiatCurrency = currencyPrefs.selectedFiatCurrency
-
-            disposables += account.balance.firstOrError().map {
-                it.totalFiat
-            }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                    onSuccess = {
-                        fiatBalance.text =
-                            getString(
-                                R.string.common_spaced_strings, it.toStringWithSymbol(),
-                                it.currencyCode
-                            )
-                    },
-                    onError = {
-                        Timber.e("Unable to get balance for ${account.label}")
-                    }
-                )
+            fiatBalance.text = newState.selectedAccountBalance
             accountSelectBtn.visible()
         }
     }
 
     private fun renderTransactionList(newState: ActivitiesState) {
-        if (state?.activityList == newState.activityList) {
-            return
-        }
-
-        with(newState.activityList) {
-            displayList.clear()
-            if (isEmpty()) {
-                Timber.d("Render new tx list - empty")
-            } else {
-                displayList.addAll(this)
-            }
-            activityAdapter.notifyDataSetChanged()
-        }
+        activityAdapter.items = newState.activityList
     }
 
     private fun renderLoader(newState: ActivitiesState) {
@@ -248,8 +204,6 @@ class ActivitiesFragment :
             binding.swipe.isRefreshing = false
         }
     }
-
-    override fun onBackPressed(): Boolean = false
 
     private val preselectedAccount: BlockchainAccount?
         get() = arguments?.getAccount(PARAM_ACCOUNT)
@@ -271,7 +225,6 @@ class ActivitiesFragment :
             adapter = activityAdapter
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
         }
-        activityAdapter.items = displayList
     }
 
     private fun setupAccountSelect() {
@@ -305,8 +258,11 @@ class ActivitiesFragment :
     private fun onItemClicked(
         currency: Currency,
         txHash: String,
-        type: ActivityType
+        type: ActivityType,
     ) {
+        if (type == ActivityType.RECURRING_BUY) {
+            sendAnalyticsOnItemClickEvent(currency as AssetInfo)
+        }
         model.process(ShowActivityDetailsIntent(currency, txHash, type))
     }
 
@@ -329,6 +285,7 @@ class ActivitiesFragment :
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
+        model.process(ActivitiesStateUpdated(!hidden))
         if (!hidden) {
             state?.account?.let {
                 model.process(AccountSelectedIntent(it, true))

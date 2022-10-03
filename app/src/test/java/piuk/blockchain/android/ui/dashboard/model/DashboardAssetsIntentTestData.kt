@@ -1,14 +1,11 @@
 package piuk.blockchain.android.ui.dashboard.model
 
-import com.blockchain.coincore.FiatAccount
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.FiatValue
-import org.mockito.Mock
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
 
@@ -20,7 +17,7 @@ private val pricesWith24HrBtc = Prices24HrWithDelta(
     delta24h = 0.0
 )
 
-val initialBtcState = CryptoAssetState(
+val initialBtcState = BrokerageCryptoAsset(
     currency = CryptoCurrency.BTC,
     accountBalance = mock {
         on { total }.thenReturn(CryptoValue.zero(CryptoCurrency.BTC))
@@ -34,7 +31,7 @@ val initialBtcState = CryptoAssetState(
     priceTrend = emptyList()
 )
 
-val initialEthState = CryptoAssetState(
+val initialEthState = BrokerageCryptoAsset(
     currency = CryptoCurrency.ETHER,
     accountBalance = mock {
         on { total }.thenReturn(CryptoValue.zero(CryptoCurrency.ETHER))
@@ -48,7 +45,7 @@ val initialEthState = CryptoAssetState(
     priceTrend = emptyList()
 )
 
-val initialXlmState = CryptoAssetState(
+val initialXlmState = BrokerageCryptoAsset(
     currency = CryptoCurrency.XLM,
     accountBalance = mock {
         on { total }.thenReturn(CryptoValue.zero(CryptoCurrency.XLM))
@@ -74,7 +71,7 @@ val testAnnouncementCard_2 = StandardAnnouncementCard(
     dismissEntry = mock()
 )
 
-val testBtcState = CryptoAssetState(
+val testBtcState = BrokerageCryptoAsset(
     currency = CryptoCurrency.BTC,
     accountBalance = mock {
         on { total }.thenReturn(CryptoValue.fromMajor(CryptoCurrency.BTC, 10.toBigDecimal()))
@@ -83,22 +80,6 @@ val testBtcState = CryptoAssetState(
     },
     prices24HrWithDelta = pricesWith24HrBtc,
     priceTrend = emptyList()
-)
-
-val testFiatBalance = FiatValue.fromMajor(FIAT_CURRENCY, 1000.toBigDecimal())
-
-@Mock
-private val fiatAccount: FiatAccount = mock()
-val fiatAssetState_1 = FiatAssetState()
-val fiatAssetState_2 = FiatAssetState(
-    mapOf(
-        testFiatBalance.currency to
-            FiatBalanceInfo(
-                account = fiatAccount,
-                balance = testFiatBalance,
-                userFiat = testFiatBalance
-            )
-    )
 )
 
 val initialState = DashboardState(

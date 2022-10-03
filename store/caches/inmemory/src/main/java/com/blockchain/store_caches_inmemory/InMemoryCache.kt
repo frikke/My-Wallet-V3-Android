@@ -9,9 +9,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class InMemoryCache<K, T> private constructor() : Cache<K, T> {
+class InMemoryCache<K, T> internal constructor() : Cache<K, T> {
 
     private val mutex = Mutex()
+
     // Using SharedFlow rather than StateFlow because Store relies on [read] to always emit regardless of the value being distinct or not
     // So we're essentially creating a StateFlow without the distinct.
     private val cache = MutableSharedFlow<Map<K, CachedData<K, T>>>(replay = 1).apply {
@@ -41,20 +42,17 @@ class InMemoryCache<K, T> private constructor() : Cache<K, T> {
         }
     }
 
-    class Builder(private val storeId: StoreId) {
-        private val caches: MutableMap<StoreId, InMemoryCache<*, *>> = mutableMapOf()
+    override suspend fun markStoreAsStale() {
+        mutex.withLock {
+            val newCache = mutableMapOf<K, CachedData<K, T>>()
 
-        @Synchronized
-        fun <K, T> build(): InMemoryCache<K, T> {
-            val cache = caches[storeId]
-            return if (cache != null) {
-                @Suppress("UNCHECKED_CAST")
-                cache as InMemoryCache<K, T>
-            } else {
-                InMemoryCache<K, T>().also {
-                    caches[storeId] = it
+            val oldCache = cache.replayCache.first()
+            oldCache.keys.forEach {
+                oldCache[it]?.let { oldEntry ->
+                    newCache[it] = oldEntry.copy(lastFetched = 0L)
                 }
             }
+            cache.emit(newCache)
         }
     }
 }

@@ -16,10 +16,12 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -28,11 +30,14 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestWithdrawOnChainTxEngine(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    private val interestBalanceStore: InterestBalancesStore,
+    private val interestService: InterestService,
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestBalances: InterestBalanceDataManager
-) : InterestBaseEngine(walletManager) {
+) : InterestBaseEngine(interestService) {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf(interestBalanceStore)
 
     private val availableBalance: Single<Money>
         get() = sourceAccount.balance.firstOrError().map { it.withdrawable }
@@ -47,26 +52,25 @@ class InterestWithdrawOnChainTxEngine(
     override fun doInitialiseTx(): Single<PendingTx> =
         Single.zip(
             walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.SAVINGS),
-            walletManager.getInterestLimits(sourceAssetInfo),
-            availableBalance,
-            { minLimits, maxLimits, balance ->
-                PendingTx(
-                    amount = Money.zero(sourceAsset),
-                    limits = TxLimits.fromAmounts(
-                        min = Money.fromMinor(sourceAsset, minLimits.minLimit),
-                        max = (maxLimits.maxWithdrawalFiatValue as FiatValue).toCrypto(
-                            exchangeRates, sourceAsset as AssetInfo
-                        )
-                    ),
-                    feeSelection = FeeSelection(),
-                    selectedFiat = userFiat,
-                    availableBalance = balance,
-                    totalBalance = balance,
-                    feeAmount = Money.fromMinor(sourceAsset, minLimits.fee),
-                    feeForFullAvailable = Money.zero(sourceAsset)
-                )
-            }
-        )
+            interestService.getLimitsForAsset(sourceAssetInfo),
+            availableBalance
+        ) { minLimits, maxLimits, balance ->
+            PendingTx(
+                amount = Money.zero(sourceAsset),
+                limits = TxLimits.fromAmounts(
+                    min = Money.fromMinor(sourceAsset, minLimits.minLimit),
+                    max = (maxLimits.maxWithdrawalFiatValue as FiatValue).toCrypto(
+                        exchangeRates, sourceAsset as AssetInfo
+                    )
+                ),
+                feeSelection = FeeSelection(),
+                selectedFiat = userFiat,
+                availableBalance = balance,
+                totalBalance = balance,
+                feeAmount = Money.fromMinor(sourceAsset, minLimits.fee),
+                feeForFullAvailable = Money.zero(sourceAsset)
+            )
+        }
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> =
         availableBalance.map { balance ->
@@ -151,13 +155,13 @@ class InterestWithdrawOnChainTxEngine(
         sourceAsset: AssetInfo,
         amount: Money,
         receiveAddress: String,
-        memo: String? = null
-    ) = walletManager.startInterestWithdrawal(
+        memo: String? = null,
+    ) = interestService.withdraw(
         asset = sourceAsset,
         amount = amount,
         address = addMemoIfNeeded(receiveAddress, memo)
     ).doOnComplete {
-        interestBalances.flushCaches(sourceAsset)
+        interestBalanceStore.invalidate()
     }
 
     private fun addMemoIfNeeded(receiveAddress: String, memo: String?) =

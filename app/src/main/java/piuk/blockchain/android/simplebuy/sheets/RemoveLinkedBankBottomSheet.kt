@@ -11,8 +11,8 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.core.payments.LinkedPaymentMethod
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -32,7 +32,7 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
     }
 
     private val compositeDisposable = CompositeDisposable()
-    private val paymentsDataManager: PaymentsDataManager by scopedInject()
+    private val bankService: BankService by scopedInject()
 
     private val bank: LinkedPaymentMethod.Bank by unsafeLazy {
         arguments?.getSerializable(BANK_KEY) as LinkedPaymentMethod.Bank
@@ -79,7 +79,7 @@ class RemoveLinkedBankBottomSheet : SlidingModalBottomDialog<RemoveBankBottomShe
     }
 
     private fun removeBank() {
-        compositeDisposable += paymentsDataManager.removeBank(bank)
+        compositeDisposable += bankService.removeBank(bank)
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe {
                 updateUi(true)

@@ -1,26 +1,28 @@
 package piuk.blockchain.android.ui.kyc.settings
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.exceptions.MetadataNotFoundException
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTiers
+import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.KycState
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.UserState
-import com.blockchain.nabu.service.TierService
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
 
 class KycStatusHelper(
-    private val nabuDataManager: NabuDataManager,
+    private val eligibilityService: EligibilityService,
+    private val userService: UserService,
     private val nabuToken: NabuToken,
     private val settingsDataManager: SettingsDataManager,
-    private val tierService: TierService
+    private val kycService: KycService
 ) {
 
     private val fetchOfflineToken
@@ -41,46 +43,21 @@ class KycStatusHelper(
         isInKycRegion(), hasAccount()
     ) { allowedRegion, hasAccount -> allowedRegion || hasAccount }
 
-    @Deprecated("Use NabuUserSync")
-    fun syncPhoneNumberWithNabu(): Completable = nabuDataManager.requestJwt()
-        .subscribeOn(Schedulers.io())
-        .flatMap { jwt ->
-            fetchOfflineToken.flatMap {
-                nabuDataManager.updateUserWalletInfo(it, jwt)
-                    .subscribeOn(Schedulers.io())
-            }
-        }
-        .ignoreElement()
-        .doOnError { Timber.e(it) }
-        .onErrorResumeNext {
-            if (it is MetadataNotFoundException) {
-                // Allow users who aren't signed up to Nabu to ignore this failure
-                return@onErrorResumeNext Completable.complete()
-            } else {
-                return@onErrorResumeNext Completable.error { it }
-            }
-        }
-
-    fun getKycStatus(): Single<KycState> = fetchOfflineToken
-        .flatMap {
-            nabuDataManager.getUser(it)
-                .subscribeOn(Schedulers.io())
-        }
-        .map { it.kycState }
-        .doOnError { Timber.e(it) }
-        .onErrorReturn { KycState.None }
+    fun getKycStatus(): Single<KycState> =
+        userService.getUser()
+            .subscribeOn(Schedulers.io())
+            .map { it.kycState }
+            .doOnError { Timber.e(it) }
+            .onErrorReturn { KycState.None }
 
     fun getKycTierStatus(): Single<KycTiers> =
-        tierService.tiers()
+        kycService.getTiersLegacy()
             .onErrorReturn { KycTiers.default() }
             .doOnError { Timber.e(it) }
 
     fun getUserState(): Single<UserState> =
-        fetchOfflineToken
-            .flatMap {
-                nabuDataManager.getUser(it)
-                    .subscribeOn(Schedulers.io())
-            }
+        userService.getUser()
+            .subscribeOn(Schedulers.io())
             .map { it.state }
             .doOnError { Timber.e(it) }
             .onErrorReturn { UserState.None }
@@ -99,11 +76,12 @@ class KycStatusHelper(
             .singleOrError()
 
     private fun isInKycRegion(countryCode: String?): Single<Boolean> =
-        nabuDataManager.getCountriesList(Scope.Kyc)
-            .subscribeOn(Schedulers.io())
+        rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+            eligibilityService.getCountriesList(GetRegionScope.Kyc)
+        }.subscribeOn(Schedulers.io())
             .map { countries ->
                 countries.asSequence()
-                    .map { it.code }
+                    .map { it.countryCode }
                     .contains(countryCode)
             }
 }

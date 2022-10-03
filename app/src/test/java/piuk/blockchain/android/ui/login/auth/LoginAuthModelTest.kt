@@ -196,8 +196,9 @@ class LoginAuthModelTest {
             Completable.complete()
         )
         whenever(interactor.updateMobileSetup(isMobileSetup, deviceType)).thenReturn(
-            Completable.complete()
+            Single.just(true)
         )
+
         whenever(unifiedSignInFlag.enabled).thenReturn(Single.just(false))
 
         val testState = model.state.test()
@@ -266,7 +267,7 @@ class LoginAuthModelTest {
             Completable.complete()
         )
         whenever(interactor.updateMobileSetup(isMobileSetup, deviceType)).thenReturn(
-            Completable.complete()
+            Single.just(true)
         )
         whenever(unifiedSignInFlag.enabled).thenReturn(Single.just(false))
 

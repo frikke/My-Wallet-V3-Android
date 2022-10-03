@@ -9,17 +9,8 @@ const val URL_BLOCKCHAIN_GOLD_UNAVAILABLE_SUPPORT =
 const val URL_BLOCKCHAIN_KYC_SUPPORTED_COUNTRIES_LIST =
     "https://support.blockchain.com/hc/en-us/articles/4417197015188"
 
-const val URL_THE_PIT_LANDING_LEARN_MORE = "https://exchange.blockchain.com"
-const val URL_THE_PIT_LAUNCH_SUPPORT = "https://exchange-support.blockchain.com/hc/en-us"
-
 const val URL_TOS_POLICY = "https://blockchain.com/terms"
-const val URL_BACKUP_INFO = "https://support.blockchain.com/hc/en-us/articles/209564506-Make-a-Wallet-Backup"
 const val URL_PRIVACY_POLICY = "https://blockchain.com/privacy"
-const val URL_LEARN_MORE_REJECTED =
-    "https://support.blockchain.com/hc/articles/360018080352-Why-has-my-ID-submission-been-rejected-"
-
-const val STX_STACKS_LEARN_MORE =
-    "https://support.blockchain.com/hc/en-us/articles/360038745191"
 
 const val MODULAR_TERMS_AND_CONDITIONS =
     "https://exchange.blockchain.com/legal#modulr"
@@ -55,7 +46,7 @@ const val NETWORK_FEE_EXPLANATION = "https://support.blockchain.com/hc/en-us/art
 const val NETWORK_ERC20_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360061258732"
 const val EXCHANGE_SWAP_RATE_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360061672651"
 const val CHECKOUT_PRICE_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360061672651"
-const val CHECKOUT_REFUND_POLICY = "https://support.blockchain.com/hc/en-us/articles/360061942111"
+const val CHECKOUT_REFUND_POLICY = "https://support.blockchain.com/hc/en-us/articles/4417063009172"
 
 const val SECOND_PASSWORD_EXPLANATION = "https://support.blockchain.com/hc/en-us/articles/360000882646"
 const val RESET_2FA = "https://login.blockchain.com/#/reset-2fa"
@@ -84,3 +75,6 @@ const val URL_FAQ = "https://support.blockchain.com/hc/en-us/articles/4592150619
 const val URL_OPEN_BANKING_PRIVACY_POLICY = "https://www.yapily.com/legal/privacy-policy/"
 
 const val URL_RUSSIA_SANCTIONS_EU5 = "https://ec.europa.eu/commission/presscorner/detail/en/ip_22_2332"
+
+const val URL_CREDIT_CARD_FAILURES = "https://support.blockchain.com/hc/en-us/articles/5154350610716"
+const val URL_CARD_REJECTIONS = "https://support.blockchain.com/hc/en-us/articles/5225673267100"

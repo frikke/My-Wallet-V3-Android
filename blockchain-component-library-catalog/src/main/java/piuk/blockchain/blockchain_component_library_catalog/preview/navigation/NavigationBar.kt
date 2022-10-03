@@ -28,14 +28,16 @@ fun NavigationBarPreview_TitleBack() {
         AppSurface {
             NavigationBar("Activity", {
                 Toast.makeText(context, "Back Button Clicked", Toast.LENGTH_SHORT).show()
-            }, listOf(
+            }, null, listOf(
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_buy
+                    drawable = R.drawable.ic_bottom_nav_buy,
+                    contentDescription = R.string.accessibility_back
                 ) {
                     Toast.makeText(context, "First Icon Clicked", Toast.LENGTH_SHORT).show()
                 },
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_activity
+                    drawable = R.drawable.ic_bottom_nav_activity,
+                    contentDescription = R.string.accessibility_back
                 ) {
                     Toast.makeText(context, "Second Icon Clicked", Toast.LENGTH_SHORT).show()
                 }
@@ -52,7 +54,7 @@ fun NavigationBarPreview3() {
         AppSurface {
             NavigationBar("Test", {
                 Toast.makeText(context, "Back Button Clicked", Toast.LENGTH_SHORT).show()
-            }, listOf(
+            }, null, listOf(
                 NavigationBarButton.Text(
                     text = "Cancel"
                 ) {

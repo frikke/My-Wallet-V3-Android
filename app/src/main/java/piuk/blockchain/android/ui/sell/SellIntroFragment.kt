@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import com.blockchain.analytics.Analytics
+import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
@@ -18,15 +19,16 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.koin.scopedInject
+import com.blockchain.koin.sellOrder
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
@@ -37,19 +39,21 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.rx3.rxSingle
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.SellIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.BuySellViewedEvent
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
-import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.NABU_ERROR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OOPS_ERROR
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
+import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -80,20 +84,20 @@ class SellIntroFragment : ViewPagerFragment() {
     private val binding: SellIntroFragmentBinding
         get() = _binding!!
 
-    private val tierService: TierService by scopedInject()
+    private val kycService: KycService by scopedInject()
     private val coincore: Coincore by scopedInject()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val eligibilityProvider: SimpleBuyEligibilityProvider by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val analytics: Analytics by inject()
-    private val accountsSorting: AccountsSorting by scopedInject()
+    private val accountsSorting: AccountsSorting by scopedInject(sellOrder)
     private val userIdentity: UserIdentity by scopedInject()
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = SellIntroFragmentBinding.inflate(inflater, container, false)
         return binding.root
@@ -117,50 +121,70 @@ class SellIntroFragment : ViewPagerFragment() {
                     onSuccess = { eligibility ->
                         when (val reason = (eligibility as? FeatureAccess.Blocked)?.reason) {
                             is BlockedReason.InsufficientTier -> renderNonKycedUserUi()
-                            BlockedReason.NotEligible -> renderRejectedKycedUserUi()
+                            is BlockedReason.NotEligible -> renderRejectedKycedUserUi()
                             is BlockedReason.Sanctions -> renderBlockedDueToSanctions(reason)
                             is BlockedReason.TooManyInFlightTransactions,
-                            null -> loadSellDetails(showLoader)
+                            null,
+                            -> loadSellDetails(showLoader)
                         }
                     },
                     onError = {
                         renderSellError()
-                        analytics.logEvent(
-                            ClientErrorAnalytics.ClientLogError(
-                                nabuApiException = if (it is HttpException) {
-                                    NabuApiExceptionFactory.fromResponseBody(it)
-                                } else null,
-                                error = ClientErrorAnalytics.OOPS_ERROR,
-                                source = if (it is HttpException) {
-                                    ClientErrorAnalytics.Companion.Source.NABU
-                                } else {
-                                    ClientErrorAnalytics.Companion.Source.CLIENT
-                                },
-                                title = ClientErrorAnalytics.OOPS_ERROR,
-                                action = ClientErrorAnalytics.ACTION_SELL,
-                            )
+                        logErrorAnalytics(
+                            nabuApiException = if (it is HttpException) {
+                                NabuApiExceptionFactory.fromResponseBody(it)
+                            } else null,
+                            error = OOPS_ERROR,
+                            source = if (it is HttpException) {
+                                ClientErrorAnalytics.Companion.Source.NABU
+                            } else {
+                                ClientErrorAnalytics.Companion.Source.CLIENT
+                            },
+                            title = OOPS_ERROR,
+                            action = ClientErrorAnalytics.ACTION_SELL
                         )
                     }
                 )
     }
 
+    private fun logErrorAnalytics(
+        title: String,
+        error: String,
+        source: ClientErrorAnalytics.Companion.Source,
+        action: String,
+        nabuApiException: NabuApiException? = null,
+        errorDescription: String? = null,
+    ) {
+        analytics.logEvent(
+            ClientErrorAnalytics.ClientLogError(
+                nabuApiException = nabuApiException,
+                error = error,
+                source = source,
+                title = title,
+                action = action,
+                errorDescription = errorDescription,
+                categories = nabuApiException?.getServerSideErrorInfo()?.categories ?: emptyList()
+            )
+        )
+    }
+
     private fun loadSellDetails(showLoader: Boolean) {
         binding.accountsList.activityIndicator = if (showLoader) activityIndicator else null
 
-        compositeDisposable += tierService.tiers()
+        compositeDisposable += kycService.getTiersLegacy()
             .zipWith(eligibilityProvider.isEligibleForSimpleBuy(forceRefresh = true))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .trackProgress(binding.accountsList.activityIndicator)
             .subscribeBy(onSuccess = { (kyc, eligible) ->
                 when {
-                    kyc.isApprovedFor(KycTierLevel.GOLD) && eligible -> {
+                    kyc.isApprovedFor(KycTier.GOLD) && eligible -> {
                         renderKycedUserUi()
                     }
-                    kyc.isRejectedFor(KycTierLevel.GOLD) -> {
+                    kyc.isRejectedFor(KycTier.GOLD) -> {
                         renderRejectedKycedUserUi()
                     }
-                    kyc.isApprovedFor(KycTierLevel.GOLD) && !eligible -> {
+                    kyc.isApprovedFor(KycTier.GOLD) && !eligible -> {
                         renderRejectedKycedUserUi()
                     }
                     else -> {
@@ -169,20 +193,21 @@ class SellIntroFragment : ViewPagerFragment() {
                 }
             }, onError = {
                 renderSellError()
-                analytics.logEvent(
-                    ClientErrorAnalytics.ClientLogError(
-                        nabuApiException = if (it is HttpException) {
-                            NabuApiExceptionFactory.fromResponseBody(it)
-                        } else null,
-                        error = ClientErrorAnalytics.OOPS_ERROR,
-                        source = if (it is HttpException) {
-                            ClientErrorAnalytics.Companion.Source.NABU
-                        } else {
-                            ClientErrorAnalytics.Companion.Source.CLIENT
-                        },
-                        title = ClientErrorAnalytics.OOPS_ERROR,
-                        action = ClientErrorAnalytics.ACTION_SELL,
-                    )
+                logErrorAnalytics(
+                    nabuApiException = (it as? HttpException)?.let {
+                        NabuApiExceptionFactory.fromResponseBody(it)
+                    },
+                    errorDescription = it.message,
+                    error = if (it is HttpException) {
+                        ClientErrorAnalytics.NABU_ERROR
+                    } else ClientErrorAnalytics.UNKNOWN_ERROR,
+                    source = if (it is HttpException) {
+                        ClientErrorAnalytics.Companion.Source.NABU
+                    } else {
+                        ClientErrorAnalytics.Companion.Source.CLIENT
+                    },
+                    title = OOPS_ERROR,
+                    action = ClientErrorAnalytics.ACTION_SELL
                 )
             })
     }
@@ -221,7 +246,7 @@ class SellIntroFragment : ViewPagerFragment() {
                     is BlockedReason.Sanctions.Unknown -> reason.message
                 }
                 icon = R.drawable.ic_wallet_intro_image
-                ctaText = R.string.learn_more
+                ctaText = R.string.common_learn_more
                 ctaAction = { requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5) }
                 visible()
             }
@@ -311,13 +336,13 @@ class SellIntroFragment : ViewPagerFragment() {
                     )
 
                     accountsList.initialise(
-                        coincore.allWalletsWithActions(
-                            setOf(AssetAction.Sell),
-                            accountsSorting.sorter()
+                        coincore.walletsWithActions(
+                            actions = setOf(AssetAction.Sell),
+                            sorter = accountsSorting.sorter()
                         ).map {
                             it.filterIsInstance<CryptoAccount>().filter { account ->
                                 supportedCryptos.contains(account.currency)
-                            }
+                            }.map(AccountListViewItem.Companion::create)
                         },
                         status = ::statusDecorator,
                         introView = introHeaderView
@@ -336,20 +361,21 @@ class SellIntroFragment : ViewPagerFragment() {
                     }
                 }, onError = {
                     renderSellError()
-                    analytics.logEvent(
-                        ClientErrorAnalytics.ClientLogError(
-                            nabuApiException = if (it is HttpException) {
-                                NabuApiExceptionFactory.fromResponseBody(it)
-                            } else null,
-                            error = NABU_ERROR,
-                            source = if (it is HttpException) {
-                                ClientErrorAnalytics.Companion.Source.NABU
-                            } else {
-                                ClientErrorAnalytics.Companion.Source.CLIENT
-                            },
-                            title = OOPS_ERROR,
-                            action = ClientErrorAnalytics.ACTION_SELL,
-                        )
+                    logErrorAnalytics(
+                        nabuApiException = (it as? HttpException)?.let {
+                            NabuApiExceptionFactory.fromResponseBody(it)
+                        },
+                        errorDescription = it.message,
+                        error = if (it is HttpException) {
+                            ClientErrorAnalytics.NABU_ERROR
+                        } else ClientErrorAnalytics.UNKNOWN_ERROR,
+                        source = if (it is HttpException) {
+                            ClientErrorAnalytics.Companion.Source.NABU
+                        } else {
+                            ClientErrorAnalytics.Companion.Source.CLIENT
+                        },
+                        title = OOPS_ERROR,
+                        action = ClientErrorAnalytics.ACTION_SELL
                     )
                 })
         }
@@ -386,7 +412,7 @@ class SellIntroFragment : ViewPagerFragment() {
 
     private fun supportedCryptoCurrencies(): Single<List<AssetInfo>> {
         val availableFiats =
-            custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency)
+            rxSingle { custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency).first() }
         return Single.zip(
             custodialWalletManager.getSupportedBuySellCryptoCurrencies(), availableFiats
         ) { supportedPairs, fiats ->

@@ -1,16 +1,26 @@
 package com.blockchain.core.chains.erc20
 
-import com.blockchain.api.services.AssetDiscoveryService
+import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.core.chains.EvmNetwork
-import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
-import com.blockchain.core.chains.erc20.model.Erc20Balance
-import com.blockchain.core.chains.erc20.model.Erc20HistoryList
+import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
+import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
+import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
+import com.blockchain.core.chains.erc20.domain.Erc20StoreService
+import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryList
+import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.outcome.fold
+import com.blockchain.store.asObservable
+import com.blockchain.store.asSingle
+import com.blockchain.store.getDataOrThrow
+import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
@@ -18,13 +28,19 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.math.BigInteger
-import kotlin.IllegalStateException
-import kotlinx.coroutines.rx3.rxSingle
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx3.await
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
 
 interface Erc20DataManager {
@@ -70,10 +86,13 @@ interface Erc20DataManager {
     fun latestBlockNumber(l1Chain: String? = null): Single<BigInteger>
     fun isContractAddress(address: String, l1Chain: String? = null): Single<Boolean>
 
+    // todo(othman) remove and use Erc20Service instead - will eventually contain all erc20 operations
     fun getErc20Balance(asset: AssetInfo): Observable<Erc20Balance>
-    fun getActiveAssets(): Single<Set<AssetInfo>>
+    fun getActiveAssets(
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<Set<AssetInfo>>
 
-    fun getSupportedNetworks(): Single<List<EvmNetwork>>
+    fun getSupportedNetworks(): Single<Set<EvmNetwork>>
 
     // TODO: Get assets with balance
     fun flushCaches(asset: AssetInfo)
@@ -83,11 +102,15 @@ interface Erc20DataManager {
 
 internal class Erc20DataManagerImpl(
     private val ethDataManager: EthDataManager,
-    private val balanceCallCache: Erc20BalanceCallCache,
+    private val l1BalanceStore: L1BalanceStore,
     private val historyCallCache: Erc20HistoryCallCache,
     private val assetCatalogue: AssetCatalogue,
-    private val ethMemoForHotWalletFeatureFlag: FeatureFlag,
-    private val ethLayerTwoFeatureFlag: FeatureFlag
+    private val erc20StoreService: Erc20StoreService,
+    private val erc20DataSource: Erc20DataSource,
+    private val erc20L2StoreService: Erc20L2StoreService,
+    private val erc20L2DataSource: Erc20L2DataSource,
+    private val ethLayerTwoFeatureFlag: FeatureFlag,
+    private val evmWithoutL1BalanceFeatureFlag: FeatureFlag,
 ) : Erc20DataManager {
 
     override val accountHash: String
@@ -96,23 +119,29 @@ internal class Erc20DataManagerImpl(
     override val requireSecondPassword: Boolean
         get() = ethDataManager.requireSecondPassword
 
+    private val latestBlockCacheRequest: ParameteredSingleTimedCacheRequest<EvmNetwork, BigInteger> by lazy {
+        ParameteredSingleTimedCacheRequest(
+            cacheLifetimeSeconds = NODE_CALLS_CACHE_TTL_SECONDS,
+            refreshFn = ::refreshLatestBlockNumber
+        )
+    }
+
     override fun getL1TokenBalance(asset: AssetInfo): Single<CryptoValue> =
         Singles.zip(
             ethDataManager.supportedNetworks,
             getL1AssetFor(asset)
         )
             .flatMap { (supportedNetworks, l1Asset) ->
-                rxSingle {
-                    supportedNetworks.firstOrNull { evmNetwork ->
-                        // Fall back to the network ticker in case of an L1 coin
-                        evmNetwork.networkTicker == (asset.l1chainTicker ?: asset.networkTicker)
-                    }?.let { evmNetwork ->
-                        ethDataManager.getBalance(evmNetwork.nodeUrl)
-                    }?.fold(
-                        onFailure = { throw it.throwable },
-                        onSuccess = { value -> CryptoValue(l1Asset, value) }
-                    ) ?: throw IllegalStateException("L1 chain is missing or not supported")
-                }
+                supportedNetworks.firstOrNull { evmNetwork ->
+                    // Fall back to the network ticker in case of an L1 coin
+                    evmNetwork.networkTicker == (asset.l1chainTicker ?: asset.networkTicker)
+                }?.let { evmNetwork ->
+                    l1BalanceStore.stream(
+                        FreshnessStrategy.Cached(forceRefresh = true).withKey(L1BalanceStore.Key(evmNetwork.nodeUrl))
+                    ).mapData { balance ->
+                        CryptoValue(l1Asset, balance)
+                    }.asSingle()
+                } ?: throw IllegalStateException("L1 chain is missing or not supported")
             }
 
     override fun getErc20Balance(asset: AssetInfo): Observable<Erc20Balance> {
@@ -124,42 +153,63 @@ internal class Erc20DataManagerImpl(
             if (isEnabled) {
                 ethDataManager.supportedNetworks.flatMapObservable { supportedNetworks ->
                     supportedNetworks.firstOrNull { it.networkTicker == asset.l1chainTicker }?.let { evmNetwork ->
-                        rxSingle {
-                            // Get the balance of the native token for example Matic in Polygon's case. Only load
-                            // the balances of the other tokens on that network if the native token balance is positive.
-                            ethDataManager.getBalance(evmNetwork.nodeUrl)
-                                .fold(
-                                    onFailure = { throw it.throwable },
-                                    onSuccess = { value -> Pair(evmNetwork, value) }
-                                )
-                        }
-                            .flatMapObservable { (evmNetwork, value) -> getErc20Balance(asset, evmNetwork, value) }
+                        // Get the balance of the native token for example Matic in Polygon's case. Only load
+                        // the balances of the other tokens on that network if the native token balance is positive.
+                        l1BalanceStore
+                            .stream(
+                                FreshnessStrategy.Cached(forceRefresh = true)
+                                    .withKey(L1BalanceStore.Key(evmNetwork.nodeUrl))
+                            )
+                            .mapData { balance -> Pair(evmNetwork, balance) }
+                            .asObservable()
+                            .flatMap { (evmNetwork, value) -> getErc20Balance(asset, evmNetwork, value) }
                     } ?: Observable.just(Erc20Balance.zero(asset))
                 }
             } else {
-                balanceCallCache.getBalances(accountHash)
-                    .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
-                    .toObservable()
+                erc20StoreService.getBalanceFor(asset = asset)
             }
         }
     }
 
-    override fun getActiveAssets(): Single<Set<AssetInfo>> =
-        ethLayerTwoFeatureFlag.enabled.flatMap { isEnabled ->
-            balanceCallCache.getBalances(accountHash).map { it.keys }.flatMap { baseErc20Assets ->
-                if (isEnabled) {
-                    getSupportedNetworks().flatMap { supportedNetworks ->
-                        supportedNetworks.map { evmNetwork ->
-                            balanceCallCache.getBalances(accountHash, evmNetwork.networkTicker).map { it.keys }
-                        }.zipSingles().map {
-                            (baseErc20Assets + it.flatten()).toSet()
+    override fun getActiveAssets(refreshStrategy: FreshnessStrategy): Flow<Set<AssetInfo>> = flow {
+        val erc20ActiveAssets = erc20StoreService.getActiveAssets()
+        val shouldShow = evmWithoutL1BalanceFeatureFlag.coEnabled()
+
+        if (ethLayerTwoFeatureFlag.coEnabled()) {
+            val erc20L2ActiveAssets = getSupportedNetworks().await().let { evmNetworks ->
+                val evmNetworksWithBalances = evmNetworks.map { evmNetwork ->
+                    l1BalanceStore.stream(refreshStrategy.withKey(L1BalanceStore.Key(evmNetwork.nodeUrl)))
+                        .catch { emit(DataResource.Data(BigInteger.ZERO)) }
+                        .mapData { balance -> Pair(evmNetwork, balance) }
+                        .getDataOrThrow()
+                }
+
+                combine(evmNetworksWithBalances) { pairsEvmNetworkWithBalance: Array<Pair<EvmNetwork, BigInteger>> ->
+                    pairsEvmNetworkWithBalance
+                        .filter { (_, balance) ->
+                            shouldShow || balance > BigInteger.ZERO
                         }
+                        .map { (evmNetwork, _) -> evmNetwork }
+                }.map {
+                    it.map { evmNetwork ->
+                        erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
+                            .catch { emit(emptySet()) }
                     }
-                } else {
-                    Single.just(baseErc20Assets)
+                }.flatMapMerge {
+                    if (it.isNotEmpty()) {
+                        combine(it) { assets ->
+                            assets.reduce { acc, set -> acc.plus(set).toSet() }
+                        }
+                    } else {
+                        flowOf(emptySet())
+                    }
                 }
             }
+            emitAll(erc20L2ActiveAssets)
+        } else {
+            emitAll(erc20ActiveAssets)
         }
+    }
 
     override fun getErc20History(asset: AssetInfo, evmNetwork: EvmNetwork): Single<Erc20HistoryList> {
         return historyCallCache.fetch(accountHash, asset, evmNetwork.networkTicker)
@@ -208,17 +258,14 @@ internal class Erc20DataManagerImpl(
         val l1Chain = asset.l1chainTicker
         require(l1Chain != null)
 
-        return Singles.zip(
-            getNonce(l1Chain),
-            ethMemoForHotWalletFeatureFlag.enabled
-        )
-            .map { (nonce, enabled) ->
+        return getNonce(l1Chain)
+            .map { nonce ->
                 val contractAddress = asset.l2identifier
                 checkNotNull(contractAddress)
 
                 // If we couldn't find a hot wallet address for any reason (in which case the HotWalletService is
                 // returning an empty address) fall back to the usual path.
-                val useHotWallet = enabled && hotWalletAddress.isNotEmpty()
+                val useHotWallet = hotWalletAddress.isNotEmpty()
 
                 RawTransaction.createTransaction(
                     nonce,
@@ -245,14 +292,11 @@ internal class Erc20DataManagerImpl(
         hotWalletAddress: String
     ): Single<RawTransaction> {
 
-        return Singles.zip(
-            getNonce(evmNetwork),
-            ethMemoForHotWalletFeatureFlag.enabled
-        )
-            .map { (nonce, enabled) ->
+        return getNonce(evmNetwork)
+            .map { nonce ->
                 // If we couldn't find a hot wallet address for any reason (in which case the HotWalletService is
                 // returning an empty address) fall back to the usual path.
-                val useHotWallet = enabled && hotWalletAddress.isNotEmpty()
+                val useHotWallet = hotWalletAddress.isNotEmpty()
 
                 ethDataManager.createEthTransaction(
                     nonce = nonce,
@@ -325,16 +369,18 @@ internal class Erc20DataManagerImpl(
     override fun latestBlockNumber(l1Chain: String?): Single<BigInteger> =
         ethDataManager.supportedNetworks.flatMap { supportedNetworks ->
             supportedNetworks.firstOrNull { it.networkTicker == l1Chain }?.let { evmNetwork ->
-                ethDataManager.getLatestBlockNumber(evmNetwork.nodeUrl).map { it.number }
+                latestBlockCacheRequest.getCachedSingle(evmNetwork)
             } ?: throw IllegalAccessException("Unsupported EVM Network")
         }
 
-    override fun getSupportedNetworks(): Single<List<EvmNetwork>> = ethDataManager.supportedNetworks
+    override fun getSupportedNetworks(): Single<Set<EvmNetwork>> = ethDataManager.supportedNetworks
 
     override fun flushCaches(asset: AssetInfo) {
         require(asset.isErc20())
 
-        balanceCallCache.flush(asset)
+        erc20DataSource.invalidate()
+        erc20L2DataSource.invalidate(asset.networkTicker)
+
         historyCallCache.flush(asset)
     }
 
@@ -355,20 +401,35 @@ internal class Erc20DataManagerImpl(
         balance: BigInteger
     ): Observable<Erc20Balance> {
         val hasNativeTokenBalance = balance > BigInteger.ZERO
+        val shouldShow = evmWithoutL1BalanceFeatureFlag.isEnabled || hasNativeTokenBalance
         val isOnOtherEvm = evmNetwork.chainId != EthDataManager.ETH_CHAIN_ID
         return when {
             // Only load L2 balances if we have a balance of the network's native token
-            isOnOtherEvm && hasNativeTokenBalance -> balanceCallCache.getBalances(accountHash, evmNetwork.networkTicker)
-                .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }.toObservable()
-            !isOnOtherEvm -> balanceCallCache.getBalances(accountHash)
-                .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
-                .toObservable()
-            else -> Observable.just(Erc20Balance.zero(asset))
+            isOnOtherEvm && shouldShow -> {
+                erc20L2StoreService.getBalances(networkTicker = evmNetwork.networkTicker)
+                    .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
+            }
+
+            isOnOtherEvm.not() -> {
+                erc20StoreService.getBalanceFor(asset = asset)
+            }
+
+            else -> {
+                Observable.just(Erc20Balance.zero(asset))
+            }
         }
+    }
+
+    private fun refreshLatestBlockNumber(evmNetwork: EvmNetwork): Single<BigInteger> {
+        return ethDataManager.getLatestBlockNumber(evmNetwork.nodeUrl).map { it.number }
+    }
+
+    companion object {
+        private const val NODE_CALLS_CACHE_TTL_SECONDS = 10L
     }
 }
 
-// TODO this has to scale, need to find a way to get the networks from the remote config
 fun Currency.isErc20() =
-    (this as? AssetInfo)?.l1chainTicker?.equals(CryptoCurrency.ETHER.networkTicker) == true ||
-        (this as? AssetInfo)?.l1chainTicker?.equals(AssetDiscoveryService.MATIC) == true
+    (this as? AssetInfo)?.l1chainTicker?.let {
+        it in AssetDiscoveryApiService.supportedErc20Chains
+    } ?: false

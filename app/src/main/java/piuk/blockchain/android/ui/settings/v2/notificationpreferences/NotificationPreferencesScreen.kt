@@ -42,13 +42,7 @@ fun NotificationPreferenceScreen(
         ) {
 
             SimpleText(
-                text = stringResource(id = R.string.settings_notification_preferences_title),
-                style = ComposeTypographies.Title3,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Start
-            )
-
-            SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.settings_notification_preferences_subtitle),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,

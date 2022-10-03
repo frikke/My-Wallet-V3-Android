@@ -8,6 +8,7 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.txEngine.MissingLimitsException
 import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.QuotedEngine
@@ -27,6 +28,10 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+
+const val LATEST_QUOTE_ID = "LATEST_QUOTE_ID"
+private val PendingTx.quoteId: String?
+    get() = (this.engineState[LATEST_QUOTE_ID] as? String)
 
 abstract class SellTxEngineBase(
     private val walletManager: CustodialWalletManager,
@@ -101,14 +106,22 @@ abstract class SellTxEngineBase(
     ): PendingTx =
         pendingTx.copy(
             confirmations = listOfNotNull(
-                TxConfirmationValue.ExchangePriceConfirmation(pricedQuote.price, sourceAsset),
+                TxConfirmationValue.QuoteCountDown(
+                    pricedQuote
+                ),
+                TxConfirmationValue.ExchangePriceConfirmation(
+                    money = pricedQuote.price,
+                    asset = sourceAsset,
+                    isNewQuote = false
+                ),
                 TxConfirmationValue.To(
                     txTarget,
                     AssetAction.Sell
                 ),
                 TxConfirmationValue.Sale(
                     amount = pendingTx.amount,
-                    exchange = latestQuoteExchangeRate.convert(pendingTx.amount)
+                    exchange = latestQuoteExchangeRate.convert(pendingTx.amount),
+                    isNewQuote = false
                 ),
                 buildNewFee(pendingTx),
                 // In case of  PK ERC20s token, Total is displayed without the fee. As the fee is in ETH
@@ -119,13 +132,23 @@ abstract class SellTxEngineBase(
                     ),
                     exchange = latestQuoteExchangeRate.convert(
                         pendingTx.amount.plus(feeInSourceCurrency(pendingTx))
-                    )
-                )
+                    ),
+                    isNewQuote = false
+                ),
             )
         )
 
+    override fun targetExchangeRate(): Observable<ExchangeRate> =
+        quotesEngine.getPricedQuote().map {
+            ExchangeRate(
+                from = sourceAsset,
+                to = target.currency,
+                rate = it.price.toBigDecimal()
+            )
+        }
+
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        quotesEngine.pricedQuote
+        quotesEngine.getPricedQuote()
             .firstOrError()
             .map { pricedQuote ->
                 val latestQuoteExchangeRate = ExchangeRate(
@@ -139,35 +162,58 @@ abstract class SellTxEngineBase(
     private fun addOrRefreshConfirmations(
         pendingTx: PendingTx,
         pricedQuote: PricedQuote,
-        latestQuoteExchangeRate: ExchangeRate
-    ): PendingTx =
-        pendingTx.apply {
-            addOrReplaceOption(
-                TxConfirmationValue.ExchangePriceConfirmation(pricedQuote.price, sourceAsset)
+        latestQuoteExchangeRate: ExchangeRate,
+        isNewQuote: Boolean,
+    ): PendingTx {
+        return pendingTx.addOrReplaceOption(
+            TxConfirmationValue.QuoteCountDown(
+                pricedQuote
             )
-            addOrReplaceOption(
-                TxConfirmationValue.Total(
-                    totalWithFee = (pendingTx.amount as CryptoValue).plus(
-                        feeInSourceCurrency(pendingTx)
-                    ),
-                    exchange = latestQuoteExchangeRate.convert(
-                        pendingTx.amount.plus(feeInSourceCurrency(pendingTx))
-                    )
+        ).addOrReplaceOption(
+            TxConfirmationValue.ExchangePriceConfirmation(
+                money = pricedQuote.price,
+                asset = sourceAsset,
+                isNewQuote = isNewQuote,
+            )
+        ).addOrReplaceOption(
+            TxConfirmationValue.Sale(
+                amount = pendingTx.amount,
+                exchange = latestQuoteExchangeRate.convert(pendingTx.amount),
+                isNewQuote = isNewQuote,
+            )
+        ).addOrReplaceOption(
+            TxConfirmationValue.Total(
+                totalWithFee = (pendingTx.amount as CryptoValue).plus(
+                    feeInSourceCurrency(pendingTx)
+                ),
+                exchange = latestQuoteExchangeRate.convert(
+                    pendingTx.amount.plus(feeInSourceCurrency(pendingTx))
+                ),
+                isNewQuote = isNewQuote
+            )
+        )
+    }
+
+    override fun doRefreshConfirmations(pendingTx: PendingTx): Single<PendingTx> {
+        val quote = quotesEngine.getLatestQuote()
+        val latestQuoteExchangeRate = ExchangeRate(
+            from = sourceAsset,
+            to = target.currency,
+            rate = quote.price.toBigDecimal()
+        )
+        val isNewQuote = pendingTx.quoteId != quote.transferQuote.id
+        val ptx = if (isNewQuote) {
+            pendingTx.copy(
+                engineState = pendingTx.engineState.copyAndPut(
+                    LATEST_QUOTE_ID, quote.transferQuote.id
                 )
             )
+        } else {
+            pendingTx.copy()
         }
 
-    override fun doRefreshConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        quotesEngine.pricedQuote
-            .firstOrError()
-            .map { pricedQuote ->
-                val latestQuoteExchangeRate = ExchangeRate(
-                    from = sourceAsset,
-                    to = target.currency,
-                    rate = pricedQuote.price.toBigDecimal()
-                )
-                addOrRefreshConfirmations(pendingTx, pricedQuote, latestQuoteExchangeRate)
-            }
+        return Single.just(addOrRefreshConfirmations(ptx, quote, latestQuoteExchangeRate, isNewQuote))
+    }
 
     protected fun createSellOrder(pendingTx: PendingTx): Single<CustodialOrder> =
         sourceAccount.receiveAddress
@@ -190,7 +236,7 @@ abstract class SellTxEngineBase(
         validateAmount(pendingTx).updateTxValidity(pendingTx)
 
     override fun userExchangeRate(): Observable<ExchangeRate> =
-        quotesEngine.pricedQuote.map {
+        quotesEngine.getPricedQuote().map {
             ExchangeRate(
                 from = sourceAsset,
                 to = target.currency,

@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.customviews.account
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.StringRes
-import com.blockchain.analytics.events.activityShown
+import com.blockchain.analytics.events.transactionsShown
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
@@ -12,14 +12,19 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
+import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetAccountSelectorBinding
+import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 
 class AccountSelectSheet(
-    override val host: HostedBottomSheet.Host
+    override val host: HostedBottomSheet.Host,
 ) : SlidingModalBottomDialog<DialogSheetAccountSelectorBinding>() {
+
+    private val activityRepo: AssetActivityRepository by scopedInject()
 
     interface SelectionHost : HostedBottomSheet.Host {
         fun onAccountSelected(account: BlockchainAccount)
@@ -33,19 +38,20 @@ class AccountSelectSheet(
         DialogSheetAccountSelectorBinding.inflate(inflater, container, false)
 
     private val coincore: Coincore by scopedInject()
+    private val walletModeService: WalletModeService by inject()
     private val disposables = CompositeDisposable()
 
-    private var accountList: Single<List<BlockchainAccount>> =
-        coincore.allWallets()
-            .map { listOf(it) + it.accounts }
-            .map { it.filter { a -> a.hasTransactions } }
+    private var accountList: Single<List<AccountListViewItem>> =
+        coincore.activeWalletsInMode(walletModeService.enabledWalletMode())
+            .map { listOf(it) + activityRepo.accountsWithActivity() }
+            .map { it.map(AccountListViewItem.Companion::create) }
 
     private var sheetTitle: Int = R.string.select_account_sheet_title
     private var sheetSubtitle: Int = R.string.empty
     private var statusDecorator: StatusDecorator = { DefaultCellDecorator() }
 
     private fun doOnAccountSelected(account: BlockchainAccount) {
-        analytics.logEvent(activityShown(account.label))
+        analytics.logEvent(transactionsShown(account.label))
         (host as SelectionHost).onAccountSelected(account)
         dismiss()
     }
@@ -82,7 +88,10 @@ class AccountSelectSheet(
             binding.accountListBack.gone()
         }
 
-        binding.accountList.initialise(accountList, statusDecorator)
+        binding.accountList.initialise(
+            source = accountList,
+            status = statusDecorator
+        )
     }
 
     private fun showBackArrow() {
@@ -103,10 +112,12 @@ class AccountSelectSheet(
         fun newInstance(
             host: SelectionHost,
             accountList: Single<List<BlockchainAccount>>,
-            @StringRes sheetTitle: Int
+            @StringRes sheetTitle: Int,
         ): AccountSelectSheet =
             AccountSelectSheet(host).apply {
-                this.accountList = accountList
+                this.accountList = accountList.map { accounts ->
+                    accounts.map(AccountListViewItem.Companion::create)
+                }
                 this.sheetTitle = sheetTitle
             }
 
@@ -115,10 +126,10 @@ class AccountSelectSheet(
             accountList: Single<List<BlockchainAccount>>,
             @StringRes sheetTitle: Int,
             @StringRes sheetSubtitle: Int,
-            statusDecorator: StatusDecorator
+            statusDecorator: StatusDecorator,
         ): AccountSelectSheet =
             AccountSelectSheet(host).apply {
-                this.accountList = accountList
+                this.accountList = accountList.map { list -> list.map(AccountListViewItem.Companion::create) }
                 this.sheetTitle = sheetTitle
                 this.sheetSubtitle = sheetSubtitle
                 this.statusDecorator = statusDecorator

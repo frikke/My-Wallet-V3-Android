@@ -41,12 +41,11 @@ class NotificationsInteractor internal constructor(
                 } else {
                     settingsDataManager.enableNotification(Settings.NOTIFICATION_TYPE_EMAIL, it.notificationsType)
                 }
-
                 notificationsUpdate.flatMapCompletable {
                     if (areEmailNotificationsEnabled) {
-                        payloadDataManager.syncPayloadWithServer()
-                    } else {
                         payloadDataManager.syncPayloadAndPublicKeys()
+                    } else {
+                        Completable.complete()
                     }
                 }
             }

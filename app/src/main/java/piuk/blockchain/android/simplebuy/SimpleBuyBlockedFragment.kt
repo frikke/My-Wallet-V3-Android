@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.Analytics
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
@@ -47,7 +48,9 @@ class SimpleBuyBlockedFragment : Fragment() {
             notEligibleIcon.setImageResource(data.icon)
         }
 
-        logErrorAnalytics(data.title, data.error)
+        (activity as BlockchainActivity).updateToolbar(getString(R.string.empty), emptyList()) { activity?.finish() }
+
+        logErrorAnalytics(data.title, data.error, data.description)
     }
 
     override fun onDestroyView() {
@@ -55,14 +58,16 @@ class SimpleBuyBlockedFragment : Fragment() {
         _binding = null
     }
 
-    private fun logErrorAnalytics(title: String, error: String) {
+    private fun logErrorAnalytics(title: String, error: String, description: String) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
                 nabuApiException = null,
+                errorDescription = description,
                 error = error,
                 source = ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = title,
                 action = ClientErrorAnalytics.ACTION_BUY,
+                categories = emptyList()
             )
         )
     }
@@ -70,9 +75,12 @@ class SimpleBuyBlockedFragment : Fragment() {
     companion object {
         private const val BLOCKED_DATA_KEY = "BLOCKED_DATA_KEY"
 
-        fun newInstance(access: FeatureAccess.Blocked, resources: Resources): SimpleBuyBlockedFragment {
+        fun newInstance(
+            access: FeatureAccess.Blocked,
+            resources: Resources
+        ): SimpleBuyBlockedFragment {
             val data = when (val reason = access.reason) {
-                BlockedReason.NotEligible -> {
+                is BlockedReason.NotEligible -> {
                     BlockedBuyData(
                         title = resources.getString(R.string.sell_is_coming_soon),
                         description = resources.getString(R.string.sell_is_coming_soon_description),
@@ -88,8 +96,8 @@ class SimpleBuyBlockedFragment : Fragment() {
                         error = PENDING_ORDERS_LIMIT_REACHED
                     )
                 }
-                is BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Feature.SimpleBuy")
-                is BlockedReason.Sanctions -> throw IllegalStateException("Not used in Feature.SimpleBuy")
+                is BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Buy")
+                is BlockedReason.Sanctions -> throw IllegalStateException("Not used in Buy")
             }.exhaustive
 
             return SimpleBuyBlockedFragment().apply {
@@ -106,5 +114,5 @@ private data class BlockedBuyData(
     val title: String,
     val description: String,
     @DrawableRes val icon: Int,
-    val error: String,
+    val error: String
 ) : Parcelable

@@ -6,41 +6,100 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.viewextensions.visibleIf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemCheckoutComplexInfoBinding
 import piuk.blockchain.android.databinding.ItemCheckoutSimpleExpandableInfoBinding
 import piuk.blockchain.android.databinding.ItemCheckoutSimpleInfoBinding
+import piuk.blockchain.android.databinding.ItemCheckoutToggleInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
+import piuk.blockchain.android.util.animateColor
 import piuk.blockchain.android.util.getResolvedColor
 
-class CheckoutAdapterDelegate : DelegationAdapter<SimpleBuyCheckoutItem>(AdapterDelegatesManager(), emptyList()) {
+class CheckoutAdapterDelegate(onToggleChanged: (Boolean) -> Unit) :
+    DelegationAdapter<SimpleBuyCheckoutItem>(AdapterDelegatesManager(), emptyList()) {
+
+    override var items: List<SimpleBuyCheckoutItem> = emptyList()
+        set(value) {
+            val diffResult =
+                DiffUtil.calculateDiff(SimpleBuyCheckoutItemDiffUtil(this.items, value))
+            field = value
+            diffResult.dispatchUpdatesTo(this)
+        }
+
     init {
         with(delegatesManager) {
             addAdapterDelegate(SimpleCheckoutItemDelegate())
             addAdapterDelegate(ComplexCheckoutItemDelegate())
             addAdapterDelegate(ExpandableCheckoutItemDelegate())
+            addAdapterDelegate(ToggleCheckoutItemDelegate(onToggleChanged))
         }
     }
 }
 
+class SimpleBuyCheckoutItemDiffUtil(
+    private val oldItems: List<SimpleBuyCheckoutItem>,
+    private val newItems: List<SimpleBuyCheckoutItem>,
+) :
+    DiffUtil.Callback() {
+    override fun getOldListSize(): Int = oldItems.size
+
+    override fun getNewListSize(): Int = newItems.size
+
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean = true
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldItems[oldItemPosition] == newItems[newItemPosition]
+    }
+}
+
 sealed class SimpleBuyCheckoutItem {
-    data class SimpleCheckoutItem(val label: String, val title: String, val isImportant: Boolean = false) :
+    data class SimpleCheckoutItem(
+        val label: String,
+        val title: String,
+        val isImportant: Boolean = false,
+        val hasChanged: Boolean,
+    ) :
         SimpleBuyCheckoutItem()
 
     data class ComplexCheckoutItem(val label: String, val title: String, val subtitle: String) :
         SimpleBuyCheckoutItem()
 
+    data class ToggleCheckoutItem(val title: String, val subtitle: String) : SimpleBuyCheckoutItem()
+
     data class ExpandableCheckoutItem(
         val label: String,
         val title: String,
         val expandableContent: CharSequence,
-        val promoLayout: View? = null
-    ) :
-        SimpleBuyCheckoutItem()
+        val promoLayout: View? = null,
+        val hasChanged: Boolean,
+    ) : SimpleBuyCheckoutItem() {
+        override fun equals(other: Any?) =
+            (other as? ExpandableCheckoutItem)?.let { EssentialData(this) == EssentialData(it) } ?: false
+
+        override fun hashCode() = EssentialData(this).hashCode()
+
+        override fun toString() = EssentialData(this).toString().replaceFirst(
+            "EssentialData", "ExpandableCheckoutItem"
+        )
+
+        private data class EssentialData constructor(
+            private val label: String,
+            private val title: String,
+            private val hasChanged: Boolean,
+        ) {
+            constructor(item: ExpandableCheckoutItem) : this(
+                label = item.label,
+                title = item.title,
+                hasChanged = item.hasChanged
+            )
+        }
+    }
 }
 
 class SimpleCheckoutItemDelegate : AdapterDelegate<SimpleBuyCheckoutItem> {
@@ -56,14 +115,14 @@ class SimpleCheckoutItemDelegate : AdapterDelegate<SimpleBuyCheckoutItem> {
     override fun onBindViewHolder(
         items: List<SimpleBuyCheckoutItem>,
         position: Int,
-        holder: RecyclerView.ViewHolder
+        holder: RecyclerView.ViewHolder,
     ) = (holder as SimpleCheckoutItemViewHolder).bind(
         items[position] as SimpleBuyCheckoutItem.SimpleCheckoutItem
     )
 }
 
 private class SimpleCheckoutItemViewHolder(
-    val binding: ItemCheckoutSimpleInfoBinding
+    val binding: ItemCheckoutSimpleInfoBinding,
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(item: SimpleBuyCheckoutItem.SimpleCheckoutItem) {
@@ -77,6 +136,18 @@ private class SimpleCheckoutItemViewHolder(
             } else {
                 simpleItemLabel.setTextAppearance(R.style.Text_Standard_14)
                 simpleItemTitle.setTextAppearance(R.style.Text_Standard_14)
+            }
+
+            if (item.hasChanged) {
+                simpleItemTitle.animateColor {
+                    simpleItemTitle.setTextColor(
+                        ContextCompat.getColor(simpleItemTitle.context, R.color.grey_800)
+                    )
+                }
+            } else {
+                simpleItemTitle.setTextColor(
+                    ContextCompat.getColor(simpleItemTitle.context, R.color.grey_800)
+                )
             }
         }
     }
@@ -95,14 +166,14 @@ class ComplexCheckoutItemDelegate : AdapterDelegate<SimpleBuyCheckoutItem> {
     override fun onBindViewHolder(
         items: List<SimpleBuyCheckoutItem>,
         position: Int,
-        holder: RecyclerView.ViewHolder
+        holder: RecyclerView.ViewHolder,
     ) = (holder as ComplexCheckoutItemItemViewHolder).bind(
         items[position] as SimpleBuyCheckoutItem.ComplexCheckoutItem
     )
 }
 
 private class ComplexCheckoutItemItemViewHolder(
-    val binding: ItemCheckoutComplexInfoBinding
+    val binding: ItemCheckoutComplexInfoBinding,
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(item: SimpleBuyCheckoutItem.ComplexCheckoutItem) {
@@ -110,6 +181,48 @@ private class ComplexCheckoutItemItemViewHolder(
             complexItemLabel.text = item.label
             complexItemTitle.text = item.title
             complexItemSubtitle.text = item.subtitle
+        }
+    }
+}
+
+class ToggleCheckoutItemDelegate(private val onToggleChanged: (Boolean) -> Unit) :
+    AdapterDelegate<SimpleBuyCheckoutItem> {
+
+    override fun isForViewType(items: List<SimpleBuyCheckoutItem>, position: Int): Boolean =
+        items[position] is SimpleBuyCheckoutItem.ToggleCheckoutItem
+
+    override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
+        ToggleCheckoutItemItemViewHolder(
+            ItemCheckoutToggleInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        )
+
+    override fun onBindViewHolder(
+        items: List<SimpleBuyCheckoutItem>,
+        position: Int,
+        holder: RecyclerView.ViewHolder,
+    ) = (holder as ToggleCheckoutItemItemViewHolder).bind(
+        items[position] as SimpleBuyCheckoutItem.ToggleCheckoutItem,
+        onToggleChanged
+    )
+}
+
+private class ToggleCheckoutItemItemViewHolder(
+    val binding: ItemCheckoutToggleInfoBinding,
+) : RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(
+        item: SimpleBuyCheckoutItem.ToggleCheckoutItem,
+        onToggleChanged: (Boolean) -> Unit
+    ) {
+        with(binding) {
+            toggleRow.apply {
+                primaryText = item.title
+                secondaryText = item.subtitle
+                onCheckedChange = { newCheckedState ->
+                    isChecked = newCheckedState
+                    onToggleChanged(newCheckedState)
+                }
+            }
         }
     }
 }
@@ -126,14 +239,14 @@ class ExpandableCheckoutItemDelegate : AdapterDelegate<SimpleBuyCheckoutItem> {
     override fun onBindViewHolder(
         items: List<SimpleBuyCheckoutItem>,
         position: Int,
-        holder: RecyclerView.ViewHolder
+        holder: RecyclerView.ViewHolder,
     ) = (holder as ExpandableCheckoutItemViewHolder).bind(
         items[position] as SimpleBuyCheckoutItem.ExpandableCheckoutItem
     )
 }
 
 private class ExpandableCheckoutItemViewHolder(
-    val binding: ItemCheckoutSimpleExpandableInfoBinding
+    val binding: ItemCheckoutSimpleExpandableInfoBinding,
 ) : RecyclerView.ViewHolder(binding.root) {
     private var isExpanded = false
 
@@ -164,11 +277,22 @@ private class ExpandableCheckoutItemViewHolder(
             item.promoLayout?.let { view ->
                 addPromoView(view)
             }
+            if (item.hasChanged) {
+                expandableItemTitle.animateColor {
+                    expandableItemTitle.setTextColor(
+                        ContextCompat.getColor(expandableItemTitle.context, R.color.grey_800)
+                    )
+                }
+            } else {
+                expandableItemTitle.setTextColor(
+                    ContextCompat.getColor(expandableItemTitle.context, R.color.grey_800)
+                )
+            }
         }
     }
 
     private fun addPromoView(
-        view: View
+        view: View,
     ) {
         view.id = View.generateViewId()
         binding.root.addView(

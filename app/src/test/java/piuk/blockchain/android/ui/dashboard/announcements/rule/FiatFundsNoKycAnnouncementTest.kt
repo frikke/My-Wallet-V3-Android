@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.blockchain.nabu.Tier
-import com.blockchain.nabu.UserIdentity
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
@@ -13,7 +13,7 @@ class FiatFundsNoKycAnnouncementTest {
 
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
-    private val userIdentity: UserIdentity = mock()
+    private val kycService: KycService = mock()
 
     private lateinit var subject: FiatFundsNoKycAnnouncement
 
@@ -25,7 +25,7 @@ class FiatFundsNoKycAnnouncementTest {
         subject =
             FiatFundsNoKycAnnouncement(
                 dismissRecorder = dismissRecorder,
-                userIdentity = userIdentity
+                kycService = kycService
             )
     }
 
@@ -43,8 +43,8 @@ class FiatFundsNoKycAnnouncementTest {
     @Test
     fun `should show, when not already shown and user is not kyc gold`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(userIdentity.getHighestApprovedKycTier())
-            .thenReturn(Single.just(Tier.BRONZE))
+        whenever(kycService.getHighestApprovedTierLevelLegacy())
+            .thenReturn(Single.just(KycTier.BRONZE))
 
         subject.shouldShow()
             .test()
@@ -56,8 +56,8 @@ class FiatFundsNoKycAnnouncementTest {
     @Test
     fun `should not show, when not already shown and user is kyc gold`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(userIdentity.getHighestApprovedKycTier())
-            .thenReturn(Single.just(Tier.GOLD))
+        whenever(kycService.getHighestApprovedTierLevelLegacy())
+            .thenReturn(Single.just(KycTier.GOLD))
 
         subject.shouldShow()
             .test()

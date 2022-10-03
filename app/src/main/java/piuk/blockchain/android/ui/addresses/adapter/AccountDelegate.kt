@@ -13,6 +13,7 @@ import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemAccountsRowBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
+import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 
 class AccountDelegate(
@@ -59,8 +60,8 @@ class AccountDelegate(
                     // Show the normal item
                     accountDetailsArchived.gone()
                     accountDetails.visible()
-                    accountDetails.updateAccount(
-                        item.account,
+                    accountDetails.updateItem(
+                        AccountListViewItem.Crypto(item.account),
                         { listener.onAccountClicked(it) },
                         DefaultAccountCellDecorator(item.account)
                     )

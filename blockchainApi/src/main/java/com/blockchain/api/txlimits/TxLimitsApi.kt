@@ -11,7 +11,7 @@ interface TxLimitsApi {
 
     @GET("limits/crossborder/transaction")
     fun getCrossborderLimits(
-        @Header("authorization") authorization: String,
+        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("currency")
         outputCurrency: String,
         @Query("inputCurrency")
@@ -26,6 +26,6 @@ interface TxLimitsApi {
 
     @GET("limits/overview")
     fun getFeatureLimits(
-        @Header("authorization") authorization: String
+        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Single<GetFeatureLimitsResponse>
 }

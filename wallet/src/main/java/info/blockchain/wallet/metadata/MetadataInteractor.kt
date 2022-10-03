@@ -37,7 +37,6 @@ class MetadataInteractor(
 
         val encryptedPayloadBytes: ByteArray =
             Base64.decode(AESUtil.encryptWithKey(metadata.encryptionKey, payloadJson))
-
         return fetchMagic(metadata.address)
             .onErrorReturn { ByteArray(0) }
             .flatMapCompletable { m ->

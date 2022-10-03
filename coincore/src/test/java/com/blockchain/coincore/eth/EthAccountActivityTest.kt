@@ -4,12 +4,13 @@ import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.chains.EvmNetwork
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
@@ -28,14 +29,13 @@ import org.mockito.Mockito.spy
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class EthAccountActivityTest : CoincoreTestBase() {
 
-    private val payloadManager: PayloadDataManager = mock()
     private val ethDataManager: EthDataManager = mock()
+    private val l1BalanceStore: L1BalanceStore = mock()
     private val feeDataManager: FeeDataManager = mock()
-    private val walletPrefs: WalletStatus = mock()
+    private val walletPrefs: WalletStatusPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val ethAccount: EthereumAccount = mock {
         on { address }.thenReturn(ETH_ADDRESS)
@@ -45,15 +45,14 @@ class EthAccountActivityTest : CoincoreTestBase() {
     private val subject =
         spy(
             EthCryptoWalletAccount(
-                payloadManager = payloadManager,
                 jsonAccount = ethAccount,
                 ethDataManager = ethDataManager,
+                l1BalanceStore = l1BalanceStore,
                 fees = feeDataManager,
                 exchangeRates = exchangeRates,
                 walletPreferences = walletPrefs,
                 custodialWalletManager = custodialWalletManager,
                 assetCatalogue = mock(),
-                identity = mock(),
                 addressResolver = mock(),
                 l1Network = EvmNetwork("DUMMY", "Dummy", 1, "")
             )

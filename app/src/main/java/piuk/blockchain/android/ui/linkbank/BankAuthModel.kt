@@ -1,11 +1,13 @@
 package piuk.blockchain.android.ui.linkbank
 
+import com.blockchain.api.NabuApiException
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.commonarch.presentation.mvi.MviModel
-import com.blockchain.core.payments.model.BankPartner
-import com.blockchain.core.payments.model.LinkedBank
-import com.blockchain.core.payments.model.LinkedBankErrorState
-import com.blockchain.core.payments.model.LinkedBankState
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
+import com.blockchain.domain.paymentmethods.model.LinkedBankState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.RemoteLogger
@@ -19,10 +21,11 @@ import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
 
 class BankAuthModel(
     private val interactor: SimpleBuyInteractor,
+    private val bankService: BankService,
     initialState: BankAuthState,
     uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    remoteLogger: RemoteLogger
+    remoteLogger: RemoteLogger,
 ) : MviModel<BankAuthState, BankAuthIntent>(
     initialState,
     uiScheduler,
@@ -32,7 +35,8 @@ class BankAuthModel(
     override fun performAction(previousState: BankAuthState, intent: BankAuthIntent): Disposable? =
         when (intent) {
             is BankAuthIntent.CancelOrder,
-            is BankAuthIntent.CancelOrderAndResetAuthorisation -> (
+            is BankAuthIntent.CancelOrderAndResetAuthorisation,
+            -> (
                 previousState.id?.let {
                     interactor.cancelOrder(it)
                 } ?: Completable.complete()
@@ -46,6 +50,8 @@ class BankAuthModel(
                     }
                 )
             is BankAuthIntent.UpdateAccountProvider -> processBankLinkingUpdate(intent)
+            is BankAuthIntent.LinkPlaidAccount -> processPlaidBankLinking(intent)
+            is BankAuthIntent.RefreshPlaidAccount -> processPlaidBankRefresh(intent)
             is BankAuthIntent.GetLinkedBankState -> processBankLinkStateUpdate(intent)
             is BankAuthIntent.StartPollingForLinkStatus -> processLinkStatusPolling(
                 intent, previousState.linkBankTransfer?.partner
@@ -74,6 +80,30 @@ class BankAuthModel(
             }
         )
 
+    private fun processPlaidBankLinking(intent: BankAuthIntent.LinkPlaidAccount) =
+        bankService.linkPlaidBankAccount(intent.accountId, intent.linkBankAccountId, intent.linkBankToken).subscribeBy(
+            onComplete = {
+                process(BankAuthIntent.GetLinkedBankState(intent.accountId, false))
+            },
+            onError = {
+                process(BankAuthIntent.ProviderAccountIdUpdateError)
+            }
+        )
+
+    private fun processPlaidBankRefresh(intent: BankAuthIntent.RefreshPlaidAccount) =
+        intent.refreshBankAccountId?.let {
+            bankService.refreshPlaidBankAccount(intent.refreshBankAccountId).subscribeBy(
+                onSuccess = {
+                    process(BankAuthIntent.PlaidAccountRefreshInfoReceived(it))
+                },
+                onError = {
+                    process(BankAuthIntent.BankAuthErrorState(BankAuthError.LinkedBankFailure))
+                }
+            )
+        } ?: Completable.complete().subscribeBy {
+            process(BankAuthIntent.BankAuthErrorState(BankAuthError.LinkedBankFailure))
+        }
+
     private fun processBankLinkStateUpdate(intent: BankAuthIntent.GetLinkedBankState) =
         interactor.pollForBankLinkingCompleted(
             intent.linkingBankId
@@ -82,21 +112,34 @@ class BankAuthModel(
                 when (it.state) {
                     LinkedBankState.ACTIVE -> process(BankAuthIntent.LinkedBankStateSuccess(it))
                     LinkedBankState.BLOCKED,
-                    LinkedBankState.UNKNOWN -> handleBankLinkingError(it)
+                    LinkedBankState.UNKNOWN,
+                    -> handleBankLinkingError(it)
                     LinkedBankState.PENDING,
-                    LinkedBankState.CREATED -> process(
+                    LinkedBankState.CREATED,
+                    -> process(
                         BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingTimeout)
                     )
                 }
             },
             onError = {
-                process(BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingFailed))
+                (it as? NabuApiException)?.getServerSideErrorInfo()?.let { info ->
+                    process(
+                        BankAuthIntent.BankAuthErrorState(
+                            BankAuthError.ServerSideDrivenLinkedBankError(
+                                title = info.title,
+                                message = info.description,
+                                iconUrl = info.iconUrl,
+                                statusIconUrl = info.statusUrl
+                            )
+                        )
+                    )
+                } ?: process(BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingFailed))
             }
         )
 
     private fun processLinkStatusPolling(
         intent: BankAuthIntent.StartPollingForLinkStatus,
-        partner: BankPartner?
+        partner: BankPartner?,
     ) = Single.defer {
         interactor.pollForLinkedBankState(
             intent.bankId,
@@ -124,7 +167,7 @@ class BankAuthModel(
 
     private fun updateIntentForLinkedBankState(
         pollResult: PollResult<LinkedBank>,
-        partner: BankPartner?
+        partner: BankPartner?,
     ) {
         when (pollResult.value.state) {
             LinkedBankState.ACTIVE -> {
@@ -134,7 +177,8 @@ class BankAuthModel(
                 handleBankLinkingError(pollResult.value)
             }
             LinkedBankState.PENDING,
-            LinkedBankState.CREATED -> {
+            LinkedBankState.CREATED,
+            -> {
                 when (partner) {
                     BankPartner.YODLEE -> process(
                         BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingTimeout)
@@ -142,6 +186,7 @@ class BankAuthModel(
                     BankPartner.YAPILY -> process(
                         BankAuthIntent.UpdateLinkingUrl(pollResult.value.authorisationUrl)
                     )
+                    else -> {}
                 }
             }
             LinkedBankState.UNKNOWN -> process(

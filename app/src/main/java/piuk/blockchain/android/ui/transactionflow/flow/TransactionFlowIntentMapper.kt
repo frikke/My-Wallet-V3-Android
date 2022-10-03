@@ -20,11 +20,13 @@ class TransactionFlowIntentMapper(
             AssetAction.FiatDeposit -> {
                 handleFiatDeposit(passwordRequired)
             }
-            AssetAction.Sell,
-            AssetAction.Send -> {
-                handleSendAndSell(passwordRequired)
+            AssetAction.Sell -> {
+                handleSell(passwordRequired)
             }
-            AssetAction.Withdraw -> {
+            AssetAction.Send -> {
+                handleSend(passwordRequired)
+            }
+            AssetAction.FiatWithdraw -> {
                 handleFiatWithdraw(passwordRequired)
             }
             AssetAction.Swap -> {
@@ -122,8 +124,8 @@ class TransactionFlowIntentMapper(
         }
     }
 
-    private fun handleSendAndSell(passwordRequired: Boolean): TransactionIntent {
-        check(sourceAccount.isDefinedCryptoAccount()) { "Can't start send or sell without a source account" }
+    private fun handleSend(passwordRequired: Boolean): TransactionIntent {
+        check(sourceAccount.isDefinedCryptoAccount()) { "Can't start send without a source account" }
 
         return if (target.isDefinedTarget()) {
             TransactionIntent.InitialiseWithSourceAndTargetAccount(
@@ -140,6 +142,20 @@ class TransactionFlowIntentMapper(
             )
         }
     }
+
+    private fun handleSell(passwordRequired: Boolean): TransactionIntent =
+        when {
+            !sourceAccount.isDefinedCryptoAccount() -> TransactionIntent.InitialiseWithNoSourceOrTargetAccount(
+                action,
+                passwordRequired
+            )
+            !target.isDefinedTarget() -> TransactionIntent.InitialiseWithSourceAccount(
+                action,
+                sourceAccount,
+                passwordRequired
+            )
+            else -> throw IllegalStateException("State is not supported")
+        }
 
     private fun handleFiatDeposit(passwordRequired: Boolean): TransactionIntent {
         check(target.isDefinedTarget()) { "Can't deposit without a target" }

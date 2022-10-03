@@ -1,9 +1,7 @@
 package com.blockchain.core.payments.cache
 
-import com.blockchain.api.NabuApiException
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
-import com.blockchain.core.payments.model.PaymentMethodsError
 import com.blockchain.nabu.Authenticator
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
@@ -18,7 +16,6 @@ class PaymentMethodsEligibilityStore(
     private val authenticator: Authenticator
 ) : KeyedStore<
     PaymentMethodsEligibilityStore.Key,
-    PaymentMethodsError,
     List<PaymentMethodResponse>
     > by PersistedJsonSqlDelightStoreBuilder().buildKeyed(
     storeId = STORE_ID,
@@ -33,15 +30,12 @@ class PaymentMethodsEligibilityStore(
                         eligibleOnly = key.eligibleOnly
                     )
                 }
-        },
-        errorMapper = {
-            val error = (it as? NabuApiException)?.getErrorDescription().takeIf { !it.isNullOrBlank() } ?: it.message
-            PaymentMethodsError.RequestFailed(error)
         }
     ),
     keySerializer = Key.serializer(),
     dataSerializer = ListSerializer(PaymentMethodResponse.serializer()),
-    mediator = FreshnessMediator(Freshness.ofSeconds(20L))
+    // todo (othman) check with André about staleness strategy instead of short duration
+    mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
 ) {
 
     @Serializable

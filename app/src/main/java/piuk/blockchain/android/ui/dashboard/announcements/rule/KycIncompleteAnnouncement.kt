@@ -1,7 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.nabu.UserIdentity
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -12,7 +13,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
 
 internal class KycIncompleteAnnouncement(
-    private val userIdentity: UserIdentity,
+    private val kycService: KycService,
     dismissRecorder: DismissRecorder
 ) : AnnouncementRule(dismissRecorder) {
 
@@ -23,8 +24,10 @@ internal class KycIncompleteAnnouncement(
         if (dismissEntry.isDismissed) {
             return Single.just(false)
         }
-        return userIdentity.isKycInProgress()
+        return kycService.isInProgress()
     }
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(

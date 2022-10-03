@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.analytics.Analytics
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -27,6 +28,9 @@ class InterestAvailableAnnouncement(
 
         return Single.just(true)
     }
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(

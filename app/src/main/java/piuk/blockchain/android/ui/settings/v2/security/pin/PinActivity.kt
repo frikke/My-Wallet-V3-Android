@@ -11,10 +11,12 @@ import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import androidx.activity.addCallback
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.compose.ui.unit.Dp
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.biometrics.BiometricAuthError
 import com.blockchain.biometrics.BiometricsCallback
@@ -32,8 +34,6 @@ import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
@@ -58,8 +58,10 @@ import piuk.blockchain.android.ui.auth.BiometricsEnrollmentBottomSheet
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
+import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
+import piuk.blockchain.android.ui.launcher.loader.LoginMethod
 import piuk.blockchain.android.urllinks.APP_STORE_URI
 import piuk.blockchain.android.urllinks.APP_STORE_URL
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
@@ -89,8 +91,6 @@ class PinActivity :
     private val biometricsController: BiometricsController by scopedInject()
     private var isBiometricsVisible = false
 
-    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
-
     private val momentLogger: MomentLogger by inject()
 
     override val toolbarBinding: ToolbarGeneralBinding
@@ -104,8 +104,8 @@ class PinActivity :
         intent?.getSerializableExtra(ORIGIN_SCREEN) as OriginScreenToPin
     }
 
-    private val isAfterCreateWallet: Boolean by lazy {
-        originScreen == OriginScreenToPin.CREATE_WALLET
+    private val referralCode: String? by lazy {
+        intent?.getStringExtra(KEY_REFERRAL_CODE)
     }
 
     private val isChangingPin: Boolean by lazy {
@@ -123,6 +123,8 @@ class PinActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        setupBackPress()
 
         momentLogger.endEvent(
             event = MomentEvent.SPLASH_TO_FIRST_SCREEN,
@@ -147,8 +149,7 @@ class PinActivity :
                 analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
                 showCustomerSupportSheet()
             }
-            customerSupportSheetFF.enabled.onErrorReturn { false }
-                .subscribe { enabled -> customerSupport.visibleIf { enabled } }
+            customerSupport.visible()
         }
     }
 
@@ -228,8 +229,7 @@ class PinActivity :
                     newState.passwordStatus?.passwordTriesRemaining ?: 0,
                     newState.pinStatus.isFromPinCreation
                 )
-            }
-            if (it.upgradeAppSucceeded) {
+            } else if (it.upgradeAppSucceeded) {
                 onUpdateFinished(newState.pinStatus.isFromPinCreation)
             } else {
                 onWalletUpgradeFailed()
@@ -283,8 +283,13 @@ class PinActivity :
                 add(pinBox3)
             }
             pinIcon.apply {
-                image = ImageResource.Local(R.drawable.ic_pin)
-                imageSize = 40
+                image = ImageResource.Local(id = R.drawable.ic_pin, size = Dp(40f))
+
+                if (environmentConfig.isRunningInDebugMode()) {
+                    onClick = {
+                        startActivity(FeatureFlagsHandlingActivity.newIntent(this@PinActivity))
+                    }
+                }
             }
         }
     }
@@ -294,7 +299,7 @@ class PinActivity :
             OriginScreenToPin.CHANGE_PIN_SECURITY -> {
                 updateToolbar(
                     toolbarTitle = getString(R.string.pin_toolbar_change),
-                    backAction = { handleBackButton() }
+                    backAction = { onBackPressedDispatcher.onBackPressed() }
                 )
             }
             OriginScreenToPin.CREATE_WALLET,
@@ -665,7 +670,8 @@ class PinActivity :
                 context = this,
                 startForResult = false,
                 originScreen = OriginScreenToPin.PIN_SCREEN,
-                addFlagsToClear = true
+                addFlagsToClear = true,
+                referralCode = referralCode
             )
         )
     }
@@ -790,15 +796,20 @@ class PinActivity :
         finish()
     }
 
-    private fun handleBackButton() =
-        when {
-            isForValidatingPinForResult -> finishWithResultCanceled()
-            originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> super.onBackPressed()
-            else -> appUtil.logout()
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(owner = this) {
+            when {
+                isForValidatingPinForResult -> {
+                    finishWithResultCanceled()
+                }
+                originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> {
+                    finish()
+                }
+                else -> {
+                    appUtil.logout()
+                }
+            }
         }
-
-    override fun onBackPressed() {
-        handleBackButton()
     }
 
     private fun showDebugEnv() {
@@ -818,7 +829,16 @@ class PinActivity :
     }
 
     private fun finishSignupProcess() {
-        util.loadAppWithVerifiedPin(LoaderActivity::class.java, isAfterCreateWallet)
+        util.loadAppWithVerifiedPin(
+            loaderActivity = LoaderActivity::class.java,
+            loginMethod = when (originScreen) {
+                OriginScreenToPin.CREATE_WALLET -> LoginMethod.WALLET_CREATION
+                OriginScreenToPin.LAUNCHER_SCREEN -> LoginMethod.PIN
+                OriginScreenToPin.LOGIN_AUTH_SCREEN -> LoginMethod.CREDENTIALS
+                else -> LoginMethod.UNDEFINED
+            },
+            referralCode = referralCode
+        )
     }
 
     private fun updateFlexibleNatively(
@@ -940,8 +960,7 @@ class PinActivity :
 
     fun showFingerprintDialog() {
         binding.fingerprintLogo.apply {
-            image = ImageResource.Local(R.drawable.vector_fingerprint)
-            imageSize = 24
+            image = ImageResource.Local(id = R.drawable.vector_fingerprint, size = Dp(24f))
             visible()
             onClick = { checkFingerprintStatus() }
         }
@@ -1048,6 +1067,7 @@ class PinActivity :
         const val ORIGIN_SCREEN = "origin_screen"
         const val KEY_VALIDATING_PIN_FOR_RESULT = "validating_pin"
         const val KEY_VALIDATED_PIN = "validated_pin"
+        const val KEY_REFERRAL_CODE = "referral_code"
         private const val PIN_LENGTH = 4
         private const val REQUEST_CODE_UPDATE = 188
         const val KEY_ORIGIN_SETTINGS = "pin_from_settings"
@@ -1059,9 +1079,11 @@ class PinActivity :
             startForResult: Boolean,
             originScreen: OriginScreenToPin,
             addFlagsToClear: Boolean,
+            referralCode: String? = null
         ) =
             Intent(context, PinActivity::class.java).apply {
                 putExtra(KEY_VALIDATING_PIN_FOR_RESULT, startForResult)
+                putExtra(KEY_REFERRAL_CODE, referralCode)
                 putExtra(ORIGIN_SCREEN, originScreen)
                 if (addFlagsToClear) {
                     addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)

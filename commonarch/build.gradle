@@ -1,5 +1,5 @@
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
 
 android {
     buildTypes {
@@ -7,15 +7,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-    }
-
-    buildFeatures {
-        viewBinding = true
-        compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion Versions.compose
     }
 }
 
@@ -26,9 +17,7 @@ dependencies {
     implementation project(':analytics:domain')
 
     implementation Libraries.koin
-    implementation Libraries.koinAndroid
     implementation Libraries.rxJava
-    implementation Libraries.design
     implementation Libraries.rxKotlin
     implementation Libraries.rxRelay
     implementation Libraries.rxAndroid
@@ -36,11 +25,6 @@ dependencies {
 
     implementation Libraries.lifecycleViewModel
     implementation Libraries.lifecycleViewModelExtensions
-
-    implementation Libraries.composeUi
-    implementation Libraries.composeNavigation
-    implementation Libraries.composeMaterial
-    implementation Libraries.accompanistNavigationMaterial
 
     // Logging
     implementation Libraries.timber

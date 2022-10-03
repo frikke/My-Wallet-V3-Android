@@ -1,6 +1,6 @@
 package piuk.blockchain.android.cards
 
-import com.blockchain.nabu.datamanagers.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 
 interface AddCardNavigator {
     fun navigateToCardDetails()

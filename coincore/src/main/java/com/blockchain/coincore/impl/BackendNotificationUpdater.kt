@@ -2,29 +2,32 @@ package com.blockchain.coincore.impl
 
 import android.annotation.SuppressLint
 import com.blockchain.preferences.AuthPrefs
-import com.google.gson.Gson
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.api.WalletApi
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.lang.IllegalStateException
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import timber.log.Timber
 
 /*internal*/ data class NotificationAddresses(
     val assetTicker: String,
-    val addressList: List<String>
+    val addressList: List<String>,
 )
 
+@Serializable
 internal data class NotificationReceiveAddresses(
     private val coin: String,
-    private val addresses: List<String>
+    private val addresses: List<String>,
 )
 
 // Update the BE with the current address sets for assets, used to
 // send notifications back to the app when Tx's complete
 /*internal*/ class BackendNotificationUpdater(
     private val walletApi: WalletApi,
-    private val prefs: AuthPrefs
+    private val prefs: AuthPrefs,
+    private val json: Json
 ) {
 
     private val addressMap = mutableMapOf<String, NotificationAddresses>()
@@ -55,13 +58,15 @@ internal data class NotificationReceiveAddresses(
             coinReceiveAddresses()
         ).ignoreElements()
 
-    private fun coinReceiveAddresses(): String =
-        Gson().toJson(
-            REQUIRED_ASSETS.map { key ->
-                val addresses = addressMap[key]?.addressList ?: throw IllegalStateException("Required Asset missing")
-                NotificationReceiveAddresses(key, addresses)
-            }
-        )
+    private fun coinReceiveAddresses(): String {
+        val addresses = REQUIRED_ASSETS.map { key ->
+            val addresses =
+                addressMap[key]?.addressList ?: throw IllegalStateException("Required Asset missing")
+            NotificationReceiveAddresses(key, addresses)
+        }
+
+        return json.encodeToString(addresses)
+    }
 
     companion object {
         private val REQUIRED_ASSETS = setOf(

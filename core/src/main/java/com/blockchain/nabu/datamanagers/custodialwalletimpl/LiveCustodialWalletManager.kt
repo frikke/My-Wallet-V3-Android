@@ -1,14 +1,23 @@
 package com.blockchain.nabu.datamanagers.custodialwalletimpl
 
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
+import com.blockchain.core.buy.BuyPairsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
-import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
-import com.blockchain.core.payments.model.FiatWithdrawalFeeAndLimit
-import com.blockchain.core.payments.model.PaymentMethodsError
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
+import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BankAccount
@@ -24,12 +33,9 @@ import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.FiatTransaction
-import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentAttributes
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
@@ -38,17 +44,12 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.WithdrawFeeRequest
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
-import com.blockchain.nabu.models.responses.interest.InterestRateResponse
-import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.nabu.State
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
 import com.blockchain.nabu.models.responses.simplebuy.BuyOrderListResponse
@@ -72,8 +73,8 @@ import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.store.KeyedStoreRequest
-import com.blockchain.store.asSingle
+import com.blockchain.store.getDataOrThrow
+import com.blockchain.store.mapData
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
@@ -89,20 +90,24 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.flatMapIterable
 import java.math.BigInteger
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 
 class LiveCustodialWalletManager(
     private val assetCatalogue: AssetCatalogue,
     private val nabuService: NabuService,
     private val authenticator: Authenticator,
     private val pairsCache: BuyPairsCache,
+    private val buyPairsStore: BuyPairsStore,
     private val transactionsCache: TransactionsCache,
     private val buyOrdersCache: BuyOrdersCache,
+    private val swapOrdersCache: SwapTransactionsCache,
     private val paymentMethodsEligibilityStore: PaymentMethodsEligibilityStore,
     private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
-    private val interestRepository: InterestRepository,
     private val currencyPrefs: CurrencyPrefs,
     private val custodialRepository: CustodialRepository,
-    private val transactionErrorMapper: TransactionErrorMapper
+    private val transactionErrorMapper: TransactionErrorMapper,
+    private val fiatCurrenciesService: FiatCurrenciesService,
 ) : CustodialWalletManager {
 
     override val selectedFiatcurrency: FiatCurrency
@@ -110,7 +115,7 @@ class LiveCustodialWalletManager(
 
     override fun createOrder(
         custodialWalletOrder: CustodialWalletOrder,
-        stateAction: String?
+        stateAction: String?,
     ): Single<BuySellOrder> =
         authenticator.authenticate {
             nabuService.createOrder(
@@ -118,10 +123,12 @@ class LiveCustodialWalletManager(
                 custodialWalletOrder,
                 stateAction
             )
-        }.map { response -> response.toBuySellOrder(assetCatalogue) }
+        }.map { response ->
+            response.toDomainOrThrow()
+        }
 
     override fun createRecurringBuyOrder(
-        recurringBuyRequestBody: RecurringBuyRequestBody
+        recurringBuyRequestBody: RecurringBuyRequestBody,
     ): Single<RecurringBuyOrder> =
         authenticator.authenticate {
             nabuService.createRecurringBuyOrder(
@@ -143,7 +150,7 @@ class LiveCustodialWalletManager(
     override fun fetchFiatWithdrawFeeAndMinLimit(
         fiatCurrency: FiatCurrency,
         product: Product,
-        paymentMethodType: PaymentMethodType
+        paymentMethodType: PaymentMethodType,
     ): Single<FiatWithdrawalFeeAndLimit> =
         authenticator.authenticate {
             nabuService.fetchWithdrawFeesAndLimits(it, product.toRequestString(), paymentMethodType.mapToRequest())
@@ -168,7 +175,7 @@ class LiveCustodialWalletManager(
 
     override fun fetchCryptoWithdrawFeeAndMinLimit(
         asset: AssetInfo,
-        product: Product
+        product: Product,
     ): Single<CryptoWithdrawalFeeAndLimit> =
         authenticator.authenticate {
             nabuService.fetchWithdrawFeesAndLimits(it, product.toRequestString(), WithdrawFeeRequest.DEFAULT)
@@ -186,7 +193,7 @@ class LiveCustodialWalletManager(
 
     override fun fetchWithdrawLocksTime(
         paymentMethodType: PaymentMethodType,
-        fiatCurrency: FiatCurrency
+        fiatCurrency: FiatCurrency,
     ): Single<BigInteger> =
         authenticator.authenticate {
             nabuService.fetchWithdrawLocksRules(
@@ -231,27 +238,23 @@ class LiveCustodialWalletManager(
         }
     }
 
-    override fun getSupportedFiatCurrencies(): Single<List<FiatCurrency>> =
-        pairsCache.pairs().map {
-            it.pairs.mapNotNull { pair ->
-                assetCatalogue.fiatFromNetworkTicker(pair.pair.split("-")[1])
-            }.distinct()
-        }
-
     override fun getCustodialFiatTransactions(
         fiatCurrency: FiatCurrency,
         product: Product,
-        type: String?
+        type: String?,
     ): Single<List<FiatTransaction>> =
         transactionsCache.transactions(
             TransactionsRequest(
-                currency = fiatCurrency.networkTicker,
                 product = product.toRequestString(),
                 type = type
 
             )
         ).map { response ->
-            response.items.filterNot {
+            response.items.filter {
+                assetCatalogue.fromNetworkTicker(
+                    it.amount.symbol
+                )?.networkTicker == fiatCurrency.networkTicker
+            }.filterNot {
                 it.hasCardOrBankFailure()
             }.mapNotNull {
                 val state = it.state.toTransactionState() ?: return@mapNotNull null
@@ -270,17 +273,20 @@ class LiveCustodialWalletManager(
     override fun getCustodialCryptoTransactions(
         asset: AssetInfo,
         product: Product,
-        type: String?
+        type: String?,
     ): Single<List<CryptoTransaction>> =
 
         transactionsCache.transactions(
             TransactionsRequest(
-                currency = asset.networkTicker,
                 product = product.toRequestString(),
                 type = type
             )
         ).map { response ->
-            response.items.mapNotNull {
+            response.items.filter {
+                assetCatalogue.fromNetworkTicker(
+                    it.amount.symbol
+                )?.networkTicker == asset.networkTicker
+            }.mapNotNull {
                 val crypto = assetCatalogue.fromNetworkTicker(it.amount.symbol) ?: return@mapNotNull null
                 val state = it.state.toTransactionState() ?: return@mapNotNull null
                 val txType = it.type.toTransactionType() ?: return@mapNotNull null
@@ -317,15 +323,8 @@ class LiveCustodialWalletManager(
             response.address
         }
 
-    override fun isCurrencySupportedForSimpleBuy(fiatCurrency: FiatCurrency): Single<Boolean> =
-        pairsCache.pairs().map {
-            it.pairs.firstOrNull { buyPair ->
-                buyPair.pair.split("-")[1] == fiatCurrency.networkTicker
-            } != null
-        }.onErrorReturn { false }
-
-    override fun isCurrencyAvailableForTrading(assetInfo: AssetInfo): Single<Boolean> {
-        val tradingCurrency = currencyPrefs.tradingCurrency
+    override fun isCurrencyAvailableForTradingLegacy(assetInfo: AssetInfo): Single<Boolean> {
+        val tradingCurrency = fiatCurrenciesService.selectedTradingCurrency
         return pairsCache.pairs().map {
             it.pairs.firstOrNull { buyPair ->
                 val pair = buyPair.pair.split("-")
@@ -334,15 +333,35 @@ class LiveCustodialWalletManager(
         }.onErrorReturn { false }
     }
 
-    override fun isAssetSupportedForSwap(assetInfo: AssetInfo): Single<Boolean> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.getSwapAvailablePairs(sessionToken)
-        }.map { response ->
-            response.firstOrNull { pair ->
-                val splitPair = pair.split("-")
-                splitPair[0] == assetInfo.networkTicker
-            } != null
+    override fun isCurrencyAvailableForTrading(
+        assetInfo: AssetInfo,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<Boolean>> {
+        val tradingCurrency = fiatCurrenciesService.selectedTradingCurrency
+        return buyPairsStore.stream(freshnessStrategy)
+            .mapData {
+                it.pairs.firstOrNull { buyPair ->
+                    val pair = buyPair.pair.split("-")
+                    pair.first() == assetInfo.networkTicker && pair.last() == tradingCurrency.networkTicker
+                } != null
+            }
+    }
+
+    override fun availableFiatCurrenciesForTrading(assetInfo: AssetInfo): Single<List<FiatCurrency>> =
+        pairsCache.pairs().map {
+            it.pairs.map { buyPair ->
+                buyPair.pair.split("-")
+            }.mapNotNull { pair ->
+                if (pair.first() != assetInfo.networkTicker) null
+                else assetCatalogue.fiatFromNetworkTicker(pair.last())
+            }
         }
+
+    override fun isAssetSupportedForSwap(assetInfo: AssetInfo): Single<Boolean> =
+        custodialRepository.getSwapAvailablePairs()
+            .map { pairs ->
+                assetInfo.networkTicker in pairs.map { it.source.networkTicker }
+            }
 
     override fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList> =
         authenticator.authenticate {
@@ -400,21 +419,22 @@ class LiveCustodialWalletManager(
     override fun getBuyOrder(orderId: String): Single<BuySellOrder> =
         authenticator.authenticate {
             nabuService.getBuyOrder(it, orderId)
-        }.map { it.toBuySellOrder(assetCatalogue) }
+        }.map { it.toDomainOrThrow() }
 
     override fun deleteBuyOrder(orderId: String): Completable =
         authenticator.authenticateCompletable {
             nabuService.deleteBuyOrder(it, orderId)
         }
 
-    override fun transferFundsToWallet(amount: CryptoValue, walletAddress: String): Single<String> =
+    override fun transferFundsToWallet(amount: CryptoValue, fee: CryptoValue, walletAddress: String): Single<String> =
         authenticator.authenticate {
             nabuService.transferFunds(
                 it,
                 TransferRequest(
                     address = walletAddress,
                     currency = amount.currency.networkTicker,
-                    amount = amount.toBigInteger().toString()
+                    amount = amount.toBigInteger().toString(),
+                    fee = fee.toBigInteger().toString()
                 )
             )
         }
@@ -448,21 +468,6 @@ class LiveCustodialWalletManager(
         return dailyMax.coerceAtMost(max)
     }
 
-    // TODO (dserrano-bc): Remove these methods when we clean up old AssetDetailsSheet
-    override fun getRecurringBuysForAsset(asset: AssetInfo): Single<List<RecurringBuy>> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.getRecurringBuysForAsset(sessionToken, asset.networkTicker)
-                .map { list ->
-                    list.mapNotNull {
-                        it.toRecurringBuy(assetCatalogue)
-                    }.filter {
-                        // The endpoint is broken; pass in an unknown ticker and you get the
-                        // list of all buys, so filter the ones we don't want out
-                        it.asset == asset
-                    }
-                }
-        }
-
     override fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy> {
         return authenticator.authenticate { sessionToken ->
             nabuService.getRecurringBuyForId(sessionToken, recurringBuyId)
@@ -478,7 +483,6 @@ class LiveCustodialWalletManager(
         authenticator.authenticateCompletable { sessionToken ->
             nabuService.cancelRecurringBuy(sessionToken, recurringBuyId)
         }
-    // TODO (dserrano-bc): end ------------------
 
     override fun getCardAcquirers(): Single<List<PaymentCardAcquirer>> =
         authenticator.authenticate { nabuSessionToken ->
@@ -491,11 +495,12 @@ class LiveCustodialWalletManager(
         orderId: String,
         attributes: SimpleBuyConfirmationAttributes?,
         paymentMethodId: String?,
-        isBankPartner: Boolean?
+        isBankPartner: Boolean?,
     ): Single<BuySellOrder> =
-        authenticator.authenticate {
+        authenticator.authenticate { authToken ->
             nabuService.confirmOrder(
-                it, orderId,
+                authToken,
+                orderId,
                 ConfirmOrderRequestBody(
                     paymentMethodId = paymentMethodId,
                     attributes = attributes,
@@ -504,69 +509,24 @@ class LiveCustodialWalletManager(
                     } else null
                 )
             )
-        }.map {
-            it.toBuySellOrder(assetCatalogue)
+        }.map { response ->
+            response.toDomainOrThrow()
         }
 
-    override fun getInterestAccountRates(asset: AssetInfo): Single<Double> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.getInterestRates(sessionToken, asset.networkTicker)
-                .defaultIfEmpty(InterestRateResponse(0.0))
-                .flatMap {
-                    it?.let { Single.just(it.rate) } ?: Single.just(0.0)
-                }
-        }
+    private fun BuySellOrderResponse.toDomainOrThrow() =
+        ux?.let {
+            throw NabuApiExceptionFactory.fromServerSideError(it)
+        } ?: toBuySellOrder(assetCatalogue)
 
-    override fun getInterestAccountAddress(asset: AssetInfo): Single<String> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.getInterestAddress(sessionToken, asset.networkTicker).map {
-                it.accountRef
-            }
-        }
+    override fun getSupportedFundsFiats(fiatCurrency: FiatCurrency): Flow<List<FiatCurrency>> {
+        val paymentMethodsFlow = paymentMethods(fiatCurrency, true)
+        val fiatCurrenciesFlow = fiatCurrenciesService.getTradingCurrenciesFlow()
 
-    override fun getInterestActivity(asset: AssetInfo): Single<List<InterestActivityItem>> =
-        transactionsCache.transactions(
-            TransactionsRequest(
-                currency = asset.networkTicker,
-                product = "savings",
-                type = null
-            )
-        ).map { interestActivityResponse ->
-            interestActivityResponse.items.map {
-                val ccy = assetCatalogue.fromNetworkTicker(it.amount.symbol) as AssetInfo
-                it.toInterestActivityItem(ccy)
-            }
-        }
-
-    override fun getInterestLimits(asset: AssetInfo): Single<InterestLimits> =
-        interestRepository.getLimitForAsset(asset)
-
-    override fun getInterestAvailabilityForAsset(asset: AssetInfo): Single<Boolean> =
-        interestRepository.getAvailabilityForAsset(asset)
-
-    override fun getInterestEnabledAssets(): Single<List<AssetInfo>> =
-        interestRepository.getAvailableAssets()
-
-    override fun getInterestEligibilityForAsset(asset: AssetInfo): Single<Eligibility> =
-        interestRepository.getEligibilityForAsset(asset)
-
-    override fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String) =
-        authenticator.authenticateCompletable {
-            nabuService.createInterestWithdrawal(
-                it,
-                InterestWithdrawalBody(
-                    withdrawalAddress = address,
-                    amount = amount.toBigInteger().toString(),
-                    currency = asset.networkTicker
-                )
-            )
-        }
-
-    override fun getSupportedFundsFiats(fiatCurrency: FiatCurrency): Single<List<FiatCurrency>> {
-        return paymentMethods(fiatCurrency, true).map { methods ->
-            methods.filter {
-                it.type.toPaymentMethodType() == PaymentMethodType.FUNDS &&
-                    SUPPORTED_FUNDS_CURRENCIES.contains(it.currency) && it.eligible
+        return combine(paymentMethodsFlow, fiatCurrenciesFlow) { paymentMethods, fiatCurrencies ->
+            paymentMethods.filter { method ->
+                method.type.toPaymentMethodType() == PaymentMethodType.FUNDS &&
+                    fiatCurrencies.allRecommended.any { it.networkTicker == method.currency } &&
+                    method.eligible
             }.mapNotNull {
                 it.currency?.let { currency ->
                     assetCatalogue.fromNetworkTicker(currency) as? FiatCurrency
@@ -585,9 +545,9 @@ class LiveCustodialWalletManager(
     private fun paymentMethods(
         currency: Currency,
         eligibleOnly: Boolean,
-        shouldFetchSddLimits: Boolean = false
+        shouldFetchSddLimits: Boolean = false,
     ) = paymentMethodsEligibilityStore.stream(
-        KeyedStoreRequest.Cached(
+        KeyedFreshnessStrategy.Cached(
             key = PaymentMethodsEligibilityStore.Key(
                 currency.networkTicker,
                 eligibleOnly,
@@ -595,19 +555,13 @@ class LiveCustodialWalletManager(
             ),
             forceRefresh = false
         )
-    ).asSingle(
-        errorMapper = {
-            when (it) {
-                is PaymentMethodsError.RequestFailed -> Exception(it.message)
-            }
-        }
-    ).map {
+    ).mapData {
         it.filter { paymentMethod -> paymentMethod.visible }
-    }
+    }.getDataOrThrow()
 
     override fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String> =
         authenticator.authenticateMaybe { sessionToken ->
-            nabuService.fetchPitSendToAddressForCrypto(sessionToken, asset.networkTicker)
+            nabuService.fetchExchangeSendToAddressForCrypto(sessionToken, asset.networkTicker)
                 .flatMapMaybe { response ->
                     if (response.state == State.ACTIVE) {
                         Maybe.just(response.address)
@@ -638,7 +592,7 @@ class LiveCustodialWalletManager(
         quoteId: String,
         volume: Money,
         destinationAddress: String?,
-        refundAddress: String?
+        refundAddress: String?,
     ): Single<CustodialOrder> =
         authenticator.authenticate { sessionToken ->
             nabuService.createCustodialOrder(
@@ -660,7 +614,7 @@ class LiveCustodialWalletManager(
     override fun getProductTransferLimits(
         currency: FiatCurrency,
         product: Product,
-        orderDirection: TransferDirection?
+        orderDirection: TransferDirection?,
     ): Single<TransferLimits> =
         authenticator.authenticate {
             val side = when (product) {
@@ -697,7 +651,7 @@ class LiveCustodialWalletManager(
 
     override fun getCustodialActivityForAsset(
         cryptoCurrency: AssetInfo,
-        directions: Set<TransferDirection>
+        directions: Set<TransferDirection>,
     ): Single<List<TradeTransactionItem>> =
         custodialRepository.getCustodialActivityForAsset(cryptoCurrency, directions)
 
@@ -710,15 +664,12 @@ class LiveCustodialWalletManager(
             )
         }
 
-    override fun isFiatCurrencySupported(destination: String): Boolean =
-        SUPPORTED_FUNDS_CURRENCIES.contains(destination)
-
     override fun createPendingDeposit(
         crypto: AssetInfo,
         address: String,
         hash: String,
         amount: Money,
-        product: Product
+        product: Product,
     ): Completable =
         authenticator.authenticateCompletable { sessionToken ->
             nabuService.createDepositTransaction(
@@ -746,9 +697,7 @@ class LiveCustodialWalletManager(
         }
 
     override fun getSwapTrades(): Single<List<CustodialOrder>> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.getSwapTrades(sessionToken)
-        }.map { response ->
+        swapOrdersCache.swapOrders().map { response ->
             response.mapNotNull { orderResp ->
                 orderResp.toSwapOrder()
             }
@@ -797,10 +746,6 @@ class LiveCustodialWalletManager(
     }
 
     companion object {
-        internal val SUPPORTED_FUNDS_CURRENCIES = listOf(
-            "GBP", "EUR", "USD"
-        )
-
         private const val ACH_CURRENCY = "USD"
 
         private const val SDD_ELIGIBLE_TIER = 3
@@ -830,7 +775,8 @@ fun String.toTransactionState(): TransactionState? =
     when (this) {
         TransactionResponse.COMPLETE -> TransactionState.COMPLETED
         TransactionResponse.REJECTED,
-        TransactionResponse.FAILED -> TransactionState.FAILED
+        TransactionResponse.FAILED,
+        -> TransactionState.FAILED
         TransactionResponse.PENDING,
         TransactionResponse.CLEARED,
         TransactionResponse.FRAUD_REVIEW,
@@ -862,15 +808,6 @@ private fun String.toTransactionType(): TransactionType? =
         else -> null
     }
 
-enum class PaymentMethodType {
-    BANK_TRANSFER,
-    BANK_ACCOUNT,
-    PAYMENT_CARD,
-    GOOGLE_PAY,
-    FUNDS,
-    UNKNOWN
-}
-
 private fun String.toLocalState(): OrderState =
     when (this) {
         BuySellOrderResponse.PENDING_DEPOSIT -> OrderState.AWAITING_FUNDS
@@ -883,15 +820,6 @@ private fun String.toLocalState(): OrderState =
         BuySellOrderResponse.CANCELED -> OrderState.CANCELED
         else -> OrderState.UNKNOWN
     }
-
-enum class CardStatus {
-    PENDING,
-    ACTIVE,
-    BLOCKED,
-    CREATED,
-    UNKNOWN,
-    EXPIRED
-}
 
 private fun BuySellOrderResponse.type() =
     when {
@@ -908,7 +836,6 @@ enum class OrderType {
 }
 
 private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue): BuySellOrder {
-
     return BuySellOrder(
         id = id,
         pair = pair,
@@ -1027,17 +954,6 @@ fun String.toPaymentMethodType(): PaymentMethodType =
         else -> PaymentMethodType.UNKNOWN
     }
 
-private fun TransactionResponse.toInterestActivityItem(cryptoCurrency: AssetInfo) =
-    InterestActivityItem(
-        value = CryptoValue.fromMinor(cryptoCurrency, amountMinor.toBigInteger()),
-        cryptoCurrency = cryptoCurrency,
-        id = id,
-        insertedAt = insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-        state = InterestActivityItem.toInterestState(state),
-        type = InterestActivityItem.toTransactionType(type),
-        extraAttributes = extraAttributes
-    )
-
 private fun PaymentCardAcquirerResponse.toPaymentCardAcquirer() =
     PaymentCardAcquirer(
         cardAcquirerName = cardAcquirerName,
@@ -1055,5 +971,5 @@ interface PaymentAccountMapper {
 private data class CustodialFiatBalance(
     val currency: FiatCurrency,
     val available: Boolean,
-    val balance: Money
+    val balance: Money,
 )

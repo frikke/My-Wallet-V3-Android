@@ -13,22 +13,27 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestDepositOnChainTxEngine(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestBalances: InterestBalanceDataManager,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    private val interestBalanceStore: InterestBalancesStore,
+    interestService: InterestService,
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val onChainEngine: OnChainTxEngineBase,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager
-) : InterestBaseEngine(walletManager) {
+) : InterestBaseEngine(interestService) {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf(interestBalanceStore)
 
     override fun assertInputsValid() {
         check(sourceAccount is CryptoNonCustodialAccount)
@@ -57,11 +62,10 @@ class InterestDepositOnChainTxEngine(
         onChainEngine.doInitialiseTx()
             .flatMap { pendingTx ->
                 getLimits()
-                    .map {
-                        val cryptoAsset = it.cryptoCurrency
+                    .map { (asset, interestLimits) ->
                         pendingTx.copy(
                             limits = TxLimits.withMinAndUnlimitedMax(
-                                it.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset)
+                                interestLimits.minDepositFiatValue.toCrypto(exchangeRates, asset)
                             ),
                             feeSelection = pendingTx.feeSelection.copy(
                                 selectedLevel = FeeLevel.Regular,
@@ -134,9 +138,7 @@ class InterestDepositOnChainTxEngine(
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
         onChainEngine.doExecute(pendingTx, secondPassword)
-            .doOnSuccess {
-                interestBalances.flushCaches(sourceAssetInfo)
-            }
+            .doOnSuccess { interestBalanceStore.invalidate() }
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
         onChainEngine.doPostExecute(pendingTx, txResult)

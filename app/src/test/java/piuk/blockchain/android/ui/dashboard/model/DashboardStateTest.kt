@@ -19,7 +19,7 @@ class DashboardStateTest {
             announcement = null
         )
 
-        assertEquals(subject.fiatBalance, FiatValue.zero(FIAT_CURRENCY))
+        assertEquals(subject.dashboardBalance!!.fiatBalance, FiatValue.zero(FIAT_CURRENCY))
     }
 
     @Test
@@ -27,27 +27,27 @@ class DashboardStateTest {
         val subject = DashboardState(
             activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
-                CryptoCurrency.ETHER to CryptoAssetState(CryptoCurrency.ETHER),
-                CryptoCurrency.XLM to CryptoAssetState(CryptoCurrency.XLM)
+                CryptoCurrency.ETHER to BrokerageCryptoAsset(CryptoCurrency.ETHER),
+                CryptoCurrency.XLM to BrokerageCryptoAsset(CryptoCurrency.XLM)
             ),
             announcement = null
         )
 
-        assertEquals(subject.fiatBalance, FiatValue.zero(FIAT_CURRENCY))
+        assertEquals(subject.dashboardBalance!!.fiatBalance, FiatValue.zero(FIAT_CURRENCY))
     }
 
     @Test
     fun `if no assets are loaded, total balance is null`() {
         val subject = DashboardState(
             activeAssets = mapOfAssets(
-                CryptoCurrency.BTC to CryptoAssetState(CryptoCurrency.BTC),
-                CryptoCurrency.ETHER to CryptoAssetState(CryptoCurrency.ETHER),
-                CryptoCurrency.XLM to CryptoAssetState(CryptoCurrency.XLM)
+                CryptoCurrency.BTC to BrokerageCryptoAsset(CryptoCurrency.BTC),
+                CryptoCurrency.ETHER to BrokerageCryptoAsset(CryptoCurrency.ETHER),
+                CryptoCurrency.XLM to BrokerageCryptoAsset(CryptoCurrency.XLM)
             ),
             announcement = null
         )
 
-        assertNull(subject.fiatBalance)
+        assertNull(subject.dashboardBalance!!.fiatBalance)
     }
 
     @Test
@@ -66,20 +66,19 @@ class DashboardStateTest {
             -25.0
         )
 
-        val result = subject.delta
+        val result = (subject.dashboardBalance as BrokerageBalanceState).delta
 
         assertEquals(expectedResult, result)
     }
 
     @Test
-    fun `if bitcoin asset is loaded with no fiat assets then delta should be -25`() {
+    fun `if  assets is loaded then delta should be -25`() {
         val subject = DashboardState(
             activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to testBtcState,
                 CryptoCurrency.ETHER to initialEthState,
                 CryptoCurrency.XLM to initialXlmState
             ),
-            fiatAssets = fiatAssetState_1,
             announcement = null
         )
 
@@ -91,31 +90,7 @@ class DashboardStateTest {
                 ),
                 -25.0
             ),
-            subject.delta
-        )
-    }
-
-    @Test
-    fun `if bitcoin asset is loaded with fiat assets then delta should be -20`() {
-        val subject = DashboardState(
-            activeAssets = mapOfAssets(
-                CryptoCurrency.BTC to testBtcState,
-                CryptoCurrency.ETHER to initialEthState,
-                CryptoCurrency.XLM to initialXlmState
-            ),
-            fiatAssets = fiatAssetState_2,
-            announcement = null
-        )
-
-        assertEquals(
-            Pair(
-                FiatValue.fromMajor(
-                    FIAT_CURRENCY,
-                    (-1000).toBigDecimal()
-                ),
-                -20.0
-            ),
-            subject.delta
+            (subject.dashboardBalance as BrokerageBalanceState).delta
         )
     }
 }

@@ -1,18 +1,22 @@
 package com.blockchain.componentlib.theme
 
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 val Blue700 = Color(0XFF1656B9)
 val Blue600 = Color(0XFF0C6CF2)
 val Blue400 = Color(0XFF619FF7)
+val Blue200 = Color(0XFFBBDBFC)
 val Blue000 = Color(0XFFECF5FE)
+
+val Purple0000 = Color(0XFF5322E5)
 
 val Green900 = Color(0XFF003319)
 val Green700 = Color(0XFF006633)
 val Green600 = Color(0XFF00994C)
 val Green400 = Color(0XFF17CE73)
 val Green100 = Color(0XFFD1F0DB)
+val Green000 = Color(0xFFE6FAEC)
 
 val Red900 = Color(0XFF790606)
 val Red700 = Color(0XFFA50D0D)
@@ -24,6 +28,7 @@ val Red000 = Color(0XFFFFECEB)
 val Orange600 = Color(0XFFD46A00)
 val Orange400 = Color(0XFFFFA133)
 val Orange100 = Color(0XFFFFECD6)
+val Orange000 = Color(0XFFFFF6EB)
 
 val Grey900 = Color(0XFF121D33)
 val Grey800 = Color(0XFF353F52)
@@ -57,8 +62,9 @@ val Overlay400 = Dark400.copy(0.4f)
 val White600 = Color.White.copy(0.6f)
 
 val UltraLight = Color(0XFFFAFBFF)
+val CowboysDark = Color(0XFF07080D)
 
-fun getLightColors() = SemanticColors(
+val defLightColors = SemanticColors(
     title = Grey900,
     body = Grey800,
     overlay = Overlay600,
@@ -71,11 +77,10 @@ fun getLightColors() = SemanticColors(
     success = Green600,
     warning = Orange600,
     error = Red600,
-
     isLight = true
 )
 
-fun getDarkColors() = SemanticColors(
+val defDarkColors = SemanticColors(
     title = Color.White,
     body = Dark200,
     overlay = Overlay600,
@@ -88,8 +93,8 @@ fun getDarkColors() = SemanticColors(
     success = Green400,
     warning = Orange400,
     error = Red400,
-
     isLight = false
 )
 
-val LocalColors = staticCompositionLocalOf { getLightColors() }
+val LocalLightColors = compositionLocalOf { defLightColors }
+val LocalDarkColors = compositionLocalOf { defDarkColors }

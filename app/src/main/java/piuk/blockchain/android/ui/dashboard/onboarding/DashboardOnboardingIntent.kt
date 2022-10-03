@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 
@@ -20,10 +20,6 @@ sealed class DashboardOnboardingIntent : MviIntent<DashboardOnboardingState> {
     }
 
     data class StepClicked(val clickedStep: DashboardOnboardingStep) : DashboardOnboardingIntent() {
-        override fun reduce(oldState: DashboardOnboardingState): DashboardOnboardingState = oldState
-    }
-
-    object TradingCurrencyChanged : DashboardOnboardingIntent() {
         override fun reduce(oldState: DashboardOnboardingState): DashboardOnboardingState = oldState
     }
 

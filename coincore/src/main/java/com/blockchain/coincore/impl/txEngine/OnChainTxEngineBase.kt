@@ -7,7 +7,9 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
 import com.blockchain.koin.scopedInject
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.wallet.api.data.FeeOptions
@@ -15,16 +17,18 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.koin.core.component.inject
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 abstract class OnChainTxEngineBase(
     override val requireSecondPassword: Boolean,
-    private val walletPreferences: WalletStatus,
+    private val walletPreferences: WalletStatusPrefs,
     protected val resolvedHotWalletAddress: Single<String>
 ) : TxEngine() {
 
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf()
+
     private val settingsDataManager: SettingsDataManager by scopedInject()
-    private val prefs: PersistentPrefs by inject()
+    private val authPrefs: AuthPrefs by inject()
 
     override fun assertInputsValid() {
         val tgt = txTarget
@@ -35,8 +39,8 @@ abstract class OnChainTxEngineBase(
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
         settingsDataManager.triggerOnChainTransaction(
-            guid = prefs.walletGuid,
-            sharedKey = prefs.sharedKey,
+            guid = authPrefs.walletGuid,
+            sharedKey = authPrefs.sharedKey,
             amount = pendingTx.amount.toNetworkString(),
             currency = pendingTx.amount.currencyCode
         )

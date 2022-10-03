@@ -1,9 +1,10 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -28,14 +29,15 @@ class NabuDataManagerAsAuthenticatorTest {
         val token = givenToken("User", "ABC")
 
         val nabuDataManager = mock<NabuDataManager>()
-        val sut = NabuAuthenticator(token, nabuDataManager, mock()) as Authenticator
+        val authInterceptorFF = mock<FeatureFlag> { on { enabled }.thenReturn(Single.just(false)) }
+        val sut = NabuAuthenticator(token, nabuDataManager, mock(), authInterceptorFF) as Authenticator
 
         val theFunction = mock<(NabuSessionTokenResponse) -> Single<Int>>()
         sut.authenticate(theFunction)
             .test()
 
         verify(nabuDataManager).authenticate(
-            eq(NabuOfflineTokenResponse("User", "ABC")),
+            eq(NabuOfflineToken("User", "ABC")),
             any<(NabuSessionTokenResponse) -> Single<Int>>()
         )
         verifyNoMoreInteractions(nabuDataManager)
@@ -47,13 +49,14 @@ class NabuDataManagerAsAuthenticatorTest {
         val token = givenToken("User", "ABC")
 
         val nabuDataManager = mock<NabuDataManager> {
-            on { currentToken(NabuOfflineTokenResponse("User", "ABC")) }.thenReturn(
+            on { currentToken(NabuOfflineToken("User", "ABC")) }.thenReturn(
                 Single.just(
                     nabuSessionTokenResponse("User", "ABC")
                 )
             )
         }
-        val sut = NabuAuthenticator(token, nabuDataManager, mock()) as Authenticator
+        val authInterceptorFF = mock<FeatureFlag> { on { enabled }.thenReturn(Single.just(false)) }
+        val sut = NabuAuthenticator(token, nabuDataManager, mock(), authInterceptorFF) as Authenticator
 
         sut.authenticate()
             .test()
@@ -83,7 +86,7 @@ class NabuDataManagerAsAuthenticatorTest {
         mock {
             on { fetchNabuToken() }.thenReturn(
                 Single.just(
-                    NabuOfflineTokenResponse(
+                    NabuOfflineToken(
                         userId,
                         token
                     )

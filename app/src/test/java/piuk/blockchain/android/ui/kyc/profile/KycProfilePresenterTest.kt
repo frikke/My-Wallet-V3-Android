@@ -2,15 +2,17 @@ package piuk.blockchain.android.ui.kyc.profile
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiExceptionFactory
-import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
+import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
-import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
+import com.blockchain.nabu.models.responses.tokenresponse.toNabuOfflineToken
 import com.blockchain.nabu.util.toISO8601DateString
 import com.blockchain.testutils.date
 import com.nhaarman.mockitokotlin2.any
@@ -23,7 +25,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.util.Locale
-import kotlinx.serialization.InternalSerializationApi
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import org.amshove.kluent.`should throw`
@@ -35,12 +36,12 @@ import piuk.blockchain.android.util.StringUtils
 import retrofit2.HttpException
 import retrofit2.Response
 
-@OptIn(InternalSerializationApi::class)
 class KycProfilePresenterTest {
 
     private lateinit var subject: KycProfilePresenter
     private val view: KycProfileView = mock()
     private val nabuDataManager: NabuDataManager = mock()
+    private val userService: UserService = mock()
     private val stringUtils: StringUtils = mock()
     private val nabuToken: NabuToken = mock()
 
@@ -56,6 +57,7 @@ class KycProfilePresenterTest {
         subject = KycProfilePresenter(
             nabuToken,
             nabuDataManager,
+            userService,
             stringUtils,
         )
         whenever(stringUtils.getString(any())).thenReturn("")
@@ -161,6 +163,7 @@ class KycProfilePresenterTest {
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
         verify(view).continueSignUp(any())
+        verify(userService).markAsStale()
     }
 
     @Test
@@ -177,11 +180,18 @@ class KycProfilePresenterTest {
         whenever(view.countryCode).thenReturn(countryCode)
         whenever(
             nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(NabuOfflineTokenResponse("123", "123")))
+        ).thenReturn(Single.just(NabuOfflineToken("123", "123")))
         val jwt = "JTW"
+
         whenever(nabuDataManager.requestJwt()).thenReturn(Single.just(jwt))
         whenever(nabuDataManager.getAuthToken(jwt))
-            .thenReturn(Single.just(offlineToken.mapFromMetadata()))
+            .thenReturn(
+                Single.just(
+                    NabuOfflineTokenResponse(
+                        "123", "123", true
+                    )
+                )
+            )
 
         val responseBody =
             ResponseBody.create(
@@ -193,7 +203,7 @@ class KycProfilePresenterTest {
                 firstName,
                 lastName,
                 dateOfBirth.toISO8601DateString(),
-                offlineToken.mapFromMetadata()
+                offlineToken.toNabuOfflineToken()
             )
         ).thenReturn(
             Completable.error {
@@ -211,24 +221,10 @@ class KycProfilePresenterTest {
     }
 
     @Test
-    fun `onViewReady no data to restore`() {
-        // Arrange
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.error(MetadataNotFoundException("Nabu Token not found")))
-        // Act
-        subject.onViewReady()
-        // Assert
-        verifyZeroInteractions(view)
-    }
-
-    @Test
     fun `onViewReady restores data to the UI`() {
         // Arrange
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
         val nabuUser = NabuUser(
+            id = "id",
             firstName = "FIRST_NAME",
             lastName = "LAST_NAME",
             email = "",
@@ -240,9 +236,15 @@ class KycProfilePresenterTest {
             state = UserState.Created,
             kycState = KycState.None,
             updatedAt = "",
-            insertedAt = ""
+            insertedAt = "",
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(userService.getUser())
             .thenReturn(Single.just(nabuUser))
         // Act
         subject.onViewReady()

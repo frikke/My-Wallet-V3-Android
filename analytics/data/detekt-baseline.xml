@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>EmptyFunctionBlock:NabuAnalytics.kt$NabuAnalytics${}</ID>
+    <ID>LongParameterList:NabuAnalytics.kt$NabuAnalytics$( private val analyticsService: AnalyticsService, private val prefs: Lazy&lt;PersistentPrefs>, private val localAnalyticsPersistence: AnalyticsLocalPersistence, private val remoteLogger: RemoteLogger, lifecycleObservable: LifecycleObservable, private val analyticsContextProvider: AnalyticsContextProvider, private val tokenStore: NabuSessionTokenStore )</ID>
+    <ID>SwallowedException:AnalyticsFileLocalPersistence.kt$AnalyticsFileLocalPersistence$e: IOException</ID>
+    <ID>TooManyFunctions:AnalyticsImpl.kt$AnalyticsImpl : AnalyticsProviderSpecificAnalytics</ID>
+  </CurrentIssues>
+</SmellBaseline>

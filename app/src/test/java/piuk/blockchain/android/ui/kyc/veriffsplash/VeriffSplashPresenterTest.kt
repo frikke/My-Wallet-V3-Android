@@ -4,10 +4,11 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiExceptionFactory
+import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.veriff.VeriffApplicantAndToken
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
@@ -21,7 +22,7 @@ import okhttp3.ResponseBody
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.kyc.navhost.models.UiState
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import retrofit2.HttpException
 import retrofit2.Response
 
@@ -29,13 +30,15 @@ class VeriffSplashPresenterTest {
 
     private val nabuToken: NabuToken = mock()
     private val nabuDataManager: NabuDataManager = mock()
+    private val kycTiersStore: KycTiersStore = mock()
     private val view: VeriffSplashView = mock()
     private val analytics: Analytics = mock()
-    private val prefs: PersistentPrefs = mock()
+    private val prefs: SessionPrefs = mock()
 
     private val subject = VeriffSplashPresenter(
         nabuToken = nabuToken,
         nabuDataManager = nabuDataManager,
+        kycTiersStore = kycTiersStore,
         analytics = analytics,
         prefs = prefs
     )
@@ -120,17 +123,17 @@ class VeriffSplashPresenterTest {
 
     // Setup:
     private fun setupFetchNabuToken_ok() {
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(TOKEN_RESPONSE))
+        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(TOKEN))
     }
 
     private fun setupFetchRequiredDocs_ok() {
         whenever(view.countryCode).thenReturn(COUNTRY_CODE)
-        whenever(nabuDataManager.getSupportedDocuments(TOKEN_RESPONSE, COUNTRY_CODE))
+        whenever(nabuDataManager.getSupportedDocuments(TOKEN, COUNTRY_CODE))
             .thenReturn(Single.just(SUPPORTED_DOCS))
     }
 
     private fun setupFetchApplicantToken_ok() {
-        whenever(nabuDataManager.startVeriffSession(TOKEN_RESPONSE))
+        whenever(nabuDataManager.startVeriffSession(TOKEN))
             .thenReturn(Single.just(APPLICANT_TOKEN))
     }
 
@@ -144,7 +147,7 @@ class VeriffSplashPresenterTest {
         )
         val httpError = NabuApiExceptionFactory.fromResponseBody(HttpException(body))
 
-        whenever(nabuDataManager.startVeriffSession(TOKEN_RESPONSE))
+        whenever(nabuDataManager.startVeriffSession(TOKEN))
             .thenReturn(Single.error(httpError))
     }
 
@@ -157,7 +160,7 @@ class VeriffSplashPresenterTest {
         private const val COUNTRY_CODE = "UK"
         private const val NABU_TOKEN = "TTTT_TOKEN_NNNN"
 
-        private val TOKEN_RESPONSE = NabuOfflineTokenResponse(
+        private val TOKEN = NabuOfflineToken(
             userId = "userId",
             token = NABU_TOKEN
         )

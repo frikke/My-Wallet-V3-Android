@@ -63,6 +63,64 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <!--Outlined Text Input-->
+        <com.blockchain.componentlib.divider.HorizontalDividerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="@dimen/small_margin"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Default Outlined Text Input"
+            android:layout_marginVertical="8dp"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.controls.OutlinedTextInputView
+            android:id="@+id/default_outlined_text_input"
+            android:layout_marginHorizontal="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Error Outlined Text Input"
+            android:layout_marginVertical="8dp"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.controls.OutlinedTextInputView
+            android:id="@+id/error_outlined_text_input"
+            android:layout_marginHorizontal="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Success Outlined Text Input"
+            android:layout_marginVertical="8dp"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.controls.OutlinedTextInputView
+            android:id="@+id/success_outlined_text_input"
+            android:layout_marginHorizontal="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Disabled Outlined Text Input"
+            android:layout_marginVertical="8dp"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.controls.OutlinedTextInputView
+            android:id="@+id/disabled_outlined_text_input"
+            android:layout_marginHorizontal="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </androidx.appcompat.widget.LinearLayoutCompat>
 
 </ScrollView>

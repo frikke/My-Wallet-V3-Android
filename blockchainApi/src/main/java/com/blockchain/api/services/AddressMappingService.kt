@@ -20,7 +20,7 @@ class AddressMappingService internal constructor(
         addressApi.resolveAssetAddress(
             AddressMapRequest(
                 domainName = domainName.toLowerCase(Locale.ROOT),
-                assetTicker = assetTicker.toLowerCase(Locale.ROOT)
+                assetTicker = assetTicker
             )
         ).map {
             check(it.assetTicker.compareTo(assetTicker, true) == 0) { "Asset ticker mismatch" }

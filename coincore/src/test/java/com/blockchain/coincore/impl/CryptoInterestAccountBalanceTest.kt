@@ -1,8 +1,9 @@
 package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.interest.InterestAccountBalance
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -21,16 +22,19 @@ import org.junit.Test
 class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
 
     private val custodialManager: CustodialWalletManager = mock()
-    private val interestBalance: InterestBalanceDataManager = mock()
+    private val interestService: InterestService = mock()
     private val identity: UserIdentity = mock()
+    private val kycService: KycService = mock()
 
     private val subject = CryptoInterestAccount(
         currency = TEST_ASSET,
         label = "Test Account",
         exchangeRates = exchangeRates,
         custodialWalletManager = custodialManager,
-        interestBalance = interestBalance,
-        identity = identity
+        interestService = interestService,
+        identity = identity,
+        internalAccountLabel = "Trading Account",
+        kycService = kycService
     )
 
     @Before
@@ -52,7 +56,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             lockedBalance = 60.testValue(TEST_ASSET)
         )
 
-        whenever(interestBalance.getBalanceForAsset(TEST_ASSET))
+        whenever(interestService.getBalanceFor(TEST_ASSET))
             .thenReturn(Observable.just(balance))
 
         subject.balance
@@ -82,7 +86,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             lockedBalance = 0.testValue(TEST_ASSET)
         )
 
-        whenever(interestBalance.getBalanceForAsset(TEST_ASSET))
+        whenever(interestService.getBalanceFor(TEST_ASSET))
             .thenReturn(Observable.just(balance))
 
         subject.balance
@@ -118,7 +122,7 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
             lockedBalance = 60.testValue(TEST_ASSET)
         )
 
-        whenever(interestBalance.getBalanceForAsset(TEST_ASSET))
+        whenever(interestService.getBalanceFor(TEST_ASSET))
             .thenReturn(Observable.just(balance))
 
         val testSubscriber = subject.balance

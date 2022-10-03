@@ -11,6 +11,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentTxAccountSelectorBinding
+import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TargetSelectionCustomisations
@@ -30,7 +31,11 @@ class SelectTargetAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     override fun render(newState: TransactionState) {
         with(binding) {
             accountList.initialise(
-                source = Single.just(newState.availableTargets.map { it as SingleAccount }),
+                source = Single.just(
+                    newState.availableTargets.map { transactionTarget ->
+                        AccountListViewItem.create(transactionTarget as SingleAccount)
+                    }
+                ),
                 status = customiser.selectTargetStatusDecorator(newState),
                 assetAction = newState.action
             )

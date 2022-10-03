@@ -15,21 +15,28 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestDepositTradingEngine(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    private val interestBalanceStore: InterestBalancesStore,
+    interestService: InterestService,
+    private val tradingStore: TradingStore,
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestBalances: InterestBalanceDataManager
-) : InterestBaseEngine(walletManager) {
+) : InterestBaseEngine(interestService) {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf(interestBalanceStore, tradingStore)
 
     override fun assertInputsValid() {
         check(sourceAccount is TradingAccount)
@@ -45,12 +52,11 @@ class InterestDepositTradingEngine(
         return Single.zip(
             getLimits(),
             availableBalance
-        ) { limits, balance ->
-            val cryptoAsset = limits.cryptoCurrency
+        ) { (asset, interestLimits), balance ->
             PendingTx(
                 amount = Money.zero(sourceAsset),
                 limits = TxLimits.withMinAndUnlimitedMax(
-                    limits.minDepositFiatValue.toCrypto(exchangeRates, cryptoAsset)
+                    interestLimits.minDepositFiatValue.toCrypto(exchangeRates, asset)
                 ),
                 feeSelection = FeeSelection(),
                 selectedFiat = userFiat,
@@ -147,7 +153,7 @@ class InterestDepositTradingEngine(
             origin = Product.BUY,
             destination = Product.SAVINGS
         ).doOnComplete {
-            interestBalances.flushCaches(sourceAssetInfo)
+            interestBalanceStore.invalidate()
         }.toSingle {
             TxResult.UnHashedTxResult(pendingTx.amount)
         }

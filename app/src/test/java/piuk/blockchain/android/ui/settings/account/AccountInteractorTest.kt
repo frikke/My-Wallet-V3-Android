@@ -1,23 +1,31 @@
 package piuk.blockchain.android.ui.settings.account
 
+import com.blockchain.android.testutils.rxInit
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
+import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.testutils.CAD
 import com.blockchain.testutils.EUR
+import com.blockchain.testutils.GBP
+import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import exchange.ExchangeLinking
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.settings.v2.account.AccountInteractor
-import piuk.blockchain.android.ui.settings.v2.account.ExchangeLinkingState
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import thepit.PitLinking
-import thepit.PitLinkingState
 
 class AccountInteractorTest {
 
@@ -26,8 +34,17 @@ class AccountInteractorTest {
     private val settingsDataManager: SettingsDataManager = mock()
     private val exchangeRates: ExchangeRatesDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
-    private val exchangeLinkingState: PitLinking = mock()
+    private val fiatCurrenciesService: FiatCurrenciesService = mock()
+    private val exchangeLinkingState: ExchangeLinking = mock()
     private val blockchainCardRepository: BlockchainCardRepository = mock()
+    private val localSettingsPrefs: LocalSettingsPrefs = mock()
+
+    @Suppress("unused")
+    @get:Rule
+    val initSchedulers = rxInit {
+        mainTrampoline()
+        ioTrampoline()
+    }
 
     @Before
     fun setup() {
@@ -35,37 +52,45 @@ class AccountInteractorTest {
             settingsDataManager = settingsDataManager,
             exchangeRates = exchangeRates,
             currencyPrefs = currencyPrefs,
+            fiatCurrenciesService = fiatCurrenciesService,
             exchangeLinkingState = exchangeLinkingState,
-            blockchainCardRepository = blockchainCardRepository
+            blockchainCardRepository = blockchainCardRepository,
+            localSettingsPrefs = localSettingsPrefs
         )
     }
 
     @Test
-    fun getWalletInfo() {
+    fun getWalletInfo() = runTest {
         val mockGuid = "12345"
         val currencyCode = "EUR"
+        val chartVibrationEnabled = true
         val settingsMock: Settings = mock {
             on { guid }.thenReturn(mockGuid)
             on { currency }.thenReturn(currencyCode)
         }
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
+        whenever(localSettingsPrefs.isChartVibrationEnabled).thenReturn(chartVibrationEnabled)
+        whenever(fiatCurrenciesService.getTradingCurrencies()).thenReturn(Outcome.Success(TRADING_CURRENCIES))
 
         val observable = interactor.getWalletInfo().test()
         observable.assertValue {
             it.walletId == mockGuid &&
-                it.userCurrency.displayTicker == currencyCode
+                it.displayCurrency.displayTicker == currencyCode &&
+                it.isChartVibrationEnabled == chartVibrationEnabled
         }
 
         verify(settingsDataManager).getSettings()
+        verify(localSettingsPrefs).isChartVibrationEnabled
         verifyNoMoreInteractions(settingsDataManager)
+        verifyNoMoreInteractions(localSettingsPrefs)
     }
 
     @Test
-    fun getAvailableFiatList() {
+    fun getAvailableDisplayCurrencies() {
         val fiatList: List<FiatCurrency> = mock()
         whenever(exchangeRates.fiatAvailableForRates).thenReturn(fiatList)
 
-        val list = interactor.getAvailableFiatList().test()
+        val list = interactor.getAvailableDisplayCurrencies().test()
         list.assertValue {
             it == fiatList
         }
@@ -74,13 +99,24 @@ class AccountInteractorTest {
     }
 
     @Test
-    fun updateSelectedCurrency() {
+    fun getAvailableTradingCurrencies() = runTest {
+        whenever(fiatCurrenciesService.getTradingCurrencies()).thenReturn(Outcome.Success(TRADING_CURRENCIES))
+
+        val list = interactor.getAvailableTradingCurrencies().test()
+        list.assertValue {
+            it == TRADING_CURRENCIES.allAvailable
+        }
+        verify(fiatCurrenciesService).getTradingCurrencies()
+    }
+
+    @Test
+    fun updateSelectedDisplayCurrency() {
         val settingsMock: Settings = mock()
         val fiatCurrency = EUR
 
         whenever(settingsDataManager.updateFiatUnit(fiatCurrency)).thenReturn(Observable.just(settingsMock))
 
-        val observable = interactor.updateSelectedCurrency(fiatCurrency).test()
+        val observable = interactor.updateSelectedDisplayCurrency(fiatCurrency).test()
         observable.assertValue {
             it == settingsMock
         }
@@ -93,30 +129,19 @@ class AccountInteractorTest {
     }
 
     @Test
-    fun getExchangeState_linked() {
-        val exchangeState = PitLinkingState(isLinked = true)
-        whenever(exchangeLinkingState.state).thenReturn(Observable.just(exchangeState))
+    fun updateSelectedTradingCurrency() = runTest {
+        whenever(fiatCurrenciesService.setSelectedTradingCurrency(EUR)).thenReturn(Outcome.Success(Unit))
 
-        val result = interactor.getExchangeState().test()
-        result.assertValue {
-            it == ExchangeLinkingState.LINKED
-        }
+        interactor.updateSelectedTradingCurrency(EUR).test()
 
-        verify(exchangeLinkingState).state
-        verifyNoMoreInteractions(exchangeLinkingState)
+        verify(fiatCurrenciesService).setSelectedTradingCurrency(EUR)
     }
 
-    @Test
-    fun getExchangeState_notLinked() {
-        val exchangeState = PitLinkingState(isLinked = false)
-        whenever(exchangeLinkingState.state).thenReturn(Observable.just(exchangeState))
-
-        val result = interactor.getExchangeState().test()
-        result.assertValue {
-            it == ExchangeLinkingState.NOT_LINKED
-        }
-
-        verify(exchangeLinkingState).state
-        verifyNoMoreInteractions(exchangeLinkingState)
+    companion object {
+        private val TRADING_CURRENCIES = TradingCurrencies(
+            selected = USD,
+            allRecommended = listOf(USD, GBP),
+            allAvailable = listOf(USD, GBP, EUR, CAD)
+        )
     }
 }

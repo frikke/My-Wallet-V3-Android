@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.style.TextAlign
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -47,6 +48,13 @@ fun ButtonContent(
                 is ImageResource.Local -> {
                     Image(
                         imageResource = icon.withColorFilter(ColorFilter.tint(textColor)),
+                        modifier = Modifier.size(icon.size ?: dimensionResource(R.dimen.medium_margin)),
+                    )
+                    Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
+                }
+                is ImageResource.LocalWithResolvedDrawable -> {
+                    Image(
+                        imageResource = icon,
                         modifier = Modifier.size(dimensionResource(R.dimen.medium_margin)),
                     )
                     Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
@@ -65,13 +73,16 @@ fun ButtonContent(
                     )
                     Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
                 }
+                is ImageResource.LocalWithResolvedBitmap,
+                is ImageResource.LocalWithBackgroundAndExternalResources,
                 ImageResource.None -> { /* no-op */
                 }
             }
             Text(
                 text = text,
                 color = textColor,
-                style = AppTheme.typography.body2
+                style = AppTheme.typography.body2,
+                textAlign = TextAlign.Center
             )
         }
     }

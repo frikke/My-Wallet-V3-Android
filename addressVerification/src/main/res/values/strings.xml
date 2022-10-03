@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="common_no_results_found" />
+    <string name="common_error" />
+    <string name="common_save" />
+    <string name="common_retry" />
+    <string name="contact_support" />
+    <string name="address_verification_my_address_is_not_here" />
+    <string name="address_verification_home_address" />
+    <string name="address_verification_apt_suite" />
+    <string name="address_verification_city" />
+    <string name="address_verification_state" />
+    <string name="address_verification_zip" />
+    <string name="address_verification_postcode" />
+    <string name="address_verification_country" />
+    <string name="address_verification_postcode_error" />
+    <string name="address_verification_addresses_count" />
+    <string name="address_verification_invalid_state_title" />
+    <string name="address_verification_invalid_state_message" />
+
+    <!-- TODO(aromano): Remove when android_ff_loqate is removed -->
+    <string name="kyc_address_header_1" />
+    <string name="address_line_1" />
+    <string name="address_line_2" />
+    <string name="kyc_address_address_city_hint" />
+    <string name="kyc_address_address_state_hint" />
+    <string name="kyc_address_address_postcode_hint" />
+    <string name="kyc_address_address_country_hint" />
+    <string name="btn_continue" />
+    <string name="kyc_enter_address" />
+    <string name="kyc_enter_address_manually" />
+</resources>

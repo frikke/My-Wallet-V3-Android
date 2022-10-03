@@ -12,19 +12,19 @@ import org.bitcoinj.params.MainNetParams
 @Serializable
 data class ImportedAddress(
     @SerialName("addr")
-    var address: String = "",
+    val address: String,
 
     @SerialName("priv")
-    var privateKey: String? = null,
+    val privateKey: String? = null,
 
     @SerialName("label")
-    private var labelField: String? = null,
+    private val labelField: String? = null,
 
     @SerialName("created_time")
     val createdTime: Long? = null,
 
     @SerialName("tag")
-    var tag: Int = 0,
+    private val _tag: Int? = null,
 
     @SerialName("created_device_name")
     val createdDeviceName: String? = null,
@@ -33,9 +33,11 @@ data class ImportedAddress(
     val createdDeviceVersion: String? = null,
 ) : JsonSerializableAccount {
 
-    @kotlinx.serialization.Transient
-    @Transient
-    override var label: String = labelField ?: ""
+    val tag: Int
+        get() = _tag ?: NORMAL_ADDRESS
+
+    override val label: String
+        get() = labelField ?: ""
 
     fun isPrivateKeyEncrypted(): Boolean {
         return try {
@@ -46,17 +48,29 @@ data class ImportedAddress(
         }
     }
 
-    fun setPrivateKeyFromBytes(privKeyBytes: ByteArray?) {
-        privateKey = Base58.encode(privKeyBytes)
-    }
+    fun withUpdatePrivateKey(privateKey: String): ImportedAddress =
+        this.copy(
+            privateKey = privateKey
+        )
 
     fun xpubs(): XPubs {
         return XPubs(XPub(address, XPub.Format.LEGACY))
     }
 
+    override fun updateArchivedState(isArchived: Boolean): ImportedAddress =
+        this.copy(
+            _tag = if (isArchived)
+                ARCHIVED_ADDRESS
+            else
+                NORMAL_ADDRESS
+        )
+
+    override val isArchived: Boolean
+        get() = tag == ARCHIVED_ADDRESS
+
     companion object {
         const val NORMAL_ADDRESS = 0
-        const val ARCHIVED_ADDRESS = 2
+        private const val ARCHIVED_ADDRESS = 2
 
         fun fromECKey(ecKey: ECKey, device: String?, appVersion: String?): ImportedAddress {
             return ImportedAddress(
@@ -66,11 +80,11 @@ data class ImportedAddress(
                     ecKey
                 ).toBase58(),
                 createdDeviceName = device,
+                privateKey = Base58.encode(ecKey.privKeyBytes),
                 createdTime = System.currentTimeMillis(),
-                createdDeviceVersion = appVersion
-            ).apply {
-                setPrivateKeyFromBytes(ecKey.privKeyBytes)
-            }
+                createdDeviceVersion = appVersion,
+                _tag = NORMAL_ADDRESS
+            )
         }
     }
 }

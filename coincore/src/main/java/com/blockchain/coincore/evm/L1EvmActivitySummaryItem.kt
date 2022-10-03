@@ -2,7 +2,7 @@ package com.blockchain.coincore.evm
 
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
-import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -31,7 +31,7 @@ class L1EvmActivitySummaryItem(
         }
     }
 
-    override val timeStampMs: Long = event.timestamp
+    override val timeStampMs: Long = event.timestamp * TX_HISTORY_MULTIPLIER
 
     override val value: CryptoValue = event.value
 
@@ -55,4 +55,8 @@ class L1EvmActivitySummaryItem(
     override val confirmations: Int = (lastBlockNumber - event.blockNumber).toInt()
 
     override fun updateDescription(description: String): Completable = Completable.complete()
+
+    companion object {
+        private const val TX_HISTORY_MULTIPLIER = 1000
+    }
 }

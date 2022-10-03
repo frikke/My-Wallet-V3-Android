@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ConstructorParameterNaming:HorizonKeyPair.kt$HorizonKeyPair.Private$private val _accountId: String</ID>
+    <ID>ConstructorParameterNaming:HorizonKeyPair.kt$HorizonKeyPair.Public$private val _accountId: String</ID>
+    <ID>LargeClass:XlmMetaDataInitializerTest.kt$XlmMetaDataInitializerTest</ID>
+    <ID>LongMethod:XlmDataManagerTest.kt$XlmDataManagerSendTransactionTest$@Test fun `can dry run send from a specific account`()</ID>
+    <ID>LongMethod:XlmDataManagerTest.kt$XlmDataManagerSendTransactionTest$@Test fun `can send from a specific account`()</ID>
+    <ID>LongMethod:XlmDataManagerTest.kt$XlmDataManagerSendTransactionTest$@Test fun `can send with empty memo`()</ID>
+    <ID>LongMethod:XlmDataManagerTest.kt$XlmDataManagerSendTransactionTest$@Test fun `can send`()</ID>
+    <ID>LongMethod:XlmDataManagerTest.kt$XlmDataManagerSendTransactionTest$@Test fun `completes with failed update of last tx`()</ID>
+    <ID>LongParameterList:HorizonOperationMapping.kt$( usersAccountId: String, amount: String, memo: Memo, to: String, from: String, fee: CryptoValue )</ID>
+    <ID>LongParameterList:HorizonProxy.kt$HorizonProxy$( source: AccountResponse, destination: KeyPair, destinationAccountExists: Boolean, amount: BigDecimal, memo: Memo, timeout: Long, perOperationFee: CryptoValue? = null )</ID>
+    <ID>LongParameterList:HorizonProxy.kt$HorizonProxy$( source: KeyPair, destinationAccountId: String, amount: CryptoValue, memo: Memo, perOperationFee: CryptoValue? = null, timeout: Long = XLM_DEFAULT_TIMEOUT_SECS )</ID>
+    <ID>LongParameterList:HorizonProxy.kt$HorizonProxy$( source: KeyPair, destinationAccountId: String, amount: CryptoValue, memo: Memo, timeout: Long, perOperationFee: CryptoValue? = null )</ID>
+    <ID>LongParameterList:XlmDataManager.kt$XlmDataManager$( private val horizonProxy: HorizonProxy, private val metaDataInitializer: XlmMetaDataInitializer, private val xlmSecretAccess: XlmSecretAccess, private val memoMapper: MemoMapper, private val xlmFeesFetcher: XlmFeesFetcher, private val xlmTimeoutFetcher: XlmTransactionTimeoutFetcher, private val lastTxUpdater: LastTxUpdater, private val eventLogger: EventLogger, xlmHorizonUrlFetcher: XlmHorizonUrlFetcher, xlmHorizonDefUrl: String )</ID>
+    <ID>LongParameterList:XlmDataManagerTest.kt$( horizonProxy: HorizonProxy = mock(), metaDataInitializer: XlmMetaDataInitializer = mock(), secretAccess: XlmSecretAccess = givenNoExpectedSecretAccess(), memoMapper: MemoMapper = givenAllMemosMapToNone(), feesFetcher: XlmFeesFetcher = givenXlmFees(999.stroops()), timeoutFetcher: XlmTransactionTimeoutFetcher = givenTimeoutFetcher(10), lastTxUpdater: LastTxUpdater = givenLastTxUpdater(), eventLogger: EventLogger = mock() )</ID>
+    <ID>MagicNumber:HorizonProxy.kt$HorizonProxy$404</ID>
+    <ID>MagicNumber:HorizonProxy.kt$HorizonProxy$50</ID>
+    <ID>MagicNumber:XlmSecretAccess.kt$XlmSecretAccess$20</ID>
+    <ID>ReturnCount:HorizonProxy.kt$HorizonProxy$fun dryRunTransaction( source: KeyPair, destinationAccountId: String, amount: CryptoValue, memo: Memo, perOperationFee: CryptoValue? = null, timeout: Long = XLM_DEFAULT_TIMEOUT_SECS ): SendResult</ID>
+    <ID>ReturnCount:TestHelpers.kt$private fun keyPairEquality(a: KeyPair, b: KeyPair): Boolean</ID>
+    <ID>SwallowedException:HorizonKeyPair.kt$HorizonKeyPair.Companion$e: Exception</ID>
+    <ID>SwallowedException:HorizonOperationMapping.kt$e: Throwable</ID>
+    <ID>SwallowedException:HorizonProxy.kt$HorizonProxy$e: Exception</ID>
+    <ID>SwallowedException:XlmAddressValidation.kt$e: Exception</ID>
+    <ID>SwallowedException:XlmDataManager.kt$XlmDataManager$e: Exception</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:HorizonProxy.kt$HorizonProxy$IllegalArgumentException()</ID>
+    <ID>TooGenericExceptionCaught:HorizonKeyPair.kt$HorizonKeyPair.Companion$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:HorizonOperationMapping.kt$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:HorizonProxy.kt$HorizonProxy$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:XlmAddressValidation.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:XlmDataManager.kt$XlmDataManager$e: Exception</ID>
+    <ID>TooGenericExceptionThrown:XlmMetaDataInitializerTest.kt$XlmMetaDataInitializerTest.&lt;no name provided>$throw Exception("Unexpected")</ID>
+    <ID>TooManyFunctions:HorizonProxy.kt$HorizonProxy</ID>
+    <ID>TooManyFunctions:XlmDataManager.kt$XlmDataManager</ID>
+  </CurrentIssues>
+</SmellBaseline>

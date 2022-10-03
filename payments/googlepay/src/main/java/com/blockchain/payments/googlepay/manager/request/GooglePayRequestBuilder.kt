@@ -1,7 +1,10 @@
 package com.blockchain.payments.googlepay.manager.request
 
 object GooglePayRequestBuilder {
-    fun buildForPaymentStatus(allowedAuthMethods: List<String>, allowedCardNetworks: List<String>): GooglePayRequest =
+    fun buildForPaymentStatus(
+        allowedAuthMethods: List<String> = defaultAllowedAuthMethods,
+        allowedCardNetworks: List<String> = defaultAllowedCardNetworks
+    ): GooglePayRequest =
         GooglePayRequest(
             allowedPaymentMethods = listOf(
                 CardPaymentMethod(
@@ -9,9 +12,9 @@ object GooglePayRequestBuilder {
                         allowedAuthMethods = allowedAuthMethods,
                         allowedCardNetworks = allowedCardNetworks,
                         billingAddressRequired = true,
-                        billingAddressParameters = CardPaymentMethod.CardPaymentParameters.BillingAddressParameters(),
+                        billingAddressParameters = BillingAddressParameters(),
                         allowPrepaidCards = true,
-                        allowCreditCards = true
+                        allowCreditCards = false
                     )
                 )
             )
@@ -25,16 +28,20 @@ object GooglePayRequestBuilder {
         countryCode: String,
         currencyCode: String,
         allowPrepaidCards: Boolean,
-        allowCreditCards: Boolean
+        allowCreditCards: Boolean,
+        billingAddressRequired: Boolean,
+        billingAddressParameters: BillingAddressParameters
     ): GooglePayRequest =
         GooglePayRequest(
             allowedPaymentMethods = listOf(
                 CardPaymentMethod(
                     parameters = CardPaymentMethod.CardPaymentParameters(
-                        allowedAuthMethods = allowedAuthMethods,
-                        allowedCardNetworks = allowedCardNetworks,
-                        billingAddressRequired = false,
-                        billingAddressParameters = CardPaymentMethod.CardPaymentParameters.BillingAddressParameters(),
+                        allowedAuthMethods = allowedAuthMethods.ifInvalid { defaultAllowedAuthMethods },
+                        allowedCardNetworks = allowedCardNetworks.ifInvalid { defaultAllowedCardNetworks },
+                        billingAddressRequired = billingAddressRequired,
+                        billingAddressParameters = billingAddressParameters.copy(
+                            format = billingAddressParameters.format.ifEmpty { BillingAddressParameters().format }
+                        ),
                         allowPrepaidCards = allowPrepaidCards,
                         allowCreditCards = allowCreditCards
                     ),
@@ -53,7 +60,14 @@ object GooglePayRequestBuilder {
             ),
             shippingAddressRequired = false
         )
+
+    private fun List<String>.ifInvalid(defaultValue: () -> List<String>): List<String> {
+        if (this.isEmpty() || this.filterNot { it.isEmpty() || it.isBlank() }.isEmpty()) {
+            return defaultValue()
+        }
+        return this
+    }
 }
 
-val allowedAuthMethods: List<String> = listOf("PAN_ONLY", "CRYPTOGRAM_3DS")
-val allowedCardNetworks: List<String> = listOf("MASTERCARD", "VISA")
+val defaultAllowedAuthMethods: List<String> = listOf("PAN_ONLY", "CRYPTOGRAM_3DS")
+val defaultAllowedCardNetworks: List<String> = listOf("AMEX", "MASTERCARD", "VISA")

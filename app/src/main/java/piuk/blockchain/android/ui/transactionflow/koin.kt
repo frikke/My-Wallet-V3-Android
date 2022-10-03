@@ -1,8 +1,10 @@
 package piuk.blockchain.android.ui.transactionflow
 
 import android.content.Context
+import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
+import com.blockchain.koin.swapSourceOrder
+import com.blockchain.koin.swapTargetOrder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
@@ -49,15 +51,18 @@ val transactionModule = module {
         TransactionFlowCustomiserImpl(
             resources = get<Context>().resources,
             assetResources = get(),
-            stringUtils = get()
+            stringUtils = get(),
+            walletModeService = get()
         )
-    }.bind(TransactionFlowCustomiser::class)
-        .bind(EnterAmountCustomisations::class)
-        .bind(SourceSelectionCustomisations::class)
-        .bind(TargetSelectionCustomisations::class)
-        .bind(TransactionConfirmationCustomisations::class)
-        .bind(TransactionProgressCustomisations::class)
-        .bind(TransactionFlowCustomisations::class)
+    }.apply {
+        bind(TransactionFlowCustomiser::class)
+        bind(EnterAmountCustomisations::class)
+        bind(SourceSelectionCustomisations::class)
+        bind(TargetSelectionCustomisations::class)
+        bind(TransactionConfirmationCustomisations::class)
+        bind(TransactionProgressCustomisations::class)
+        bind(TransactionFlowCustomisations::class)
+    }
 
     factory {
         TransactionFlowInfoBottomSheetCustomiserImpl(
@@ -189,14 +194,17 @@ val transactionModule = module {
                 addressFactory = payloadScope.get(),
                 custodialRepository = payloadScope.get(),
                 custodialWalletManager = payloadScope.get(),
-                paymentsDataManager = payloadScope.get(),
+                bankService = payloadScope.get(),
+                paymentMethodService = payloadScope.get(),
                 currencyPrefs = get(),
                 identity = payloadScope.get(),
-                accountsSorting = payloadScope.get(),
+                defaultAccountsSorting = payloadScope.get(defaultOrder),
+                swapSourceAccountsSorting = payloadScope.get(swapSourceOrder),
+                swapTargetAccountsSorting = payloadScope.get(swapTargetOrder),
                 linkedBanksFactory = payloadScope.get(),
                 bankLinkingPrefs = payloadScope.get(),
                 dismissRecorder = payloadScope.get(),
-                showSendToDomainsAnnouncementFeatureFlag = get(sendToDomainsAnnouncementFeatureFlag)
+                fiatCurrenciesService = payloadScope.get(),
             )
         }
 

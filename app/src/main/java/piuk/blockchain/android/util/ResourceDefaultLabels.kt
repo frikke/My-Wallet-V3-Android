@@ -28,11 +28,20 @@ internal class ResourceDefaultLabels(
         return resources.getString(R.string.custodial_wallet_default_label_1)
     }
 
+    override fun getDefaultFiatWalletLabel(): String =
+        "Fiat Accounts"
+
     override fun getAssetMasterWalletLabel(asset: Currency): String =
         asset.name
 
     override fun getAllWalletLabel(): String =
         resources.getString(R.string.default_label_all_wallets)
+
+    override fun getAllCustodialWalletsLabel(): String =
+        resources.getString(R.string.default_label_all_custodial_wallets)
+
+    override fun getAllNonCustodialWalletsLabel(): String =
+        resources.getString(R.string.default_label_all_non_custodial_wallets)
 
     override fun getDefaultInterestWalletLabel(): String =
         resources.getString(R.string.default_label_rewards_wallet)
@@ -41,5 +50,5 @@ internal class ResourceDefaultLabels(
         resources.getString(R.string.exchange_default_account_label_1)
 
     override fun getDefaultCustodialFiatWalletLabel(fiatCurrency: FiatCurrency): String =
-        resources.getString(R.string.fiat_currency_funds_wallet_name_1, fiatCurrency.displayTicker)
+        fiatCurrency.name
 }

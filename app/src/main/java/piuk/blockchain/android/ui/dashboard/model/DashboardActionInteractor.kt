@@ -3,54 +3,89 @@ package piuk.blockchain.android.ui.dashboard.model
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.Asset
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.defaultFilter
+import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.core.chains.erc20.isErc20
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.referral.ReferralService
+import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.getOrDefault
+import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.store.asSingle
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.BackpressureStrategy
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.concurrent.TimeUnit
+import java.util.Optional
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
+import kotlinx.coroutines.rx3.asObservable
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
+import piuk.blockchain.android.simplebuy.DepositMethodOptionsViewed
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
+import piuk.blockchain.android.simplebuy.WithdrawMethodOptionsViewed
+import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
+import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
+import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
 import timber.log.Timber
 
 class DashboardGroupLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
@@ -63,56 +98,93 @@ class DashboardActionInteractor(
     private val currencyPrefs: CurrencyPrefs,
     private val onboardingPrefs: OnboardingPrefs,
     private val custodialWalletManager: CustodialWalletManager,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val bankService: BankService,
     private val linkedBanksFactory: LinkedBanksFactory,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val getDashboardOnboardingStepsUseCase: GetDashboardOnboardingStepsUseCase,
+    private val nftWaitlistService: NftWaitlistService,
+    private val nftAnnouncementPrefs: NftAnnouncementPrefs,
     private val userIdentity: UserIdentity,
+    private val kycService: KycService,
+    private val dataRemediationService: DataRemediationService,
+    private val walletModeBalanceCache: WalletModeBalanceCache,
+    private val productsEligibilityStore: ProductsEligibilityStore,
+    private val walletModeService: WalletModeService,
     private val analytics: Analytics,
-    private val remoteLogger: RemoteLogger
+    private val remoteLogger: RemoteLogger,
+    private val referralPrefs: ReferralPrefs,
+    private val cowboysFeatureFlag: FeatureFlag,
+    private val settingsDataManager: SettingsDataManager,
+    private val cowboysDataProvider: CowboysPromoDataProvider,
+    private val referralService: ReferralService,
+    private val cowboysPrefs: CowboysPrefs
 ) {
-    fun fetchActiveAssets(model: DashboardModel): Disposable =
-        coincore.fiatAssets.accountGroup()
-            .map { g -> g.accounts }
-            .switchIfEmpty(Maybe.just(emptyList()))
-            .toSingle()
-            .subscribeBy(
-                onSuccess = { fiatAssets ->
-                    val cryptoAssets = coincore.activeCryptoAssets().map { it.assetInfo }
-                    model.process(
-                        DashboardIntent.UpdateAllAssetsAndBalances(
-                            cryptoAssets,
-                            fiatAssets.filterIsInstance<FiatAccount>()
-                        )
-                    )
-                },
-                onError = {
-                    Timber.e("Error fetching active assets - $it")
-                    throw it
-                }
-            )
 
-    fun fetchAvailableAssets(model: DashboardModel): Disposable =
-        Single.fromCallable {
-            coincore.availableCryptoAssets()
-        }.subscribeBy(
-            onSuccess = { assets ->
-                model.process(DashboardIntent.AssetListUpdate(assets))
+    private val defFilter: AssetFilter
+        get() = walletModeService.enabledWalletMode().defaultFilter()
+
+    fun fetchActiveAssets(model: DashboardModel): Disposable =
+        walletModeService.walletMode.onEach {
+            model.process(DashboardIntent.ClearAnnouncement)
+        }.flatMapLatest {
+            coincore.activeAssets(it)
+        }.distinctUntilChangedBy { c -> c.map { it.currency } }.asObservable().subscribeBy(
+            onNext = { activeAssets ->
+                Timber.v("Active assets ${activeAssets.map { it.currency.networkTicker }}")
+                model.process(
+                    DashboardIntent.UpdateActiveAssets(
+                        activeAssets
+                    )
+                )
             },
             onError = {
-                Timber.e("Error fetching available assets - $it")
+                Timber.e("Error fetching active assets - $it")
                 throw it
             }
+        ).also {
+            compositeDisposable.clear()
+        }.also {
+            compositeDisposable.add(it)
+        }
+
+    fun fetchAccounts(assets: List<Asset>, model: DashboardModel) {
+        return model.process(
+            DashboardIntent.UpdateAllAssetsAndBalances(
+                assetList = assets.map { asset ->
+                    asset.toDashboardAsset(walletModeService.enabledWalletMode())
+                }
+            )
         )
+    }
+
+    private fun Asset.toDashboardAsset(walletMode: WalletMode): DashboardAsset {
+        return when (this) {
+            is CryptoAsset -> when (walletMode) {
+                WalletMode.UNIVERSAL,
+                WalletMode.CUSTODIAL_ONLY -> BrokerageCryptoAsset(this.currency)
+                WalletMode.NON_CUSTODIAL_ONLY -> DefiAsset(this.currency)
+            }
+            is FiatAsset -> when (walletMode) {
+                WalletMode.UNIVERSAL,
+                WalletMode.CUSTODIAL_ONLY -> BrokearageFiatAsset(
+                    currency = this.currency,
+                    fiatAccount = this.custodialAccount
+                )
+                WalletMode.NON_CUSTODIAL_ONLY -> throw IllegalStateException(
+                    "fiats are not supported in Non custodial mode"
+                )
+            }
+            else -> throw IllegalArgumentException("$this is not a know asset type for dashboard")
+        }
+    }
 
     fun fetchAssetPrice(model: DashboardModel, asset: AssetInfo): Disposable =
-        exchangeRates.getPricesWith24hDelta(asset)
+        exchangeRates.getPricesWith24hDeltaLegacy(asset)
             // If prices are coming in too fast, be sure not to miss any
-            .toFlowable(BackpressureStrategy.BUFFER)
             .subscribeBy(
                 onNext = {
                     model.process(
-                        DashboardIntent.AssetPriceUpdate(
+                        DashboardIntent.AssetPriceWithDeltaUpdate(
                             asset = asset,
                             prices24HrWithDelta = it,
                             shouldFetchDayHistoricalPrices = false
@@ -124,58 +196,68 @@ class DashboardActionInteractor(
                 }
             )
 
-    // We have a problem here, in that pax init depends on ETH init
-    // Ultimately, we want to init metadata straight after decrypting (or creating) the wallet
-    // but we can't move that somewhere sensible yet, because 2nd password. When we remove that -
-    // which is on the radar - then we can clean up the entire app init sequence.
-    // But for now, we'll catch any pax init failure here, unless ETH has initialised OK. And when we
-    // get a valid ETH balance, will try for a PX balance. Yeah, this is a nasty hack TODO: Fix this
+    private val compositeDisposable = CompositeDisposable()
+
     fun refreshBalances(
         model: DashboardModel,
-        balanceFilter: AssetFilter,
-        state: DashboardState
+        activeAssets: Set<Currency>,
     ): Disposable {
-        val cd = CompositeDisposable()
-
-        state.assetMapKeys
-            .filter { !it.isErc20() }
-            .forEach { asset ->
-                cd += refreshAssetBalance(asset, model, balanceFilter)
-                    .ifEthLoadedGetErc20Balance(model, balanceFilter, cd, state)
-                    .ifEthFailedThenErc20Failed(asset, model, state)
-                    .subscribeBy(onError = {
-                        Timber.e(it)
-                    })
-            }
-
-        state.fiatAssets.fiatAccounts
-            .values.forEach {
-                cd += refreshFiatAssetBalance(it.account, model)
-            }
-
-        return cd
+        loadBalances(activeAssets, model).forEach {
+            it.addTo(compositeDisposable)
+        }
+        warmWalletModeBalanceCache().forEach {
+            it.addTo(compositeDisposable)
+        }
+        warmProductsCache().also {
+            it.addTo(compositeDisposable)
+        }
+        return compositeDisposable
     }
 
-    fun refreshFiatBalances(
-        fiatAccounts: Map<Currency, FiatBalanceInfo>,
+    private fun warmWalletModeBalanceCache(): List<Disposable> {
+        return listOf(
+            walletModeBalanceCache.stream(
+                request = KeyedFreshnessStrategy.Cached(
+                    key = WalletMode.NON_CUSTODIAL_ONLY,
+                    forceRefresh = false
+                )
+            ).asObservable().emptySubscribe(),
+
+            walletModeBalanceCache.stream(
+                request = KeyedFreshnessStrategy.Cached(
+                    key = WalletMode.CUSTODIAL_ONLY,
+                    forceRefresh = false
+                )
+            ).asObservable().emptySubscribe()
+        )
+    }
+
+    private fun warmProductsCache(): Disposable {
+        return productsEligibilityStore.stream(FreshnessStrategy.Cached(true)).asSingle().emptySubscribe()
+    }
+
+    private fun loadBalances(
+        assets: Set<Currency>,
         model: DashboardModel
-    ): Disposable {
-        val disposable = CompositeDisposable()
-        fiatAccounts
-            .values.forEach {
-                disposable += refreshFiatAssetBalance(it.account, model)
-            }
-        return disposable
+    ): List<Disposable> {
+        return assets.takeIf { it.isNotEmpty() }?.map { asset ->
+            refreshAssetBalance(asset, model).subscribeBy(onError = {
+                Timber.e(it)
+            })
+        } ?: kotlin.run {
+            model.process(DashboardIntent.NoActiveAssets)
+            emptyList()
+        }
     }
 
-    private fun Maybe<AccountGroup>.logGroupLoadError(asset: AssetInfo, filter: AssetFilter) =
+    private fun Maybe<AccountGroup>.logGroupLoadError(asset: Currency, filter: AssetFilter) =
         this.doOnError { e ->
             remoteLogger.logException(
                 DashboardGroupLoadFailure("Cannot load group for ${asset.displayTicker} - $filter:", e)
             )
         }
 
-    private fun Observable<AccountBalance>.logBalanceLoadError(asset: AssetInfo, filter: AssetFilter) =
+    private fun Observable<AccountBalance>.logBalanceLoadError(asset: Currency, filter: AssetFilter) =
         this.doOnError { e ->
             remoteLogger.logException(
                 DashboardBalanceLoadFailure("Cannot load balance for ${asset.displayTicker} - $filter:", e)
@@ -183,87 +265,37 @@ class DashboardActionInteractor(
         }
 
     private fun refreshAssetBalance(
-        asset: AssetInfo,
+        currency: Currency,
         model: DashboardModel,
-        balanceFilter: AssetFilter
-    ): Single<CryptoValue> =
-        coincore[asset].accountGroup(balanceFilter)
-            .logGroupLoadError(asset, balanceFilter)
+    ): Single<Money> =
+        coincore[currency].accountGroup(defFilter)
+            .logGroupLoadError(currency, defFilter)
             .flatMapObservable { group ->
                 group.balance
-                    .logBalanceLoadError(asset, balanceFilter)
+                    .logBalanceLoadError(currency, defFilter)
+            }
+            .doOnSubscribe {
+                Timber.i("Fetching balance for asset ${currency.displayTicker}")
+                model.process(DashboardIntent.BalanceFetching(currency, true))
             }
             .doOnError { e ->
-                Timber.e("Failed getting balance for ${asset.displayTicker}: $e")
-                model.process(DashboardIntent.BalanceUpdateError(asset))
+                Timber.e("Failed getting balance for ${currency.displayTicker}: $e")
+                model.process(DashboardIntent.BalanceUpdateError(currency))
             }
             .doOnNext { accountBalance ->
-                Timber.d("Got balance for ${asset.displayTicker}")
-                model.process(DashboardIntent.BalanceUpdate(asset, accountBalance))
+                Timber.d("Got balance for ${currency.displayTicker}")
+                model.process(DashboardIntent.BalanceUpdate(currency, accountBalance))
             }
-            .retryOnError()
+            .doOnComplete { model.process(DashboardIntent.BalanceFetching(currency, false)) }
             .firstOrError()
             .map {
-                it.total as CryptoValue
+                it.total
             }
 
-    private fun <T> Observable<T>.retryOnError() =
-        this.retryWhen { f ->
-            f.take(RETRY_COUNT)
-                .delay(RETRY_INTERVAL_MS, TimeUnit.MILLISECONDS)
-        }
-
-    private fun Single<CryptoValue>.ifEthLoadedGetErc20Balance(
-        model: DashboardModel,
-        balanceFilter: AssetFilter,
-        disposables: CompositeDisposable,
-        state: DashboardState
-    ) = this.doOnSuccess { value ->
-        if (value.currency == CryptoCurrency.ETHER) {
-            state.erc20Assets.forEach {
-                disposables += refreshAssetBalance(it, model, balanceFilter)
-                    .emptySubscribe()
-            }
-        }
-    }
-
-    private fun Single<CryptoValue>.ifEthFailedThenErc20Failed(
-        asset: AssetInfo,
-        model: DashboardModel,
-        state: DashboardState
-    ) = this.doOnError {
-        if (asset.networkTicker == CryptoCurrency.ETHER.networkTicker) {
-            state.erc20Assets.forEach {
-                model.process(DashboardIntent.BalanceUpdateError(it))
-            }
-        }
-    }
-
-    private fun refreshFiatAssetBalance(
-        account: FiatAccount,
-        model: DashboardModel
-    ): Disposable =
-        account.balance
-            .firstOrError() // Ideally we shouldn't need this, but we need to kill existing subs on refresh first TODO
-            .subscribeBy(
-                onSuccess = { balances ->
-                    model.process(
-                        DashboardIntent.FiatBalanceUpdate(
-                            balance = balances.total,
-                            fiatBalance = balances.totalFiat,
-                            balanceAvailable = balances.withdrawable
-                        )
-                    )
-                },
-                onError = {
-                    Timber.e("Error while loading fiat balances $it")
-                }
-            )
-
-    fun refreshPrices(model: DashboardModel, crypto: AssetInfo): Disposable =
-        exchangeRates.getPricesWith24hDelta(crypto).firstOrError()
+    private fun refreshPricesWith24HDelta(model: DashboardModel, crypto: AssetInfo): Disposable =
+        exchangeRates.getPricesWith24hDeltaLegacy(crypto).firstOrError()
             .map { pricesWithDelta ->
-                DashboardIntent.AssetPriceUpdate(crypto, pricesWithDelta, shouldFetchDayHistoricalPrices = true)
+                DashboardIntent.AssetPriceWithDeltaUpdate(crypto, pricesWithDelta, true)
             }
             .subscribeBy(
                 onSuccess = { model.process(it) },
@@ -272,31 +304,47 @@ class DashboardActionInteractor(
                 }
             )
 
-    fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable =
-        if (asset.startDate != null) {
-            (coincore[asset] as CryptoAsset).lastDayTrend()
-        } else {
-            Single.just(FLATLINE_CHART)
-        }.map { DashboardIntent.PriceHistoryUpdate(asset, it) }
+    fun refreshPrices(model: DashboardModel, asset: DashboardAsset): Disposable =
+        when (asset) {
+            is BrokerageCryptoAsset -> refreshPricesWith24HDelta(model, asset.currency as AssetInfo)
+            is BrokearageFiatAsset,
+            is DefiAsset -> refreshPrice(model, asset.currency)
+        }.also {
+            compositeDisposable += it
+        }
+
+    private fun refreshPrice(model: DashboardModel, currency: Currency): Disposable =
+        exchangeRates.exchangeRateToUserFiat(currency).firstOrError()
+            .map { price ->
+                DashboardIntent.AssetPriceUpdate(currency, price)
+            }
             .subscribeBy(
                 onSuccess = { model.process(it) },
-                onError = { Timber.e(it) }
+                onError = {
+                    model.process(DashboardIntent.BalanceUpdateError(currency))
+                }
             )
 
-    fun checkForCustodialBalance(model: DashboardModel, crypto: AssetInfo): Disposable {
-        return coincore[crypto].accountGroup(AssetFilter.Custodial)
-            .flatMapObservable { it.balance }
-            .toFlowable(BackpressureStrategy.BUFFER)
+    fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable =
+        if (asset.startDate != null) {
+            coincore[asset].lastDayTrend().asObservable()
+        } else {
+            Observable.just(DataResource.Data(FLATLINE_CHART))
+        }
             .subscribeBy(
-                onNext = {
-                    model.process(DashboardIntent.UpdateHasCustodialBalanceIntent(crypto, !it.total.isZero))
-                },
-                onComplete = {
-                    model.process(DashboardIntent.UpdateHasCustodialBalanceIntent(crypto, false))
-                },
-                onError = { model.process(DashboardIntent.UpdateHasCustodialBalanceIntent(crypto, false)) }
+                onNext = { dataResource ->
+                    when (dataResource) {
+                        is DataResource.Data -> {
+                            model.process(DashboardIntent.PriceHistoryUpdate(asset, dataResource.data))
+                        }
+                        is DataResource.Error -> {
+                            Timber.e(dataResource.error)
+                        }
+                        DataResource.Loading -> {
+                        }
+                    }
+                }
             )
-    }
 
     fun hasUserBackedUp(): Single<Boolean> = Single.just(payloadManager.isBackedUp)
 
@@ -312,20 +360,27 @@ class DashboardActionInteractor(
     }
 
     fun canDeposit(): Single<Boolean> =
-        userIdentity.getHighestApprovedKycTier()
+        kycService.getHighestApprovedTierLevelLegacy()
             .flatMap {
-                if (it == Tier.GOLD) {
-                    paymentsDataManager.canTransactWithBankMethods(currencyPrefs.selectedFiatCurrency)
+                if (it == KycTier.GOLD) {
+                    bankService.canTransactWithBankMethods(currencyPrefs.selectedFiatCurrency)
                 } else Single.just(true)
             }
 
     fun launchBankTransferFlow(model: DashboardModel, currencyCode: String = "", action: AssetAction) =
-        userIdentity.isEligibleFor(Feature.SimpleBuy)
-            .zipWith(coincore.fiatAssets.accountGroup().toSingle())
+        userIdentity.isEligibleFor(
+            when (action) {
+                AssetAction.FiatWithdraw -> Feature.WithdrawFiat
+                AssetAction.FiatDeposit -> Feature.DepositFiat
+                else -> throw IllegalArgumentException("$action not supported")
+            }
+        ).zipWith(
+            coincore.allWallets().map { it.accounts }.map { it.filterIsInstance<FiatAccount>() }
+        )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onSuccess = { (isEligible, fiatGroup) ->
+                onSuccess = { (isEligible, fiatGroups) ->
                     model.process(
                         if (isEligible) {
                             val networkTicker = if (currencyCode.isNotEmpty()) {
@@ -334,8 +389,8 @@ class DashboardActionInteractor(
                                 currencyPrefs.selectedFiatCurrency.networkTicker
                             }
 
-                            val selectedAccount = fiatGroup.accounts.first {
-                                (it as FiatAccount).currency.networkTicker == networkTicker
+                            val selectedAccount = fiatGroups.first {
+                                it.currency.networkTicker == networkTicker
                             }
 
                             DashboardIntent.LaunchBankTransferFlow(
@@ -358,18 +413,21 @@ class DashboardActionInteractor(
         model: DashboardModel,
         targetAccount: SingleAccount,
         action: AssetAction,
-        shouldLaunchBankLinkTransfer: Boolean
+        shouldLaunchBankLinkTransfer: Boolean,
+        shouldSkipQuestionnaire: Boolean,
     ): Disposable {
         require(targetAccount is FiatAccount)
-        return handleFiatDeposit(targetAccount, shouldLaunchBankLinkTransfer, model, action)
+        return handleFiatDeposit(targetAccount, shouldLaunchBankLinkTransfer, shouldSkipQuestionnaire, model, action)
     }
 
     private fun handleFiatDeposit(
         targetAccount: FiatAccount,
         shouldLaunchBankLinkTransfer: Boolean,
+        shouldSkipQuestionnaire: Boolean,
         model: DashboardModel,
-        action: AssetAction
+        action: AssetAction,
     ) = Singles.zip(
+        getQuestionnaireIfNeeded(shouldSkipQuestionnaire, QuestionnaireContext.FIAT_DEPOSIT),
         userIdentity.userAccessForFeature(Feature.DepositFiat),
         linkedBanksFactory.eligibleBankPaymentMethods(targetAccount.currency).map { paymentMethods ->
             // Ignore any WireTransferMethods In case BankLinkTransfer should launch
@@ -378,10 +436,18 @@ class DashboardActionInteractor(
         linkedBanksFactory.getNonWireTransferBanks().map {
             it.filter { bank -> bank.currency == targetAccount.currency }
         }
-    ).doOnSubscribe {
+    ) { questionnaireOpt, eligibility, paymentMethods, linkedBanks ->
+        (questionnaireOpt to eligibility) to (paymentMethods to linkedBanks)
+    }.doOnSubscribe {
         model.process(DashboardIntent.LongCallStarted)
-    }.flatMap { (eligibility, paymentMethods, linkedBanks) ->
+    }.flatMap { (questionnaireOptAndEligibility, paymentMethodsAndLinkedBanks) ->
+        val (questionnaireOpt, eligibility) = questionnaireOptAndEligibility
+        val (paymentMethods, linkedBanks) = paymentMethodsAndLinkedBanks
+
         val eligibleBanks = linkedBanks.filter { paymentMethods.contains(it.type) }
+
+        analytics.logEvent(DepositMethodOptionsViewed(paymentMethods.map { it.name }))
+
         when {
             eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
                 Single.just(
@@ -389,6 +455,17 @@ class DashboardActionInteractor(
                         eligibility.reason as BlockedReason.Sanctions
                     )
                 )
+            questionnaireOpt.isPresent -> Single.just(
+                FiatTransactionRequestResult.LaunchQuestionnaire(
+                    questionnaire = questionnaireOpt.get(),
+                    callbackIntent = DashboardIntent.LaunchBankTransferFlow(
+                        targetAccount,
+                        action,
+                        shouldLaunchBankLinkTransfer,
+                        shouldSkipQuestionnaire = true
+                    )
+                )
+            )
             eligibleBanks.isEmpty() -> {
                 handleNoLinkedBanks(
                     targetAccount,
@@ -431,10 +508,10 @@ class DashboardActionInteractor(
     )
 
     private fun handlePaymentMethodsUpdate(
-        fiatTxRequestResult: FiatTransactionRequestResult?,
+        fiatTxRequestResult: FiatTransactionRequestResult,
         model: DashboardModel,
         fiatAccount: FiatAccount,
-        action: AssetAction
+        action: AssetAction,
     ) {
         when (fiatTxRequestResult) {
             is FiatTransactionRequestResult.LaunchDepositFlowWithMultipleAccounts -> {
@@ -500,6 +577,16 @@ class DashboardActionInteractor(
                     )
                 )
             }
+            is FiatTransactionRequestResult.LaunchQuestionnaire -> {
+                model.process(
+                    DashboardIntent.UpdateNavigationAction(
+                        DashboardNavigationAction.DepositQuestionnaire(
+                            questionnaire = fiatTxRequestResult.questionnaire,
+                            callbackIntent = fiatTxRequestResult.callbackIntent
+                        )
+                    )
+                )
+            }
             is FiatTransactionRequestResult.LaunchPaymentMethodChooser -> {
                 model.process(
                     DashboardIntent.ShowLinkablePaymentMethodsSheet(
@@ -511,13 +598,18 @@ class DashboardActionInteractor(
             is FiatTransactionRequestResult.LaunchDepositDetailsSheet -> {
                 model.process(DashboardIntent.ShowBankLinkingSheet(fiatTxRequestResult.targetAccount))
             }
-        }
+            is FiatTransactionRequestResult.LaunchAliasWithdrawal -> {
+                model.process(DashboardIntent.ShowBankLinkingWithAlias(fiatTxRequestResult.targetAccount))
+            }
+            null -> {
+            }
+        }.exhaustive
     }
 
     private fun handleNoLinkedBanks(
         targetAccount: FiatAccount,
         action: AssetAction,
-        paymentMethodForAction: LinkablePaymentMethodsForAction
+        paymentMethodForAction: LinkablePaymentMethodsForAction,
     ) =
         when {
             paymentMethodForAction.linkablePaymentMethods.linkMethods.containsAll(
@@ -540,7 +632,13 @@ class DashboardActionInteractor(
                 }
             }
             paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_ACCOUNT) -> {
-                Single.just(FiatTransactionRequestResult.LaunchDepositDetailsSheet(targetAccount))
+                userIdentity.isArgentinian().flatMap { isArgentinian ->
+                    if (isArgentinian && action == AssetAction.FiatWithdraw) {
+                        Single.just(FiatTransactionRequestResult.LaunchAliasWithdrawal(targetAccount))
+                    } else {
+                        Single.just(FiatTransactionRequestResult.LaunchDepositDetailsSheet(targetAccount))
+                    }
+                }
             }
             else -> {
                 Single.just(FiatTransactionRequestResult.NotSupportedPartner)
@@ -548,19 +646,21 @@ class DashboardActionInteractor(
         }
 
     fun linkBankTransfer(currency: FiatCurrency): Single<LinkBankTransfer> =
-        paymentsDataManager.linkBank(currency)
+        bankService.linkBank(currency)
 
     fun getBankWithdrawalFlow(
         model: DashboardModel,
         sourceAccount: SingleAccount,
         action: AssetAction,
-        shouldLaunchBankLinkTransfer: Boolean
+        shouldLaunchBankLinkTransfer: Boolean,
+        shouldSkipQuestionnaire: Boolean,
     ): Disposable {
         require(sourceAccount is FiatAccount)
 
         return Singles.zip(
+            getQuestionnaireIfNeeded(shouldSkipQuestionnaire, QuestionnaireContext.FIAT_WITHDRAW),
             userIdentity.userAccessForFeature(Feature.WithdrawFiat),
-            linkedBanksFactory.eligibleBankPaymentMethods(sourceAccount.currency as FiatCurrency)
+            linkedBanksFactory.eligibleBankPaymentMethods(sourceAccount.currency)
                 .map { paymentMethods ->
                     // Ignore any WireTransferMethods In case BankLinkTransfer should launch
                     paymentMethods.filter { it == PaymentMethodType.BANK_TRANSFER || !shouldLaunchBankLinkTransfer }
@@ -568,7 +668,14 @@ class DashboardActionInteractor(
             linkedBanksFactory.getAllLinkedBanks().map {
                 it.filter { bank -> bank.currency == sourceAccount.currency }
             }
-        ).flatMap { (eligibility, paymentMethods, linkedBanks) ->
+        ) { questionnaireOpt, eligibility, paymentMethods, linkedBanks ->
+            (questionnaireOpt to eligibility) to (paymentMethods to linkedBanks)
+        }.flatMap { (questionnaireOptAndEligibility, paymentMethodsAndLinkedBanks) ->
+            val (questionnaireOpt, eligibility) = questionnaireOptAndEligibility
+            val (paymentMethods, linkedBanks) = paymentMethodsAndLinkedBanks
+
+            analytics.logEvent(WithdrawMethodOptionsViewed(paymentMethods.map { it.name }))
+
             when {
                 eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
                     Single.just(
@@ -576,6 +683,17 @@ class DashboardActionInteractor(
                             eligibility.reason as BlockedReason.Sanctions
                         )
                     )
+                questionnaireOpt.isPresent -> Single.just(
+                    FiatTransactionRequestResult.LaunchQuestionnaire(
+                        questionnaire = questionnaireOpt.get(),
+                        callbackIntent = DashboardIntent.LaunchBankTransferFlow(
+                            sourceAccount,
+                            action,
+                            shouldLaunchBankLinkTransfer,
+                            shouldSkipQuestionnaire = true
+                        )
+                    )
+                )
                 linkedBanks.isEmpty() -> {
                     handleNoLinkedBanks(
                         sourceAccount,
@@ -620,36 +738,188 @@ class DashboardActionInteractor(
         coincore.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).subscribeBy(
             onSuccess = {
                 model.process(DashboardIntent.FundsLocksLoaded(it))
-            },
+            }, onComplete = {
+            model.process(DashboardIntent.FundsLocksLoaded(null))
+        },
             onError = {
                 Timber.e(it)
             }
         )
 
     fun getOnboardingSteps(model: DashboardModel): Disposable =
-        getDashboardOnboardingStepsUseCase(Unit).subscribeBy(
-            onSuccess = { steps ->
-                val onboardingState = if (steps.any { !it.isCompleted }) {
-                    DashboardOnboardingState.Visible(steps)
+        walletModeService.walletMode.asObservable().flatMapSingle { walletMode ->
+            Singles.zip(
+                userIdentity.isCowboysUser(),
+                cowboysFeatureFlag.enabled,
+            ).flatMap { (isCowboysUser, cowboysFlagEnabled) ->
+                if (isCowboysUser && cowboysFlagEnabled) {
+                    Single.just(DashboardOnboardingState.Hidden)
                 } else {
-                    DashboardOnboardingState.Hidden
+                    if (!walletMode.custodialEnabled) {
+                        Single.just(DashboardOnboardingState.Hidden)
+                    } else {
+                        getDashboardOnboardingStepsUseCase(Unit).doOnSuccess { steps ->
+                            val hasBoughtCrypto =
+                                steps.find { it.step == DashboardOnboardingStep.BUY }?.isCompleted == true
+                            if (hasBoughtCrypto) onboardingPrefs.isLandingCtaDismissed = true
+                        }.map { steps ->
+                            if (steps.any { !it.isCompleted }) {
+                                DashboardOnboardingState.Visible(steps)
+                            } else {
+                                DashboardOnboardingState.Hidden
+                            }
+                        }
+                    }
                 }
+            }
+        }.subscribeBy(
+            onNext = { onboardingState ->
                 model.process(DashboardIntent.FetchOnboardingStepsSuccess(onboardingState))
-                val hasBoughtCrypto = steps.find { it.step == DashboardOnboardingStep.BUY }?.isCompleted == true
-                if (hasBoughtCrypto) onboardingPrefs.isLandingCtaDismissed = true
             },
             onError = {
                 Timber.e(it)
             }
         )
 
+    fun markCowboysReferralCardAsDismissed() {
+        cowboysPrefs.hasCowboysReferralBeenDismissed = true
+    }
+
+    fun checkCowboysFlowSteps(model: DashboardModel): Disposable =
+        Singles.zip(
+            userIdentity.isCowboysUser(),
+            cowboysFeatureFlag.enabled,
+        ).flatMap { (isCowboysUser, cowboysFlagEnabled) ->
+            if (cowboysFlagEnabled && isCowboysUser) {
+                checkEmailVerificationState()
+            } else {
+                Single.just(DashboardCowboysState.Hidden)
+            }
+        }.subscribeBy(
+            onSuccess = { state ->
+                model.process(DashboardIntent.UpdateCowboysViewState(state))
+            },
+            onError = {
+                Timber.e("Error in cowboys state ${it.message}")
+                model.process(DashboardIntent.UpdateCowboysViewState(DashboardCowboysState.Hidden))
+            }
+        )
+
+    private fun checkEmailVerificationState(): Single<DashboardCowboysState> =
+        settingsDataManager.getSettings().firstOrError().flatMap { userSettings ->
+            if (!userSettings.isEmailVerified) {
+                cowboysDataProvider.getWelcomeAnnouncement().flatMap {
+                    Single.just(DashboardCowboysState.CowboyWelcomeCard(it))
+                }
+            } else {
+                checkHighestApprovedKycTier()
+            }
+        }
+
+    private fun checkHighestApprovedKycTier(): Single<DashboardCowboysState> =
+        kycService.getHighestApprovedTierLevelLegacy(FreshnessStrategy.Fresh)
+            .flatMap { highestApprovedKycTier ->
+                when (highestApprovedKycTier) {
+                    KycTier.BRONZE -> cowboysDataProvider.getRaffleAnnouncement().flatMap {
+                        Single.just(DashboardCowboysState.CowboyRaffleCard(it))
+                    }
+                    KycTier.SILVER ->
+                        kycService.getTiersLegacy(FreshnessStrategy.Fresh)
+                            .flatMap { tierData ->
+                                if (tierData.isPendingOrUnderReviewFor(KycTier.GOLD)) {
+                                    cowboysDataProvider.getKycInProgressAnnouncement().flatMap {
+                                        Single.just(DashboardCowboysState.CowboyKycInProgressCard(it))
+                                    }
+                                } else {
+                                    cowboysDataProvider.getIdentityAnnouncement().flatMap {
+                                        Single.just(DashboardCowboysState.CowboyIdentityCard(it))
+                                    }
+                                }
+                            }
+                    else -> getCowboysReferralInfo()
+                }
+            }
+
+    private fun getCowboysReferralInfo(): Single<DashboardCowboysState> =
+        if (cowboysPrefs.hasCowboysReferralBeenDismissed) {
+            Single.just(DashboardCowboysState.Hidden)
+        } else {
+            Single.zip(
+                getReferralData(),
+                cowboysDataProvider.getReferFriendsAnnouncement()
+            ) { referralInfo, cowboysData ->
+                DashboardCowboysState.CowboyReferFriendsCard(
+                    referralData = referralInfo,
+                    cardInfo = cowboysData
+                )
+            }
+        }
+
+    private fun getReferralData(): Single<ReferralInfo> =
+        rxSingle(Schedulers.io().asCoroutineDispatcher()) {
+            referralService.fetchReferralData()
+                .getOrDefault(ReferralInfo.NotAvailable)
+        }.onErrorResumeWith { ReferralInfo.NotAvailable }
+
+    private fun getQuestionnaireIfNeeded(
+        shouldSkipQuestionnaire: Boolean,
+        questionnaireContext: QuestionnaireContext,
+    ): Single<Optional<Questionnaire>> =
+        if (shouldSkipQuestionnaire) {
+            Single.just(Optional.empty())
+        } else {
+            rxMaybeOutcome(Schedulers.io().asCoroutineDispatcher()) {
+                dataRemediationService.getQuestionnaire(questionnaireContext)
+            }.map { Optional.of(it) }
+                .defaultIfEmpty(Optional.empty())
+        }
+
+    fun joinNftWaitlist(): Disposable {
+        return rxSingle { nftWaitlistService.joinWaitlist() }.subscribeBy(
+            onSuccess = { result ->
+                nftAnnouncementPrefs.isJoinNftWaitlistSuccessful = result is Outcome.Success
+            },
+            onError = {
+                Timber.e(it)
+            }
+        )
+    }
+
+    fun checkReferralSuccess(model: DashboardModel): Disposable =
+        Singles.zip(
+            userIdentity.isCowboysUser(),
+            cowboysFeatureFlag.enabled,
+        ).flatMapCompletable { (isCowboysUser, cowboysFlagEnabled) ->
+            if (isCowboysUser && cowboysFlagEnabled) {
+                Completable.complete()
+            } else {
+                Completable.fromAction {
+                    val title = referralPrefs.referralSuccessTitle
+                    val body = referralPrefs.referralSuccessBody
+                    if (title.isNotBlank() && body.isNotBlank()) {
+                        model.process(DashboardIntent.ShowReferralSuccess(Pair(title, body)))
+                    }
+                }
+            }
+        }.subscribeBy(
+            onError = {
+                Timber.e(it)
+            }
+        )
+
+    fun dismissReferralSuccess() = Completable.fromAction {
+        referralPrefs.referralSuccessTitle = ""
+        referralPrefs.referralSuccessBody = ""
+    }.subscribeBy(
+        onError = {
+            Timber.e(it)
+        }
+    )
+
     companion object {
         private val FLATLINE_CHART = listOf(
             HistoricalRate(rate = 1.0, timestamp = 0),
             HistoricalRate(rate = 1.0, timestamp = System.currentTimeMillis() / 1000)
         )
-
-        private const val RETRY_INTERVAL_MS = 1000L
-        private const val RETRY_COUNT = 2L
     }
 }

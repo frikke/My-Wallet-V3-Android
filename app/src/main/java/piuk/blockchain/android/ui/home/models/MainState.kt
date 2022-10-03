@@ -1,14 +1,16 @@
 package piuk.blockchain.android.ui.home.models
 
-import android.content.Intent
 import androidx.annotation.StringRes
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
@@ -20,8 +22,11 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
 data class MainState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,
-    val deeplinkResult: DeepLinkResult = DeepLinkResult.DeepLinkResultFailed,
-    val deeplinkIntent: Intent? = null
+    val deeplinkResult: DeepLinkResult = DeepLinkResult.DeepLinkResultUnknownLink(),
+    val currentTab: NavigationItem = NavigationItem.Home,
+    val tabs: List<NavigationItem> = emptyList(),
+    val walletMode: WalletMode = WalletMode.UNIVERSAL,
+    val referral: ReferralState = ReferralState(ReferralInfo.NotAvailable)
 ) : MviState
 
 sealed class ViewToLaunch {
@@ -37,7 +42,6 @@ sealed class ViewToLaunch {
     class LaunchAssetAction(val action: AssetAction, val account: BlockchainAccount?) : ViewToLaunch()
     class LaunchSimpleBuy(val asset: AssetInfo) : ViewToLaunch()
     class LaunchKyc(val campaignType: CampaignType) : ViewToLaunch()
-    class LaunchExchange(val linkId: String? = null) : ViewToLaunch()
     class DisplayAlertDialog(@StringRes val dialogTitle: Int, @StringRes val dialogMessage: Int) : ViewToLaunch()
     object ShowOpenBankingError : ViewToLaunch()
     class LaunchOpenBankingLinking(val bankLinkingInfo: BankLinkingInfo) : ViewToLaunch()
@@ -45,6 +49,9 @@ sealed class ViewToLaunch {
     class LaunchOpenBankingApprovalDepositInProgress(val value: Money) : ViewToLaunch()
     class LaunchOpenBankingApprovalTimeout(val currencyCode: String) : ViewToLaunch()
     class LaunchOpenBankingError(val currencyCode: String) : ViewToLaunch()
+    class LaunchServerDrivenOpenBankingError(val currencyCode: String, val title: String, val description: String) :
+        ViewToLaunch()
+
     class LaunchOpenBankingApprovalDepositComplete(val amount: Money, val estimatedDepositCompletionTime: String) :
         ViewToLaunch()
 
@@ -57,6 +64,5 @@ sealed class ViewToLaunch {
     class LaunchUpsellAssetAction(val upsell: KycUpgradePromptManager.Type) : ViewToLaunch()
     class LaunchTransactionFlowWithTargets(val targets: Collection<CryptoTarget>) : ViewToLaunch()
     class ShowTargetScanError(val error: QrScanError) : ViewToLaunch()
-    object ShowUiTour : ViewToLaunch()
-    object ShowEntitySwitchSilverKycUpsell : ViewToLaunch()
+    object ShowReferralSheet : ViewToLaunch()
 }

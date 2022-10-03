@@ -1,13 +1,15 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
-import com.blockchain.nabu.datamanagers.kyc.KycDataManager
+import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.kyc.additional_info.toMutableNode
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
+import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
 
 class TiersReentryDecision(
-    private val kycDataManager: KycDataManager
+    private val dataRemediationService: DataRemediationService,
+    private val loqateFeatureFlag: FeatureFlag,
 ) : ReentryDecision {
 
     private lateinit var nabuUser: NabuUser
@@ -23,13 +25,17 @@ class TiersReentryDecision(
             tier0ProfileIncompleteOrResubmitAllowed() &&
                 !tier0UnselectedCountry() -> ReentryPoint.Profile
             tier0AndCanAdvance() && tier0MissingAddress() -> ReentryPoint.Address
-            else -> return rxSingleOutcome { kycDataManager.getAdditionalInfoForm() }.map { missingAdditionalInfo ->
-                when {
-                    !hasMobileVerified() -> ReentryPoint.MobileEntry
-                    missingAdditionalInfo.isNotEmpty() ->
-                        ReentryPoint.AdditionalInfo(missingAdditionalInfo.toMutableNode())
-                    else -> ReentryPoint.Veriff
-                }
+            !hasMobileVerified() -> ReentryPoint.MobileEntry
+            else -> return rxMaybeOutcome {
+                dataRemediationService.getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION)
+            }.map { questionnaire ->
+                ReentryPoint.Questionnaire(questionnaire) as ReentryPoint
+            }.defaultIfEmpty(ReentryPoint.Veriff)
+        }
+
+        if (entryPoint == ReentryPoint.Address) {
+            return loqateFeatureFlag.enabled.map { enabled ->
+                if (enabled) ReentryPoint.Address else ReentryPoint.OldAddress
             }
         }
 

@@ -13,11 +13,12 @@ import com.blockchain.api.txlimits.data.Limit
 import com.blockchain.api.txlimits.data.LimitRange
 import com.blockchain.api.txlimits.data.PeriodicLimit
 import com.blockchain.api.txlimits.data.SuggestedUpgrade
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.FakeAuthenticator
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.USD
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.nhaarman.mockitokotlin2.any
@@ -218,7 +219,7 @@ class LimitsDataManagerImplTest {
                             )
                         )
                     ) &&
-                    limits.suggestedUpgrade!!.type == UpgradeType.Kyc(Tier.GOLD) &&
+                    limits.suggestedUpgrade!!.type == UpgradeType.Kyc(KycTier.GOLD) &&
                     limits.suggestedUpgrade!!.upgradedLimits.containsAll(
                         listOf(
                             TxPeriodicLimit(

@@ -20,9 +20,9 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.swap.OUTGOING_FEE
 import com.blockchain.coincore.impl.txEngine.swap.RECEIVE_AMOUNT
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import java.math.BigDecimal
@@ -64,7 +64,7 @@ class TxFlowAnalytics(
             AssetAction.InterestDeposit ->
                 if (state.currentStep == TransactionStep.CONFIRM_DETAIL)
                     analytics.logEvent(InterestDepositAnalyticsEvent.CancelTransaction)
-            AssetAction.Withdraw ->
+            AssetAction.FiatWithdraw ->
                 if (state.currentStep == TransactionStep.CONFIRM_DETAIL) {
                     analytics.logEvent(
                         withdrawEvent(
@@ -85,7 +85,7 @@ class TxFlowAnalytics(
             AssetAction.Swap -> triggerSwapScreenEvent(state.currentStep)
             AssetAction.InterestDeposit -> triggerDepositScreenEvent(state.currentStep)
             AssetAction.InterestWithdraw -> triggerInterestWithdrawScreenEvent(state.currentStep)
-            AssetAction.Withdraw -> triggerWithdrawScreenEvent(
+            AssetAction.FiatWithdraw -> triggerWithdrawScreenEvent(
                 state.currentStep, (state.sendingAccount as FiatAccount).currency.networkTicker
             )
             else -> {
@@ -101,7 +101,7 @@ class TxFlowAnalytics(
                     TxFlowAnalyticsAccountType.fromAccount(account)
                 )
             )
-            AssetAction.Withdraw -> analytics.logEvent(
+            AssetAction.FiatWithdraw -> analytics.logEvent(
                 WithdrawAnalytics.WithdrawMethodSelected(
                     (state.sendingAccount as FiatAccount).currency.networkTicker,
                     (account as LinkedBankAccount).type
@@ -305,7 +305,7 @@ class TxFlowAnalytics(
                     )
                 )
             }
-            AssetAction.Withdraw -> analytics.logEvent(
+            AssetAction.FiatWithdraw -> analytics.logEvent(
                 WithdrawAnalytics.WithdrawalMaxClicked(
                     currency = (state.sendingAccount as FiatAccount).currency.networkTicker,
                     paymentMethodType = (state.sendingAccount as LinkedBankAccount).type
@@ -392,7 +392,7 @@ class TxFlowAnalytics(
                     )
                 )
             }
-            AssetAction.Withdraw -> {
+            AssetAction.FiatWithdraw -> {
                 analytics.logEvent(
                     withdrawEvent(
                         WithdrawAnalytics.WITHDRAW_CONFIRM, (state.sendingAccount as FiatAccount).currency.networkTicker
@@ -490,7 +490,7 @@ class TxFlowAnalytics(
                         target = state.selectedTarget.toCategory()
                     )
                 )
-            AssetAction.Withdraw ->
+            AssetAction.FiatWithdraw ->
                 analytics.logEvent(
                     withdrawEvent(
                         WithdrawAnalytics.WITHDRAW_CHECKOUT_CONFIRM,
@@ -553,7 +553,7 @@ class TxFlowAnalytics(
                     )
                 }
             }
-            AssetAction.Withdraw ->
+            AssetAction.FiatWithdraw ->
                 analytics.logEvent(
                     withdrawEvent(
                         WithdrawAnalytics.WITHDRAW_SUCCESS, (state.sendingAccount as FiatAccount).currency.networkTicker
@@ -592,7 +592,7 @@ class TxFlowAnalytics(
                     error = error
                 )
             )
-            AssetAction.Withdraw ->
+            AssetAction.FiatWithdraw ->
                 analytics.logEvent(
                     withdrawEvent(
                         WithdrawAnalytics.WITHDRAW_ERROR, (state.sendingAccount as FiatAccount).currency.networkTicker

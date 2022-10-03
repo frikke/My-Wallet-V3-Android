@@ -76,17 +76,20 @@ internal class PayloadService(
      * @param password The user's choice of password
      * @param walletName The name of the wallet, usually a default name localised by region
      * @param email The user's email address, preferably not associated with another account
+     * @param recaptchaToken The generated token during registration
      * @return An [Observable] wrapping the [Wallet] object
      */
     internal fun createHdWallet(
         password: String,
         walletName: String,
-        email: String
+        email: String,
+        recaptchaToken: String?
     ): Single<Wallet> = Single.fromCallable {
         payloadManager.create(
             walletName,
             email,
-            password
+            password,
+            recaptchaToken
         )
     }
 
@@ -125,20 +128,6 @@ internal class PayloadService(
         )
     }
 
-    // /////////////////////////////////////////////////////////////////////////
-    // SYNC METHODS
-    // /////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Returns a [Completable] which saves the current payload to the server.
-     *
-     * @return A [Completable] object
-     */
-    internal fun syncPayloadWithServer(): Completable =
-        Completable.fromCallable {
-            if (!payloadManager.save()) throw ApiException("Sync failed")
-        }
-
     /**
      * Returns a [Completable] which saves the current payload to the server whilst also
      * forcing the sync of the user's keys. This method generates 20 addresses per [Account],
@@ -149,7 +138,7 @@ internal class PayloadService(
      */
     internal fun syncPayloadAndPublicKeys(): Completable =
         Completable.fromCallable {
-            if (!payloadManager.saveAndSyncPubKeys()) {
+            if (!payloadManager.syncPubKeys()) {
                 throw ApiException("Sync failed")
             }
         }
@@ -187,8 +176,7 @@ internal class PayloadService(
      * @return A [Completable] object
      */
     internal fun updateTransactionNotes(transactionHash: String, notes: String): Completable {
-        payloadManager.payload!!.txNotes[transactionHash] = notes
-        return syncPayloadWithServer()
+        return Completable.fromCallable { payloadManager.updateNotesForTxHash(transactionHash, notes) }
     }
 
     // /////////////////////////////////////////////////////////////////////////
@@ -243,16 +231,5 @@ internal class PayloadService(
     internal fun addImportedAddress(importedAddress: ImportedAddress): Completable =
         Completable.fromCallable {
             payloadManager.addImportedAddress(importedAddress)
-        }
-
-    /**
-     * Allows you to propagate changes to a [ImportedAddress] through the [Wallet]
-     *
-     * @param importedAddress The updated address
-     * @return A [Completable] object representing a successful save
-     */
-    internal fun updateImportedAddress(importedAddress: ImportedAddress): Completable =
-        Completable.fromCallable {
-            payloadManager.updateImportedAddress(importedAddress)
         }
 }

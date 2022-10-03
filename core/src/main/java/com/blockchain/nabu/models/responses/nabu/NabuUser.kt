@@ -1,8 +1,10 @@
 package com.blockchain.nabu.models.responses.nabu
 
-import com.blockchain.nabu.datamanagers.BillingAddress
+import com.blockchain.domain.common.model.CountryIso
+import com.blockchain.domain.common.model.StateIso
+import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.serialization.JsonSerializable
-import com.blockchain.serializers.PrimitiveSerializer
+import com.blockchain.serializers.AnyToStringSerializer
 import kotlin.math.max
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -15,6 +17,7 @@ import kotlinx.serialization.encoding.Encoder
 
 @Serializable
 data class NabuUser(
+    val id: String,
     val firstName: String? = null,
     val lastName: String? = null,
     val email: String = "",
@@ -36,9 +39,10 @@ data class NabuUser(
      * ISO-8601 Timestamp w/millis, eg 2018-08-15T17:00:45.129Z
      */
     val updatedAt: String? = null,
-    val tags: Map<String, Map<String, @Serializable(with = PrimitiveSerializer::class) Any>>? = null,
+    private val tags: Map<String, Map<String, @Serializable(with = AnyToStringSerializer::class) Any>>? = null,
     val userName: String? = null,
     val tiers: TierLevels? = null,
+    val currencies: CurrenciesResponse,
     val walletGuid: String? = null
 ) : JsonSerializable {
     val tierInProgress
@@ -82,11 +86,19 @@ data class NabuUser(
         get() = resubmission?.reason == ResubmissionResponse.ACCOUNT_RECOVERED_REASON &&
             tiers?.current != 2
 
-    val isStxAirdropRegistered: Boolean
-        get() = tags?.get("BLOCKSTACK") != null
+    val isPowerPaxTagged: Boolean
+        get() = tags?.containsKey(POWER_PAX_TAG) ?: false
 
     val exchangeEnabled: Boolean
         get() = productsUsed?.exchange ?: settings?.MERCURY_EMAIL_VERIFIED ?: false
+
+    val isCowboysUser: Boolean
+        get() = tags?.containsKey(COWBOYS_TAG) ?: false
+
+    companion object {
+        private const val POWER_PAX_TAG = "POWER_PAX"
+        private const val COWBOYS_TAG = "COWBOYS_2022"
+    }
 }
 
 @Serializable
@@ -101,10 +113,11 @@ data class Address(
     val line1: String? = null,
     val line2: String? = null,
     val city: String? = null,
-    val state: String? = null,
+    @SerialName("state")
+    val stateIso: StateIso? = null,
     val postCode: String? = null,
     @SerialName("country")
-    val countryCode: String? = null
+    val countryCode: CountryIso? = null
 )
 
 @Serializable
@@ -140,7 +153,7 @@ data class AddAddressRequest(
                 city = billingAddress.city,
                 countryCode = billingAddress.countryCode,
                 postCode = billingAddress.postCode,
-                state = billingAddress.state
+                stateIso = billingAddress.state
             )
     }
 }

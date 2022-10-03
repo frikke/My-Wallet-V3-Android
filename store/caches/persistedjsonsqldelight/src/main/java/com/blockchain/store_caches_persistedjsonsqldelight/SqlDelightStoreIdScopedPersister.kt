@@ -28,4 +28,6 @@ internal class SqlDelightStoreIdScopedPersister(
     )
 
     override suspend fun markAsStale(key: String?) = storePersisterDataQueries.markAsStale(storeId, key)
+
+    override suspend fun markStoreAsStale() = storePersisterDataQueries.markStoreAsStale(storeId)
 }

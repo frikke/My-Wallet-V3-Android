@@ -55,6 +55,10 @@ abstract class BalanceManager constructor(
         )
     }
 
+    fun resetAllBalances() {
+        balanceMap = CryptoBalanceMap.zero(asset)
+    }
+
     @Deprecated("Use getBalanceQuery")
     abstract fun getBalanceOfAddresses(xpubs: List<XPubs>): Call<BalanceResponseDto>
 }

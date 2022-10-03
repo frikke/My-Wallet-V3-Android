@@ -8,23 +8,29 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 
 class TradingSellTxEngine(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    private val tradingStore: TradingStore,
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
     quotesEngine: TransferQuotesEngine,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val userIdentity: UserIdentity
 ) : SellTxEngineBase(walletManager, limitsDataManager, userIdentity, quotesEngine) {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf(tradingStore)
 
     override val direction: TransferDirection
         get() = TransferDirection.INTERNAL
@@ -39,7 +45,7 @@ class TradingSellTxEngine(
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
-        quotesEngine.pricedQuote.firstOrError()
+        quotesEngine.getPricedQuote().firstOrError()
             .zipWith(availableBalance)
             .flatMap { (quote, balance) ->
                 Single.just(

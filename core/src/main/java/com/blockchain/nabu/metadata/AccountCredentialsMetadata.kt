@@ -1,28 +1,24 @@
 package com.blockchain.nabu.metadata
 
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.metadata.load
 import com.blockchain.metadata.save
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.mapToBlockchainCredentialsMetadata
-import com.blockchain.nabu.models.responses.tokenresponse.mapToLegacyCredentials
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.extensions.thenMaybe
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import timber.log.Timber
 
 class AccountCredentialsMetadata(
     private val metadataRepository: MetadataRepository,
-    private val accountMetadataMigrationFF: FeatureFlag,
     private val remoteLogger: RemoteLogger
 ) {
     private var loadMetadataMaybe: Maybe<CredentialMetadata>? = null
 
+    @Synchronized
     fun load(): Maybe<CredentialMetadata> {
         loadMetadataMaybe?.let {
             Timber.d("Metadata loading already")
@@ -84,34 +80,16 @@ class AccountCredentialsMetadata(
         }
     }
 
-    fun saveAndReturn(tokenResponse: NabuOfflineTokenResponse): Single<CredentialMetadata> {
-        return accountMetadataMigrationFF.enabled.flatMap { enabled ->
-            if (enabled) {
-                saveAndReturnMetadata(tokenResponse)
-            } else {
-                saveAndReturnLegacyMetadata(tokenResponse)
-            }
-        }
+    fun save(tokenResponse: NabuOfflineToken): Completable {
+        return saveMetadata(tokenResponse)
     }
 
-    private fun saveAndReturnMetadata(tokenResponse: NabuOfflineTokenResponse): Single<CredentialMetadata> {
+    private fun saveMetadata(tokenResponse: NabuOfflineToken): Completable {
         val metadata = tokenResponse.mapToBlockchainCredentialsMetadata()
         return metadataRepository.save(
             metadata,
             MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
-        ).thenSingle {
-            Single.just(metadata)
-        }
-    }
-
-    private fun saveAndReturnLegacyMetadata(tokenResponse: NabuOfflineTokenResponse): Single<CredentialMetadata> {
-        val metadata = tokenResponse.mapToLegacyCredentials()
-        return metadataRepository.save(
-            metadata,
-            MetadataEntry.NABU_LEGACY_CREDENTIALS
-        ).thenSingle {
-            Single.just(metadata)
-        }
+        )
     }
 
     private fun migrate(

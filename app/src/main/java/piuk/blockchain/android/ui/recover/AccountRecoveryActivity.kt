@@ -47,7 +47,7 @@ class AccountRecoveryActivity :
         setContentView(binding.root)
         updateToolbar(
             toolbarTitle = getString(R.string.account_recover_title),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         initControls()
     }

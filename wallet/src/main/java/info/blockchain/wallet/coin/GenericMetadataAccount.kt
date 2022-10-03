@@ -12,27 +12,38 @@ import kotlinx.serialization.Serializable
  * </p>
  */
 @Serializable
-class GenericMetadataAccount(
+data class GenericMetadataAccount(
     @SerialName("label")
-    override var label: String = "",
-
+    override val label: String,
     @SerialName("archived")
-    var isArchived: Boolean = false,
-
+    private val _archived: Boolean? = null,
     @SerialName("xpub")
-    private var xpub: String? = null
+    private val _xpub: String? = null
 ) : JsonSerializableAccount {
 
-    constructor(label: String, archived: Boolean) : this() {
-        this.label = label
-        isArchived = archived
-    }
+    override val isArchived: Boolean
+        get() = _archived ?: false
 
-    fun setXpub(xpub: String?) {
-        this.xpub = xpub
-    }
+    private val xpub: String
+        get() = _xpub ?: throw IllegalStateException("Xpub not presented")
 
     fun xpubs(): XPubs {
-        return XPubs(XPub(xpub!!, XPub.Format.LEGACY))
+        return XPubs(XPub(xpub, XPub.Format.LEGACY))
     }
+
+    fun updateXpub(xPub: String): GenericMetadataAccount =
+        copy(
+            _xpub = xPub
+        )
+
+    fun removeXpub(): GenericMetadataAccount =
+        this.copy(_xpub = null)
+
+    override fun updateArchivedState(isArchived: Boolean): GenericMetadataAccount {
+        return copy(_archived = isArchived)
+    }
+
+    fun updateLabel(newLabel: String): GenericMetadataAccount = copy(
+        label = newLabel
+    )
 }

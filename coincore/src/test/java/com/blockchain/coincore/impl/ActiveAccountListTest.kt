@@ -4,7 +4,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.core.interest.domain.InterestService
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
@@ -23,16 +23,16 @@ class ActiveAccountListTest {
         computationTrampoline()
     }
 
-    private val custodialManager: CustodialWalletManager = mock()
+    private val interestService: InterestService = mock()
     private val subject = ActiveAccountList(
         asset = TEST_ASSET,
-        custodialManager = custodialManager
+        interestService = interestService
     )
 
     @Test
     fun noAccountsFound() {
 
-        whenever(custodialManager.getInterestAvailabilityForAsset(TEST_ASSET))
+        whenever(interestService.isAssetAvailableForInterest(TEST_ASSET))
             .thenReturn(Single.just(false))
 
         subject.fetchAccountList(::loadEmptyAccountList)
@@ -40,14 +40,14 @@ class ActiveAccountListTest {
             .assertComplete()
             .assertValue { it.isEmpty() }
 
-        verify(custodialManager).getInterestAvailabilityForAsset(TEST_ASSET)
-        verifyNoMoreInteractions(custodialManager)
+        verify(interestService).isAssetAvailableForInterest(TEST_ASSET)
+        verifyNoMoreInteractions(interestService)
     }
 
     @Test
     fun allAccountsLoaded() {
 
-        whenever(custodialManager.getInterestAvailabilityForAsset(TEST_ASSET))
+        whenever(interestService.isAssetAvailableForInterest(TEST_ASSET))
             .thenReturn(Single.just(false))
 
         subject.fetchAccountList(::loadFourAccountList)
@@ -55,14 +55,14 @@ class ActiveAccountListTest {
             .assertComplete()
             .assertValue { it.size == 4 }
 
-        verify(custodialManager).getInterestAvailabilityForAsset(TEST_ASSET)
-        verifyNoMoreInteractions(custodialManager)
+        verify(interestService).isAssetAvailableForInterest(TEST_ASSET)
+        verifyNoMoreInteractions(interestService)
     }
 
     @Test
     fun noReloadIfUnchanged() {
 
-        whenever(custodialManager.getInterestAvailabilityForAsset(TEST_ASSET))
+        whenever(interestService.isAssetAvailableForInterest(TEST_ASSET))
             .thenReturn(Single.just(false))
             .thenReturn(Single.just(false))
 
@@ -76,14 +76,14 @@ class ActiveAccountListTest {
             .assertComplete()
             .assertValue { it.size == 2 }
 
-        verify(custodialManager, times(2)).getInterestAvailabilityForAsset(TEST_ASSET)
-        verifyNoMoreInteractions(custodialManager)
+        verify(interestService, times(2)).isAssetAvailableForInterest(TEST_ASSET)
+        verifyNoMoreInteractions(interestService)
     }
 
     @Test
     fun reloadIfInterestStateChanged() {
 
-        whenever(custodialManager.getInterestAvailabilityForAsset(TEST_ASSET))
+        whenever(interestService.isAssetAvailableForInterest(TEST_ASSET))
             .thenReturn(Single.just(false))
             .thenReturn(Single.just(true))
 
@@ -97,14 +97,14 @@ class ActiveAccountListTest {
             .assertComplete()
             .assertValue { it.size == 3 }
 
-        verify(custodialManager, times(2)).getInterestAvailabilityForAsset(TEST_ASSET)
-        verifyNoMoreInteractions(custodialManager)
+        verify(interestService, times(2)).isAssetAvailableForInterest(TEST_ASSET)
+        verifyNoMoreInteractions(interestService)
     }
 
     @Test
     fun reloadIfForced() {
 
-        whenever(custodialManager.getInterestAvailabilityForAsset(TEST_ASSET))
+        whenever(interestService.isAssetAvailableForInterest(TEST_ASSET))
             .thenReturn(Single.just(false))
             .thenReturn(Single.just(false))
 
@@ -120,14 +120,14 @@ class ActiveAccountListTest {
             .assertComplete()
             .assertValue { it.size == 3 }
 
-        verify(custodialManager, times(2)).getInterestAvailabilityForAsset(TEST_ASSET)
-        verifyNoMoreInteractions(custodialManager)
+        verify(interestService, times(2)).isAssetAvailableForInterest(TEST_ASSET)
+        verifyNoMoreInteractions(interestService)
     }
 
     @Test
     fun forceLoadResets() {
 
-        whenever(custodialManager.getInterestAvailabilityForAsset(TEST_ASSET))
+        whenever(interestService.isAssetAvailableForInterest(TEST_ASSET))
             .thenReturn(Single.just(false))
             .thenReturn(Single.just(false))
             .thenReturn(Single.just(false))
@@ -149,14 +149,14 @@ class ActiveAccountListTest {
             .assertComplete()
             .assertValue { it.size == 3 }
 
-        verify(custodialManager, times(3)).getInterestAvailabilityForAsset(TEST_ASSET)
-        verifyNoMoreInteractions(custodialManager)
+        verify(interestService, times(3)).isAssetAvailableForInterest(TEST_ASSET)
+        verifyNoMoreInteractions(interestService)
     }
 
     @Test
     fun accountsAreRemoved() {
 
-        whenever(custodialManager.getInterestAvailabilityForAsset(TEST_ASSET))
+        whenever(interestService.isAssetAvailableForInterest(TEST_ASSET))
             .thenReturn(Single.just(false))
             .thenReturn(Single.just(false))
 
@@ -173,37 +173,22 @@ class ActiveAccountListTest {
             .assertValue { it.size == 3 }
             .assertValue { !it.contains(mockAccountD) }
 
-        verify(custodialManager, times(2)).getInterestAvailabilityForAsset(TEST_ASSET)
-        verifyNoMoreInteractions(custodialManager)
+        verify(interestService, times(2)).isAssetAvailableForInterest(TEST_ASSET)
+        verifyNoMoreInteractions(interestService)
     }
 
     @Test
     fun errorsArePropagatedFromLoad() {
 
-        whenever(custodialManager.getInterestAvailabilityForAsset(TEST_ASSET))
+        whenever(interestService.isAssetAvailableForInterest(TEST_ASSET))
             .thenReturn(Single.just(false))
 
         subject.fetchAccountList(::loadAccountListFailed)
             .test()
             .assertError(Throwable::class.java)
 
-        verify(custodialManager).getInterestAvailabilityForAsset(TEST_ASSET)
-        verifyNoMoreInteractions(custodialManager)
-    }
-
-    @Test
-    fun noRefreshIfWalletManagerFails() {
-
-        whenever(custodialManager.getInterestAvailabilityForAsset(TEST_ASSET))
-            .thenReturn(Single.error<Boolean>(Throwable("Not today, chum")))
-
-        subject.fetchAccountList(::loadOneAccountList)
-            .test()
-            .assertComplete()
-            .assertValue { it.isEmpty() }
-
-        verify(custodialManager).getInterestAvailabilityForAsset(TEST_ASSET)
-        verifyNoMoreInteractions(custodialManager)
+        verify(interestService).isAssetAvailableForInterest(TEST_ASSET)
+        verifyNoMoreInteractions(interestService)
     }
 
     private val mockAccountA: CryptoAccount = mock()

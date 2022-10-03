@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>PrintStackTrace:DateExtensions.kt$e</ID>
+    <ID>SwallowedException:EnumExtensions.kt$e: IllegalArgumentException</ID>
+    <ID>TooManyFunctions:DateExtensions.kt$com.blockchain.utils.DateExtensions.kt</ID>
+  </CurrentIssues>
+</SmellBaseline>

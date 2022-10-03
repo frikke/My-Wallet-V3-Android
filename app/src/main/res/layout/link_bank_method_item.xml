@@ -20,7 +20,7 @@
         android:layout_marginBottom="@dimen/small_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@drawable/ic_bank_transfer" />
+        tools:srcCompat="@drawable/ic_bank_icon" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/payment_method_title"
@@ -45,7 +45,7 @@
         android:layout_marginEnd="@dimen/standard_margin"
         android:ellipsize="end"
         android:singleLine="true"
-        android:text="@string/payment_deposit_subtitle"
+        android:text="@string/payment_deposit_subtitle_dollars"
         android:textColor="@color/grey_900"
         app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
         app:layout_constraintTop_toBottomOf="@id/payment_method_title" />
@@ -58,7 +58,7 @@
         android:layout_marginStart="@dimen/small_margin"
         android:layout_marginTop="2dp"
         android:layout_marginEnd="@dimen/standard_margin"
-        android:text="@string/instantly_buy_crypto_with_link_a_bank"
+        tools:text=""
         app:layout_constraintBottom_toTopOf="@+id/badge"
         app:layout_constraintEnd_toStartOf="@id/add_payment_method_icon"
         app:layout_constraintStart_toEndOf="@+id/payment_method_icon"

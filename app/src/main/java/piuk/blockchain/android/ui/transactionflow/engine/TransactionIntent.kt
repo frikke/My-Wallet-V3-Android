@@ -18,9 +18,9 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.eth.WalletConnectTarget
 import com.blockchain.commonarch.presentation.mvi.MviIntent
-import com.blockchain.core.payments.model.FundsLocks
-import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.datamanagers.TransactionError

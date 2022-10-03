@@ -111,17 +111,29 @@
         app:layout_goneMarginEnd="@dimen/small_margin"
         tools:layout_height="20dp" />
 
-    <Button
+    <com.blockchain.componentlib.switcher.SwitcherItemView
         android:id="@+id/recurring_buy_cta"
-        style="@style/CtaButton.White.Slim"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/small_margin"
-        android:text="@string/recurring_buy_one_time_short"
-        app:layout_constraintBottom_toTopOf="@id/payment_method"
+        android:text="@string/recurring_buy_one_time_cta"
+        app:layout_constraintBottom_toTopOf="@id/quick_fill_buttons"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/input_amount" />
+
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/quick_fill_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/small_margin"
+        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginEnd="@dimen/small_margin"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/payment_method"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recurring_buy_cta"
+        tools:visibility="visible" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/payment_method"
@@ -129,10 +141,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/small_margin"
-        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/very_small_margin"
         android:text="@string/payment_method"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recurring_buy_cta" />
+        app:layout_constraintTop_toBottomOf="@+id/quick_fill_buttons" />
 
     <View
         android:id="@+id/payment_method_separator"
@@ -144,128 +156,56 @@
         app:layout_constraintStart_toEndOf="@+id/payment_method"
         app:layout_constraintTop_toTopOf="@+id/payment_method" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/payment_method_details_root"
-        android:layout_width="0dp"
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/payment_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/tiny_margin"
         android:layout_marginEnd="@dimen/standard_margin"
         android:background="@drawable/payment_method_background"
-        android:paddingTop="@dimen/tiny_margin"
-        android:paddingBottom="@dimen/tiny_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/payment_method"
         app:layout_constraintTop_toBottomOf="@+id/payment_method">
 
-        <com.elyeproj.loaderviewlibrary.LoaderImageView
-            android:id="@+id/payment_method_icon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_margin="@dimen/small_margin"
-            android:minWidth="25dp"
-            android:minHeight="25dp"
-            android:scaleType="center"
-            app:corners="8"
-            app:height_weight="0.8"
-            app:layout_constraintBottom_toBottomOf="@id/payment_method_limit"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/payment_method_title"
-            app:use_gradient="true"
-            app:width_weight="0.9"
-            tools:srcCompat="@drawable/ic_add_payment_method" />
+        <com.blockchain.componentlib.tablerow.DefaultTableRowView
+            android:id="@+id/payment_method_details_root"
+            android:visibility="gone"
+            android:padding="@dimen/smallest_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-        <com.elyeproj.loaderviewlibrary.LoaderTextView
-            android:id="@+id/payment_method_title"
-            style="@style/Text.Semibold.16"
-            android:layout_width="0dp"
+        <com.blockchain.componentlib.system.LoadingTableRowView
+            android:id="@+id/shimmer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/small_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
-            android:ellipsize="end"
-            android:singleLine="true"
-            app:corners="8"
-            app:height_weight="0.8"
-            app:layout_constraintBottom_toTopOf="@+id/payment_method_bank_info"
-            app:layout_constraintEnd_toStartOf="@+id/payment_method_arrow"
-            app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:use_gradient="true"
-            app:width_weight="0.9"
-            tools:text="Chase Saphire 8291" />
+            android:visibility="visible" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/payment_method_arrow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/standard_margin"
-            app:layout_constraintBottom_toBottomOf="@id/payment_method_limit"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/payment_method_title"
-            app:srcCompat="@drawable/ic_arrow_down"
-            app:tint="@color/grey_600" />
-
-        <com.elyeproj.loaderviewlibrary.LoaderTextView
-            android:id="@+id/payment_method_bank_info"
-            style="@style/Text.Light.14"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/small_margin"
-            android:layout_marginEnd="@dimen/small_margin"
-            app:corners="8"
-            app:height_weight="0.8"
-            app:layout_constraintEnd_toStartOf="@+id/payment_method_arrow"
-            app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
-            app:layout_constraintTop_toBottomOf="@+id/payment_method_title"
-            app:layout_constraintBottom_toTopOf="@+id/payment_method_limit"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:use_gradient="true"
-            app:width_weight="0.9"
-            tools:text="Checking account 0123"
-            tools:visibility="visible" />
-
-        <com.elyeproj.loaderviewlibrary.LoaderTextView
-            android:id="@+id/payment_method_limit"
-            style="@style/Text.Light.14"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/small_margin"
-            android:layout_marginEnd="@dimen/small_margin"
-            app:corners="8"
-            app:height_weight="0.8"
-            app:layout_constraintEnd_toStartOf="@+id/payment_method_arrow"
-            app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
-            app:layout_constraintTop_toBottomOf="@+id/payment_method_bank_info"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:use_gradient="true"
-            app:width_weight="0.9"
-            tools:text="$5,000 USD Limit" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_continue"
         style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
         android:text="@string/preview_buy"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/payment_method_details_root" />
+        app:layout_constraintTop_toBottomOf="@+id/payment_container" />
 
-    <include
-        android:id="@+id/error_layout"
-        layout="@layout/error_container_layout"
+    <com.blockchain.componentlib.button.AlertButtonView
+        android:id="@+id/btn_error"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/very_small_margin"
         android:layout_marginEnd="@dimen/standard_margin"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/payment_method_details_root"
-        tools:visibility="gone" />
+        app:layout_constraintTop_toBottomOf="@+id/payment_container" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

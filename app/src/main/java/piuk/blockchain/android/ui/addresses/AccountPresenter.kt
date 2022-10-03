@@ -6,13 +6,13 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AddressAnalytics
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.analytics.events.WalletAnalytics
+import com.blockchain.coincore.Asset
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.MultipleWalletsAsset
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
-import com.blockchain.coincore.bch.BchAsset
 import com.blockchain.coincore.bch.BchCryptoWalletAccount
-import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import info.blockchain.balance.AssetInfo
@@ -57,7 +57,7 @@ class AccountPresenter internal constructor(
     override fun onViewDetached() {}
 
     fun refresh(asset: AssetInfo) {
-        fetchAccountList(asset)
+        fetchAccountList(coincore[asset])
     }
 
     override val alwaysDisableScreenshots: Boolean = false
@@ -72,18 +72,18 @@ class AccountPresenter internal constructor(
      */
     @SuppressLint("CheckResult")
     internal fun createNewAccount(accountLabel: String, secondPassword: String? = null) {
-        val btcAsset = coincore[CryptoCurrency.BTC] as BtcAsset
-        val bchAsset = coincore[CryptoCurrency.BCH] as BchAsset
+        val btcAsset = coincore[CryptoCurrency.BTC] as MultipleWalletsAsset
+        val bchAsset = coincore[CryptoCurrency.BCH] as MultipleWalletsAsset
 
         compositeDisposable += coincore.isLabelUnique(accountLabel)
             .flatMap { isUnique ->
                 if (!isUnique) {
                     Single.error(NameInUseException())
                 } else {
-                    btcAsset.createAccount(accountLabel, secondPassword)
+                    btcAsset.createWalletFromLabel(accountLabel, secondPassword)
                 }
-            }.flatMapCompletable {
-                bchAsset.createAccount(it.xpubAddress)
+            }.map { it as BtcCryptoWalletAccount }.flatMapCompletable {
+                bchAsset.createWalletFromAddress(it.xpubAddress)
             }.observeOn(AndroidSchedulers.mainThread())
             .showProgress()
             .subscribeBy(
@@ -173,13 +173,15 @@ class AccountPresenter internal constructor(
         keyPassword: String?,
         walletSecondPassword: String?
     ) {
-        val btcAsset = coincore[CryptoCurrency.BTC] as BtcAsset
-        compositeDisposable += btcAsset.importAddressFromKey(
+        val btcAsset = coincore[CryptoCurrency.BTC] as MultipleWalletsAsset
+        compositeDisposable += btcAsset.importWalletFromKey(
             keyData,
             keyFormat,
             keyPassword,
             walletSecondPassword
-        ).showProgress()
+        ).map {
+            it as CryptoNonCustodialAccount
+        }.showProgress()
             .subscribeBy(
                 onSuccess = {
                     view?.showSuccess(R.string.private_key_successfully_imported)
@@ -192,14 +194,14 @@ class AccountPresenter internal constructor(
             )
     }
 
-    private fun fetchAccountList(asset: AssetInfo) {
-        require(coincore[asset].multiWallet)
+    private fun fetchAccountList(asset: Asset) {
+        require(asset is MultipleWalletsAsset)
 
-        compositeDisposable += coincore[asset].accountGroup(AssetFilter.NonCustodial)
+        compositeDisposable += asset.accountGroup(AssetFilter.NonCustodial)
             .map {
                 it.accounts
             }.subscribeBy(
-                onSuccess = { processCoincoreList(asset, it) },
+                onSuccess = { processCoincoreList(asset.currency, it) },
                 onError = { e ->
                     Timber.e("Failed to get account list for asset: $e")
                 }

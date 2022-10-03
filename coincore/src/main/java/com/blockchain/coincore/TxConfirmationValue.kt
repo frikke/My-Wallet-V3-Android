@@ -1,5 +1,6 @@
 package com.blockchain.coincore
 
+import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.core.chains.EvmNetwork
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -14,7 +15,11 @@ data class FeeInfo(
 
 sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
 
-    data class ExchangePriceConfirmation(val money: Money, val asset: Currency) :
+    data class ExchangePriceConfirmation(
+        val money: Money,
+        val asset: Currency,
+        val isNewQuote: Boolean = false,
+    ) :
         TxConfirmationValue(TxConfirmation.EXPANDABLE_SIMPLE_READ_ONLY)
 
     data class From(val sourceAccount: BlockchainAccount, val sourceAsset: Currency? = null) :
@@ -38,7 +43,11 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
     data class SignEthMessage(val message: String, val dAppName: String) :
         TxConfirmationValue(TxConfirmation.EXPANDABLE_SINGLE_VALUE_READ_ONLY)
 
-    data class Sale(val amount: Money, val exchange: Money) :
+    data class Sale(
+        val amount: Money,
+        val exchange: Money,
+        val isNewQuote: Boolean = false
+    ) :
         TxConfirmationValue(TxConfirmation.COMPLEX_READ_ONLY)
 
     data class To(
@@ -52,7 +61,11 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
         val label: String
     ) : TxConfirmationValue(TxConfirmation.COMPLEX_ELLIPSIZED_READ_ONLY)
 
-    data class Total(val totalWithFee: Money, val exchange: Money) :
+    data class Total(
+        val totalWithFee: Money,
+        val exchange: Money,
+        val isNewQuote: Boolean = false
+    ) :
         TxConfirmationValue(TxConfirmation.COMPLEX_READ_ONLY)
 
     data class Amount(val amount: Money, val isImportant: Boolean) :
@@ -91,7 +104,8 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
 
     data class SwapExchange(
         val unitCryptoCurrency: Money,
-        val price: Money
+        val price: Money,
+        val isNewQuote: Boolean
     ) : TxConfirmationValue(TxConfirmation.EXPANDABLE_COMPLEX_READ_ONLY)
 
     data class TxBooleanConfirmation<T>(
@@ -102,6 +116,10 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
 
     data class WalletConnectHeader(val dAppName: String, val dAppLogo: String, val dAppUrl: String) :
         TxConfirmationValue(TxConfirmation.HEADER)
+
+    data class QuoteCountDown(
+        val pricedQuote: PricedQuote
+    ) : TxConfirmationValue(TxConfirmation.QUOTE_COUNTDOWN)
 }
 
 interface UserEditable

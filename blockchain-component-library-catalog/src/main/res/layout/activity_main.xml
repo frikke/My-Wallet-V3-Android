@@ -65,6 +65,13 @@
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/async_media"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Async Media"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/tags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -202,6 +209,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Section Headers"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/section_switchers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Switchers"
             android:textAllCaps="false" />
 
         <androidx.appcompat.widget.AppCompatTextView

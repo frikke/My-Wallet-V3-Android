@@ -12,23 +12,28 @@ sealed class ClientErrorAnalytics(
 ) : AnalyticsEvent {
 
     class ClientLogError(
+        val errorId: String? = null,
         val nabuApiException: NabuApiException?,
+        val errorDescription: String? = null,
         val error: String,
         val source: Source,
         val title: String,
         val action: String? = null,
+        val categories: List<String>
     ) : ClientErrorAnalytics(
         event = AnalyticsNames.CLIENT_ERROR.eventName,
         params = mapOf(
+            "id" to (errorId ?: nabuApiException?.getServerSideErrorInfo()?.id.orEmpty()),
             "error" to error,
             "source" to source.name,
             "title" to title,
             "action" to action,
             "network_endpoint" to nabuApiException?.getPath(),
-            "network_error_code" to nabuApiException?.getErrorCode()?.code.toString(),
-            "network_error_description" to nabuApiException?.getErrorDescription(),
+            "network_error_code" to nabuApiException?.getErrorCode()?.code?.or(-1),
+            "network_error_description" to (nabuApiException?.message ?: errorDescription.orEmpty()),
             "network_error_id" to nabuApiException?.getId(),
             "network_error_type" to nabuApiException?.getErrorType()?.type,
+            "categories" to categories.joinToString(",")
         ).withoutNullValues()
     )
 
@@ -40,6 +45,7 @@ sealed class ClientErrorAnalytics(
         const val ACTION_BUY = "BUY"
         const val ACTION_SELL = "SELL"
         const val ACTION_SWAP = "SWAP"
+        const val ACTION_UNKNOWN = "UNKNOWN"
 
         const val OOPS_ERROR = "OOPS_ERROR"
         const val UNKNOWN_ERROR = "UNKNOWN_ERROR"
@@ -70,5 +76,10 @@ sealed class ClientErrorAnalytics(
         const val INVALID_FIAT_CURRENCY = "INVALID_FIAT_CURRENCY"
         const val INVALID_CRYPTO_CURRENCY = "INVALID_CRYPTO_CURRENCY"
         const val TRADING_DISABLED = "TRADING_DISABLED"
+        const val SERVER_SIDE_HANDLED_ERROR = "SERVER_SIDE_HANDLED_ERROR"
+        const val SETTLEMENT_REFRESH_REQUIRED = "SETTLEMENT_REFRESH_REQUIRED"
+        const val SETTLEMENT_INSUFFICIENT_BALANCE = "SETTLEMENT_INSUFFICIENT_BALANCE"
+        const val SETTLEMENT_STALE_BALANCE = "SETTLEMENT_STALE_BALANCE"
+        const val SETTLEMENT_GENERIC_ERROR = "SETTLEMENT_GENERIC_ERROR"
     }
 }

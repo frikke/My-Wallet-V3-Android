@@ -41,7 +41,7 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
         setContentView(binding.root)
 
         updateToolbarBackAction {
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
         }
 
         supportFragmentManager.showFragment(
@@ -129,6 +129,7 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
         object StartReceive : ActivityResult()
         object StartBuyIntro : ActivityResult()
     }
+
     class BlockchainActivityResultContract : ActivityResultContract<ActivityArgs, ActivityResult?>() {
         override fun createIntent(context: Context, input: ActivityArgs): Intent =
             newIntent(context, input.action)

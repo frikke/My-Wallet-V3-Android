@@ -1,12 +1,18 @@
 package piuk.blockchain.android.cards
 
 import com.blockchain.commonarch.presentation.mvi.MviState
-import com.blockchain.nabu.datamanagers.BillingAddress
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
+import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.eligibility.model.Region
+import com.blockchain.domain.paymentmethods.model.BillingAddress
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
+import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.FiatCurrency
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import piuk.blockchain.android.R
 
 @Serializable
@@ -16,12 +22,13 @@ data class CardState(
     val cardStatus: CardStatus? = null,
     val billingAddress: BillingAddress? = null,
     val addCard: Boolean = false,
+    val linkedCards: List<@Contextual LinkedPaymentMethod.Card>? = null,
     @Transient
-    @kotlinx.serialization.Transient
     val authoriseCard: CardAcquirerCredentials? = null,
     @Transient
-    @kotlinx.serialization.Transient
-    val cardRequestStatus: CardRequestStatus? = null
+    val cardRequestStatus: CardRequestStatus? = null,
+    val cardRejectionState: @Contextual CardRejectionState? = null,
+    val usStateList: List<@Contextual Region.State>? = null,
 ) : MviState
 
 @Serializable
@@ -47,28 +54,38 @@ sealed class CardRequestStatus {
 
 fun CardType.icon() =
     when (this) {
-        CardType.VISA -> R.drawable.ic_visa
-        CardType.MASTERCARD -> R.drawable.ic_mastercard
+        CardType.VISA -> R.drawable.ic_card_visa
+        CardType.MASTERCARD -> R.drawable.ic_card_mastercard
         else -> this.frontResource
     }
 
-enum class CardError {
-    CREATION_FAILED,
-    ACTIVATION_FAIL,
-    PENDING_AFTER_POLL,
-    LINK_FAILED,
-    INSUFFICIENT_CARD_BALANCE,
-    CARD_BANK_DECLINED,
-    CARD_DUPLICATE,
-    CARD_BLOCKCHAIN_DECLINED,
-    CARD_ACQUIRER_DECLINED,
-    CARD_PAYMENT_NOT_SUPPORTED,
-    CARD_CREATED_FAILED,
-    CARD_PAYMENT_FAILED,
-    CARD_CREATED_ABANDONED,
-    CARD_CREATED_EXPIRED,
-    CARD_CREATE_BANK_DECLINED,
-    CARD_CREATE_DEBIT_ONLY,
-    CARD_PAYMENT_DEBIT_ONLY,
-    CARD_CREATE_NO_TOKEN
+sealed class CardError {
+    object CreationFailed : CardError()
+    object ActivationFailed : CardError()
+    object PendingAfterPoll : CardError()
+    object LinkFailed : CardError()
+    object InsufficientCardBalance : CardError()
+    object CardBankDeclined : CardError()
+    object CardDuplicated : CardError()
+    object CardBlockchainDeclined : CardError()
+    object CardAcquirerDeclined : CardError()
+    object CardPaymentNotSupportedDeclined : CardError()
+    object CardCreatedFailed : CardError()
+    object CardPaymentFailed : CardError()
+    object CardCreatedAbandoned : CardError()
+    object CardCreatedExpired : CardError()
+    object CardCreateBankDeclined : CardError()
+    object CardCreateDebitOnly : CardError()
+    object CardPaymentDebitOnly : CardError()
+    object CardCreateNoToken : CardError()
+    object CardLimitReach : CardError()
+    class ServerSideCardError(
+        val title: String,
+        val message: String,
+        val iconUrl: String,
+        val statusIconUrl: String,
+        val actions: List<ServerErrorAction>,
+        val categories: List<String>,
+        val errorId: String?
+    ) : CardError()
 }

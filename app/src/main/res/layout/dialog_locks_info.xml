@@ -47,9 +47,9 @@
         style="@style/TextAppearance.Blockchain.Paragraph1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:textAlignment="center"
         android:layout_margin="@dimen/standard_margin"
         android:text="@string/funds_locked_summary_text"
+        android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@id/title" />
 
     <View
@@ -67,9 +67,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/small_margin"
-        tools:text="@string/funds_locked_summary_available_send"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sep1" />
+        app:layout_constraintTop_toBottomOf="@id/sep1"
+        tools:text="@string/funds_locked_summary_available_send" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/available_amount"
@@ -90,25 +90,23 @@
         android:background="@color/grey_000"
         app:layout_constraintTop_toBottomOf="@+id/available_title" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.MinimalButtonView
         android:id="@+id/see_details"
-        style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/standard_margin"
         android:layout_marginTop="@dimen/standard_margin"
-        android:text="@string/funds_locked_summary_details"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sep2"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sep2" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/ok_button"
-        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/standard_margin"
         android:layout_marginTop="@dimen/small_margin"
         android:layout_marginBottom="@dimen/standard_margin"
-        android:text="@string/funds_locked_summary_cta"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/see_details" />
 

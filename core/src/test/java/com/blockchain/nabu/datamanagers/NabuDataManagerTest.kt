@@ -2,13 +2,9 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.api.ApiException
 import com.blockchain.logging.DigitalTrust
-import com.blockchain.nabu.cache.UserCache
-import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
-import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
-import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
-import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.wallet.RetailJwtResponse
 import com.blockchain.nabu.service.NabuService
@@ -27,7 +23,7 @@ import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class NabuDataManagerTest {
 
@@ -40,8 +36,7 @@ class NabuDataManagerTest {
     private val userReporter: NabuUserReporter = mock()
     private val walletReporter: WalletReporter = mock()
     private val digitalTrust: DigitalTrust = mock()
-    private val prefs: PersistentPrefs = mock()
-    private val userCache: UserCache = mock()
+    private val prefs: SessionPrefs = mock()
     private val appVersion = "6.23.2"
     private val deviceId = "DEVICE_ID"
     private val email = "EMAIL"
@@ -67,8 +62,7 @@ class NabuDataManagerTest {
             walletReporter,
             digitalTrust,
             payloadDataManager,
-            prefs,
-            userCache
+            prefs
         )
     }
 
@@ -121,7 +115,7 @@ class NabuDataManagerTest {
         val userId = "USER_ID"
         val token = "TOKEN"
         val jwt = "JWT"
-        val tokenResponse = NabuOfflineTokenResponse(userId, token)
+        val tokenResponse = NabuOfflineTokenResponse(userId, token, true)
         whenever(nabuService.getAuthToken(jwt))
             .thenReturn(Single.just(tokenResponse))
         // Act
@@ -136,7 +130,7 @@ class NabuDataManagerTest {
     @Test
     fun getSessionToken() {
         // Arrange
-        val offlineToken = NabuOfflineTokenResponse("", "")
+        val offlineToken = NabuOfflineToken("", "")
         val sessionTokenResponse = FakeNabuSessionTokenFactory.any
         whenever(
             nabuService.getSessionToken(
@@ -171,7 +165,7 @@ class NabuDataManagerTest {
         val firstName = "FIRST_NAME"
         val lastName = "LAST_NAME"
         val dateOfBirth = "25-02-1995"
-        val offlineToken = NabuOfflineTokenResponse("", "")
+        val offlineToken = NabuOfflineToken("", "")
         val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
         whenever(nabuTokenStore.getAccessToken())
@@ -203,66 +197,6 @@ class NabuDataManagerTest {
     }
 
     @Test
-    fun getUser() {
-        // Arrange
-        val userObject: NabuUser = mock()
-        val offlineToken = NabuOfflineTokenResponse(USER_ID, "")
-        val sessionToken = FakeNabuSessionTokenFactory.any
-        whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken()).thenReturn(Observable.just(Optional.Some(sessionToken)))
-        whenever(userCache.cached(sessionToken)).thenReturn(Single.just(userObject))
-        // Act
-        val testObserver = subject.getUser(offlineToken).test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(userObject)
-        verify(userCache).cached(sessionToken)
-        verify(walletReporter).reportWalletGuid(payloadDataManager.guid)
-        verify(userReporter).reportUser(userObject)
-        verify(userReporter).reportUserId(USER_ID)
-        verify(digitalTrust).setUserId(USER_ID)
-    }
-
-    @Test
-    fun `get users tags with values`() {
-        // Arrange
-        val userObject: NabuUser = mock {
-            on { tags }.thenReturn(mapOf("campaign" to mapOf("some tag" to "some data")))
-        }
-        val offlineToken = NabuOfflineTokenResponse("", "")
-        val sessionToken = FakeNabuSessionTokenFactory.any
-        whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken()).thenReturn(Observable.just(Optional.Some(sessionToken)))
-        whenever(userCache.cached(sessionToken)).thenReturn(Single.just(userObject))
-        // Act
-        val testObserver = subject.getCampaignList(offlineToken).test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(listOf("campaign"))
-        verify(userCache).cached(sessionToken)
-    }
-
-    @Test
-    fun `get users tags returns empty list`() {
-        // Arrange
-        val userObject: NabuUser = mock()
-        val offlineToken = NabuOfflineTokenResponse("", "")
-        val sessionToken = FakeNabuSessionTokenFactory.any
-        whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken()).thenReturn(Observable.just(Optional.Some(sessionToken)))
-        whenever(userCache.cached(sessionToken)).thenReturn(Single.just(userObject))
-        // Act
-        val testObserver = subject.getCampaignList(offlineToken).test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(emptyList())
-        verify(userCache).cached(sessionToken)
-    }
-
-    @Test
     fun addAddress() {
         // Arrange
         val city = "CITY"
@@ -271,7 +205,7 @@ class NabuDataManagerTest {
         val state = null
         val countryCode = "COUNTRY_CODE"
         val postCode = "POST_CODE"
-        val offlineToken = NabuOfflineTokenResponse("", "")
+        val offlineToken = NabuOfflineToken("", "")
         val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
         whenever(nabuTokenStore.getAccessToken())
@@ -318,7 +252,7 @@ class NabuDataManagerTest {
         val countryCode = "US"
         val stateCode = "US-AL"
         val notifyWhenAvailable = true
-        val offlineToken = NabuOfflineTokenResponse("", "")
+        val offlineToken = NabuOfflineToken("", "")
         val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
         whenever(nabuTokenStore.getAccessToken())
@@ -353,46 +287,10 @@ class NabuDataManagerTest {
     }
 
     @Test
-    fun getCountriesList() {
-        // Arrange
-        val countriesList = listOf(
-            NabuCountryResponse("GER", "Germany", listOf("EEA"), listOf("KYC")),
-            NabuCountryResponse("UK", "United Kingdom", listOf("EEA"), listOf("KYC"))
-        )
-        whenever(nabuService.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countriesList))
-        // Act
-        val testObserver = subject.getCountriesList(Scope.Kyc).test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(countriesList)
-        verify(nabuService).getCountriesList(Scope.Kyc)
-    }
-
-    @Test
-    fun getStatesList() {
-        // Arrange
-        val statesList = listOf(
-            NabuStateResponse("US-AL", "Alabama", listOf("KYC"), "US"),
-            NabuStateResponse("US-AZ", "Arizona", listOf("KYC"), "US")
-        )
-        whenever(nabuService.getStatesList("US", Scope.Kyc))
-            .thenReturn(Single.just(statesList))
-        // Act
-        val testObserver = subject.getStatesList("US", Scope.Kyc).test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(statesList)
-        verify(nabuService).getStatesList("US", Scope.Kyc)
-    }
-
-    @Test
     fun getSupportedDocuments() {
         // Arrange
         val countryCode = "US"
-        val offlineToken = NabuOfflineTokenResponse("", "")
+        val offlineToken = NabuOfflineToken("", "")
         val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
         whenever(nabuTokenStore.getAccessToken())
@@ -421,7 +319,7 @@ class NabuDataManagerTest {
     @Test
     fun registerCampaign() {
         // Arrange
-        val offlineToken = NabuOfflineTokenResponse("", "")
+        val offlineToken = NabuOfflineToken("", "")
         val sessionToken = FakeNabuSessionTokenFactory.any
         val campaignRequest = RegisterCampaignRequest(emptyMap(), false)
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)

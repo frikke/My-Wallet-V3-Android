@@ -3,28 +3,20 @@ package com.blockchain.coincore.btc
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.IdentityAddressResolver
+import com.blockchain.coincore.MultipleWalletsAsset
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
-import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.NotificationAddresses
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.coincore.impl.StandardL1Asset
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.websocket.CoinsWebSocketInterface
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
-import info.blockchain.balance.isCustodialOnly
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.ImportedAddress
@@ -36,44 +28,20 @@ import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
-import thepit.PitLinking
 
-/*internal*/class BtcAsset internal constructor(
-    payloadManager: PayloadDataManager,
+internal class BtcAsset(
+    private val payloadManager: PayloadDataManager,
     private val sendDataManager: SendDataManager,
     private val feeDataManager: FeeDataManager,
-    private val coinsWebsocket: CoinsWebSocketInterface,
-    custodialManager: CustodialWalletManager,
-    interestBalances: InterestBalanceDataManager,
-    tradingBalances: TradingBalanceDataManager,
-    exchangeRates: ExchangeRatesDataManager,
-    currencyPrefs: CurrencyPrefs,
-    labels: DefaultLabels,
-    pitLinking: PitLinking,
-    remoteLogger: RemoteLogger,
-    private val walletPreferences: WalletStatus,
+    private val walletPreferences: WalletStatusPrefs,
     private val notificationUpdater: BackendNotificationUpdater,
-    identity: UserIdentity,
-    addressResolver: IdentityAddressResolver
-) : CryptoAssetBase(
-    payloadManager,
-    exchangeRates,
-    currencyPrefs,
-    labels,
-    custodialManager,
-    interestBalances,
-    tradingBalances,
-    pitLinking,
-    remoteLogger,
-    identity,
-    addressResolver
-) {
+    private val addressResolver: IdentityAddressResolver
+) : CryptoAssetBase(),
+    StandardL1Asset,
+    MultipleWalletsAsset {
 
-    override val assetInfo: AssetInfo
+    override val currency: AssetInfo
         get() = CryptoCurrency.BTC
-
-    override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
-    override val multiWallet: Boolean = true
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         Single.fromCallable {
@@ -94,20 +62,6 @@ import thepit.PitLinking
             }
         }
 
-    override fun loadCustodialAccounts(): Single<SingleAccountList> =
-        Single.just(
-            listOf(
-                CustodialTradingAccount(
-                    currency = assetInfo,
-                    label = labels.getDefaultCustodialWalletLabel(),
-                    exchangeRates = exchangeRates,
-                    custodialWalletManager = custodialManager,
-                    tradingBalances = tradingBalances,
-                    identity = identity
-                )
-            )
-        )
-
     private fun updateBackendNotificationAddresses(account: BtcCryptoWalletAccount) {
         require(account.isDefault)
         require(!account.isArchived)
@@ -121,7 +75,7 @@ import thepit.PitLinking
         }
 
         val notify = NotificationAddresses(
-            assetTicker = assetInfo.networkTicker,
+            assetTicker = currency.networkTicker,
             addressList = addressList
         )
         return notificationUpdater.updateNotificationBackend(notify)
@@ -163,13 +117,21 @@ import thepit.PitLinking
             .singleOrError()
             .map { btcAccountFromPayloadAccount(payloadManager.accountCount - 1, it) }
             .doOnSuccess { forceAccountsRefresh() }
-            .doOnSuccess { coinsWebsocket.subscribeToXpubBtc(it.xpubAddress) }
 
-    fun importAddressFromKey(
+    override fun createWalletFromLabel(label: String, secondPassword: String?): Single<BtcCryptoWalletAccount> =
+        payloadManager.createNewAccount(label, secondPassword)
+            .singleOrError()
+            .map { btcAccountFromPayloadAccount(payloadManager.accountCount - 1, it) }
+            .doOnSuccess { forceAccountsRefresh() }
+
+    override fun createWalletFromAddress(address: String): Completable =
+        throw UnsupportedOperationException("Action not supported")
+
+    override fun importWalletFromKey(
         keyData: String,
         keyFormat: String,
-        keyPassword: String? = null, // Required for BIP38 format keys
-        walletSecondPassword: String? = null
+        keyPassword: String?,
+        walletSecondPassword: String?
     ): Single<BtcCryptoWalletAccount> {
         require(keyData.isNotEmpty())
         require(keyPassword != null || keyFormat != PrivateKeyFactory.BIP38)
@@ -187,8 +149,6 @@ import thepit.PitLinking
             btcAccountFromImportedAccount(importedAddress)
         }.doOnSuccess {
             forceAccountsRefresh()
-        }.doOnSuccess { btcAccount ->
-            coinsWebsocket.subscribeToExtraBtcAddress(btcAccount.xpubAddress)
         }
     }
 
@@ -201,29 +161,27 @@ import thepit.PitLinking
     private fun btcAccountFromPayloadAccount(index: Int, payloadAccount: Account): BtcCryptoWalletAccount =
         BtcCryptoWalletAccount.createHdAccount(
             jsonAccount = payloadAccount,
-            payloadManager = payloadManager,
             hdAccountIndex = index,
+            payloadDataManager = payloadManager,
             sendDataManager = sendDataManager,
             feeDataManager = feeDataManager,
             exchangeRates = exchangeRates,
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialManager,
             refreshTrigger = this,
-            identity = identity,
             addressResolver = addressResolver
         )
 
     private fun btcAccountFromImportedAccount(payloadAccount: ImportedAddress): BtcCryptoWalletAccount =
         BtcCryptoWalletAccount.createImportedAccount(
             importedAccount = payloadAccount,
-            payloadManager = payloadManager,
+            payloadDataManager = payloadManager,
             sendDataManager = sendDataManager,
             feeDataManager = feeDataManager,
             exchangeRates = exchangeRates,
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialManager,
             refreshTrigger = this,
-            identity = identity,
             addressResolver = addressResolver
         )
 

@@ -32,6 +32,7 @@ import android.view.MenuItem
 import android.view.Surface
 import android.view.View
 import android.view.WindowManager
+import androidx.activity.addCallback
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -73,6 +74,7 @@ import kotlin.math.min
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityScanBinding
+import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
@@ -102,15 +104,12 @@ sealed class QrExpected : Parcelable {
     object ImportWalletKeysQr : QrExpected() // Import a wallet.
 
     @Parcelize
-    object LegacyPairingQr : QrExpected()
-
-    @Parcelize
     object WebLoginQr : QrExpected() // New auth
 
     companion object {
         val IMPORT_KEYS_QR = setOf(ImportWalletKeysQr)
-        val LEGACY_PAIRING_QR = setOf(LegacyPairingQr)
-        val MAIN_ACTIVITY_QR = setOf(AnyAssetAddressQr /*, WebLoginQr */, BitPayQr, WalletConnectQr)
+        val WEB_LOGIN_QR = setOf(WebLoginQr)
+        val MAIN_ACTIVITY_QR = setOf(AnyAssetAddressQr, BitPayQr, WalletConnectQr)
 
         @Suppress("FunctionName")
         fun ASSET_ADDRESS_QR(asset: AssetInfo) = setOf(AssetAddressQr(asset.networkTicker))
@@ -181,6 +180,8 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
+
+        setupBackPress()
     }
 
     // handle reverse-mounted cameras on devices like the Nexus 5X
@@ -191,9 +192,15 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
             else -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
         }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(owner = this) {
+            setResult(Activity.RESULT_CANCELED)
+            finish()
+        }
+    }
+
+    override fun onSupportNavigateUp(): Boolean = consume {
+        onBackPressedDispatcher.onBackPressed()
     }
 
     override fun onResume() {
@@ -231,7 +238,6 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
                 is QrExpected.AssetAddressQr -> getString(R.string.qr_activity_hint_asset_address, expect.assetTicker)
                 is QrExpected.BitPayQr -> getString(R.string.qr_activity_hint_bitpay)
                 is QrExpected.ImportWalletKeysQr -> getString(R.string.qr_activity_hint_import_wallet)
-                is QrExpected.LegacyPairingQr -> getString(R.string.qr_activity_hint_pairing_code)
                 is QrExpected.WebLoginQr -> getString(R.string.qr_activity_hint_new_web_login)
                 is QrExpected.WalletConnectQr -> getString(R.string.empty)
             }
@@ -278,10 +284,6 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         when (keyCode) {
-            KeyEvent.KEYCODE_BACK -> {
-                setResult(Activity.RESULT_CANCELED)
-                finish()
-            }
             KeyEvent.KEYCODE_FOCUS,
             KeyEvent.KEYCODE_CAMERA ->
                 // Handle these events so they don't launch the Camera app
@@ -561,7 +563,7 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
         private fun prepIntent(ctx: Context, expect: Set<QrExpected>) =
             Intent(ctx, QrScanActivity::class.java).apply {
                 action = QrScanIntents.ACTION
-                putExtra(QrScanIntents.FORMATS, EnumSet.allOf(BarcodeFormat::class.java))
+                putExtra(QrScanIntents.FORMATS, EnumSet.allOf(BarcodeFormat::class.java).joinToString { it.name })
                 putExtra(QrScanIntents.MODE, QrScanIntents.QR_CODE_MODE)
                 putExtra(PARAM_EXPECTED_QR, expect.toTypedArray())
             }

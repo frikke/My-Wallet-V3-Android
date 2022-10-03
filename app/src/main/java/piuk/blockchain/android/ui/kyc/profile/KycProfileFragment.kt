@@ -32,8 +32,10 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycProfileBinding
 import piuk.blockchain.android.ui.base.BaseFragment
+import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
+import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
 import piuk.blockchain.android.ui.kyc.navigate
@@ -91,7 +93,11 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycProfile)
 
-        progressListener.setHostTitle(R.string.kyc_profile_title)
+        progressListener.setupHostToolbar(R.string.kyc_profile_title)
+
+        if ((requireActivity() as? KycNavHostActivity)?.isCowboysUser == true) {
+            analytics.logEvent(CowboysAnalytics.KycPersonalInfoViewed)
+        }
 
         with(binding) {
             editTextKycFirstName.setOnEditorActionListener { _, i, _ ->
@@ -127,6 +133,10 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
                                 "${binding.editTextDateOfBirth.text}"
                         )
                     )
+
+                    if ((requireActivity() as? KycNavHostActivity)?.isCowboysUser == true) {
+                        analytics.logEvent(CowboysAnalytics.KycPersonalInfoConfirmed)
+                    }
                 },
                 onError = { Timber.e(it) }
             )
@@ -147,7 +157,7 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
 
     override fun continueSignUp(profileModel: ProfileModel) {
         navigate(
-            KycProfileFragmentDirections.actionKycProfileFragmentToKycAutocompleteAddressFragment(
+            KycProfileFragmentDirections.actionKycProfileFragmentToKycAddressVerificationFragment(
                 profileModel
             )
         )
@@ -196,7 +206,7 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
         this.afterTextChangeEvents()
             .debounce(300, TimeUnit.MILLISECONDS)
             .map { it.editable.toString() }
-            .skipFirstUnless { it.isNotEmpty() }
+            .skipFirstUnless { it.isNotEmpty() && it.length >= MIN_LENGTH_ALLOWED }
             .observeOn(AndroidSchedulers.mainThread())
             .map { mapToCompleted(it) }
             .doOnNext(presenterPropAssignment)
@@ -234,7 +244,7 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
             }
         }
 
-    private fun mapToCompleted(text: String): Boolean = !text.isEmpty()
+    private fun mapToCompleted(text: String): Boolean = text.isNotEmpty() && text.length >= MIN_LENGTH_ALLOWED
 
     override fun setButtonEnabled(enabled: Boolean) {
         binding.buttonKycProfileNext.isEnabled = enabled
@@ -248,4 +258,8 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
     override fun createPresenter(): KycProfilePresenter = presenter
 
     override fun getMvpView(): KycProfileView = this
+
+    companion object {
+        private const val MIN_LENGTH_ALLOWED = 2
+    }
 }

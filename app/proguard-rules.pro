@@ -160,8 +160,14 @@
 -keep public class info.blockchain.wallet.ethereum.data.** { *; }
 -keep public class info.blockchain.wallet.prices.data.** { *; }
 -keep public class com.blockchain.nabu.api.** { *; }
+-keepclassmembers class org.web3j.protocol.** { *; }
+-keepclassmembers class org.web3j.crypto.* { *; }
+-keep class * extends org.web3j.abi.TypeReference
+-keep class * extends org.web3j.abi.datatypes.Type
 -keep public class com.blockchain.nabu.models.** { *; }
 -keep public class com.blockchain.walletconnect.data.** { *; }
+-keep public class com.blockchain.domain.paymentmethods.model.** { *; }
+-keep public class com.blockchain.domain.paymentmethods.model.response.** { *; }
 -keepclasseswithmembers class androidx.drawerlayout.widget.DrawerLayout { *; }
 
 # Javapoet

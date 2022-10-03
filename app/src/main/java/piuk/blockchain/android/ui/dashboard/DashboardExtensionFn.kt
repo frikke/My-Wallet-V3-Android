@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard
 
 import android.annotation.SuppressLint
 import android.widget.TextView
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import com.elyeproj.loaderviewlibrary.LoaderTextView
 import info.blockchain.balance.Currency
@@ -16,7 +17,14 @@ fun Money?.format(cryptoCurrency: Currency) =
         ?: Money.zero(cryptoCurrency).toStringWithSymbol()
 
 fun Double.asPercentString() =
-    String.format("%.2f%%", this)
+    asString() + if (isNaN().not()) "%" else ""
+
+fun Double.asString(decimalPlaces: Int = 2) =
+    if (isNaN()) {
+        "--"
+    } else {
+        String.format("%.${decimalPlaces}f", this)
+    }
 
 fun TextView.setDeltaColour(
     delta: Double,
@@ -32,10 +40,14 @@ fun TextView.setDeltaColour(
 @SuppressLint("SetTextI18n")
 fun TextView.asDeltaPercent(delta: Double, prefix: String = "", postfix: String = "") {
 
-    text = prefix + if (delta.isNaN()) {
-        "--"
-    } else {
-        delta.asPercentString()
-    } + postfix
+    text = prefix + delta.asPercentString() + postfix
     setDeltaColour(delta)
+}
+
+fun TextView.setContentDescriptionSuffix(@StringRes accessibilityLabelRes: Int) {
+    contentDescription = "${context.getString(accessibilityLabelRes)}: $text"
+}
+
+fun TextView.setContentDescriptionSuffix(accessibilityLabel: String) {
+    contentDescription = "$accessibilityLabel: $text"
 }

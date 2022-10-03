@@ -1,6 +1,7 @@
 package com.blockchain.nabu.models
 
 import com.blockchain.nabu.models.responses.nabu.Address
+import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuSettings
 import com.blockchain.nabu.models.responses.nabu.NabuUser
@@ -23,6 +24,7 @@ class NabuUserSerializationTest {
     @Test
     fun `nabuUser - happy`() {
         val user = NabuUser(
+            id = "id",
             firstName = "firstName",
             lastName = "lastName",
             email = "email",
@@ -34,7 +36,7 @@ class NabuUserSerializationTest {
                 line1 = "line1",
                 line2 = "line2",
                 city = "city",
-                state = "state",
+                stateIso = "state",
                 postCode = "postCode",
                 countryCode = "countryCode"
             ),
@@ -48,7 +50,13 @@ class NabuUserSerializationTest {
             tags = mapOf("tag1" to mapOf("sub_tag_1" to 12)),
             userName = "userName",
             tiers = TierLevels(1, 2, 3),
-            walletGuid = "walletId"
+            walletGuid = "walletId",
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
 
         val jsonString = jsonBuilder.encodeToString(user)
@@ -60,6 +68,7 @@ class NabuUserSerializationTest {
     @Test
     fun `nabuUser - missing fields`() {
         val user = NabuUser(
+            id = "id",
             firstName = null,
             lastName = null,
             email = "email",
@@ -78,21 +87,100 @@ class NabuUserSerializationTest {
             tags = null,
             userName = null,
             tiers = null,
-            walletGuid = "walletId"
+            walletGuid = "walletId",
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
 
         val testObject = jsonBuilder.decodeFromString<NabuUser>(
-            "{\n" +
-                "   \"email\":\"email\",\n" +
-                "   \"emailVerified\":true,\n" +
-                "   \"mobileVerified\":true,\n" +
-                "   \"state\":\"ACTIVE\",\n" +
-                "   \"kycState\":\"VERIFIED\",\n" +
-                "   \"productsUsed\":{},\n" +
-                "   \"walletGuid\":\"walletId\"\n" +
-                "}"
+            """
+            {
+                "id": "id",
+                "email":"email",
+                "emailVerified":true,
+                "mobileVerified":true,
+                "state":"ACTIVE",
+                "kycState":"VERIFIED",
+                "productsUsed":{},
+                "walletGuid":"walletId",
+                "currencies":{
+                    "preferredFiatTradingCurrency": "EUR",
+                    "usableFiatCurrencies": ["EUR", "USD", "GBP", "ARS"],
+                    "defaultWalletCurrency": "BRL",
+                    "userFiatCurrencies": ["EUR", "GBP"]
+                }
+            }
+            """.trimIndent()
         )
 
         testObject shouldBeEqualTo user
+    }
+
+    @Test
+    fun `nabuUser - decode from string and encode the result to string should be successful`() {
+        val originalJsonString =
+            """{
+  "id": "id",
+  "firstName": "firstName",
+  "lastName": "lastName",
+  "email": "email@email.email",
+  "emailVerified": true,
+  "dob": "2000-10-10",
+  "mobile": "+12121212",
+  "mobileVerified": true,
+  "address": {
+    "city": "city",
+    "line1": "line1",
+    "line2": "line2",
+    "state": "state",
+    "country": "country",
+    "postCode": "123"
+  },
+  "state": "ACTIVE",
+  "kycState": "VERIFIED",
+  "tiers": {
+    "current": 2,
+    "selected": 2,
+    "next": 2
+  },
+  "limits": [],
+  "tags": {
+    "NO_BROKERAGE_FEES": {
+      "rdcGlobalStatus": "PENDING"
+    },
+    "INTERNAL_TESTING": {}
+  },
+  "settings": {
+    "MERCURY_SIGNUP_COUNTRY": "GB",
+    "MERCURY_EMAIL_VERIFIED": false
+  },
+  "productsUsed": {
+    "exchange": true
+  },
+  "walletAddresses": {
+    "BCH": "BCHaddress",
+  },
+  "walletGuid": "walletGuid",
+  "currencies": {
+    "preferredFiatTradingCurrency": "GBP",
+    "usableFiatCurrencies": [
+      "GBP",
+      "EUR",
+      "USD"
+    ],
+    "defaultWalletCurrency": "GBP",
+    "userFiatCurrencies": [
+      "GBP"
+    ]
+  },
+  "mercuryEmailVerified": false
+}"""
+
+        val userObject = jsonBuilder.decodeFromString<NabuUser>(originalJsonString)
+        jsonBuilder.encodeToString(userObject)
     }
 }

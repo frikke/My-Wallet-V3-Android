@@ -16,6 +16,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <com.blockchain.componentlib.card.CustomBackgroundCardView
+            android:id="@+id/referral_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/standard_margin"
+            android:layout_marginTop="@dimen/small_margin"
+            android:layout_marginEnd="@dimen/standard_margin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/user_initials"
             android:layout_width="wrap_content"
@@ -28,7 +41,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/referral_btn"
             tools:text="LM" />
 
         <androidx.appcompat.widget.AppCompatImageView

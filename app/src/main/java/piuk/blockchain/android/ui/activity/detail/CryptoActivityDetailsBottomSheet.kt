@@ -23,11 +23,11 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.interest.domain.model.InterestState
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo

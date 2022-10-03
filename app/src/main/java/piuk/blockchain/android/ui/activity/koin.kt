@@ -21,6 +21,7 @@ val activitiesModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
+                walletModeService = get(),
                 remoteLogger = get()
             )
         }
@@ -51,7 +52,8 @@ val activitiesModule = module {
                 transactionInputOutputMapper = get(),
                 assetActivityRepository = get(),
                 custodialWalletManager = get(),
-                paymentsDataManager = get(),
+                bankService = get(),
+                cardService = get(),
                 stringUtils = get(),
                 coincore = get(),
                 defaultLabels = get(),
@@ -80,7 +82,7 @@ val activitiesModule = module {
         factory {
             FiatActivityDetailsModel(
                 assetActivityRepository = get(),
-                paymentsDataManager = get(),
+                paymentMethodService = get(),
                 dispatcher = get(ioDispatcher)
             )
         }

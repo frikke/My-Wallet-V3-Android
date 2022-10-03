@@ -11,13 +11,12 @@ import com.blockchain.coincore.impl.AccountRefreshTrigger
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.transactionFetchCount
 import com.blockchain.coincore.impl.transactionFetchOffset
+import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.bch.BchMainNetParams
 import info.blockchain.wallet.bch.CashAddress
@@ -31,27 +30,24 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
 import piuk.blockchain.androidcore.utils.extensions.mapList
-import piuk.blockchain.androidcore.utils.extensions.then
 
 /*internal*/ class BchCryptoWalletAccount private constructor(
-    payloadManager: PayloadDataManager,
+    private val payloadDataManager: PayloadDataManager,
     private val bchManager: BchDataManager,
     // Used to lookup the account in payloadDataManager to fetch receive address
     private val addressIndex: Int,
     override val exchangeRates: ExchangeRatesDataManager,
     private val feeDataManager: FeeDataManager,
     private val sendDataManager: SendDataManager,
-    private val internalAccount: GenericMetadataAccount,
-    private val walletPreferences: WalletStatus,
+    private val bchBalanceCache: BchBalanceCache,
+    private var internalAccount: GenericMetadataAccount,
+    private val walletPreferences: WalletStatusPrefs,
     private val custodialWalletManager: CustodialWalletManager,
     private val refreshTrigger: AccountRefreshTrigger,
-    identity: UserIdentity,
-    override val addressResolver: AddressResolver
+    override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(
-    payloadManager, CryptoCurrency.BCH, custodialWalletManager, identity
+    CryptoCurrency.BCH
 ) {
-
-    override val baseActions: Set<AssetAction> = defaultActions
 
     private val hasFunds = AtomicBoolean(false)
 
@@ -61,7 +57,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
     override fun getOnChainBalance(): Observable<Money> =
         Single.fromCallable { internalAccount.xpubs() }
             .flatMap { xpub -> bchManager.getBalance(xpub) }
-            .map { CryptoValue.fromMinor(currency, it) as Money }
+            .map { Money.fromMinor(currency, it) }
             .doOnSuccess { hasFunds.set(it.isPositive) }
             .toObservable()
 
@@ -111,15 +107,16 @@ import piuk.blockchain.androidcore.utils.extensions.then
             payloadDataManager = payloadDataManager,
             requireSecondPassword = payloadDataManager.isDoubleEncrypted,
             walletPreferences = walletPreferences,
+            bchBalanceCache = bchBalanceCache,
             resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
         )
 
     override fun updateLabel(newLabel: String): Completable {
         require(newLabel.isNotEmpty())
-        val revertLabel = label
-        internalAccount.label = newLabel
-        return bchManager.syncWithServer()
-            .doOnError { internalAccount.label = revertLabel }
+        val newAccount = internalAccount.updateLabel(newLabel)
+        return bchManager.updateAccount(oldAccount = internalAccount, newAccount = newAccount).doOnComplete {
+            internalAccount = newAccount
+        }
     }
 
     override fun archive(): Completable =
@@ -137,20 +134,15 @@ import piuk.blockchain.androidcore.utils.extensions.then
         }
 
     private fun toggleArchived(): Completable {
-        val isArchived = this.isArchived
-        internalAccount.isArchived = !isArchived
-
-        return bchManager.syncWithServer()
-            .doOnError { internalAccount.isArchived = isArchived } // Revert
-            .then { bchManager.updateTransactions() }
+        val newAccount = internalAccount.updateArchivedState(!internalAccount.isArchived)
+        return bchManager.updateAccount(oldAccount = internalAccount, newAccount = newAccount).doOnComplete {
+            internalAccount = newAccount
+        }
     }
 
     override fun setAsDefault(): Completable {
         require(!isDefault)
-        val revertDefault = bchManager.getDefaultAccountPosition()
-        bchManager.setDefaultAccountPosition(addressIndex)
-        return bchManager.syncWithServer()
-            .doOnError { bchManager.setDefaultAccountPosition(revertDefault) }
+        return bchManager.updateDefaultAccount(internalAccount)
     }
 
     override val xpubAddress: String
@@ -180,23 +172,23 @@ import piuk.blockchain.androidcore.utils.extensions.then
             exchangeRates: ExchangeRatesDataManager,
             feeDataManager: FeeDataManager,
             sendDataManager: SendDataManager,
-            walletPreferences: WalletStatus,
+            bchBalanceCache: BchBalanceCache,
+            walletPreferences: WalletStatusPrefs,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
-            identity: UserIdentity,
-            addressResolver: AddressResolver
+            addressResolver: AddressResolver,
         ) = BchCryptoWalletAccount(
-            payloadManager = payloadManager,
             bchManager = bchManager,
+            payloadDataManager = payloadManager,
             addressIndex = addressIndex,
             exchangeRates = exchangeRates,
             feeDataManager = feeDataManager,
             sendDataManager = sendDataManager,
+            bchBalanceCache = bchBalanceCache,
             internalAccount = jsonAccount,
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
-            identity = identity,
             addressResolver = addressResolver
         )
     }

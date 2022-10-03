@@ -1,15 +1,16 @@
 package com.blockchain.core
 
 import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
+import com.blockchain.core.common.caching.TimedCacheRequest
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
+import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.service.NabuService
 import io.reactivex.rxjava3.core.Single
 
 data class TransactionsRequest(
-    val currency: String,
     val product: String,
-    val type: String?
+    val type: String?,
 )
 
 class TransactionsCache(private val nabuService: NabuService, private val authenticator: Authenticator) {
@@ -18,7 +19,6 @@ class TransactionsCache(private val nabuService: NabuService, private val authen
         authenticator.authenticate { token ->
             nabuService.getTransactions(
                 sessionToken = token,
-                currency = request.currency,
                 product = request.product,
                 type = request.type
             )
@@ -32,4 +32,26 @@ class TransactionsCache(private val nabuService: NabuService, private val authen
 
     fun transactions(transactionsRequest: TransactionsRequest): Single<TransactionsResponse> =
         cache.getCachedSingle(transactionsRequest)
+}
+
+class SwapTransactionsCache(private val nabuService: NabuService, private val authenticator: Authenticator) {
+    private val refresh: () -> Single<List<CustodialOrderResponse>> = {
+        authenticator.authenticate { token ->
+            nabuService.getSwapTrades(
+                sessionToken = token
+            )
+        }
+    }
+
+    private val cache = TimedCacheRequest(
+        cacheLifetimeSeconds = 20 * 60,
+        refreshFn = refresh
+    )
+
+    fun swapOrders(): Single<List<CustodialOrderResponse>> =
+        cache.getCachedSingle()
+
+    fun invalidate() {
+        cache.invalidate()
+    }
 }

@@ -1,3 +1,4 @@
+/*
 package info.blockchain.wallet.payload.data
 
 import java.nio.charset.StandardCharsets
@@ -46,3 +47,4 @@ class OptionsTest {
         Assert.assertEquals(4, jsonObject.keySet().size.toLong())
     }
 }
+*/

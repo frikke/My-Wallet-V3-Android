@@ -237,7 +237,7 @@
         android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginEnd="@dimen/standard_margin"
         android:layout_marginBottom="@dimen/small_margin"
-        android:text="@string/learn_more"
+        android:text="@string/common_learn_more"
         android:textColor="@color/blue_600"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/cta_button"

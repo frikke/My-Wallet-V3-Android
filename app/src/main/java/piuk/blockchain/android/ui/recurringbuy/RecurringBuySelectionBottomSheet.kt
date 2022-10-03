@@ -7,14 +7,16 @@ import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
 import info.blockchain.balance.FiatValue
 import java.time.ZonedDateTime
+import java.time.format.TextStyle
+import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetRecurringBuyBinding
 import piuk.blockchain.android.simplebuy.BuyFrequencySelected
@@ -137,7 +139,9 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
                                 visible()
                                 text = getString(
                                     R.string.recurring_buy_frequency_subtitle,
-                                    ZonedDateTime.parse(it.nextPaymentDate).dayOfWeek.toString().capitalizeFirstChar()
+                                    ZonedDateTime.parse(it.nextPaymentDate).dayOfWeek
+                                        .getDisplayName(TextStyle.FULL, Locale.getDefault())
+                                        .toString().capitalizeFirstChar()
                                 )
                             }
                         }
@@ -148,7 +152,9 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
                                 visible()
                                 text = getString(
                                     R.string.recurring_buy_frequency_subtitle_biweekly,
-                                    ZonedDateTime.parse(it.nextPaymentDate).dayOfWeek.toString().capitalizeFirstChar()
+                                    ZonedDateTime.parse(it.nextPaymentDate).dayOfWeek
+                                        .getDisplayName(TextStyle.FULL, Locale.getDefault())
+                                        .toString().capitalizeFirstChar()
                                 )
                             }
                         }

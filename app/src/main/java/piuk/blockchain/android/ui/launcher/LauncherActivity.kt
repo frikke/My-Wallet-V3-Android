@@ -14,8 +14,11 @@ import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
+import com.blockchain.notifications.models.NotificationDataConstants.DATA
+import com.blockchain.notifications.models.NotificationDataConstants.DATA_REFERRAL_SUCCESS_BODY
+import com.blockchain.notifications.models.NotificationDataConstants.DATA_REFERRAL_SUCCESS_TITLE
+import com.blockchain.notifications.models.NotificationDataConstants.DATA_URL
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
@@ -65,31 +68,37 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
     }
 
     override fun getViewIntentData(): ViewIntentData {
-        val deeplinkURL =
-            when {
-                intent.data != null -> intent.data.toString()
-                intent.hasExtra("data") -> {
-                    try {
-                        val jsonObject = JSONObject(intent.getStringExtra("data"))
-                        if (jsonObject.has("url")) {
-                            jsonObject.getString("url")
-                        } else {
-                            null
-                        }
-                    } catch (e: JSONException) {
-                        Timber.e(e)
-                        null
+        var deeplinkURL: String? = null
+        var referralSuccessTitle: String? = null
+        var referralSuccessBody: String? = null
+        when {
+            intent.data != null -> deeplinkURL = intent.data.toString()
+            intent.hasExtra(DATA) -> {
+                try {
+                    val jsonObject = JSONObject(intent.getStringExtra(DATA))
+                    if (jsonObject.has(DATA_URL)) {
+                        deeplinkURL = jsonObject.getString(DATA_URL)
                     }
+                    if (jsonObject.has(DATA_REFERRAL_SUCCESS_TITLE)) {
+                        referralSuccessTitle = jsonObject.getString(DATA_REFERRAL_SUCCESS_TITLE)
+                    }
+                    if (jsonObject.has(DATA_REFERRAL_SUCCESS_BODY)) {
+                        referralSuccessBody = jsonObject.getString(DATA_REFERRAL_SUCCESS_BODY)
+                    }
+                } catch (e: JSONException) {
+                    Timber.e(e)
                 }
-                else -> null
             }
+        }
 
         return ViewIntentData(
             action = intent.action,
             scheme = intent.scheme,
             dataString = intent.dataString,
             data = deeplinkURL,
-            isAutomationTesting = intent.extras?.getBoolean(INTENT_AUTOMATION_TEST, false) ?: false
+            isAutomationTesting = intent.extras?.getBoolean(INTENT_AUTOMATION_TEST, false) ?: false,
+            referralSuccessTitle,
+            referralSuccessBody
         )
     }
 

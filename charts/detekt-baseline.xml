@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:ChartView.kt$ChartView$20f</ID>
+    <ID>MagicNumber:ChartView.kt$ChartView$24f</ID>
+    <ID>MagicNumber:ChartView.kt$ChartView$40</ID>
+    <ID>MagicNumber:ScrubMarker.kt$ScrubMarker$1000L</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -21,7 +21,10 @@ class EnterSecondPasswordFragment : TransactionFlowFragment<FragmentTxFlowPasswo
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
-            ctaButton.setOnClickListener { onCtaClick() }
+            ctaButton.apply {
+                text = getString(R.string.btn_continue)
+                onClick = ::onCtaClick
+            }
             passwordInput.setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_GO) {
                     onCtaClick()

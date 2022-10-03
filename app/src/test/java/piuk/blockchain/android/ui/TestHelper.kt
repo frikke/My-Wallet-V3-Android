@@ -1,21 +1,23 @@
 package piuk.blockchain.android.ui
 
+import com.blockchain.core.kyc.domain.model.KycLimits
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.kyc.domain.model.KycTierDetail
+import com.blockchain.core.kyc.domain.model.KycTierState
+import com.blockchain.core.kyc.domain.model.KycTiers
+import com.blockchain.core.kyc.domain.model.TiersMap
+import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.models.responses.nabu.KycTierState
-import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.Limits
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.nabu.models.responses.nabu.Tier
-import com.blockchain.nabu.models.responses.nabu.Tiers
 import com.blockchain.nabu.models.responses.nabu.UserState
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.testutils.USD
 import com.blockchain.testutils.numberToBigInteger
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 
 fun getBlankNabuUser(kycState: KycState = KycState.None): NabuUser = NabuUser(
+    id = "",
     firstName = "",
     lastName = "",
     email = "",
@@ -27,33 +29,39 @@ fun getBlankNabuUser(kycState: KycState = KycState.None): NabuUser = NabuUser(
     state = UserState.None,
     kycState = kycState,
     insertedAt = "",
-    updatedAt = ""
+    updatedAt = "",
+    currencies = CurrenciesResponse(
+        preferredFiatTradingCurrency = "EUR",
+        usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+        defaultWalletCurrency = "BRL",
+        userFiatCurrencies = listOf("EUR", "GBP")
+    )
 )
 
 val validOfflineToken
-    get() = NabuOfflineTokenResponse(
+    get() = NabuOfflineToken(
         "userId",
         "lifetimeToken"
     )
 
 fun tiers(tier1State: KycTierState, tier2State: KycTierState): KycTiers {
     return KycTiers(
-        Tiers(
+        TiersMap(
             mapOf(
-                KycTierLevel.BRONZE to
-                    Tier(
+                KycTier.BRONZE to
+                    KycTierDetail(
                         KycTierState.Verified,
-                        Limits(null, null)
+                        KycLimits(null, null)
                     ),
-                KycTierLevel.SILVER to
-                    Tier(
+                KycTier.SILVER to
+                    KycTierDetail(
                         tier1State,
-                        Limits(null, getLimit(USD, 1000))
+                        KycLimits(null, getLimit(USD, 1000))
                     ),
-                KycTierLevel.GOLD to
-                    Tier(
+                KycTier.GOLD to
+                    KycTierDetail(
                         tier2State,
-                        Limits(getLimit(USD, 25000), null)
+                        KycLimits(getLimit(USD, 25000), null)
                     )
             )
         )

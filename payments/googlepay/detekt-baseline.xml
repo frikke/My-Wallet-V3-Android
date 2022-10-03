@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ImplicitDefaultLocale:GooglePayResponseInterceptorImpl.kt$GooglePayResponseInterceptorImpl$String.format("Error code: %d", statusCode)</ID>
+    <ID>LongParameterList:GooglePayRequestBuilder.kt$GooglePayRequestBuilder$( allowedAuthMethods: List&lt;String>, allowedCardNetworks: List&lt;String>, gatewayTokenizationParameters: Map&lt;String, String>, totalPrice: String, countryCode: String, currencyCode: String, allowPrepaidCards: Boolean, allowCreditCards: Boolean )</ID>
+    <ID>MaxLineLength:GooglePayResponseInterceptorImpl.kt$GooglePayResponseInterceptorImpl$*</ID>
+  </CurrentIssues>
+</SmellBaseline>

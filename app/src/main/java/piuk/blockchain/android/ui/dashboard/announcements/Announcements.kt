@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
@@ -24,16 +26,14 @@ interface AnnouncementHost {
     // Actions
     fun startKyc(campaignType: CampaignType)
 
-    fun startPitLinking()
     fun startFundsBackup()
     fun startSetup2Fa()
     fun startVerifyEmail()
     fun startEnableFingerprintLogin()
     fun startTransferCrypto()
 
-    fun startStxReceivedDetail()
     fun finishSimpleBuySignup()
-    fun startSimpleBuy(asset: AssetInfo)
+    fun startSimpleBuy(asset: AssetInfo, paymentMethodId: String? = null)
     fun startInterestDashboard()
     fun startBuy()
     fun startSell()
@@ -43,6 +43,8 @@ interface AnnouncementHost {
     fun showFiatFundsKyc()
     fun showBankLinking()
     fun openBrowserLink(url: String)
+
+    fun joinNftWaitlist()
 }
 
 abstract class AnnouncementRule(private val dismissRecorder: DismissRecorder) {
@@ -51,7 +53,7 @@ abstract class AnnouncementRule(private val dismissRecorder: DismissRecorder) {
 
     abstract val dismissKey: String
     abstract val name: String
-
+    abstract val associatedWalletModes: List<WalletMode>
     abstract fun shouldShow(): Single<Boolean>
     abstract fun show(host: AnnouncementHost)
     fun isDismissed(): Boolean = dismissEntry.isDismissed
@@ -59,6 +61,7 @@ abstract class AnnouncementRule(private val dismissRecorder: DismissRecorder) {
 
 class AnnouncementList(
     private val mainScheduler: Scheduler,
+    private val walletModeService: WalletModeService,
     private val orderAdapter: AnnouncementConfigAdapter,
     private val availableAnnouncements: List<AnnouncementRule>,
     private val dismissRecorder: DismissRecorder
@@ -67,10 +70,13 @@ class AnnouncementList(
     fun checkLatest(host: AnnouncementHost, disposables: CompositeDisposable) {
         host.dismissAnnouncementCard()
 
-        disposables += showNextAnnouncement(host)
-            .doOnSubscribe { Timber.d("SB Sync: Checking announcements...") }
+        disposables += nextAnnouncement()
+            .observeOn(mainScheduler)
             .subscribeBy(
-                onComplete = { Timber.d("SB Sync: Announcements checked") },
+                onComplete = { },
+                onSuccess = { announcement ->
+                    announcement.show(host)
+                },
                 onError = Timber::e
             )
     }
@@ -81,25 +87,25 @@ class AnnouncementList(
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun showNextAnnouncement(host: AnnouncementHost): Maybe<AnnouncementRule> =
-        getNextAnnouncement()
-            .observeOn(mainScheduler)
-            .doOnSuccess { it.show(host) }
+    fun nextAnnouncement(): Maybe<AnnouncementRule> {
+        val walletMode = walletModeService.enabledWalletMode()
 
-    private fun getNextAnnouncement(): Maybe<AnnouncementRule> =
-        orderAdapter.announcementConfig
+        return orderAdapter.announcementConfig
             .doOnSuccess { dismissRecorder.setPeriod(it.interval) }
             .map { buildAnnouncementList(it.order) }
             .flattenAsObservable { it }
+            .filter { walletMode in it.associatedWalletModes || walletMode == WalletMode.UNIVERSAL }
             .concatMap { a ->
                 Observable.defer {
                     a.shouldShow()
+                        .onErrorReturn { false }
                         .filter { it }
                         .map { a }
                         .toObservable()
                 }
             }
             .firstElement()
+    }
 
     internal fun dismissKeys(): List<String> = availableAnnouncements.map { it.dismissKey }
 

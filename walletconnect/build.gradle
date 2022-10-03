@@ -1,15 +1,7 @@
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
 
 android {
-    buildFeatures {
-        viewBinding true
-        compose true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion Versions.compose
-    }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -30,29 +22,17 @@ dependencies {
     implementation project(':logging:domain')
     implementation project(':analytics:domain')
 
-    implementation Libraries.koin
-    implementation Libraries.androidXAnnotations
     implementation Libraries.gson
     implementation Libraries.timber
     implementation Libraries.okHttp
     implementation Libraries.kotlinJson
     implementation Libraries.rxJava
-    implementation Libraries.composeRx
     implementation Libraries.rxKotlin
-    implementation Libraries.composeMaterial
-    implementation Libraries.composePreview
-    implementation Libraries.composeActivity
     implementation Libraries.rxAndroid
-    implementation Libraries.design
-    implementation Libraries.composeCoil
     implementation Libraries.walletConnect
     implementation Libraries.okHttp
     implementation Libraries.constraintLayout
-    implementation Libraries.appCompat
     implementation Libraries.glide
-
-    // Compose
-    implementation Libraries.composeUi
 
     // Unit Test dependencies
     testImplementation Libraries.junit

@@ -33,7 +33,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = Versions.kotlinJvmTarget
-        useIR = true
     }
     buildFeatures {
         compose true
@@ -55,17 +54,17 @@ dependencies {
     implementation Libraries.design
     implementation Libraries.constraintLayout
 
-    implementation Libraries.composeUi
-    implementation Libraries.composeMaterial
-    implementation Libraries.composeUiTooling
+    implementation Libraries.composeUiShowkase
+    implementation Libraries.composeMaterialShowkase
+    implementation Libraries.composeUiToolingShowkase
     implementation Libraries.composeActivity
-    implementation Libraries.composeUiTooling
-    implementation Libraries.composeUiTest
+    implementation Libraries.composeUiToolingShowkase
+    implementation Libraries.composeUiTestShowkase
 
     implementation 'androidx.core:core-ktx:1.7.0'
 
-    implementation "com.airbnb.android:showkase:1.0.0-beta07"
-    kapt "com.airbnb.android:showkase-processor:1.0.0-beta07"
+    implementation "com.airbnb.android:showkase:1.0.0-beta13"
+    kapt "com.airbnb.android:showkase-processor:1.0.0-beta13"
     implementation project(path: ':componentlib')
     api(project(":charts"))
 }

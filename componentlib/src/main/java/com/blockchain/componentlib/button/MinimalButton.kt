@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
@@ -17,13 +19,16 @@ fun MinimalButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     state: ButtonState = ButtonState.Enabled,
+    shape: Shape = AppTheme.shapes.small,
     icon: ImageResource = ImageResource.None,
+    minHeight: Dp = 48.dp,
 ) {
     OutlinedButton(
         text = text,
         onClick = onClick,
-        modifier = modifier.requiredHeightIn(min = 48.dp),
+        modifier = modifier.requiredHeightIn(min = minHeight),
         state = state,
+        shape = shape,
         icon = icon,
         buttonContent = {
             state: ButtonState,

@@ -33,6 +33,7 @@ data class AssetPrice(
     val price: Double,
     val timestampSeconds: Long,
     val marketCap: Double?,
+    val tradingVolume24h: Double?
 )
 
 class AssetPriceService internal constructor(
@@ -62,7 +63,7 @@ class AssetPriceService internal constructor(
             apiKey = apiCode
         ).map { result ->
             result.map {
-                it.value.toAssetPrice(it.key) ?: unavailablePrice(it.key)
+                it.value.toAssetPrice(it.key)
             }
         }
 
@@ -78,7 +79,7 @@ class AssetPriceService internal constructor(
             apiKey = apiCode
         ).map { result ->
             result.map {
-                it.value.toAssetPrice(it.key) ?: unavailablePrice(it.key)
+                it.value.toAssetPrice(it.key)
             }
         }
 
@@ -114,15 +115,6 @@ class AssetPriceService internal constructor(
         ).map { list ->
             list.filterNot { it.price == null }.map { it.toAssetPrice(base, quote) }
         }
-
-    private fun unavailablePrice(pair: String): AssetPrice =
-        AssetPrice(
-            base = pair.extractBase(),
-            quote = pair.extractQuote(),
-            price = Double.NaN,
-            timestampSeconds = System.currentTimeMillis() / 1000,
-            marketCap = null,
-        )
 }
 
 private fun PriceSymbolDto.toAssetSymbol(): AssetSymbol =
@@ -140,6 +132,7 @@ private fun AssetPriceDto.toAssetPrice(base: String, quote: String): AssetPrice 
         price = price ?: Double.NaN,
         timestampSeconds = timestampSeconds,
         marketCap = marketCap,
+        tradingVolume24h = volume24h
     )
 
 private fun AssetPriceDto.toAssetPrice(pair: String): AssetPrice =
@@ -149,6 +142,7 @@ private fun AssetPriceDto.toAssetPrice(pair: String): AssetPrice =
         price = price ?: Double.NaN,
         timestampSeconds = timestampSeconds,
         marketCap = marketCap,
+        tradingVolume24h = volume24h
     )
 
 private fun String.extractBase(): String = substringBeforeLast("-")

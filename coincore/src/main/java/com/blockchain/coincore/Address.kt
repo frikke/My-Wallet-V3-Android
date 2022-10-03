@@ -8,6 +8,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import java.lang.IllegalStateException
+import kotlinx.coroutines.rx3.asObservable
 import timber.log.Timber
 
 interface TransactionTarget {
@@ -50,7 +51,7 @@ interface AddressFactory {
 
 class AddressFactoryImpl(
     private val coincore: Coincore,
-    private val addressResolver: AddressMappingService
+    private val addressResolver: AddressMappingService,
 ) : AddressFactory {
 
     /** Build the set of possible address for a given input string.
@@ -58,19 +59,31 @@ class AddressFactoryImpl(
      * an empty set
      **/
     override fun parse(address: String): Single<Set<ReceiveAddress>> =
-        Maybe.merge(
-            coincore.activeCryptoAssets().map { asset ->
-                asset.parseAddress(address)
-                    .doOnError { Timber.e("**** ERROR: $asset") }
-                    .onErrorComplete()
+        coincore.activeAssets().asObservable().firstOrError().map { it.filterIsInstance<CryptoAsset>() }
+            .flattenAsObservable {
+                it
+            }.flatMapSingle {
+                it.parseAddress(address).switchIfEmpty(Single.just(NullAddress))
+            }.reduce<Set<ReceiveAddress>>(mutableSetOf()) { set, t2 ->
+                val s = set.plus(t2)
+                s
+            }.onErrorReturn {
+                emptySet()
+            }.map {
+                it.filter { address -> address != NullAddress }.toSet()
             }
-        ).toList().map { it.toSet() }
 
     override fun parse(address: String, ccy: AssetInfo): Maybe<ReceiveAddress> =
         isDomainAddress(address)
             .flatMapMaybe { isDomain ->
                 if (isDomain) {
-                    resolveDomainAddress(address, ccy)
+                    // Have to exclude the variant selector unicodes as they mess up the json in the request.
+                    // For example \ufe0f unicode removes the " of the strings in the json (you can try it by
+                    // copy-pasting this unicode into any text editor and inserting into a string)
+                    resolveDomainAddress(
+                        address = address.filterNot { variantSelectorRange.contains(it) },
+                        asset = ccy
+                    )
                 } else {
                     coincore[ccy].parseAddress(address)
                 }
@@ -111,5 +124,8 @@ class AddressFactoryImpl(
         // the symbols of the payment protocols like '&'). If the input can't be matched against this formula,
         // we should try to resolve it as a domain given that it can't be an address.
         private val alphaNumericAndAscii = Regex("^[\\p{Alnum}\\p{ASCII}]+")
+        // The variant selector range as per:
+        // https://en.wikipedia.org/wiki/Variation_Selectors_(Unicode_block)
+        private val variantSelectorRange = CharRange('\ufe00', '\ufe0f')
     }
 }

@@ -5,18 +5,18 @@ import com.blockchain.api.ethereum.evm.TransactionDirection
 import com.blockchain.api.services.Erc20Transfer
 import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.NonCustodialEvmService
-import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
-import com.blockchain.core.chains.erc20.model.Erc20HistoryList
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryList
 import com.blockchain.extensions.filterIf
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.map
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 // This doesn't cache anything at this time, since it makes a call for a single
 // asset. We can review this, when we look at activity caching in detail
@@ -32,25 +32,22 @@ internal class Erc20HistoryCallCache(
         return if (parentChain == CryptoCurrency.ETHER.networkTicker) {
             fetchErc20FromEthNetwork(accountHash, asset)
         } else {
-            rxSingle {
+            rxSingleOutcome {
                 evmService.getTransactionHistory(accountHash, asset.l2identifier, parentChain)
-                    .fold(
-                        onFailure = { throw it.throwable },
-                        onSuccess = { response ->
-                            // We need to filter the response when we don't provide an l2identifier
-                            // (like for L1 aka "native") as the backend returns all transactions for that address.
-                            response.history.filterIf(
-                                condition = asset.l2identifier == null,
-                                predicate = ::isL1EvmTransaction
-                            )
-                                .map { l2TransactionResponse ->
-                                    l2TransactionResponse.toHistoryEvent(
-                                        asset,
-                                        getFeeFromEvmNetwork(l2TransactionResponse, parentChain)
-                                    )
-                                }
-                        }
-                    )
+                    .map { response ->
+                        // We need to filter the response when we don't provide an l2identifier
+                        // (like for L1 aka "native") as the backend returns all transactions for that address.
+                        response.history.filterIf(
+                            condition = asset.l2identifier == null,
+                            predicate = ::isL1EvmTransaction
+                        )
+                            .map { l2TransactionResponse ->
+                                l2TransactionResponse.toHistoryEvent(
+                                    asset,
+                                    getFeeFromEvmNetwork(l2TransactionResponse, parentChain)
+                                )
+                            }
+                    }
             }
         }
     }

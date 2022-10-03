@@ -43,7 +43,7 @@ class StateAwareActionsComparator : Comparator<StateAwareAction> {
         AssetAction.FiatDeposit -> 5
         AssetAction.InterestDeposit -> 6
         AssetAction.InterestWithdraw -> 7
-        AssetAction.Withdraw -> 8
+        AssetAction.FiatWithdraw -> 8
         AssetAction.ViewStatement -> 9
         AssetAction.ViewActivity -> 10
         AssetAction.Sign -> Int.MAX_VALUE
@@ -59,7 +59,7 @@ class StateAwareActionsComparator : Comparator<StateAwareAction> {
             AssetAction.FiatDeposit -> 5
             AssetAction.InterestDeposit -> 6
             AssetAction.InterestWithdraw -> 7
-            AssetAction.Withdraw -> 8
+            AssetAction.FiatWithdraw -> 8
             AssetAction.ViewStatement -> 9
             AssetAction.ViewActivity -> 10
             AssetAction.Sign -> Int.MAX_VALUE
@@ -74,7 +74,7 @@ class StateAwareActionsComparator : Comparator<StateAwareAction> {
             AssetAction.FiatDeposit -> 5
             AssetAction.InterestDeposit -> 6
             AssetAction.InterestWithdraw -> 7
-            AssetAction.Withdraw -> 8
+            AssetAction.FiatWithdraw -> 8
             AssetAction.ViewStatement -> 9
             AssetAction.ViewActivity -> 10
             AssetAction.Sign -> Int.MAX_VALUE

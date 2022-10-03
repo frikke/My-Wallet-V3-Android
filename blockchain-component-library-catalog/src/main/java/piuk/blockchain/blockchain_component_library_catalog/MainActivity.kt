@@ -7,6 +7,7 @@ import com.airbnb.android.showkase.models.Showkase
 import com.google.android.material.button.MaterialButton
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ActionTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.AlertButtonActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.AsyncMediaActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.BalanceTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.BottomNavigationActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.CardActivity
@@ -40,6 +41,7 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SnackbarsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SpacingActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SplitButtonsActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.SwitcherActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TabLayoutActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TagsActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.TextInputActivity
@@ -67,6 +69,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.images).setOnClickListener {
             startActivity(Intent(this@MainActivity, SimpleImageViewActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.async_media).setOnClickListener {
+            startActivity(Intent(this@MainActivity, AsyncMediaActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.tags).setOnClickListener {
             startActivity(Intent(this@MainActivity, TagsActivity::class.java))
@@ -145,6 +150,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.section_headers).setOnClickListener {
             startActivity(Intent(this@MainActivity, SectionHeadersActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.section_switchers).setOnClickListener {
+            startActivity(Intent(this@MainActivity, SwitcherActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.card_alert).setOnClickListener {
             startActivity(Intent(this@MainActivity, CardAlertActivity::class.java))

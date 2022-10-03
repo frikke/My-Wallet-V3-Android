@@ -4,14 +4,16 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
+import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestLimits
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Single
 
-abstract class InterestBaseEngine(private val walletManager: CustodialWalletManager) : TxEngine() {
+abstract class InterestBaseEngine(
+    private val interestService: InterestService
+) : TxEngine() {
 
     protected val sourceAssetInfo: AssetInfo
         get() = sourceAsset.asAssetInfoOrThrow()
@@ -19,7 +21,7 @@ abstract class InterestBaseEngine(private val walletManager: CustodialWalletMana
     protected fun modifyEngineConfirmations(
         pendingTx: PendingTx,
         termsChecked: Boolean = getTermsOptionValue(pendingTx),
-        agreementChecked: Boolean = getTermsOptionValue(pendingTx)
+        agreementChecked: Boolean = getTermsOptionValue(pendingTx),
     ): PendingTx =
         pendingTx.removeOption(TxConfirmation.DESCRIPTION)
             .addOrReplaceOption(
@@ -36,8 +38,10 @@ abstract class InterestBaseEngine(private val walletManager: CustodialWalletMana
                 )
             )
 
-    protected fun getLimits(): Single<InterestLimits> =
-        walletManager.getInterestLimits(sourceAssetInfo)
+    protected fun getLimits(): Single<Pair<AssetInfo, InterestLimits>> =
+        interestService.getLimitsForAsset(sourceAssetInfo).map { interestLimits ->
+            Pair(sourceAssetInfo, interestLimits)
+        }
 
     protected fun areOptionsValid(pendingTx: PendingTx): Boolean {
         val terms = getTermsOptionValue(pendingTx)

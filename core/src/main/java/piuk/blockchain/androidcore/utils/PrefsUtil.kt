@@ -8,9 +8,27 @@ import android.util.Base64
 import androidx.annotation.VisibleForTesting
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AppInfoPrefs
+import com.blockchain.preferences.AppMaintenancePrefs
+import com.blockchain.preferences.AppRatingPrefs
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.Authorization
+import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
+import com.blockchain.preferences.CowboysPrefs
+import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.EducationalScreensPrefs
+import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.preferences.NftAnnouncementPrefs
+import com.blockchain.preferences.NotificationPrefs
+import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.ReferralPrefs
+import com.blockchain.preferences.RemoteConfigPrefs
+import com.blockchain.preferences.SecureChannelPrefs
+import com.blockchain.preferences.SecurityPrefs
+import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -22,7 +40,6 @@ import kotlinx.serialization.json.Json
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.utils.PersistentPrefs.Companion.KEY_EMAIL_VERIFIED
 
 interface UUIDGenerator {
     fun generateUUID(): String
@@ -35,8 +52,28 @@ class PrefsUtil(
     private val idGenerator: DeviceIdGenerator,
     private val uuidGenerator: UUIDGenerator,
     private val assetCatalogue: AssetCatalogue,
-    private val environmentConfig: EnvironmentConfig
-) : PersistentPrefs {
+    private val environmentConfig: EnvironmentConfig,
+) : SessionPrefs,
+    CurrencyPrefs,
+    NotificationPrefs,
+    DashboardPrefs,
+    SecurityPrefs,
+    SecureChannelPrefs,
+    SimpleBuyPrefs,
+    WalletStatusPrefs,
+    EncryptedPrefs,
+    AuthPrefs,
+    BankLinkingPrefs,
+    AppInfoPrefs,
+    RemoteConfigPrefs,
+    OnboardingPrefs,
+    AppMaintenancePrefs,
+    AppRatingPrefs,
+    NftAnnouncementPrefs,
+    ReferralPrefs,
+    LocalSettingsPrefs,
+    EducationalScreensPrefs,
+    CowboysPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -68,12 +105,6 @@ class PrefsUtil(
             setValue(KEY_PIN_IDENTIFIER, value)
             backupStore.edit().putString(KEY_PIN_IDENTIFIER, value).commit()
             BackupManager.dataChanged(ctx.packageName)
-        }
-
-    override var newSwapEnabled: Boolean
-        get() = getValue(NEW_SWAP_ENABLED, false)
-        set(value) {
-            setValue(NEW_SWAP_ENABLED, value)
         }
 
     override var devicePreIDVCheckFailed: Boolean
@@ -116,21 +147,17 @@ class PrefsUtil(
         get() = getValue(KEY_TAPPED_FAB, false)
         set(seen) = setValue(KEY_TAPPED_FAB, seen)
 
-    override var qaRandomiseDeviceId: Boolean
-        get() = getValue(KEY_IS_DEVICE_ID_RANDOMISED, false)
-        set(value) = setValue(KEY_IS_DEVICE_ID_RANDOMISED, value)
+    override val areScreenshotsEnabled: Boolean
+        get() = getValue(KEY_SCREENSHOTS_ENABLED, false)
+
+    override var trustScreenOverlay: Boolean
+        get() = getValue(KEY_OVERLAY_TRUSTED, environmentConfig.isRunningInDebugMode())
+        set(v) = setValue(KEY_OVERLAY_TRUSTED, v)
 
     // SecurityPrefs
     override var disableRootedWarning: Boolean
-        get() = getValue(PersistentPrefs.KEY_ROOT_WARNING_DISABLED, false)
-        set(v) = setValue(PersistentPrefs.KEY_ROOT_WARNING_DISABLED, v)
-
-    override var trustScreenOverlay: Boolean
-        get() = getValue(PersistentPrefs.KEY_OVERLAY_TRUSTED, environmentConfig.isRunningInDebugMode())
-        set(v) = setValue(PersistentPrefs.KEY_OVERLAY_TRUSTED, v)
-
-    override val areScreenshotsEnabled: Boolean
-        get() = getValue(KEY_SCREENSHOTS_ENABLED, false)
+        get() = getValue(KEY_ROOT_WARNING_DISABLED, false)
+        set(v) = setValue(KEY_ROOT_WARNING_DISABLED, v)
 
     override fun setScreenshotsEnabled(enable: Boolean) =
         setValue(KEY_SCREENSHOTS_ENABLED, enable)
@@ -142,20 +169,10 @@ class PrefsUtil(
             ?: FiatCurrency.Dollars
         set(fiat) {
             setValue(KEY_SELECTED_FIAT, fiat.networkTicker)
-            tradingCurrency = fiat
         }
 
     override val noCurrencySet: Boolean
         get() = getValue(KEY_SELECTED_FIAT, "").isEmpty()
-
-    // From ThePitLinkingPrefs
-    override var pitToWalletLinkId: String
-        get() = getValue(KEY_PIT_LINKING_LINK_ID, "")
-        set(v) = setValue(KEY_PIT_LINKING_LINK_ID, v)
-
-    override fun clearPitToWalletLinkId() {
-        removeValue(KEY_PIT_LINKING_LINK_ID)
-    }
 
     override fun simpleBuyState(): String? {
         return getValue(KEY_SIMPLE_BUY_STATE, "").takeIf { it != "" }
@@ -180,6 +197,14 @@ class PrefsUtil(
     override fun getSupportedCardTypes(): String? =
         getValue(KEY_SUPPORTED_CARDS_STATE, "").takeIf { it != "" }
 
+    override fun getLastAmount(pair: String): String = getValue(KEY_SIMPLE_BUY_AMOUNT + pair, "")
+
+    override fun setLastAmount(pair: String, amount: String) = setValue(KEY_SIMPLE_BUY_AMOUNT + pair, amount)
+
+    override fun getLastPaymentMethodId(): String = getValue(KEY_SIMPLE_BUY_PAYMENT_ID, "")
+
+    override fun setLastPaymentMethodId(paymentMethodId: String) = setValue(KEY_SIMPLE_BUY_PAYMENT_ID, paymentMethodId)
+
     override fun updateSimpleBuyState(simpleBuyState: String) = setValue(KEY_SIMPLE_BUY_STATE, simpleBuyState)
 
     override fun getBankLinkingState(): String = getValue(KEY_BANK_LINKING, "")
@@ -194,6 +219,16 @@ class PrefsUtil(
     override fun updateRemoteConfigStaleStatus(isStale: Boolean) {
         setValue(CONFIG_STALE, isStale)
     }
+
+    override val brokerageErrorsCode: String
+        get() = getValue(BROKERAGE_ERROR_CODE, "")
+
+    override fun updateBrokerageErrorCode(code: String) = setValue(BROKERAGE_ERROR_CODE, code)
+
+    override val brokerageErrorsEnabled: Boolean
+        get() = getValue(BROKERAGE_ERRORS_ENABLED, false)
+
+    override fun updateBrokerageErrorStatus(enabled: Boolean) = setValue(BROKERAGE_ERRORS_ENABLED, enabled)
 
     override var installationVersionName: String
         get() = getValue(APP_INSTALLATION_VERSION_NAME, AppInfoPrefs.DEFAULT_APP_VERSION_NAME)
@@ -216,21 +251,17 @@ class PrefsUtil(
 
     override fun clearBuyState() = removeValue(KEY_SIMPLE_BUY_STATE)
 
-    override var addCardInfoDismissed: Boolean
-        get() = getValue(KEY_ADD_CARD_INFO, false)
-        set(dismissed) = setValue(KEY_ADD_CARD_INFO, dismissed)
-
     override var isFirstTimeBuyer: Boolean
         get() = getValue(KEY_FIRST_TIME_BUYER, true)
         set(value) {
             setValue(KEY_FIRST_TIME_BUYER, value)
         }
 
-    override var tradingCurrency: FiatCurrency
+    override var tradingCurrency: FiatCurrency?
         get() = assetCatalogue.fromNetworkTicker(getValue(KEY_SIMPLE_BUY_CURRENCY, "")) as? FiatCurrency
-            ?: selectedFiatCurrency
         set(value) {
-            setValue(KEY_SIMPLE_BUY_CURRENCY, value.networkTicker)
+            if (value != null) setValue(KEY_SIMPLE_BUY_CURRENCY, value.networkTicker)
+            else removeValue(KEY_SIMPLE_BUY_CURRENCY)
         }
 
     override var hasCompletedAtLeastOneBuy: Boolean
@@ -239,13 +270,11 @@ class PrefsUtil(
             setValue(KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY, value)
         }
 
-    override var hasSeenRatingDialog: Boolean
-        get() = getValue(HAS_SEEN_RATING, false)
-        set(value) = setValue(HAS_SEEN_RATING, value)
-
-    override var preRatingActionCompletedTimes: Int
-        get() = getValue(PRE_RATING_ACTION_COMPLETED_TIMES, 0)
-        set(value) = setValue(PRE_RATING_ACTION_COMPLETED_TIMES, value)
+    override var buysCompletedCount: Int
+        get() = getValue(KEY_BUYS_COMPLETED_COUNT, if (hasCompletedAtLeastOneBuy) 1 else 0)
+        set(value) {
+            setValue(KEY_BUYS_COMPLETED_COUNT, value)
+        }
 
     // Wallet Status
     override var lastBackupTime: Long
@@ -254,6 +283,10 @@ class PrefsUtil(
 
     override val isWalletBackedUp: Boolean
         get() = lastBackupTime != 0L
+
+    override var isWalletBackUpSkipped: Boolean
+        get() = getValue(IS_WALLET_BACKUP_SKIPPED, false)
+        set(value) = setValue(IS_WALLET_BACKUP_SKIPPED, value)
 
     override val isWalletFunded: Boolean
         get() = getValue(WALLET_FUNDED_KEY, false)
@@ -275,11 +308,6 @@ class PrefsUtil(
         get() = getValue(SWAP_KYC_PROMO, false)
 
     override fun setSeenSwapPromo() = setValue(SWAP_KYC_PROMO, true)
-
-    override val hasSeenTradingSwapPromo: Boolean
-        get() = getValue(SWAP_TRADING_PROMO, false)
-
-    override fun setSeenTradingSwapPromo() = setValue(SWAP_TRADING_PROMO, true)
 
     override var isNewlyCreated: Boolean
         get() = getValue(KEY_NEWLY_CREATED_WALLET, false)
@@ -331,7 +359,7 @@ class PrefsUtil(
         backupStore.edit()
             .clear()
             .putString(KEY_PIN_IDENTIFIER, getValue(KEY_PIN_IDENTIFIER, ""))
-            .putString(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, getValue(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, ""))
+            .putString(KEY_ENCRYPTED_PASSWORD, getValue(KEY_ENCRYPTED_PASSWORD, ""))
             .putString(
                 KEY_ENCRYPTED_GUID,
                 aes.encrypt(
@@ -360,8 +388,8 @@ class PrefsUtil(
             backupStore.getString(KEY_PIN_IDENTIFIER, "") ?: ""
         )
         setValue(
-            PersistentPrefs.KEY_ENCRYPTED_PASSWORD,
-            backupStore.getString(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, "") ?: ""
+            KEY_ENCRYPTED_PASSWORD,
+            backupStore.getString(KEY_ENCRYPTED_PASSWORD, "") ?: ""
         )
         setValue(
             KEY_WALLET_GUID,
@@ -400,7 +428,7 @@ class PrefsUtil(
         // we just logged out of.
         backupStore.edit()
             .putString(KEY_PIN_IDENTIFIER, "")
-            .putString(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, "")
+            .putString(KEY_ENCRYPTED_PASSWORD, "")
             .putString(KEY_ENCRYPTED_GUID, "")
             .putString(KEY_ENCRYPTED_SHARED_KEY, "")
             .commit()
@@ -449,10 +477,6 @@ class PrefsUtil(
         get() = getValue(KEY_IS_LANDING_CTA_DISMISSED, false)
         set(value) = setValue(KEY_IS_LANDING_CTA_DISMISSED, value)
 
-    override var isEntitySwitchSilverKycUpsellDismissed: Boolean
-        get() = getValue(KEY_IS_ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED, false)
-        set(value) = setValue(KEY_IS_ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED, value)
-
     override var isSendNetworkWarningDismissed: Boolean
         get() = getValue(KEY_IS_SEND_NETWORK_WARNING_DISMISSED, false)
         set(value) = setValue(KEY_IS_SEND_NETWORK_WARNING_DISMISSED, value)
@@ -470,44 +494,44 @@ class PrefsUtil(
         String(Base64.decode(data.toByteArray(charset("UTF-8")), Base64.DEFAULT))
 
     // Raw accessors
-    override fun getValue(name: String): String? =
+    private fun getValue(name: String): String? =
         store.getString(name, null)
 
-    override fun getValue(name: String, defaultValue: String): String =
+    private fun getValue(name: String, defaultValue: String): String =
         store.getString(name, defaultValue).orEmpty()
 
-    override fun getValue(name: String, defaultValue: Int): Int =
+    private fun getValue(name: String, defaultValue: Int): Int =
         store.getInt(name, defaultValue)
 
-    override fun getValue(name: String, defaultValue: Long): Long =
+    private fun getValue(name: String, defaultValue: Long): Long =
         try {
             store.getLong(name, defaultValue)
         } catch (e: Exception) {
             store.getInt(name, defaultValue.toInt()).toLong()
         }
 
-    override fun getValue(name: String, defaultValue: Boolean): Boolean =
+    private fun getValue(name: String, defaultValue: Boolean): Boolean =
         store.getBoolean(name, defaultValue)
 
-    override fun setValue(name: String, value: String) {
+    private fun setValue(name: String, value: String) {
         store.edit().putString(name, value).apply()
     }
 
-    override fun setValue(name: String, value: Int) {
+    private fun setValue(name: String, value: Int) {
         store.edit().putInt(name, if (value < 0) 0 else value).apply()
     }
 
-    override fun setValue(name: String, value: Long) {
+    private fun setValue(name: String, value: Long) {
         store.edit().putLong(name, if (value < 0L) 0L else value).apply()
     }
 
-    override fun setValue(name: String, value: Boolean) {
+    private fun setValue(name: String, value: Boolean) {
         store.edit().putBoolean(name, value).apply()
     }
 
-    override fun has(name: String): Boolean = store.contains(name)
+    private fun has(name: String): Boolean = store.contains(name)
 
-    override fun removeValue(name: String) {
+    private fun removeValue(name: String) {
         store.edit().remove(name).apply()
     }
 
@@ -586,6 +610,74 @@ class PrefsUtil(
             .also { setBrowserIdentityMapping(BrowserIdentityMapping(it)) }
     }
 
+    // app maintenance
+    override var isAppMaintenanceRemoteConfigIgnored: Boolean
+        get() = getValue(APP_MAINTENANCE_IGNORE_REMOTE_CONFIG, false)
+        set(value) = setValue(APP_MAINTENANCE_IGNORE_REMOTE_CONFIG, value)
+
+    override var isAppMaintenanceDebugOverrideEnabled: Boolean
+        get() = getValue(APP_MAINTENANCE_DEBUG_OVERRIDE, false)
+        set(value) = setValue(APP_MAINTENANCE_DEBUG_OVERRIDE, value)
+
+    override var appMaintenanceDebugJson: String
+        get() = getValue(APP_MAINTENANCE_DEBUG_JSON, "")
+        set(value) = setValue(APP_MAINTENANCE_DEBUG_JSON, value)
+
+    // app rating
+    override var completed: Boolean
+        get() = getValue(APP_RATING_COMPLETED, false)
+        set(value) = setValue(APP_RATING_COMPLETED, value)
+
+    override var promptDateMillis: Long
+        get() = getValue(APP_RATING_PROMPT_DATE, 0L)
+        set(value) = setValue(APP_RATING_PROMPT_DATE, value)
+
+    override fun resetAppRatingData() {
+        completed = false
+        promptDateMillis = 0L
+    }
+
+    override var isNftAnnouncementDismissed: Boolean
+        get() = getValue(NFT_ANNOUNCEMENT_DISMISSED, false)
+        set(value) = setValue(NFT_ANNOUNCEMENT_DISMISSED, value)
+
+    override var isJoinNftWaitlistSuccessful: Boolean
+        get() = getValue(NFT_ANNOUNCEMENT_JOIN_WAITLIST, false)
+        set(value) = setValue(NFT_ANNOUNCEMENT_JOIN_WAITLIST, value)
+
+    override var hasReferralIconBeenClicked: Boolean
+        get() = getValue(REFERRAL_ICON_CLICKED, false)
+        set(value) = setValue(REFERRAL_ICON_CLICKED, value)
+
+    override var referralSuccessTitle: String
+        get() = getValue(REFERRAL_SUCCESS_TITLE, "")
+        set(value) = setValue(REFERRAL_SUCCESS_TITLE, value)
+
+    override var referralSuccessBody: String
+        get() = getValue(REFERRAL_SUCCESS_BODY, "")
+        set(value) = setValue(REFERRAL_SUCCESS_BODY, value)
+
+    override var isChartVibrationEnabled: Boolean
+        get() = getValue(CHART_VIBRATION_ENABLED, true)
+        set(value) = setValue(CHART_VIBRATION_ENABLED, value)
+
+    // Session prefs
+    override var qaRandomiseDeviceId: Boolean
+        get() = getValue(KEY_IS_DEVICE_ID_RANDOMISED, false)
+        set(value) = setValue(KEY_IS_DEVICE_ID_RANDOMISED, value)
+
+    override fun recordDismissal(key: String, time: Long) =
+        setValue(key, time)
+
+    override fun deleteDismissalRecord(key: String) =
+        removeValue(key)
+
+    override fun getDismissalEntry(key: String): Long =
+        getValue(key, 0L)
+
+    override fun getLegacyDismissalEntry(key: String): Boolean =
+        getValue(key, false)
+
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */
@@ -599,6 +691,40 @@ class PrefsUtil(
         setValue(KEY_WALLET_GUID, guid)
         setValue(KEY_PRE_IDV_DEVICE_ID, deviceId)
     }
+
+    override var metadataUri: String
+        get() = getValue(KEY_METADATA_URI, "")
+        set(value) = setValue(KEY_METADATA_URI, value)
+
+    override var keySchemeUrl: String
+        get() = getValue(KEY_SCHEME_URL, "")
+        set(value) = setValue(KEY_SCHEME_URL, value)
+
+    override var analyticsReportedNabuUser: String
+        get() = getValue(ANALYTICS_REPORTED_NABU_USER_KEY, "")
+        set(value) = setValue(ANALYTICS_REPORTED_NABU_USER_KEY, value)
+
+    override var analyticsReportedWalletKey: String
+        get() = getValue(ANALYTICS_REPORTED_WALLET_KEY, "")
+        set(value) = setValue(ANALYTICS_REPORTED_WALLET_KEY, value)
+
+    override var deeplinkUri: String
+        get() = getValue(KEY_DEEP_LINK_URI, "")
+        set(value) = setValue(KEY_DEEP_LINK_URI, value)
+
+    override fun clearDeeplinkUri() = removeValue(KEY_DEEP_LINK_URI)
+
+    override var hasSeenEducationalWalletMode: Boolean
+        get() = getValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, false)
+        set(value) = setValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, value)
+
+    override var hasSeenCowboysFlow: Boolean
+        get() = getValue(HAS_SEEN_COWBOYS_FLOW, false)
+        set(value) = setValue(HAS_SEEN_COWBOYS_FLOW, value)
+
+    override var hasCowboysReferralBeenDismissed: Boolean
+        get() = getValue(COWBOYS_REFERRAL_CARD_DISMISSED, false)
+        set(value) = setValue(COWBOYS_REFERRAL_CARD_DISMISSED, value)
 
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
@@ -615,13 +741,14 @@ class PrefsUtil(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val KEY_LOGGED_IN = "logged_in"
 
-        private const val KEY_PIT_LINKING_LINK_ID = "pit_wallet_link_id"
+        private const val KEY_SIMPLE_BUY_AMOUNT = "key_simple_buy_amount_"
+        private const val KEY_SIMPLE_BUY_PAYMENT_ID = "key_simple_buy_payment_id"
         private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state_2"
         private const val KEY_CARD_STATE = "key_card_state"
-        private const val KEY_ADD_CARD_INFO = "key_add_card_info"
         private const val KEY_FIRST_TIME_BUYER = "key_first_time_buyer"
         private const val KEY_SIMPLE_BUY_CURRENCY = "key_trading_urrency_currency"
         private const val KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY = "has_completed_at_least_one_buy"
+        private const val KEY_BUYS_COMPLETED_COUNT = "KEY_BUYS_COMPLETED_COUNT"
 
         private const val KEY_SUPPORTED_CARDS_STATE = "key_supported_cards"
         private const val KEY_BANK_LINKING = "KEY_BANK_LINKING"
@@ -637,11 +764,11 @@ class PrefsUtil(
         private const val KEY_ONBOARDING_COMPLETE = "KEY_ONBOARDING_COMPLETE"
 
         private const val BACKUP_DATE_KEY = "BACKUP_DATE_KEY"
+        private const val IS_WALLET_BACKUP_SKIPPED = "IS_WALLET_BACKUP_SKIPPED"
         private const val WALLET_FUNDED_KEY = "WALLET_FUNDED_KEY"
         private const val BITPAY_TRANSACTION_SUCCEEDED = "BITPAY_TRANSACTION_SUCCEEDED"
         private const val NETWORK_FEE_PRIORITY_KEY = "fee_type_key_"
         private const val SWAP_KYC_PROMO = "SWAP_KYC_PROMO"
-        private const val SWAP_TRADING_PROMO = "SWAP_TRADING_PROMO"
         private const val KEY_NEWLY_CREATED_WALLET = "newly_created_wallet"
         private const val KEY_RESTORED_WALLET = "restored_wallet"
 
@@ -657,8 +784,6 @@ class PrefsUtil(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val KEY_IS_DEVICE_ID_RANDOMISED = "random_device_id"
 
-        const val NEW_SWAP_ENABLED = "swap_v_2_enabled"
-
         private const val KEY_FIREBASE_TOKEN = "firebase_token"
         private const val KEY_PUSH_NOTIFICATION_ENABLED = "push_notification_enabled"
 
@@ -669,14 +794,8 @@ class PrefsUtil(
         private const val KEY_SECURE_CHANNEL_IDENTITY_KEY = "secure_channel_identity"
         private const val KEY_SECURE_CHANNEL_BROWSER_MAPPINGS = "secure_channel_browsers"
 
-        // Rating
-        private const val HAS_SEEN_RATING = "has_seen_rating"
-        private const val PRE_RATING_ACTION_COMPLETED_TIMES = "pre_rating_action_completed_times"
-
         // Onboarding
         private const val KEY_IS_LANDING_CTA_DISMISSED = "KEY_IS_LANDING_PAGE_DISMISSED"
-        private const val KEY_IS_ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED =
-            "KEY_IS_ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED"
         private const val KEY_IS_SEND_NETWORK_WARNING_DISMISSED =
             "KEY_IS_SEND_NETWORK_WARNING_DISMISSED"
 
@@ -691,12 +810,52 @@ class PrefsUtil(
         private const val KEY_PIN_FAILS = "pin_fails"
         const val SESSION_ID = "session_id"
 
+        // remote config prefs
         private const val CONFIG_STALE = "CONFIG_STALE"
+        private const val BROKERAGE_ERROR_CODE = "BROKERAGE_ERROR_CODE"
+        private const val BROKERAGE_ERRORS_ENABLED = "BROKERAGE_ERRORS_ENABLED"
 
         private const val KEY_DASHBOARD_ORDER = "dashboard_asset_order"
 
-        // AppUpdate (app maintenance)
-        private const val KEY_SKIPPED_VERSION_CODE = "KEY_SKIPPED_VERSION_CODE"
+        // App Maintenance
+        private const val APP_MAINTENANCE_IGNORE_REMOTE_CONFIG = "APP_MAINTENANCE_IGNORE_REMOTE_CONFIG"
+        private const val APP_MAINTENANCE_DEBUG_OVERRIDE = "APP_MAINTENANCE_DEBUG_OVERRIDE"
+        private const val APP_MAINTENANCE_DEBUG_JSON = "APP_MAINTENANCE_DEBUG_JSON"
+
+        // App Rating
+        private const val APP_RATING_COMPLETED = "APP_RATING_COMPLETED"
+        private const val APP_RATING_PROMPT_DATE = "APP_RATING_PROMPT_DATE"
+
+        // Nft Announcement
+        private const val NFT_ANNOUNCEMENT_DISMISSED = "NFT_ANNOUNCEMENT_DISMISSED"
+        private const val NFT_ANNOUNCEMENT_JOIN_WAITLIST = "NFT_ANNOUNCEMENT_JOIN_WAITLIST"
+
+        // Referral
+        private const val REFERRAL_ICON_CLICKED = "REFERRAL_ICON_CLICKED"
+        private const val REFERRAL_SUCCESS_TITLE = "REFERRAL_SUCCESS_TITLE"
+        private const val REFERRAL_SUCCESS_BODY = "REFERRAL_SUCCESS_BODY"
+
+        // Local Settings
+        private const val CHART_VIBRATION_ENABLED = "CHART_VIBRATION_ENABLED"
+
+        // Session
+        private const val KEY_EMAIL_VERIFIED = "code_verified"
+        private const val KEY_SCHEME_URL = "scheme_url"
+        private const val KEY_METADATA_URI = "metadata_uri"
+        private const val ANALYTICS_REPORTED_NABU_USER_KEY = "analytics_reported_nabu_user_key"
+        private const val ANALYTICS_REPORTED_WALLET_KEY = "analytics_reported_wallet_key"
+        private const val KEY_DEEP_LINK_URI = "deeplink_uri"
+
+        // Security
+        private const val KEY_OVERLAY_TRUSTED = "overlay_trusted"
+        private const val KEY_ROOT_WARNING_DISABLED = "disable_root_warning"
+
+        // Educational Screens
+        private const val HAS_SEEN_EDUCATIONAL_WALLET_MODE = "has_seen_educational_wallet_mode"
+
+        // Cowboys promo
+        private const val HAS_SEEN_COWBOYS_FLOW = "has_seen_cowboys_flow"
+        private const val COWBOYS_REFERRAL_CARD_DISMISSED = "referral_card_dismissed"
     }
 }
 

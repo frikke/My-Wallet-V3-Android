@@ -9,7 +9,6 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
-import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
@@ -20,16 +19,17 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
@@ -38,6 +38,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -46,6 +47,9 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.rx3.rxSingle
+import okio.`-DeprecatedOkio`.source
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -60,14 +64,17 @@ class TransactionInteractor(
     private val addressFactory: AddressFactory,
     private val custodialRepository: CustodialRepository,
     private val custodialWalletManager: CustodialWalletManager,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val bankService: BankService,
+    private val paymentMethodService: PaymentMethodService,
     private val currencyPrefs: CurrencyPrefs,
     private val identity: UserIdentity,
-    private val accountsSorting: AccountsSorting,
+    private val defaultAccountsSorting: AccountsSorting,
+    private val swapSourceAccountsSorting: AccountsSorting,
+    private val swapTargetAccountsSorting: AccountsSorting,
     private val linkedBanksFactory: LinkedBanksFactory,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val dismissRecorder: DismissRecorder,
-    private val showSendToDomainsAnnouncementFeatureFlag: IntegratedFeatureFlag
+    private val fiatCurrenciesService: FiatCurrenciesService,
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
@@ -92,7 +99,7 @@ class TransactionInteractor(
     fun initialiseTransaction(
         sourceAccount: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction
+        action: AssetAction,
     ): Observable<PendingTx> =
         coincore.createTransactionProcessor(sourceAccount, target, action)
             .doOnSubscribe { Timber.d("!TRANSACTION!> SUBSCRIBE") }
@@ -124,13 +131,13 @@ class TransactionInteractor(
             AssetAction.Swap -> swapTargets(sourceAccount as CryptoAccount)
             AssetAction.Sell -> sellTargets(sourceAccount as CryptoAccount)
             AssetAction.FiatDeposit -> linkedBanksFactory.getNonWireTransferBanks().mapList { it }
-            AssetAction.Withdraw -> linkedBanksFactory.getAllLinkedBanks().mapList { it }
+            AssetAction.FiatWithdraw -> linkedBanksFactory.getAllLinkedBanks().mapList { it }
             else -> coincore.getTransactionTargets(sourceAccount as CryptoAccount, action)
         }
 
     private fun sellTargets(sourceAccount: CryptoAccount): Single<List<SingleAccount>> {
         val availableFiats =
-            custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency)
+            rxSingle { custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency).first() }
         val apiPairs = Single.zip(
             custodialWalletManager.getSupportedBuySellCryptoCurrencies(),
             availableFiats
@@ -142,34 +149,39 @@ class TransactionInteractor(
             coincore.getTransactionTargets(sourceAccount, AssetAction.Sell),
             apiPairs
         ).map { (accountList, pairs) ->
-            accountList.filterIsInstance(FiatAccount::class.java)
+            val fiatAccounts = accountList.filterIsInstance(FiatAccount::class.java)
                 .filter { account ->
                     pairs.any { it.source == sourceAccount.currency && account.currency == it.destination }
                 }
+            val selectedTradingCurrency = fiatCurrenciesService.selectedTradingCurrency
+            val selectedTradingAccount =
+                fiatAccounts.find { it.currency == selectedTradingCurrency }
+
+            if (selectedTradingAccount != null) listOf(selectedTradingAccount)
+            else fiatAccounts
         }
     }
 
     private fun swapTargets(sourceAccount: CryptoAccount): Single<List<SingleAccount>> =
-        Singles.zip(
+        Single.zip(
             coincore.getTransactionTargets(sourceAccount, AssetAction.Swap),
-            custodialRepository.getSwapAvailablePairs(),
-            identity.isEligibleFor(Feature.SimpleBuy)
-        ).map { (accountList, pairs, eligible) ->
+            custodialRepository.getSwapAvailablePairs()
+        ) { accountList, pairs ->
             accountList.filterIsInstance(CryptoAccount::class.java)
                 .filter { account ->
                     pairs.any { it.source == sourceAccount.currency && account.currency == it.destination }
-                }.filter { account ->
-                    eligible or (account is NonCustodialAccount)
                 }
+        }.flatMap { list ->
+            swapTargetAccountsSorting.sorter().invoke(list)
         }
 
     fun getAvailableSourceAccounts(
         action: AssetAction,
-        targetAccount: TransactionTarget
+        targetAccount: TransactionTarget,
     ): Single<SingleAccountList> =
         when (action) {
             AssetAction.Swap -> {
-                coincore.allWalletsWithActions(setOf(action), accountsSorting.sorter())
+                coincore.walletsWithActions(actions = setOf(action), sorter = swapSourceAccountsSorting.sorter())
                     .zipWith(
                         custodialRepository.getSwapAvailablePairs()
                     ).map { (accounts, pairs) ->
@@ -183,7 +195,7 @@ class TransactionInteractor(
             AssetAction.InterestDeposit -> {
                 require(targetAccount is InterestAccount)
                 require(targetAccount is CryptoAccount)
-                coincore.allWalletsWithActions(setOf(action), accountsSorting.sorter()).map {
+                coincore.walletsWithActions(actions = setOf(action), sorter = defaultAccountsSorting.sorter()).map {
                     it.filter { acc ->
                         acc is CryptoAccount &&
                             acc.currency == targetAccount.currency &&
@@ -195,8 +207,31 @@ class TransactionInteractor(
             AssetAction.FiatDeposit -> {
                 linkedBanksFactory.getNonWireTransferBanks().map { it }
             }
+            AssetAction.Sell -> sellSourceAccounts()
             else -> throw IllegalStateException("Source account should be preselected for action $action")
         }
+
+    private fun sellSourceAccounts(): Single<List<SingleAccount>> {
+        return supportedCryptoCurrencies().zipWith(
+            coincore.walletsWithActions(actions = setOf(AssetAction.Sell), sorter = defaultAccountsSorting.sorter())
+        ).map { (assets, accounts) ->
+            accounts.filterIsInstance<CryptoAccount>().filter { account ->
+                account.currency.networkTicker in assets.map { it.networkTicker }
+            }
+        }
+    }
+
+    private fun supportedCryptoCurrencies(): Single<List<AssetInfo>> {
+        val availableFiats =
+            rxSingle { custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency).first() }
+        return Single.zip(
+            custodialWalletManager.getSupportedBuySellCryptoCurrencies(), availableFiats
+        ) { supportedPairs, fiats ->
+            supportedPairs
+                .filter { fiats.contains(it.destination) }
+                .map { it.source.asAssetInfoOrThrow() }
+        }
+    }
 
     fun verifyAndExecute(secondPassword: String): Completable =
         transactionProcessor?.execute(secondPassword) ?: throw IllegalStateException("TxProcessor not initialised")
@@ -226,7 +261,7 @@ class TransactionInteractor(
     }
 
     fun linkABank(selectedFiat: FiatCurrency): Single<LinkBankTransfer> =
-        paymentsDataManager.linkBank(selectedFiat)
+        bankService.linkBank(selectedFiat)
 
     fun updateFiatDepositState(bankPaymentData: BankPaymentApproval) {
         bankLinkingPrefs.setBankLinkingState(
@@ -259,7 +294,7 @@ class TransactionInteractor(
     }
 
     fun updateFiatDepositOptions(fiatCurrency: FiatCurrency): Single<TransactionIntent> {
-        return paymentsDataManager.getEligiblePaymentMethodTypes(fiatCurrency).map { available ->
+        return paymentMethodService.getEligiblePaymentMethodTypes(fiatCurrency).map { available ->
             val availableBankPaymentMethodTypes = available.filter {
                 it.type == PaymentMethodType.BANK_TRANSFER ||
                     it.type == PaymentMethodType.BANK_ACCOUNT
@@ -296,13 +331,7 @@ class TransactionInteractor(
     }
 
     fun loadSendToDomainAnnouncementPref(prefsKey: String): Single<Boolean> =
-        showSendToDomainsAnnouncementFeatureFlag.enabled.map { isEnabled ->
-            if (isEnabled) {
-                !dismissRecorder.isDismissed(prefsKey)
-            } else {
-                false
-            }
-        }
+        Single.just(!dismissRecorder.isDismissed(prefsKey))
 
     fun dismissSendToDomainAnnouncementPref(prefsKey: String): Single<Boolean> =
         Single.fromCallable {

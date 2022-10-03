@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.VisibleForTesting
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
@@ -37,6 +38,9 @@ class SimpleBuyFinishSignupAnnouncement(
             )
         )
     }
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
 
     private fun createAnnouncementCard(host: AnnouncementHost) =
         StandardAnnouncementCard(

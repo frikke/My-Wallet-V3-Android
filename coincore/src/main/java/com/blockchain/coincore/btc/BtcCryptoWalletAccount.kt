@@ -3,9 +3,9 @@ package com.blockchain.coincore.btc
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.AccountRefreshTrigger
@@ -13,9 +13,8 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.transactionFetchCount
 import com.blockchain.coincore.impl.transactionFetchOffset
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.serialization.JsonSerializableAccount
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -35,7 +34,7 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
 import piuk.blockchain.androidcore.utils.extensions.then
 
 /*internal*/ class BtcCryptoWalletAccount internal constructor(
-    payloadManager: PayloadDataManager,
+    private val payloadDataManager: PayloadDataManager,
     private val sendDataManager: SendDataManager,
     private val feeDataManager: FeeDataManager,
     // Used to lookup the account in payloadDataManager to fetch receive address
@@ -43,26 +42,20 @@ import piuk.blockchain.androidcore.utils.extensions.then
     override val exchangeRates: ExchangeRatesDataManager,
     private val internalAccount: JsonSerializableAccount,
     val isHDAccount: Boolean,
-    private val walletPreferences: WalletStatus,
+    private val walletPreferences: WalletStatusPrefs,
     private val custodialWalletManager: CustodialWalletManager,
     private val refreshTrigger: AccountRefreshTrigger,
-    identity: UserIdentity,
-    override val addressResolver: AddressResolver
+    override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(
-    payloadManager, CryptoCurrency.BTC, custodialWalletManager, identity
+    CryptoCurrency.BTC
 ) {
-    override val baseActions: Set<AssetAction> = defaultActions
     private val hasFunds = AtomicBoolean(false)
 
     override val label: String
         get() = internalAccount.label
 
     override val isArchived: Boolean
-        get() = if (isHDAccount) {
-            (internalAccount as Account).isArchived
-        } else {
-            (internalAccount as ImportedAddress).tag == ImportedAddress.ARCHIVED_ADDRESS
-        }
+        get() = internalAccount.isArchived
 
     override val isDefault: Boolean
         get() = isHDAccount && payloadDataManager.defaultAccountIndex == hdAccountIndex
@@ -125,19 +118,22 @@ import piuk.blockchain.androidcore.utils.extensions.then
             resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
         )
 
-    override val actions: Single<AvailableActions>
-        get() = super.actions.map {
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = super.stateAwareActions.map { actions ->
             if (!isHDAccount) {
-                it.toMutableSet().apply { remove(AssetAction.Receive) }.toSet()
-            } else it
+                actions.toMutableSet().apply {
+                    removeIf {
+                        it.action == AssetAction.Receive
+                    }
+                }.toSet()
+            } else actions
         }
 
     override fun updateLabel(newLabel: String): Completable {
         require(newLabel.isNotEmpty())
-        val revertLabel = label
-        internalAccount.label = newLabel
-        return payloadDataManager.syncPayloadWithServer()
-            .doOnError { internalAccount.label = revertLabel }
+        return payloadDataManager.updateAccountLabel(internalAccount, newLabel).doOnComplete {
+            forceRefresh()
+        }
     }
 
     override fun archive(): Completable {
@@ -153,36 +149,22 @@ import piuk.blockchain.androidcore.utils.extensions.then
 
     private fun toggleArchived(): Completable {
         val isArchived = this.isArchived
-        setArchivedBits(!isArchived)
 
-        return payloadDataManager.syncPayloadWithServer()
-            .doOnError { setArchivedBits(isArchived) } // Revert
+        return updateArchivedState(!isArchived)
             .then { payloadDataManager.updateAllTransactions() }
             .then { getAccountBalance(true).ignoreElement() }
             .doOnComplete { forceRefresh() }
     }
 
-    private fun setArchivedBits(newIsArchived: Boolean) {
-        when (internalAccount) {
-            is Account -> internalAccount.isArchived = newIsArchived
-            is ImportedAddress -> {
-                internalAccount.tag = if (newIsArchived)
-                    ImportedAddress.ARCHIVED_ADDRESS
-                else
-                    ImportedAddress.NORMAL_ADDRESS
-            }
-            else -> throw java.lang.IllegalStateException("Unknown account type")
-        }
+    private fun updateArchivedState(newIsArchived: Boolean): Completable {
+        return payloadDataManager.updateAccountArchivedState(internalAccount, newIsArchived)
     }
 
     override fun setAsDefault(): Completable {
         require(!isDefault)
         require(isHDAccount)
 
-        val revertDefault = payloadDataManager.defaultAccountIndex
-        payloadDataManager.setDefaultIndex(hdAccountIndex)
-        return payloadDataManager.syncPayloadWithServer()
-            .doOnError { payloadDataManager.setDefaultIndex(revertDefault) }
+        return payloadDataManager.setDefaultIndex(hdAccountIndex)
             .doOnComplete { forceRefresh() }
     }
 
@@ -262,18 +244,17 @@ import piuk.blockchain.androidcore.utils.extensions.then
     companion object {
         fun createHdAccount(
             jsonAccount: Account,
-            payloadManager: PayloadDataManager,
+            payloadDataManager: PayloadDataManager,
             hdAccountIndex: Int,
             sendDataManager: SendDataManager,
             feeDataManager: FeeDataManager,
             exchangeRates: ExchangeRatesDataManager,
-            walletPreferences: WalletStatus,
+            walletPreferences: WalletStatusPrefs,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
-            identity: UserIdentity,
-            addressResolver: AddressResolver
+            addressResolver: AddressResolver,
         ) = BtcCryptoWalletAccount(
-            payloadManager = payloadManager,
+            payloadDataManager = payloadDataManager,
             hdAccountIndex = hdAccountIndex,
             sendDataManager = sendDataManager,
             feeDataManager = feeDataManager,
@@ -283,23 +264,21 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
-            identity = identity,
             addressResolver = addressResolver
         )
 
         fun createImportedAccount(
             importedAccount: ImportedAddress,
-            payloadManager: PayloadDataManager,
+            payloadDataManager: PayloadDataManager,
             sendDataManager: SendDataManager,
             feeDataManager: FeeDataManager,
             exchangeRates: ExchangeRatesDataManager,
-            walletPreferences: WalletStatus,
+            walletPreferences: WalletStatusPrefs,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
-            identity: UserIdentity,
-            addressResolver: AddressResolver
+            addressResolver: AddressResolver,
         ) = BtcCryptoWalletAccount(
-            payloadManager = payloadManager,
+            payloadDataManager = payloadDataManager,
             hdAccountIndex = IMPORTED_ACCOUNT_NO_INDEX,
             sendDataManager = sendDataManager,
             feeDataManager = feeDataManager,
@@ -309,7 +288,6 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
-            identity = identity,
             addressResolver = addressResolver
         )
 

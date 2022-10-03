@@ -2,16 +2,17 @@ package piuk.blockchain.android.ui.kyc.navhost
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.exceptions.MetadataNotFoundException
+import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.api.getuser.data.GetUserStore
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.Address
+import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.ResubmissionResponse
 import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.blockchain.nabu.models.responses.nabu.UserState
-import com.blockchain.nabu.service.TierUpdater
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
@@ -33,11 +34,12 @@ class KycNavHostPresenterTest {
 
     private lateinit var subject: KycNavHostPresenter
     private val view: KycNavHostView = mock()
-    private val nabuDataManager: NabuDataManager = mock()
+    private val userService: UserService = mock()
     private val nabuToken: NabuToken = mock()
     private val analytics: Analytics = mock()
     private val reentryDecision: ReentryDecision = mock()
-    private val tierUpdater: TierUpdater = mock()
+    private val kycTiersStore: KycTiersStore = mock()
+    private val getUserStore: GetUserStore = mock()
 
     @Suppress("unused")
     @get:Rule
@@ -50,21 +52,36 @@ class KycNavHostPresenterTest {
     fun setUp() {
         subject = KycNavHostPresenter(
             nabuToken = nabuToken,
-            nabuDataManager = nabuDataManager,
+            userService = userService,
             reentryDecision = reentryDecision,
             kycNavigator = ReentryDecisionKycNavigator(
-                nabuToken, nabuDataManager, reentryDecision, analytics
+                userService, reentryDecision, analytics
             ),
-            tierUpdater = tierUpdater,
-            analytics = mock()
+            kycTiersStore = kycTiersStore,
+            getUserStore = getUserStore,
+            analytics = mock(),
+            productEligibilityStore = mock(),
         )
         subject.initView(view)
     }
 
     @Test
+    fun `onViewReady should invalidate stores`() {
+        // Arrange - throw an exception just to have definitions,
+        // won't be checked in this test
+        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.error { Throwable() })
+        whenever(userService.getUser()).thenReturn(Single.error { Throwable() })
+        // Act
+        subject.onViewReady()
+        // Assert
+        verify(kycTiersStore).invalidate()
+        verify(getUserStore).invalidate()
+    }
+
+    @Test
     fun `onViewReady exception thrown`() {
         // Arrange
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.error { Throwable() })
+        whenever(userService.getUser()).thenReturn(Single.error { Throwable() })
         // Act
         subject.onViewReady()
         // Assert
@@ -73,23 +90,9 @@ class KycNavHostPresenterTest {
     }
 
     @Test
-    fun `onViewReady no metadata found`() {
-        // Arrange
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.error { MetadataNotFoundException("") })
-
-        // Act
-        subject.onViewReady()
-
-        // Assert
-        verify(view).displayLoading(true)
-        verify(view).displayLoading(false)
-    }
-
-    @Test
     fun `onViewReady metadata found, empty user object`() {
         // Arrange
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
-        whenever(nabuDataManager.getUser(validOfflineToken)).thenReturn(Single.just(getBlankNabuUser()))
+        whenever(userService.getUser()).thenReturn(Single.just(getBlankNabuUser()))
 
         // Act
         subject.onViewReady()
@@ -104,10 +107,11 @@ class KycNavHostPresenterTest {
         givenReentryDecision(ReentryPoint.CountrySelection)
         whenever(view.campaignType).thenReturn(CampaignType.Swap)
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(userService.getUser())
             .thenReturn(
                 Single.just(
                     NabuUser(
+                        id = "id",
                         firstName = "FIRST_NAME",
                         lastName = "LAST_NAME",
                         email = "",
@@ -119,7 +123,13 @@ class KycNavHostPresenterTest {
                         state = UserState.Created,
                         kycState = KycState.None,
                         insertedAt = null,
-                        updatedAt = null
+                        updatedAt = null,
+                        currencies = CurrenciesResponse(
+                            preferredFiatTradingCurrency = "EUR",
+                            usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                            defaultWalletCurrency = "BRL",
+                            userFiatCurrencies = listOf("EUR", "GBP")
+                        )
                     )
                 )
             )
@@ -137,10 +147,11 @@ class KycNavHostPresenterTest {
         givenReentryDecision(ReentryPoint.CountrySelection)
         whenever(view.campaignType).thenReturn(CampaignType.Resubmission)
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(userService.getUser())
             .thenReturn(
                 Single.just(
                     NabuUser(
+                        id = "id",
                         firstName = "FIRST_NAME",
                         lastName = "LAST_NAME",
                         email = "",
@@ -152,7 +163,13 @@ class KycNavHostPresenterTest {
                         state = UserState.Created,
                         kycState = KycState.UnderReview,
                         insertedAt = null,
-                        updatedAt = null
+                        updatedAt = null,
+                        currencies = CurrenciesResponse(
+                            preferredFiatTradingCurrency = "EUR",
+                            usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                            defaultWalletCurrency = "BRL",
+                            userFiatCurrencies = listOf("EUR", "GBP")
+                        )
                     )
                 )
             )
@@ -170,10 +187,11 @@ class KycNavHostPresenterTest {
         givenReentryDecision(ReentryPoint.CountrySelection)
         whenever(view.campaignType).thenReturn(CampaignType.Swap)
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(userService.getUser())
             .thenReturn(
                 Single.just(
                     NabuUser(
+                        id = "id",
                         firstName = "FIRST_NAME",
                         lastName = "LAST_NAME",
                         email = "",
@@ -186,7 +204,13 @@ class KycNavHostPresenterTest {
                         kycState = KycState.UnderReview,
                         insertedAt = null,
                         updatedAt = null,
-                        resubmission = ResubmissionResponse(0, "")
+                        resubmission = ResubmissionResponse(0, ""),
+                        currencies = CurrenciesResponse(
+                            preferredFiatTradingCurrency = "EUR",
+                            usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                            defaultWalletCurrency = "BRL",
+                            userFiatCurrencies = listOf("EUR", "GBP")
+                        )
                     )
                 )
             )
@@ -205,6 +229,7 @@ class KycNavHostPresenterTest {
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
 
         val nabuUser = NabuUser(
+            id = "id",
             firstName = "firstName",
             lastName = "lastName",
             email = "",
@@ -216,9 +241,15 @@ class KycNavHostPresenterTest {
             state = UserState.Created,
             kycState = KycState.None,
             insertedAt = null,
-            updatedAt = null
+            updatedAt = null,
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
-        whenever(nabuDataManager.getUser(validOfflineToken)).thenReturn(Single.just(nabuUser))
+        whenever(userService.getUser()).thenReturn(Single.just(nabuUser))
 
         // Act
         subject.onViewReady()
@@ -238,6 +269,7 @@ class KycNavHostPresenterTest {
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
 
         val nabuUser = NabuUser(
+            id = "id",
             firstName = "firstName",
             lastName = "lastName",
             email = "",
@@ -249,9 +281,15 @@ class KycNavHostPresenterTest {
             state = UserState.Created,
             kycState = KycState.None,
             insertedAt = null,
-            updatedAt = null
+            updatedAt = null,
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(userService.getUser())
             .thenReturn(Single.just(nabuUser))
         // Act
         subject.onViewReady()
@@ -268,6 +306,7 @@ class KycNavHostPresenterTest {
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
 
         val nabuUser = NabuUser(
+            id = "id",
             firstName = "firstName",
             lastName = "lastName",
             email = "",
@@ -280,9 +319,15 @@ class KycNavHostPresenterTest {
             kycState = KycState.None,
             insertedAt = null,
             updatedAt = null,
-            tiers = TierLevels(current = 1, next = 2, selected = 2)
+            tiers = TierLevels(current = 1, next = 2, selected = 2),
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
-        whenever(nabuDataManager.getUser(validOfflineToken)).thenReturn(Single.just(nabuUser))
+        whenever(userService.getUser()).thenReturn(Single.just(nabuUser))
         // Act
         subject.onViewReady()
         // Assert
@@ -298,6 +343,7 @@ class KycNavHostPresenterTest {
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
 
         val nabuUser = NabuUser(
+            id = "id",
             firstName = "firstName",
             lastName = "lastName",
             email = "",
@@ -309,9 +355,15 @@ class KycNavHostPresenterTest {
             state = UserState.Active,
             kycState = KycState.None,
             insertedAt = null,
-            updatedAt = null
+            updatedAt = null,
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(userService.getUser())
             .thenReturn(Single.just(nabuUser))
         // Act
         subject.onViewReady()
@@ -326,6 +378,7 @@ class KycNavHostPresenterTest {
         // Arrange
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
         val nabuUser = NabuUser(
+            id = "id",
             firstName = "firstName",
             lastName = "lastName",
             email = "",
@@ -337,9 +390,15 @@ class KycNavHostPresenterTest {
             state = UserState.Active,
             kycState = KycState.Pending,
             insertedAt = null,
-            updatedAt = null
+            updatedAt = null,
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
-        whenever(nabuDataManager.getUser(validOfflineToken)).thenReturn(Single.just(nabuUser))
+        whenever(userService.getUser()).thenReturn(Single.just(nabuUser))
 
         // Act
         subject.onViewReady()
@@ -352,7 +411,7 @@ class KycNavHostPresenterTest {
         city = "city",
         line1 = "line1",
         line2 = "line2",
-        state = "state",
+        stateIso = "state",
         countryCode = "regionCode",
         postCode = "postCode"
     )

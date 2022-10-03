@@ -76,6 +76,12 @@ class PinModel(
                                 interactor.clearPin()
                             }
                         )
+                } ?: run {
+                    // TODO This shouldn't happen, we may have multiple instances of PayloadData
+                    process(PinIntent.UpdatePinErrorState(PinError.CREATE_PIN_FAILED))
+                    interactor.clearPrefs()
+                    interactor.clearPin()
+                    null
                 }
             }
             is PinIntent.ValidatePIN -> {
@@ -174,7 +180,7 @@ class PinModel(
                     )
             }
             is PinIntent.UpgradeWallet -> {
-                interactor.doUpgradeWallet(intent.secondPassword, intent.isFromPinCreation)
+                interactor.doUpgradeWallet(intent.secondPassword)
                     .handleProgress(R.string.upgrading)
                     .subscribeBy(
                         onComplete = {
@@ -291,7 +297,6 @@ class PinModel(
 
     private fun handlePayloadUpdateComplete(isFromPinCreation: Boolean = false) {
         interactor.updateShareKeyInPrefs()
-        interactor.setAccountLabelIfNecessary()
         specificAnalytics.logLogin(true)
 
         if (interactor.isWalletUpgradeRequired()) {

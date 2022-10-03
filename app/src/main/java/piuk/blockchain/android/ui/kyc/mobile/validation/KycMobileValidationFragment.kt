@@ -14,6 +14,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.koin.scopedInject
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -29,7 +30,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycMobileValidationBinding
 import piuk.blockchain.android.ui.base.BaseMvpFragment
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
-import piuk.blockchain.android.ui.kyc.additional_info.TreeNode
 import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneVerificationModel
 import piuk.blockchain.android.ui.kyc.mobile.validation.models.VerificationCode
@@ -97,7 +97,7 @@ class KycMobileValidationFragment :
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentKycMobileValidationBinding.inflate(inflater, container, false)
         return binding.root
@@ -105,7 +105,7 @@ class KycMobileValidationFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressListener.setHostTitle(R.string.kyc_phone_number_title)
+        progressListener.setupHostToolbar(R.string.kyc_phone_number_title)
         binding.textViewMobileValidationMessage.text = displayModel.formattedString
 
         val linksMap = mapOf<String, Uri?>(
@@ -165,12 +165,12 @@ class KycMobileValidationFragment :
         }
     }
 
-    override fun navigateToAdditionalInfo(root: TreeNode.Root) {
+    override fun navigateToQuestionnaire(questionnaire: Questionnaire) {
         requireActivity().hideKeyboard()
         findNavController(this).apply {
             navigate(
-                KycMobileValidationFragmentDirections.actionKycMobileValidationFragmentToKycAdditionalInfoFragment(
-                    root,
+                KycMobileValidationFragmentDirections.actionKycMobileValidationFragmentToKycQuestionnaireFragment(
+                    questionnaire,
                     countryCode
                 )
             )
@@ -186,7 +186,7 @@ class KycMobileValidationFragment :
     }
 
     private fun TextView.onDelayedChange(
-        kycStep: KycStep
+        kycStep: KycStep,
     ): Observable<Boolean> =
         this.afterTextChangeEvents()
             .debounce(300, TimeUnit.MILLISECONDS)

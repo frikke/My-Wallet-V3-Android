@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import android.content.res.Resources
 import androidx.annotation.VisibleForTesting
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
@@ -18,6 +19,9 @@ class WalletConnectAnnouncement(
     override val dismissKey = DISMISS_KEY
 
     override fun shouldShow(): Single<Boolean> = Single.just(!dismissEntry.isDismissed)
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.NON_CUSTODIAL_ONLY)
 
     override fun show(host: AnnouncementHost) {
         try {

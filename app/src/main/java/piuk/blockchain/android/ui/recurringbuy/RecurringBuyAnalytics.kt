@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.recurringbuy
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money

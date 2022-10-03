@@ -1,7 +1,8 @@
 package piuk.blockchain.android.ui.backup.verify
 
 import com.blockchain.componentlib.alert.SnackbarType
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.wallet.BackupWallet
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -15,7 +16,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import piuk.blockchain.android.R
-import piuk.blockchain.android.util.BackupWalletUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class BackupVerifyPresenterTest {
@@ -23,12 +23,12 @@ class BackupVerifyPresenterTest {
     private lateinit var subject: BackupVerifyPresenter
     private val view: BackupVerifyView = mock()
     private val payloadDataManager: PayloadDataManager = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
-    private val walletStatus: WalletStatus = mock()
-    private val backupWalletUtil: BackupWalletUtil = mock()
+    private val walletStatusPrefs: WalletStatusPrefs = mock()
+    private val backupWallet: BackupWallet = mock()
 
     @Before
     fun setUp() {
-        subject = BackupVerifyPresenter(payloadDataManager, walletStatus, backupWalletUtil)
+        subject = BackupVerifyPresenter(payloadDataManager, walletStatusPrefs, backupWallet)
         subject.initView(view)
     }
 
@@ -40,15 +40,15 @@ class BackupVerifyPresenterTest {
         val pairThree = 7 to "word_three"
         val sequence = listOf(pairOne, pairTwo, pairThree)
         whenever(view.getPageBundle()).thenReturn(null)
-        whenever(backupWalletUtil.getConfirmSequence(null)).thenReturn(sequence)
+        whenever(backupWallet.getConfirmSequence(null)).thenReturn(sequence)
         // Act
         subject.onViewReady()
         // Assert
         verify(view).getPageBundle()
         verify(view).showWordHints(listOf(1, 6, 7))
         verifyNoMoreInteractions(view)
-        verify(backupWalletUtil).getConfirmSequence(null)
-        verifyNoMoreInteractions(backupWalletUtil)
+        verify(backupWallet).getConfirmSequence(null)
+        verifyNoMoreInteractions(backupWallet)
     }
 
     @Test
@@ -58,15 +58,15 @@ class BackupVerifyPresenterTest {
         val pairTwo = 6 to "word_two"
         val pairThree = 7 to "word_three"
         val sequence = listOf(pairOne, pairTwo, pairThree)
-        whenever(backupWalletUtil.getConfirmSequence(null)).thenReturn(sequence)
+        whenever(backupWallet.getConfirmSequence(null)).thenReturn(sequence)
         // Act
         subject.onVerifyClicked(pairOne.second, pairTwo.second, pairTwo.second)
         // Assert
         verify(view).getPageBundle()
         verify(view).showSnackbar(R.string.backup_word_mismatch, SnackbarType.Error)
         verifyNoMoreInteractions(view)
-        verify(backupWalletUtil).getConfirmSequence(null)
-        verifyNoMoreInteractions(backupWalletUtil)
+        verify(backupWallet).getConfirmSequence(null)
+        verifyNoMoreInteractions(backupWallet)
     }
 
     @Test
@@ -76,16 +76,16 @@ class BackupVerifyPresenterTest {
         val pairTwo = 6 to "word_two"
         val pairThree = 7 to "word_three"
         val sequence = listOf(pairOne, pairTwo, pairThree)
-        whenever(backupWalletUtil.getConfirmSequence(null)).thenReturn(sequence)
-        whenever(payloadDataManager.syncPayloadWithServer()).thenReturn(Completable.complete())
+        whenever(backupWallet.getConfirmSequence(null)).thenReturn(sequence)
         whenever(payloadDataManager.wallet!!.walletBody).thenReturn(mock())
+        whenever(payloadDataManager.updateMnemonicVerified(true)).thenReturn(Completable.complete())
         // Act
         subject.onVerifyClicked(pairOne.second, pairTwo.second, pairThree.second)
         // Assert
-        verify(backupWalletUtil).getConfirmSequence(null)
-        verifyNoMoreInteractions(backupWalletUtil)
-        verify(payloadDataManager).syncPayloadWithServer()
-        verify(payloadDataManager, times(2)).wallet
+        verify(backupWallet).getConfirmSequence(null)
+        verifyNoMoreInteractions(backupWallet)
+        verify(payloadDataManager).wallet
+        verify(payloadDataManager).updateMnemonicVerified(true)
         verifyNoMoreInteractions(payloadDataManager)
         verify(view).getPageBundle()
         verify(view).showProgressDialog()
@@ -93,47 +93,48 @@ class BackupVerifyPresenterTest {
         verify(view).showSnackbar(any(), eq(SnackbarType.Success))
         verify(view).showCompletedFragment()
         verifyNoMoreInteractions(view)
-        verify(walletStatus).lastBackupTime = any()
-        verifyNoMoreInteractions(walletStatus)
+        verify(walletStatusPrefs).lastBackupTime = any()
+        verifyNoMoreInteractions(walletStatusPrefs)
     }
 
     @Test
     fun `updateBackupStatus success`() {
         // Arrange
-        whenever(payloadDataManager.syncPayloadWithServer()).thenReturn(Completable.complete())
+        whenever(payloadDataManager.updateMnemonicVerified(true)).thenReturn(Completable.complete())
+
         whenever(payloadDataManager.wallet!!.walletBody).thenReturn(mock())
         // Act
         subject.updateBackupStatus()
         // Assert
-        verify(payloadDataManager).syncPayloadWithServer()
-        verify(payloadDataManager, times(2)).wallet
+        verify(payloadDataManager).updateMnemonicVerified(true)
+        verify(payloadDataManager).wallet
         verifyNoMoreInteractions(payloadDataManager)
         verify(view).showProgressDialog()
         verify(view).hideProgressDialog()
         verify(view).showSnackbar(any(), eq(SnackbarType.Success))
         verify(view).showCompletedFragment()
         verifyNoMoreInteractions(view)
-        verify(walletStatus).lastBackupTime = any()
-        verifyNoMoreInteractions(walletStatus)
+        verify(walletStatusPrefs).lastBackupTime = any()
+        verifyNoMoreInteractions(walletStatusPrefs)
     }
 
     @Test
     fun `updateBackupStatus failure`() {
         // Arrange
-        whenever(payloadDataManager.syncPayloadWithServer())
+        whenever(payloadDataManager.updateMnemonicVerified(any()))
             .thenReturn(Completable.error { Throwable() })
         whenever(payloadDataManager.wallet!!.walletBody).thenReturn(mock())
         // Act
         subject.updateBackupStatus()
         // Assert
-        verify(payloadDataManager).syncPayloadWithServer()
-        verify(payloadDataManager, times(2)).wallet
+        verify(payloadDataManager).updateMnemonicVerified(any())
+        verify(payloadDataManager).wallet
         verifyNoMoreInteractions(payloadDataManager)
         verify(view).showProgressDialog()
         verify(view).hideProgressDialog()
         verify(view).showSnackbar(any(), eq(SnackbarType.Error))
         verify(view).showStartingFragment()
         verifyNoMoreInteractions(view)
-        verifyZeroInteractions(walletStatus)
+        verifyZeroInteractions(walletStatusPrefs)
     }
 }

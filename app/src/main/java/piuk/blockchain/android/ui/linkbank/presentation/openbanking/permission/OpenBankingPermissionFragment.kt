@@ -12,10 +12,11 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.withArgs
-import com.blockchain.core.payments.model.YapilyInstitution
+import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.koin.payloadScope
-import org.koin.androidx.viewmodel.ViewModelOwner
-import org.koin.androidx.viewmodel.scope.getViewModel
+import org.koin.android.scope.AndroidScopeComponent
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -27,7 +28,8 @@ import piuk.blockchain.android.util.openUrl
 
 class OpenBankingPermissionFragment :
     MVIFragment<OpenBankingPermissionViewState>(),
-    Analytics by get(Analytics::class.java) {
+    Analytics by get(Analytics::class.java),
+    AndroidScopeComponent {
 
     private val args: OpenBankingPermissionArgs by lazy {
         arguments?.run { getParcelable(ARGS_KEY) as? OpenBankingPermissionArgs }
@@ -39,9 +41,9 @@ class OpenBankingPermissionFragment :
             ?: error("host does not implement NavigationRouter<OpenBankingPermissionNavEvent>")
     }
 
-    private val viewModel: OpenBankingPermissionViewModel by lazy {
-        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
-    }
+    override val scope: Scope = payloadScope
+
+    private val viewModel: OpenBankingPermissionViewModel by viewModel()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         bindViewModel(viewModel = viewModel, navigator = navigationRouter, args = args)

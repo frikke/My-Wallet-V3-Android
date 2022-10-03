@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AnalyticsEvents
@@ -18,6 +19,8 @@ import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 
+// todo(othman) setup BackupPhraseActivity in portfolio announcement card
+@Deprecated("this is a legacy class, replaced by BackupPhraseActivity")
 class BackupWalletActivity : BlockchainActivity() {
 
     private val payloadManger: PayloadDataManager by scopedInject()
@@ -35,6 +38,9 @@ class BackupWalletActivity : BlockchainActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        setupBackPress()
+
         get<Analytics>().logEvent(AnalyticsEvents.Backup)
         updateToolbar(
             toolbarTitle = getString(R.string.backup_wallet_title),
@@ -57,17 +63,19 @@ class BackupWalletActivity : BlockchainActivity() {
             .commit()
     }
 
-    override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount <= 1) {
-            setResult(if (isBackedUp()) RESULT_OK else Activity.RESULT_CANCELED)
-            finish()
-        } else {
-            supportFragmentManager.popBackStack()
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(owner = this) {
+            if (supportFragmentManager.backStackEntryCount <= 1) {
+                setResult(if (isBackedUp()) RESULT_OK else Activity.RESULT_CANCELED)
+                finish()
+            } else {
+                supportFragmentManager.popBackStack()
+            }
         }
     }
 
     override fun onSupportNavigateUp() =
-        consume { onBackPressed() }
+        consume { onBackPressedDispatcher.onBackPressed() }
 
     private fun isBackedUp() = payloadManger.isBackedUp
 

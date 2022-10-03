@@ -1,7 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
@@ -14,7 +15,7 @@ import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class TwoFAAnnouncement(
     dismissRecorder: DismissRecorder,
-    private val walletStatus: WalletStatus,
+    private val walletStatusPrefs: WalletStatusPrefs,
     private val walletSettings: SettingsDataManager
 ) : AnnouncementRule(dismissRecorder) {
 
@@ -26,9 +27,11 @@ class TwoFAAnnouncement(
         }
 
         return walletSettings.getSettings()
-            .map { !it.isSmsVerified && walletStatus.isWalletFunded && it.authType == Settings.AUTH_TYPE_OFF }
+            .map { !it.isSmsVerified && walletStatusPrefs.isWalletFunded && it.authType == Settings.AUTH_TYPE_OFF }
             .singleOrError()
     }
+    override val associatedWalletModes: List<WalletMode>
+        get() = WalletMode.values().toList()
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(

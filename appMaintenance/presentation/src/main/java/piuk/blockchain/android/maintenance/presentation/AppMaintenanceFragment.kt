@@ -15,6 +15,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.disableDragging
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -31,8 +32,11 @@ class AppMaintenanceFragment :
 
     private val inAppUpdateSettings: InAppUpdateSettings by inject()
 
+    private val environmentConfig: EnvironmentConfig by inject()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         isCancelable = false
+
         disableDragging()
 
         setupViewModel()
@@ -62,9 +66,11 @@ class AppMaintenanceFragment :
     private fun ScreenContent() {
         val state = viewModel.viewState.collectAsState()
         AppMaintenanceScreen(
-            state.value,
-            button1OnClick = { viewModel.onIntent(it) },
-            button2OnClick = { viewModel.onIntent(it) }
+            isDebugBuild = environmentConfig.isRunningInDebugMode(),
+            debugSkip = ::resumeAppFlow,
+            uiState = state.value,
+            button1OnClick = viewModel::onIntent,
+            button2OnClick = viewModel::onIntent
         )
     }
 

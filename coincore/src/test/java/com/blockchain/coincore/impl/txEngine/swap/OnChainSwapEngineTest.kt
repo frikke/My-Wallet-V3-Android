@@ -18,6 +18,7 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -56,6 +57,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val userIdentity: UserIdentity = mock()
+    private val swapTransactionsCache: SwapTransactionsCache = mock()
     private val limitsDataManager: LimitsDataManager = mock {
         on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
             Single.just(
@@ -78,7 +80,8 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
         walletManager = walletManager,
         quotesEngine = quotesEngine,
         limitsDataManager = limitsDataManager,
-        userIdentity = userIdentity
+        userIdentity = userIdentity,
+        swapTransactionsCache = swapTransactionsCache
     )
 
     @Before
@@ -269,7 +272,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
             on { price }.thenReturn(INITIAL_QUOTE_PRICE)
         }
 
-        whenever(quotesEngine.pricedQuote).thenReturn(Observable.just(pricedQuote))
+        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.just(pricedQuote))
         whenever(quotesEngine.getLatestQuote()).thenReturn(pricedQuote)
 
         subject.start(
@@ -304,7 +307,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
         verifyQuotesEngineStarted()
         verifyOnChainEngineStarted(sourceAccount)
         verifyLimitsFetched()
-        verify(quotesEngine).pricedQuote
+        verify(quotesEngine).getPricedQuote()
         verify(quotesEngine, atLeastOnce()).getLatestQuote()
         verify(onChainEngine).doInitialiseTx()
 
@@ -333,7 +336,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
             on { price }.thenReturn(INITIAL_QUOTE_PRICE)
         }
 
-        whenever(quotesEngine.pricedQuote).thenReturn(Observable.just(pricedQuote))
+        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.just(pricedQuote))
         whenever(quotesEngine.getLatestQuote()).thenReturn(pricedQuote)
 
         subject.start(
@@ -368,7 +371,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
         verifyQuotesEngineStarted()
         verifyOnChainEngineStarted(sourceAccount)
         verifyLimitsFetched()
-        verify(quotesEngine).pricedQuote
+        verify(quotesEngine).getPricedQuote()
         verify(quotesEngine, atLeastOnce()).getLatestQuote()
         verify(onChainEngine).doInitialiseTx()
 
@@ -390,7 +393,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
             on { getErrorCode() }.thenReturn(NabuErrorCodes.PendingOrdersLimitReached)
         }
 
-        whenever(quotesEngine.pricedQuote).thenReturn(Observable.error(error))
+        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.error(error))
 
         subject.start(
             sourceAccount,
@@ -425,7 +428,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
         verify(txTarget, atLeastOnce()).currency
         verify(currencyPrefs).selectedFiatCurrency
         verifyQuotesEngineStarted()
-        verify(quotesEngine).pricedQuote
+        verify(quotesEngine).getPricedQuote()
 
         noMoreInteractions(sourceAccount, txTarget)
     }

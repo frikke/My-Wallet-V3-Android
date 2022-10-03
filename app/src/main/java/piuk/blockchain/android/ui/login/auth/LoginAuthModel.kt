@@ -163,8 +163,8 @@ class LoginAuthModel(
     private fun updateAccount(isMobileSetup: Boolean, deviceType: Int, shouldRequestUpgrade: Boolean) =
         interactor.updateMobileSetup(isMobileSetup, deviceType)
             .subscribeBy(
-                onComplete = {
-                    if (shouldRequestUpgrade) {
+                onSuccess = { flagEnabled ->
+                    if (shouldRequestUpgrade && flagEnabled) {
                         process(LoginAuthIntents.ShowAccountUnification)
                     } else {
                         process(LoginAuthIntents.ShowAuthComplete)

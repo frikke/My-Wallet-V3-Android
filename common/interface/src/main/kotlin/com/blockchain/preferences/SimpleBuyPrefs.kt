@@ -9,7 +9,13 @@ interface SimpleBuyPrefs {
     fun clearCardState()
     fun updateSupportedCards(cardTypes: String)
     fun getSupportedCardTypes(): String?
+
+    fun getLastAmount(pair: String): String
+    fun setLastAmount(pair: String, amount: String)
+    fun getLastPaymentMethodId(): String
+    fun setLastPaymentMethodId(paymentMethodId: String)
+
     var hasCompletedAtLeastOneBuy: Boolean
-    var addCardInfoDismissed: Boolean
+    var buysCompletedCount: Int
     var isFirstTimeBuyer: Boolean
 }

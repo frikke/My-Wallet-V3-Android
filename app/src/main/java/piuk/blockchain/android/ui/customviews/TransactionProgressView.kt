@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.customviews
 
 import android.content.Context
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
 import android.util.AttributeSet
@@ -8,22 +10,70 @@ import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import info.blockchain.balance.Currency
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.time.ZonedDateTime
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewTransactionProgressBinding
+import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
+import piuk.blockchain.android.simplebuy.toHumanReadableRecurringDate
+import piuk.blockchain.android.simplebuy.toRecurringBuySuggestionTitle
 import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.util.checkValidUrlAndOpen
+import piuk.blockchain.android.util.loadRemoteErrorAndStatusIcons
+import piuk.blockchain.android.util.loadRemoteErrorIcon
 
 class TransactionProgressView(context: Context, attrs: AttributeSet) :
     ConstraintLayout(context, attrs), KoinComponent {
 
+    interface TransactionProgressActions {
+        fun onPrimaryButtonClicked()
+        fun onSecondaryButtonClicked()
+        fun onTertiaryButtonClicked()
+    }
+
     private val assetResources: AssetResources by inject()
+    private val compositeDisposable = CompositeDisposable()
+    private val deeplinkRedirector: DeeplinkRedirector by scopedInject()
 
     private val binding: ViewTransactionProgressBinding =
         ViewTransactionProgressBinding.inflate(LayoutInflater.from(context), this, true)
+
+    fun showToggleUI(
+        showToggle: Boolean,
+        recurringBuyFrequency: RecurringBuyFrequency
+    ) {
+        with(binding) {
+            if (showToggle) {
+                toggle.apply {
+                    primaryText = recurringBuyFrequency.toRecurringBuySuggestionTitle(context)
+                    secondaryText = context.getString(
+                        R.string.checkout_rb_subtitle,
+                        recurringBuyFrequency.toHumanReadableRecurringBuy(context).lowercase(),
+                        recurringBuyFrequency.toHumanReadableRecurringDate(context, ZonedDateTime.now())
+                    )
+                    onCheckedChange = { isChecked = it }
+                }
+                borderBox.visible()
+            } else {
+                borderBox.gone()
+            }
+        }
+    }
+
+    fun isRecurringBuyEnabled(): Boolean = binding.toggle.isChecked
 
     fun setAssetIcon(@DrawableRes assetIcon: Int) {
         binding.txIcon.setImageResource(assetIcon)
@@ -33,19 +83,27 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         assetResources.loadAssetIcon(binding.txIcon, asset)
     }
 
-    fun onCtaClick(text: String, fn: () -> Unit) {
-        binding.txOkBtn.apply {
+    fun setupPrimaryCta(text: String, onClick: () -> Unit) {
+        binding.txPrimaryBtn.apply {
             visible()
             this.text = text
-            setOnClickListener { fn() }
+            this.onClick = { onClick() }
         }
     }
 
-    fun onSecondaryCtaClicked(text: String, fn: () -> Unit) {
-        binding.secondaryBtn.apply {
+    fun setupSecondaryCta(text: String, onClick: () -> Unit) {
+        binding.txSecondaryBtn.apply {
             visible()
             this.text = text
-            setOnClickListener { fn() }
+            this.onClick = { onClick() }
+        }
+    }
+
+    fun setupTertiaryCta(text: String, onClick: () -> Unit) {
+        binding.txTertiaryBtn.apply {
+            visible()
+            this.text = text
+            this.onClick = { onClick() }
         }
     }
 
@@ -53,7 +111,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         with(binding) {
             progress.visible()
             txStateIndicator.gone()
-            txOkBtn.gone()
+            txPrimaryBtn.gone()
         }
         setText(title, subtitle)
     }
@@ -62,7 +120,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         with(binding) {
             progress.gone()
             txStateIndicator.visible()
-            txOkBtn.visible()
+            txPrimaryBtn.visible()
             txStateIndicator.setImageResource(R.drawable.ic_pending_clock)
         }
         setText(title, subtitle)
@@ -71,7 +129,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showTxSuccess(
         title: String,
         subtitle: String,
-        icon: Int = R.drawable.ic_check_circle
+        icon: Int = R.drawable.ic_check_circle,
     ) {
         with(binding) {
             txStateIndicator.setImageResource(icon)
@@ -84,7 +142,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showPendingTx(
         title: String,
         subtitle: String,
-        locksNote: SpannableStringBuilder
+        locksNote: SpannableStringBuilder,
     ) {
         with(binding) {
             txStateIndicator.setImageResource(R.drawable.ic_check_circle)
@@ -102,11 +160,147 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showTxError(
         title: String,
         subtitle: CharSequence,
-        resourceIcon: Int = R.drawable.ic_alert_white_bkgd
+        @DrawableRes statusIcon: Int = R.drawable.ic_alert_white_bkgd,
     ) {
         with(binding) {
-            txStateIndicator.setImageResource(resourceIcon)
+            txStateIndicator.setImageResource(statusIcon)
             txStateIndicator.visible()
+            progress.gone()
+        }
+        setText(title, subtitle)
+    }
+
+    fun showServerSideError(
+        iconUrl: String,
+        statusIconUrl: String = "", // not all server side errors will have a status icon
+        title: String,
+        description: String,
+        @DrawableRes defaultErrorStatusIcon: Int = R.drawable.ic_alert_white_bkgd,
+    ) {
+        when {
+            // we have been provided both icon and status
+            iconUrl.isNotEmpty() && statusIconUrl.isNotEmpty() -> {
+                loadRemoteErrorAndStatusIcons(
+                    iconUrl,
+                    statusIconUrl,
+                    title,
+                    description,
+                    defaultErrorStatusIcon
+                )
+            }
+            // we only have one icon
+            iconUrl.isNotEmpty() && statusIconUrl.isEmpty() -> {
+                loadRemoteErrorIcon(
+                    iconUrl,
+                    title,
+                    description,
+                    defaultErrorStatusIcon
+                )
+            }
+            // no icons provided
+            else -> showTxError(
+                title = title,
+                subtitle = description,
+                statusIcon = defaultErrorStatusIcon
+            )
+        }
+    }
+
+    private fun loadRemoteErrorAndStatusIcons(
+        iconUrl: String,
+        statusIconUrl: String,
+        title: String,
+        description: String,
+        @DrawableRes defaultStatusIcon: Int,
+    ) {
+        context.loadRemoteErrorAndStatusIcons(
+            iconUrl,
+            statusIconUrl,
+            onIconLoadSuccess = { drawable ->
+                updateErrorIcon(
+                    title = title,
+                    subtitle = description,
+                    icon = drawable
+                )
+            },
+            onIconLoadError = {
+                showTxError(
+                    title = title,
+                    subtitle = description,
+                    statusIcon = defaultStatusIcon
+                )
+            },
+            onStatusIconLoadSuccess = { drawable ->
+                updateStatusIcon(
+                    title = title,
+                    subtitle = description,
+                    statusIcon = drawable
+                )
+            },
+            onStatusIconLoadError = {
+                showTxError(
+                    title = title,
+                    subtitle = description,
+                    statusIcon = defaultStatusIcon
+                )
+            }
+        )
+    }
+
+    private fun loadRemoteErrorIcon(
+        iconUrl: String,
+        title: String,
+        description: String,
+        @DrawableRes defaultStatusIcon: Int,
+    ) {
+        context.loadRemoteErrorIcon(
+            iconUrl,
+            onIconLoadSuccess = { drawable ->
+                updateErrorIcon(
+                    title = title,
+                    subtitle = description,
+                    icon = drawable
+                )
+
+                ContextCompat.getDrawable(context, defaultStatusIcon)?.let { icon ->
+                    updateStatusIcon(
+                        title = title,
+                        subtitle = description,
+                        statusIcon = icon
+                    )
+                }
+            },
+            onIconLoadError = {
+                showTxError(
+                    title = title,
+                    subtitle = description,
+                    statusIcon = defaultStatusIcon
+                )
+            }
+        )
+    }
+
+    private fun updateStatusIcon(
+        title: String,
+        subtitle: CharSequence,
+        statusIcon: Drawable,
+    ) {
+        with(binding) {
+            txStateIndicator.setImageDrawable(statusIcon)
+            txStateIndicator.visible()
+            progress.gone()
+        }
+        setText(title, subtitle)
+    }
+
+    private fun updateErrorIcon(
+        title: String,
+        subtitle: CharSequence,
+        icon: Drawable,
+    ) {
+        with(binding) {
+            txIcon.setImageDrawable(icon)
+            txStateIndicator.gone()
             progress.gone()
         }
         setText(title, subtitle)
@@ -137,6 +331,71 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         setText(title, subtitle)
     }
 
+    fun showServerSideActionErrorCtas(
+        list: List<ServerErrorAction>,
+        currencyCode: String,
+        onActionsClickedCallback: TransactionProgressActions,
+    ) {
+        list.mapIndexed { index, item ->
+            when (index) {
+                0 -> {
+                    setupPrimaryCta(
+                        text = item.title.asButtonCopyOrDefault(),
+                        onClick = {
+                            redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
+                            onActionsClickedCallback.onPrimaryButtonClicked()
+                        }
+                    )
+                }
+                1 -> {
+                    setupSecondaryCta(
+                        text = item.title.asButtonCopyOrDefault(),
+                        onClick = {
+                            redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
+                            onActionsClickedCallback.onSecondaryButtonClicked()
+                        }
+                    )
+                }
+                2 -> {
+                    setupTertiaryCta(
+                        text = item.title.asButtonCopyOrDefault(),
+                        onClick = {
+                            redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
+                            onActionsClickedCallback.onTertiaryButtonClicked()
+                        }
+                    )
+                }
+                else -> {
+                    // do nothing - we only support 3 actions
+                }
+            }
+        }
+    }
+
+    private fun String.asButtonCopyOrDefault() =
+        this.ifEmpty { context.getString(R.string.common_ok) }
+
+    private fun redirectToDeeplinkProcessor(link: String, currencyCode: String) {
+        compositeDisposable += deeplinkRedirector.processDeeplinkURL(
+            link.appendTickerToDeeplink(currencyCode)
+        ).subscribeBy(
+            onSuccess = {
+                if (it is DeepLinkResult.DeepLinkResultUnknownLink) {
+                    it.uri?.let { uri ->
+                        context.checkValidUrlAndOpen(uri)
+                    }
+                }
+            }
+        )
+    }
+
+    private fun String.appendTickerToDeeplink(currencyCode: String): Uri =
+        Uri.parse("$this?code=$currencyCode")
+
+    fun clearSubscriptions() {
+        compositeDisposable.clear()
+    }
+
     private fun setFiatAssetIcon(currency: String) =
         setAssetIcon(
             when (currency) {
@@ -149,7 +408,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     private fun showEndStateUi() {
         with(binding) {
             progress.gone()
-            txOkBtn.visible()
+            txPrimaryBtn.visible()
         }
     }
 

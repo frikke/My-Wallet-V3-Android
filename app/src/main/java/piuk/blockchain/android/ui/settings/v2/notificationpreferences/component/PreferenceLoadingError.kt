@@ -43,6 +43,7 @@ fun PreferenceLoadingError(onRetryClicked: () -> Unit, onBackClicked: () -> Unit
         ) {
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.settings_notification_error),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
@@ -50,6 +51,7 @@ fun PreferenceLoadingError(onRetryClicked: () -> Unit, onBackClicked: () -> Unit
             )
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.settings_notification_error_details),
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Body,

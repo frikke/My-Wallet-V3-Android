@@ -5,6 +5,9 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.EducationalScreensPrefs
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Scheduler
@@ -13,7 +16,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 import timber.log.Timber
 
 class LoaderModel(
@@ -23,20 +25,27 @@ class LoaderModel(
     private val remoteLogger: RemoteLogger,
     private val appUtil: AppUtil,
     private val payloadDataManager: PayloadDataManager,
-    private val prefs: PersistentPrefs,
     private val prerequisites: Prerequisites,
     private val authPrefs: AuthPrefs,
-    private val interactor: LoaderInteractor
+    private val interactor: LoaderInteractor,
+    private val walletModeService: WalletModeService,
+    private val educationalScreensPrefs: EducationalScreensPrefs
 ) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
         return when (intent) {
-            is LoaderIntents.CheckIsLoggedIn -> checkIsLoggedIn(intent.isPinValidated, intent.isAfterWalletCreation)
-            is LoaderIntents.OnTermsAndConditionsSigned -> {
-                process(LoaderIntents.StartMainActivity(null, false))
-                null
-            }
-            is LoaderIntents.OnEmailVerificationFinished -> {
-                process(LoaderIntents.StartMainActivity(null, true))
+            is LoaderIntents.CheckIsLoggedIn -> checkIsLoggedIn(
+                intent.isPinValidated,
+                intent.loginMethod,
+                intent.referralCode
+            )
+
+            is LoaderIntents.LaunchDashboard -> {
+                launchDashboard(
+                    loginMethod = previousState.loginMethod,
+                    data = intent.data,
+                    shouldLaunchUiTour = intent.shouldLaunchUiTour,
+                    isUserInCowboysPromo = previousState.isUserInCowboysPromo
+                )
                 null
             }
             is LoaderIntents.UpdateLoadingStep -> {
@@ -50,9 +59,13 @@ class LoaderModel(
         }
     }
 
-    private fun checkIsLoggedIn(isPinValidated: Boolean, isAfterWalletCreation: Boolean): Disposable? {
+    private fun checkIsLoggedIn(
+        isPinValidated: Boolean,
+        loginMethod: LoginMethod,
+        referralCode: String?
+    ): Disposable? {
 
-        val hasLoginInfo = authPrefs.walletGuid.isNotEmpty() && prefs.pinId.isNotEmpty()
+        val hasLoginInfo = authPrefs.walletGuid.isNotEmpty() && authPrefs.pinId.isNotEmpty()
 
         return when {
             // App has been PIN validated
@@ -60,7 +73,10 @@ class LoaderModel(
                 interactor.loaderIntents.subscribe {
                     process(it)
                 }
-                interactor.initSettings(isAfterWalletCreation)
+                interactor.initSettings(
+                    isAfterWalletCreation = loginMethod == LoginMethod.WALLET_CREATION,
+                    referralCode = referralCode
+                )
             }
             else -> {
                 process(LoaderIntents.StartLauncherActivity)
@@ -83,7 +99,6 @@ class LoaderModel(
             }
         } else if (throwable is MetadataInitException) {
             process(LoaderIntents.ShowMetadataNodeFailure)
-            process(LoaderIntents.HideMetadataNodeFailure)
         } else {
             showToast(ToastType.UNEXPECTED_ERROR)
             process(LoaderIntents.UpdateLoadingStep(LoadingStep.RequestPin))
@@ -113,6 +128,36 @@ class LoaderModel(
                     }
                 )
         }
+    }
+
+    private fun launchDashboard(
+        loginMethod: LoginMethod,
+        data: String?,
+        shouldLaunchUiTour: Boolean,
+        isUserInCowboysPromo: Boolean
+    ) {
+        process(
+            when {
+
+                // Wallet mode switch enabled
+                // + have not seen educational screen yet
+                // + did not come from signup (already logged in)
+                // -> show educational screen
+                walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL &&
+                    educationalScreensPrefs.hasSeenEducationalWalletMode.not() &&
+                    loginMethod == LoginMethod.PIN -> {
+                    LoaderIntents.StartEducationalWalletModeActivity(
+                        data = data
+                    )
+                }
+                isUserInCowboysPromo -> {
+                    LoaderIntents.StartMainActivity(data, false)
+                }
+                else -> {
+                    LoaderIntents.StartMainActivity(data, shouldLaunchUiTour)
+                }
+            }
+        )
     }
 
     private fun showToast(toastType: ToastType) {

@@ -20,14 +20,16 @@ import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.coincore.xlm.STATE_MEMO
-import com.blockchain.core.limits.LegacyLimits
+import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionError
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -52,13 +54,17 @@ private val PendingTx.memo: String?
 
 // Transfer from a custodial trading account to an onChain non-custodial account
 class TradingToOnChainTxEngine(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val isNoteSupported: Boolean,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    private val tradingStore: TradingStore,
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val isNoteSupported: Boolean = false,
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     private val userIdentity: UserIdentity,
     private val limitsDataManager: LimitsDataManager
 ) : TxEngine() {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf(tradingStore)
 
     override fun assertInputsValid() {
         check(txTarget is CryptoAddress)
@@ -202,7 +208,7 @@ class TradingToOnChainTxEngine(
         }
 
     private fun aboveTierLimit(): Completable {
-        return userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)).onErrorReturnItem(false)
+        return userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD)).onErrorReturnItem(false)
             .flatMapCompletable { gold ->
                 if (gold) {
                     Completable.error(
@@ -243,7 +249,9 @@ class TradingToOnChainTxEngine(
         } ?: targetAddress.address
 
         return walletManager.transferFundsToWallet(
-            pendingTx.amount as CryptoValue, address
+            amount = pendingTx.amount as CryptoValue,
+            fee = pendingTx.feeAmount as CryptoValue,
+            walletAddress = address
         ).updateTxValidation()
             .map {
                 TxResult.UnHashedTxResult(pendingTx.amount)

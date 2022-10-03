@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.coinview.recurringbuy
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.domain.paymentmethods.model.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuy
-import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuyState
 
 sealed class RecurringBuyIntent : MviIntent<RecurringBuyModelState> {
@@ -44,6 +44,6 @@ sealed class RecurringBuyIntent : MviIntent<RecurringBuyModelState> {
 
     class UpdateRecurringBuy(private val rb: RecurringBuy) : RecurringBuyIntent() {
         override fun reduce(oldState: RecurringBuyModelState): RecurringBuyModelState =
-            oldState.copy(recurringBuy = rb, viewState = RecurringBuyViewState.ShowRecurringBuy(rb))
+            oldState.copy(recurringBuy = rb, viewState = RecurringBuyViewState.ShowRecurringBuy)
     }
 }

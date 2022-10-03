@@ -2,15 +2,18 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.Promo
-import com.blockchain.core.payments.model.Partner
-import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.domain.paymentmethods.model.Partner
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
+import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
+import com.blockchain.payments.googlepay.manager.request.defaultAllowedAuthMethods
+import com.blockchain.payments.googlepay.manager.request.defaultAllowedCardNetworks
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
+import com.blockchain.serializers.KZonedDateTimeSerializer
 import com.blockchain.testutils.EUR
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
@@ -23,6 +26,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import java.math.BigInteger
+import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -38,16 +42,14 @@ class SimpleBuyPrefsSerializerTest {
         serializersModule = SerializersModule {
             contextual(BigDecimalSerializer)
             contextual(BigIntSerializer)
+            contextual(KZonedDateTimeSerializer)
             contextual(AssetInfoKSerializer(assetCatalogue = assetCatalogue))
         }
     }
-    private val replaceGsonKtxFF: FeatureFlag = mockk()
 
     private val simpleBuyPrefsSerializer: SimpleBuyPrefsSerializer = SimpleBuyPrefsSerializerImpl(
         prefs = prefs,
-        assetCatalogue = assetCatalogue,
         json = json,
-        replaceGsonKtxFF = replaceGsonKtxFF
     )
 
     private val simpleBuyStateObject = SimpleBuyState(
@@ -75,22 +77,30 @@ class SimpleBuyPrefsSerializerTest {
                 feeBeforePromo = FiatValue.fromMinor(EUR, 2001.toBigInteger()),
                 fee = FiatValue.fromMinor(EUR, 2002.toBigInteger()),
                 promo = Promo.NEW_USER
-            )
+            ),
+            remainingTime = 119,
+            chunksTimeCounter = mutableListOf(30, 30, 30, 29),
+            createdAt = ZonedDateTime.parse("2022-08-18T14:27:15.103+02"),
+            expiresAt = ZonedDateTime.parse("2022-08-18T14:29:15.103+02"),
         ),
         orderValue = CryptoValue(CryptoCurrency.BTC, BigInteger.TEN),
-        supportedFiatCurrencies = listOf(EUR),
         paymentSucceeded = true,
-        showRating = true,
         withdrawalLockPeriod = BigInteger.ONE,
         recurringBuyFrequency = RecurringBuyFrequency.DAILY,
         recurringBuyState = RecurringBuyState.ACTIVE,
         showRecurringBuyFirstTimeFlow = true,
         eligibleAndNextPaymentRecurringBuy = listOf(),
-        googlePayTokenizationInfo = mapOf("1" to "2"),
-        googlePayBeneficiaryId = "id_googlePayBeneficiaryId",
-        googlePayMerchantBankCountryCode = "cc_googlePayMerchantBankCountryCode",
-        googlePayAllowPrepaidCards = false,
-        googlePayAllowCreditCards = false
+        googlePayDetails = GooglePayDetails(
+            tokenizationInfo = mapOf("1" to "2"),
+            beneficiaryId = "id_googlePayBeneficiaryId",
+            merchantBankCountryCode = "cc_googlePayMerchantBankCountryCode",
+            allowPrepaidCards = false,
+            allowCreditCards = false,
+            allowedAuthMethods = defaultAllowedAuthMethods,
+            allowedCardNetworks = defaultAllowedCardNetworks,
+            billingAddressRequired = true,
+            billingAddressParameters = BillingAddressParameters()
+        )
         // rest is @Transient
 
         // add any non transient here to make sure parsing is always successful
@@ -98,9 +108,7 @@ class SimpleBuyPrefsSerializerTest {
     )
 
     private val simpleBuyStateKtxString =
-        """{"id":"id_SimpleBuyState","fiatCurrency":{"currencyCode":"EUR"},"amount":{"currency":{"currencyCode":"EUR"},"amount":"10.00"},"selectedCryptoAsset":"BTC","orderState":"AWAITING_FUNDS","kycStartedButNotCompleted":true,"kycVerificationState":"PENDING","currentScreen":"KYC","selectedPaymentMethod":{"id":"id_SelectedPaymentMethod","partner":"CARDPROVIDER","label":"label_SelectedPaymentMethod","paymentMethodType":"BANK_ACCOUNT","isEligible":true},"quote":{"id":"id_BuyQuote","price":{"currency":{"currencyCode":"EUR"},"amount":"20.00"},"availability":"REGULAR","quoteMargin":2000.0,"feeDetails":{"feeBeforePromo":{"currency":{"currencyCode":"EUR"},"amount":"20.01"},"fee":{"currency":{"currencyCode":"EUR"},"amount":"20.02"},"promo":"NEW_USER"}},"orderValue":{"currency":"BTC","amount":"10"},"supportedFiatCurrencies":[{"currencyCode":"EUR"}],"paymentSucceeded":true,"showRating":true,"withdrawalLockPeriod":"1","recurringBuyFrequency":"DAILY","recurringBuyState":"ACTIVE","showRecurringBuyFirstTimeFlow":true,"googlePayTokenizationInfo":{"1":"2"},"googlePayBeneficiaryId":"id_googlePayBeneficiaryId","googlePayMerchantBankCountryCode":"cc_googlePayMerchantBankCountryCode","googlePayAllowPrepaidCards":false,"googlePayAllowCreditCards":false}"""
-    private val simpleBuyStateGsonString =
-        """{"id":"id_SimpleBuyState","fiatCurrency":{"currencyCode":"EUR"},"amount":{"currency":{"currencyCode":"EUR"},"amount":10.00,"symbol":"€"},"selectedCryptoAsset":"BTC","orderState":"AWAITING_FUNDS","kycStartedButNotCompleted":true,"kycVerificationState":"PENDING","currentScreen":"KYC","selectedPaymentMethod":{"id":"id_SelectedPaymentMethod","partner":"CARDPROVIDER","label":"label_SelectedPaymentMethod","paymentMethodType":"BANK_ACCOUNT","isEligible":true},"quote":{"id":"id_BuyQuote","price":{"currency":{"currencyCode":"EUR"},"amount":20.00,"symbol":"€"},"availability":"REGULAR","quoteMargin":2000.0,"feeDetails":{"feeBeforePromo":{"currency":{"currencyCode":"EUR"},"amount":20.01,"symbol":"€"},"fee":{"currency":{"currencyCode":"EUR"},"amount":20.02,"symbol":"€"},"promo":"NEW_USER"}},"orderValue":{"currency":"BTC","amount":10,"maxDecimalPlaces":8,"userDecimalPlaces":8,"symbol":"BTC"},"supportedFiatCurrencies":[{"currencyCode":"EUR"}],"paymentSucceeded":true,"showRating":true,"withdrawalLockPeriod":1,"recurringBuyFrequency":"DAILY","recurringBuyState":"ACTIVE","showRecurringBuyFirstTimeFlow":true,"eligibleAndNextPaymentRecurringBuy":[],"googlePayTokenizationInfo":{"1":"2"},"googlePayBeneficiaryId":"id_googlePayBeneficiaryId","googlePayMerchantBankCountryCode":"cc_googlePayMerchantBankCountryCode","googlePayAllowPrepaidCards":false,"googlePayAllowCreditCards":false}"""
+        """{"id":"id_SimpleBuyState","fiatCurrency":{"currencyCode":"EUR"},"amount":{"currency":{"currencyCode":"EUR"},"amount":"10.00"},"selectedCryptoAsset":"BTC","orderState":"AWAITING_FUNDS","kycStartedButNotCompleted":true,"kycVerificationState":"PENDING","currentScreen":"KYC","selectedPaymentMethod":{"id":"id_SelectedPaymentMethod","partner":"CARDPROVIDER","label":"label_SelectedPaymentMethod","paymentMethodType":"BANK_ACCOUNT","isEligible":true},"quote":{"id":"id_BuyQuote","price":{"currency":{"currencyCode":"EUR"},"amount":"20.00"},"availability":"REGULAR","quoteMargin":2000.0,"feeDetails":{"feeBeforePromo":{"currency":{"currencyCode":"EUR"},"amount":"20.01"},"fee":{"currency":{"currencyCode":"EUR"},"amount":"20.02"},"promo":"NEW_USER"},"createdAt":"2022-08-18T14:27:15.103+02:00","expiresAt":"2022-08-18T14:29:15.103+02:00","remainingTime":119,"chunksTimeCounter":[30,30,30,29]},"orderValue":{"currency":"BTC","amount":"10"},"paymentSucceeded":true,"withdrawalLockPeriod":"1","recurringBuyFrequency":"DAILY","recurringBuyState":"ACTIVE","showRecurringBuyFirstTimeFlow":true,"googlePayDetails":{"tokenizationInfo":{"1":"2"},"beneficiaryId":"id_googlePayBeneficiaryId","merchantBankCountryCode":"cc_googlePayMerchantBankCountryCode","allowPrepaidCards":false,"allowedAuthMethods":["PAN_ONLY","CRYPTOGRAM_3DS"],"allowedCardNetworks":["AMEX","MASTERCARD","VISA"],"billingAddressRequired":true,"billingAddressParameters":{}}}"""
 
     @Before
     fun setUp() {
@@ -112,7 +120,6 @@ class SimpleBuyPrefsSerializerTest {
 
     @Test
     fun `GIVEN ktx enabled, WHEN fetch is called, THEN simpleBuyStateObject should be returned`() {
-        every { replaceGsonKtxFF.isEnabled } returns true
         every { prefs.simpleBuyState() } returns simpleBuyStateKtxString
 
         val result: SimpleBuyState? = simpleBuyPrefsSerializer.fetch()
@@ -121,9 +128,7 @@ class SimpleBuyPrefsSerializerTest {
     }
 
     @Test
-    fun `GIVEN ktx enabled, WHEN update is called with simpleBuyStateObject, THEN prefs_updateSimpleBuyState should be called with simpleBuyStateKtxString`() {
-        every { replaceGsonKtxFF.isEnabled } returns true
-
+    fun `WHEN update is called with simpleBuyStateObject, THEN prefs_updateSimpleBuyState should be called with simpleBuyStateKtxString`() {
         simpleBuyPrefsSerializer.update(simpleBuyStateObject)
 
         verify(exactly = 1) { prefs.updateSimpleBuyState(simpleBuyStateKtxString) }
@@ -134,24 +139,5 @@ class SimpleBuyPrefsSerializerTest {
         simpleBuyPrefsSerializer.clear()
 
         verify(exactly = 1) { prefs.clearBuyState() }
-    }
-
-    @Test
-    fun `GIVEN gson enabled, WHEN fetch is called, THEN simpleBuyStateObject should be returned`() {
-        every { replaceGsonKtxFF.isEnabled } returns false
-        every { prefs.simpleBuyState() } returns simpleBuyStateGsonString
-
-        val result: SimpleBuyState? = simpleBuyPrefsSerializer.fetch()
-
-        assertEquals(simpleBuyStateObject, result)
-    }
-
-    @Test
-    fun `GIVEN gson enabled, WHEN update is called with simpleBuyStateObject, THEN prefs_updateSimpleBuyState should be called with simpleBuyStateGsonString`() {
-        every { replaceGsonKtxFF.isEnabled } returns false
-
-        simpleBuyPrefsSerializer.update(simpleBuyStateObject)
-
-        verify(exactly = 1) { prefs.updateSimpleBuyState(simpleBuyStateGsonString) }
     }
 }

@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.backup.wordlist
 
 import android.os.Bundle
+import com.blockchain.wallet.BackupWallet
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment.Companion.ARGUMENT_SECOND_PASSWORD
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.base.View
-import piuk.blockchain.android.util.BackupWalletUtil
 
 interface BackupWalletWordListView : View {
     fun getPageBundle(): Bundle?
@@ -12,7 +12,7 @@ interface BackupWalletWordListView : View {
 }
 
 class BackupWalletWordListPresenter(
-    private val backupWalletUtil: BackupWalletUtil
+    private val backupWallet: BackupWallet
 ) : BasePresenter<BackupWalletWordListView>() {
 
     internal var secondPassword: String? = null
@@ -22,7 +22,7 @@ class BackupWalletWordListPresenter(
         val bundle = view.getPageBundle()
         secondPassword = bundle?.getString(ARGUMENT_SECOND_PASSWORD)
 
-        mnemonic = backupWalletUtil.getMnemonic(secondPassword)
+        mnemonic = backupWallet.getMnemonic(secondPassword)
         if (mnemonic == null) {
             view.finish()
         }

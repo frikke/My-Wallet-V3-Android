@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import piuk.blockchain.android.databinding.CopyableTextFormItemBinding
 
@@ -14,8 +15,9 @@ class CopyableTextFormItem @JvmOverloads constructor(
     defStyleAttr: Int = 0,
     private val title: String = "",
     private val value: String = "",
+    private val tooltip: String? = null,
     private val isCopyable: Boolean = false,
-    private val onCopy: (String) -> Unit = {}
+    private val onCopy: (String) -> Unit = {},
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
     init {
@@ -36,6 +38,10 @@ class CopyableTextFormItem @JvmOverloads constructor(
                     clipboard.setPrimaryClip(clip)
                     onCopy(title)
                 }
+            }
+            tooltip?.let { tooltipValue ->
+                it.tooltip.text = tooltipValue
+                it.tooltip.visible()
             }
         }
     }

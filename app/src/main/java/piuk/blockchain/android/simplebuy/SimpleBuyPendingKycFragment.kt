@@ -9,8 +9,8 @@ import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.PaymentMethod
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.databinding.FragmentSimpleBuyKycPendingBinding
@@ -120,8 +120,7 @@ class SimpleBuyPendingKycFragment :
                 continueToWallet.visible()
                 // Case when user is trying to link a payment method, after successful kyc
                 logErrorAnalytics(
-                    title = getString(R.string.please_try_linking_your_bank_again),
-                    error = "LinkedBankNotSupported"
+                    title = getString(R.string.please_try_linking_your_bank_again)
                 )
             } else if (newState.isLoading) {
                 kycIcon.setImageResource(R.drawable.ic_bank_details_big)
@@ -133,14 +132,15 @@ class SimpleBuyPendingKycFragment :
         }
     }
 
-    private fun logErrorAnalytics(title: String, error: String) {
+    private fun logErrorAnalytics(title: String) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
                 nabuApiException = null,
-                error = error,
+                error = "LinkedBankNotSupported",
                 source = ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = title,
                 action = ClientErrorAnalytics.ACTION_BUY,
+                categories = emptyList()
             )
         )
     }
@@ -199,6 +199,4 @@ class SimpleBuyPendingKycFragment :
 
     override fun navigator(): SimpleBuyNavigator =
         (activity as? SimpleBuyNavigator) ?: throw IllegalStateException("Parent must implement SimpleBuyNavigator")
-
-    override fun onBackPressed(): Boolean = true
 }

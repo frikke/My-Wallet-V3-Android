@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongParameterList:NotificationsUtil.kt$NotificationsUtil$( title: String, marquee: String, text: String, @DrawableRes icon: Int = R.drawable.ic_notification, pendingIntent: PendingIntent, id: Int, @StringRes appName: Int, @ColorRes colorRes: Int, channelId: String? = null )</ID>
+    <ID>MultiLineIfElse:com.blockchain.notifications.NotificationTokenProvider.kt:20</ID>
+    <ID>MultiLineIfElse:com.blockchain.notifications.NotificationTokenProvider.kt:32</ID>
+    <ID>MultiLineIfElse:com.blockchain.notifications.models.NotificationPayload.kt:23</ID>
+    <ID>MultiLineIfElse:com.blockchain.notifications.models.NotificationPayload.kt:25</ID>
+  </CurrentIssues>
+</SmellBaseline>

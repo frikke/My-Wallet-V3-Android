@@ -6,7 +6,7 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
-import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.domain.paymentmethods.model.FundsLocks
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogLocksInfoBinding
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
@@ -42,11 +42,17 @@ class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() 
                 R.string.funds_locked_summary_on_hold,
                 fundsLocks.onHoldTotalAmount.toStringWithSymbol()
             )
-            seeDetails.setOnClickListener {
-                LocksDetailsActivity.start(requireContext(), fundsLocks)
+            seeDetails.apply {
+                text = getString(R.string.funds_locked_summary_details)
+                onClick = { LocksDetailsActivity.start(requireContext(), fundsLocks) }
             }
+
             close.setOnClickListener { dismiss() }
-            okButton.setOnClickListener { dismiss() }
+
+            okButton.apply {
+                text = getString(R.string.funds_locked_summary_cta)
+                onClick = ::dismiss
+            }
         }
     }
 

@@ -7,9 +7,9 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.Tier
-import com.blockchain.nabu.UserIdentity
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -27,7 +27,7 @@ class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
-    private val userIdentity: UserIdentity by scopedInject()
+    private val kycService: KycService by scopedInject()
 
     private val disposables = CompositeDisposable()
 
@@ -44,12 +44,12 @@ class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
 
     override fun onResume() {
         super.onResume()
-        disposables += userIdentity.getHighestApprovedKycTier()
+        disposables += kycService.getHighestApprovedTierLevelLegacy()
             .doOnSubscribe { showLoading() }
             .doOnTerminate { hideLoading() }
             .subscribeBy(
                 onSuccess = {
-                    if (it == Tier.GOLD) showLimits()
+                    if (it == KycTier.GOLD) showLimits()
                     else showUpgradeNow()
                 },
                 onError = {

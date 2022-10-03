@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.start
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
+import androidx.activity.addCallback
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -13,7 +14,7 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.logging.MomentParam
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -35,7 +36,7 @@ class PasswordRequiredActivity :
 
     override val presenter: PasswordRequiredPresenter by scopedInject()
     override val view: PasswordRequiredView = this
-    private val walletPrefs: WalletStatus by inject()
+    private val walletPrefs: WalletStatusPrefs by inject()
 
     private val momentLogger: MomentLogger by inject()
 
@@ -56,6 +57,8 @@ class PasswordRequiredActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        setupBackPress()
 
         momentLogger.endEvent(
             event = MomentEvent.SPLASH_TO_FIRST_SCREEN,
@@ -152,9 +155,11 @@ class PasswordRequiredActivity :
         )
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        presenter.cancelPollAuthStatus()
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(owner = this) {
+            presenter.cancelPollAuthStatus()
+            finish()
+        }
     }
 
     override fun showTwoFactorCodeNeededDialog(

@@ -5,10 +5,11 @@ import com.blockchain.api.txlimits.data.FeatureLimitResponse
 import com.blockchain.api.txlimits.data.FeatureName
 import com.blockchain.api.txlimits.data.Limit
 import com.blockchain.api.txlimits.data.LimitPeriod
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.Tier
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.Currency
@@ -16,13 +17,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import java.math.RoundingMode
-
-interface LegacyLimits {
-    val min: Money
-    val max: Money?
-    val currency: String
-        get() = min.currencyCode
-}
 
 interface LimitsDataManager {
 
@@ -134,7 +128,7 @@ class LimitsDataManagerImpl(
                 periodicLimits = periodicLimits,
                 suggestedUpgrade = crossborderLimits.suggestedUpgrade?.let {
                     SuggestedUpgrade(
-                        type = UpgradeType.Kyc(Tier.values()[it.requiredTier]),
+                        type = UpgradeType.Kyc(KycTier.values()[it.requiredTier]),
                         upgradedLimits = upgradedLimits
                     )
                 }
@@ -268,6 +262,9 @@ data class TxLimits(
         it.amount < amount
     } ?: false
 
+    fun isAmountInRange(amount: Money): Boolean =
+        !(isMinViolatedByAmount(amount) || isMaxViolatedByAmount(amount))
+
     // TODO we need to combine the suggested upgrades also but this requires some refactoring and can wait for now
     fun combineWith(other: TxLimits): TxLimits =
         this.copy(
@@ -313,7 +310,7 @@ data class SuggestedUpgrade(
 )
 
 sealed class UpgradeType {
-    data class Kyc(val proposedTier: Tier) : UpgradeType()
+    data class Kyc(val proposedTier: KycTier) : UpgradeType()
 }
 
 data class FeatureWithLimit(

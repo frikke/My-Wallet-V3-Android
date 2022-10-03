@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.api.services.WalletSettingsService
-import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateTitleToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.basic.ImageResource
@@ -17,9 +16,9 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
-import com.blockchain.nabu.Tier
 import com.blockchain.utils.capitalizeFirstChar
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentProfileBinding
@@ -30,8 +29,7 @@ import piuk.blockchain.android.util.StringUtils
 
 class ProfileFragment :
     MviFragment<ProfileModel, ProfileIntent, ProfileState, FragmentProfileBinding>(),
-    ProfileNavigatorScreen,
-    FlowFragment {
+    ProfileNavigatorScreen {
 
     override val model: ProfileModel by scopedInject()
 
@@ -47,10 +45,8 @@ class ProfileFragment :
         arguments?.getSerializable(SettingsActivity.BASIC_INFO) as BasicProfileInfo
     }
 
-    override fun onBackPressed(): Boolean = true
-
     private val userTier by lazy {
-        arguments?.getSerializable(SettingsActivity.USER_TIER) as Tier
+        arguments?.getSerializable(SettingsActivity.USER_TIER) as KycTier
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -73,7 +69,7 @@ class ProfileFragment :
 
     private fun setupTierInfo(basicProfileInfo: BasicProfileInfo) {
         with(binding) {
-            if (userTier == Tier.BRONZE) {
+            if (userTier == KycTier.BRONZE) {
                 userInitials.apply {
                     background = ContextCompat.getDrawable(
                         context,
@@ -101,7 +97,7 @@ class ProfileFragment :
         userInfoSettings: WalletSettingsService.UserInfoSettings?
     ) {
         with(binding) {
-            if (userTier != Tier.BRONZE) {
+            if (userTier != KycTier.BRONZE) {
                 nameRow.apply {
                     visible()
                     primaryText = getString(R.string.profile_label_name)
@@ -114,8 +110,8 @@ class ProfileFragment :
                 }
             }
 
-            div2.visibleIf { userTier != Tier.BRONZE }
-            contactSupport.visibleIf { userTier != Tier.BRONZE }
+            div2.visibleIf { userTier != KycTier.BRONZE }
+            contactSupport.visibleIf { userTier != KycTier.BRONZE }
 
             emailRow.apply {
                 primaryText = getString(R.string.profile_label_email)
@@ -191,7 +187,7 @@ class ProfileFragment :
     companion object {
         private const val CHANGE_NAME_SUPPORT = "Update name and surname"
 
-        fun newInstance(basicProfileInfo: BasicProfileInfo, tier: Tier) =
+        fun newInstance(basicProfileInfo: BasicProfileInfo, tier: KycTier) =
             ProfileFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(SettingsActivity.BASIC_INFO, basicProfileInfo)

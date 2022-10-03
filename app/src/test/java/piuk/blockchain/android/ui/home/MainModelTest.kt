@@ -2,12 +2,16 @@ package piuk.blockchain.android.ui.home
 
 import android.content.Intent
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.IconData
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
+import com.blockchain.api.NabuUxErrorResponse
+import com.blockchain.api.StatusData
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
-import com.blockchain.core.payments.model.BankTransferDetails
-import com.blockchain.core.payments.model.BankTransferStatus
+import com.blockchain.domain.paymentmethods.model.BankTransferDetails
+import com.blockchain.domain.paymentmethods.model.BankTransferStatus
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.nabu.datamanagers.OrderState
@@ -15,9 +19,10 @@ import com.blockchain.network.PollResult
 import com.blockchain.testutils.EUR
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
-import com.google.gson.JsonSyntaxException
+import com.blockchain.walletmode.WalletMode
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -28,13 +33,14 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.serialization.SerializationException
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.deeplink.BlockchainLinkState
-import piuk.blockchain.android.deeplink.EmailVerifiedLinkState
 import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.deeplink.OpenBankingLinkType
 import piuk.blockchain.android.kyc.KycLinkState
@@ -43,6 +49,7 @@ import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
+import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.home.models.ViewToLaunch
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -57,8 +64,9 @@ class MainModelTest {
     private val environmentConfig: EnvironmentConfig = mock {
         on { isRunningInDebugMode() }.thenReturn(false)
     }
-
-    private val interactor: MainInteractor = mock()
+    private val interactor: MainInteractor = mock {
+        on { checkReferral() }.thenReturn(Single.just(ReferralState(ReferralInfo.NotAvailable)))
+    }
     private val walletConnectServiceAPI: WalletConnectServiceAPI = mock {
         on { sessionEvents }.thenReturn(Observable.empty())
     }
@@ -77,6 +85,9 @@ class MainModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             remoteLogger = mock(),
+            walletModeService = mock {
+                on { walletMode }.thenReturn(flowOf(WalletMode.UNIVERSAL))
+            },
             walletConnectServiceAPI = walletConnectServiceAPI,
             interactor = interactor,
         )
@@ -87,9 +98,11 @@ class MainModelTest {
         whenever(interactor.checkForUserWalletErrors()).thenReturn(Completable.complete())
 
         val testState = model.state.test()
-        model.process(MainIntent.PerformInitialChecks)
+        model.process(MainIntent.PerformInitialChecks(mock()))
 
-        testState.assertValue(MainState())
+        testState.assertValue {
+            it == MainState()
+        }
     }
 
     @Test
@@ -111,7 +124,7 @@ class MainModelTest {
         )
 
         val testState = model.state.test()
-        model.process(MainIntent.PerformInitialChecks)
+        model.process(MainIntent.PerformInitialChecks(mock()))
 
         testState
             .assertValueAt(0) {
@@ -120,54 +133,6 @@ class MainModelTest {
                 it.viewToLaunch is ViewToLaunch.CheckForAccountWalletLinkErrors &&
                     (it.viewToLaunch as ViewToLaunch.CheckForAccountWalletLinkErrors).walletIdHint == walletId
             }
-    }
-
-    @Test
-    fun checkForPendingLinksEmailVerification_linked() {
-        val mockIntent: Intent = mock()
-        whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
-                LinkState.EmailVerifiedDeepLink(
-                    link = EmailVerifiedLinkState.FromPitLinking
-                )
-            )
-        )
-        whenever(interactor.getExchangeLinkingState()).thenReturn(Single.just(true))
-
-        val testState = model.state.test()
-        model.process(MainIntent.CheckForPendingLinks(mockIntent))
-
-        testState.assertValueAt(0) {
-            it == MainState()
-        }.assertValueAt(1) {
-            it.viewToLaunch is ViewToLaunch.LaunchExchange &&
-                (it.viewToLaunch as ViewToLaunch.LaunchExchange).linkId == null
-        }
-    }
-
-    @Test
-    fun checkForPendingLinksEmailVerification_notLinked() {
-        val mockIntent: Intent = mock()
-        whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
-                LinkState.EmailVerifiedDeepLink(
-                    link = EmailVerifiedLinkState.FromPitLinking
-                )
-            )
-        )
-        whenever(interactor.getExchangeLinkingState()).thenReturn(Single.just(false))
-        val linkingId = "1234"
-        whenever(interactor.getExchangeToWalletLinkId()).thenReturn(linkingId)
-
-        val testState = model.state.test()
-        model.process(MainIntent.CheckForPendingLinks(mockIntent))
-
-        testState.assertValueAt(0) {
-            it == MainState()
-        }.assertValueAt(1) {
-            it.viewToLaunch is ViewToLaunch.LaunchExchange &&
-                (it.viewToLaunch as ViewToLaunch.LaunchExchange).linkId == linkingId
-        }
     }
 
     @Test
@@ -235,27 +200,6 @@ class MainModelTest {
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchKyc &&
                 (it.viewToLaunch as ViewToLaunch.LaunchKyc).campaignType == CampaignType.None
-        }
-    }
-
-    @Test
-    fun checkForPendingLinksExchange() {
-        val mockIntent: Intent = mock()
-        val linkId = "1234"
-        whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
-                LinkState.ThePitDeepLink(linkId)
-            )
-        )
-
-        val testState = model.state.test()
-        model.process(MainIntent.CheckForPendingLinks(mockIntent))
-
-        testState.assertValueAt(0) {
-            it == MainState()
-        }.assertValueAt(1) {
-            it.viewToLaunch is ViewToLaunch.LaunchExchange &&
-                (it.viewToLaunch as ViewToLaunch.LaunchExchange).linkId == linkId
         }
     }
 
@@ -351,7 +295,9 @@ class MainModelTest {
         val expectedUpdatedState = bankState.copy(
             bankAuthFlow = BankAuthFlowState.BANK_LINK_COMPLETE
         )
-        whenever(interactor.updateBankLinkingState(expectedUpdatedState)).thenThrow(JsonSyntaxException("test error"))
+        whenever(interactor.updateBankLinkingState(expectedUpdatedState)).thenThrow(
+            SerializationException("test error")
+        )
 
         val testState = model.state.test()
         model.process(MainIntent.CheckForPendingLinks(mockIntent))
@@ -488,7 +434,7 @@ class MainModelTest {
         whenever(interactor.getBankLinkingState()).thenReturn(bankState)
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
         val transferDetails: BankTransferDetails = mock {
-            on { status }.thenReturn(BankTransferStatus.COMPLETE)
+            on { status }.thenReturn(BankTransferStatus.Complete)
             on { amount }.thenReturn(FiatValue.zero(EUR))
         }
         whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
@@ -537,7 +483,7 @@ class MainModelTest {
         whenever(interactor.getBankLinkingState()).thenReturn(bankState)
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
         val transferDetails: BankTransferDetails = mock {
-            on { status }.thenReturn(BankTransferStatus.PENDING)
+            on { status }.thenReturn(BankTransferStatus.Pending)
             on { amount }.thenReturn(FiatValue.zero(EUR))
         }
         whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
@@ -583,7 +529,7 @@ class MainModelTest {
         whenever(interactor.getBankLinkingState()).thenReturn(bankState)
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
         val transferDetails: BankTransferDetails = mock {
-            on { status }.thenReturn(BankTransferStatus.ERROR)
+            on { status }.thenReturn(BankTransferStatus.Error())
             on { amount }.thenReturn(FiatValue.zero(EUR))
         }
         whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
@@ -629,7 +575,7 @@ class MainModelTest {
         whenever(interactor.getBankLinkingState()).thenReturn(bankState)
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
         val transferDetails: BankTransferDetails = mock {
-            on { status }.thenReturn(BankTransferStatus.ERROR)
+            on { status }.thenReturn(BankTransferStatus.Error())
             on { amount }.thenReturn(FiatValue.zero(EUR))
         }
         whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
@@ -695,7 +641,7 @@ class MainModelTest {
     }
 
     @Test
-    fun checkForPendingLinksOpenBanking_Approval_NoLocalData_SimpleBuy_State_Exists_Await_Funds() {
+    fun checkForPendingLinksOpenBanking_Approval_InProgress_Success_Poll_NabuException_Error() {
         val mockIntent: Intent = mock()
         val consentToken = "1234"
 
@@ -708,6 +654,64 @@ class MainModelTest {
         val paymentData: BankPaymentApproval = mock {
             on { orderValue }.thenReturn(FiatValue.zero(EUR))
         }
+        val bankState: BankAuthDeepLinkState = mock {
+            on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
+            on { bankPaymentData }.thenReturn(paymentData)
+        }
+
+        val nabuUxErrorResponse = NabuUxErrorResponse(
+            "id",
+            "title",
+            "message",
+            IconData(
+                "iconUrl",
+                StatusData(
+                    "statusUrl"
+                )
+            ),
+            actions = emptyList(),
+            categories = emptyList()
+
+        )
+
+        whenever(interactor.getBankLinkingState()).thenReturn(bankState)
+        whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
+        whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
+            Single.error(NabuApiExceptionFactory.fromServerSideError(nabuUxErrorResponse))
+        )
+        doNothing().whenever(interactor).resetLocalBankAuthState()
+
+        val testState = model.state.test()
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
+
+        testState.assertValueAt(0) {
+            it == MainState()
+        }.assertValueAt(1) {
+            it.viewToLaunch is ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress &&
+                (it.viewToLaunch as ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress)
+                .value == paymentData.orderValue
+        }.assertValueAt(2) {
+            it.viewToLaunch is ViewToLaunch.LaunchServerDrivenOpenBankingError &&
+                (it.viewToLaunch as ViewToLaunch.LaunchServerDrivenOpenBankingError)
+                .currencyCode == paymentData.orderValue.currencyCode &&
+                (it.viewToLaunch as ViewToLaunch.LaunchServerDrivenOpenBankingError)
+                .title == nabuUxErrorResponse.title &&
+                (it.viewToLaunch as ViewToLaunch.LaunchServerDrivenOpenBankingError)
+                .description == nabuUxErrorResponse.message
+        }
+    }
+
+    @Test
+    fun checkForPendingLinksOpenBanking_Approval_NoLocalData_SimpleBuy_State_Exists_Await_Funds() {
+        val mockIntent: Intent = mock()
+        val consentToken = "1234"
+
+        whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
+            Single.just(
+                LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
+            )
+        )
+
         val bankState: BankAuthDeepLinkState = mock {
             on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
             on { bankPaymentData }.thenReturn(null)
@@ -780,9 +784,6 @@ class MainModelTest {
             )
         )
 
-        val paymentData: BankPaymentApproval = mock {
-            on { orderValue }.thenReturn(FiatValue.zero(EUR))
-        }
         val bankState: BankAuthDeepLinkState = mock {
             on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
             on { bankPaymentData }.thenReturn(null)
@@ -1220,5 +1221,56 @@ class MainModelTest {
             .assertValues(
                 MainState()
             )
+    }
+
+    @Test
+    fun checkForReferralCode() {
+        model.process(MainIntent.CheckReferralCode)
+
+        val testState = model.state.test()
+        testState.assertValue(
+            MainState(referral = ReferralState(ReferralInfo.NotAvailable))
+        )
+    }
+
+    @Test
+    fun updateReferralClickedState() {
+        val mockReferralInfo: ReferralInfo = mock()
+        whenever(interactor.checkReferral()).doReturn(Single.just(ReferralState(mockReferralInfo, false)))
+
+        model.process(MainIntent.CheckReferralCode)
+        model.process(MainIntent.ReferralIconClicked)
+
+        val testState = model.state.test()
+        testState.assertValue(
+            MainState(referral = ReferralState(mockReferralInfo, true))
+        )
+    }
+
+    @Test
+    fun markReferralStateWhenLaunchedFromReferralDeeplink() {
+        model.process(MainIntent.ShowReferralWhenAvailable)
+
+        val testState = model.state.test()
+        testState.assertValue(
+            MainState(referral = ReferralState(ReferralInfo.NotAvailable, referralDeeplink = true))
+        )
+    }
+
+    @Test
+    fun showReferralStateWhenLaunchedFromReferralDeeplink() {
+        val mockReferralInfo: ReferralInfo = mock()
+        whenever(interactor.checkReferral()).doReturn(Single.just(ReferralState(mockReferralInfo, false)))
+
+        model.process(MainIntent.ShowReferralWhenAvailable)
+        model.process(MainIntent.CheckReferralCode)
+
+        val testState = model.state.test()
+        testState.assertValue(
+            MainState(
+                referral = ReferralState(mockReferralInfo, referralDeeplink = false),
+                viewToLaunch = ViewToLaunch.ShowReferralSheet
+            )
+        )
     }
 }

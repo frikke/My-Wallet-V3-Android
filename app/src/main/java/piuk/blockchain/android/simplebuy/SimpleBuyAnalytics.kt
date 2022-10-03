@@ -3,9 +3,9 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.withoutNullValues
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -78,6 +78,18 @@ fun PaymentMethod.toAnalyticsString(): String =
         else -> ""
     }
 
+fun PaymentMethod.toPaymentTypeAnalyticsString(): String =
+    when (this) {
+        is PaymentMethod.Card,
+        is PaymentMethod.UndefinedCard -> "PAYMENT_CARD"
+        is PaymentMethod.GooglePay -> "GOOGLE_PAY"
+        is PaymentMethod.Funds -> "FUNDS"
+        is PaymentMethod.UndefinedBankTransfer,
+        is PaymentMethod.UndefinedBankAccount -> "BANK_TRANSFER"
+        is PaymentMethod.Bank -> "BANK_ACCOUNT"
+        else -> ""
+    }
+
 fun PaymentMethod.toNabuAnalyticsString(): String =
     when (this) {
         is PaymentMethod.Card -> "PAYMENT_CARD"
@@ -133,6 +145,24 @@ fun withdrawEventWithCurrency(analytics: SimpleBuyAnalytics, currency: String, a
         }.toMap()
     }
 
+class QuickFillButtonTapped(
+    amount: String,
+    amountType: AmountType,
+    currency: String
+) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_QUICK_FILL_BUTTON_TAPPED.eventName
+    override val params: Map<String, String> = mapOf(
+        "action" to "BUY",
+        "amount" to amount,
+        "amount_type" to amountType.name,
+        "currency" to currency
+    )
+}
+
+enum class AmountType {
+    SMALL, MEDIUM, LARGE
+}
+
 class BuyFrequencySelected(frequency: String) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BUY_FREQUENCY_SELECTED.name
     override val params: Map<String, String> = mapOf(
@@ -175,6 +205,42 @@ class CurrencySelected(fiatCurrency: String) : AnalyticsEvent {
     override val params: Map<String, String> = mapOf(
         "currency" to fiatCurrency
     )
+}
+
+class BuyMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_METHOD_OPTION_VIEWED.eventName
+    override val origin: LaunchOrigin = LaunchOrigin.BUY
+    override val params: Map<String, Serializable> = mapOf(
+        "type" to if (paymentMethodTypes.isNotEmpty()) {
+            paymentMethodTypes as Serializable
+        } else {
+            null
+        }
+    ).withoutNullValues()
+}
+
+class DepositMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.DEPOSIT_METHOD_OPTION_VIEWED.eventName
+    override val origin: LaunchOrigin = LaunchOrigin.DEPOSIT
+    override val params: Map<String, Serializable> = mapOf(
+        "type" to if (paymentMethodTypes.isNotEmpty()) {
+            paymentMethodTypes as Serializable
+        } else {
+            null
+        }
+    ).withoutNullValues()
+}
+
+class WithdrawMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.WITHDRAWAL_METHOD_OPTION_VIEWED.eventName
+    override val origin: LaunchOrigin = LaunchOrigin.WITHDRAW
+    override val params: Map<String, Serializable> = mapOf(
+        "type" to if (paymentMethodTypes.isNotEmpty()) {
+            paymentMethodTypes as Serializable
+        } else {
+            null
+        }
+    ).withoutNullValues()
 }
 
 class BuyAmountEntered(

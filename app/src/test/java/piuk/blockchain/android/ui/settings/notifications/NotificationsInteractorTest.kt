@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.settings.notifications
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.preferences.NotificationPrefs
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -161,7 +162,7 @@ class NotificationsInteractorTest {
         ).thenReturn(
             Observable.just(settingsMock)
         )
-        whenever(payloadDataManager.syncPayloadWithServer()).thenReturn(Completable.complete())
+        whenever(payloadDataManager.syncPayloadAndPublicKeys()).thenReturn(Completable.complete())
 
         val test = interactor.toggleEmailNotifications(true).test()
         test.assertComplete()
@@ -170,7 +171,7 @@ class NotificationsInteractorTest {
         verify(settingsDataManager).disableNotification(
             Settings.NOTIFICATION_TYPE_EMAIL, settingsMock.notificationsType
         )
-        verify(payloadDataManager).syncPayloadWithServer()
+        verify(payloadDataManager).syncPayloadAndPublicKeys()
         verifyNoMoreInteractions(settingsDataManager)
         verifyNoMoreInteractions(payloadDataManager)
     }
@@ -187,7 +188,6 @@ class NotificationsInteractorTest {
         ).thenReturn(
             Observable.just(settingsMock)
         )
-        whenever(payloadDataManager.syncPayloadAndPublicKeys()).thenReturn(Completable.complete())
 
         val test = interactor.toggleEmailNotifications(false).test()
         test.assertComplete()
@@ -196,7 +196,7 @@ class NotificationsInteractorTest {
         verify(settingsDataManager).enableNotification(
             Settings.NOTIFICATION_TYPE_EMAIL, settingsMock.notificationsType
         )
-        verify(payloadDataManager).syncPayloadAndPublicKeys()
+        verify(payloadDataManager, never()).syncPayloadAndPublicKeys()
         verifyNoMoreInteractions(settingsDataManager)
         verifyNoMoreInteractions(payloadDataManager)
     }

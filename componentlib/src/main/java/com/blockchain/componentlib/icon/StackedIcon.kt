@@ -34,7 +34,6 @@ fun StackedIcons(
                 .clip(CircleShape)
                 .background(AppTheme.colors.background)
                 .align(Alignment.BottomEnd),
-            coilImageBuilderScope = null
         )
 
         Image(
@@ -45,7 +44,6 @@ fun StackedIcons(
                 .background(AppTheme.colors.background)
                 .border(2.dp, AppTheme.colors.background, shape = CircleShape)
                 .align(Alignment.TopStart),
-            coilImageBuilderScope = null
         )
     }
 }

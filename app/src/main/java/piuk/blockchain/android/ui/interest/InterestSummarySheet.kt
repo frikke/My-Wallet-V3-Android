@@ -17,7 +17,7 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -63,7 +63,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         DialogSheetInterestDetailsBinding.inflate(inflater, container, false)
 
     private val disposables = CompositeDisposable()
-    private val interestBalance: InterestBalanceDataManager by scopedInject()
+    private val interestService: InterestService by scopedInject()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val exchangeRates: ExchangeRates by scopedInject()
     private val coincore: Coincore by scopedInject()
@@ -91,7 +91,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
 
             interestDetailsAssetWithIcon.updateIcon(account as CryptoAccount)
 
-            disposables += coincore.allWalletsWithActions(setOf(AssetAction.InterestDeposit)).map { accounts ->
+            disposables += coincore.walletsWithActions(setOf(AssetAction.InterestDeposit)).map { accounts ->
                 accounts.filter { account -> account is CryptoAccount && account.currency == asset }
             }
                 .onErrorReturn { emptyList() }
@@ -122,9 +122,9 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         }
 
         disposables += Singles.zip(
-            interestBalance.getBalanceForAsset(asset).firstOrError(),
-            custodialWalletManager.getInterestLimits(asset),
-            custodialWalletManager.getInterestAccountRates(asset)
+            interestService.getBalanceFor(asset).firstOrError(),
+            interestService.getLimitsForAsset(asset),
+            interestService.getInterestRate(asset)
         ).observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onSuccess = { (details, limits, interestRate) ->

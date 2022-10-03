@@ -12,8 +12,8 @@ import java.util.Locale
 import java.util.concurrent.atomic.AtomicReference
 
 class AssetCatalogueImpl internal constructor(
-    private val fixedAssets: Set<AssetInfo>,
-    private val assetsDataManager: DynamicAssetsDataManager
+    private val assetsService: DynamicAssetsService,
+    private val assetsDataManager: DynamicAssetsDataManager,
 ) : AssetCatalogue {
 
     private val fullAssetLookup: AtomicReference<Map<String, Currency>> = AtomicReference(emptyMap())
@@ -22,14 +22,12 @@ class AssetCatalogueImpl internal constructor(
         if (fullAssetLookup.get().isNotEmpty()) {
             Single.just(fullAssetLookup.get().values.toSet())
         } else {
-            assetsDataManager.availableCryptoAssets().zipWith(assetsDataManager.availableFiatAssets())
+            assetsService.availableCryptoAssets().zipWith(assetsDataManager.availableFiatAssets())
                 .map { (cryptos, fiats) ->
-                    // Remove any fixed assets that also appear in the dynamic set
-                    cryptos.filterNot { fixedAssets.contains(it) }.plus(fiats)
+                    cryptos.plus(fiats)
                 }.doOnSuccess { enabledAssets ->
-                    val allEnabledAssets = fixedAssets + enabledAssets
                     fullAssetLookup.set(
-                        allEnabledAssets.associateBy { it.networkTicker.uppercase(Locale.ROOT) }
+                        enabledAssets.associateBy { it.networkTicker.uppercase(Locale.ROOT) }
                     )
                 }.map {
                     fullAssetLookup.get().values.toSet()

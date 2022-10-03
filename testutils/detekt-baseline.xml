@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MatchingDeclarationName:FluentTestRule.kt$Before</ID>
+    <ID>TooGenericExceptionThrown:FluentTestRuleTests.kt$FluentTestRuleTests$throw RuntimeException()</ID>
+    <ID>TooManyFunctions:Currencies.kt$com.blockchain.testutils.Currencies.kt</ID>
+  </CurrentIssues>
+</SmellBaseline>

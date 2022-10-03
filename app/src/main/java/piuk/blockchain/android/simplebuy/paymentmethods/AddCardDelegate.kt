@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.nabu.datamanagers.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.AddNewCardLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate

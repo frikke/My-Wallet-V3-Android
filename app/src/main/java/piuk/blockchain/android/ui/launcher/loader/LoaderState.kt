@@ -8,7 +8,7 @@ sealed class LoadingStep {
     object Launcher : LoadingStep()
     object EmailVerification : LoadingStep()
     object RequestPin : LoadingStep()
-    data class NewTermsAndConditions(val url: String) : LoadingStep()
+    data class EducationalWalletMode(val data: String?) : LoadingStep()
 }
 
 enum class ProgressStep {
@@ -19,10 +19,16 @@ enum class ToastType {
     INVALID_PASSWORD, UNEXPECTED_ERROR
 }
 
+enum class LoginMethod {
+    WALLET_CREATION, CREDENTIALS, PIN, UNDEFINED
+}
+
 data class LoaderState(
+    val loginMethod: LoginMethod = LoginMethod.UNDEFINED,
     val nextProgressStep: ProgressStep? = null,
     val nextLoadingStep: LoadingStep? = null,
     val toastType: ToastType? = null,
     val shouldShowSecondPasswordDialog: Boolean = false,
-    val shouldShowMetadataNodeFailure: Boolean = false
+    val shouldShowMetadataNodeFailure: Boolean = false,
+    val isUserInCowboysPromo: Boolean = false
 ) : MviState

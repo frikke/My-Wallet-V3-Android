@@ -109,7 +109,6 @@ fun Checkbox(
                     this
                 }
             }
-            .padding(dimensionResource(R.dimen.very_small_margin))
             .size(dimensionResource(R.dimen.standard_margin))
             .background(
                 color = animateColorAsState(targetValue = checkboxBorderColor).value,

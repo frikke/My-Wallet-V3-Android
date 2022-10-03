@@ -96,14 +96,24 @@ fun Date.toFormattedString(locale: Locale = Locale.getDefault()): String {
 }
 
 /**
- * Takes a [Date] object and converts it to our standard date format, ie March 09, 2018 @11:47.
+ * Takes a [Date] object and converts it to the standard MEDIUM date format, ie 21 Jun 2020.
  *
- * @param locale The current [Locale].
  * @return A formatted [String] object.
  */
 fun Date.toFormattedDate(): String {
     val dateFormat = SimpleDateFormat.getDateInstance(DateFormat.MEDIUM)
     return dateFormat.format(this)
+}
+
+/**
+ * Takes a [Date] object and converts it to our standard date and time format, ie June 21, 01:23 pm.
+ *
+ * @param locale The current [Locale].
+ * @return A formatted [String] object.
+ */
+fun Date.toFormattedDateTime(locale: Locale = Locale.getDefault()): String {
+    val dateTimeFormat = SimpleDateFormat("MMMM dd, hh:mm a", locale)
+    return dateTimeFormat.format(this)
 }
 
 fun BigInteger.secondsToDays(): Long =

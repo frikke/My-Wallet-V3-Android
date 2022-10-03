@@ -7,9 +7,9 @@ import com.blockchain.api.analytics.AnalyticsContext
 import com.blockchain.api.analytics.AnalyticsRequestBody
 import com.blockchain.serializers.BigDecimalSerializer
 import io.reactivex.rxjava3.core.Completable
-import java.math.BigDecimal
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import kotlinx.serialization.json.JsonElement
 
 class AnalyticsService internal constructor(
     private val api: AnalyticsApiInterface
@@ -41,7 +41,5 @@ data class NabuAnalyticsEvent(
     val name: String,
     val type: String,
     val originalTimestamp: String,
-    val properties: Map<String, String>,
-    val numericProperties: Map<String, BigDecimal>,
-    val booleanProperties: Map<String, Boolean> = emptyMap()
+    val properties: Map<String, JsonElement>,
 )

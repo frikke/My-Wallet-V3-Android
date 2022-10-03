@@ -12,7 +12,9 @@ data class PaymentDataResponse(
     @SerialName("paymentMethodData")
     val paymentMethodData: PaymentMethodData,
     @SerialName("shippingAddress")
-    val shippingAddress: Address? = null
+    val shippingAddress: Address? = null,
+    @SerialName("billingAddress")
+    val billingAddress: Address? = null
 ) {
     @Serializable
     data class PaymentMethodData(
@@ -57,22 +59,22 @@ data class PaymentDataResponse(
     @Serializable
     data class Address(
         @SerialName("address1")
-        val address1: String,
+        val address1: String? = null,
         @SerialName("address2")
-        val address2: String,
+        val address2: String? = null,
         @SerialName("address3")
-        val address3: String,
+        val address3: String? = null,
         @SerialName("administrativeArea")
-        val administrativeArea: String,
+        val administrativeArea: String? = null,
         @SerialName("countryCode")
-        val countryCode: String,
+        val countryCode: String? = null,
         @SerialName("locality")
-        val locality: String,
+        val locality: String? = null,
         @SerialName("name")
-        val name: String,
+        val name: String? = null,
         @SerialName("postalCode")
-        val postalCode: String,
+        val postalCode: String? = null,
         @SerialName("sortingCode")
-        val sortingCode: String
+        val sortingCode: String? = null
     )
 }

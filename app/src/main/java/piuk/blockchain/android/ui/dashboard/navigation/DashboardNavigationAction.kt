@@ -6,22 +6,29 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.TransactionTarget
-import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.nabu.BlockedReason
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
+import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 
 sealed class DashboardNavigationAction {
-    object StxAirdropComplete : DashboardNavigationAction(), BottomSheet
+    object AppRating : DashboardNavigationAction()
     data class BackUpBeforeSend(val backupSheetDetails: BackupDetails) : DashboardNavigationAction(), BottomSheet
     object SimpleBuyCancelOrder : DashboardNavigationAction(), BottomSheet
     data class FiatFundsDetails(val fiatAccount: FiatAccount) : DashboardNavigationAction(), BottomSheet
     data class LinkOrDeposit(val fiatAccount: FiatAccount? = null) : DashboardNavigationAction(), BottomSheet
+    data class LinkWithAlias(val fiatAccount: FiatAccount? = null) : DashboardNavigationAction()
     object FiatFundsNoKyc : DashboardNavigationAction(), BottomSheet
     data class FiatDepositOrWithdrawalBlockedDueToSanctions(
         val reason: BlockedReason.Sanctions
+    ) : DashboardNavigationAction(), BottomSheet
+    data class DepositQuestionnaire(
+        val questionnaire: Questionnaire,
+        val callbackIntent: DashboardIntent.LaunchBankTransferFlow
     ) : DashboardNavigationAction(), BottomSheet
     data class InterestSummary(
         val account: CryptoAccount
@@ -45,10 +52,9 @@ sealed class DashboardNavigationAction {
         val sourceAccount: BlockchainAccount = NullCryptoAccount(),
         val target: TransactionTarget = NullCryptoAccount(),
         val action: AssetAction
-    ) : DashboardNavigationAction(), FullScreenFlow
+    ) : DashboardNavigationAction()
 
-    class Coinview(val asset: AssetInfo) : DashboardNavigationAction(), FullScreenFlow
+    class Coinview(val asset: AssetInfo) : DashboardNavigationAction()
 
     interface BottomSheet
-    interface FullScreenFlow
 }

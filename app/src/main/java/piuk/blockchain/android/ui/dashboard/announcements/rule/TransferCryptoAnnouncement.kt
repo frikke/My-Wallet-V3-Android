@@ -1,7 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
@@ -12,7 +13,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCa
 
 class TransferCryptoAnnouncement(
     dismissRecorder: DismissRecorder,
-    private val walletStatus: WalletStatus
+    private val walletStatusPrefs: WalletStatusPrefs
 ) : AnnouncementRule(dismissRecorder) {
 
     override val dismissKey = DISMISS_KEY
@@ -22,8 +23,11 @@ class TransferCryptoAnnouncement(
             return Single.just(false)
         }
 
-        return Single.just(!walletStatus.isWalletFunded)
+        return Single.just(!walletStatusPrefs.isWalletFunded)
     }
+
+    override val associatedWalletModes: List<WalletMode>
+        get() = WalletMode.values().toList()
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(

@@ -13,10 +13,10 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.blockchain.analytics.Analytics
+import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.trackProgress
-import com.blockchain.commonarch.presentation.base.updateTitleToolbar
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.payloadScope
@@ -35,6 +35,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
+import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import retrofit2.HttpException
@@ -74,7 +75,7 @@ class BuySellFragment :
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentBuySellBinding.inflate(inflater, container, false).apply {
             this.redesignTabLayout.items = listOf(getString(R.string.common_buy), getString(R.string.common_sell))
@@ -88,7 +89,7 @@ class BuySellFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateTitleToolbar(getString(R.string.buy_and_sell))
+        analytics.logEvent(WalletClientAnalytics.WalletBuySellViewed)
     }
 
     override fun onResume() {
@@ -115,21 +116,27 @@ class BuySellFragment :
                     onSuccess = { introAction ->
                         renderBuySellFragments(introAction)
                     },
-                    onError = {
+                    onError = { exception ->
                         renderErrorState()
+                        val nabuException: NabuApiException? = (exception as? HttpException)?.let { httpException ->
+                            NabuApiExceptionFactory.fromResponseBody(httpException)
+                        }
+
                         analytics.logEvent(
                             ClientErrorAnalytics.ClientLogError(
-                                nabuApiException = if (it is HttpException) {
-                                    NabuApiExceptionFactory.fromResponseBody(it)
-                                } else null,
-                                error = ClientErrorAnalytics.NABU_ERROR,
-                                source = if (it is HttpException) {
+                                nabuApiException = nabuException,
+                                errorDescription = exception.message,
+                                error = if (exception is HttpException) {
+                                    ClientErrorAnalytics.NABU_ERROR
+                                } else ClientErrorAnalytics.UNKNOWN_ERROR,
+                                source = if (exception is HttpException) {
                                     ClientErrorAnalytics.Companion.Source.NABU
                                 } else {
                                     ClientErrorAnalytics.Companion.Source.CLIENT
                                 },
-                                title = ClientErrorAnalytics.NABU_ERROR,
+                                title = ClientErrorAnalytics.OOPS_ERROR,
                                 action = ClientErrorAnalytics.ACTION_SELL,
+                                categories = nabuException?.getServerSideErrorInfo()?.categories ?: emptyList()
                             )
                         )
                     }
@@ -137,7 +144,7 @@ class BuySellFragment :
     }
 
     private fun renderBuySellFragments(
-        action: BuySellIntroAction?
+        action: BuySellIntroAction?,
     ) {
         with(binding) {
             buySellEmpty.gone()
@@ -194,6 +201,7 @@ class BuySellFragment :
 
     private fun renderErrorState() {
         with(binding) {
+            redesignTabLayout.gone()
             pager.gone()
             buySellEmpty.setDetails {
                 subscribeForNavigation()
@@ -204,6 +212,7 @@ class BuySellFragment :
 
     private fun renderNotEligibleUi() {
         with(binding) {
+            redesignTabLayout.gone()
             pager.gone()
             notEligibleIcon.visible()
             notEligibleTitle.visible()
@@ -274,7 +283,7 @@ class BuySellFragment :
 
         fun newInstance(
             asset: AssetInfo? = null,
-            viewType: BuySellViewType = BuySellViewType.TYPE_BUY
+            viewType: BuySellViewType = BuySellViewType.TYPE_BUY,
         ) = BuySellFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(VIEW_TYPE, viewType)
@@ -302,14 +311,12 @@ class BuySellFragment :
 
     override fun navigator(): HomeNavigator =
         (activity as? HomeNavigator) ?: throw IllegalStateException("Parent must implement HomeNavigator")
-
-    override fun onBackPressed(): Boolean = false
 }
 
 @SuppressLint("WrongConstant")
 internal class ViewPagerAdapter(
     private val titlesList: List<String>,
-    fragmentManager: FragmentManager
+    fragmentManager: FragmentManager,
 ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     override fun getCount(): Int = titlesList.size

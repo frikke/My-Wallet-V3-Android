@@ -9,15 +9,11 @@ sealed class AccountIntent : MviIntent<AccountState> {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
-    object LoadExchangeInformation : AccountIntent() {
+    object LoadDisplayCurrencies : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
-    object LoadFiatList : AccountIntent() {
-        override fun reduce(oldState: AccountState): AccountState = oldState
-    }
-
-    object LoadExchange : AccountIntent() {
+    object LoadTradingCurrencies : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
@@ -28,6 +24,18 @@ sealed class AccountIntent : MviIntent<AccountState> {
     object ResetViewState : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState.copy(
             viewToLaunch = ViewToLaunch.None
+        )
+    }
+
+    object ToggleChartVibration : AccountIntent() {
+        override fun reduce(oldState: AccountState): AccountState = oldState
+    }
+
+    class UpdateChartVibration(private val isVibrationEnabled: Boolean) : AccountIntent() {
+        override fun reduce(oldState: AccountState): AccountState = oldState.copy(
+            accountInformation = oldState.accountInformation?.copy(
+                isChartVibrationEnabled = isVibrationEnabled
+            )
         )
     }
 
@@ -49,13 +57,11 @@ sealed class AccountIntent : MviIntent<AccountState> {
         )
     }
 
-    class UpdateExchangeInformation(private val exchangeLinkingState: ExchangeLinkingState) : AccountIntent() {
-        override fun reduce(oldState: AccountState): AccountState = oldState.copy(
-            exchangeLinkingState = exchangeLinkingState
-        )
+    class UpdateSelectedDisplayCurrency(val updatedCurrency: FiatCurrency) : AccountIntent() {
+        override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
-    class UpdateFiatCurrency(val updatedCurrency: FiatCurrency) : AccountIntent() {
+    class UpdateSelectedTradingCurrency(val updatedCurrency: FiatCurrency) : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 

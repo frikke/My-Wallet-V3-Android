@@ -8,10 +8,11 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.px
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.RoundedCornerTreatment
@@ -34,6 +35,7 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
     private val disposables = CompositeDisposable()
 
     private val userIdentity: UserIdentity by scopedInject()
+    private val kycService: KycService by scopedInject()
 
     private val initialTab: ViewPagerTab = ViewPagerTab.VERIFIED
     private lateinit var tabLayoutMediator: TabLayoutMediator
@@ -43,9 +45,9 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
     }
 
     private var ctaClicked = false
-    private val getHighestTierAndIsSdd: Single<Pair<Tier, Boolean>> by lazy {
+    private val getHighestTierAndIsSdd: Single<Pair<KycTier, Boolean>> by lazy {
         Singles.zip(
-            userIdentity.getHighestApprovedKycTier(),
+            kycService.getHighestApprovedTierLevelLegacy(),
             userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)
         ).cache()
     }
@@ -69,11 +71,12 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
             toolbar.gone()
         } else {
             toolbar.apply {
-                startNavigationBarButton = null
+                startNavigationButton = null
                 endNavigationBarButtons = listOf(
                     NavigationBarButton.Icon(
                         drawable = R.drawable.ic_close_circle_v2,
                         color = null,
+                        contentDescription = R.string.accessibility_close,
                         onIconClick = {
                             if (showsDialog) dismiss()
                         }
@@ -125,7 +128,7 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
         disposables +=
             getHighestTierAndIsSdd.subscribeBy(
                 onSuccess = { (highestTier, _) ->
-                    val isAtleastSilver = highestTier != Tier.BRONZE
+                    val isAtleastSilver = highestTier != KycTier.BRONZE
                     val items = ViewPagerTab.values().toList().toItems(isBasicApproved = isAtleastSilver)
                     viewPagerAdapter.submitList(items)
                 },

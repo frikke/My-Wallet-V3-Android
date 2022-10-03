@@ -7,4 +7,5 @@ interface FeatureFlag {
     val readableName: String
     val enabled: Single<Boolean>
     val isEnabled: Boolean
+    suspend fun coEnabled(): Boolean
 }

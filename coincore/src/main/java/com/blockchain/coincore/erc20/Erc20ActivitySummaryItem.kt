@@ -3,7 +3,7 @@ package com.blockchain.coincore.erc20
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -22,8 +22,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
     override val exchangeRates: ExchangeRatesDataManager,
     lastBlockNumber: BigInteger,
     override val account: CryptoAccount,
-    override val supportsDescription: Boolean,
-    timeStampMultiplier: Int
+    override val supportsDescription: Boolean
 ) : NonCustodialActivitySummaryItem() {
 
     override val transactionType: TransactionSummary.TransactionType by unsafeLazy {
@@ -35,7 +34,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
         }
     }
 
-    override val timeStampMs: Long = event.timestamp * timeStampMultiplier
+    override val timeStampMs: Long = event.timestamp * TX_HISTORY_MULTIPLIER
 
     override val value: CryptoValue = event.value
 
@@ -57,4 +56,8 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
     override fun updateDescription(description: String): Completable =
         erc20DataManager.putErc20TxNote(asset = asset, txHash = txId, note = description)
+
+    companion object {
+        private const val TX_HISTORY_MULTIPLIER = 1000
+    }
 }

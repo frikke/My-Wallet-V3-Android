@@ -4,7 +4,8 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.fiat.LinkedBankAccount
-import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.nabu.BlockedReason
 
 sealed class FiatTransactionRequestResult {
@@ -34,6 +35,11 @@ sealed class FiatTransactionRequestResult {
         val action: AssetAction,
         val sourceAccount: FiatAccount
     ) : FiatTransactionRequestResult()
+    data class LaunchAliasWithdrawal(val targetAccount: FiatAccount) : FiatTransactionRequestResult()
     object NotSupportedPartner : FiatTransactionRequestResult()
     data class BlockedDueToSanctions(val reason: BlockedReason.Sanctions) : FiatTransactionRequestResult()
+    data class LaunchQuestionnaire(
+        val questionnaire: Questionnaire,
+        val callbackIntent: DashboardIntent.LaunchBankTransferFlow
+    ) : FiatTransactionRequestResult()
 }

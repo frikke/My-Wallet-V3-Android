@@ -46,7 +46,7 @@ class KycResubmissionSplashFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycResubmission)
 
-        progressListener.setHostTitle(R.string.kyc_resubmission_splash_title)
+        progressListener.setupHostToolbar(R.string.kyc_resubmission_splash_title)
     }
 
     override fun onDestroyView() {

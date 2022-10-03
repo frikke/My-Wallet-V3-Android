@@ -3,14 +3,15 @@ package com.blockchain.core.user
 import com.blockchain.api.services.AssetTag
 import com.blockchain.api.services.WatchlistService
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.map
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.rx3.rxCompletable
-import kotlinx.coroutines.rx3.rxSingle
+import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
+// todo(othman) flow
 interface WatchlistDataManager {
     fun getWatchlist(): Single<Watchlist>
     fun addToWatchlist(asset: Currency, tags: List<AssetTag>): Single<WatchlistInfo>
@@ -36,12 +37,9 @@ class WatchlistDataManagerImpl(
 
     override fun getWatchlist(): Single<Watchlist> =
         authenticator.getAuthHeader().flatMap { header ->
-            rxSingle {
-                watchlistService.getWatchlist(header).fold(
-                    onFailure = {
-                        throw it.throwable
-                    },
-                    onSuccess = { response ->
+            rxSingleOutcome {
+                watchlistService.getWatchlist(header)
+                    .map { response ->
                         val assetMap = mutableMapOf<Currency, List<AssetTag>>()
                         response.assets.forEach { item ->
                             assetCatalogue.fromNetworkTicker(item.asset)?.let { currency ->
@@ -50,20 +48,16 @@ class WatchlistDataManagerImpl(
                                 }
                             }
                         }
-                        return@fold Watchlist(assetMap)
+                        Watchlist(assetMap)
                     }
-                )
             }
         }
 
     override fun addToWatchlist(asset: Currency, tags: List<AssetTag>): Single<WatchlistInfo> =
         authenticator.getAuthHeader().flatMap { header ->
-            rxSingle {
-                watchlistService.addToWatchlist(header, asset.networkTicker, tags).fold(
-                    onFailure = {
-                        throw it.throwable
-                    },
-                    onSuccess = { response ->
+            rxSingleOutcome {
+                watchlistService.addToWatchlist(header, asset.networkTicker, tags)
+                    .map { response ->
                         WatchlistInfo(
                             asset,
                             response.tags.map { tagItem ->
@@ -71,23 +65,13 @@ class WatchlistDataManagerImpl(
                             }
                         )
                     }
-                )
             }
         }
 
     override fun removeFromWatchList(asset: Currency, tags: List<AssetTag>): Completable =
         authenticator.getAuthHeader().flatMapCompletable { header ->
-            rxCompletable {
-                watchlistService.removeFromWatchlist(
-                    header, asset.networkTicker, tags
-                ).fold(
-                    onFailure = {
-                        Completable.error(it.throwable)
-                    },
-                    onSuccess = {
-                        Completable.complete()
-                    }
-                )
+            rxCompletableOutcome {
+                watchlistService.removeFromWatchlist(header, asset.networkTicker, tags)
             }
         }
 }

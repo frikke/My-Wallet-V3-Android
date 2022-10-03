@@ -1,6 +1,5 @@
 package piuk.blockchain.android
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.app.NotificationChannel
@@ -38,10 +37,8 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.data.connectivity.ConnectivityManager
 import piuk.blockchain.android.identity.SiftDigitalTrust
-import piuk.blockchain.android.ui.home.models.MetadataEvent
 import piuk.blockchain.android.ui.ssl.SSLVerifyActivity
 import piuk.blockchain.android.util.AppAnalytics
 import piuk.blockchain.android.util.AppUtil
@@ -63,7 +60,6 @@ open class BlockchainApplication : Application() {
     private val appUtils: AppUtil by inject()
     private val analytics: Analytics by inject()
     private val remoteLogger: RemoteLogger by inject()
-    private val coinsWebSocketService: CoinsWebSocketService by inject()
     private val trust: SiftDigitalTrust by inject()
 
     private val lifecycleListener: AppLifecycleListener by lazy {
@@ -127,8 +123,6 @@ open class BlockchainApplication : Application() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(onNext = ::onConnectionEvent)
 
-        initRxBus()
-
         AppVersioningChecks(
             context = this,
             appInfoPrefs = appInfoPrefs,
@@ -170,23 +164,8 @@ open class BlockchainApplication : Application() {
         )
     }
 
-    @SuppressLint("CheckResult")
-    private fun initRxBus() {
-        rxBus.register(MetadataEvent::class.java)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(onNext = ::onBusMetadataEvent)
-    }
-
     private fun onConnectionEvent(event: ConnectionEvent) {
         SSLVerifyActivity.start(applicationContext, event)
-    }
-
-    private fun onBusMetadataEvent(event: MetadataEvent) {
-        startCoinsWebService()
-    }
-
-    private fun startCoinsWebService() {
-        coinsWebSocketService.start()
     }
 
     private fun initLifecycleListener() {

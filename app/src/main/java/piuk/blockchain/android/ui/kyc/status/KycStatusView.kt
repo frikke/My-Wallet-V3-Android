@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.status
 
 import androidx.annotation.StringRes
-import com.blockchain.nabu.models.responses.nabu.KycTierState
+import com.blockchain.core.kyc.domain.model.KycTierState
 import piuk.blockchain.android.ui.base.View
 
 interface KycStatusView : View {

@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongParameterList:PersistedJsonSqlDelightStoreBuilder.kt$PersistedJsonSqlDelightStoreBuilder$( storeId: StoreId, fetcher: Fetcher&lt;K, E, T>, keySerializer: KSerializer&lt;K>, dataSerializer: KSerializer&lt;T>, mediator: Mediator&lt;K, T>, scope: CoroutineScope = GlobalScope )</ID>
+    <ID>PackageName:com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightCache.kt:1</ID>
+    <ID>PackageName:com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder.kt:1</ID>
+    <ID>PackageName:com.blockchain.store_caches_persistedjsonsqldelight.SqlDelightStoreIdScopedPersister.kt:1</ID>
+    <ID>PackageName:com.blockchain.store_caches_persistedjsonsqldelight.koin.kt:1</ID>
+    <ID>PackageNaming:PersistedJsonSqlDelightCache.kt$package com.blockchain.store_caches_persistedjsonsqldelight</ID>
+    <ID>PackageNaming:PersistedJsonSqlDelightStoreBuilder.kt$package com.blockchain.store_caches_persistedjsonsqldelight</ID>
+    <ID>PackageNaming:SqlDelightStoreIdScopedPersister.kt$package com.blockchain.store_caches_persistedjsonsqldelight</ID>
+    <ID>PackageNaming:koin.kt$package com.blockchain.store_caches_persistedjsonsqldelight</ID>
+  </CurrentIssues>
+</SmellBaseline>

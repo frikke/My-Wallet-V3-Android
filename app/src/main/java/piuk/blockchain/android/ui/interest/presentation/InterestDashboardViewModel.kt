@@ -5,20 +5,20 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.extensions.exhaustive
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import info.blockchain.balance.AssetInfo
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import piuk.blockchain.android.ui.interest.domain.model.InterestDashboard
 import piuk.blockchain.android.ui.interest.domain.usecase.GetAccountGroupUseCase
-import piuk.blockchain.android.ui.interest.domain.usecase.GetAssetsInterestUseCase
 import piuk.blockchain.android.ui.interest.domain.usecase.GetInterestDashboardUseCase
-import timber.log.Timber
 
 class InterestDashboardViewModel(
-    private val getAssetsInterestUseCase: GetAssetsInterestUseCase,
+    private val kycService: KycService,
     private val getInterestDashboardUseCase: GetInterestDashboardUseCase,
     private val getAccountGroupUseCase: GetAccountGroupUseCase
 ) : MviViewModel<InterestDashboardIntents,
@@ -33,7 +33,7 @@ class InterestDashboardViewModel(
     override suspend fun handleIntent(modelState: InterestDashboardModelState, intent: InterestDashboardIntents) {
         when (intent) {
             InterestDashboardIntents.LoadDashboard -> {
-                loadInterestDashboard()
+                loadDashboard()
             }
 
             is InterestDashboardIntents.FilterData -> {
@@ -66,37 +66,71 @@ class InterestDashboardViewModel(
         )
     }
 
-    private fun loadInterestDashboard() {
+    /**
+     * Check kyc state first
+     * if kyc gold -> load interest dashboard
+     * if not -> show upgrade kyc
+     */
+    private fun loadDashboard() {
         viewModelScope.launch {
-            updateState { it.copy(isLoadingData = true) }
+            kycService.getTiers(FreshnessStrategy.Cached(forceRefresh = true))
+                .collectLatest { dataResourceKyc ->
+                    when (dataResourceKyc) {
+                        is DataResource.Loading -> updateState {
+                            it.copy(isLoadingData = true)
+                        }
 
-            getInterestDashboardUseCase().let { result ->
-                result.doOnSuccess { interestDetail ->
-                    loadAssets(interestDetail)
-                }.doOnFailure { error ->
-                    updateState { it.copy(isLoadingData = false, isError = true) }
-                    Timber.e("Error loading interest summary details $error")
+                        is DataResource.Data -> {
+                            // if kyc gold - load interest data
+                            // else - prompt kyc upgrade
+                            if (dataResourceKyc.data.isApprovedFor(KycTier.GOLD)) {
+                                loadInterestData()
+                            } else {
+                                updateState {
+                                    it.copy(
+                                        isLoadingData = false,
+                                        isError = false,
+                                        isKycGold = false
+                                    )
+                                }
+                            }
+                        }
+
+                        is DataResource.Error -> updateState {
+                            it.copy(
+                                isLoadingData = false,
+                                isError = true,
+                            )
+                        }
+                    }
                 }
-            }
         }
     }
 
-    private fun loadAssets(interestDashboard: InterestDashboard) {
-        viewModelScope.launch {
+    private suspend fun loadInterestData() {
+        getInterestDashboardUseCase().collectLatest { dataResourceInterest ->
+            when (dataResourceInterest) {
+                is DataResource.Loading -> updateState {
+                    it.copy(
+                        isLoadingData = it.data.isEmpty(),
+                        isError = false
+                    )
+                }
 
-            getAssetsInterestUseCase(interestDashboard.enabledAssets).let { result ->
-                result.doOnSuccess { assetInterestInfoList ->
-                    updateState {
-                        it.copy(
-                            isLoadingData = false,
-                            isError = false,
-                            isKycGold = interestDashboard.tiers.isApprovedFor(KycTierLevel.GOLD),
-                            data = assetInterestInfoList,
-                        )
-                    }
-                }.doOnFailure { error ->
-                    updateState { it.copy(isLoadingData = false, isError = true) }
-                    Timber.e("Error loading interest info list $error")
+                is DataResource.Data -> updateState {
+                    it.copy(
+                        isLoadingData = false,
+                        isError = false,
+                        isKycGold = true,
+                        data = dataResourceInterest.data
+                    )
+                }
+
+                is DataResource.Error -> updateState {
+                    it.copy(
+                        isLoadingData = false,
+                        isError = true,
+                    )
                 }
             }
         }

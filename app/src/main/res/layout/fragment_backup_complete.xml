@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -17,11 +18,17 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/icon"
+            android:layout_marginEnd="@dimen/smallest_margin"
             android:orientation="vertical">
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:ellipsize="end"
+                tools:text="Text very very very long a lot more"
+                android:maxLines="2"
                 android:text="@string/backup_header_complete"
                 android:textColor="@color/black"
                 android:textSize="20sp" />
@@ -30,13 +37,16 @@
                 android:id="@+id/subheading_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
                 android:textColor="@color/primary_grey_dark"
                 android:textSize="12sp"
+                android:maxLines="1"
                 tools:text="Last backup: Sept 08, 2016" />
 
         </LinearLayout>
 
         <ImageView
+            android:id="@+id/icon"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_alignParentRight="true"
@@ -60,7 +70,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/huge_margin"
-        android:text="@string/backup_lost_mnemonic_1"/>
+        android:text="@string/backup_lost_mnemonic_1" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_backup_done"

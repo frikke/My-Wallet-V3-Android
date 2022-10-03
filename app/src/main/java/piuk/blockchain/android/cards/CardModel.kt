@@ -3,13 +3,12 @@ package piuk.blockchain.android.cards
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
+import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.google.gson.Gson
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -19,6 +18,7 @@ import kotlinx.serialization.json.Json
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CompleteCardActivation
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
+import timber.log.Timber
 
 class CardModel(
     uiScheduler: Scheduler,
@@ -26,15 +26,12 @@ class CardModel(
     private val interactor: SimpleBuyInteractor,
     private val prefs: SimpleBuyPrefs,
     private val cardActivator: CardActivator,
-    private val gson: Gson,
     private val json: Json,
-    private val replaceGsonKtxFF: FeatureFlag,
     val environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
 ) : MviModel<CardState, CardIntent>(
     initialState = prefs.cardState()?.run {
-        if (replaceGsonKtxFF.isEnabled) json.decodeFromString<CardState>(this)
-        else gson.fromJson(this, CardState::class.java)
+        json.decodeFromString<CardState>(this)
     } ?: CardState(fiatCurrency = currencyPrefs.selectedFiatCurrency),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
@@ -46,8 +43,34 @@ class CardModel(
             is CardIntent.AddNewCard -> handleAddNewCard(intent, previousState)
             is CardIntent.ActivateCard -> activateCard(intent)
             is CardIntent.CheckCardStatus -> checkCardStatus(previousState)
+            CardIntent.LoadLinkedCards -> loadLinkedCards()
+            is CardIntent.CheckProviderFailureRate -> checkCardFailureRate(intent.cardNumber)
+            is CardIntent.LoadListOfUsStates -> loadListOfUsStates()
             else -> null
         }
+
+    private fun checkCardFailureRate(binNumber: String) =
+        interactor.checkNewCardRejectionRate(binNumber)
+            .subscribeBy(
+                onSuccess = { state ->
+                    process(CardIntent.UpdateCardRejectionState(state))
+                },
+                onError = {
+                    // if the check fails, allow the user to go through
+                    process(CardIntent.UpdateCardRejectionState(CardRejectionState.NotRejected))
+                }
+            )
+
+    private fun loadLinkedCards() =
+        interactor.loadLinkedCards()
+            .subscribeBy(
+                onSuccess = {
+                    process(CardIntent.LinkedCardsLoaded(it))
+                },
+                onError = {
+                    Timber.e("Error loading linked cards ${it.message}")
+                }
+            )
 
     private fun handleAddNewCard(
         intent: CardIntent.AddNewCard,
@@ -71,78 +94,81 @@ class CardModel(
                 process(CardIntent.UpdateCardId(card.cardId))
             },
             onError = {
-                process(CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CREATION_FAILED)))
+                process(
+                    CardIntent.UpdateRequestState(CardRequestStatus.Error(it.toCardError(CardError.CreationFailed)))
+                )
             }
         )
 
     private fun activateCard(intent: CardIntent.ActivateCard) = cardActivator.activateCard(
         intent.card,
         intent.cardId
-    )
-        .doOnSubscribe {
-            process(CardIntent.UpdateRequestState(CardRequestStatus.Loading))
-        }.subscribeBy(
-            onSuccess = {
-                process(
-                    CardIntent.AuthoriseCard(
-                        credentials = it.toCardAcquirerCredentials()
-                    )
+    ).doOnSubscribe {
+        process(CardIntent.UpdateRequestState(CardRequestStatus.Loading))
+    }.subscribeBy(
+        onSuccess = {
+            process(
+                CardIntent.AuthoriseCard(
+                    credentials = it.toCardAcquirerCredentials()
                 )
-            },
-            onError = {
-                if (it is NabuApiException) {
-                    when (it.getErrorCode()) {
-                        NabuErrorCodes.InsufficientCardFunds -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.INSUFFICIENT_CARD_BALANCE))
-                        )
-                        NabuErrorCodes.CardBankDeclined -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_BANK_DECLINED))
-                        )
-                        NabuErrorCodes.CardDuplicate -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_DUPLICATE))
-                        )
-                        NabuErrorCodes.CardBlockchainDecline -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_BLOCKCHAIN_DECLINED))
-                        )
-                        NabuErrorCodes.CardAcquirerDecline -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_ACQUIRER_DECLINED))
-                        )
-                        NabuErrorCodes.CardPaymentNotSupported -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_PAYMENT_NOT_SUPPORTED))
-                        )
-                        NabuErrorCodes.CardCreateFailed -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_CREATED_FAILED))
-                        )
-                        NabuErrorCodes.CardPaymentFailed -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_PAYMENT_FAILED))
-                        )
-                        NabuErrorCodes.CardCreateAbandoned -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_CREATED_ABANDONED))
-                        )
-                        NabuErrorCodes.CardCreateExpired -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_CREATED_EXPIRED))
-                        )
-                        NabuErrorCodes.CardCreateBankDeclined -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_CREATE_BANK_DECLINED))
-                        )
-                        NabuErrorCodes.CardCreateDebitOnly -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_CREATE_DEBIT_ONLY))
-                        )
-                        NabuErrorCodes.CardPaymentDebitOnly -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_PAYMENT_DEBIT_ONLY))
-                        )
-                        NabuErrorCodes.CardCreateNoToken -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_CREATE_NO_TOKEN))
-                        )
-                        else -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.ACTIVATION_FAIL))
-                        )
-                    }
-                } else {
-                    process(CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.ACTIVATION_FAIL)))
+            )
+        },
+        onError = {
+            process(
+                CardIntent.UpdateRequestState(CardRequestStatus.Error(it.toCardError(CardError.ActivationFailed)))
+            )
+        }
+    )
+
+    private fun loadListOfUsStates() = interactor.getListOfStates("US").subscribeBy(
+        onSuccess = {
+            process(CardIntent.UsStatesLoaded(it))
+        },
+        onError = {
+            Timber.e("Error loading us states ${it.message}")
+            process(
+                CardIntent.UsStatesLoaded(emptyList())
+            )
+        }
+    )
+
+    private fun Throwable.toCardError(defaultError: CardError): CardError {
+        return if (this is NabuApiException) {
+            val info = getServerSideErrorInfo()
+            if (info != null) {
+                CardError.ServerSideCardError(
+                    title = info.title,
+                    message = info.description,
+                    iconUrl = info.iconUrl,
+                    statusIconUrl = info.statusUrl,
+                    actions = info.actions,
+                    categories = info.categories,
+                    errorId = info.id
+                )
+            } else {
+                when (this.getErrorCode()) {
+                    NabuErrorCodes.InsufficientCardFunds -> CardError.InsufficientCardBalance
+                    NabuErrorCodes.CardBankDeclined -> CardError.CardBankDeclined
+                    NabuErrorCodes.CardDuplicate -> CardError.CardDuplicated
+                    NabuErrorCodes.CardBlockchainDecline -> CardError.CardBlockchainDeclined
+                    NabuErrorCodes.CardAcquirerDecline -> CardError.CardAcquirerDeclined
+                    NabuErrorCodes.CardPaymentNotSupported -> CardError.CardPaymentNotSupportedDeclined
+                    NabuErrorCodes.CardCreateFailed -> CardError.CardCreatedFailed
+                    NabuErrorCodes.CardPaymentFailed -> CardError.CardPaymentFailed
+                    NabuErrorCodes.CardCreateAbandoned -> CardError.CardCreatedAbandoned
+                    NabuErrorCodes.CardCreateExpired -> CardError.CardCreatedExpired
+                    NabuErrorCodes.CardCreateBankDeclined -> CardError.CardCreateBankDeclined
+                    NabuErrorCodes.CardCreateDebitOnly -> CardError.CardCreateDebitOnly
+                    NabuErrorCodes.CardPaymentDebitOnly -> CardError.CardPaymentDebitOnly
+                    NabuErrorCodes.CardCreateNoToken -> CardError.CardCreateNoToken
+                    NabuErrorCodes.CardLimitReached -> CardError.CardLimitReach
+                    else -> defaultError
                 }
             }
-        )
+        } else {
+            defaultError
+        }
+    }
 
     private fun checkCardStatus(previousState: CardState) = interactor.pollForCardStatus(
         previousState.cardId
@@ -166,15 +192,28 @@ class CardModel(
                     process(
                         CardIntent.UpdateRequestState(
                             CardRequestStatus.Error(
-                                if (it.cardDetails.status == CardStatus.PENDING) CardError.PENDING_AFTER_POLL
-                                else CardError.LINK_FAILED
+                                if (it.cardDetails.status == CardStatus.PENDING) {
+                                    CardError.PendingAfterPoll
+                                } else {
+                                    it.cardDetails.serverSideUxErrorInfo?.let { error ->
+                                        CardError.ServerSideCardError(
+                                            title = error.title,
+                                            message = error.description,
+                                            iconUrl = error.iconUrl,
+                                            statusIconUrl = error.statusUrl,
+                                            actions = error.actions,
+                                            categories = error.categories,
+                                            errorId = error.id
+                                        )
+                                    } ?: CardError.LinkFailed
+                                }
                             )
                         )
                     )
                 }
             },
             onError = {
-                process(CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.PENDING_AFTER_POLL)))
+                process(CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.PendingAfterPoll)))
             }
         )
 
@@ -196,9 +235,16 @@ class CardModel(
     }
 
     override fun onStateUpdate(s: CardState) {
-        prefs.updateCardState(
-            if (replaceGsonKtxFF.isEnabled) json.encodeToString(s)
-            else gson.toJson(s)
-        )
+        prefs.updateCardState(json.encodeToString(s))
+    }
+
+    override fun distinctIntentFilter(previousIntent: CardIntent, nextIntent: CardIntent): Boolean {
+        return if (previousIntent is CardIntent.UpdateCardRejectionState &&
+            nextIntent is CardIntent.UpdateCardRejectionState
+        ) {
+            false
+        } else {
+            super.distinctIntentFilter(previousIntent, nextIntent)
+        }
     }
 }

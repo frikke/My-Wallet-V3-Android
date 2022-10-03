@@ -5,7 +5,6 @@ import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.InterestAccount
@@ -15,36 +14,36 @@ import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.toActionState
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestActivity
+import com.blockchain.core.interest.domain.model.InterestState
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.InterestActivityItem
-import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.utils.extensions.mapList
 
 class CryptoInterestAccount(
     override val currency: AssetInfo,
     override val label: String,
-    private val interestBalance: InterestBalanceDataManager,
+    private val internalAccountLabel: String,
+    private val interestService: InterestService,
     private val custodialWalletManager: CustodialWalletManager,
     override val exchangeRates: ExchangeRatesDataManager,
     private val identity: UserIdentity,
+    private val kycService: KycService,
 ) : CryptoAccountBase(), InterestAccount {
 
     override val baseActions: Set<AssetAction> = emptySet() // Not used by this class
@@ -52,10 +51,10 @@ class CryptoInterestAccount(
     private val hasFunds = AtomicBoolean(false)
 
     override val receiveAddress: Single<ReceiveAddress>
-        get() = custodialWalletManager.getInterestAccountAddress(currency).map {
+        get() = interestService.getAddress(currency).map { address ->
             makeExternalAssetAddress(
                 asset = currency,
-                address = it,
+                address = address,
                 label = label,
                 postTransactions = onTxCompleted
             )
@@ -87,34 +86,39 @@ class CryptoInterestAccount(
 
     override val balance: Observable<AccountBalance>
         get() = Observable.combineLatest(
-            interestBalance.getBalanceForAsset(currency),
+            interestService.getBalanceFor(currency),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             AccountBalance.from(balance, rate)
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override val activity: Single<ActivitySummaryList>
-        get() = custodialWalletManager.getInterestActivity(currency)
+        get() = interestService.getActivity(currency)
             .onErrorReturn { emptyList() }
-            .mapList { interestActivityToSummary(it) }
+            .mapList { interestActivity ->
+                interestActivityToSummary(asset = currency, interestActivity = interestActivity)
+            }
             .filterActivityStates()
             .doOnSuccess {
                 setHasTransactions(it.isNotEmpty())
             }
 
-    private fun interestActivityToSummary(item: InterestActivityItem): ActivitySummaryItem =
+    private fun interestActivityToSummary(asset: AssetInfo, interestActivity: InterestActivity): ActivitySummaryItem =
         CustodialInterestActivitySummaryItem(
             exchangeRates = exchangeRates,
-            asset = item.cryptoCurrency,
-            txId = item.id,
-            timeStampMs = item.insertedAt.time,
-            value = item.value,
+            asset = asset,
+            txId = interestActivity.id,
+            timeStampMs = interestActivity.insertedAt.time,
+            value = interestActivity.value,
             account = this,
-            status = item.state,
-            type = item.type,
-            confirmations = item.extraAttributes?.confirmations ?: 0,
-            accountRef = item.extraAttributes?.beneficiary?.accountRef ?: "",
-            recipientAddress = item.extraAttributes?.address ?: ""
+            status = interestActivity.state,
+            type = interestActivity.type,
+            confirmations = interestActivity.extraAttributes?.confirmations ?: 0,
+            accountRef = interestActivity.extraAttributes?.address
+                ?: interestActivity.extraAttributes?.transferType?.takeIf { it == "INTERNAL" }?.let {
+                    internalAccountLabel
+                } ?: "",
+            recipientAddress = interestActivity.extraAttributes?.address ?: ""
         )
 
     private fun Single<ActivitySummaryList>.filterActivityStates(): Single<ActivitySummaryList> {
@@ -139,50 +143,19 @@ class CryptoInterestAccount(
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.CAN_TRANSACT)
 
-    override val isEnabled: Single<Boolean>
-        get() = custodialWalletManager.getInterestEligibilityForAsset(currency)
-            .onErrorReturn { Eligibility.notEligible() }
-            .map { (enabled, _) ->
-                enabled
-            }
-
-    override val disabledReason: Single<IneligibilityReason>
-        get() = custodialWalletManager.getInterestEligibilityForAsset(currency)
-            .onErrorReturn { Eligibility.notEligible() }
-            .map { (_, reason) ->
-                reason
-            }
-
-    override val actions: Single<AvailableActions>
-        get() = Singles.zip(
-            balance.firstOrError(),
-            isEnabled,
-            identity.userAccessForFeature(Feature.DepositInterest)
-        ) { balance, isEnabled, depositInterestEligibility ->
-            setOfNotNull(
-                AssetAction.InterestDeposit.takeIf { isEnabled && depositInterestEligibility is FeatureAccess.Granted },
-                AssetAction.InterestWithdraw.takeIf { balance.withdrawable.isPositive },
-                AssetAction.ViewStatement.takeIf { hasTransactions },
-                AssetAction.ViewActivity.takeIf { hasTransactions }
-            )
-        }
-
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.zip(
-            identity.getHighestApprovedKycTier(),
+            kycService.getHighestApprovedTierLevelLegacy(),
             balance.firstOrError(),
-            isEnabled,
             identity.userAccessForFeature(Feature.DepositInterest)
-        ) { tier, balance, enabled, depositInterestEligibility ->
+        ) { tier, balance, depositInterestEligibility ->
             return@zip when (tier) {
-                Tier.BRONZE,
-                Tier.SILVER -> emptySet()
-                Tier.GOLD -> setOf(
+                KycTier.BRONZE,
+                KycTier.SILVER -> emptySet()
+                KycTier.GOLD -> setOf(
                     StateAwareAction(
-                        when {
-                            !enabled -> ActionState.LockedDueToAvailability
-                            depositInterestEligibility is FeatureAccess.Blocked ->
-                                depositInterestEligibility.toActionState()
+                        when (depositInterestEligibility) {
+                            is FeatureAccess.Blocked -> depositInterestEligibility.toActionState()
                             else -> ActionState.Available
                         },
                         AssetAction.InterestDeposit

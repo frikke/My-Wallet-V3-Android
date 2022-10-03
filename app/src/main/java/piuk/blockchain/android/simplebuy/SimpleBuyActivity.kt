@@ -2,8 +2,10 @@ package piuk.blockchain.android.simplebuy
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
@@ -13,10 +15,22 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.ASSET_URL
+import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_CODE
+import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.PARAMETER_RECURRING_BUY_ID
+import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
+import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.extensions.exhaustive
+import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.preferences.BankLinkingPrefs
@@ -32,33 +46,57 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_REFRESH_REQUIRED
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
+import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
+import piuk.blockchain.android.ui.base.mapToErrorCopies
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
+import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
+import piuk.blockchain.android.ui.linkbank.BankAuthRefreshContract
+import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
 import piuk.blockchain.android.ui.sell.BuySellFragment
+import piuk.blockchain.android.util.checkValidUrlAndOpen
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import timber.log.Timber
 
-class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNowSheet.Host {
+class SimpleBuyActivity :
+    BlockchainActivity(),
+    SimpleBuyNavigator,
+    KycUpgradeNowSheet.Host,
+    QuestionnaireSheet.Host,
+    RecurringBuyCreatedBottomSheet.Host,
+    ErrorSlidingBottomDialog.Host,
+    CurrencySelectionSheet.Host {
     override val alwaysDisableScreenshots: Boolean
         get() = false
+
+    private var isUpdatingCurrency = false
 
     override val enableLogoutTimer: Boolean = false
     private val compositeDisposable = CompositeDisposable()
     private val buyFlowNavigator: BuyFlowNavigator by scopedInject()
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
+    private val deeplinkRedirector: DeeplinkRedirector by scopedInject()
     private val assetCatalogue: AssetCatalogue by inject()
     private val googlePayResponseInterceptor: GooglePayResponseInterceptor by inject()
+    private val dataRemediationService: DataRemediationService by scopedInject()
+    private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
+
+    private var primaryErrorCtaAction = {}
+    private var secondaryErrorCtaAction = {}
+    private var tertiaryErrorCtaAction = {}
 
     private val startedFromDashboard: Boolean by unsafeLazy {
         intent.getBooleanExtra(STARTED_FROM_NAVIGATION_KEY, false)
@@ -80,6 +118,14 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         intent.getBooleanExtra(STARTED_FROM_KYC_RESUME, false)
     }
 
+    private val launchLinkNewCard: Boolean by unsafeLazy {
+        intent.getBooleanExtra(LAUNCH_LINK_CARD, false)
+    }
+
+    private val launchSelectNewPaymentMethod: Boolean by unsafeLazy {
+        intent.getBooleanExtra(LAUNCH_SELECT_PAYMENT_METHOD, false)
+    }
+
     private val asset: AssetInfo? by unsafeLazy {
         intent.getStringExtra(ASSET_KEY)?.let {
             assetCatalogue.assetInfoFromNetworkTicker(it)
@@ -93,12 +139,21 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         FragmentActivityBinding.inflate(layoutInflater)
     }
 
+    private val refreshBankResultLauncher = registerForActivityResult(BankAuthRefreshContract()) { refreshSuccess ->
+        if (refreshSuccess) {
+            popFragmentsInStackUntilFind(
+                fragmentName = SimpleBuyCheckoutFragment::class.simpleName.orEmpty(),
+                popInclusive = true
+            )
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         updateToolbar(
             toolbarTitle = getString(R.string.common_buy),
-            backAction = { super.onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
@@ -119,13 +174,23 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         }
     }
 
-    override fun onSheetClosed() {
-    }
-
     override fun onSheetClosed(sheet: BottomSheetDialogFragment) {
         super<SimpleBuyNavigator>.onSheetClosed(sheet)
-        if (sheet is KycUpgradeNowSheet || sheet is BlockedDueToSanctionsSheet) exitSimpleBuyFlow()
-        else subscribeForNavigation(true)
+        when (sheet) {
+            is KycUpgradeNowSheet,
+            is BlockedDueToSanctionsSheet -> exitSimpleBuyFlow()
+            is CurrencySelectionSheet -> {
+                // We're using this var because onSheetClosed will always be called, and in case the user
+                // has picked a new currency, we want to wait till it's changed in the BE, so if the user
+                // changed the currency we don't want to do anything here.
+                if (!isUpdatingCurrency) subscribeForNavigation(true)
+            }
+            is ErrorSlidingBottomDialog -> {
+                // do nothing for now
+                Timber.e("----- ErrorSlidingBottomDialog sheet closed")
+            }
+            else -> subscribeForNavigation(true)
+        }
     }
 
     private fun subscribeForNavigation(failOnUnavailableCurrency: Boolean = false) {
@@ -154,19 +219,24 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
             CurrencySelectionSheet.newInstance(
                 currencies = currencies,
                 selectedCurrency = selectedCurrency,
-                currencySelectionType = CurrencySelectionSheet.Companion.CurrencySelectionType.TRADING_CURRENCY
+                currencySelectionType = CurrencySelectionSheet.CurrencySelectionType.TRADING_CURRENCY
             )
         )
     }
 
     private fun startFlow(screenWithCurrency: BuyNavigation.FlowScreenWithCurrency) {
         when (screenWithCurrency.flowScreen) {
-            FlowScreen.ENTER_AMOUNT -> goToBuyCryptoScreen(
-                addToBackStack = false,
-                preselectedAsset = screenWithCurrency.cryptoCurrency,
-                preselectedPaymentMethodId = preselectedPaymentMethodId,
-                preselectedAmount = preselectedAmount
-            )
+            FlowScreen.ENTER_AMOUNT -> {
+                goToBuyCryptoScreen(
+                    addToBackStack = false,
+                    preselectedAsset = screenWithCurrency.cryptoCurrency,
+                    preselectedPaymentMethodId = preselectedPaymentMethodId,
+                    preselectedAmount = preselectedAmount,
+                    launchLinkCard = launchLinkNewCard,
+                    launchPaymentMethodSelection = launchSelectNewPaymentMethod
+                )
+                checkQuestionnaire()
+            }
             FlowScreen.KYC -> startKyc()
             FlowScreen.KYC_VERIFICATION -> goToKycVerificationScreen(false)
         }
@@ -176,9 +246,12 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         super.onDestroy()
         compositeDisposable.clear()
         googlePayResponseInterceptor.clear()
+        payloadScope.get<CreateBuyOrderUseCase>().stopQuoteFetching(true)
     }
 
     override fun exitSimpleBuyFlow() {
+        setResult(RESULT_OK)
+
         if (!startedFromDashboard) {
             startActivity(MainActivity.newIntentAsNewTask(this))
         } else {
@@ -197,13 +270,21 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         addToBackStack: Boolean,
         preselectedAsset: AssetInfo,
         preselectedPaymentMethodId: String?,
-        preselectedAmount: String?
+        preselectedAmount: String?,
+        launchLinkCard: Boolean,
+        launchPaymentMethodSelection: Boolean,
     ) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(
                 R.id.content_frame,
-                SimpleBuyCryptoFragment.newInstance(preselectedAsset, preselectedPaymentMethodId, preselectedAmount),
+                SimpleBuyCryptoFragment.newInstance(
+                    asset = preselectedAsset,
+                    preselectedMethodId = preselectedPaymentMethodId,
+                    preselectedAmount = preselectedAmount,
+                    launchLinkCard = launchLinkNewCard,
+                    launchPaymentMethodSelection = launchSelectNewPaymentMethod
+                ),
                 SimpleBuyCryptoFragment::class.simpleName
             )
             .apply {
@@ -254,9 +335,10 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         when (reason) {
             is BlockedReason.InsufficientTier -> showBottomSheet(KycUpgradeNowSheet.newInstance())
             is BlockedReason.Sanctions -> showBottomSheet(BlockedDueToSanctionsSheet.newInstance(reason))
-            BlockedReason.NotEligible,
+            is BlockedReason.NotEligible,
             is BlockedReason.TooManyInFlightTransactions -> {
                 supportFragmentManager.beginTransaction()
+                    .addAnimationTransaction()
                     .replace(
                         R.id.content_frame,
                         SimpleBuyBlockedFragment.newInstance(FeatureAccess.Blocked(reason), resources),
@@ -271,16 +353,21 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, KYC_STARTED)
     }
 
-    override fun pop() = onBackPressed()
+    override fun pop() = onBackPressedDispatcher.onBackPressed()
 
     override fun hasMoreThanOneFragmentInTheStack(): Boolean =
         supportFragmentManager.backStackEntryCount > 1
 
-    override fun goToPaymentScreen(addToBackStack: Boolean, isPaymentAuthorised: Boolean) {
+    override fun goToPaymentScreen(
+        addToBackStack: Boolean,
+        isPaymentAuthorised: Boolean,
+        showRecurringBuySuggestion: Boolean
+    ) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(
-                R.id.content_frame, SimpleBuyPaymentFragment.newInstance(isPaymentAuthorised),
+                R.id.content_frame,
+                SimpleBuyPaymentFragment.newInstance(isPaymentAuthorised, showRecurringBuySuggestion),
                 SimpleBuyPaymentFragment::class.simpleName
             )
             .apply {
@@ -291,7 +378,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
             .commitAllowingStateLoss()
     }
 
-    override fun onSupportNavigateUp(): Boolean = consume { onBackPressed() }
+    override fun onSupportNavigateUp(): Boolean = consume { onBackPressedDispatcher.onBackPressed() }
 
     override fun showLoading() = binding.progress.visible()
 
@@ -321,6 +408,23 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
             .commitAllowingStateLoss()
     }
 
+    override fun onCurrencyChanged(
+        currency: FiatCurrency,
+        selectionType: CurrencySelectionSheet.CurrencySelectionType
+    ) {
+        when (selectionType) {
+            CurrencySelectionSheet.CurrencySelectionType.DISPLAY_CURRENCY ->
+                throw UnsupportedOperationException()
+            CurrencySelectionSheet.CurrencySelectionType.TRADING_CURRENCY -> {
+                isUpdatingCurrency = true
+                lifecycleScope.launchWhenCreated {
+                    fiatCurrenciesService.setSelectedTradingCurrency(currency)
+                    subscribeForNavigation(true)
+                }
+            }
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         supportFragmentManager.fragments.forEach {
@@ -338,22 +442,160 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
     override fun showErrorInBottomSheet(
         title: String,
         description: String,
-        button: String?,
         error: String,
-        nabuApiException: NabuApiException?
+        errorDescription: String?,
+        nabuApiException: NabuApiException?,
+        serverSideUxErrorInfo: ServerSideUxErrorInfo?
     ) {
+        serverSideUxErrorInfo?.actions?.assignErrorActions()
+
         showBottomSheet(
             ErrorSlidingBottomDialog.newInstance(
                 ErrorDialogData(
-                    title,
-                    description,
-                    button ?: getString(R.string.common_ok),
-                    error,
-                    nabuApiException,
-                    ACTION_BUY
+                    title = title,
+                    description = description,
+                    errorButtonCopies = if (serverSideUxErrorInfo?.actions?.isEmpty() == true) {
+                        ErrorButtonCopies(
+                            primaryButtonText = getString(R.string.common_ok)
+                        )
+                    } else {
+                        serverSideUxErrorInfo?.actions?.mapToErrorCopies()
+                    },
+                    error = error,
+                    nabuApiException = nabuApiException,
+                    errorDescription = description,
+                    action = ACTION_BUY,
+                    analyticsCategories = serverSideUxErrorInfo?.categories
+                        ?: nabuApiException?.getServerSideErrorInfo()?.categories.orEmpty(),
+                    iconUrl = serverSideUxErrorInfo?.iconUrl ?: nabuApiException?.getServerSideErrorInfo()?.iconUrl,
+                    statusIconUrl = serverSideUxErrorInfo?.statusUrl
+                        ?: nabuApiException?.getServerSideErrorInfo()?.statusUrl,
+                    errorId = serverSideUxErrorInfo?.id ?: nabuApiException?.getServerSideErrorInfo()?.id
                 )
             )
         )
+    }
+
+    override fun showBankRefreshError(accountId: String) {
+        primaryErrorCtaAction = {
+            if (accountId.isNotEmpty()) {
+                refreshBankResultLauncher.launch(Pair(accountId, BankAuthSource.SIMPLE_BUY))
+            }
+        }
+
+        showBottomSheet(
+            ErrorSlidingBottomDialog.newInstance(
+                ErrorDialogData(
+                    title = getString(R.string.common_oops_bank),
+                    description = getString(R.string.trading_deposit_description_requires_update),
+                    errorButtonCopies = ErrorButtonCopies(
+                        primaryButtonText = getString(R.string.trading_deposit_relink_bank_account),
+                        secondaryButtonText = getString(R.string.common_ok),
+                    ),
+                    error = SETTLEMENT_REFRESH_REQUIRED,
+                    action = ACTION_BUY,
+                    analyticsCategories = emptyList()
+                )
+            )
+        )
+    }
+
+    private fun checkQuestionnaire() {
+        lifecycleScope.launchWhenResumed {
+            dataRemediationService.getQuestionnaire(QuestionnaireContext.TRADING)
+                .doOnSuccess { questionnaire ->
+                    if (questionnaire != null) {
+                        showBottomSheet(QuestionnaireSheet.newInstance(questionnaire, true))
+                    }
+                }
+        }
+    }
+
+    private fun List<ServerErrorAction>.assignErrorActions() =
+        mapIndexed { index, info ->
+            when (index) {
+                0 -> primaryErrorCtaAction = {
+                    if (info.deeplinkPath.isNotEmpty()) {
+                        redirectToDeeplinkProcessor(info.deeplinkPath)
+                    } else {
+                        finish()
+                    }
+                }
+                1 -> secondaryErrorCtaAction = {
+                    if (info.deeplinkPath.isNotEmpty()) {
+                        redirectToDeeplinkProcessor(info.deeplinkPath)
+                    } else {
+                        finish()
+                    }
+                }
+                2 -> tertiaryErrorCtaAction = {
+                    if (info.deeplinkPath.isNotEmpty()) {
+                        redirectToDeeplinkProcessor(info.deeplinkPath)
+                    } else {
+                        finish()
+                    }
+                }
+                else -> {
+                    // do nothing, only support 3 error types
+                }
+            }
+        }
+
+    override fun onErrorPrimaryCta() {
+        primaryErrorCtaAction()
+    }
+
+    override fun onErrorSecondaryCta() {
+        secondaryErrorCtaAction()
+    }
+
+    override fun onErrorTertiaryCta() {
+        tertiaryErrorCtaAction()
+    }
+
+    private fun processDeeplink(deepLink: Uri) {
+        compositeDisposable += deeplinkRedirector.processDeeplinkURL(deepLink).subscribeBy(
+            onSuccess = {
+                if (it is DeepLinkResult.DeepLinkResultUnknownLink) {
+                    it.uri?.let { uri ->
+                        this@SimpleBuyActivity.checkValidUrlAndOpen(uri)
+                    }
+                }
+            }
+        )
+    }
+
+    private fun redirectToDeeplinkProcessor(link: String) {
+        processDeeplink(Uri.parse(link.appendTickerToDeeplink()))
+    }
+
+    override fun viewRecurringBuy(recurringBuyId: String) {
+        processDeeplink(
+            Uri.parse(ASSET_URL.appendTickerToDeeplink().appendRecurringBuyId(recurringBuyId))
+        )
+    }
+
+    private fun String.appendTickerToDeeplink() = "$this?$PARAMETER_CODE=${asset?.networkTicker}"
+
+    private fun String.appendRecurringBuyId(recurringBuyId: String) =
+        "$this&$PARAMETER_RECURRING_BUY_ID=$recurringBuyId"
+
+    override fun skip() = finish()
+
+    override fun onSheetClosed() {
+        // do nothing
+    }
+
+    override fun goToBlockedBuyScreen() {
+        blockBuy(BlockedReason.NotEligible(null))
+    }
+
+    override fun questionnaireSubmittedSuccessfully() {
+        // no op
+    }
+
+    override fun questionnaireSkipped() {
+        // no op
     }
 
     companion object {
@@ -366,6 +608,8 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         private const val PRESELECTED_PAYMENT_METHOD = "preselected_payment_method_key"
         private const val PRESELECTED_AMOUNT = "preselected_amount_key"
         private const val STARTED_FROM_KYC_RESUME = "started_from_kyc_resume_key"
+        private const val LAUNCH_LINK_CARD = "launch_link_card"
+        private const val LAUNCH_SELECT_PAYMENT_METHOD = "launch_select_new_method"
 
         fun newIntent(
             context: Context,
@@ -374,7 +618,9 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
             launchKycResume: Boolean = false,
             preselectedPaymentMethodId: String? = null,
             preselectedAmount: String? = null,
-            launchFromApprovalDeepLink: Boolean = false
+            launchFromApprovalDeepLink: Boolean = false,
+            launchLinkCard: Boolean = false,
+            launchNewPaymentMethodSelection: Boolean = false,
         ) = Intent(context, SimpleBuyActivity::class.java).apply {
             putExtra(STARTED_FROM_NAVIGATION_KEY, launchFromNavigationBar)
             putExtra(ASSET_KEY, asset?.networkTicker)
@@ -382,6 +628,8 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
             putExtra(PRESELECTED_PAYMENT_METHOD, preselectedPaymentMethodId)
             putExtra(PRESELECTED_AMOUNT, preselectedAmount)
             putExtra(STARTED_FROM_APPROVAL_KEY, launchFromApprovalDeepLink)
+            putExtra(LAUNCH_LINK_CARD, launchLinkCard)
+            putExtra(LAUNCH_SELECT_PAYMENT_METHOD, launchNewPaymentMethodSelection)
         }
     }
 }

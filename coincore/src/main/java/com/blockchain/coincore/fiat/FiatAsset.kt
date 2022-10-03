@@ -7,76 +7,94 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.price.HistoricalRateList
+import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
+import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class FiatAsset(
-    private val labels: DefaultLabels,
-    private val exchangeRateDataManager: ExchangeRatesDataManager,
-    private val tradingBalanceDataManager: TradingBalanceDataManager,
-    private val custodialWalletManager: CustodialWalletManager,
-    private val paymentsDataManager: PaymentsDataManager,
-    private val currencyPrefs: CurrencyPrefs
-) : Asset {
+    override val currency: Currency
+) : Asset, KoinComponent {
+    private val exchangeRates: ExchangeRatesDataManager by inject()
+    private val bankService: BankService by scopedInject()
+    private val custodialWalletManager: CustodialWalletManager by scopedInject()
+    private val tradingService: TradingService by scopedInject()
+    private val labels: DefaultLabels by inject()
+
+    override fun defaultAccount(): Single<SingleAccount> = accountGroup(AssetFilter.All).map {
+        it.accounts[0]
+    }.toSingle()
 
     override fun accountGroup(filter: AssetFilter): Maybe<AccountGroup> =
         when (filter) {
             AssetFilter.All,
-            AssetFilter.Custodial -> fetchFiatWallets()
+            AssetFilter.Custodial,
+            AssetFilter.Trading -> Maybe.just(
+                FiatAccountGroup(
+                    label = labels.getDefaultCustodialWalletLabel(),
+                    accounts = listOf(custodialAccount)
+                )
+            )
             AssetFilter.NonCustodial,
             AssetFilter.Interest -> Maybe.empty() // Only support single accounts
         }
 
-    private fun setSelectedFiatFirst(fiatList: List<FiatCurrency>): List<FiatCurrency> {
-        val fiatMutableList = fiatList.toMutableList()
-        if (fiatMutableList.first() != currencyPrefs.selectedFiatCurrency) {
-            fiatMutableList.firstOrNull { it == currencyPrefs.selectedFiatCurrency }?.let {
-                fiatMutableList.remove(it)
-                fiatMutableList.add(0, it)
-            }
-        }
-        return fiatMutableList.toList()
+    val custodialAccount: FiatAccount by lazy {
+        require(currency is FiatCurrency)
+        FiatCustodialAccount(
+            label = labels.getDefaultCustodialFiatWalletLabel(currency),
+            currency = currency,
+            tradingService = tradingService,
+            exchangeRates = exchangeRates,
+            custodialWalletManager = custodialWalletManager,
+            bankService = bankService
+        )
     }
 
-    private fun fetchFiatWallets(): Maybe<AccountGroup> =
-        custodialWalletManager.getSupportedFundsFiats(
-            currencyPrefs.selectedFiatCurrency
-        )
-            .flatMapMaybe { fiatList ->
-                val mutable = fiatList.toMutableList()
-                if (mutable.isNotEmpty()) {
-                    val orderedList = setSelectedFiatFirst(fiatList)
-                    Maybe.just(
-                        FiatAccountGroup(
-                            label = "Fiat Accounts",
-                            accounts = orderedList.map { getAccount(it) }
-                        )
-                    )
-                } else {
-                    Maybe.empty()
-                }
-            }
+    override fun exchangeRate(): Single<ExchangeRate> =
+        exchangeRates.exchangeRateToUserFiat(currency).firstOrError()
 
-    private val accounts = mutableMapOf<FiatCurrency, FiatAccount>()
+    override fun getPricesWith24hDeltaLegacy(): Single<Prices24HrWithDelta> =
+        exchangeRates.getPricesWith24hDeltaLegacy(currency).firstOrError()
 
-    private fun getAccount(fiatCurrency: FiatCurrency): FiatAccount =
-        accounts.getOrPut(fiatCurrency) {
-            FiatCustodialAccount(
-                label = labels.getDefaultCustodialFiatWalletLabel(fiatCurrency),
-                currency = fiatCurrency,
-                tradingBalanceDataManager = tradingBalanceDataManager,
-                exchangesRates = exchangeRateDataManager,
-                custodialWalletManager = custodialWalletManager,
-                paymentsDataManager = paymentsDataManager
-            )
-        }
+    override fun getPricesWith24hDelta(
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<Prices24HrWithDelta>> {
+        return exchangeRates.getPricesWith24hDelta(fromAsset = currency, freshnessStrategy = freshnessStrategy)
+    }
+
+    override fun historicRate(epochWhen: Long): Single<ExchangeRate> =
+        exchangeRates.getHistoricRate(currency, epochWhen)
+
+    override fun historicRateSeries(
+        period: HistoricalTimeSpan,
+        freshnessStrategy: FreshnessStrategy
+    ): Flow<DataResource<HistoricalRateList>> =
+        currency.startDate?.let {
+            exchangeRates.getHistoricPriceSeries(asset = currency, span = period, freshnessStrategy = freshnessStrategy)
+        } ?: flowOf(DataResource.Data(emptyList()))
+
+    override fun lastDayTrend(): Flow<DataResource<HistoricalRateList>> {
+        return currency.startDate?.let {
+            exchangeRates.get24hPriceSeries(currency)
+        } ?: flowOf(DataResource.Data(emptyList()))
+    }
 
     // we cannot transfer for fiat
     override fun transactionTargets(account: SingleAccount): Single<SingleAccountList> =

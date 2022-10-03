@@ -1,19 +1,20 @@
 package piuk.blockchain.android.ui.activity.detail
 
-import com.blockchain.api.services.MobilePaymentType
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.core.interest.domain.model.InterestState
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Scheduler
@@ -63,7 +64,7 @@ data class TransactionId(val txId: String) : ActivityDetailsType(), Copyable {
 
 data class BuyCryptoWallet(val crypto: AssetInfo) : ActivityDetailsType()
 data class RecurringBuyFrequency(val frequency: RecurringBuyFrequency, val nextPayment: Date) : ActivityDetailsType()
-data class SellCryptoWallet(val currency: String) : ActivityDetailsType()
+data class SellCryptoWallet(val currency: Currency) : ActivityDetailsType()
 data class BuyPaymentMethod(val paymentDetails: PaymentDetails) : ActivityDetailsType()
 data class SwapReceiveAmount(val receivedAmount: Money) : ActivityDetailsType()
 data class XlmMemo(val memo: String) : ActivityDetailsType()

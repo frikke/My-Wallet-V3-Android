@@ -29,12 +29,13 @@ class LandingCtaActivity : BlockchainActivity() {
         setContentView(binding.root)
 
         binding.toolbar.apply {
-            startNavigationBarButton = NavigationBarButton.Icon(
+            startNavigationButton = NavigationBarButton.Icon(
                 drawable = R.drawable.ic_close_circle_v2,
+                contentDescription = R.string.accessibility_close,
                 color = null,
                 onIconClick = {
                     onboardingPrefs.isLandingCtaDismissed = true
-                    onBackPressed()
+                    onBackPressedDispatcher.onBackPressed()
                 }
             )
             endNavigationBarButtons = listOf(
@@ -59,9 +60,9 @@ class LandingCtaActivity : BlockchainActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        finish()
-        overridePendingTransition(0, R.anim.slide_down_to_bottom)
+    override fun onPause() {
+        super.onPause()
+        if (isFinishing) overridePendingTransition(0, R.anim.slide_down_to_bottom)
     }
 
     companion object {

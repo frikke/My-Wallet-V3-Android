@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorCodes
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
@@ -21,6 +23,10 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxAccountSelectorBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
+import piuk.blockchain.android.ui.base.ErrorButtonCopies
+import piuk.blockchain.android.ui.base.ErrorDialogData
+import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
+import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
@@ -33,7 +39,10 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.SourceSelectionCustomisations
 import piuk.blockchain.android.util.StringLocalizationUtil
 
-class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSelectorBinding>(), BankLinkingHost {
+class SelectSourceAccountFragment :
+    TransactionFlowFragment<FragmentTxAccountSelectorBinding>(),
+    BankLinkingHost,
+    ErrorSlidingBottomDialog.Host {
 
     private val customiser: SourceSelectionCustomisations by inject()
 
@@ -42,16 +51,19 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.apply {
-            with(accountList) {
+        with(binding) {
+            accountList.apply {
                 onListLoaded = ::doOnListLoaded
                 onLoadError = ::doOnLoadError
                 onListLoading = ::doOnListLoading
             }
 
-            addMethod.setOnClickListener {
-                binding.progress.visible()
-                model.process(TransactionIntent.CheckAvailableOptionsForFiatDeposit)
+            addMethod.apply {
+                text = getString(R.string.add_payment_method)
+                onClick = {
+                    binding.progress.visible()
+                    model.process(TransactionIntent.CheckAvailableOptionsForFiatDeposit)
+                }
             }
         }
     }
@@ -107,7 +119,7 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
                 ).show(childFragmentManager, BOTTOM_SHEET)
             }
             is DepositOptionsState.Error -> {
-                displayErrorMessage()
+                displayErrorSnackbar()
             }
             DepositOptionsState.None -> {
             }
@@ -120,22 +132,58 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
 
     private fun handleBankLinking(newState: TransactionState) {
         binding.progress.gone()
-
-        if (newState.linkBankState is BankLinkingState.Success) {
-            startActivityForResult(
-                BankAuthActivity.newInstance(
-                    newState.linkBankState.bankTransferInfo,
-                    customiser.getLinkingSourceForAction(newState),
-                    requireActivity()
-                ),
-                BankAuthActivity.LINK_BANK_REQUEST_CODE
-            )
-        } else {
-            displayErrorMessage()
+        when (newState.linkBankState) {
+            is BankLinkingState.Success -> handleBankLinkSuccess(newState.linkBankState, newState)
+            is BankLinkingState.Error -> handleBankLinkError(newState.linkBankState)
+            else -> displayErrorSnackbar()
         }
     }
 
-    private fun displayErrorMessage() {
+    private fun handleBankLinkSuccess(linkBankState: BankLinkingState.Success, newState: TransactionState) {
+        startActivityForResult(
+            BankAuthActivity.newInstance(
+                linkBankState.bankTransferInfo,
+                customiser.getLinkingSourceForAction(newState),
+                requireActivity()
+            ),
+            BankAuthActivity.LINK_BANK_REQUEST_CODE
+        )
+    }
+
+    private fun handleBankLinkError(linkBankState: BankLinkingState.Error) {
+        val nabuError = linkBankState.e as? NabuApiException
+        when (nabuError?.getErrorCode()) {
+            NabuErrorCodes.MaxPaymentBankAccounts ->
+                showBottomSheet(
+                    ErrorSlidingBottomDialog.newInstance(
+                        ErrorDialogData(
+                            title = getString(R.string.bank_linking_max_accounts_title),
+                            description = getString(R.string.bank_linking_max_accounts_subtitle),
+                            errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
+                            error = nabuError.getErrorDescription(),
+                            nabuApiException = nabuError,
+                            analyticsCategories = nabuError.getServerSideErrorInfo()?.categories ?: emptyList()
+                        )
+                    )
+                )
+            NabuErrorCodes.MaxPaymentBankAccountLinkAttempts ->
+                showBottomSheet(
+                    ErrorSlidingBottomDialog.newInstance(
+                        ErrorDialogData(
+                            title = getString(R.string.bank_linking_max_attempts_title),
+                            description = getString(R.string.bank_linking_max_attempts_subtitle),
+                            errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
+                            error = nabuError.getErrorDescription(),
+                            nabuApiException = nabuError,
+                            analyticsCategories = nabuError.getServerSideErrorInfo()?.categories ?: emptyList()
+                        )
+                    )
+                )
+            else -> displayErrorSnackbar()
+        }
+    }
+
+    private fun displayErrorSnackbar() {
         BlockchainSnackbar.make(
             binding.root, getString(R.string.common_error), type = SnackbarType.Error
         ).show()
@@ -144,7 +192,7 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     private fun updateSources(newState: TransactionState) {
         with(binding) {
             accountList.initialise(
-                source = Single.just(newState.availableSources.map { it }),
+                source = Single.just(newState.availableSources.map(AccountListViewItem.Companion::create)),
                 status = customiser.sourceAccountSelectionStatusDecorator(newState),
                 assetAction = newState.action
             )
@@ -203,6 +251,18 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     override fun onLinkBankSelected(paymentMethodForAction: LinkablePaymentMethodsForAction) {
         binding.progress.visible()
         model.process(TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.LaunchLinkBank))
+    }
+
+    override fun onErrorPrimaryCta() {
+        // do nothing
+    }
+
+    override fun onErrorSecondaryCta() {
+        // do nothing
+    }
+
+    override fun onErrorTertiaryCta() {
+        // do nothing
     }
 
     override fun onSheetClosed() {}

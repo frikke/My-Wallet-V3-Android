@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fadingEdge="vertical"
@@ -37,7 +36,16 @@
             android:layout_height="wrap_content" />
 
         <com.blockchain.componentlib.tablerow.DefaultTableRowView
-            android:id="@+id/settings_currency"
+            android:id="@+id/settings_display_currency"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.blockchain.componentlib.divider.HorizontalDividerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.blockchain.componentlib.tablerow.DefaultTableRowView
+            android:id="@+id/settings_trading_currency"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -56,9 +64,9 @@
 
         <com.blockchain.componentlib.tablerow.DefaultTableRowView
             android:id="@+id/settings_debit_card"
-            android:visibility="gone"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
 
         <com.blockchain.componentlib.divider.HorizontalDividerView
             android:layout_width="match_parent"
@@ -84,6 +92,27 @@
 
         <com.blockchain.componentlib.tablerow.DefaultTableRowView
             android:id="@+id/settings_addresses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.blockchain.componentlib.divider.HorizontalDividerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.blockchain.componentlib.tablerow.DefaultTableRowView
+            android:id="@+id/settings_refer_a_friend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <com.blockchain.componentlib.divider.HorizontalDividerView
+            android:id="@+id/settings_refer_a_friend_div"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <com.blockchain.componentlib.tablerow.ToggleTableRowView
+            android:id="@+id/settings_chart_vibration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

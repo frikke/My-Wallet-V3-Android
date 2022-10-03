@@ -2,9 +2,11 @@ package piuk.blockchain.android.ui.activity
 
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.Money
 
 sealed class ActivitiesIntent : MviIntent<ActivitiesState>
 
@@ -13,16 +15,42 @@ class AccountSelectedIntent(
     val isRefreshRequested: Boolean
 ) : ActivitiesIntent() {
     override fun reduce(oldState: ActivitiesState): ActivitiesState {
-        val activitiesList = if (oldState.account == account) {
+        val accountChanged = oldState.account != account
+        val activitiesList = if (!accountChanged) {
             oldState.activityList // Is a refresh, keep the list
         } else {
             emptyList()
         }
         return oldState.copy(
             account = account,
-            isLoading = true,
+            isLoading = oldState.isForegrounded,
+            selectedAccountBalance = if (accountChanged) "" else oldState.selectedAccountBalance,
             isRefreshRequested = isRefreshRequested,
             activityList = activitiesList
+        )
+    }
+}
+
+object BalanceUpdatedErrorIntent : ActivitiesIntent() {
+    override fun reduce(oldState: ActivitiesState): ActivitiesState {
+        return oldState.copy(
+            selectedAccountBalance = ""
+        )
+    }
+}
+
+class BalanceUpdatedIntent(private val balance: Money) : ActivitiesIntent() {
+    override fun reduce(oldState: ActivitiesState): ActivitiesState {
+        return oldState.copy(
+            selectedAccountBalance = balance.toStringWithSymbol()
+        )
+    }
+}
+
+class ActivitiesStateUpdated(private val isInForeground: Boolean) : ActivitiesIntent() {
+    override fun reduce(oldState: ActivitiesState): ActivitiesState {
+        return oldState.copy(
+            isForegrounded = isInForeground,
         )
     }
 }
@@ -30,7 +58,7 @@ class AccountSelectedIntent(
 object SelectDefaultAccountIntent : ActivitiesIntent() {
     override fun reduce(oldState: ActivitiesState): ActivitiesState {
         return oldState.copy(
-            account = null,
+            account = NullCryptoAccount(),
             isLoading = true,
             activityList = emptyList()
         )
@@ -46,6 +74,19 @@ class ActivityListUpdatedIntent(
             isLoading = false,
             activityList = activityList
         )
+    }
+}
+
+object ActivityLoadingIntent : ActivitiesIntent() {
+    override fun reduce(oldState: ActivitiesState): ActivitiesState {
+        return oldState.copy(
+            isError = false,
+            isLoading = true
+        )
+    }
+
+    override fun isValidFor(oldState: ActivitiesState): Boolean {
+        return oldState.isForegrounded
     }
 }
 
@@ -66,7 +107,7 @@ object ShowAccountSelectionIntent : ActivitiesIntent() {
 }
 
 class CancelSimpleBuyOrderIntent(
-    val orderId: String
+    val orderId: String,
 ) : ActivitiesIntent() {
     override fun reduce(oldState: ActivitiesState): ActivitiesState = oldState
 }
@@ -74,7 +115,7 @@ class CancelSimpleBuyOrderIntent(
 class ShowActivityDetailsIntent(
     private val currency: Currency,
     private val txHash: String,
-    private val type: ActivityType
+    private val type: ActivityType,
 ) : ActivitiesIntent() {
     override fun reduce(oldState: ActivitiesState): ActivitiesState {
         return oldState.copy(

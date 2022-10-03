@@ -17,7 +17,7 @@ interface SigningKey {
     }
 }
 
-internal class SigningKeyImpl(private val key: ECKey) : SigningKey {
+class SigningKeyImpl(private val key: ECKey) : SigningKey {
     override val privateKeyAsHex: String
         get() = key.privateKeyAsHex
 

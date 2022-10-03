@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.transactionflow.flow.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
@@ -61,16 +63,33 @@ private class ComplexConfirmationCheckoutItemItemViewHolder(
                 }
 
                 subtitleText.text = this[ConfirmationPropertyKey.SUBTITLE] as String
+
+                if (item is TxConfirmationValue.Total) {
+                    complexItemTitle.highlightNewQuote(item.isNewQuote)
+                    complexItemSubtitle.highlightNewQuote(item.isNewQuote)
+                } else if (item is TxConfirmationValue.Sale) {
+                    complexItemTitle.highlightNewQuote(item.isNewQuote)
+                    complexItemSubtitle.highlightNewQuote(item.isNewQuote)
+                }
+
                 this[ConfirmationPropertyKey.IS_IMPORTANT]?.let { isImportant ->
                     if (isImportant as Boolean) {
                         subtitleText.setTextAppearance(R.style.Text_Semibold_16)
-                        subtitleText.setTextAppearance(R.style.Text_Semibold_16)
                     } else {
-                        subtitleText.setTextAppearance(R.style.Text_Standard_14)
                         subtitleText.setTextAppearance(R.style.Text_Standard_14)
                     }
                 }
             }
+        }
+    }
+
+    private fun TextView.highlightNewQuote(isHighlight: Boolean) {
+        if (isHighlight) {
+            this.setTextColor(ContextCompat.getColor(this.context, R.color.blue_600))
+            this.setTextColor(ContextCompat.getColor(this.context, R.color.blue_600))
+        } else {
+            this.setTextColor(ContextCompat.getColor(this.context, R.color.grey_800))
+            this.setTextColor(ContextCompat.getColor(this.context, R.color.grey_800))
         }
     }
 }

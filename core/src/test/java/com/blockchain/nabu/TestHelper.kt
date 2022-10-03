@@ -1,12 +1,13 @@
 package com.blockchain.nabu
 
+import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import info.blockchain.balance.FiatCurrency
 
 fun getBlankNabuUser(kycState: KycState = KycState.None): NabuUser = NabuUser(
+    id = "id",
     firstName = "",
     lastName = "",
     email = "",
@@ -18,12 +19,13 @@ fun getBlankNabuUser(kycState: KycState = KycState.None): NabuUser = NabuUser(
     state = UserState.None,
     kycState = kycState,
     insertedAt = "",
-    updatedAt = ""
-)
-
-val validOfflineToken get() = NabuOfflineTokenResponse(
-    "userId",
-    "lifetimeToken"
+    updatedAt = "",
+    currencies = CurrenciesResponse(
+        preferredFiatTradingCurrency = "EUR",
+        usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+        defaultWalletCurrency = "BRL",
+        userFiatCurrencies = listOf("EUR", "GBP")
+    )
 )
 
 val USD = FiatCurrency.fromCurrencyCode("USD")

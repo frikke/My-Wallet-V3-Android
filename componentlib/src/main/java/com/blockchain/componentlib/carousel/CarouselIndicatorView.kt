@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.carousel
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -50,6 +51,7 @@ class CarouselIndicatorView : RecyclerView {
             baseAdapter.numberOfIndicators = numberOfIndicators
         }
 
+    @SuppressLint("ResourceType")
     private fun initWithAttributes(attrs: AttributeSet?) {
         setupUi()
 

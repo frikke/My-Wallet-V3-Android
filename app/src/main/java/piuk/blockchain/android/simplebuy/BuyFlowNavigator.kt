@@ -1,23 +1,28 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.outcome.map
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class BuyFlowNavigator(
     private val simpleBuySyncFactory: SimpleBuySyncFactory,
     private val userIdentity: UserIdentity,
-    private val currencyPrefs: CurrencyPrefs,
-    private val custodialWalletManager: CustodialWalletManager
+    private val kycService: KycService,
+    private val fiatCurrenciesService: FiatCurrenciesService,
+    private val custodialWalletManager: CustodialWalletManager,
 ) {
 
     val currentState: SimpleBuyState
@@ -36,9 +41,9 @@ class BuyFlowNavigator(
         ) {
 
             Single.zip(
-                userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)),
-                userIdentity.isKycInProgress(),
-                userIdentity.isRejectedForTier(Feature.TierLevel(Tier.GOLD))
+                userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD)),
+                kycService.isInProgress(),
+                kycService.isRejectedFor(KycTier.GOLD)
             ) { verifiedGold, kycInProgress, rejectedGold ->
                 when {
                     verifiedGold -> BuyNavigation.FlowScreenWithCurrency(
@@ -74,51 +79,51 @@ class BuyFlowNavigator(
         startedFromDashboard: Boolean,
         startedFromApprovalDeepLink: Boolean,
         preselectedCrypto: AssetInfo?,
-        failOnUnavailableCurrency: Boolean = false
+        failOnUnavailableCurrency: Boolean = false,
     ): Single<BuyNavigation> {
         val cryptoCurrency = preselectedCrypto
             ?: currentState.selectedCryptoAsset ?: throw IllegalStateException("CryptoCurrency is not available")
 
         return Singles.zip(
-            currencyCheck(),
+            allowedBuyFiatCurrencies(cryptoCurrency),
             userIdentity.userAccessForFeature(Feature.Buy)
-        ).flatMap { (currencySupported, eligibility) ->
+        ).flatMap { (allowedBuyFiatCurrencies, eligibility) ->
+            val canBuyWithSelectedTradingCurrency =
+                allowedBuyFiatCurrencies.contains(fiatCurrenciesService.selectedTradingCurrency)
+
             if (eligibility is FeatureAccess.Blocked) {
                 Single.just(BuyNavigation.BlockBuy(eligibility.reason))
-            } else if (!currencySupported) {
-                if (!failOnUnavailableCurrency) {
-                    custodialWalletManager.getSupportedFiatCurrencies().map {
-                        BuyNavigation.CurrencySelection(it, currencyPrefs.selectedFiatCurrency)
-                    }
+            } else if (!canBuyWithSelectedTradingCurrency) {
+                if (allowedBuyFiatCurrencies.isNotEmpty() && !failOnUnavailableCurrency) {
+                    Single.just(
+                        BuyNavigation.CurrencySelection(
+                            allowedBuyFiatCurrencies,
+                            fiatCurrenciesService.selectedTradingCurrency
+                        )
+                    )
                 } else {
                     Single.just(BuyNavigation.CurrencyNotAvailable)
                 }
             } else {
-                checkForEligibilityOrPendingOrders().switchIfEmpty(
-                    stateCheck(
-                        startedFromKycResume,
-                        startedFromDashboard,
-                        startedFromApprovalDeepLink,
-                        cryptoCurrency
-                    )
+                stateCheck(
+                    startedFromKycResume,
+                    startedFromDashboard,
+                    startedFromApprovalDeepLink,
+                    cryptoCurrency
                 )
             }
         }
     }
 
-    private fun checkForEligibilityOrPendingOrders(): Maybe<BuyNavigation> =
-        userIdentity.userAccessForFeature(Feature.SimpleBuy).flatMapMaybe { access ->
-            when (access) {
-                FeatureAccess.NotRequested,
-                FeatureAccess.Unknown,
-                is FeatureAccess.Granted -> Maybe.empty()
-                is FeatureAccess.Blocked -> Maybe.just(BuyNavigation.BlockBuy(access.reason))
+    private fun allowedBuyFiatCurrencies(asset: AssetInfo): Single<List<FiatCurrency>> =
+        Single.zip(
+            custodialWalletManager.availableFiatCurrenciesForTrading(asset),
+            rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+                fiatCurrenciesService.getTradingCurrencies().map { it.allAvailable }
             }
+        ) { availableFiatCurrenciesForTrading, availableTradingCurrencies ->
+            availableTradingCurrencies.intersect(availableFiatCurrenciesForTrading.toSet()).toList()
         }
-
-    private fun currencyCheck(): Single<Boolean> {
-        return custodialWalletManager.isCurrencySupportedForSimpleBuy(currencyPrefs.tradingCurrency)
-    }
 }
 
 sealed class BuyNavigation {

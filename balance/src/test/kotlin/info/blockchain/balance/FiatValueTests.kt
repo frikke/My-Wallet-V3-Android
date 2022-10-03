@@ -26,6 +26,29 @@ class FiatValueTests {
     }
 
     @Test
+    fun `no decimals present when int value and decimals should be ommited`() {
+        Locale.setDefault(Locale.US)
+
+        FiatValue.fromMajor(USD, 123.toBigDecimal())
+            .apply {
+                currencyCode `should be equal to` "USD"
+                toStringWithSymbol(false) `should be equal to` "$123"
+                toStringWithSymbol() `should be equal to` "$123.00"
+            }
+    }
+
+    @Test
+    fun ` decimals present when decimal part is not zero regardless the requested arg`() {
+        Locale.setDefault(Locale.US)
+        FiatValue.fromMajor(USD, 123.56.toBigDecimal())
+            .apply {
+                currencyCode `should be equal to` "USD"
+                toStringWithSymbol(false) `should be equal to` "$123.56"
+                toStringWithSymbol() `should be equal to` "$123.56"
+            }
+    }
+
+    @Test
     fun `can create and read alternative properties`() {
         FiatValue.fromMajor(GBP, 99.99.toBigDecimal())
             .apply {

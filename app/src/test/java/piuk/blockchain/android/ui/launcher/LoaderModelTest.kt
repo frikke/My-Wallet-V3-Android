@@ -2,6 +2,9 @@ package piuk.blockchain.android.ui.launcher
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.EducationalScreensPrefs
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
@@ -20,13 +23,13 @@ import piuk.blockchain.android.ui.launcher.loader.LoaderInteractor
 import piuk.blockchain.android.ui.launcher.loader.LoaderModel
 import piuk.blockchain.android.ui.launcher.loader.LoaderState
 import piuk.blockchain.android.ui.launcher.loader.LoadingStep
+import piuk.blockchain.android.ui.launcher.loader.LoginMethod
 import piuk.blockchain.android.ui.launcher.loader.ProgressStep
 import piuk.blockchain.android.ui.launcher.loader.ToastType
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 
-@RunWith(MockitoJUnitRunner::class)
+@RunWith(MockitoJUnitRunner.Silent::class)
 class LoaderModelTest {
     private lateinit var model: LoaderModel
 
@@ -34,8 +37,12 @@ class LoaderModelTest {
     private val appUtil: AppUtil = mock()
     private val payloadDataManager: PayloadDataManager = mock()
     private val prerequisites: Prerequisites = mock()
-    private val prefs: PersistentPrefs = mock()
-    private val authPrefs: AuthPrefs = mock()
+    private val authPrefs: AuthPrefs = mock() {
+        on { walletGuid }.thenReturn(WALLET_GUID)
+        on { pinId }.thenReturn(PIN_ID)
+    }
+    private val walletModeService: WalletModeService = mock()
+    private val educationalScreensPrefs: EducationalScreensPrefs = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -55,8 +62,9 @@ class LoaderModelTest {
             appUtil = appUtil,
             payloadDataManager = payloadDataManager,
             prerequisites = prerequisites,
-            prefs = prefs,
-            authPrefs = authPrefs
+            authPrefs = authPrefs,
+            walletModeService = walletModeService,
+            educationalScreensPrefs = educationalScreensPrefs
         )
     }
 
@@ -65,28 +73,25 @@ class LoaderModelTest {
         // Arrange
         val isPinValidated = true
         val isAfterWalletCreation = false
-        whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
-        whenever(prefs.pinId).thenReturn(PIN_ID)
         whenever(interactor.loaderIntents).thenReturn(
             Observable.just(LoaderIntents.UpdateProgressStep(ProgressStep.START))
         )
 
-        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation))
+        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, LoginMethod.PIN, null))
 
         // Assert
-        verify(interactor).initSettings(isAfterWalletCreation)
+        verify(interactor).initSettings(isAfterWalletCreation, null)
     }
 
     @Test
     fun `start LauncherActivity if not logged in and PIN not validated`() {
         // Arrange
         val isPinValidated = false
-        val isAfterWalletCreation = false
         val testState = model.state.test()
 
         whenever(authPrefs.walletGuid).thenReturn("")
 
-        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation))
+        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, LoginMethod.UNDEFINED, null))
 
         // Assert
         testState
@@ -97,18 +102,43 @@ class LoaderModelTest {
     }
 
     @Test
-    fun `OnEmailVerificationFinished launches MainActivity `() {
+    fun `GIVEN WalletMode is not universal, has not seen educational screens, logged in using pin, WHEN LaunchDashboard is called, EducationWalletModeActivity should be launched`() {
         // Arrange
         val testState = model.state.test()
+        whenever(walletModeService.enabledWalletMode()).thenReturn(WalletMode.NON_CUSTODIAL_ONLY)
+        whenever(educationalScreensPrefs.hasSeenEducationalWalletMode).thenReturn(false)
+        model.process(LoaderIntents.CheckIsLoggedIn(false, LoginMethod.PIN, null))
 
-        model.process(LoaderIntents.OnEmailVerificationFinished)
+        model.process(LoaderIntents.LaunchDashboard(data = "data", shouldLaunchUiTour = false))
 
         // Assert
         testState
-            .assertValues(
-                LoaderState(),
-                LoaderState(nextLoadingStep = LoadingStep.Main(null, true))
-            )
+            .assertValueAt(testState.values().size - 1) {
+                it == LoaderState(
+                    loginMethod = LoginMethod.PIN,
+                    nextLoadingStep = LoadingStep.EducationalWalletMode("data")
+                )
+            }
+    }
+
+    @Test
+    fun `GIVEN WalletMode is universal, or has seen educational screens, or is after wallet creation, WHEN LaunchDashboard is called, MainActivity should be launched`() {
+        // Arrange
+        val testState = model.state.test()
+        whenever(walletModeService.enabledWalletMode()).thenReturn(WalletMode.UNIVERSAL)
+        whenever(educationalScreensPrefs.hasSeenEducationalWalletMode).thenReturn(true)
+        model.process(LoaderIntents.CheckIsLoggedIn(false, LoginMethod.WALLET_CREATION, null))
+
+        model.process(LoaderIntents.LaunchDashboard(data = "data", shouldLaunchUiTour = false))
+
+        // Assert
+        testState
+            .assertValueAt(testState.values().size - 1) {
+                it == LoaderState(
+                    loginMethod = LoginMethod.WALLET_CREATION,
+                    nextLoadingStep = LoadingStep.Main("data", false)
+                )
+            }
     }
 
     @Test

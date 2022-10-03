@@ -14,7 +14,11 @@ val blockchainCardModule = module {
         factory {
             BlockchainCardRepositoryImpl(
                 blockchainCardService = get(),
-                authenticator = get()
+                eligibilityApiService = get(),
+                authenticator = get(),
+                coincore = get(),
+                assetCatalogue = get(),
+                userIdentity = get()
             )
         }.bind(BlockchainCardRepository::class)
 

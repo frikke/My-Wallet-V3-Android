@@ -1,7 +1,6 @@
 package piuk.blockchain.androidcore.data.ethereum
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.logging.LastTxUpdater
@@ -16,7 +15,10 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.ethereum.EthAccountApi
+import info.blockchain.wallet.ethereum.EthAccountDto
 import info.blockchain.wallet.ethereum.EthereumWallet
+import info.blockchain.wallet.ethereum.EthereumWalletData
+import info.blockchain.wallet.ethereum.EthereumWalletDto
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthTransaction
 import info.blockchain.wallet.ethereum.node.EthJsonRpcRequest
@@ -87,7 +89,7 @@ class EthDataManagerTest {
     fun fetchEthAddress() {
         // Arrange
         val ethAddress = "ADDRESS"
-        whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
+        whenever(ethDataStore.ethWallet!!.account.address).thenReturn(ethAddress)
 
         every { ethAccountApi.getEthAddress(listOf(ethAddress)) } returns Observable.just(hashMapOf())
         // Act
@@ -132,7 +134,7 @@ class EthDataManagerTest {
             // Arrange
             val ethAddress = "ADDRESS"
             val requestType = RequestType.GET_BALANCE
-            val errorResponse = Outcome.Failure(ApiError.UnknownApiError(Exception()))
+            val errorResponse = Outcome.Failure(Exception())
             whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
             coEvery {
                 ethAccountApi.postEthNodeRequest(any(), requestType, ethAddress, EthJsonRpcRequest.defaultBlock)
@@ -153,16 +155,6 @@ class EthDataManagerTest {
         subject.getEthResponseModel()
         // Assert
         verify(ethDataStore).ethAddressResponse
-        verifyNoMoreInteractions(ethDataStore)
-    }
-
-    @Test
-    fun getEthWallet() {
-        // Arrange
-        // Act
-        subject.getEthWallet()
-        // Assert
-        verify(ethDataStore).ethWallet
         verifyNoMoreInteractions(ethDataStore)
     }
 
@@ -260,7 +252,7 @@ class EthDataManagerTest {
     @Test
     fun getIfContract() {
         // Arrange
-        val address = "ADDRESS"
+        val address = "0xThisIsAValidEthAddress"
         val requestType = RequestType.IS_CONTRACT
         val response: EthJsonRpcResponse = mockk {
             coEvery { result } returns "contract"
@@ -280,7 +272,7 @@ class EthDataManagerTest {
         // Arrange
         val hash = "HASH"
         val notes = "NOTES"
-        whenever(ethDataStore.ethWallet!!.txNotes?.get(hash)).thenReturn(notes)
+        whenever(ethDataStore.ethWallet!!.getTxNotes()[hash]).thenReturn(notes)
         // Act
         val result = subject.getTransactionNotes(hash)
         // Assert
@@ -307,9 +299,23 @@ class EthDataManagerTest {
         // Arrange
         val hash = "HASH"
         val notes = "NOTES"
-        val ethereumWallet: EthereumWallet = mock()
+        val ethereumWallet = EthereumWallet(
+            EthereumWalletDto(
+                EthereumWalletData(
+                    _hasSeen = true,
+                    _txNotes = emptyMap(),
+                    _accounts = listOf(
+                        EthAccountDto(
+                            _archived = false,
+                            label = "123",
+                            _isCorrect = true,
+                            address = "23"
+                        )
+                    )
+                )
+            )
+        )
         whenever(ethDataStore.ethWallet).thenReturn(ethereumWallet)
-        whenever(ethDataStore.ethWallet!!.toJson()).thenReturn("{}")
         whenever(metadataRepository.saveRawValue(any(), any())).thenReturn(Completable.complete())
         // Act
         val testObserver = subject.updateTransactionNotes(hash, notes).test()
@@ -332,7 +338,7 @@ class EthDataManagerTest {
         val testObserver = subject.updateTransactionNotes(hash, notes).test()
         // Assert
         testObserver.assertNotComplete()
-        testObserver.assertError(IllegalStateException::class.java)
+        testObserver.assertError(NullPointerException::class.java)
         verify(ethDataStore).ethWallet
         verifyNoMoreInteractions(ethDataStore)
     }
@@ -345,7 +351,7 @@ class EthDataManagerTest {
         val masterKey: MasterKey = mock()
 
         whenever(
-            ethDataStore.ethWallet!!.account!!.signTransaction(
+            ethDataStore.ethWallet!!.account.signTransaction(
                 eq(rawTransaction),
                 eq(masterKey),
                 eq(EthDataManager.ETH_CHAIN_ID)

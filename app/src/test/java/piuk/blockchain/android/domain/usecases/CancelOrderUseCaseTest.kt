@@ -5,15 +5,23 @@ import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.serializers.BigDecimalSerializer
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 
@@ -31,12 +39,37 @@ class CancelOrderUseCaseTest {
 
     private lateinit var subject: CancelOrderUseCase
 
+    private val jsonSerializers = module {
+        single {
+            Json {
+                explicitNulls = false
+                ignoreUnknownKeys = true
+                isLenient = true
+                encodeDefaults = true
+                serializersModule = SerializersModule {
+                    contextual(BigDecimalSerializer)
+                }
+            }
+        }
+    }
+
     @Before
     fun setUp() {
+        GlobalContext.startKoin {
+            modules(
+                jsonSerializers
+            )
+        }
+
         subject = CancelOrderUseCase(
             bankLinkingPrefs,
             custodialWalletManager
         )
+    }
+
+    @After
+    fun cleanup() {
+        stopKoin()
     }
 
     @Test

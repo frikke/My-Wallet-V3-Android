@@ -21,7 +21,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Test
 import org.mockito.Mockito
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class NabuAnalyticsTest {
     private val localAnalyticsPersistence = mock<AnalyticsLocalPersistence>()
@@ -35,11 +35,11 @@ class NabuAnalyticsTest {
         on { getAccessToken() }.thenReturn(Observable.just(token))
     }
 
-    private val persistentPrefs: PersistentPrefs = mock {
+    private val sessionPrefs: SessionPrefs = mock {
         on { deviceId }.thenReturn("deviceID")
     }
-    private val prefs: Lazy<PersistentPrefs> = mock {
-        onGeneric { value }.thenReturn(persistentPrefs)
+    private val prefs: Lazy<SessionPrefs> = mock {
+        onGeneric { value }.thenReturn(sessionPrefs)
     }
     private val mockedContext: AnalyticsContext = mock()
 
@@ -78,11 +78,11 @@ class NabuAnalyticsTest {
         val testSubscriber = subject.flush().test()
 
         testSubscriber.assertComplete()
-        Mockito.verify(analyticsService, times(9))
+        Mockito.verify(analyticsService, times(3))
             .postEvents(any(), any(), any(), any(), any(), anyOrNull())
 
-        Mockito.verify(localAnalyticsPersistence, times(8)).removeOldestItems(10)
-        Mockito.verify(localAnalyticsPersistence).removeOldestItems(4)
+        Mockito.verify(localAnalyticsPersistence, times(2)).removeOldestItems(30)
+        Mockito.verify(localAnalyticsPersistence).removeOldestItems(24)
     }
 
     @Test
@@ -135,9 +135,7 @@ class NabuAnalyticsTest {
                 name = "name$it",
                 type = "type$it",
                 originalTimestamp = "originalTimestamp$it",
-                properties = emptyMap(),
-                numericProperties = emptyMap(),
-                booleanProperties = emptyMap()
+                properties = emptyMap()
             )
         }
     }

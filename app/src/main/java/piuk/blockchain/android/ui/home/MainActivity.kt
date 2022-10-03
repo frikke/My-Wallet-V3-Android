@@ -17,7 +17,7 @@ import com.blockchain.analytics.NotificationAppOpened
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.analytics.events.SendAnalytics
-import com.blockchain.analytics.events.activityShown
+import com.blockchain.analytics.events.transactionsShown
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -25,6 +25,7 @@ import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -35,10 +36,10 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.nfts.comingsoon.NftComingSoonFragment
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.preferences.DashboardPrefs
@@ -46,23 +47,26 @@ import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.net.URLDecoder
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityMainBinding
-import piuk.blockchain.android.databinding.DialogEntitySwitchSilverBinding
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
+import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.simplebuy.SmallSimpleBuyNavigator
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.activity.ActivitiesFragment
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
@@ -72,15 +76,16 @@ import piuk.blockchain.android.ui.auth.newlogin.presentation.SecureChannelBrowse
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
-import piuk.blockchain.android.ui.dashboard.PricesFragment
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
-import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellCtaClicked
-import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellDismissed
-import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellViewed
+import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionBottomSheet
+import piuk.blockchain.android.ui.dashboard.walletmode.icon
+import piuk.blockchain.android.ui.dashboard.walletmode.title
+import piuk.blockchain.android.ui.home.analytics.BuyDefiAnalyticsEvents
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
+import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.home.models.ViewToLaunch
 import piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics
 import piuk.blockchain.android.ui.home.ui_tour.UiTourView
@@ -93,6 +98,11 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
+import piuk.blockchain.android.ui.prices.presentation.PricesFragment
+import piuk.blockchain.android.ui.prices.presentation.PricesNavigationEvent
+import piuk.blockchain.android.ui.referral.presentation.Origin
+import piuk.blockchain.android.ui.referral.presentation.ReferralAnalyticsEvents
+import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.scan.CameraAnalytics
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
@@ -100,8 +110,6 @@ import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.v2.SettingsActivity
-import piuk.blockchain.android.ui.thepit.ExchangeConnectionSheet
-import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
@@ -117,12 +125,14 @@ class MainActivity :
     AuthNewLoginSheet.Host,
     AccountWalletLinkAlertSheet.Host,
     WCApproveSessionBottomSheet.Host,
-    RedesignActionsBottomSheet.Host,
+    BuyDefiBottomSheet.Host,
+    ActionBottomSheetHost,
     SmallSimpleBuyNavigator,
     BuyPendingOrdersBottomSheet.Host,
     ScanAndConnectBottomSheet.Host,
     UiTourView.Host,
-    KycUpgradeNowSheet.Host {
+    KycUpgradeNowSheet.Host,
+    NavigationRouter<PricesNavigationEvent> {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -135,6 +145,7 @@ class MainActivity :
         get() = binding.mainToolbar
 
     private val dashboardPrefs: DashboardPrefs by scopedInject()
+    private val walletModeService: WalletModeService by inject()
 
     @Deprecated("Use MVI loop instead")
     private val compositeDisposable = CompositeDisposable()
@@ -142,9 +153,11 @@ class MainActivity :
     @Deprecated("Use MVI loop instead")
     private val qrProcessor: QrScanResultProcessor by scopedInject()
 
-    private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
-
     private val destinationArgs: DestinationArgs by scopedInject()
+
+    private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
+
+    private var onEmailVerificationCompleteAction: () -> Unit = {}
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -192,18 +205,6 @@ class MainActivity :
             analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped(payload))
         }
 
-        if (savedInstanceState == null) {
-            deeplinkingV2FF.enabled.subscribeBy(
-                onSuccess = { isEnabled ->
-                    if (isEnabled) {
-                        model.process(MainIntent.SaveDeeplinkIntent(intent))
-                    } else {
-                        model.process(MainIntent.CheckForPendingLinks(intent))
-                    }
-                }
-            )
-        }
-
         val startUiTour = intent.getBooleanExtra(START_UI_TOUR_KEY, false)
         intent.removeExtra(START_UI_TOUR_KEY)
 
@@ -231,13 +232,21 @@ class MainActivity :
                 navigateToDeeplinkDestination(destination)
             }
         }
-        model.process(MainIntent.CheckForInitialDialogs(startUiTour))
-        model.process(MainIntent.PerformInitialChecks)
+
+        if (savedInstanceState == null) {
+            model.process(MainIntent.PerformInitialChecks(intent))
+            model.process(MainIntent.CheckReferralCode)
+            if (startUiTour) {
+                binding.uiTour.host = this
+                showUiTour()
+            }
+        }
+        model.process(MainIntent.NavigationTabs)
     }
 
     override fun onResume() {
         super.onResume()
-        model.process(MainIntent.CancelAnyPendingConfirmationBuy)
+        simpleBuySyncFactory.cancelAnyPendingConfirmationBuy()
     }
 
     override fun onDestroy() {
@@ -252,8 +261,6 @@ class MainActivity :
         when (action) {
             SettingsActivity.Companion.SettingsAction.Addresses ->
                 startActivityForResult(AddressesActivity.newIntent(this), ACCOUNT_EDIT)
-            SettingsActivity.Companion.SettingsAction.Exchange ->
-                model.process(MainIntent.LaunchExchange)
             SettingsActivity.Companion.SettingsAction.Airdrops ->
                 startActivity(AirdropCentreActivity.newIntent(this))
             SettingsActivity.Companion.SettingsAction.WebLogin ->
@@ -264,19 +271,60 @@ class MainActivity :
         }
     }
 
+    private val qrButton = NavigationBarButton.Icon(
+        drawable = R.drawable.ic_qr_scan,
+        contentDescription = R.string.accessibility_qr_code_scanner
+    ) {
+        tryToLaunchQrScan()
+        analytics.logEvent(CameraAnalytics.QrCodeClicked())
+    }
+
+    private val settingsButton = NavigationBarButton.Icon(
+        drawable = R.drawable.ic_bank_user,
+        contentDescription = R.string.accessibility_user_settings
+    ) {
+        showLoading()
+        settingsResultContract.launch(SettingsActivity.newIntent(this))
+    }
+
     private fun setupToolbar() {
         updateToolbarMenuItems(
-            listOf(
-                NavigationBarButton.Icon(R.drawable.ic_qr_scan) {
-                    tryToLaunchQrScan()
-                    analytics.logEvent(CameraAnalytics.QrCodeClicked())
-                },
-                NavigationBarButton.Icon(R.drawable.ic_bank_user) {
-                    showLoading()
-                    settingsResultContract.launch(SettingsActivity.newIntent(this))
-                }
-            )
+            listOf(qrButton, settingsButton)
         )
+        if (walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL)
+            updateToolbarStartItem(
+                NavigationBarButton.DropdownIndicator(
+                    dropDownClicked = {
+                        showBottomSheet(WalletModeSelectionBottomSheet.newInstance())
+                    },
+                    text = getString(walletModeService.enabledWalletMode().title()),
+                    rightIcon = walletModeService.enabledWalletMode().icon(),
+                    contentDescription = walletModeService.enabledWalletMode().name
+                )
+            )
+    }
+
+    private fun setupMenuWithPresentButton(referralState: ReferralState) {
+        val presentButton = if (referralState.referralInfo is ReferralInfo.Data) {
+            NavigationBarButton.Icon(
+                drawable = if (referralState.hasReferralBeenClicked) {
+                    R.drawable.ic_present
+                } else {
+                    R.drawable.ic_present_dot
+                },
+                contentDescription = R.string.accessibility_referral,
+                color = null
+            ) {
+                model.process(MainIntent.ReferralIconClicked)
+                showReferralBottomSheet(referralState.referralInfo)
+                analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Portfolio))
+            }
+        } else {
+            null
+        }
+        if (presentButton != null) {
+            updateToolbarMenuItems(listOf(qrButton, presentButton, settingsButton))
+        }
     }
 
     private fun tryToLaunchQrScan() {
@@ -305,37 +353,50 @@ class MainActivity :
         showBottomSheet(ScanAndConnectBottomSheet.newInstance(showCta = true))
     }
 
+    private fun showReferralBottomSheet(info: ReferralInfo) {
+        if (info is ReferralInfo.Data) {
+            showBottomSheet(
+                ReferralSheet.newInstance(info)
+            )
+        }
+    }
+
     private fun setupNavigation() {
         binding.bottomNavigation.apply {
             if (!dashboardPrefs.hasTappedFabButton) {
                 isPulseAnimationEnabled = true
             }
             onNavigationItemClick = {
-                selectedNavigationItem = it
-                when (it) {
-                    NavigationItem.Home -> {
-                        launchPortfolio()
-                    }
-                    NavigationItem.Prices -> {
-                        launchPrices()
-                    }
-                    NavigationItem.BuyAndSell -> {
-                        launchBuySell()
-                    }
-                    NavigationItem.Activity -> {
-                        startActivitiesFragment()
-                    }
-                    else -> throw IllegalStateException("Illegal navigation state - unknown item $it")
-                }
+                it.launch()
             }
             onMiddleButtonClick = {
                 dashboardPrefs.hasTappedFabButton = true
-                isPulseAnimationEnabled = false
+                binding.bottomNavigation.isPulseAnimationEnabled = false
                 showBottomSheet(
-                    RedesignActionsBottomSheet.newInstance()
+                    middleButtonBottomSheetLaunch
                 )
             }
         }
+    }
+
+    private fun NavigationItem.launch() {
+        when (this) {
+            NavigationItem.Home -> launchPortfolio()
+            NavigationItem.Prices -> launchPrices()
+            NavigationItem.BuyAndSell -> launchBuySell()
+            NavigationItem.Nfts -> launchNfts()
+            NavigationItem.Activity -> startActivitiesFragment()
+        }.exhaustive
+    }
+
+    private fun launchNfts() {
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_nfts))
+        updateSelectedNavigationItem(NavigationItem.Nfts)
+
+        supportFragmentManager.showFragment(
+            fragment = NftComingSoonFragment(),
+            reloadFragment = false
+        )
     }
 
     override fun showLoading() {
@@ -418,7 +479,7 @@ class MainActivity :
             BANK_DEEP_LINK_WITHDRAW -> {
                 if (resultCode == RESULT_OK) {
                     launchPortfolio(
-                        AssetAction.Withdraw,
+                        AssetAction.FiatWithdraw,
                         data?.getStringExtra(
                             BankAuthActivity.LINKED_BANK_CURRENCY
                         )
@@ -450,11 +511,17 @@ class MainActivity :
                     },
                     onComplete = {
                         Timber.d("No source accounts available for scan target")
-                        showNoAccountFromScanSnackbar(targetAddress.asset)
+                        BlockchainSnackbar.make(
+                            binding.root,
+                            getString(R.string.scan_no_account_selected, targetAddress.asset.displayTicker)
+                        ).show()
                     },
                     onError = {
                         Timber.e("Unable to select source account for scan")
-                        showNoAccountFromScanSnackbar(targetAddress.asset)
+                        BlockchainSnackbar.make(
+                            binding.root,
+                            getString(R.string.scan_no_available_account, targetAddress.asset.displayTicker)
+                        ).show()
                     }
                 )
         }
@@ -472,22 +539,13 @@ class MainActivity :
             )
     }
 
-    private fun showNoAccountFromScanSnackbar(asset: AssetInfo) =
-        BlockchainSnackbar.make(
-            binding.root, getString(R.string.scan_no_available_account, asset.displayTicker)
-        ).show()
+    private var launchSellAction: () -> Unit = {}
 
     override fun render(newState: MainState) {
-
         when (val view = newState.viewToLaunch) {
             is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
             is ViewToLaunch.LaunchAssetAction -> launchAssetAction(view.action, view.account)
             is ViewToLaunch.LaunchBuySell -> launchBuySell(view.type, view.asset)
-            is ViewToLaunch.LaunchExchange -> {
-                view.linkId?.let {
-                    launchThePitLinking(it)
-                } ?: kotlin.run { launchThePit() }
-            }
             is ViewToLaunch.LaunchInterestDashboard -> launchInterestDashboard(view.origin)
             is ViewToLaunch.LaunchKyc -> KycNavHostActivity.startForResult(
                 this, view.campaignType, KYC_STARTED
@@ -498,11 +556,6 @@ class MainActivity :
             is ViewToLaunch.LaunchOpenBankingApprovalDepositComplete -> {
                 val currencyCode = view.amount.currencyCode
                 val amountWithSymbol = view.amount.toStringWithSymbol()
-                supportFragmentManager.findFragmentByTag(PortfolioFragment.javaClass.simpleName)
-                    ?.let { portfolioFragment ->
-                        (portfolioFragment as PortfolioFragment).refreshFiatAssets()
-                    }
-
                 replaceBottomSheet(
                     FiatTransactionBottomSheet.newInstance(
                         currencyCode,
@@ -559,6 +612,16 @@ class MainActivity :
                     )
                 )
             }
+            is ViewToLaunch.LaunchServerDrivenOpenBankingError -> {
+                replaceBottomSheet(
+                    FiatTransactionBottomSheet.newInstance(
+                        view.currencyCode,
+                        view.title,
+                        view.description,
+                        FiatTransactionState.ERROR
+                    )
+                )
+            }
             is ViewToLaunch.LaunchOpenBankingLinking -> {
                 launchOpenBankingLinking(view.bankLinkingInfo)
             }
@@ -585,7 +648,7 @@ class MainActivity :
             is ViewToLaunch.LaunchSimpleBuyFromDeepLinkApproval -> launchSimpleBuyFromDeepLinkApproval()
             is ViewToLaunch.LaunchSwap -> launchSwap()
             is ViewToLaunch.LaunchTwoFaSetup -> launchSetup2Fa()
-            is ViewToLaunch.LaunchVerifyEmail -> launchVerifyEmail()
+            is ViewToLaunch.LaunchVerifyEmail -> launchOpenExternalEmailApp()
             is ViewToLaunch.ShowOpenBankingError ->
                 BlockchainSnackbar.make(
                     binding.root,
@@ -609,34 +672,9 @@ class MainActivity :
             is ViewToLaunch.LaunchWalletConnectSessionRejected -> launchWalletConnectSessionRejected(
                 view.walletConnectSession
             )
-            ViewToLaunch.ShowEntitySwitchSilverKycUpsell -> {
-                var ctaClicked = false
-                var alertDialog: AlertDialog? = null
-                val dialog = MaterialAlertDialogBuilder(this, R.style.RoundedCornersDialog)
-                val contentViewBinding = DialogEntitySwitchSilverBinding.inflate(layoutInflater).apply {
-                    closeButton.setOnClickListener {
-                        alertDialog?.dismiss()
-                        alertDialog = null
-                    }
-                    verifyNowButton.text = getString(R.string.entity_switch_silver_dialog_verify_now)
-                    verifyNowButton.setOnClickListener {
-                        analytics.logEvent(EntitySwitchSilverKycUpsellCtaClicked)
-                        ctaClicked = true
-                        alertDialog?.dismiss()
-                        showBottomSheet(KycUpgradeNowSheet.newInstance())
-                    }
-                }
-                dialog.setView(contentViewBinding.root)
-                dialog.setOnDismissListener {
-                    alertDialog = null
-                    if (!ctaClicked) analytics.logEvent(EntitySwitchSilverKycUpsellDismissed)
-                }
-                analytics.logEvent(EntitySwitchSilverKycUpsellViewed)
-                alertDialog = dialog.show()
-            }
-            ViewToLaunch.ShowUiTour -> {
-                binding.uiTour.host = this
-                showUiTour()
+            is ViewToLaunch.ShowReferralSheet -> {
+                analytics.logEvent(ReferralAnalyticsEvents.ReferralProgramClicked(Origin.Deeplink))
+                showReferralBottomSheet(newState.referral.referralInfo)
             }
         }.exhaustive
 
@@ -644,6 +682,62 @@ class MainActivity :
         // ensure we reset the UI state to avoid duplication of screens on navigating back
         if (newState.viewToLaunch != ViewToLaunch.None) {
             model.process(MainIntent.ResetViewState)
+        }
+        if (newState.referral.referralInfo != ReferralInfo.NotAvailable) {
+            setupMenuWithPresentButton(newState.referral)
+        }
+
+        renderTabs(newState.tabs, newState.currentTab)
+        renderMode(newState.walletMode)
+        configSellAction(newState.tabs)
+    }
+
+    private fun configSellAction(tabs: List<NavigationItem>) {
+        launchSellAction = if (NavigationItem.BuyAndSell in tabs) {
+            {
+                launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
+            }
+        } else {
+            {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.Sell
+                    )
+                )
+            }
+        }
+    }
+
+    private val middleButtonBottomSheetLaunch: BottomSheetDialogFragment
+        get() = when (walletModeService.enabledWalletMode()) {
+            WalletMode.UNIVERSAL -> BrokerageActionsBottomSheet.newInstance()
+            WalletMode.CUSTODIAL_ONLY,
+            WalletMode.NON_CUSTODIAL_ONLY -> ActionsBottomSheet.newInstance(walletModeService.enabledWalletMode())
+        }
+
+    private fun renderMode(walletMode: WalletMode) {
+        if (walletMode == WalletMode.UNIVERSAL)
+            return
+        val updatedDropdownIndicator =
+            (toolbarBinding.navigationToolbar.startNavigationButton as? NavigationBarButton.DropdownIndicator)?.copy(
+                text = getString(walletMode.title()),
+                rightIcon = walletMode.icon(),
+            )
+        updatedDropdownIndicator?.let {
+            updateToolbarStartItem(it)
+        }
+    }
+
+    private fun renderTabs(tabs: List<NavigationItem>, currentTab: NavigationItem) {
+        binding.bottomNavigation.apply {
+            this.navigationItems = tabs
+            this.hasMiddleButton = true
+        }
+
+        if (binding.bottomNavigation.selectedNavigationItem != currentTab) {
+            binding.bottomNavigation.selectedNavigationItem = currentTab
+            currentTab.launch()
         }
     }
 
@@ -654,14 +748,15 @@ class MainActivity :
                     activityResultsContract.launch(
                         CoinViewActivity.newIntent(
                             context = this,
-                            asset = assetInfo
+                            asset = assetInfo,
+                            originScreen = LaunchOrigin.DEEPLINK.name,
+                            recurringBuyId = destination.recurringBuyId
                         )
                     )
                 } ?: run {
                     Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
                 }
             }
-
             is Destination.AssetBuyDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     startActivity(
@@ -675,7 +770,6 @@ class MainActivity :
                     Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
                 }
             }
-
             is Destination.AssetSendDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     destinationArgs.getSendSourceCryptoAccount(assetInfo, destination.accountAddress).subscribeBy(
@@ -696,10 +790,63 @@ class MainActivity :
                     Timber.e("Unable to start Send flow from deeplink. AssetInfo is null")
                 }
             }
-
-            is Destination.ActivityDestination -> {
-                startActivitiesFragment()
+            is Destination.ActivityDestination -> startActivitiesFragment()
+            is Destination.AssetEnterAmountDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    startActivity(
+                        SimpleBuyActivity.newIntent(
+                            context = this,
+                            asset = assetInfo
+                        )
+                    )
+                } ?: run {
+                    Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
+                }
             }
+            is Destination.AssetEnterAmountLinkCardDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    startActivity(
+                        SimpleBuyActivity.newIntent(
+                            context = this,
+                            asset = assetInfo,
+                            launchLinkCard = true
+                        )
+                    )
+                } ?: run {
+                    destinationArgs.getFiatAssetInfo(destination.networkTicker)?.let { _ ->
+                        startActivity(
+                            SettingsActivity.newIntent(
+                                context = this,
+                                startForCardLinking = true
+                            )
+                        )
+                    } ?: Timber.e(
+                        "Unable to start CardLinking from deeplink. Ticker not found ${destination.networkTicker}"
+                    )
+                }
+            }
+            is Destination.AssetEnterAmountNewMethodDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    startActivity(
+                        SimpleBuyActivity.newIntent(
+                            context = this,
+                            asset = assetInfo,
+                            launchNewPaymentMethodSelection = true
+                        )
+                    )
+                } ?: run {
+                    Timber.e(
+                        "Unable to start SimpleBuyActivity from deeplink. Ticker not found ${destination.networkTicker}"
+                    )
+                }
+            }
+            Destination.CustomerSupportDestination ->
+                startActivity(SupportCentreActivity.newIntent(this))
+            Destination.StartKycDestination ->
+                startActivity(KycNavHostActivity.newIntent(this, CampaignType.None))
+            Destination.ReferralDestination -> model.process(MainIntent.ShowReferralWhenAvailable)
+            is Destination.DashboardDestination -> launchPortfolio(reload = true)
+            is Destination.WalletConnectDestination -> model.process(MainIntent.StartWCSession(destination.url))
         }.exhaustive
 
         model.process(MainIntent.ClearDeepLinkResult)
@@ -728,6 +875,7 @@ class MainActivity :
             binding.root,
             getString(
                 when (error.errorCode) {
+                    QrScanError.ErrorCode.ScanUnrecognized -> R.string.error_scan_unrecognized
                     QrScanError.ErrorCode.ScanFailed -> R.string.error_scan_failed_general
                     QrScanError.ErrorCode.BitPayScanFailed -> R.string.error_scan_failed_bitpay
                 }
@@ -738,7 +886,7 @@ class MainActivity :
 
     private fun launchAssetAction(
         action: AssetAction,
-        account: BlockchainAccount?
+        account: BlockchainAccount?,
     ) = when (action) {
         AssetAction.Receive -> replaceBottomSheet(ReceiveDetailSheet.newInstance(account as CryptoAccount))
         AssetAction.Swap -> launchSwap(sourceAccount = account as CryptoAccount)
@@ -750,15 +898,15 @@ class MainActivity :
 
     private fun startActivitiesFragment(
         account: BlockchainAccount? = null,
-        reload: Boolean = false
+        reload: Boolean = false,
     ) {
-        updateToolbarTitle(title = getString(R.string.main_toolbar_activity))
-        binding.bottomNavigation.selectedNavigationItem = NavigationItem.Activity
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_activity))
+        updateSelectedNavigationItem(NavigationItem.Activity)
         supportFragmentManager.showFragment(
             fragment = ActivitiesFragment.newInstance(account),
             reloadFragment = reload
         )
-        analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
+        analytics.logEvent(transactionsShown(account?.label ?: "All Wallets"))
     }
 
     override fun startDashboardOnboarding() {
@@ -791,8 +939,7 @@ class MainActivity :
             visible()
             animate()
                 .alpha(1f)
-                .setStartDelay(500L)
-                .setDuration(resources.getInteger(android.R.integer.config_mediumAnimTime).toLong())
+                .setStartDelay(500L).duration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
         }
     }
 
@@ -803,12 +950,16 @@ class MainActivity :
                 .alpha(0f)
                 .setDuration(resources.getInteger(android.R.integer.config_shortAnimTime).toLong())
                 .setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator?) {
+                    override fun onAnimationEnd(animation: Animator) {
                         gone()
                         onAnimationEnd?.invoke()
                     }
                 })
         }
+    }
+
+    private fun updateSelectedNavigationItem(navigationItem: NavigationItem) {
+        model.process(MainIntent.UpdateCurrentTab(navigationItem))
     }
 
     override fun exitSimpleBuyFlow() {
@@ -833,25 +984,24 @@ class MainActivity :
     override fun onSessionApproved(session: WalletConnectSession) {
         model.process(MainIntent.ApproveWCSession(session))
         analytics.logEvent(
-            WalletConnectAnalytics.DappConectionActioned(
-                action = WalletConnectAnalytics.DappConnectionAction.CONFIRM,
-                appName = session.dAppInfo.peerMeta.name
-            )
+            WalletConnectAnalytics.DappConnectionConfirmed
         )
     }
 
     override fun onSessionRejected(session: WalletConnectSession) {
         model.process(MainIntent.RejectWCSession(session))
         analytics.logEvent(
-            WalletConnectAnalytics.DappConectionActioned(
-                action = WalletConnectAnalytics.DappConnectionAction.CANCEL,
-                appName = session.dAppInfo.peerMeta.name
-            )
+            WalletConnectAnalytics.DappConnectionRejected
         )
     }
 
     override fun onCameraAccessAllowed() {
         launchQrScan()
+    }
+
+    override fun goToTrading() {
+        analytics.logEvent(BuyDefiAnalyticsEvents.SwitchedToTrading)
+        model.process(MainIntent.SwitchWalletMode(WalletMode.CUSTODIAL_ONLY))
     }
 
     override fun onSheetClosed() {
@@ -867,10 +1017,11 @@ class MainActivity :
     private fun launchPortfolio(
         action: AssetAction? = null,
         fiatCurrency: String? = null,
-        reload: Boolean = false
+        reload: Boolean = false,
     ) {
-        updateToolbarTitle(title = getString(R.string.main_toolbar_home))
-        binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_home))
+        updateSelectedNavigationItem(NavigationItem.Home)
+
         supportFragmentManager.showFragment(
             fragment = PortfolioFragment.newInstance(action, fiatCurrency),
             reloadFragment = reload
@@ -883,7 +1034,7 @@ class MainActivity :
 
     override fun launchSwap(
         sourceAccount: CryptoAccount?,
-        targetAccount: CryptoAccount?
+        targetAccount: CryptoAccount?,
     ) {
         if (sourceAccount == null && targetAccount == null) {
             actionsResultContract.launch(ActionActivity.ActivityArgs(AssetAction.Swap))
@@ -910,14 +1061,6 @@ class MainActivity :
         KycNavHostActivity.startForResult(this, campaignType, KYC_STARTED)
     }
 
-    override fun launchThePitLinking(linkId: String) {
-        PitPermissionsActivity.start(this, linkId)
-    }
-
-    override fun launchThePit() {
-        ExchangeConnectionSheet.launch(this)
-    }
-
     override fun launchBackupFunds(fragment: Fragment?, requestCode: Int) {
         fragment?.let {
             BackupWalletActivity.startForResult(it, requestCode)
@@ -928,7 +1071,7 @@ class MainActivity :
         startActivity(SettingsActivity.newIntent(this, true))
     }
 
-    override fun launchVerifyEmail() {
+    override fun launchOpenExternalEmailApp() {
         Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_APP_EMAIL)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -952,18 +1095,22 @@ class MainActivity :
         launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
     }
 
+    override fun launchBuyForDefi() {
+        analytics.logEvent(BuyDefiAnalyticsEvents.BuySelected)
+        showBottomSheet(BuyDefiBottomSheet.newInstance())
+    }
+
     override fun launchSell() {
-        launchBuySell(BuySellFragment.BuySellViewType.TYPE_SELL)
+        launchSellAction()
     }
 
     override fun launchBuySell(
         viewType: BuySellFragment.BuySellViewType,
         asset: AssetInfo?,
-        reload: Boolean
+        reload: Boolean,
     ) {
-        updateToolbarTitle(title = getString(R.string.main_toolbar_buy_sell))
-        binding.bottomNavigation.selectedNavigationItem = NavigationItem.BuyAndSell
-
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_buy_sell))
+        updateSelectedNavigationItem(NavigationItem.BuyAndSell)
         val buySellFragment = BuySellFragment.newInstance(
             viewType = viewType,
             asset = asset
@@ -982,19 +1129,29 @@ class MainActivity :
         )
     }
 
+    private fun homeToolbarTitle(fragmentTitle: String) {
+        val title = when (walletModeService.enabledWalletMode()) {
+            WalletMode.UNIVERSAL -> fragmentTitle
+            else -> ""
+        }
+        updateToolbarTitle(title = title)
+    }
+
     private fun launchPrices(reload: Boolean = false) {
-        updateToolbarTitle(title = getString(R.string.main_toolbar_prices))
+        updateSelectedNavigationItem(NavigationItem.Prices)
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_prices))
         supportFragmentManager.showFragment(
             fragment = PricesFragment.newInstance(),
             reloadFragment = reload
         )
     }
 
-    override fun launchSimpleBuy(asset: AssetInfo) {
+    override fun launchSimpleBuy(asset: AssetInfo, paymentMethodId: String?) {
         startActivity(
             SimpleBuyActivity.newIntent(
                 context = this,
                 launchFromNavigationBar = true,
+                preselectedPaymentMethodId = paymentMethodId,
                 asset = asset
             )
         )
@@ -1090,7 +1247,7 @@ class MainActivity :
             originLocation: String?,
             originBrowser: String?,
             forcePin: Boolean,
-            shouldBeNewTask: Boolean
+            shouldBeNewTask: Boolean,
         ): Intent = Intent(context, MainActivity::class.java).apply {
             putExtra(LAUNCH_AUTH_FLOW, launchAuthFlow)
             putExtra(AuthNewLoginSheet.PUB_KEY_HASH, pubKeyHash)
@@ -1108,7 +1265,7 @@ class MainActivity :
         fun newIntent(
             context: Context,
             intentFromNotification: Boolean,
-            notificationAnalyticsPayload: Map<String, String>? = null
+            notificationAnalyticsPayload: Map<String, String>? = null,
         ): Intent =
             Intent(context, MainActivity::class.java).apply {
                 putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
@@ -1133,7 +1290,7 @@ class MainActivity :
             context: Context,
             intentData: String?,
             shouldLaunchUiTour: Boolean,
-            shouldBeNewTask: Boolean
+            shouldBeNewTask: Boolean,
         ): Intent = Intent(context, MainActivity::class.java).apply {
             if (intentData != null) {
                 data = Uri.parse(intentData)
@@ -1145,5 +1302,19 @@ class MainActivity :
 
             putExtra(START_UI_TOUR_KEY, shouldLaunchUiTour)
         }
+    }
+
+    override fun route(navigationEvent: PricesNavigationEvent) {
+        when (navigationEvent) {
+            is PricesNavigationEvent.CoinView -> {
+                activityResultsContract.launch(
+                    CoinViewActivity.newIntent(
+                        context = this,
+                        asset = navigationEvent.assetInfo,
+                        originScreen = LaunchOrigin.PRICES.name,
+                    )
+                )
+            }
+        }.exhaustive
     }
 }

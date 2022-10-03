@@ -4,19 +4,27 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class Options(
+data class Options(
+    /**
+     * Missing in <v3
+     */
     @SerialName("pbkdf2_iterations")
-    var pbkdf2Iterations: Int = 0,
-
+    val pbkdf2Iterations: Int? = null,
+    /**
+     * Missing in <v3
+     */
     @SerialName("fee_per_kb")
-    val feePerKb: Long = 0,
+    val feePerKb: Long? = null,
 
     @SerialName("html5_notifications")
-    val isHtml5Notifications: Boolean = false,
+    private val _isHtml5Notifications: Boolean? = null,
 
     @SerialName("logout_time")
-    val logoutTime: Long = 0
+    private val _logoutTime: Long? = null
 ) {
+
+    val logoutTime: Long
+        get() = _logoutTime ?: DEFAULT_LOGOUT_TIME
 
     companion object {
         private const val DEFAULT_FEE_PER_KB = 10000L
@@ -27,8 +35,8 @@ class Options(
             get() {
                 return Options(
                     pbkdf2Iterations = WalletWrapper.DEFAULT_PBKDF2_ITERATIONS_V2,
-                    isHtml5Notifications = DEFAULT_HTML5_NOTIFICATIONS,
-                    logoutTime = DEFAULT_LOGOUT_TIME,
+                    _isHtml5Notifications = DEFAULT_HTML5_NOTIFICATIONS,
+                    _logoutTime = DEFAULT_LOGOUT_TIME,
                     feePerKb = DEFAULT_FEE_PER_KB
                 )
             }

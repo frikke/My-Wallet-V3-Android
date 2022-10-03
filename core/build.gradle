@@ -88,6 +88,7 @@ dependencies {
     }
     testImplementation Libraries.kotlinCoroutinesTest
     testImplementation Libraries.mockk
+    testImplementation Libraries.coreTesting
     testImplementation project(':testutils')
     testImplementation project(':testutils-android')
 }

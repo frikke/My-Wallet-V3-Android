@@ -14,7 +14,8 @@ val appMaintenanceDataModule = module {
     single {
         AppMaintenanceRemoteConfig(
             remoteConfig = get(),
-            json = get()
+            json = get(),
+            appMaintenancePrefs = get()
         )
     }
 
@@ -31,6 +32,7 @@ val appMaintenanceDataModule = module {
             appMaintenanceRemoteConfig = get(),
             appUpdateInfoFactory = get(),
             versionsInfo = get(),
+            appMaintenancePrefs = get(),
             dispatcher = Dispatchers.IO
         )
     }

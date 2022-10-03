@@ -6,14 +6,14 @@ import android.text.method.DigitsKeyListener
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.wallet.api.data.Settings
 import piuk.blockchain.android.R
 
 fun getTwoFactorDialog(
     context: Context,
     authType: Int,
-    walletPrefs: WalletStatus,
+    walletPrefs: WalletStatusPrefs,
     positiveAction: (String) -> Unit,
     resendAction: (Boolean) -> Unit
 ): AlertDialog {

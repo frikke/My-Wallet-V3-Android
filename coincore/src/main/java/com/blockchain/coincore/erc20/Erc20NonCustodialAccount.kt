@@ -12,33 +12,28 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.rx.printTime
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class Erc20NonCustodialAccount(
-    payloadManager: PayloadDataManager,
     asset: AssetInfo,
     private val erc20DataManager: Erc20DataManager,
     internal val address: String,
     private val fees: FeeDataManager,
     override val label: String,
     override val exchangeRates: ExchangeRatesDataManager,
-    private val walletPreferences: WalletStatus,
+    private val walletPreferences: WalletStatusPrefs,
     private val custodialWalletManager: CustodialWalletManager,
-    override val baseActions: Set<AssetAction>,
-    identity: UserIdentity,
     override val addressResolver: AddressResolver,
     override val l1Network: EvmNetwork
-) : MultiChainAccount, CryptoNonCustodialAccount(payloadManager, asset, custodialWalletManager, identity) {
+) : MultiChainAccount, CryptoNonCustodialAccount(asset) {
 
     private val hasFunds = AtomicBoolean(false)
 
@@ -54,6 +49,7 @@ class Erc20NonCustodialAccount(
 
     override fun getOnChainBalance(): Observable<Money> =
         erc20DataManager.getErc20Balance(currency)
+            .printTime("----- ::getErc20Balance")
             .doOnNext { hasFunds.set(it.balance.isPositive) }
             .doOnNext { setHasTransactions(it.hasTransactions) }
             .map { it.balance }
@@ -75,12 +71,7 @@ class Erc20NonCustodialAccount(
                         exchangeRates = exchangeRates,
                         lastBlockNumber = latestBlockNumber,
                         account = this,
-                        supportsDescription = erc20DataManager.supportsErc20TxNote(currency),
-                        timeStampMultiplier = if (l1Network.networkTicker == CryptoCurrency.ETHER.networkTicker) {
-                            ETH_CHAIN_TX_HISTORY_MULTIPLIER
-                        } else {
-                            1
-                        }
+                        supportsDescription = erc20DataManager.supportsErc20TxNote(currency)
                     )
                 }
             }.flatMap {

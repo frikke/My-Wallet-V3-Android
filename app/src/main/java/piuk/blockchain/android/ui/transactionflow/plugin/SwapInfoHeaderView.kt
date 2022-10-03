@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.toFiat
 import com.blockchain.componentlib.viewextensions.visible
@@ -12,6 +13,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCheckoutSwapHeaderBinding
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -19,6 +21,7 @@ import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionConfirmationCustomisations
+import piuk.blockchain.android.util.animateChange
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
 
 class SwapInfoHeaderView @JvmOverloads constructor(
@@ -61,9 +64,22 @@ class SwapInfoHeaderView @JvmOverloads constructor(
 
             state.targetRate?.let { cryptoExchangeRate ->
                 val receivingAmount = cryptoExchangeRate.convert(state.amount)
+                val previousAmount = receivingAmountCrypto.text
                 receivingAmountCrypto.text = receivingAmount.toStringWithSymbol()
                 state.pendingTx?.selectedFiat?.let { fiat ->
                     receivingAmountFiat.text = receivingAmount.toFiat(fiat, exchangeRates).toStringWithSymbol()
+                }
+                if (previousAmount.isNotEmpty() && previousAmount != receivingAmount.toStringWithSymbol()) {
+                    receivingAmountCrypto.animateChange {
+                        receivingAmountCrypto.setTextColor(
+                            ContextCompat.getColor(receivingAmountCrypto.context, R.color.grey_800)
+                        )
+                    }
+                    receivingAmountFiat.animateChange {
+                        receivingAmountFiat.setTextColor(
+                            ContextCompat.getColor(receivingAmountFiat.context, R.color.grey_600)
+                        )
+                    }
                 }
             }
 

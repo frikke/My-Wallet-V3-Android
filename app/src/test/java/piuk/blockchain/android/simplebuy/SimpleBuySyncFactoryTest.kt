@@ -2,12 +2,12 @@ package piuk.blockchain.android.simplebuy
 
 import android.annotation.SuppressLint
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.testutils.EUR
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -35,7 +35,8 @@ class SimpleBuySyncFactoryTest {
 
     private val subject = SimpleBuySyncFactory(
         custodialWallet = remoteState,
-        paymentsDataManager = mock(),
+        bankService = mock(),
+        cardService = mock(),
         serializer = serializer
     )
 

@@ -1,8 +1,5 @@
-plugins {
-    id 'kotlin'
-    id 'kotlin-kapt'
-    id 'kotlinx-serialization'
-}
+apply from: rootProject.file('gradle/local/common-feature.gradle')
+apply plugin: 'kotlinx-serialization'
 
 compileKotlin {
     kotlinOptions {
@@ -18,7 +15,7 @@ dependencies {
     implementation Libraries.rxKotlin
     implementation Libraries.kotlinJson
     implementation Libraries.koin
-
+    implementation Libraries.kotlin
     testImplementation Libraries.junit
     testImplementation Libraries.kotlinJunit
     testImplementation Libraries.kluent

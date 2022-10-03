@@ -8,21 +8,24 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.wallet.payload.PayloadScopeWiper
 import io.intercom.android.sdk.Intercom
 import piuk.blockchain.android.ui.auth.LogoutActivity
 import piuk.blockchain.android.ui.launcher.LauncherActivity
+import piuk.blockchain.android.ui.launcher.loader.LoginMethod
 import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class AppUtil(
     private val context: Context,
     private var payloadScopeWiper: PayloadScopeWiper,
-    private val prefs: PersistentPrefs,
+    private val sessionPrefs: SessionPrefs,
     private val trust: DigitalTrust,
     private val pinRepository: PinRepository,
     private val remoteLogger: RemoteLogger,
-    private val isIntercomEnabledFlag: FeatureFlag
+    private val isIntercomEnabledFlag: FeatureFlag,
+    private val walletStatusPrefs: WalletStatusPrefs
 ) : AppUtilAPI {
     override fun logout() {
         pinRepository.clearPin()
@@ -40,7 +43,7 @@ class AppUtil(
 
     fun unpairWallet() {
         pinRepository.clearPin()
-        prefs.unPairWallet()
+        sessionPrefs.unPairWallet()
     }
 
     override var activityIndicator: ActivityIndicator? = null
@@ -48,7 +51,7 @@ class AppUtil(
     fun clearCredentials() {
         remoteLogger.logEvent("Clearing credentials")
         payloadScopeWiper.wipe()
-        prefs.clear()
+        sessionPrefs.clear()
     }
 
     fun clearCredentialsAndRestart() {
@@ -64,20 +67,26 @@ class AppUtil(
         )
     }
 
-    fun loadAppWithVerifiedPin(loaderActivity: Class<*>, isAfterWalletCreation: Boolean = false) {
+    fun loadAppWithVerifiedPin(
+        loaderActivity: Class<*>,
+        loginMethod: LoginMethod = LoginMethod.UNDEFINED,
+        referralCode: String? = null
+    ) {
         context.startActivity(
             Intent(context, loaderActivity).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                 putExtra(INTENT_EXTRA_VERIFIED, true)
-                putExtra(INTENT_EXTRA_IS_AFTER_WALLET_CREATION, isAfterWalletCreation)
+                putExtra(LOGIN_METHOD, loginMethod)
+                putExtra(INTENT_EXTRA_REFERRAL_CODE, referralCode)
             }
         )
 
-        prefs.isAppUnlocked = false
+        walletStatusPrefs.isAppUnlocked = false
     }
 
     companion object {
         const val INTENT_EXTRA_VERIFIED = "verified"
-        const val INTENT_EXTRA_IS_AFTER_WALLET_CREATION = "is_after_wallet_creation"
+        const val LOGIN_METHOD = "login_method"
+        const val INTENT_EXTRA_REFERRAL_CODE = "referral_code"
     }
 }

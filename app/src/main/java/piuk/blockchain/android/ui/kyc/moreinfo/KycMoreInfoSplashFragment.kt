@@ -34,7 +34,7 @@ class KycMoreInfoSplashFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycMoreInfo)
 
-        progressListener.setHostTitle(R.string.kyc_more_info_splash_title)
+        progressListener.setupHostToolbar(R.string.kyc_more_info_splash_title)
     }
 
     private val disposable = CompositeDisposable()

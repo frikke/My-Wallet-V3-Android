@@ -21,6 +21,15 @@ sealed class LoginIntents : MviIntent<LoginState> {
         }
     }
 
+    class ShowManualPairing(private val guid: String) : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState {
+            return oldState.copy(
+                currentStep = LoginStep.MANUAL_PAIRING,
+                guid = guid
+            )
+        }
+    }
+
     data class UpdateEmail(private val email: String) : LoginIntents() {
         override fun reduce(oldState: LoginState): LoginState =
             oldState.copy(
@@ -231,9 +240,9 @@ sealed class LoginIntents : MviIntent<LoginState> {
     }
 
     class UserAuthenticationRequired(
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         val action: String?,
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         val uri: Uri
     ) : LoginIntents() {
         override fun reduce(oldState: LoginState): LoginState =
@@ -252,6 +261,16 @@ sealed class LoginIntents : MviIntent<LoginState> {
                 currentStep = LoginStep.NAVIGATE_FROM_PAYLOAD,
                 payload = payload,
                 pollingState = AuthPollingState.COMPLETE
+            )
+    }
+
+    class WalletConnectDeeplinkReceived(
+        private val payload: String
+    ) : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                currentStep = LoginStep.NAVIGATE_TO_WALLET_CONNECT,
+                walletConnectUrl = payload,
             )
     }
 }

@@ -9,6 +9,6 @@ internal interface CustodialBalanceApi {
 
     @GET("accounts/simplebuy")
     fun tradingBalanceForAllAssets(
-        @Header("authorization") authorization: String
+        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
     ): Single<Map<String, TradingBalanceResponseDto>>
 }

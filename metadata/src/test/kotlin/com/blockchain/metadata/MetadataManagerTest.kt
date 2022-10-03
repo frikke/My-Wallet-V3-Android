@@ -175,6 +175,5 @@ class MetadataManagerTest {
 fun Completable.then(block: () -> Completable): Completable =
     andThen(Completable.defer { block() })
 
-
 fun <T> Completable.thenMaybe(block: () -> Maybe<T>): Maybe<T> =
     andThen(Maybe.defer { block() })

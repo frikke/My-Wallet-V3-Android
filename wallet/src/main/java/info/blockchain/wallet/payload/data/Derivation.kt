@@ -6,24 +6,25 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Derivation(
     @SerialName("type")
-    val type: String = "",
+    val type: String,
 
     @SerialName("purpose")
-    val purpose: Int = 0,
+    val purpose: Int,
 
     @SerialName("xpriv")
-    var xpriv: String = "",
+    val xpriv: String,
 
     @SerialName("xpub")
-    var xpub: String = "",
+    val xpub: String,
 
     @SerialName("cache")
-    var cache: AddressCache = AddressCache(),
+    val cache: AddressCache,
 
     @SerialName("address_labels")
-    var addressLabels: MutableList<AddressLabel> = mutableListOf()
+    private val _addressLabels: List<AddressLabel>? = null
 ) {
-    constructor(type: String, purpose: Int) : this(type, purpose, "", "")
+    val addressLabels: List<AddressLabel>
+        get() = _addressLabels ?: emptyList()
 
     companion object {
         const val LEGACY_TYPE = "legacy"
@@ -34,12 +35,26 @@ data class Derivation(
 
         @JvmStatic
         fun create(xpriv: String, xpub: String, cache: AddressCache): Derivation {
-            return Derivation(LEGACY_TYPE, LEGACY_PURPOSE, xpriv, xpub, cache)
+            return Derivation(
+                type = LEGACY_TYPE,
+                purpose = LEGACY_PURPOSE,
+                xpriv = xpriv,
+                xpub = xpub,
+                cache = cache,
+                _addressLabels = emptyList()
+            )
         }
 
         @JvmStatic
         fun createSegwit(xpriv: String, xpub: String, cache: AddressCache): Derivation {
-            return Derivation(SEGWIT_BECH32_TYPE, SEGWIT_BECH32_PURPOSE, xpriv, xpub, cache)
+            return Derivation(
+                type = SEGWIT_BECH32_TYPE,
+                purpose = SEGWIT_BECH32_PURPOSE,
+                xpriv = xpriv,
+                xpub = xpub,
+                cache = cache,
+                _addressLabels = emptyList()
+            )
         }
     }
 }

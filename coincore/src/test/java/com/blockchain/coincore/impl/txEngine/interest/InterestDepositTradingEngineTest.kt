@@ -7,11 +7,13 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -34,7 +36,9 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
     }
 
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val interestBalances: InterestBalanceDataManager = mock()
+    private val interestBalanceStore: InterestBalancesStore = mock()
+    private val interestService: InterestService = mock()
+    private val tradingStore: TradingStore = mock()
 
     private lateinit var subject: InterestDepositTradingEngine
 
@@ -61,8 +65,10 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
             )
 
         subject = InterestDepositTradingEngine(
-            walletManager = custodialWalletManager,
-            interestBalances = interestBalances
+            interestBalanceStore = interestBalanceStore,
+            interestService = interestService,
+            tradingStore = tradingStore,
+            walletManager = custodialWalletManager
         )
     }
 
@@ -120,10 +126,9 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
         val limits = mock<InterestLimits> {
             on { minDepositFiatValue }.thenReturn(MIN_DEPOSIT_AMOUNT_FIAT)
-            on { cryptoCurrency }.thenReturn(ASSET)
         }
 
-        whenever(custodialWalletManager.getInterestLimits(ASSET)).thenReturn(Single.just(limits))
+        whenever(interestService.getLimitsForAsset(ASSET)).thenReturn(Single.just(limits))
 
         // Act
         subject.doInitialiseTx()
@@ -144,7 +149,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
 
-        verify(custodialWalletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
         verify(currencyPrefs).selectedFiatCurrency
         verify(sourceAccount).balance
         verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
@@ -164,7 +169,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        whenever(custodialWalletManager.getInterestLimits(ASSET))
+        whenever(interestService.getLimitsForAsset(ASSET))
             .thenReturn(Single.error(NoSuchElementException()))
 
         // Act
@@ -174,7 +179,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
 
-        verify(custodialWalletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
         verify(sourceAccount).balance
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -192,7 +197,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
     private fun mockSourceAccount(
         totalBalance: Money = CryptoValue.zero(ASSET),
-        availableBalance: Money = CryptoValue.zero(ASSET)
+        availableBalance: Money = CryptoValue.zero(ASSET),
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(ASSET)
         on { balance }.thenReturn(

@@ -65,7 +65,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
     private val balanceFiat by lazy { arguments?.getSerializable(BALANCE_FIAT) as Money }
     private val balanceCrypto by lazy { arguments?.getSerializable(BALANCE_CRYPTO) as Money }
     private val interestRate by lazy { arguments?.getDouble(INTEREST_RATE) as Double }
-    private val hasWarning by lazy { arguments?.getBoolean(HAS_WARNING) ?: false }
 
     interface Host {
         fun navigateToAction(
@@ -92,7 +91,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 .map { action ->
                     mapAction(
                         action,
-                        hasWarning,
                         selectedAccount
                     )
                 }
@@ -176,7 +174,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         item: AssetActionItem
     ) {
         Column {
-            val stateActionData = getStateActionData(item.action.state, item.hasWarning)
+            val stateActionData = getStateActionData(item.action.state)
             val noOp = {}
             DefaultTableRow(
                 startImageResource = getStartImagePerState(item.action.state, item.icon, item.asset.colour),
@@ -231,20 +229,15 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
-    private fun getStateActionData(state: ActionState, hasWarning: Boolean): ActionData =
-        when {
-            state == ActionState.Available -> ActionData(
+    private fun getStateActionData(state: ActionState): ActionData =
+        when (state) {
+            ActionState.Available -> ActionData(
                 state = state,
                 hasWarning = false,
                 imageResource = ImageResource.Local(
                     id = com.blockchain.componentlib.R.drawable.ic_chevron_end,
                     contentDescription = null
                 )
-            )
-            hasWarning -> ActionData(
-                state = state,
-                hasWarning = true,
-                imageResource = ImageResource.Local(R.drawable.ic_warning)
             )
             else -> ActionData(
                 state = state,
@@ -258,7 +251,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
 
     private fun mapAction(
         stateAwareAction: StateAwareAction,
-        hasWarning: Boolean,
         account: CryptoAccount
     ): AssetActionItem {
         val asset = account.currency
@@ -267,7 +259,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 AssetActionItem(
                     title = getString(R.string.activities_title),
                     icon = R.drawable.ic_tx_activity_clock,
-                    hasWarning = hasWarning,
                     description = getString(R.string.fiat_funds_detail_activity_details),
                     asset = asset,
                     action = stateAwareAction
@@ -280,7 +271,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     account = account,
                     title = getString(R.string.common_send),
                     icon = R.drawable.ic_tx_sent,
-                    hasWarning = hasWarning,
                     description = getString(
                         R.string.dashboard_asset_actions_send_dsc,
                         asset.displayTicker
@@ -302,7 +292,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 AssetActionItem(
                     title = getString(R.string.common_receive),
                     icon = R.drawable.ic_tx_receive,
-                    hasWarning = hasWarning,
                     description = getString(
                         R.string.dashboard_asset_actions_receive_dsc,
                         asset.displayTicker
@@ -323,7 +312,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 account = account,
                 title = getString(R.string.common_swap),
                 icon = R.drawable.ic_tx_swap,
-                hasWarning = hasWarning,
                 description = getString(
                     R.string.dashboard_asset_actions_swap_dsc, asset.displayTicker
                 ),
@@ -335,7 +323,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             AssetAction.ViewStatement -> AssetActionItem(
                 title = getString(R.string.dashboard_asset_actions_summary_title_1),
                 icon = R.drawable.ic_tx_interest,
-                hasWarning = hasWarning,
                 description = getString(R.string.dashboard_asset_actions_summary_dsc_1, asset.displayTicker),
                 asset = asset, action = stateAwareAction
             ) {
@@ -344,7 +331,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             AssetAction.InterestDeposit -> AssetActionItem(
                 title = getString(R.string.dashboard_asset_actions_add_title),
                 icon = R.drawable.ic_tx_deposit_arrow,
-                hasWarning = hasWarning,
                 description = getString(R.string.dashboard_asset_actions_add_dsc, asset.displayTicker),
                 asset = asset,
                 action = stateAwareAction
@@ -360,7 +346,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             AssetAction.InterestWithdraw -> AssetActionItem(
                 title = getString(R.string.common_withdraw),
                 icon = R.drawable.ic_tx_withdraw,
-                hasWarning = hasWarning,
                 description = getString(R.string.dashboard_asset_actions_withdraw_dsc_1, asset.displayTicker),
                 asset = asset,
                 action = stateAwareAction
@@ -376,7 +361,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             AssetAction.Sell -> AssetActionItem(
                 title = getString(R.string.common_sell),
                 icon = R.drawable.ic_tx_sell,
-                hasWarning = hasWarning,
                 description = getString(R.string.convert_your_crypto_to_cash),
                 asset = asset,
                 action = stateAwareAction
@@ -387,14 +371,13 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             AssetAction.Buy -> AssetActionItem(
                 title = getString(R.string.common_buy),
                 icon = R.drawable.ic_tx_buy,
-                hasWarning = hasWarning,
                 description = getString(R.string.dashboard_asset_actions_buy_dsc, asset.displayTicker),
                 asset = asset,
                 action = stateAwareAction
             ) {
                 processAction(AssetAction.Buy)
             }
-            AssetAction.Withdraw -> throw IllegalStateException("Cannot Withdraw a non-fiat currency")
+            AssetAction.FiatWithdraw -> throw IllegalStateException("Cannot Withdraw a non-fiat currency")
             AssetAction.FiatDeposit -> throw IllegalStateException("Cannot Deposit a non-fiat currency to Fiat")
             AssetAction.Sign -> throw IllegalStateException("Sign action is not supported")
         }
@@ -435,13 +418,11 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         val description: String,
         val asset: Currency,
         val action: StateAwareAction,
-        val hasWarning: Boolean = false,
         val actionCta: () -> Unit
     ) {
         constructor(
             title: String,
             icon: Int,
-            hasWarning: Boolean,
             description: String,
             asset: Currency,
             action: StateAwareAction,
@@ -453,7 +434,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             description,
             asset,
             action,
-            hasWarning,
             actionCta
         )
 
@@ -467,15 +447,13 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         private const val BALANCE_FIAT = "balance_fiat"
         private const val BALANCE_CRYPTO = "balance_crypto"
         private const val INTEREST_RATE = "interest_rate"
-        private const val HAS_WARNING = "action_has_warning"
 
         fun newInstance(
             selectedAccount: BlockchainAccount,
             balanceFiat: Money,
             balanceCrypto: Money,
             interestRate: Double,
-            stateAwareActions: Array<StateAwareAction>,
-            hasWarning: Boolean
+            stateAwareActions: Array<StateAwareAction>
         ): AccountActionsBottomSheet {
             return AccountActionsBottomSheet().apply {
                 arguments = Bundle().apply {
@@ -484,7 +462,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     putSerializable(BALANCE_CRYPTO, balanceCrypto)
                     putDouble(INTEREST_RATE, interestRate)
                     putSerializable(STATE_AWARE_ACTIONS, stateAwareActions)
-                    putBoolean(HAS_WARNING, hasWarning)
                 }
             }
         }

@@ -14,13 +14,14 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import info.blockchain.balance.FiatCurrency
 import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -30,12 +31,14 @@ import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingSte
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
 import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
-import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
+import piuk.blockchain.android.ui.base.ErrorButtonCopies
+import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import retrofit2.HttpException
 
 class DashboardOnboardingActivity :
     MviActivity<
@@ -44,8 +47,8 @@ class DashboardOnboardingActivity :
         DashboardOnboardingState,
         ActivityDashboardOnboardingBinding
         >(),
-    CurrencySelectionSheet.Host,
-    PaymentMethodChooserBottomSheet.Host {
+    PaymentMethodChooserBottomSheet.Host,
+    ErrorSlidingBottomDialog.Host {
 
     private var analyticsCurrentStepIndex: Int? = null
     private var analyticsNextStepButtonClicked = false
@@ -111,7 +114,30 @@ class DashboardOnboardingActivity :
             DashboardOnboardingError.None -> {
             }
             is DashboardOnboardingError.Error -> {
-                showBottomSheet(ErrorSlidingBottomDialog.newInstance(this))
+                val nabuException = (error.throwable as? HttpException)?.let {
+                    NabuApiExceptionFactory.fromResponseBody(error.throwable)
+                }
+
+                showBottomSheet(
+                    ErrorSlidingBottomDialog.newInstance(
+                        ErrorDialogData(
+                            title = nabuException?.getServerSideErrorInfo()?.title ?: getString(
+                                R.string.dashboard_onboarding_error_title
+                            ),
+                            description = nabuException?.getServerSideErrorInfo()?.description ?: getString(
+                                R.string.dashboard_onboarding_error_description
+                            ),
+                            errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
+                            error = error.throwable.message,
+                            nabuApiException = (error.throwable as? HttpException)?.let {
+                                NabuApiExceptionFactory.fromResponseBody(error.throwable)
+                            },
+                            errorDescription = error.throwable.message,
+                            action = "DASHBOARD",
+                            analyticsCategories = nabuException?.getServerSideErrorInfo()?.categories ?: emptyList()
+                        )
+                    )
+                )
             }
         }.exhaustive
         model.process(DashboardOnboardingIntent.ClearError)
@@ -160,15 +186,6 @@ class DashboardOnboardingActivity :
                 setResult(RESULT_OK, intent)
                 finish()
             }
-            is DashboardOnboardingNavigationAction.SelectTradingCurrency -> {
-                showBottomSheet(
-                    CurrencySelectionSheet.newInstance(
-                        currencies = action.supportedCurrencies,
-                        selectedCurrency = action.selectedCurrency,
-                        currencySelectionType = CurrencySelectionSheet.Companion.CurrencySelectionType.TRADING_CURRENCY
-                    )
-                )
-            }
             DashboardOnboardingNavigationAction.AddCard -> {
                 val intent = Intent(this, CardDetailsActivity::class.java)
                 startActivity(intent)
@@ -197,12 +214,24 @@ class DashboardOnboardingActivity :
         throw UnsupportedOperationException()
     }
 
-    override fun onCurrencyChanged(currency: FiatCurrency) {
-        model.process(DashboardOnboardingIntent.TradingCurrencyChanged)
+    override fun onCardTagClicked(cardInfo: CardRejectionState) {
+        // do nothing
+    }
+
+    override fun onErrorPrimaryCta() {
+        // do nothing
+    }
+
+    override fun onErrorSecondaryCta() {
+        // do nothing
+    }
+
+    override fun onErrorTertiaryCta() {
+        // do nothing
     }
 
     override fun onSheetClosed() {
-        // no-op
+        // do nothing
     }
 
     private fun updateCtaButton(steps: List<CompletableDashboardOnboardingStep>) {
@@ -262,7 +291,7 @@ class DashboardOnboardingActivity :
 
         private fun newIntent(
             context: Context,
-            initialSteps: List<CompletableDashboardOnboardingStep>
+            initialSteps: List<CompletableDashboardOnboardingStep>,
         ): Intent = Intent(context, DashboardOnboardingActivity::class.java).apply {
             if (initialSteps.isNotEmpty()) {
                 putExtra(ARG_INITIAL_STEPS_STATES, initialSteps.map { it.state.name }.toTypedArray())
@@ -271,7 +300,7 @@ class DashboardOnboardingActivity :
     }
 
     data class ActivityArgs(
-        val initialSteps: List<CompletableDashboardOnboardingStep>
+        val initialSteps: List<CompletableDashboardOnboardingStep>,
     )
 
     sealed class ActivityResult {

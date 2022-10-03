@@ -71,7 +71,7 @@ class RecurringBuyFirstTimeBuyerFragment :
     }
 
     override fun onIntervalSelected(interval: RecurringBuyFrequency) {
-        model.process(SimpleBuyIntent.RecurringBuySelectedFirstTimeFlow(interval))
+        model.process(SimpleBuyIntent.CreateRecurringBuy(interval))
     }
 
     override fun navigator(): SimpleBuyNavigator =
@@ -80,6 +80,4 @@ class RecurringBuyFirstTimeBuyerFragment :
         )
 
     override fun onSheetClosed() {}
-
-    override fun onBackPressed(): Boolean = true
 }

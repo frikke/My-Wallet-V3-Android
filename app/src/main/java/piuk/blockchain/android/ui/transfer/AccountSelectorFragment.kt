@@ -14,7 +14,8 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.material.snackbar.Snackbar
@@ -24,6 +25,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTransferAccountSelectorBinding
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
+import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.customviews.account.AccountLocks
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
 
@@ -34,15 +36,15 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         get() = _binding!!
 
     private val coincore: Coincore by scopedInject()
-    private val accountsSorting: AccountsSorting by scopedInject()
-    private val paymentsDataManager: PaymentsDataManager by scopedInject()
+    private val accountsSorting: AccountsSorting by scopedInject(defaultOrder)
+    private val bankService: BankService by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private lateinit var introHeaderView: IntroHeaderView
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentTransferAccountSelectorBinding.inflate(inflater, container, false)
 
@@ -66,7 +68,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         onExtraAccountInfoClicked: (AccountLocks) -> Unit = {},
         @StringRes title: Int,
         @StringRes label: Int,
-        @DrawableRes icon: Int
+        @DrawableRes icon: Int,
     ) {
         introHeaderView.setDetails(title, label, icon)
 
@@ -77,8 +79,8 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
             initialise(
                 source = accounts(),
                 status = statusDecorator,
-                introView = introHeaderView,
-                accountsLocks = showWithdrawalLocks()
+                accountsLocks = showWithdrawalLocks(),
+                introView = introHeaderView
             )
         }
     }
@@ -89,24 +91,24 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     }
 
     override fun onResumeFragment() {
-        refreshItems(showLoader = true)
+        refreshItems()
     }
 
-    fun refreshItems(showLoader: Boolean = true) {
+    private fun refreshItems() {
         binding.accountSelectorAccountList.loadItems(
             accountsSource = accounts(),
-            showLoader = showLoader,
+            showLoader = true,
             accountsLocksSource = showWithdrawalLocks()
         )
     }
 
     private fun showWithdrawalLocks(): Single<List<AccountLocks>> =
-        paymentsDataManager.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency)
+        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency)
             .map { listOf(AccountLocks(it)) }
 
-    private fun accounts(): Single<List<BlockchainAccount>> =
-        coincore.allWalletsWithActions(setOf(fragmentAction), accountsSorting.sorter()).map {
-            it.map { account -> account }
+    private fun accounts(): Single<List<AccountListViewItem>> =
+        coincore.walletsWithActions(actions = setOf(fragmentAction), sorter = accountsSorting.sorter()).map {
+            it.map(AccountListViewItem.Companion::create)
         }
 
     protected abstract val fragmentAction: AssetAction
@@ -115,7 +117,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         @StringRes title: Int,
         @StringRes label: Int,
         @StringRes ctaText: Int,
-        action: () -> Unit
+        action: () -> Unit,
     ) {
         binding.accountSelectorEmptyView.setDetails(
             title = title, description = label, ctaText = ctaText

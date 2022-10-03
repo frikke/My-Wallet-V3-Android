@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicReference
 import piuk.blockchain.android.R
@@ -32,6 +33,9 @@ class MajorProductBlockedAnnouncement(
         }
     }
 
+    override val associatedWalletModes: List<WalletMode>
+        get() = listOf(WalletMode.CUSTODIAL_ONLY)
+
     override fun show(host: AnnouncementHost) {
         val reason = reason.get()
 
@@ -52,7 +56,7 @@ class MajorProductBlockedAnnouncement(
 
         val ctaText = when (reason) {
             is ProductNotEligibleReason.InsufficientTier -> throw IllegalArgumentException()
-            ProductNotEligibleReason.Sanctions.RussiaEU5 -> R.string.learn_more
+            ProductNotEligibleReason.Sanctions.RussiaEU5 -> R.string.common_learn_more
             is ProductNotEligibleReason.Sanctions.Unknown -> R.string.common_ok
             is ProductNotEligibleReason.Unknown -> R.string.common_ok
         }
@@ -85,6 +89,7 @@ class MajorProductBlockedAnnouncement(
         filter {
             when (it) {
                 ProductNotEligibleReason.InsufficientTier.Tier1TradeLimitExceeded,
+                ProductNotEligibleReason.InsufficientTier.Tier1Required,
                 ProductNotEligibleReason.InsufficientTier.Tier2Required,
                 is ProductNotEligibleReason.InsufficientTier.Unknown -> false
                 ProductNotEligibleReason.Sanctions.RussiaEU5,

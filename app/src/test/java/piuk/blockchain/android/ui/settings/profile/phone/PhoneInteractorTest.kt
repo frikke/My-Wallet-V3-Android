@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.settings.profile.phone
 
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.nabu.NabuUserSync
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -21,6 +22,7 @@ class PhoneInteractorTest {
     private val authPrefs = mock<AuthPrefs>()
     private val settingsDataManager = mock<SettingsDataManager>()
     private val nabuUserSync = mock<NabuUserSync>()
+    private val getUserStore = mock<GetUserStore>()
 
     @Before
     fun setup() {
@@ -30,7 +32,8 @@ class PhoneInteractorTest {
         interactor = PhoneInteractor(
             authPrefs = authPrefs,
             settingsDataManager = settingsDataManager,
-            nabuUserSync = nabuUserSync
+            nabuUserSync = nabuUserSync,
+            getUserStore = getUserStore
         )
     }
 
@@ -61,6 +64,7 @@ class PhoneInteractorTest {
 
         interactor.savePhoneNumber(phoneNumber).test()
 
+        verify(getUserStore).invalidate()
         verify(settingsDataManager).updateSms(phoneNumber, true)
         verify(nabuUserSync).syncUser()
     }

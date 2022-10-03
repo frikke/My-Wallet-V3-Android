@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings.v2.profile.email
 
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.preferences.AuthPrefs
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Single
@@ -11,7 +12,8 @@ import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 class EmailInteractor internal constructor(
     private val emailUpdater: EmailSyncUpdater,
     private val authPrefs: AuthPrefs,
-    private val settingsDataManager: SettingsDataManager
+    private val settingsDataManager: SettingsDataManager,
+    private val getUserStore: GetUserStore
 ) {
 
     fun fetchProfileSettings(): Single<WalletSettingsService.UserInfoSettings> =
@@ -32,6 +34,9 @@ class EmailInteractor internal constructor(
     */
     fun saveEmail(email: String): Single<Email> =
         emailUpdater.updateEmailAndSync(email)
+            .doOnSuccess {
+                getUserStore.invalidate()
+            }
 
     fun resendEmail(email: String): Single<Email> = emailUpdater.resendEmail(email)
 }

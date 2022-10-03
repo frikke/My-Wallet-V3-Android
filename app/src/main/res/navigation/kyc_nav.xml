@@ -38,8 +38,8 @@
         android:label="KycProfileFragment"
         tools:layout="@layout/fragment_kyc_profile">
         <action
-            android:id="@+id/action_kycProfileFragment_to_kycAutocompleteAddressFragment"
-            app:destination="@id/kycAutocompleteAddressFragment"
+            android:id="@+id/action_kycProfileFragment_to_kycAddressVerificationFragment"
+            app:destination="@id/kycAddressVerificationFragment"
             app:popUpTo="@id/kyc_nav.xml"
             app:popUpToInclusive="true" />
         <argument
@@ -62,7 +62,7 @@
             app:destination="@id/kycHomeAddressFragment" />
         <argument
             android:name="profileModel"
-            app:argType="piuk.blockchain.android.ui.kyc.profile.models.ProfileModel" />
+            app:argType="piuk.blockchain.android.ui.kyc.address.models.OldProfileModel" />
     </fragment>
     <fragment
         android:id="@+id/kycInvalidCountryFragment"
@@ -75,12 +75,25 @@
     </fragment>
     <fragment
         android:id="@+id/kycHomeAddressFragment"
-        android:name="piuk.blockchain.android.ui.kyc.address.KycHomeAddressFragment"
+        android:name="piuk.blockchain.android.ui.kyc.address.KycOldHomeAddressFragment"
         android:label="KycHomeAddress"
         tools:layout="@layout/fragment_kyc_home_address">
         <action
-            android:id="@+id/action_kycHomeAddressFragment_to_kycAdditionalInfoFragment"
-            app:destination="@id/kycAdditionalInfoFragment"
+            android:id="@+id/action_kycHomeAddressFragment_to_kycQuestionnaireFragment"
+            app:destination="@id/kycQuestionnaireFragment"
+            app:popUpTo="@id/kyc_nav.xml"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="profileModel"
+            app:argType="piuk.blockchain.android.ui.kyc.address.models.OldProfileModel" />
+    </fragment>
+    <fragment
+        android:id="@+id/kycAddressVerificationFragment"
+        android:name="piuk.blockchain.android.ui.kyc.address.KycAddressVerificationFragment"
+        android:label="KycAddressVerificationFragment">
+        <action
+            android:id="@+id/action_kycAddressVerificationFragment_to_kycQuestionnaireFragment"
+            app:destination="@id/kycQuestionnaireFragment"
             app:popUpTo="@id/kyc_nav.xml"
             app:popUpToInclusive="true" />
         <argument
@@ -88,13 +101,13 @@
             app:argType="piuk.blockchain.android.ui.kyc.profile.models.ProfileModel" />
     </fragment>
     <fragment
-        android:id="@+id/kycAdditionalInfoFragment"
-        android:name="piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoFragment"
-        android:label="Kyc Additional Info"
+        android:id="@+id/kycQuestionnaireFragment"
+        android:name="piuk.blockchain.android.ui.kyc.questionnaire.KycQuestionnaireWrapperFragment"
+        android:label="Questionnaire"
         >
         <argument
-            android:name="root"
-            app:argType="piuk.blockchain.android.ui.kyc.additional_info.TreeNode$Root" />
+            android:name="questionnaire"
+            app:argType="com.blockchain.domain.dataremediation.model.Questionnaire" />
         <argument
             android:name="countryCode"
             app:argType="string" />
@@ -174,8 +187,8 @@
                 android:name="mobileNumber"
                 app:argType="piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneDisplayModel" />
             <action
-                android:id="@+id/action_kycMobileValidationFragment_to_kycAdditionalInfoFragment"
-                app:destination="@id/kycAdditionalInfoFragment"
+                android:id="@+id/action_kycMobileValidationFragment_to_kycQuestionnaireFragment"
+                app:destination="@id/kycQuestionnaireFragment"
                 app:popUpTo="@id/kyc_nav.xml"
                 app:popUpToInclusive="true"
                 />
@@ -235,10 +248,19 @@
         app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_startAutocompleteAddressEntry"
-        app:destination="@id/kycAutocompleteAddressFragment" />
+        app:destination="@id/kycAddressVerificationFragment"
+        app:popUpTo="@id/kyc_nav.xml"
+        app:popUpToInclusive="true" />
     <action
-        android:id="@+id/action_startAdditionalInfoEntry"
-        app:destination="@id/kycAdditionalInfoFragment" />
+        android:id="@+id/action_startOldAutocompleteAddressEntry"
+        app:destination="@id/kycAutocompleteAddressFragment"
+        app:popUpTo="@id/kyc_nav.xml"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_startQuestionnaireEntry"
+        app:destination="@id/kycQuestionnaireFragment"
+        app:popUpTo="@id/kyc_nav.xml"
+        app:popUpToInclusive="true" />
 
     <fragment
         android:id="@+id/kycResubmissionSplashFragment"

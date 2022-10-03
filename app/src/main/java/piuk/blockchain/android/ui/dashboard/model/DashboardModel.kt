@@ -1,14 +1,16 @@
 package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.rx3.rxSingle
+import piuk.blockchain.android.rating.domain.service.AppRatingService
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import timber.log.Timber
 
@@ -17,7 +19,8 @@ class DashboardModel(
     mainScheduler: Scheduler,
     private val interactor: DashboardActionInteractor,
     environmentConfig: EnvironmentConfig,
-    remoteLogger: RemoteLogger
+    remoteLogger: RemoteLogger,
+    private val appRatingService: AppRatingService,
 ) : MviModel<DashboardState, DashboardIntent>(
     initialState,
     mainScheduler,
@@ -26,33 +29,41 @@ class DashboardModel(
 ) {
     override fun performAction(
         previousState: DashboardState,
-        intent: DashboardIntent
+        intent: DashboardIntent,
     ): Disposable? {
         Timber.d("***> performAction: ${intent.javaClass.simpleName}")
         return when (intent) {
+            DashboardIntent.VerifyAppRating -> {
+                rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
+                    if (showRating) process(DashboardIntent.ShowAppRating)
+                }
+            }
+            DashboardIntent.ShowAppRating -> null
+            DashboardIntent.JoinNftWaitlist -> {
+                interactor.joinNftWaitlist()
+            }
             is DashboardIntent.GetActiveAssets -> interactor.fetchActiveAssets(this)
-            is DashboardIntent.GetAvailableAssets -> interactor.fetchAvailableAssets(this)
-            is DashboardIntent.UpdateAllAssetsAndBalances -> {
-                process(DashboardIntent.RefreshAllBalancesIntent(false))
+            is DashboardIntent.UpdateActiveAssets -> {
+                interactor.fetchAccounts(
+                    intent.assetList,
+                    this
+                )
                 null
+            }
+            is DashboardIntent.UpdateAllAssetsAndBalances -> {
+                process(DashboardIntent.LoadFundsLocked)
+                interactor.refreshBalances(
+                    model = this,
+                    activeAssets = intent.assetList.map { it.currency }.toSet()
+                )
             }
             is DashboardIntent.GetAssetPrice -> interactor.fetchAssetPrice(this, intent.asset)
-            is DashboardIntent.RefreshAllBalancesIntent ->
-                interactor.refreshBalances(this, AssetFilter.All, previousState)
             is DashboardIntent.BalanceUpdate -> {
-                process(DashboardIntent.CheckForCustodialBalanceIntent(intent.asset))
-                null
-            }
-            is DashboardIntent.CheckForCustodialBalanceIntent -> interactor.checkForCustodialBalance(
-                this,
-                intent.asset
-            )
-            is DashboardIntent.UpdateHasCustodialBalanceIntent -> {
-                process(DashboardIntent.RefreshPrices(intent.asset))
+                process(DashboardIntent.RefreshPrices(previousState[intent.asset]))
                 null
             }
             is DashboardIntent.RefreshPrices -> interactor.refreshPrices(this, intent.asset)
-            is DashboardIntent.AssetPriceUpdate ->
+            is DashboardIntent.AssetPriceWithDeltaUpdate ->
                 if (intent.shouldFetchDayHistoricalPrices) interactor.refreshPriceHistory(this, intent.asset)
                 else null
             is DashboardIntent.CheckBackupStatus -> checkBackupStatus(intent.account, intent.action)
@@ -63,19 +74,32 @@ class DashboardModel(
             is DashboardIntent.UpdateDepositButton -> userCanDeposit()
             is DashboardIntent.LoadFundsLocked -> interactor.loadWithdrawalLocks(this)
             is DashboardIntent.FetchOnboardingSteps -> interactor.getOnboardingSteps(this)
-            is DashboardIntent.RefreshFiatBalances -> interactor.refreshFiatBalances(intent.fiatAccounts, this)
-            is DashboardIntent.FiatBalanceUpdate,
+            is DashboardIntent.CheckCowboysFlow -> interactor.checkCowboysFlowSteps(this)
+            is DashboardIntent.CowboysReferralCardClosed -> {
+                interactor.markCowboysReferralCardAsDismissed()
+                null
+            }
+            is DashboardIntent.FetchReferralSuccess -> interactor.checkReferralSuccess(this)
+            is DashboardIntent.DismissReferralSuccess -> {
+                interactor.dismissReferralSuccess()
+            }
+            is DashboardIntent.OnSwipeToRefresh -> {
+                process(DashboardIntent.GetActiveAssets(true))
+                null
+            }
+            is DashboardIntent.ShowBankLinkingWithAlias,
+            is DashboardIntent.ShowReferralSuccess,
             is DashboardIntent.BalanceUpdateError,
             is DashboardIntent.PriceHistoryUpdate,
             is DashboardIntent.ClearAnnouncement,
             is DashboardIntent.ShowAnnouncement,
+            is DashboardIntent.AssetPriceUpdate,
             is DashboardIntent.ShowFiatAssetDetails,
             is DashboardIntent.ShowBankLinkingSheet,
             is DashboardIntent.ShowPortfolioSheet,
             is DashboardIntent.ClearActiveFlow,
             is DashboardIntent.UpdateSelectedCryptoAccount,
             is DashboardIntent.ShowBackupSheet,
-            is DashboardIntent.AssetListUpdate,
             is DashboardIntent.LaunchBankLinkFlow,
             is DashboardIntent.ResetNavigation,
             is DashboardIntent.ShowLinkablePaymentMethodsSheet,
@@ -87,8 +111,11 @@ class DashboardModel(
             is DashboardIntent.LaunchDashboardOnboarding,
             is DashboardIntent.SetDepositVisibility,
             DashboardIntent.ResetDashboardAssets,
-            is DashboardIntent.UpdateNavigationAction -> null
-        }
+            DashboardIntent.NoActiveAssets,
+            is DashboardIntent.BalanceFetching,
+            is DashboardIntent.UpdateNavigationAction,
+            is DashboardIntent.UpdateCowboysViewState -> null
+        }.exhaustive
     }
 
     private fun processBankTransferFlow(intent: DashboardIntent.LaunchBankTransferFlow) =
@@ -98,15 +125,17 @@ class DashboardModel(
                     this,
                     intent.account,
                     intent.action,
-                    intent.shouldLaunchBankLinkTransfer
+                    intent.shouldLaunchBankLinkTransfer,
+                    intent.shouldSkipQuestionnaire
                 )
             }
-            AssetAction.Withdraw -> {
+            AssetAction.FiatWithdraw -> {
                 interactor.getBankWithdrawalFlow(
                     this,
                     intent.account,
                     intent.action,
-                    intent.shouldLaunchBankLinkTransfer
+                    intent.shouldLaunchBankLinkTransfer,
+                    intent.shouldSkipQuestionnaire
                 )
             }
             else -> {

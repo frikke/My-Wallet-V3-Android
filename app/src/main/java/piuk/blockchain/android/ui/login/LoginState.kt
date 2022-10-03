@@ -15,10 +15,12 @@ enum class LoginStep {
     ENTER_EMAIL,
     NAVIGATE_FROM_DEEPLINK,
     NAVIGATE_FROM_PAYLOAD,
+    NAVIGATE_TO_WALLET_CONNECT,
     POLLING_PAYLOAD_ERROR,
     GET_SESSION_ID,
     SEND_EMAIL,
     VERIFY_DEVICE,
+    MANUAL_PAIRING,
     SHOW_SESSION_ERROR,
     SHOW_EMAIL_ERROR,
     UNKNOWN_ERROR
@@ -32,9 +34,11 @@ data class LoginState(
     val shouldRestartApp: Boolean = false,
     val intentAction: String? = null,
     val intentUri: Uri? = null,
+    val guid: String = "",
     val pollingState: AuthPollingState = AuthPollingState.NOT_STARTED,
     val payload: LoginAuthInfo.ExtendedAccountInfo? = null,
     val payloadBase64String: String = "",
+    val walletConnectUrl: String = "",
     val loginApprovalState: LoginApprovalState = LoginApprovalState.NONE
 ) : MviState {
     val isLoading: Boolean

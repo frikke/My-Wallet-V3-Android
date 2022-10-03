@@ -1,6 +1,5 @@
 package piuk.blockchain.android.data.websocket
 
-import com.google.gson.Gson
 import junit.framework.Assert.assertEquals
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -12,21 +11,11 @@ import piuk.blockchain.android.data.coinswebsocket.models.SocketResponse
 
 class ResponseDecodingTest {
 
-    private val gson = Gson()
     private val json = Json { ignoreUnknownKeys = true }
 
     @Test
     fun `pong message`() {
         val pongMessage = " {\"success\": true, \"entity\":\"none\", \"coin\":\"none\", \"message\": \"pong\"}"
-        assertEquals(
-            SocketResponse(
-                success = true,
-                message = "pong",
-                coin = Coin.None
-            ),
-            gson.fromJson(pongMessage, SocketResponse::class.java)
-        )
-
         assertEquals(
             SocketResponse(
                 success = true,
@@ -43,15 +32,6 @@ class ResponseDecodingTest {
         val errorMessage =
             " {\"success\": false, \"entity\":\"account\",\"coin\":\"eth\",\"message\":\"Address xxx" +
                 " is not valid Ethereum address\"}\n"
-        assertEquals(
-            SocketResponse(
-                success = false,
-                entity = Entity.Account,
-                coin = Coin.ETH,
-                message = "Address xxx is not valid Ethereum address"
-            ),
-            gson.fromJson(errorMessage, SocketResponse::class.java)
-        )
 
         assertEquals(
             SocketResponse(
@@ -86,20 +66,6 @@ class ResponseDecodingTest {
                 "3124100350408882\",\"totalFees\":\"143124100350408882\",\"gasLi" +
                 "mit\":8009305,\"gasUsed\":7999426,\"transactionCount\":158,\"internalTransacti" +
                 "onCount\":10,\"timestamp\":1565799296}}"
-        assertEquals(
-            SocketResponse(
-                success = true,
-                entity = Entity.Header,
-                coin = Coin.ETH,
-                block = EthBlock(
-                    "0x8458a6bdfc7437fb5511171a570834f4ec851300c4fbcc545720db6cfaff78ee",
-                    "0xb8636f3f5bd5bdab77018c905293d66cc355e678ed82c6baadcca27920c68b72",
-                    "0xa339cf61f7397386dcb68d9328b5194f41aee0c2db0bb6cb37e258ceaf078006",
-                    8009305
-                )
-            ),
-            gson.fromJson(errorMessage, SocketResponse::class.java)
-        )
 
         assertEquals(
             SocketResponse(

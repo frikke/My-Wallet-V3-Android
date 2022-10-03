@@ -101,6 +101,7 @@ class PasswordChangeFragment :
                 }
                 PasswordViewState.PasswordUpdated -> {
                     showSnackBar(R.string.change_password_success, type = SnackbarType.Success)
+                    activity.onBackPressedDispatcher.onBackPressed()
                     with(binding) {
                         fieldPassword.setText("")
                         fieldNewPassword.setText("")

@@ -10,13 +10,15 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.interest.data.datasources.InterestBalancesStore
+import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -40,7 +42,9 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
     }
 
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val interestBalances: InterestBalanceDataManager = mock()
+    private val interestBalanceStore: InterestBalancesStore = mock()
+    private val interestService: InterestService = mock()
+    private val tradingStore: TradingStore = mock()
 
     private lateinit var subject: InterestWithdrawTradingTxEngine
 
@@ -66,8 +70,10 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
                 )
             )
         subject = InterestWithdrawTradingTxEngine(
-            walletManager = custodialWalletManager,
-            interestBalances = interestBalances
+            interestBalanceStore = interestBalanceStore,
+            interestService = interestService,
+            tradingStore = tradingStore,
+            walletManager = custodialWalletManager
         )
     }
 
@@ -132,7 +138,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
             on { fee }.thenReturn(BigInteger.ZERO)
         }
 
-        whenever(custodialWalletManager.getInterestLimits(ASSET)).thenReturn(Single.just(limits))
+        whenever(interestService.getLimitsForAsset(ASSET)).thenReturn(Single.just(limits))
         whenever(custodialWalletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)).thenReturn(
             Single.just(fees)
         )
@@ -158,7 +164,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
 
-        verify(custodialWalletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
         verify(currencyPrefs).selectedFiatCurrency
         verify(sourceAccount).balance
@@ -179,7 +185,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        whenever(custodialWalletManager.getInterestLimits(ASSET))
+        whenever(interestService.getLimitsForAsset(ASSET))
             .thenReturn(Single.error(NoSuchElementException()))
 
         whenever(custodialWalletManager.fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)).thenReturn(
@@ -193,7 +199,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
 
-        verify(custodialWalletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
         verify(sourceAccount).balance
 
@@ -212,7 +218,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
             exchangeRates
         )
 
-        whenever(custodialWalletManager.getInterestLimits(ASSET)).thenReturn(
+        whenever(interestService.getLimitsForAsset(ASSET)).thenReturn(
             Single.just(mock())
         )
         whenever(
@@ -230,7 +236,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
 
-        verify(custodialWalletManager).getInterestLimits(ASSET)
+        verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(
             ASSET, Product.SAVINGS
         )
@@ -286,7 +292,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
     private fun mockSourceAccount(
         totalBalance: Money = CryptoValue.zero(ASSET),
-        availableBalance: Money = CryptoValue.zero(ASSET)
+        availableBalance: Money = CryptoValue.zero(ASSET),
     ) = mock<CryptoInterestAccount> {
         on { currency }.thenReturn(ASSET)
         on { balance }.thenReturn(

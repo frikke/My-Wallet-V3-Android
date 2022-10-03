@@ -25,15 +25,17 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.TestScheduler
+import java.lang.RuntimeException
 import java.math.BigInteger
 import kotlin.test.assertEquals
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.RETURNS_DEEP_STUBS
+import org.mockito.exceptions.base.MockitoException
 
 @Suppress("IllegalIdentifier")
 class PayloadDataManagerTest {
@@ -108,18 +110,19 @@ class PayloadDataManagerTest {
         val password = "PASSWORD"
         val email = "EMAIL"
         val walletName = "WALLET_NAME"
+        val recaptcha = "CAPTCHA"
         val mockWallet: Wallet = mock()
-        whenever(payloadService.createHdWallet(password, walletName, email))
+        whenever(payloadService.createHdWallet(password, walletName, email, recaptcha))
             .thenReturn(Single.just(mockWallet))
 
         // Act
-        subject.createHdWallet(password, walletName, email)
+        subject.createHdWallet(password, walletName, email, recaptcha)
             .test()
             .assertComplete()
             .assertValue(mockWallet)
 
         // Assert
-        verify(payloadService).createHdWallet(password, walletName, email)
+        verify(payloadService).createHdWallet(password, walletName, email, recaptcha)
         verifyNoMoreInteractions(payloadService)
     }
 
@@ -163,8 +166,8 @@ class PayloadDataManagerTest {
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
 
-        whenever(payloadManager.isV3UpgradeRequired).thenReturn(true)
-        whenever(payloadManager.isV4UpgradeRequired).thenReturn(false)
+        whenever(payloadManager.isV3UpgradeRequired()).thenReturn(true)
+        whenever(payloadManager.isV4UpgradeRequired()).thenReturn(false)
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -173,8 +176,8 @@ class PayloadDataManagerTest {
 
         // Assert
         verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
-        verify(payloadManager).isV3UpgradeRequired
-        verify(payloadManager).isV4UpgradeRequired
+        verify(payloadManager).isV3UpgradeRequired()
+        verify(payloadManager).isV4UpgradeRequired()
         verify(payloadManager).payload
 
         verifyNoMoreInteractions(payloadService)
@@ -187,8 +190,8 @@ class PayloadDataManagerTest {
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
 
-        whenever(payloadManager.isV3UpgradeRequired).thenReturn(true)
-        whenever(payloadManager.isV4UpgradeRequired).thenReturn(true)
+        whenever(payloadManager.isV3UpgradeRequired()).thenReturn(true)
+        whenever(payloadManager.isV4UpgradeRequired()).thenReturn(true)
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -198,8 +201,8 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
         verify(payloadManager).upgradeV3PayloadToV4(secondPassword)
-        verify(payloadManager).isV3UpgradeRequired
-        verify(payloadManager).isV4UpgradeRequired
+        verify(payloadManager).isV3UpgradeRequired()
+        verify(payloadManager).isV4UpgradeRequired()
         verify(payloadManager).payload
 
         verifyNoMoreInteractions(payloadService)
@@ -212,8 +215,8 @@ class PayloadDataManagerTest {
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
 
-        whenever(payloadManager.isV3UpgradeRequired).thenReturn(false)
-        whenever(payloadManager.isV4UpgradeRequired).thenReturn(true)
+        whenever(payloadManager.isV3UpgradeRequired()).thenReturn(false)
+        whenever(payloadManager.isV4UpgradeRequired()).thenReturn(true)
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -222,8 +225,8 @@ class PayloadDataManagerTest {
 
         // Assert
         verify(payloadManager).upgradeV3PayloadToV4(secondPassword)
-        verify(payloadManager).isV3UpgradeRequired
-        verify(payloadManager).isV4UpgradeRequired
+        verify(payloadManager).isV3UpgradeRequired()
+        verify(payloadManager).isV4UpgradeRequired()
         verify(payloadManager).payload
 
         verifyNoMoreInteractions(payloadService)
@@ -236,9 +239,9 @@ class PayloadDataManagerTest {
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
         whenever(payloadManager.upgradeV2PayloadToV3(secondPassword, defaultAccountName))
-            .thenThrow(Exception("Failed"))
-        whenever(payloadManager.isV3UpgradeRequired).thenReturn(true)
-        whenever(payloadManager.isV4UpgradeRequired).thenReturn(true)
+            .thenThrow(MockitoException("Failed"))
+        whenever(payloadManager.isV3UpgradeRequired()).thenReturn(true)
+        whenever(payloadManager.isV4UpgradeRequired()).thenReturn(true)
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -247,7 +250,7 @@ class PayloadDataManagerTest {
 
         // Assert
         verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
-        verify(payloadManager).isV3UpgradeRequired
+        verify(payloadManager).isV3UpgradeRequired()
         verify(payloadManager).payload
 
         verifyNoMoreInteractions(payloadService)
@@ -259,9 +262,9 @@ class PayloadDataManagerTest {
         // Arrange
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
-        whenever(payloadManager.upgradeV3PayloadToV4(secondPassword)).thenThrow(Exception("Failed"))
-        whenever(payloadManager.isV3UpgradeRequired).thenReturn(true)
-        whenever(payloadManager.isV4UpgradeRequired).thenReturn(true)
+        whenever(payloadManager.upgradeV3PayloadToV4(secondPassword)).thenThrow(MockitoException("Failed"))
+        whenever(payloadManager.isV3UpgradeRequired()).thenReturn(true)
+        whenever(payloadManager.isV4UpgradeRequired()).thenReturn(true)
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -271,24 +274,12 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
         verify(payloadManager).upgradeV3PayloadToV4(secondPassword)
-        verify(payloadManager).isV3UpgradeRequired
-        verify(payloadManager).isV4UpgradeRequired
+        verify(payloadManager).isV3UpgradeRequired()
+        verify(payloadManager).isV4UpgradeRequired()
         verify(payloadManager).payload
 
         verifyNoMoreInteractions(payloadService)
         verifyNoMoreInteractions(payloadManager)
-    }
-
-    @Test
-    fun syncPayloadWithServer() {
-        // Arrange
-        whenever(payloadService.syncPayloadWithServer()).thenReturn(Completable.complete())
-        // Act
-        val testObserver = subject.syncPayloadWithServer().test()
-        // Assert
-        verify(payloadService).syncPayloadWithServer()
-        verifyNoMoreInteractions(payloadService)
-        testObserver.assertComplete()
     }
 
     @Test
@@ -373,7 +364,7 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).getLabelFromAddress(address)
         verifyNoMoreInteractions(payloadManager)
-        result shouldEqual label
+        result shouldBeEqualTo label
     }
 
     @Test
@@ -484,7 +475,7 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).getAddressSigningKey(mockImportedAddress, secondPassword)
         verifyNoMoreInteractions(payloadManager)
-        result shouldEqual mockKey
+        result shouldBeEqualTo mockKey
     }
 
     @Test
@@ -500,19 +491,6 @@ class PayloadDataManagerTest {
         observer.assertNoErrors()
         observer.assertComplete()
         assertEquals(mockAccount, observer.values()[0])
-    }
-
-    @Test
-    fun updateImportedAddress() {
-        // Arrange
-        val mockImportedAddress: ImportedAddress = mock()
-        whenever(payloadService.updateImportedAddress(mockImportedAddress)).thenReturn(Completable.complete())
-        // Act
-        val observer = subject.updateImportedAddress(mockImportedAddress).test()
-        // Assert
-        verify(payloadService).updateImportedAddress(mockImportedAddress)
-        observer.assertNoErrors()
-        observer.assertComplete()
     }
 
     @Test
@@ -541,18 +519,7 @@ class PayloadDataManagerTest {
         val result = subject.accounts
         // Assert
         verify(payloadManager, atLeastOnce()).payload
-        result shouldEqual accounts
-    }
-
-    @Test
-    fun `getAccounts returns empty list`() {
-        // Arrange
-        whenever(payloadManager.payload).thenReturn(null)
-        // Act
-        val result = subject.accounts
-        // Assert
-        verify(payloadManager).payload
-        result shouldEqual emptyList()
+        result shouldBeEqualTo accounts
     }
 
     @Test
@@ -567,7 +534,7 @@ class PayloadDataManagerTest {
         val result = subject.importedAddresses
         // Assert
         verify(payloadManager, atLeastOnce()).payload
-        result shouldEqual addresses
+        result shouldBeEqualTo addresses
     }
 
     @Test
@@ -585,19 +552,8 @@ class PayloadDataManagerTest {
         val result = subject.importedAddresses
         // Assert
         verify(payloadManager, atLeastOnce()).payload
-        result.count() shouldEqual 1
-        result[0] shouldEqual mockImportedAddress2
-    }
-
-    @Test
-    fun `getImportedAddresses returns empty list`() {
-        // Arrange
-        whenever(payloadManager.payload).thenReturn(null)
-        // Act
-        val result = subject.importedAddresses
-        // Assert
-        verify(payloadManager).payload
-        result shouldEqual emptyList()
+        result.count() shouldBeEqualTo 1
+        result[0] shouldBeEqualTo mockImportedAddress2
     }
 
     @Test
@@ -617,7 +573,7 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).getAddressBalance(xpubs)
         verifyNoMoreInteractions(payloadManager)
-        result shouldEqual balance
+        result shouldBeEqualTo balance
     }
 
     @Test
@@ -633,7 +589,7 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).getReceiveAddressAtPosition(mockAccount, position)
         verifyNoMoreInteractions(payloadManager)
-        result shouldEqual address
+        result shouldBeEqualTo address
     }
 
     @Test
@@ -682,7 +638,7 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).getXpubFromAddress(address)
         verifyNoMoreInteractions(payloadManager)
-        result shouldEqual xPub
+        result shouldBeEqualTo xPub
     }
 
     @Test
@@ -693,7 +649,7 @@ class PayloadDataManagerTest {
         // Act
         val result = subject.isOwnHDAddress(address)
         // Assert
-        result shouldEqual true
+        result shouldBeEqualTo true
     }
 
     @Test
@@ -706,7 +662,7 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).payload
         verifyNoMoreInteractions(payloadManager)
-        result shouldEqual mockWallet
+        result shouldBeEqualTo mockWallet
     }
 
     @Test
@@ -718,7 +674,7 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).payload
         verifyNoMoreInteractions(payloadManager)
-        result shouldEqual null
+        result shouldBeEqualTo null
     }
 
     @Test
@@ -730,7 +686,7 @@ class PayloadDataManagerTest {
         val result = subject.defaultAccountIndex
         // Assert
         verify(payloadManager, atLeastOnce()).payload
-        result shouldEqual index
+        result shouldBeEqualTo index
     }
 
     @Test
@@ -746,7 +702,7 @@ class PayloadDataManagerTest {
         val result = subject.defaultAccount
         // Assert
         verify(payloadManager, atLeastOnce()).payload
-        result shouldEqual mockAccount
+        result shouldBeEqualTo mockAccount
     }
 
     @Test
@@ -760,7 +716,7 @@ class PayloadDataManagerTest {
         val result = subject.getAccount(index)
         // Assert
         verify(payloadManager, atLeastOnce()).payload
-        result shouldEqual mockAccount
+        result shouldBeEqualTo mockAccount
     }
 
     @Test
@@ -795,7 +751,7 @@ class PayloadDataManagerTest {
 
         // Assert
         verify(payloadManager, atLeastOnce()).payload
-        result shouldEqual listOf(mockSigningKey)
+        result shouldBeEqualTo listOf(mockSigningKey)
     }
 
     @Test
@@ -808,7 +764,7 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).payloadChecksum
         verifyNoMoreInteractions(payloadManager)
-        result shouldEqual checkSum
+        result shouldBeEqualTo checkSum
     }
 
     @Test
@@ -821,18 +777,31 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).tempPassword
         verifyNoMoreInteractions(payloadManager)
-        result shouldEqual tempPassword
+        result shouldBeEqualTo tempPassword
     }
 
     @Test
-    fun setTempPassword() {
+    fun updatePasswordSuccess() {
         // Arrange
         val tempPassword = "TEMP_PASSWORD"
+        whenever(payloadManager.updatePassword(tempPassword)).thenReturn(true)
         // Act
-        subject.tempPassword = tempPassword
+        val test = subject.updatePassword(tempPassword).test()
         // Assert
-        verify(payloadManager).tempPassword = tempPassword
-        verifyNoMoreInteractions(payloadManager)
+
+        test.assertComplete()
+    }
+
+    @Test
+    fun updatePasswordFailed() {
+        // Arrange
+        val tempPassword = "TEMP_PASSWORD"
+        whenever(payloadManager.updatePassword(tempPassword)).thenReturn(false)
+        // Act
+        val test = subject.updatePassword(tempPassword).test()
+        // Assert
+
+        test.assertError(RuntimeException::class.java)
     }
 
     @Test
@@ -845,7 +814,7 @@ class PayloadDataManagerTest {
         // Assert
         verify(payloadManager).importedAddressesBalance
         verifyNoMoreInteractions(payloadManager)
-        result shouldEqual balance
+        result shouldBeEqualTo balance
     }
 
     @Test
@@ -855,6 +824,6 @@ class PayloadDataManagerTest {
         // Act
         val result = subject.isDoubleEncrypted
         // Assert
-        result shouldEqual true
+        result shouldBeEqualTo true
     }
 }

@@ -1,16 +1,17 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.api.services.MobilePaymentType
-import com.blockchain.core.payments.model.LinkBankTransfer
-import com.blockchain.core.payments.model.Partner
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
+import com.blockchain.domain.paymentmethods.model.Partner
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.BasicProfileInfo
-import com.blockchain.nabu.Tier
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.braintreepayments.cardform.utils.CardType
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -69,7 +70,7 @@ class SettingsModelTest {
         whenever(userInformation.email).thenReturn("paco@gmail.com")
 
         whenever(interactor.getSupportEligibilityAndBasicInfo()).thenReturn(
-            Single.just(UserDetails(Tier.SILVER, userInformation))
+            Single.just(UserDetails(KycTier.SILVER, userInformation, ReferralInfo.NotAvailable))
         )
 
         val testState = model.state.test()
@@ -81,7 +82,7 @@ class SettingsModelTest {
             }.assertValueAt(1) {
                 it == SettingsState(
                     basicProfileInfo = userInformation,
-                    tier = Tier.SILVER
+                    tier = KycTier.SILVER
                 )
             }
     }
@@ -92,7 +93,7 @@ class SettingsModelTest {
         whenever(userInformation.email).thenReturn("paco@gmail.com")
 
         whenever(interactor.getSupportEligibilityAndBasicInfo())
-            .thenReturn(Single.just(UserDetails(Tier.GOLD, userInformation)))
+            .thenReturn(Single.just(UserDetails(KycTier.GOLD, userInformation, ReferralInfo.NotAvailable)))
 
         val testState = model.state.test()
         model.process(SettingsIntent.LoadHeaderInformation)
@@ -103,7 +104,7 @@ class SettingsModelTest {
             }.assertValueAt(1) {
                 it == SettingsState(
                     basicProfileInfo = userInformation,
-                    tier = Tier.GOLD
+                    tier = KycTier.GOLD
                 )
             }
     }
@@ -123,6 +124,7 @@ class SettingsModelTest {
     fun `loadPaymentMethods works`() {
         val paymentDetails: PaymentMethods = mock()
         whenever(interactor.getExistingPaymentMethods()).thenReturn(Single.just(paymentDetails))
+        whenever(interactor.canPayWithBind()).thenReturn(Single.just(true))
 
         val testState = model.state.test()
         model.process(SettingsIntent.LoadPaymentMethods)
@@ -132,7 +134,8 @@ class SettingsModelTest {
                 it == SettingsState()
             }.assertValueAt(1) {
                 it == SettingsState(
-                    paymentMethodInfo = paymentDetails
+                    paymentMethodInfo = paymentDetails,
+                    canPayWithBind = true
                 )
             }
     }
@@ -151,7 +154,7 @@ class SettingsModelTest {
                     "",
                     Partner.CARDPROVIDER,
                     Date(),
-                    CardType.AMEX,
+                    CardType.AMEX.name,
                     CardStatus.ACTIVE,
                     MobilePaymentType.GOOGLE_PAY,
                     true
@@ -196,6 +199,7 @@ class SettingsModelTest {
     @Test
     fun `loadPaymentMethods fails`() {
         whenever(interactor.getExistingPaymentMethods()).thenReturn(Single.error(Exception()))
+        whenever(interactor.canPayWithBind()).thenReturn(Single.just(true))
 
         val testState = model.state.test()
         model.process(SettingsIntent.LoadPaymentMethods)
@@ -205,18 +209,18 @@ class SettingsModelTest {
                 it == SettingsState()
             }.assertValueAt(1) {
                 it == SettingsState(
-                    error = SettingsError.PAYMENT_METHODS_LOAD_FAIL
+                    error = SettingsError.PaymentMethodsLoadFail
                 )
             }
     }
 
     @Test
-    fun `bankTransferSelected works`() {
+    fun `bankLinkedSelected works`() {
         val bankLinkInfo: LinkBankTransfer = mock()
         whenever(interactor.getBankLinkingInfo()).thenReturn(Single.just(bankLinkInfo))
 
         val testState = model.state.test()
-        model.process(SettingsIntent.AddBankTransferSelected)
+        model.process(SettingsIntent.AddLinkBankSelected)
 
         testState
             .assertValueAt(0) {
@@ -228,34 +232,17 @@ class SettingsModelTest {
     }
 
     @Test
-    fun `bankTransferSelected fails`() {
+    fun `bankLinkedSelected fails`() {
         whenever(interactor.getBankLinkingInfo()).thenReturn(Single.error(Exception()))
 
         val testState = model.state.test()
-        model.process(SettingsIntent.AddBankTransferSelected)
+        model.process(SettingsIntent.AddLinkBankSelected)
 
         testState
             .assertValueAt(0) {
                 it == SettingsState()
             }.assertValueAt(1) {
-                it.error == SettingsError.BANK_LINK_START_FAIL
-            }
-    }
-
-    @Test
-    fun `bankAccountSelected works`() {
-        val userFiat: FiatCurrency = mock()
-        whenever(interactor.getUserFiat()).thenReturn(userFiat)
-
-        val testState = model.state.test()
-        model.process(SettingsIntent.AddBankAccountSelected)
-
-        testState
-            .assertValueAt(0) {
-                it == SettingsState()
-            }.assertValueAt(1) {
-                it.viewToLaunch is ViewToLaunch.BankAccount &&
-                    (it.viewToLaunch as ViewToLaunch.BankAccount).currency == userFiat
+                it.error == SettingsError.BankLinkStartFail
             }
     }
 
@@ -288,7 +275,7 @@ class SettingsModelTest {
                 it == SettingsState()
             }.assertValueAt(1) {
                 it == SettingsState(
-                    error = SettingsError.UNPAIR_FAILED
+                    error = SettingsError.UnpairFailed
                 )
             }
     }

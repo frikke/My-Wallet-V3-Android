@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +18,8 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
-fun TableRow(
+private fun TableRow(
+    paddingValues: PaddingValues,
     content: @Composable RowScope.() -> Unit,
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
@@ -37,10 +39,7 @@ fun TableRow(
                 }
             }
             .background(AppTheme.colors.background)
-            .padding(
-                horizontal = dimensionResource(R.dimen.standard_margin),
-                vertical = dimensionResource(R.dimen.medium_margin)
-            )
+            .padding(paddingValues)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -54,4 +53,44 @@ fun TableRow(
             contentBottom?.invoke()
         }
     }
+}
+
+@Composable
+fun TableRow(
+    content: @Composable RowScope.() -> Unit,
+    contentStart: @Composable (RowScope.() -> Unit)? = null,
+    contentEnd: @Composable (RowScope.() -> Unit)? = null,
+    contentBottom: @Composable (() -> Unit)? = null,
+    onContentClicked: (() -> Unit)? = null
+) {
+    TableRow(
+        paddingValues = PaddingValues(
+            horizontal = dimensionResource(R.dimen.standard_margin),
+            vertical = dimensionResource(R.dimen.medium_margin)
+        ),
+        content = content,
+        contentStart = contentStart,
+        contentEnd = contentEnd,
+        contentBottom = contentBottom,
+        onContentClicked = onContentClicked
+    )
+}
+
+@Composable
+fun FlexibleTableRow(
+    paddingValues: PaddingValues,
+    content: @Composable RowScope.() -> Unit,
+    contentStart: @Composable (RowScope.() -> Unit)? = null,
+    contentEnd: @Composable (RowScope.() -> Unit)? = null,
+    contentBottom: @Composable (() -> Unit)? = null,
+    onContentClicked: (() -> Unit)? = null
+) {
+    TableRow(
+        paddingValues = paddingValues,
+        content = content,
+        contentStart = contentStart,
+        contentEnd = contentEnd,
+        contentBottom = contentBottom,
+        onContentClicked = onContentClicked
+    )
 }

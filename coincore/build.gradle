@@ -27,6 +27,7 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':common:domain')
     implementation project(':core')
+    implementation project(':store:core')
     implementation project(':blockchainApi')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')
@@ -36,7 +37,6 @@ dependencies {
     implementation Libraries.kotlinJson
     implementation Libraries.koin
     implementation Libraries.androidXAnnotations
-    implementation Libraries.gson
     implementation Libraries.timber
 
     implementation Libraries.rxjava3Coroutines
@@ -49,6 +49,8 @@ dependencies {
     testImplementation Libraries.koinTest
     testImplementation Libraries.hamcrestJunit
     testImplementation Libraries.kotlinJunit
+    testImplementation Libraries.koinTest
+    testImplementation Libraries.koinTestJunit
     testImplementation Libraries.kluent
     testImplementation(Libraries.mockitoKotlin) {
         ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }

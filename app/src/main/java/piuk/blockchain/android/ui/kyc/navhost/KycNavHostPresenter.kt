@@ -2,13 +2,15 @@ package piuk.blockchain.android.ui.kyc.navhost
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.KYCAnalyticsEvents
+import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
+import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.api.getuser.data.GetUserStore
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
-import com.blockchain.nabu.service.TierUpdater
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -16,6 +18,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.kyc.BaseKycPresenter
+import piuk.blockchain.android.ui.kyc.address.models.OldProfileModel
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
@@ -23,19 +26,24 @@ import timber.log.Timber
 
 class KycNavHostPresenter(
     nabuToken: NabuToken,
-    private val nabuDataManager: NabuDataManager,
+    private val userService: UserService,
     private val reentryDecision: ReentryDecision,
     private val kycNavigator: KycNavigator,
-    private val tierUpdater: TierUpdater,
-    private val analytics: Analytics
+    private val kycTiersStore: KycTiersStore,
+    private val productEligibilityStore: ProductsEligibilityStore,
+    private val getUserStore: GetUserStore,
+    private val analytics: Analytics,
 ) : BaseKycPresenter<KycNavHostView>(nabuToken) {
 
     override fun onViewReady() {
+        kycTiersStore.invalidate()
+        getUserStore.invalidate()
+        productEligibilityStore.invalidate()
+
         compositeDisposable +=
-            fetchOfflineToken.flatMap {
-                nabuDataManager.getUser(it)
-                    .subscribeOn(Schedulers.io())
-            }.observeOn(AndroidSchedulers.mainThread())
+            userService.getUser()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { view.displayLoading(true) }
                 .subscribeBy(
                     onSuccess = {
@@ -65,8 +73,7 @@ class KycNavHostPresenter(
             view.campaignType == CampaignType.Resubmission || user.isMarkedForResubmission -> {
                 view.navigateToResubmissionSplash()
             }
-            view.campaignType == CampaignType.Blockstack ||
-                view.campaignType == CampaignType.SimpleBuy ||
+            view.campaignType == CampaignType.SimpleBuy ||
                 view.campaignType == CampaignType.Interest ||
                 view.campaignType == CampaignType.FiatFunds ||
                 view.campaignType == CampaignType.None ||
@@ -107,6 +114,13 @@ internal fun NabuUser.toProfileModel(): ProfileModel = ProfileModel(
     firstName = firstName ?: throw IllegalStateException("First Name is null"),
     lastName = lastName ?: throw IllegalStateException("Last Name is null"),
     countryCode = address?.countryCode ?: throw IllegalStateException("Country Code is null"),
-    stateName = address?.state,
-    stateCode = address?.state
+    stateCode = address?.stateIso
+)
+
+internal fun NabuUser.toOldProfileModel(): OldProfileModel = OldProfileModel(
+    firstName = firstName ?: throw IllegalStateException("First Name is null"),
+    lastName = lastName ?: throw IllegalStateException("Last Name is null"),
+    countryCode = address?.countryCode ?: throw IllegalStateException("Country Code is null"),
+    stateCode = address?.stateIso,
+    stateName = address?.stateIso
 )

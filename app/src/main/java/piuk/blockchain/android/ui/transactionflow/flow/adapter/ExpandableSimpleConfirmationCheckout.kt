@@ -5,6 +5,7 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
@@ -62,6 +63,20 @@ private class ExpandableSimpleConfirmationCheckoutItemViewHolder(
                 expandableItemExpansion.setText(
                     this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder, TextView.BufferType.SPANNABLE
                 )
+                if (item is TxConfirmationValue.ExchangePriceConfirmation) {
+                    when {
+                        item.isNewQuote -> {
+                            expandableItemTitle.setTextColor(
+                                ContextCompat.getColor(expandableItemLabel.context, R.color.blue_600)
+                            )
+                        }
+                        else -> {
+                            expandableItemTitle.setTextColor(
+                                ContextCompat.getColor(expandableItemLabel.context, R.color.grey_800)
+                            )
+                        }
+                    }
+                }
             }
         }
         updateIcon()

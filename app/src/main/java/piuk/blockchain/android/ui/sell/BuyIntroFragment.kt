@@ -7,12 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.analytics.Analytics
+import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.extensions.exhaustive
+import com.blockchain.koin.buyOrder
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -23,8 +23,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -36,6 +34,7 @@ import piuk.blockchain.android.databinding.BuyIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.account.HeaderDecoration
@@ -43,6 +42,7 @@ import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.ui.transfer.BuyListAccountSorting
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
 import piuk.blockchain.android.util.openUrl
 import retrofit2.HttpException
@@ -61,10 +61,10 @@ class BuyIntroFragment :
 
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
     private val compositeDisposable = CompositeDisposable()
-    private val coincore: Coincore by scopedInject()
     private val assetResources: AssetResources by inject()
     private val analytics: Analytics by inject()
     private val userIdentity: UserIdentity by scopedInject()
+    private val buyOrdering: BuyListAccountSorting by scopedInject(buyOrder)
 
     private val buyAdapter = BuyCryptoCurrenciesAdapter(
         assetResources = assetResources,
@@ -115,28 +115,33 @@ class BuyIntroFragment :
                 .subscribeBy(
                     onSuccess = { eligibility ->
                         when (val reason = (eligibility as? FeatureAccess.Blocked)?.reason) {
-                            BlockedReason.NotEligible,
+                            is BlockedReason.NotEligible -> renderBlockedDueToNotEligible(reason)
                             is BlockedReason.InsufficientTier -> renderKycUpgradeNow()
                             is BlockedReason.Sanctions -> renderBlockedDueToSanctions(reason)
                             is BlockedReason.TooManyInFlightTransactions,
                             null -> loadBuyDetails(showLoading)
                         }
                     },
-                    onError = {
+                    onError = { exception ->
                         renderErrorState()
+
+                        val nabuException: NabuApiException? = (exception as? HttpException)?.let { httpException ->
+                            NabuApiExceptionFactory.fromResponseBody(httpException)
+                        }
+
                         analytics.logEvent(
                             ClientErrorAnalytics.ClientLogError(
-                                nabuApiException = if (it is HttpException) {
-                                    NabuApiExceptionFactory.fromResponseBody(it)
-                                } else null,
+                                nabuApiException = nabuException,
+                                errorDescription = exception.message,
                                 error = ClientErrorAnalytics.NABU_ERROR,
-                                source = if (it is HttpException) {
+                                source = if (exception is HttpException) {
                                     ClientErrorAnalytics.Companion.Source.NABU
                                 } else {
                                     ClientErrorAnalytics.Companion.Source.CLIENT
                                 },
                                 title = ClientErrorAnalytics.OOPS_ERROR,
                                 action = ClientErrorAnalytics.ACTION_BUY,
+                                categories = nabuException?.getServerSideErrorInfo()?.categories ?: emptyList()
                             )
                         )
                     }
@@ -150,27 +155,12 @@ class BuyIntroFragment :
                     it.source
                 }.distinct()
                     .filterIsInstance<AssetInfo>()
-            }.flatMapObservable { assets ->
-                Observable.fromIterable(assets).flatMapMaybe { asset ->
-                    coincore[asset].getPricesWith24hDelta().map { priceDelta ->
-                        PricedAsset(
-                            asset = asset,
-                            priceHistory = PriceHistory(
-                                currentExchangeRate = priceDelta.currentRate,
-                                priceDelta = priceDelta.delta24h
-                            )
-                        )
-                    }.toMaybe().onErrorResumeNext {
-                        Maybe.empty()
-                    }
-                }
-            }.toList()
+            }.flatMap { assets ->
+                buyOrdering.sort(assets)
+            }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .trackProgress(activityIndicator.takeIf { showLoading })
-            .doOnSubscribe {
-                buyAdapter.items = emptyList()
-            }
             .subscribeBy(
                 onSuccess = { items ->
                     renderBuyIntro(items)
@@ -180,18 +170,11 @@ class BuyIntroFragment :
     }
 
     private fun onItemClick(item: BuyCryptoItem) {
-        compositeDisposable += userIdentity.userAccessForFeature(Feature.SimpleBuy).subscribeBy { accessState ->
-            val blockedState = accessState as? FeatureAccess.Blocked
-            blockedState?.let {
-                when (val reason = it.reason) {
-                    is BlockedReason.TooManyInFlightTransactions -> showPendingOrdersBottomSheet(
-                        reason.maxTransactions
-                    )
-                    BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
-                    is BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Feature.SimpleBuy")
-                    is BlockedReason.Sanctions -> throw IllegalStateException("Buy should not be accessible")
-                }.exhaustive
-            } ?: run {
+        compositeDisposable += userIdentity.userAccessForFeature(Feature.Buy).subscribeBy { accessState ->
+            val blockedReason = (accessState as? FeatureAccess.Blocked)?.reason
+            if (blockedReason is BlockedReason.TooManyInFlightTransactions) {
+                showPendingOrdersBottomSheet(blockedReason.maxTransactions)
+            } else {
                 startActivity(
                     SimpleBuyActivity.newIntent(
                         activity as Context,
@@ -220,6 +203,23 @@ class BuyIntroFragment :
         binding.viewFlipper.displayedChild = ViewFlipperItem.KYC.ordinal
     }
 
+    private fun renderBlockedDueToNotEligible(reason: BlockedReason.NotEligible) {
+        with(binding) {
+            viewFlipper.displayedChild = ViewFlipperItem.EMPTY_STATE.ordinal
+            customEmptyState.apply {
+                title = R.string.account_restricted
+                descriptionText = if (reason.message != null) {
+                    reason.message
+                } else {
+                    getString(R.string.feature_not_available)
+                }
+                icon = R.drawable.ic_wallet_intro_image
+                ctaText = R.string.contact_support
+                ctaAction = { startActivity(SupportCentreActivity.newIntent(requireContext())) }
+            }
+        }
+    }
+
     private fun renderBlockedDueToSanctions(reason: BlockedReason.Sanctions) {
         with(binding) {
             viewFlipper.displayedChild = ViewFlipperItem.EMPTY_STATE.ordinal
@@ -230,7 +230,7 @@ class BuyIntroFragment :
                     is BlockedReason.Sanctions.Unknown -> reason.message
                 }
                 icon = R.drawable.ic_wallet_intro_image
-                ctaText = R.string.learn_more
+                ctaText = R.string.common_learn_more
                 ctaAction = { requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5) }
             }
         }
@@ -292,8 +292,6 @@ class BuyIntroFragment :
 
     override fun navigator(): HomeNavigator =
         (activity as? HomeNavigator) ?: throw IllegalStateException("Parent must implement HomeNavigator")
-
-    override fun onBackPressed(): Boolean = false
 }
 
 data class PriceHistory(
@@ -313,7 +311,19 @@ data class BuyCryptoItem(
     val percentageDelta: Double
 )
 
-private data class PricedAsset(
-    val asset: AssetInfo,
-    val priceHistory: PriceHistory
-)
+sealed class PricedAsset(
+    open val asset: AssetInfo,
+    open val priceHistory: PriceHistory
+) {
+    data class NonSortedAsset(
+        override val asset: AssetInfo,
+        override val priceHistory: PriceHistory
+    ) : PricedAsset(asset, priceHistory)
+
+    data class SortedAsset(
+        override val asset: AssetInfo,
+        override val priceHistory: PriceHistory,
+        val balance: Money,
+        val tradingVolume: Double
+    ) : PricedAsset(asset, priceHistory)
+}

@@ -60,12 +60,13 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_benefits"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/standard_margin"
         app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toTopOf="@+id/footer_text"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/kyc_benefits_header_separator"
         app:layout_goneMarginBottom="@dimen/standard_margin"
         tools:itemCount="5"
@@ -78,34 +79,34 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_margin"
         android:gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/kyc_benefits_negative_action"
+        app:layout_constraintBottom_toTopOf="@+id/kyc_benefits_positive_action"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="If you think this was a mistake or would like a manual review of your account, please contact support."
         tools:visibility="gone" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/kyc_benefits_negative_action"
-        style="@style/CtaButton.White"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/tiny_margin"
-        android:text="@string/fiat_funds_no_kyc_negative_action"
-        app:layout_constraintBottom_toTopOf="@id/kyc_benefits_positive_action"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_goneMarginBottom="@dimen/standard_margin" />
-
-    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/kyc_benefits_positive_action"
         style="@style/CtaButton.Blue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/tiny_margin"
         android:text="@string/fiat_funds_no_kyc_positive_action"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/kyc_benefits_negative_action"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/kyc_benefits_negative_action"
+        style="@style/CtaButton.White"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/standard_margin"
+        android:text="@string/fiat_funds_no_kyc_negative_action"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_goneMarginBottom="@dimen/standard_margin" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

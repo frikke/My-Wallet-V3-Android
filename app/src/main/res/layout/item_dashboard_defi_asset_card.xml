@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardLayout"
+    style="@style/DashboardCard">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/icon"
+            android:layout_width="@dimen/asset_icon_size"
+            android:layout_height="@dimen/asset_icon_size"
+            android:layout_marginStart="@dimen/standard_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_default_asset_logo" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/currency_name"
+            style="@style/Text.Standard.16"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginTop="@dimen/small_margin"
+            android:layout_marginEnd="@dimen/smallest_margin"
+            android:layout_marginBottom="1dp"
+            app:layout_constraintBottom_toTopOf="@+id/guide"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1"
+            tools:text="Bitcoin Bitcoin Bitcoin Bitcoin" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/currency"
+            style="@style/Text.Light.14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginBottom="@dimen/small_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/icon"
+            android:layout_marginTop="1dp"
+            app:layout_constraintTop_toBottomOf="@+id/guide"
+            tools:text="Bitcoin" />
+
+        <com.blockchain.componentlib.tag.TagsRowView
+            android:id="@+id/l1_netwok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/tiny_margin"
+            app:layout_constraintBottom_toBottomOf="@+id/currency"
+            app:layout_constraintStart_toEndOf="@+id/currency"
+            app:layout_constraintTop_toTopOf="@+id/currency" />
+
+        <com.elyeproj.loaderviewlibrary.LoaderTextView
+            android:id="@+id/fiat_balance"
+            style="@style/Text.Standard.16"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/small_margin"
+            app:height_weight="0.8"
+            app:layout_constraintBottom_toTopOf="@id/guide"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:use_gradient="true"
+            app:width_weight="0.9"
+            tools:text="$15,879.90" />
+
+        <com.elyeproj.loaderviewlibrary.LoaderTextView
+            android:id="@+id/crypto_balance"
+            style="@style/Text.Light.14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/small_margin"
+            app:height_weight="0.8"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/guide"
+            app:use_gradient="true"
+            app:width_weight="0.9"
+            tools:text="20 BTC" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/error_msg"
+            style="@style/Text.Error"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_asset_error"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            app:layout_constraintStart_toStartOf="@id/currency"
+            app:layout_constraintTop_toBottomOf="@id/guide"
+            tools:text="Could not load BTC at this time" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

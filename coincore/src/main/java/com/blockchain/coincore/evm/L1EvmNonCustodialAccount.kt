@@ -4,6 +4,7 @@ import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
@@ -11,38 +12,37 @@ import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.UserIdentity
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.outcome.fold
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.store.asObservable
+import com.blockchain.store.mapData
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.math.BigDecimal
+import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlinx.coroutines.rx3.rxSingle
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
+import kotlinx.coroutines.flow.catch
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class L1EvmNonCustodialAccount(
-    payloadManager: PayloadDataManager,
     asset: AssetInfo,
-    private val ethDataManager: EthDataManager,
+    private val l1BalanceStore: L1BalanceStore,
     private val erc20DataManager: Erc20DataManager,
     internal val address: String,
     private val fees: FeeDataManager,
     override val label: String,
     override val exchangeRates: ExchangeRatesDataManager,
-    private val walletPreferences: WalletStatus,
+    private val walletPreferences: WalletStatusPrefs,
     private val custodialWalletManager: CustodialWalletManager,
-    override val baseActions: Set<AssetAction>,
-    identity: UserIdentity,
     override val addressResolver: AddressResolver,
-    override val l1Network: EvmNetwork
-) : MultiChainAccount, CryptoNonCustodialAccount(payloadManager, asset, custodialWalletManager, identity) {
+    override val l1Network: EvmNetwork,
+) : MultiChainAccount, CryptoNonCustodialAccount(asset) {
 
     private val hasFunds = AtomicBoolean(false)
 
@@ -53,22 +53,31 @@ class L1EvmNonCustodialAccount(
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.just(
-            MaticAddress(
+            L1EvmAddress(
+                asset = currency,
                 address = address,
                 label = label
             )
         )
 
-    override fun getOnChainBalance(): Observable<Money> =
-        rxSingle {
-            ethDataManager.getBalance(l1Network.nodeUrl)
-                .fold(
-                    onFailure = { Money.fromMajor(currency, BigDecimal.ZERO) },
-                    onSuccess = { Money.fromMinor(currency, it) }
-                )
-        }
-            .toObservable()
+    override fun getOnChainBalance(): Observable<Money> {
+        return l1BalanceStore
+            .stream(FreshnessStrategy.Cached(forceRefresh = true).withKey(L1BalanceStore.Key(l1Network.nodeUrl)))
+            .catch { DataResource.Data(BigInteger.ZERO) }
+            .mapData { balance -> Money.fromMinor(currency, balance) }
+            .asObservable()
             .doOnNext { hasFunds.set(it.isPositive) }
+    }
+
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = super.stateAwareActions.map { actions ->
+            actions.filter {
+                listOf(
+                    AssetAction.Send, AssetAction.Receive,
+                    AssetAction.ViewActivity
+                ).contains(it.action)
+            }.toSet()
+        }
 
     override val activity: Single<ActivitySummaryList>
         get() {

@@ -4,26 +4,24 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.NotificationPrefs
-import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.wallet.payload.PayloadManager
-import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class NotificationTokenManagerTest {
     private lateinit var subject: NotificationTokenManager
 
     private val notificationService: NotificationService = mock()
-    private val payloadManager: PayloadManager = mock()
+    private val payloadDataManager: PayloadDataManager = mock()
     private val prefs: NotificationPrefs = mock()
     private val authPrefs: AuthPrefs = mock {
         on { walletGuid }.thenReturn(GUID)
@@ -43,7 +41,7 @@ class NotificationTokenManagerTest {
     fun setUp() {
         subject = NotificationTokenManager(
             notificationService,
-            payloadManager,
+            payloadDataManager,
             prefs,
             authPrefs,
             notificationTokenProvider,
@@ -55,7 +53,7 @@ class NotificationTokenManagerTest {
     fun storeAndUpdateToken_disabledNotifications() {
         // Arrange
         whenever(prefs.arePushNotificationsEnabled).thenReturn(false)
-        whenever(payloadManager.payload).thenReturn(null)
+        whenever(payloadDataManager.initialised).thenReturn(false)
 
         // Act
         subject.storeAndUpdateToken("token")
@@ -69,7 +67,7 @@ class NotificationTokenManagerTest {
     fun storeAndUpdateToken_enabledNotifications_notSignedIn() {
         // Arrange
         whenever(prefs.arePushNotificationsEnabled).thenReturn(true)
-        whenever(payloadManager.payload).thenReturn(null)
+        whenever(payloadDataManager.initialised).thenReturn(false)
 
         // Act
         subject.storeAndUpdateToken("token")
@@ -83,10 +81,10 @@ class NotificationTokenManagerTest {
     fun storeAndUpdateToken_enabledNotifications_signedIn() {
         // Arrange
         whenever(prefs.arePushNotificationsEnabled).thenReturn(true)
-        val mockPayload = mock<Wallet>()
-        whenever(mockPayload.guid).thenReturn("guid")
-        whenever(mockPayload.sharedKey).thenReturn("sharedKey")
-        whenever(payloadManager.payload).thenReturn(mockPayload)
+
+        whenever(payloadDataManager.guid).thenReturn("guid")
+        whenever(payloadDataManager.initialised).thenReturn(true)
+        whenever(payloadDataManager.sharedKey).thenReturn("sharedKey")
         whenever(
             notificationService.sendNotificationToken(
                 anyString(), anyString(), anyString()
@@ -125,12 +123,10 @@ class NotificationTokenManagerTest {
 
         whenever(prefs.firebaseToken).thenReturn(token)
         whenever(prefs.arePushNotificationsEnabled).thenReturn(true)
-        val mockPayload = mock<Wallet> {
-            on { this.guid }.thenReturn(guid)
-            on { sharedKey }.thenReturn(key)
-        }
 
-        whenever(payloadManager.payload).thenReturn(mockPayload)
+        whenever(payloadDataManager.guid).thenReturn(guid)
+        whenever(payloadDataManager.initialised).thenReturn(true)
+        whenever(payloadDataManager.sharedKey).thenReturn(key)
         whenever(notificationService.sendNotificationToken(token, guid, key)).thenReturn(Completable.complete())
 
         val testObservable = subject.enableNotifications().test()
@@ -138,7 +134,6 @@ class NotificationTokenManagerTest {
         testObservable.assertComplete()
         testObservable.assertNoErrors()
         verify(prefs).arePushNotificationsEnabled = true
-        verify(payloadManager, atLeastOnce()).payload
         verify(notificationService).sendNotificationToken(token, guid, key)
         verifyNoMoreInteractions(notificationService)
     }
@@ -177,7 +172,6 @@ class NotificationTokenManagerTest {
         verifyNoMoreInteractions(notificationService)
         verifyNoMoreInteractions(notificationTokenProvider)
         verifyNoMoreInteractions(prefs)
-        verifyZeroInteractions(payloadManager)
     }
 
     @Test
@@ -217,7 +211,6 @@ class NotificationTokenManagerTest {
         verify(notificationTokenProvider).deleteToken()
         verify(prefs).firebaseToken
         verify(prefs).firebaseToken = ""
-        verifyZeroInteractions(payloadManager)
         verifyNoMoreInteractions(notificationService)
         verifyNoMoreInteractions(notificationTokenProvider)
         verifyNoMoreInteractions(prefs)

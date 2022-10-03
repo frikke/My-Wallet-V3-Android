@@ -24,7 +24,7 @@ val notificationModule = module {
         scoped {
             NotificationTokenManager(
                 notificationService = get(),
-                payloadManager = get(),
+                payloadDataManager = get(),
                 prefs = get(),
                 remoteLogger = get(),
                 authPrefs = get(),
@@ -39,7 +39,7 @@ val notificationModule = module {
 
     factory { NotificationService(get()) }
 
-    factory { get<Context>().getSystemService(Context.NOTIFICATION_SERVICE) }.bind(NotificationManager::class)
+    factory { get<Context>().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
     single { FirebaseDynamicLinks.getInstance() }
 
@@ -59,6 +59,8 @@ val notificationModule = module {
             environmentConfig = get(),
             remoteConfigPrefs = get()
         )
-    }.bind(RemoteConfig::class)
-        .bind(ABTestExperiment::class)
+    }.apply {
+        bind(RemoteConfig::class)
+        bind(ABTestExperiment::class)
+    }
 }

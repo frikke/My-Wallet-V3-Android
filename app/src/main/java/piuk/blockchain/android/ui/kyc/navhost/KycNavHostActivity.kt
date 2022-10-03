@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
@@ -15,9 +17,10 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.invisibleIf
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -29,7 +32,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycNavHostBinding
 import piuk.blockchain.android.ui.base.BaseMvpActivity
-import piuk.blockchain.android.ui.kyc.complete.ApplicationCompleteFragment
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragmentDirections
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
@@ -38,7 +40,10 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 class KycNavHostActivity :
     BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(),
     KycProgressListener,
+    EmailEntryHost,
     KycNavHostView {
+
+    private lateinit var backPressCallback: OnBackPressedCallback
 
     private val binding: ActivityKycNavHostBinding by lazy {
         ActivityKycNavHostBinding.inflate(layoutInflater)
@@ -49,8 +54,6 @@ class KycNavHostActivity :
     private val navController: NavController by lazy {
         (supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment).navController
     }
-    private val currentFragment: Fragment?
-        get() = supportFragmentManager.findFragmentById(R.id.nav_host)
 
     private val compositeDisposable = CompositeDisposable()
     private val userIdentity: UserIdentity by scopedInject()
@@ -59,29 +62,44 @@ class KycNavHostActivity :
         intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType
     }
 
+    override val isCowboysUser: Boolean
+        get() = intent.getBooleanExtra(FROM_COWBOYS, false)
+
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        setupBackPress()
+
         updateToolbar(
             toolbarTitle = getString(R.string.identity_verification),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         analytics.logEvent(
             KYCAnalyticsEvents.UpgradeKycVeriffClicked(
                 campaignType.toLaunchOrigin(),
-                Tier.GOLD.ordinal
+                KycTier.GOLD.ordinal
             )
         )
+
+        navController.removeOnDestinationChangedListener { controller, destination, arguments ->
+            verifyBackPressCallback(destination)
+        }
+        navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            verifyBackPressCallback(destination)
+        }
+
         navController.setGraph(R.navigation.kyc_nav, intent.extras)
 
         onViewReady()
     }
 
-    override fun setHostTitle(title: Int) {
+    override fun setupHostToolbar(@StringRes title: Int, navigationBarButtons: List<NavigationBarButton>) {
         updateToolbarTitle(getString(title))
+        updateToolbarMenuItems(navigationBarButtons)
     }
 
     override fun displayLoading(loading: Boolean) {
@@ -90,11 +108,14 @@ class KycNavHostActivity :
     }
 
     override fun showErrorSnackbarAndFinish(@StringRes message: Int) {
+        setResult(RESULT_CANCELED)
+
         BlockchainSnackbar.make(
             binding.root,
             getString(message),
             type = SnackbarType.Error
         ).show()
+
         finish()
     }
 
@@ -171,24 +192,21 @@ class KycNavHostActivity :
     }
 
     override fun onSupportNavigateUp(): Boolean = consume {
-        if (flowShouldBeClosedAfterBackAction() || !navController.navigateUp()) {
+        onBackPressedDispatcher.onBackPressed()
+    }
+
+    private fun setupBackPress() {
+        backPressCallback = onBackPressedDispatcher.addCallback(owner = this) {
+            // see ApplicationCompleteFragment for success result
+            setResult(RESULT_CANCELED)
             finish()
         }
     }
 
-    override fun onBackPressed() {
-        if (flowShouldBeClosedAfterBackAction()) {
-            finish()
-        } else {
-            super.onBackPressed()
-        }
+    private fun verifyBackPressCallback(destination: NavDestination) {
+        // If not coming from settings, we want the 1st launched screen to be the 1st screen in the stack
+        backPressCallback.isEnabled = navInitialDestination?.id == destination.id
     }
-
-    private fun flowShouldBeClosedAfterBackAction() =
-        // If on final page, close host Activity on navigate up
-        currentFragment is ApplicationCompleteFragment ||
-            // If not coming from settings, we want the 1st launched screen to be the 1st screen in the stack
-            (navInitialDestination != null && navInitialDestination?.id == navController.currentDestination?.id)
 
     override fun createPresenter(): KycNavHostPresenter = kycNavHastPresenter
 
@@ -198,6 +216,7 @@ class KycNavHostActivity :
         const val RESULT_KYC_FOR_SDD_COMPLETE = 35432
         const val RESULT_KYC_FOR_TIER_COMPLETE = 8954234
         private const val EXTRA_CAMPAIGN_TYPE = "piuk.blockchain.android.EXTRA_CAMPAIGN_TYPE"
+        private const val FROM_COWBOYS = "FROM_COWBOYS"
 
         @JvmStatic
         fun start(context: Context, campaignType: CampaignType) {
@@ -208,6 +227,14 @@ class KycNavHostActivity :
         @JvmStatic
         fun startForResult(activity: Activity, campaignType: CampaignType, requestCode: Int) {
             newIntent(activity, campaignType)
+                .run { activity.startActivityForResult(this, requestCode) }
+        }
+
+        @JvmStatic
+        fun startForResultForCowboys(activity: Activity, campaignType: CampaignType, requestCode: Int) {
+            newIntent(activity, campaignType).apply {
+                putExtra(FROM_COWBOYS, true)
+            }
                 .run { activity.startActivityForResult(this, requestCode) }
         }
 
@@ -230,16 +257,12 @@ class KycNavHostActivity :
                 .apply {
                     putExtra(EXTRA_CAMPAIGN_TYPE, campaignType)
                 }
-
-        fun kycStatusUpdated(resultCode: Int) =
-            resultCode == RESULT_KYC_FOR_SDD_COMPLETE || resultCode == RESULT_KYC_FOR_TIER_COMPLETE
     }
 }
 
 private fun CampaignType.toLaunchOrigin(): LaunchOrigin =
     when (this) {
         CampaignType.Swap -> LaunchOrigin.SWAP
-        CampaignType.Blockstack -> LaunchOrigin.AIRDROP
         CampaignType.Resubmission -> LaunchOrigin.RESUBMISSION
         CampaignType.SimpleBuy -> LaunchOrigin.SIMPLETRADE
         CampaignType.FiatFunds -> LaunchOrigin.FIAT_FUNDS
@@ -247,11 +270,11 @@ private fun CampaignType.toLaunchOrigin(): LaunchOrigin =
         CampaignType.None -> LaunchOrigin.SETTINGS
     }
 
-interface KycProgressListener : EmailEntryHost {
+interface KycProgressListener {
 
     val campaignType: CampaignType
 
-    fun setHostTitle(@StringRes title: Int)
+    fun setupHostToolbar(@StringRes title: Int, navigationBarButtons: List<NavigationBarButton> = emptyList())
 
     fun hideBackButton()
 }

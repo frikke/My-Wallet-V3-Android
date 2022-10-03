@@ -1,24 +1,33 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
-import com.blockchain.nabu.datamanagers.kyc.KycDataManager
+import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.domain.dataremediation.model.QuestionnaireNode
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.models.responses.nabu.Address
-import com.blockchain.nabu.models.responses.nabu.KycAdditionalInfoNode
+import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.outcome.Outcome
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
+import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
-import piuk.blockchain.android.ui.kyc.additional_info.TreeNode
+import piuk.blockchain.android.ui.dataremediation.TreeNode
 
 class ReentryDecisionTest {
 
-    private val kycDataManager: KycDataManager = mockk {
-        coEvery { getAdditionalInfoForm() } returns Outcome.Success(emptyList())
+    private val dataRemediationService: DataRemediationService = mockk {
+        coEvery { getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION) } returns Outcome.Success(null)
+    }
+    private val loqateFeatureFlag: FeatureFlag = mockk {
+        every { enabled } returns Single.just(false)
     }
 
     @Test
@@ -51,7 +60,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = "DE"
                 )
@@ -69,7 +78,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = "DE"
                 ),
@@ -77,7 +86,7 @@ class ReentryDecisionTest {
                 firstName = "A",
                 lastName = "B"
             )
-        ) `should be` ReentryPoint.Address
+        ) `should be` ReentryPoint.OldAddress
     }
 
     @Test
@@ -110,7 +119,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = "DE"
                 ),
@@ -147,7 +156,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = "DE"
                 )
@@ -165,7 +174,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = ""
                 )
@@ -174,12 +183,19 @@ class ReentryDecisionTest {
     }
 
     @Test
-    fun `if user is tier 1, has missing additional info then go to additional info entry`() {
-        val nodes = listOf(
-            KycAdditionalInfoNode.Selection("s1", "text1", emptyList(), false),
-            KycAdditionalInfoNode.Selection("s2", "text2", emptyList(), false),
+    fun `if user is tier 1, has questionnaire then go to questionnaire entry`() {
+        val questionnaire = Questionnaire(
+            header = null,
+            context = QuestionnaireContext.TIER_TWO_VERIFICATION,
+            nodes = listOf(
+                QuestionnaireNode.Selection("s1", "text1", emptyList(), false),
+                QuestionnaireNode.Selection("s2", "text2", emptyList(), false),
+            ),
+            isMandatory = true
         )
-        coEvery { kycDataManager.getAdditionalInfoForm() } returns Outcome.Success(nodes)
+        coEvery {
+            dataRemediationService.getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION)
+        } returns Outcome.Success(questionnaire)
         val root = TreeNode.Root(
             listOf(
                 TreeNode.Selection("s1", "text1", emptyList(), false),
@@ -195,7 +211,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = "DE"
                 ),
@@ -203,7 +219,7 @@ class ReentryDecisionTest {
                 firstName = "A",
                 lastName = "B"
             )
-        ) `should be equal to` ReentryPoint.AdditionalInfo(root)
+        ) `should be equal to` ReentryPoint.Questionnaire(questionnaire)
     }
 
     @Test
@@ -216,7 +232,7 @@ class ReentryDecisionTest {
                     line1 = "",
                     line2 = "",
                     city = "",
-                    state = "",
+                    stateIso = "",
                     postCode = "",
                     countryCode = "DE"
                 ),
@@ -228,7 +244,7 @@ class ReentryDecisionTest {
     }
 
     private fun whereNext(user: NabuUser) =
-        TiersReentryDecision(kycDataManager).findReentryPoint(user).blockingGet()
+        TiersReentryDecision(dataRemediationService, loqateFeatureFlag).findReentryPoint(user).blockingGet()
 
     private fun createdNabuUser(
         selected: Int = 1,
@@ -246,6 +262,7 @@ class ReentryDecisionTest {
 
     private fun emptyNabuUser() =
         NabuUser(
+            id = "id",
             firstName = null,
             lastName = null,
             email = "",
@@ -256,6 +273,12 @@ class ReentryDecisionTest {
             address = null,
             state = UserState.None,
             kycState = KycState.None,
-            insertedAt = null
+            insertedAt = null,
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
 }

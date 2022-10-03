@@ -28,6 +28,7 @@ class TextInputView @JvmOverloads constructor(
     var leadingIconResource: ImageResource by mutableStateOf(ImageResource.None)
     var singleLine by mutableStateOf(false)
     var inputType by mutableStateOf(KeyboardType.Text)
+    var onTrailingIconClicked by mutableStateOf({})
 
     @Composable
     override fun Content() {
@@ -42,7 +43,8 @@ class TextInputView @JvmOverloads constructor(
                     trailingIcon = trailingIconResource,
                     leadingIcon = leadingIconResource,
                     singleLine = singleLine,
-                    keyboardOptions = KeyboardOptions(keyboardType = inputType)
+                    keyboardOptions = KeyboardOptions(keyboardType = inputType),
+                    onTrailingIconClicked = onTrailingIconClicked
                 )
             }
         }
@@ -56,5 +58,6 @@ class TextInputView @JvmOverloads constructor(
         placeholderText = ""
         trailingIconResource = ImageResource.None
         leadingIconResource = ImageResource.None
+        onTrailingIconClicked = {}
     }
 }

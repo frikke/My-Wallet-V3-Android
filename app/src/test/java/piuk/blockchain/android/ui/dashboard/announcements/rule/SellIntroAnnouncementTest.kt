@@ -54,7 +54,7 @@ class SellIntroAnnouncementTest {
     @Test
     fun `should show, when not already shown`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(userIdentify.isEligibleFor(Feature.SimpleBuy)).thenReturn(Single.just(true))
+        whenever(userIdentify.isEligibleFor(Feature.Sell)).thenReturn(Single.just(true))
         whenever(sellFeatureFlag.enabled).thenReturn(Single.just(true))
 
         val account: BtcCryptoWalletAccount = mock()

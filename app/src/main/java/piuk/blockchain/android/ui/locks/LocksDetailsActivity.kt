@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
-import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.domain.paymentmethods.model.FundsLocks
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityOnHoldDetailsBinding
 import piuk.blockchain.android.support.SupportCentreActivity
@@ -37,7 +37,7 @@ class LocksDetailsActivity : BlockchainActivity() {
         setContentView(binding.root)
         updateToolbar(
             toolbarTitle = getString(R.string.funds_locked_details_toolbar),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         setUpRecyclerView()
         setUpTextInfo()

@@ -1,5 +1,6 @@
 package com.blockchain.nabu.models
 
+import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.TierLevels
@@ -158,6 +159,7 @@ class NabuUserKycStateTests {
 
 private fun emptyNabuUser() =
     NabuUser(
+        id = "id",
         firstName = null,
         lastName = null,
         email = "",
@@ -168,5 +170,11 @@ private fun emptyNabuUser() =
         address = null,
         state = UserState.None,
         kycState = KycState.None,
-        insertedAt = null
+        insertedAt = null,
+        currencies = CurrenciesResponse(
+            preferredFiatTradingCurrency = "EUR",
+            usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+            defaultWalletCurrency = "BRL",
+            userFiatCurrencies = listOf("EUR", "GBP")
+        )
     )

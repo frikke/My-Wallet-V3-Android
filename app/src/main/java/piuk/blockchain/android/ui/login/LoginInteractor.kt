@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.login
 import android.net.Uri
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
+import com.blockchain.preferences.AuthPrefs
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.nio.charset.Charset
@@ -15,13 +16,13 @@ import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
 
 class LoginInteractor(
     private val authDataManager: AuthDataManager,
     private val payloadDataManager: PayloadDataManager,
-    private val prefs: PersistentPrefs,
+    private val authPrefs: AuthPrefs,
     private val appUtil: AppUtil
 ) {
     private lateinit var authPollService: PollService<ResponseBody>
@@ -30,7 +31,7 @@ class LoginInteractor(
         payloadDataManager.handleQrCode(qrString)
             .doOnComplete {
                 payloadDataManager.wallet?.let { wallet ->
-                    prefs.apply {
+                    authPrefs.apply {
                         sharedKey = wallet.sharedKey
                         walletGuid = wallet.guid
                         emailVerified = true
@@ -47,7 +48,7 @@ class LoginInteractor(
         email: String,
         captcha: String
     ): Completable {
-        prefs.sessionId = sessionId
+        authPrefs.sessionId = sessionId
         return authDataManager.sendEmailForAuthentication(sessionId, email, captcha)
     }
 
@@ -59,11 +60,11 @@ class LoginInteractor(
         }
 
         return when {
-            prefs.pinId.isNotEmpty() -> {
-                if (uri.hasDeeplinkData()) {
-                    decodePayloadAndNavigate(uri, builder, intentAction)
-                } else {
-                    LoginIntents.UserLoggedInWithoutDeeplinkData
+            authPrefs.pinId.isNotEmpty() -> {
+                when {
+                    uri.hasDeeplinkData() -> decodePayloadAndNavigate(uri, builder, intentAction)
+                    uri.isWalletConnectDeeplink() -> decodeWCLinkAndNavigate(uri)
+                    else -> LoginIntents.UserLoggedInWithoutDeeplinkData
                 }
             }
             uri.hasDeeplinkData() -> decodePayloadAndNavigate(uri, builder, intentAction)
@@ -75,7 +76,8 @@ class LoginInteractor(
     private fun decodePayloadAndNavigate(uri: Uri, builder: Json, intentAction: String): LoginIntents =
         try {
             PayloadHandler.getDataFromUri(uri)?.let { data ->
-                val sessionId = prefs.sessionId
+                val sessionId = authPrefs.sessionId
+                if (data.isValidGuid()) return@let LoginIntents.ShowManualPairing(data)
                 val decodedJson = PayloadHandler.decodeToJsonString(data)
                 val accountInfo = builder.decodeFromString<LoginAuthInfo.ExtendedAccountInfo>(decodedJson)
                 if (sessionId.isEmpty() || accountInfo.accountWallet.sessionId != sessionId) {
@@ -88,7 +90,18 @@ class LoginInteractor(
             LoginIntents.UnknownError
         }
 
-    fun shouldContinueToPinEntry() = prefs.pinId.isNotEmpty()
+    @ExperimentalSerializationApi
+    private fun decodeWCLinkAndNavigate(uri: Uri): LoginIntents {
+        // Example: https://login.blockchain.com/deeplink/login/wallet-connect/wc?uri=
+        // wc:00e46b69-d0cc-4b3e-b6a2-cee442f97188@1?bridge=https%3A%2F%2Fbridge.walletconnect.org&key=
+        // 91303dedf64285cbbaf9120f6e9d160a5c8aa3deb67017a3874cd272323f48ae
+        val wcUri = uri.getQueryParameter(PARAMETER_URI)
+        val wcKey = uri.getQueryParameter(PARAMETER_KEY)
+        // We need everything after the uri bit but querying the uri doesn't return the key part
+        return LoginIntents.WalletConnectDeeplinkReceived("$wcUri&$PARAMETER_KEY=$wcKey")
+    }
+
+    fun shouldContinueToPinEntry() = authPrefs.pinId.isNotEmpty()
 
     fun updateApprovalStatus(isLoginApproved: Boolean, sessionId: String, base64Payload: String): Completable =
         authDataManager.updateLoginApprovalStatus(sessionId, base64Payload, isLoginApproved)
@@ -127,9 +140,14 @@ class LoginInteractor(
         fragment?.let { data -> data.split(LoginAuthActivity.LINK_DELIMITER).size > 1 }
             ?: false
 
+    private fun Uri.isWalletConnectDeeplink() =
+        toString().contains(WALLETCONNECT_URL)
+
     companion object {
         private const val POLLING_INTERVAL = 2L
         private const val POLLING_RETRIES = 50
-        private const val EMPTY_BODY = "{}"
+        private const val PARAMETER_URI = "uri"
+        private const val PARAMETER_KEY = "key"
+        private const val WALLETCONNECT_URL = "/login/wallet-connect/wc"
     }
 }

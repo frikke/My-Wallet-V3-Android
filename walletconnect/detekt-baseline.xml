@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongMethod:DappsListFragment.kt$DappsListFragment$@OptIn(ExperimentalMaterialApi::class) @Composable private fun Dapps(model: DappsListModel)</ID>
+    <ID>LongParameterList:WalletConnectService.kt$WalletConnectService$( private val walletConnectAccountProvider: WalletConnectAddressProvider, private val sessionRepository: SessionRepository, private val ethRequestSign: EthRequestSign, private val ethSendTransactionRequest: EthSendTransactionRequest, private val lifecycleObservable: LifecycleObservable, private val analytics: Analytics, private val client: OkHttpClient )</ID>
+    <ID>MatchingDeclarationName:WallectConnectMetadataRepository.kt$WalletConnectMetadataRepository : SessionRepository</ID>
+    <ID>MultiLineIfElse:com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet.kt:34</ID>
+    <ID>SerialVersionUIDInSerializableClass:WalletConnectSession.kt$ClientMeta : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:WalletConnectSession.kt$DAppInfo : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:WalletConnectSession.kt$WalletConnectSession : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:WalletConnectSession.kt$WalletInfo : Serializable</ID>
+    <ID>TooManyFunctions:WalletConnectService.kt$WalletConnectService : WalletConnectServiceAPIWalletConnectUrlValidatorWebSocketListener</ID>
+  </CurrentIssues>
+</SmellBaseline>

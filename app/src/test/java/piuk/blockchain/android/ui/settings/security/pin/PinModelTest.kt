@@ -1131,7 +1131,7 @@ class PinModelTest {
         val password = "Test1234!"
         val isFromPinCreation = true
 
-        whenever(interactor.doUpgradeWallet(password, isFromPinCreation)).thenReturn(Completable.complete())
+        whenever(interactor.doUpgradeWallet(password)).thenReturn(Completable.complete())
 
         val testState = model.state.test()
         model.process(PinIntent.UpgradeWallet(password, isFromPinCreation))
@@ -1169,7 +1169,7 @@ class PinModelTest {
         val password = "Test1234!"
         val isFromPinCreation = true
 
-        whenever(interactor.doUpgradeWallet(password, isFromPinCreation)).thenReturn(Completable.error(Throwable()))
+        whenever(interactor.doUpgradeWallet(password)).thenReturn(Completable.error(Throwable()))
 
         val testState = model.state.test()
         model.process(PinIntent.UpgradeWallet(password, isFromPinCreation))

@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.locks
 
-import com.blockchain.core.payments.model.FundsLock
+import com.blockchain.domain.paymentmethods.model.FundsLock
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 

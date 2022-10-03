@@ -9,17 +9,20 @@ import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.payments.model.LinkBankTransfer
-import com.blockchain.core.payments.model.LinkedBank
-import com.blockchain.core.payments.model.Partner
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.Partner
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
+import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -29,14 +32,17 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.io.Serializable
 import java.math.BigInteger
+import java.time.ZonedDateTime
+import kotlin.math.floor
 import kotlinx.serialization.Contextual
+import kotlinx.serialization.Transient
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 /**
- * This is an object that gets serialized with Gson so any properties that we don't
+ * This is an object that gets serialized with Json so any properties that we don't
  * want to get serialized should be tagged as @Transient
  *
  */
@@ -47,48 +53,46 @@ data class SimpleBuyState constructor(
     override val amount: FiatValue = FiatValue.zero(fiatCurrency),
     val selectedCryptoAsset: @Contextual AssetInfo? = null,
     val orderState: OrderState = OrderState.UNINITIALISED,
+    val failureReason: String? = null,
     val kycStartedButNotCompleted: Boolean = false,
     val kycVerificationState: KycState? = null,
     val currentScreen: FlowScreen = FlowScreen.ENTER_AMOUNT,
     val selectedPaymentMethod: SelectedPaymentMethod? = null,
     val quote: BuyQuote? = null,
+    val hasQuoteChanged: Boolean = false,
     val orderValue: CryptoValue? = null,
-    val supportedFiatCurrencies: List<FiatCurrency> = emptyList(),
     val paymentSucceeded: Boolean = false,
-    val showRating: Boolean = false,
     val withdrawalLockPeriod: @Contextual BigInteger = BigInteger.ZERO,
     val recurringBuyFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
+    val recurringBuyId: String? = null,
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
     val showRecurringBuyFirstTimeFlow: Boolean = false,
     val eligibleAndNextPaymentRecurringBuy: List<EligibleAndNextPaymentRecurringBuy> = emptyList(),
-    val googlePayTokenizationInfo: Map<String, String>? = null,
-    val googlePayBeneficiaryId: String? = null,
-    val googlePayMerchantBankCountryCode: String? = null,
-    val googlePayAllowPrepaidCards: Boolean? = true,
-    val googlePayAllowCreditCards: Boolean? = true,
-    @Transient @kotlinx.serialization.Transient val safeConnectTosLink: String? = null,
-    @Transient @kotlinx.serialization.Transient val paymentOptions: PaymentOptions = PaymentOptions(),
-    @Transient @kotlinx.serialization.Transient
-    override val errorState: TransactionErrorState = TransactionErrorState.NONE,
-    @Transient @kotlinx.serialization.Transient val buyErrorState: ErrorState? = null,
-    @Transient @kotlinx.serialization.Transient override val fiatRate: ExchangeRate? = null,
-    @Transient @kotlinx.serialization.Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,
-    @Transient @kotlinx.serialization.Transient val isLoading: Boolean = false,
-    @Transient @kotlinx.serialization.Transient val cardAcquirerCredentials: CardAcquirerCredentials? = null,
-    @Transient @kotlinx.serialization.Transient val authorisePaymentUrl: String? = null,
-    @Transient @kotlinx.serialization.Transient val linkedBank: LinkedBank? = null,
-    @Transient @kotlinx.serialization.Transient val shouldShowUnlockHigherFunds: Boolean = false,
-    @Transient @kotlinx.serialization.Transient val linkBankTransfer: LinkBankTransfer? = null,
-    @Transient @kotlinx.serialization.Transient val paymentPending: Boolean = false,
-    @Transient @kotlinx.serialization.Transient val paymentFailed: Boolean = false,
-    @Transient @kotlinx.serialization.Transient private val transferLimits: TxLimits? = null,
-    @Transient @kotlinx.serialization.Transient override val transactionsLimit: TransactionsLimit? = null,
+    val googlePayDetails: GooglePayDetails? = null,
+    @Transient val quickFillButtonData: QuickFillButtonData? = null,
+    @Transient val safeConnectTosLink: String? = null,
+    @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
+    @Transient override val errorState: TransactionErrorState = TransactionErrorState.NONE,
+    @Transient val buyErrorState: ErrorState? = null,
+    @Transient override val fiatRate: ExchangeRate? = null,
+    @Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,
+    @Transient val isLoading: Boolean = false,
+    @Transient val cardAcquirerCredentials: CardAcquirerCredentials? = null,
+    @Transient val authorisePaymentUrl: String? = null,
+    @Transient val linkedBank: LinkedBank? = null,
+    @Transient val shouldShowUnlockHigherFunds: Boolean = false,
+    @Transient val linkBankTransfer: LinkBankTransfer? = null,
+    @Transient val paymentPending: Boolean = false,
+    @Transient val paymentFailed: Boolean = false,
+    @Transient private val transferLimits: TxLimits? = null,
+    @Transient override val transactionsLimit: TransactionsLimit? = null,
     // we use this flag to avoid navigating back and forth, reset after navigating
-    @Transient @kotlinx.serialization.Transient val confirmationActionRequested: Boolean = false,
-    @Transient @kotlinx.serialization.Transient val newPaymentMethodToBeAdded: PaymentMethod? = null
+    @Transient val confirmationActionRequested: Boolean = false,
+    @Transient val newPaymentMethodToBeAdded: PaymentMethod? = null,
+    @Transient val showAppRating: Boolean = false,
+    @Transient val sideEventsChecked: Boolean = false,
 ) : MviState, TransactionFlowStateInfo {
 
-    @delegate:Transient
     val order: SimpleBuyOrder by unsafeLazy {
         SimpleBuyOrder(
             orderState,
@@ -96,37 +100,31 @@ data class SimpleBuyState constructor(
         )
     }
 
-    @delegate:Transient
-    private val recurringBuyEligiblePaymentMethods: List<PaymentMethodType> by lazy {
+    val recurringBuyEligiblePaymentMethods: List<PaymentMethodType> by lazy {
         eligibleAndNextPaymentRecurringBuy.flatMap { it.eligibleMethods }
             .distinct()
     }
 
-    @delegate:Transient
     val selectedPaymentMethodDetails: PaymentMethod? by unsafeLazy {
         selectedPaymentMethod?.id?.let { id ->
             paymentOptions.availablePaymentMethods.firstOrNull { it.id == id }
         }
     }
 
-    @delegate:Transient
     val selectedPaymentMethodLimits: TxLimits by unsafeLazy {
         selectedPaymentMethodDetails?.let {
             TxLimits.fromAmounts(min = it.limits.min, max = it.limits.max)
         } ?: TxLimits.withMinAndUnlimitedMax(FiatValue.zero(fiatCurrency))
     }
 
-    @delegate:Transient
     val coinHasZeroMargin: Boolean by unsafeLazy {
         quote?.quoteMargin == 0.toDouble()
     }
 
-    @delegate:Transient
     val buyOrderLimits: TxLimits by unsafeLazy {
         transferLimits ?: TxLimits.withMinAndUnlimitedMax(FiatValue.zero(fiatCurrency))
     }
 
-    @delegate:Transient
     val exchangeRate: Money? by unsafeLazy {
         quote?.price
     }
@@ -203,6 +201,8 @@ enum class FlowScreen {
 sealed class ErrorState : Serializable {
     object BankLinkingTimeout : ErrorState()
     object LinkedBankNotSupported : ErrorState()
+    data class BankLinkMaxAccountsReached(val error: NabuApiException) : ErrorState()
+    data class BankLinkMaxAttemptsReached(val error: NabuApiException) : ErrorState()
     object ApproveBankInvalid : ErrorState()
     object ApprovedBankFailed : ErrorState()
     object ApprovedBankDeclined : ErrorState()
@@ -234,54 +234,73 @@ sealed class ErrorState : Serializable {
     object ProviderIsNotSupported : ErrorState()
     object Card3DsFailed : ErrorState()
     object UnknownCardProvider : ErrorState()
-
     data class PaymentFailedError(val error: String) : ErrorState()
-
     data class UnhandledHttpError(val nabuApiException: NabuApiException) : ErrorState()
     object InternetConnectionError : ErrorState()
+    object BuyPaymentMethodsUnavailable : ErrorState()
+    class SettlementRefreshRequired(val accountId: String) : ErrorState()
+    object SettlementInsufficientBalance : ErrorState()
+    object SettlementStaleBalance : ErrorState()
+    object SettlementGenericError : ErrorState()
+    class ServerSideUxError(val serverSideUxErrorInfo: ServerSideUxErrorInfo) : ErrorState()
 }
 
 data class SimpleBuyOrder(
     val orderState: OrderState = OrderState.UNINITIALISED,
-    val amount: FiatValue? = null
+    val amount: FiatValue? = null,
 )
 
 data class PaymentOptions(
-    val availablePaymentMethods: List<PaymentMethod> = emptyList()
-) {
-    val canAddCard: Boolean
-        get() = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedCard>()
-            .firstOrNull()?.isEligible ?: false
-    val canLinkFunds: Boolean
-        get() = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedBankAccount>().firstOrNull()?.isEligible
-            ?: false
-    val canLinkBank: Boolean
-        get() = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedBankAccount>().firstOrNull()?.isEligible
-            ?: false
-}
+    val availablePaymentMethods: List<PaymentMethod> = emptyList(),
+)
 
 @kotlinx.serialization.Serializable
 data class BuyQuote(
     val id: String? = null,
     val price: FiatValue,
     val availability: Availability? = null,
+    val settlementReason: SettlementReason? = null,
     val quoteMargin: Double? = null,
-    val feeDetails: BuyFees
+    val feeDetails: BuyFees,
+    val createdAt: @Contextual ZonedDateTime,
+    val expiresAt: @Contextual ZonedDateTime,
+    val remainingTime: Long,
+    val chunksTimeCounter: MutableList<Int> = mutableListOf()
 ) {
+
     companion object {
+        private const val MIN_QUOTE_REFRESH = 30L
+
         fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: FiatCurrency, orderFee: Money?) =
             BuyQuote(
                 id = brokerageQuote.id,
                 // we should pass the fiat to the state, otherwise Money interface wont get serialised.
                 price = brokerageQuote.price.toFiat(fiatCurrency),
                 availability = brokerageQuote.availability,
+                settlementReason = brokerageQuote.settlementReason,
                 quoteMargin = brokerageQuote.quoteMargin,
                 feeDetails = BuyFees(
                     fee = fee(brokerageQuote.feeDetails.fee as FiatValue, orderFee as FiatValue),
                     feeBeforePromo = brokerageQuote.feeDetails.feeBeforePromo as FiatValue,
                     promo = brokerageQuote.feeDetails.promo
-                )
+                ),
+                createdAt = brokerageQuote.createdAt,
+                expiresAt = brokerageQuote.expiresAt,
+                remainingTime = brokerageQuote.secondsToExpire.toLong(),
+                chunksTimeCounter = getListOfTotalTimes(brokerageQuote.secondsToExpire.toDouble())
             )
+
+        private fun getListOfTotalTimes(remainingTime: Double): MutableList<Int> {
+            val chunks = MutableList(
+                floor(remainingTime / MIN_QUOTE_REFRESH).toInt()
+            ) { MIN_QUOTE_REFRESH.toInt() }
+
+            val remainder = remainingTime % MIN_QUOTE_REFRESH
+            if (remainder > 0) {
+                chunks.add(remainder.toInt())
+            }
+            return chunks
+        }
 
         private fun fee(quoteFee: FiatValue, orderFee: FiatValue?): FiatValue =
             (
@@ -306,7 +325,7 @@ data class BuyQuote(
 data class BuyFees(
     val feeBeforePromo: FiatValue,
     val fee: FiatValue,
-    val promo: Promo
+    val promo: Promo,
 )
 
 @kotlinx.serialization.Serializable
@@ -315,7 +334,7 @@ data class SelectedPaymentMethod(
     val partner: Partner? = null,
     val label: String? = "",
     val paymentMethodType: PaymentMethodType,
-    val isEligible: Boolean
+    val isEligible: Boolean,
 ) {
     fun isCard() = paymentMethodType == PaymentMethodType.PAYMENT_CARD
     fun isBank() = paymentMethodType == PaymentMethodType.BANK_TRANSFER
@@ -334,3 +353,21 @@ data class SelectedPaymentMethod(
         concreteId() != null ||
             (paymentMethodType == PaymentMethodType.FUNDS && id == PaymentMethod.FUNDS_PAYMENT_ID)
 }
+
+data class QuickFillButtonData(
+    val quickFillButtons: List<Money>,
+    val buyMaxAmount: Money
+)
+
+@kotlinx.serialization.Serializable
+data class GooglePayDetails(
+    val tokenizationInfo: Map<String, String>? = null,
+    val beneficiaryId: String? = null,
+    val merchantBankCountryCode: String? = null,
+    val allowPrepaidCards: Boolean = true,
+    val allowCreditCards: Boolean = false,
+    val allowedAuthMethods: List<String>?,
+    val allowedCardNetworks: List<String>?,
+    val billingAddressRequired: Boolean? = false,
+    val billingAddressParameters: BillingAddressParameters? = null
+)

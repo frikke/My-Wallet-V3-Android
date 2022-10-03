@@ -1,12 +1,11 @@
 package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -19,7 +18,7 @@ import piuk.blockchain.android.domain.usecases.LinkAccess
 class DashboardOnboardingModel(
     initialSteps: List<CompletableDashboardOnboardingStep>,
     private val interactor: DashboardOnboardingInteractor,
-    private val currencyPrefs: CurrencyPrefs,
+    private val fiatCurrenciesService: FiatCurrenciesService,
     uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
@@ -43,13 +42,6 @@ class DashboardOnboardingModel(
             }
         )
         is DashboardOnboardingIntent.StepClicked -> handleStepClicked(previousState, intent.clickedStep)
-        DashboardOnboardingIntent.TradingCurrencyChanged ->
-            handlePaymentMethodStepClicked()
-                .subscribeBy(
-                    onSuccess = {
-                        process(it)
-                    }
-                )
         is DashboardOnboardingIntent.PaymentMethodClicked ->
             handlePaymentMethodClicked(intent.type)
                 .subscribeBy(
@@ -64,42 +56,6 @@ class DashboardOnboardingModel(
         DashboardOnboardingIntent.ClearError -> null
     }
 
-    private fun handlePaymentMethodStepClicked(): Single<DashboardOnboardingIntent> =
-        interactor.getSupportedCurrencies()
-            .flatMap { supportedCurrencies ->
-                val tradingCurrency = currencyPrefs.tradingCurrency
-                if (!supportedCurrencies.contains(tradingCurrency)) {
-                    Single.just(
-                        DashboardOnboardingIntent.NavigateTo(
-                            DashboardOnboardingNavigationAction.SelectTradingCurrency(
-                                supportedCurrencies, tradingCurrency
-                            )
-                        )
-                    )
-                } else {
-                    fetchEligiblePaymentMethodsAndNavigateToAddPaymentMethod(tradingCurrency)
-                }
-            }
-            .onErrorReturn { DashboardOnboardingIntent.FetchFailed(it) }
-
-    private fun fetchEligiblePaymentMethodsAndNavigateToAddPaymentMethod(
-        tradingCurrency: FiatCurrency
-    ): Single<DashboardOnboardingIntent> = interactor.getAvailablePaymentMethodTypes(tradingCurrency)
-        .map { available ->
-            val paymentMethods = available
-                .filter { method -> method.linkAccess == LinkAccess.GRANTED }
-                .mapNotNull { method -> method.toPaymentMethod() }
-            if (paymentMethods.isNotEmpty()) {
-                DashboardOnboardingIntent.NavigateTo(
-                    DashboardOnboardingNavigationAction.AddPaymentMethod(paymentMethods)
-                )
-            } else {
-                DashboardOnboardingIntent.FetchFailed(IllegalStateException())
-            }
-        }.onErrorReturn {
-            DashboardOnboardingIntent.FetchFailed(it)
-        }
-
     private fun handleStepClicked(previousState: DashboardOnboardingState, step: DashboardOnboardingStep): Disposable? {
         val hasUpgradedToGold =
             previousState.steps.find { it.step == DashboardOnboardingStep.UPGRADE_TO_GOLD }?.isCompleted ?: false
@@ -112,7 +68,7 @@ class DashboardOnboardingModel(
         val navigation = when (step) {
             DashboardOnboardingStep.UPGRADE_TO_GOLD -> DashboardOnboardingNavigationAction.StartKyc
             DashboardOnboardingStep.LINK_PAYMENT_METHOD -> {
-                return handlePaymentMethodStepClicked()
+                return fetchEligiblePaymentMethodsAndNavigateToAddPaymentMethod()
                     .subscribeBy(
                         onSuccess = {
                             process(it)
@@ -126,17 +82,36 @@ class DashboardOnboardingModel(
         return null
     }
 
+    private fun fetchEligiblePaymentMethodsAndNavigateToAddPaymentMethod(): Single<DashboardOnboardingIntent> =
+        interactor.getAvailablePaymentMethodTypes(fiatCurrenciesService.selectedTradingCurrency)
+            .map { available ->
+                val paymentMethods = available
+                    .filter { method -> method.linkAccess == LinkAccess.GRANTED }
+                    .mapNotNull { method -> method.toPaymentMethod() }
+                if (paymentMethods.isNotEmpty()) {
+                    DashboardOnboardingIntent.NavigateTo(
+                        DashboardOnboardingNavigationAction.AddPaymentMethod(paymentMethods)
+                    )
+                } else {
+                    DashboardOnboardingIntent.FetchFailed(IllegalStateException())
+                }
+            }.onErrorReturn {
+                DashboardOnboardingIntent.FetchFailed(it)
+            }
+
     private fun handlePaymentMethodClicked(type: PaymentMethodType): Single<DashboardOnboardingIntent> =
         when (type) {
             PaymentMethodType.PAYMENT_CARD ->
                 Single.just(DashboardOnboardingIntent.NavigateTo(DashboardOnboardingNavigationAction.AddCard))
             PaymentMethodType.FUNDS -> Single.just(
                 DashboardOnboardingIntent.NavigateTo(
-                    DashboardOnboardingNavigationAction.WireTransferAccountDetails(currencyPrefs.tradingCurrency)
+                    DashboardOnboardingNavigationAction.WireTransferAccountDetails(
+                        fiatCurrenciesService.selectedTradingCurrency
+                    )
                 )
             )
             PaymentMethodType.BANK_TRANSFER ->
-                interactor.linkBank(currencyPrefs.tradingCurrency)
+                interactor.linkBank(fiatCurrenciesService.selectedTradingCurrency)
                     .map {
                         DashboardOnboardingIntent.NavigateTo(
                             DashboardOnboardingNavigationAction.LinkBank(it)

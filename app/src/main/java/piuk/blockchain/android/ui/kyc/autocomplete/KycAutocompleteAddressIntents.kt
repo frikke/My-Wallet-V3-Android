@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.autocomplete
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
-import piuk.blockchain.android.ui.kyc.profile.models.AddressDetailsModel
+import piuk.blockchain.android.ui.kyc.address.models.OldAddressDetailsModel
 
 sealed class KycAutocompleteAddressIntents : MviIntent<KycAutocompleteAddressState> {
 
@@ -12,6 +12,9 @@ sealed class KycAutocompleteAddressIntents : MviIntent<KycAutocompleteAddressSta
     data class UpdateSearchText(val addressSearchText: String, val countryCode: String) :
         KycAutocompleteAddressIntents() {
         override fun reduce(oldState: KycAutocompleteAddressState) = oldState
+        override fun isValidFor(oldState: KycAutocompleteAddressState): Boolean {
+            return addressSearchText.length > 4
+        }
     }
 
     data class UpdateAddresses(val addresses: List<KycAddressResult>) :
@@ -20,7 +23,7 @@ sealed class KycAutocompleteAddressIntents : MviIntent<KycAutocompleteAddressSta
             oldState.copy(addresses = addresses, shouldShowManualButton = addresses.isEmpty())
     }
 
-    data class NavigateToAddress(val addressDetailsModel: AddressDetailsModel) :
+    data class NavigateToAddress(val addressDetailsModel: OldAddressDetailsModel) :
         KycAutocompleteAddressIntents() {
         override fun reduce(oldState: KycAutocompleteAddressState) =
             oldState.copy(autocompleteAddressStep = AutocompleteAddressStep.Address(addressDetailsModel))

@@ -6,50 +6,49 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AccountV3(
     @SerialName("label")
-    override var label: String = "",
-
+    override val label: String,
     @SerialName("archived")
-    override var isArchived: Boolean = false,
-
+    override val isArchived: Boolean,
     @SerialName("xpriv")
-    override var xpriv: String = "",
-
+    override val xpriv: String,
     @SerialName("xpub")
-    val legacyXpub: String = ""
+    val legacyXpub: String,
+    @SerialName("cache")
+    private val addressCache: AddressCache? = null,
+    @SerialName("address_labels")
+    private val _addressLabels: List<AddressLabel>? = null
 ) : Account {
 
-    @delegate:Transient
+    override val addressLabels: List<AddressLabel>
+        get() = _addressLabels ?: emptyList()
+
     override val xpubs: XPubs by lazy {
         XPubs(XPub(address = legacyXpub, derivation = XPub.Format.LEGACY))
     }
 
-    @SerialName("cache")
-    override val addressCache: AddressCache = AddressCache()
+    override fun withEncryptedPrivateKey(encryptedKey: String): Account = this.copy(
+        xpriv = encryptedKey
+    )
 
-    @SerialName("address_labels")
-    override val addressLabels: MutableList<AddressLabel> = mutableListOf()
-
-    override fun addAddressLabel(index: Int, reserveLabel: String) {
-        val addressLabel = AddressLabel()
-        addressLabel.label = reserveLabel
-        addressLabel.index = index
-
-        if (!addressLabels.contains(addressLabel)) {
-            addressLabels.add(addressLabel)
-        }
+    override fun updateLabel(label: String): Account {
+        return this.copy(
+            label = label
+        )
     }
 
-    override fun upgradeToV4(): AccountV4 {
-        val legacyDerivation = Derivation(
-            Derivation.LEGACY_TYPE,
-            Derivation.LEGACY_PURPOSE,
-            xpriv,
-            legacyXpub,
-            addressCache,
-            addressLabels
+    override fun updateArchivedState(isArchived: Boolean): AccountV3 =
+        this.copy(
+            isArchived = isArchived
         )
-        val derivations = mutableListOf(legacyDerivation)
-        return AccountV4(label, legacyDerivation.type, isArchived, derivations)
+
+    override fun addAddressLabel(index: Int, reserveLabel: String): Account {
+        val addressLabel = AddressLabel(index, reserveLabel)
+        if (_addressLabels?.contains(addressLabel) == true) {
+            return this
+        }
+        return this.copy(
+            _addressLabels = _addressLabels?.plus(addressLabel)?.toSet()?.toList()
+        )
     }
 
     override fun xpubForDerivation(derivation: String): String? =

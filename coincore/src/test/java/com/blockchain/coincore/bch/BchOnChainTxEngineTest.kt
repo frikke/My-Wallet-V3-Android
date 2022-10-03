@@ -11,7 +11,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.bitcoinCash
 import com.blockchain.testutils.satoshiCash
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -54,7 +54,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
         on { bchFeeOptions }.thenReturn(Observable.just(bchFeeOptions))
     }
 
-    private val walletPreferences: WalletStatus = mock {
+    private val walletPreferences: WalletStatusPrefs = mock {
         on { getFeeTypeForAsset(ASSET) }.thenReturn(FeeLevel.Regular.ordinal)
     }
 
@@ -65,6 +65,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
         feeManager = feeManager,
         requireSecondPassword = false,
         walletPreferences = walletPreferences,
+        bchBalanceCache = mock(),
         resolvedAddress = mock()
     )
 

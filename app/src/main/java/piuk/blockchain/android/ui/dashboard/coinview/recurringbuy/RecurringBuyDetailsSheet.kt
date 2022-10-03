@@ -11,9 +11,9 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.utils.toFormattedDateWithoutYear
@@ -40,7 +40,7 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
     }
 
     private val listAdapter: CheckoutAdapterDelegate by lazy {
-        CheckoutAdapterDelegate()
+        CheckoutAdapterDelegate(onToggleChanged = {})
     }
 
     private val recurringBuyId: String by lazy {
@@ -89,7 +89,7 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
                     rbLoading.visible()
                     rbInfoGroup.gone()
                 }
-                is RecurringBuyViewState.ShowRecurringBuy -> {
+                RecurringBuyViewState.ShowRecurringBuy -> {
                     rbLoading.gone()
                     rbInfoGroup.visible()
                     newState.recurringBuy.let {
@@ -124,6 +124,13 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
                                     type = SnackbarType.Error
                                 ).show()
                             }
+                            newState.error == RecurringBuyError.UnknownError -> {
+                                BlockchainSnackbar.make(
+                                    binding.root,
+                                    getString(R.string.recurring_buy_failed_loading),
+                                    type = SnackbarType.Error
+                                ).show()
+                            }
                             else ->
                                 with(binding) {
                                     rbSheetTitle.text = getString(R.string.recurring_buy_sheet_title_1)
@@ -148,23 +155,24 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
         listAdapter.items = listOf(
             if (paymentMethodType == PaymentMethodType.FUNDS) {
                 SimpleBuyCheckoutItem.SimpleCheckoutItem(
-                    getString(R.string.payment_method),
-                    getString(R.string.recurring_buy_funds_label, amount.currencyCode)
+                    label = getString(R.string.payment_method),
+                    title = amount.currency.name,
+                    hasChanged = false
                 )
             } else {
                 if (paymentMethodType == PaymentMethodType.PAYMENT_CARD) {
                     val paymentDetails = (paymentDetails as PaymentMethod.Card)
                     SimpleBuyCheckoutItem.ComplexCheckoutItem(
-                        getString(R.string.payment_method),
-                        paymentDetails.uiLabel(),
-                        paymentDetails.endDigits
+                        label = getString(R.string.payment_method),
+                        title = paymentDetails.uiLabel(),
+                        subtitle = paymentDetails.endDigits
                     )
                 } else {
                     val paymentDetails = (paymentDetails as PaymentMethod.Bank)
                     SimpleBuyCheckoutItem.ComplexCheckoutItem(
-                        getString(R.string.payment_method),
-                        paymentDetails.bankName,
-                        paymentDetails.accountEnding
+                        label = getString(R.string.payment_method),
+                        title = paymentDetails.bankName,
+                        subtitle = paymentDetails.accountEnding
                     )
                 }
             },
@@ -178,12 +186,15 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
             ),
             SimpleBuyCheckoutItem.SimpleCheckoutItem(
                 getString(R.string.recurring_buy_info_purchase_label_1),
-                nextPaymentDate.toFormattedDateWithoutYear()
+                nextPaymentDate.toFormattedDateWithoutYear(),
+                isImportant = false,
+                hasChanged = false
             ),
             SimpleBuyCheckoutItem.SimpleCheckoutItem(
                 getString(R.string.common_total),
                 amount.toStringWithSymbol(),
-                true
+                isImportant = true,
+                hasChanged = false
             )
         )
         listAdapter.notifyDataSetChanged()

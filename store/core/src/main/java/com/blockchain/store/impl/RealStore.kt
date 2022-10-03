@@ -1,41 +1,71 @@
 package com.blockchain.store.impl
 
-import com.blockchain.store.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import com.blockchain.data.DataResource
+import com.blockchain.data.KeyedFreshnessStrategy
+import com.blockchain.store.Cache
+import com.blockchain.store.CachedData
+import com.blockchain.store.Fetcher
+import com.blockchain.store.FetcherResult
+import com.blockchain.store.KeyedStore
+import com.blockchain.store.Mediator
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class RealStore<K : Any, E : Any, T : Any>(
+class RealStore<K : Any, T : Any>(
     private val scope: CoroutineScope,
-    private val fetcher: Fetcher<K, E, T>,
+    private val fetcher: Fetcher<K, T>,
     private val cache: Cache<K, T>,
     private val mediator: Mediator<K, T>
-) : KeyedStore<K, E, T> {
-    override fun stream(request: KeyedStoreRequest<K>): Flow<StoreResponse<E, T>> =
+) : KeyedStore<K, T> {
+    override fun stream(request: KeyedFreshnessStrategy<K>): Flow<DataResource<T>> =
         when (request) {
-            is KeyedStoreRequest.Cached -> buildCachedFlow(request)
-            is KeyedStoreRequest.Fresh -> buildFreshFlow(request)
+            is KeyedFreshnessStrategy.Cached -> buildCachedFlow(request)
+            is KeyedFreshnessStrategy.Fresh -> buildFreshFlow(request)
         }.distinctUntilChanged()
 
-    private fun buildCachedFlow(request: KeyedStoreRequest.Cached<K>) = channelFlow<StoreResponse<E, T>> {
+    private var previousEmissions: MutableList<Pair<Long, CachedData<K, T>?>> = mutableListOf()
+
+    private fun buildCachedFlow(request: KeyedFreshnessStrategy.Cached<K>) = channelFlow<DataResource<T>> {
+
         val networkLock = CompletableDeferred<Unit>()
         scope.launch {
             networkLock.await()
-            send(StoreResponse.Loading)
+            send(DataResource.Loading)
             when (val result = fetcher.fetch(request.key)) {
                 is FetcherResult.Success -> {
                     // we're relying on the cache to emit the new value
                     cache.write(CachedData(request.key, result.value, System.currentTimeMillis()))
                 }
-                is FetcherResult.Failure -> send(StoreResponse.Error(result.error))
+                is FetcherResult.Failure -> send(DataResource.Error(result.error))
             }
         }
 
-        cache.read(request.key).collect { cachedData ->
-            val shouldFetch = networkLock.isActive && shouldFetch(request, cachedData)
-            if (cachedData != null) send(StoreResponse.Data(cachedData.data, isStale = shouldFetch))
+        cache.read(request.key).distinctUntilChanged().collectIndexed { index, cachedData ->
+            previousEmissions += System.currentTimeMillis() to cachedData
+            val isFirstEmission = index == 0
 
-            if (networkLock.isActive) {
+            // We only want to filter out stale emissions on the first cache emission, which contains the cached value,
+            // the following emissions are always caused by `cache.write` which is only called on successful network
+            // calls, in these cases we don't want to check for staleness and always emit.
+            // This is done so even if the mediator considers a network response stale we don't skip that emission
+            val isStale = isFirstEmission && isStale(cachedData)
+            val shouldFetch = isFirstEmission && (request.forceRefresh || isStale)
+            val shouldEmit = cachedData != null && !isStale
+
+            if (shouldEmit) send(DataResource.Data(cachedData!!.data))
+
+            if (isFirstEmission) {
                 when (shouldFetch) {
                     true -> networkLock.complete(Unit)
                     false -> networkLock.cancel()
@@ -44,23 +74,24 @@ class RealStore<K : Any, E : Any, T : Any>(
         }
     }
 
-    private fun buildFreshFlow(request: KeyedStoreRequest.Fresh<K>) = channelFlow<StoreResponse<E, T>> {
-        send(StoreResponse.Loading)
+    private fun buildFreshFlow(request: KeyedFreshnessStrategy.Fresh<K>) = channelFlow {
+        send(DataResource.Loading)
         val result = fetcher.fetch(request.key)
         when (result) {
             is FetcherResult.Success -> {
                 cache.write(CachedData(request.key, result.value, System.currentTimeMillis()))
-                send(StoreResponse.Data(result.value))
+                send(DataResource.Data(result.value))
             }
-            is FetcherResult.Failure -> send(StoreResponse.Error(result.error))
+            is FetcherResult.Failure -> send(DataResource.Error(result.error))
         }
 
         cache.read(request.key)
+            .distinctUntilChanged()
             .filterNotNull()
             // we're relying on the cache to emit the new value and we're dropping it so we don't emit
             // duplicated Data events and we don't emit the currently cached value when it's an Error
             .drop(1)
-            .map { StoreResponse.Data(it.data) }
+            .map { DataResource.Data(it.data) }
             .collect { send(it) }
     }
 
@@ -70,6 +101,11 @@ class RealStore<K : Any, E : Any, T : Any>(
         }
     }
 
-    private fun shouldFetch(request: KeyedStoreRequest.Cached<K>, cachedData: CachedData<K, T>?): Boolean =
-        request.forceRefresh || mediator.shouldFetch(cachedData)
+    override fun markStoreAsStale() {
+        scope.launch {
+            cache.markStoreAsStale()
+        }
+    }
+
+    private fun isStale(cachedData: CachedData<K, T>?) = mediator.shouldFetch(cachedData)
 }

@@ -22,7 +22,8 @@ enum class NabuErrorStatusCodes(val code: Int) {
     Unknown(-1),
     InternalServerError(500),
     BadRequest(400),
-    Forbidden(403);
+    Forbidden(403),
+    NotFound(404);
 
     companion object {
 
@@ -119,7 +120,10 @@ enum class NabuErrorCodes(val code: Int) {
 
     InvalidCryptoAddress(93),
     InvalidCryptoCurrency(94),
+    CardLimitReached(101),
     InsufficientBalance(131),
+    MaxPaymentBankAccounts(143),
+    MaxPaymentBankAccountLinkAttempts(146),
     InvalidFiatCurrency(149),
     OrderDirectionDisabled(151),
     WithdrawLocked(152),

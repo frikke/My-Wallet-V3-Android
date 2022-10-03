@@ -15,6 +15,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -63,8 +64,10 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
             )
         )
     }
+    private val tradingStore: TradingStore = mock()
 
     private val subject = TradingSellTxEngine(
+        tradingStore = tradingStore,
         walletManager = walletManager,
         quotesEngine = quotesEngine,
         userIdentity = userIdentity,
@@ -197,7 +200,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
         }
 
         val pricedQuote: PricedQuote = mock()
-        whenever(quotesEngine.pricedQuote).thenReturn(Observable.just(pricedQuote))
+        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.just(pricedQuote))
 
         subject.start(
             sourceAccount,
@@ -227,7 +230,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
         verify(sourceAccount, atLeastOnce()).currency
         verify(txTarget, atLeastOnce()).currency
         verifyQuotesEngineStarted()
-        verify(quotesEngine).pricedQuote
+        verify(quotesEngine).getPricedQuote()
         verifyLimitsFetched()
 
         noMoreInteractions(txTarget)
@@ -248,7 +251,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
             on { getErrorCode() }.thenReturn(NabuErrorCodes.PendingOrdersLimitReached)
         }
 
-        whenever(quotesEngine.pricedQuote).thenReturn(Observable.error(error))
+        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.error(error))
 
         subject.start(
             sourceAccount,
@@ -279,7 +282,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
         verify(sourceAccount).balance
         verify(txTarget, atLeastOnce()).currency
         verifyQuotesEngineStarted()
-        verify(quotesEngine).pricedQuote
+        verify(quotesEngine).getPricedQuote()
 
         noMoreInteractions(txTarget)
     }
@@ -549,7 +552,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
     }
 
     private fun verifyFeeLevels(
-        feeSelection: FeeSelection
+        feeSelection: FeeSelection,
     ) = feeSelection.selectedLevel == FeeLevel.None &&
         feeSelection.availableLevels == setOf(FeeLevel.None) &&
         feeSelection.availableLevels.contains(feeSelection.selectedLevel) &&

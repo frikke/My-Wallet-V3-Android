@@ -4,22 +4,22 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.coincore.testutil.GBP
 import com.blockchain.coincore.testutil.USD
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import io.reactivex.rxjava3.core.Single
 import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
 
-class FiatAssetTransferTest {
+class FiatAssetTransferTest : KoinTest {
 
     @get:Rule
     val rxSchedulers = rxInit {
@@ -30,25 +30,40 @@ class FiatAssetTransferTest {
 
     private val labels: DefaultLabels = mock()
     private val exchangeRateDataManager: ExchangeRatesDataManager = mock()
-    private val tradingBalanceDataManager: TradingBalanceDataManager = mock()
+    private val traService: TradingService = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val paymentsDataManager: PaymentsDataManager = mock()
-    private val currencyPrefs: CurrencyPrefs = mock()
+    private val bankService: BankService = mock()
 
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            listOf(
+                module {
+                    factory {
+                        labels
+                    }
+                    factory {
+                        exchangeRateDataManager
+                    }
+                    factory {
+                        traService
+                    }
+                    factory {
+                        custodialWalletManager
+                    }
+                    factory {
+                        bankService
+                    }
+                }
+            )
+        )
+    }
     private val subject = FiatAsset(
-        labels,
-        exchangeRateDataManager,
-        tradingBalanceDataManager,
-        custodialWalletManager,
-        paymentsDataManager,
-        currencyPrefs
+        SELECTED_FIAT
     )
 
     @Test
     fun transferListForCustodialSource() {
-        whenever(currencyPrefs.selectedFiatCurrency).thenReturn(SELECTED_FIAT)
-        whenever(custodialWalletManager.getSupportedFundsFiats(any()))
-            .thenReturn(Single.just(FIAT_ACCOUNT_LIST))
 
         whenever(labels.getDefaultCustodialFiatWalletLabel(any())).thenReturn(DEFAULT_LABEL)
 
@@ -96,6 +111,5 @@ class FiatAssetTransferTest {
     companion object {
         private const val DEFAULT_LABEL = "label"
         private val SELECTED_FIAT = USD
-        private val FIAT_ACCOUNT_LIST = listOf(USD, GBP)
     }
 }

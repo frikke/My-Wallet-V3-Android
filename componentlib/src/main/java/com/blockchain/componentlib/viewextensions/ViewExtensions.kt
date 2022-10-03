@@ -5,6 +5,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Rect
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +19,14 @@ import androidx.annotation.IntDef
 import androidx.annotation.LayoutRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.onStart
+
+const val DEBOUNCE_TIMEOUT = 500L
 
 // In window/screen co-ordinates
 val View.windowRect: Rect
@@ -150,10 +160,6 @@ private class DebouncingOnClickListener(private val onClickListener: (View?) -> 
             lastClick = now
             onClickListener(v)
         }
-    }
-
-    companion object {
-        private const val DEBOUNCE_TIMEOUT = 500L
     }
 }
 
@@ -296,4 +302,44 @@ fun View?.findSuitableParent(): ViewGroup? {
 
     // If we reach here then we didn't find a CoL or a suitable content view so we'll fallback
     return fallback
+}
+
+fun View.setMargins(
+    start: Int? = null,
+    top: Int? = null,
+    end: Int? = null,
+    bottom: Int? = null
+) {
+    if (layoutParams is ViewGroup.MarginLayoutParams) {
+        val params = layoutParams as ViewGroup.MarginLayoutParams
+        start?.run { params.leftMargin = this }
+        top?.run { params.topMargin = this }
+        end?.run { params.rightMargin = this }
+        bottom?.run { params.bottomMargin = this }
+        requestLayout()
+    }
+}
+
+/**
+ * Creates a callbackFlow that emits a new value everytime this view's text changes.
+ *
+ * @return A flow that emits the text of this view every time it changes.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+fun TextInputEditText.listenForTextChanges(): Flow<CharSequence?> {
+    return callbackFlow<CharSequence?> {
+        val listener = object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                trySend(s)
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+        }
+        addTextChangedListener(listener)
+        awaitClose {
+            removeTextChangedListener(listener)
+        }
+    }.onStart {
+        emit(text)
+    }
 }

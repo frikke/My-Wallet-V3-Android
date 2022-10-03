@@ -1,29 +1,28 @@
 package com.blockchain.coincore.fiat
 
 import com.blockchain.coincore.AccountBalance
-import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.SameCurrencyAccountGroup
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TxSourceState
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
+import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.total
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
@@ -33,19 +32,24 @@ import java.util.concurrent.atomic.AtomicBoolean
     override val label: String,
     override val currency: FiatCurrency,
     override val isDefault: Boolean = false,
-    private val tradingBalanceDataManager: TradingBalanceDataManager,
+    private val tradingService: TradingService,
     private val custodialWalletManager: CustodialWalletManager,
-    private val paymentsDataManager: PaymentsDataManager,
-    private val exchangesRates: ExchangeRatesDataManager
+    private val bankService: BankService,
+    private val exchangeRates: ExchangeRatesDataManager
 ) : FiatAccount, TradingAccount {
     private val hasFunds = AtomicBoolean(false)
 
     override val balance: Observable<AccountBalance>
         get() = Observable.combineLatest(
-            tradingBalanceDataManager.getBalanceForCurrency(currency),
-            exchangesRates.exchangeRateToUserFiat(currency)
+            tradingService.getBalanceFor(currency),
+            exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
-            AccountBalance.from(balance, rate)
+            AccountBalance(
+                total = balance.total,
+                withdrawable = balance.withdrawable,
+                pending = balance.pending,
+                exchangeRate = rate,
+            )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override var hasTransactions: Boolean = false
@@ -59,7 +63,7 @@ import java.util.concurrent.atomic.AtomicBoolean
                 it.map { fiatTransaction ->
                     FiatActivitySummaryItem(
                         currency = currency,
-                        exchangeRates = exchangesRates,
+                        exchangeRates = exchangeRates,
                         txId = fiatTransaction.id,
                         timeStampMs = fiatTransaction.date.time,
                         value = fiatTransaction.amount,
@@ -78,23 +82,22 @@ import java.util.concurrent.atomic.AtomicBoolean
             it.isEmpty()
         }
 
-    override val actions: Single<AvailableActions> =
-        paymentsDataManager.canTransactWithBankMethods(currency)
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = bankService.canTransactWithBankMethods(currency)
             .zipWith(balance.firstOrError().map { it.withdrawable.isPositive })
             .map { (canTransactWithBanks, hasActionableBalance) ->
                 if (canTransactWithBanks) {
                     setOfNotNull(
-                        AssetAction.ViewActivity,
-                        AssetAction.FiatDeposit,
-                        if (hasActionableBalance) AssetAction.Withdraw else null
+                        StateAwareAction(ActionState.Available, AssetAction.ViewActivity),
+                        StateAwareAction(ActionState.Available, AssetAction.FiatDeposit),
+                        if (hasActionableBalance) StateAwareAction(
+                            ActionState.Available, AssetAction.FiatWithdraw
+                        ) else null
                     )
                 } else {
-                    setOf(AssetAction.ViewActivity)
+                    setOf(StateAwareAction(ActionState.Available, AssetAction.ViewActivity))
                 }
             }
-
-    override val stateAwareActions: Single<Set<StateAwareAction>>
-        get() = Single.just(emptySet())
 
     override val isFunded: Boolean
         get() = hasFunds.get()
@@ -108,21 +111,14 @@ import java.util.concurrent.atomic.AtomicBoolean
 
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.NOT_SUPPORTED)
-
-    override val isEnabled: Single<Boolean>
-        get() = Single.just(true)
-
-    override val disabledReason: Single<IneligibilityReason>
-        get() = Single.just(IneligibilityReason.NONE)
 }
 
 class FiatAccountGroup(
     override val label: String,
     override val accounts: SingleAccountList
-) : AccountGroup {
-    // Produce the sum of all balances of all accounts
-    override val balance: Observable<AccountBalance>
-        get() = Observable.error(NotImplementedError("No unified balance for All Fiat accounts"))
+) : SameCurrencyAccountGroup {
+    override val currency: Currency
+        get() = accounts[0].currency
 
     // All the activities for all the accounts
     override val activity: Single<ActivitySummaryList>
@@ -137,17 +133,6 @@ class FiatAccountGroup(
         }
 
     // The intersection of the actions for each account
-    override val actions: Single<AvailableActions>
-        get() = if (accounts.isEmpty()) {
-            Single.just(emptySet())
-        } else {
-            Single.zip(
-                accounts.map { it.actions }
-            ) { t: Array<Any> ->
-                t.filterIsInstance<AvailableActions>().flatten().toSet()
-            }
-        }
-
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = if (accounts.isEmpty()) {
             Single.just(emptySet())

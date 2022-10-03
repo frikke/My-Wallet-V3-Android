@@ -7,5 +7,6 @@ data class ReferralViewState(
     val criteria: List<String>,
     val rewardSubtitle: String,
     val rewardTitle: String,
-    val confirmCopiedToClipboard: Boolean
+    val confirmCopiedToClipboard: Boolean,
+    val promotionData: ReferralPromotionStyleInfo?
 ) : ViewState

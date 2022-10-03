@@ -3,6 +3,7 @@ package com.blockchain.serializers
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.text.SimpleDateFormat
+import java.time.ZonedDateTime
 import java.util.Date
 import kotlinx.serialization.ContextualSerializer
 import kotlinx.serialization.InternalSerializationApi
@@ -61,6 +62,18 @@ object StringMapSerializer : KSerializer<Map<String, String>> {
     }
 }
 
+object AnyToStringSerializer : KSerializer<Any> {
+    override val descriptor: SerialDescriptor = ContextualSerializer(Any::class, null, emptyArray()).descriptor
+
+    override fun serialize(encoder: Encoder, value: Any) {
+        encoder.encodeString(value.toString())
+    }
+
+    override fun deserialize(decoder: Decoder): Any {
+        return decoder.decodeString()
+    }
+}
+
 object PrimitiveSerializer : KSerializer<Any> {
     override val descriptor: SerialDescriptor = ContextualSerializer(Any::class, null, emptyArray()).descriptor
 
@@ -92,5 +105,18 @@ object IsoDateSerializer : KSerializer<Date> {
     override fun deserialize(decoder: Decoder): Date {
         val input = decoder.decodeString()
         return format.parse(input)
+    }
+}
+
+object KZonedDateTimeSerializer : KSerializer<ZonedDateTime> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("ZonedDateTime", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: ZonedDateTime) {
+        encoder.encodeString(value.toString())
+    }
+
+    override fun deserialize(decoder: Decoder): ZonedDateTime {
+        val input = decoder.decodeString()
+        return ZonedDateTime.parse(input)
     }
 }

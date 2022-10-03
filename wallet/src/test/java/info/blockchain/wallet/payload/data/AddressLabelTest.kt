@@ -13,9 +13,9 @@ class AddressLabelTest {
     @Test fun fromJson_1() {
         val uri = javaClass.classLoader.getResource("wallet_body_1.txt").toURI()
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
-        val wallet = Wallet.fromJson(body)
+        val wallet = Wallet.fromJson(body, 4)
         val walletBody = wallet.walletBody
-        val accounts: List<Account>? = walletBody!!.accounts
+        val accounts: List<Account> = walletBody!!.accounts
         val addressLabels: List<AddressLabel> = accounts!![1].addressLabels
         Assert.assertEquals(98, addressLabels[0].index.toLong())
         Assert.assertEquals("New Address", addressLabels[0].label)
@@ -30,7 +30,7 @@ class AddressLabelTest {
         // Ensure toJson doesn't write any unintended fields
         val uri = javaClass.classLoader.getResource("wallet_body_1.txt").toURI()
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
-        val wallet = Wallet.fromJson(body)
+        val wallet = Wallet.fromJson(body, 4)
         val walletBody = wallet.walletBodies!![0]
         val accounts: List<Account>? = walletBody.accounts
         val addressLabels: List<AddressLabel> = accounts!![1].addressLabels

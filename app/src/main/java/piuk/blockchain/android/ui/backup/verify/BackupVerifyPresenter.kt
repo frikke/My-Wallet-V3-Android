@@ -5,13 +5,13 @@ import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import com.blockchain.componentlib.alert.SnackbarType
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.wallet.BackupWallet
 import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment.Companion.ARGUMENT_SECOND_PASSWORD
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.base.View
-import piuk.blockchain.android.util.BackupWalletUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -28,8 +28,8 @@ interface BackupVerifyView : View {
 
 class BackupVerifyPresenter(
     private val payloadDataManager: PayloadDataManager,
-    private val walletStatus: WalletStatus,
-    private val backupWalletUtil: BackupWalletUtil
+    private val walletStatusPrefs: WalletStatusPrefs,
+    private val backupWallet: BackupWallet
 ) : BasePresenter<BackupVerifyView>() {
 
     private val sequence by unsafeLazy { getBackupConfirmSequence() }
@@ -53,14 +53,12 @@ class BackupVerifyPresenter(
     @SuppressLint("CheckResult")
     @VisibleForTesting
     internal fun updateBackupStatus() {
-        payloadDataManager.wallet!!.walletBody?.mnemonicVerified = true
-
-        compositeDisposable += payloadDataManager.syncPayloadWithServer()
+        compositeDisposable += payloadDataManager.updateMnemonicVerified(true)
             .doOnSubscribe { view.showProgressDialog() }
             .doAfterTerminate { view.hideProgressDialog() }
             .subscribe(
                 {
-                    walletStatus.lastBackupTime = System.currentTimeMillis() / 1000
+                    walletStatusPrefs.lastBackupTime = System.currentTimeMillis() / 1000
                     view.showSnackbar(R.string.backup_confirmed, SnackbarType.Success)
                     view.showCompletedFragment()
                 },
@@ -75,6 +73,6 @@ class BackupVerifyPresenter(
     private fun getBackupConfirmSequence(): List<Pair<Int, String>> {
         val bundle = view.getPageBundle()
         val secondPassword = bundle?.getString(ARGUMENT_SECOND_PASSWORD)
-        return backupWalletUtil.getConfirmSequence(secondPassword)
+        return backupWallet.getConfirmSequence(secondPassword)
     }
 }

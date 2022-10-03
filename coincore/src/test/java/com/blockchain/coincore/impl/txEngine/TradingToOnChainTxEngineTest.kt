@@ -11,11 +11,12 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.erc20.Erc20NonCustodialAccount
 import com.blockchain.coincore.impl.CryptoAccountCompoundGroupTest.Companion.testValue
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -56,8 +57,10 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
             )
         )
     }
+    private val tradingStore: TradingStore = mock()
 
     private val subject = TradingToOnChainTxEngine(
+        tradingStore = tradingStore,
         walletManager = walletManager,
         isNoteSupported = isNoteSupported,
         limitsDataManager = limitsDataManager,
@@ -405,7 +408,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
 
     private fun mockSourceAccount(
         totalBalance: Money = CryptoValue.zero(ASSET),
-        actionable: Money = CryptoValue.zero(ASSET)
+        actionable: Money = CryptoValue.zero(ASSET),
     ): Erc20NonCustodialAccount {
         val accountBalance = AccountBalance(
             total = totalBalance,

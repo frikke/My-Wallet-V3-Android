@@ -3,9 +3,9 @@ package piuk.blockchain.android.simplebuy.sheets
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.service.TierService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -18,7 +18,7 @@ import piuk.blockchain.android.ui.customviews.VerifyIdentityIconedBenefitItem
 
 class UnlockHigherLimitsBottomSheet : SlidingModalBottomDialog<UnlockHigherLimitsLayoutBinding>() {
 
-    private val tiers: TierService by scopedInject()
+    private val kycService: KycService by scopedInject()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -36,8 +36,8 @@ class UnlockHigherLimitsBottomSheet : SlidingModalBottomDialog<UnlockHigherLimit
         UnlockHigherLimitsLayoutBinding.inflate(inflater, container, false)
 
     override fun initControls(binding: UnlockHigherLimitsLayoutBinding) {
-        compositeDisposable += tiers.tiers().map {
-            it.tierForLevel(KycTierLevel.GOLD).limits?.dailyLimit?.let { dailyLimit ->
+        compositeDisposable += kycService.getTiersLegacy().map {
+            it.tierForLevel(KycTier.GOLD).kycLimits?.dailyLimit?.let { dailyLimit ->
                 dailyLimit.toStringWithSymbol()
             } ?: getString(R.string.empty)
         }.onErrorReturn { getString(R.string.empty) }

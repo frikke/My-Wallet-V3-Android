@@ -40,14 +40,16 @@
         <TextView
             android:id="@+id/text_title"
             style="@style/Text.Semibold.14"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/very_small_margin"
-            android:layout_marginEnd="20dp"
+            android:layout_marginEnd="@dimen/tiny_margin"
             android:layout_marginBottom="@dimen/small_margin"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/action_icon"
             app:layout_constraintStart_toEndOf="@+id/icon"
-            tools:text="Verify Your ID" />
+            app:layout_constraintTop_toBottomOf="@+id/text_subtitle"
+            tools:text="This should be a very long text so that we see that text does not go under the caret" />
 
         <ImageView
             android:id="@+id/action_icon"

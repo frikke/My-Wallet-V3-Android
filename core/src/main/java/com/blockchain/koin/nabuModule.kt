@@ -1,14 +1,19 @@
 package com.blockchain.koin
 
+import com.blockchain.api.nabuApi
 import com.blockchain.auth.AuthHeaderProvider
+import com.blockchain.core.kyc.data.KycRepository
+import com.blockchain.core.kyc.data.datasources.KycTiersStore
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.api.getuser.data.GetUserStore
+import com.blockchain.nabu.api.getuser.data.UserRepository
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.api.nabu.Nabu
-import com.blockchain.nabu.cache.CustodialAssetsEligibilityCache
-import com.blockchain.nabu.cache.UserCache
 import com.blockchain.nabu.datamanagers.AnalyticsNabuUserReporterImpl
 import com.blockchain.nabu.datamanagers.AnalyticsWalletReporter
 import com.blockchain.nabu.datamanagers.CreateNabuTokenAdapter
@@ -17,8 +22,6 @@ import com.blockchain.nabu.datamanagers.NabuAuthenticator
 import com.blockchain.nabu.datamanagers.NabuCachedEligibilityProvider
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataManagerImpl
-import com.blockchain.nabu.datamanagers.NabuDataUserProvider
-import com.blockchain.nabu.datamanagers.NabuDataUserProviderNabuDataManagerAdapter
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.nabu.datamanagers.NabuUserReporter
 import com.blockchain.nabu.datamanagers.NabuUserSyncUpdateUserWalletInfoWithJWT
@@ -28,16 +31,8 @@ import com.blockchain.nabu.datamanagers.UniqueAnalyticsNabuUserReporter
 import com.blockchain.nabu.datamanagers.UniqueAnalyticsWalletReporter
 import com.blockchain.nabu.datamanagers.WalletReporter
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletManager
-import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestAvailabilityProvider
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestAvailabilityProviderImpl
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProviderImpl
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimitsProvider
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimitsProviderImpl
-import com.blockchain.nabu.datamanagers.repositories.interest.InterestRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapActivityProvider
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapActivityProviderImpl
@@ -46,10 +41,7 @@ import com.blockchain.nabu.datamanagers.repositories.swap.TradingPairsProviderIm
 import com.blockchain.nabu.metadata.AccountCredentialsMetadata
 import com.blockchain.nabu.metadata.MetadataRepositoryNabuTokenAdapter
 import com.blockchain.nabu.service.NabuService
-import com.blockchain.nabu.service.NabuTierService
 import com.blockchain.nabu.service.RetailWalletTokenService
-import com.blockchain.nabu.service.TierService
-import com.blockchain.nabu.service.TierUpdater
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -58,14 +50,6 @@ import retrofit2.Retrofit
 val nabuModule = module {
 
     scope(payloadScopeQualifier) {
-
-        factory {
-            KycDataManager(
-                authenticator = get(),
-                kycService = get(),
-                kycAdditionalInfoFeatureFlag = get(kycAdditionalInfoFeatureFlag)
-            )
-        }
 
         scoped {
             MetadataRepositoryNabuTokenAdapter(
@@ -77,7 +61,6 @@ val nabuModule = module {
         factory {
             AccountCredentialsMetadata(
                 metadataRepository = get(),
-                accountMetadataMigrationFF = get(metadataMigrationFeatureFlag),
                 remoteLogger = get()
             )
         }
@@ -94,13 +77,23 @@ val nabuModule = module {
                 walletReporter = get(uniqueId),
                 userReporter = get(uniqueUserAnalytics),
                 trust = get(),
-                userCache = get()
             )
         }.bind(NabuDataManager::class)
 
         scoped {
-            UserCache(
-                nabuService = get()
+            GetUserStore(
+                nabuService = get(),
+                authenticator = get(),
+                userReporter = get(uniqueUserAnalytics),
+                trust = get(),
+                walletReporter = get(uniqueId),
+                payloadDataManager = get()
+            )
+        }
+
+        scoped<UserService> {
+            UserRepository(
+                getUserStore = get()
             )
         }
 
@@ -110,16 +103,18 @@ val nabuModule = module {
                 nabuService = get(),
                 authenticator = get(),
                 paymentAccountMapperMappers = mapOf(
-                    "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd)
+                    "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd), "ARS" to get(ars)
                 ),
                 transactionsCache = get(),
-                interestRepository = get(),
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
                 currencyPrefs = get(),
                 buyOrdersCache = get(),
                 pairsCache = get(),
-                paymentMethodsEligibilityStore = get()
+                buyPairsStore = get(),
+                swapOrdersCache = get(),
+                paymentMethodsEligibilityStore = get(),
+                fiatCurrenciesService = get()
             )
         }.bind(CustodialWalletManager::class)
 
@@ -130,11 +125,12 @@ val nabuModule = module {
         scoped {
             NabuUserIdentity(
                 custodialWalletManager = get(),
-                nabuUserDataManager = get(),
+                interestService = get(),
+                kycService = get(),
                 simpleBuyEligibilityProvider = get(),
-                interestEligibilityProvider = get(),
-                nabuDataProvider = get(),
-                eligibilityService = get()
+                eligibilityService = get(),
+                userService = get(),
+                bindFeatureFlag = get(bindFeatureFlag)
             )
         }.bind(UserIdentity::class)
 
@@ -144,37 +140,6 @@ val nabuModule = module {
                 authenticator = get()
             )
         }.bind(SimpleBuyEligibilityProvider::class)
-
-        factory {
-            InterestLimitsProviderImpl(
-                assetCatalogue = get(),
-                nabuService = get(),
-                authenticator = get(),
-                currencyPrefs = get()
-            )
-        }.bind(InterestLimitsProvider::class)
-
-        factory {
-            InterestAvailabilityProviderImpl(
-                assetCatalogue = get(),
-                nabuService = get(),
-                authenticator = get()
-            )
-        }.bind(InterestAvailabilityProvider::class)
-
-        scoped {
-            CustodialAssetsEligibilityCache(
-                authenticator = get(),
-                assetCatalogue = get(),
-                service = get()
-            )
-        }
-
-        factory {
-            InterestEligibilityProviderImpl(
-                custodialAssetsEligibilityCache = get()
-            )
-        }.bind(InterestEligibilityProvider::class)
 
         factory {
             TradingPairsProviderImpl(
@@ -213,38 +178,38 @@ val nabuModule = module {
             AnalyticsWalletReporter(userAnalytics = get())
         }.bind(WalletReporter::class)
 
-        factory {
-            NabuTierService(
-                assetCatalogue = get(),
-                authenticator = get(),
-                endpoint = get()
+        scoped<KycService> {
+            KycRepository(
+                kycTiersStore = get(),
+                userService = get(),
+                assetCatalogue = get()
             )
         }
-            .bind(TierService::class)
-            .bind(TierUpdater::class)
+
+        scoped {
+            KycTiersStore(
+                kycApiService = get(),
+                authenticator = get()
+            )
+        }
 
         factory {
             CreateNabuTokenAdapter(get())
         }.bind(CreateNabuToken::class)
 
-        factory { NabuDataUserProviderNabuDataManagerAdapter(get(), get()) }.bind(
-            NabuDataUserProvider::class
-        )
-
-        factory { NabuUserSyncUpdateUserWalletInfoWithJWT(get(), get()) }.bind(NabuUserSync::class)
+        factory {
+            NabuUserSyncUpdateUserWalletInfoWithJWT(
+                authenticator = get(),
+                nabuDataManager = get(),
+                nabuService = get(),
+                getUserStore = get(),
+            )
+        }.bind(NabuUserSync::class)
 
         scoped {
             CustodialRepository(
                 pairsProvider = get(),
                 activityProvider = get()
-            )
-        }
-
-        scoped {
-            InterestRepository(
-                interestAvailabilityProvider = get(),
-                interestEligibilityProvider = get(),
-                interestLimitsProvider = get()
             )
         }
 
@@ -263,11 +228,15 @@ val nabuModule = module {
     single { NabuSessionTokenStore() }
 
     single {
-        NabuService(get())
+        NabuService(
+            nabu = get(),
+            remoteConfigPrefs = get(),
+            environmentConfig = get()
+        )
     }
 
     factory {
-        get<Retrofit>(nabu).create(Nabu::class.java)
+        get<Retrofit>(nabuApi).create(Nabu::class.java)
     }
 
     single {
@@ -285,7 +254,8 @@ val authenticationModule = module {
             NabuAuthenticator(
                 nabuToken = get(),
                 nabuDataManager = get(),
-                remoteLogger = get()
+                remoteLogger = get(),
+                authInterceptorFeatureFlag = get(authInterceptorFeatureFlag),
             )
         }.bind(Authenticator::class).bind(AuthHeaderProvider::class)
     }

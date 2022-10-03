@@ -2,12 +2,14 @@ package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.custodial.TradingAccountBalance
-import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.custodial.domain.model.TradingAccountBalance
+import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.testutils.testValue
+import com.blockchain.walletmode.WalletMode
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
@@ -22,17 +24,21 @@ import org.junit.Test
 class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
 
     private val custodialManager: CustodialWalletManager = mock()
-    private val tradingBalances: TradingBalanceDataManager = mock()
+    private val tradingService: TradingService = mock()
     private val identity: UserIdentity = mock()
+    private val kycService: KycService = mock()
 
     private val subject = CustodialTradingAccount(
         currency = TEST_ASSET,
         label = "Test Account",
         exchangeRates = exchangeRates,
         custodialWalletManager = custodialManager,
-        tradingBalances = tradingBalances,
+        tradingService = tradingService,
         identity = identity,
-        baseActions = ACTIONS
+        kycService = kycService,
+        walletModeService = mock {
+            on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+        }
     )
 
     @Before
@@ -52,7 +58,7 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
             pending = 10.testValue(TEST_ASSET)
         )
 
-        whenever(tradingBalances.getBalanceForCurrency(TEST_ASSET)).thenReturn(Observable.just(balance))
+        whenever(tradingService.getBalanceFor(TEST_ASSET)).thenReturn(Observable.just(balance))
 
         subject.balance
             .test()
@@ -79,7 +85,7 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
             pending = 0.testValue(TEST_ASSET)
         )
 
-        whenever(tradingBalances.getBalanceForCurrency(TEST_ASSET)).thenReturn(Observable.just(balance))
+        whenever(tradingService.getBalanceFor(TEST_ASSET)).thenReturn(Observable.just(balance))
 
         subject.balance
             .test()
@@ -114,7 +120,7 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
             pending = 10.testValue(TEST_ASSET)
         )
 
-        whenever(tradingBalances.getBalanceForCurrency(TEST_ASSET)).thenReturn(Observable.just(balance))
+        whenever(tradingService.getBalanceFor(TEST_ASSET)).thenReturn(Observable.just(balance))
 
         val testSubscriber = subject.balance
             .subscribeOn(scheduler)

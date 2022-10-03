@@ -6,7 +6,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.text.input.KeyboardType
-import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateTitleToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -27,8 +26,7 @@ import piuk.blockchain.android.util.FormatChecker
 
 class UpdatePhoneFragment :
     MviFragment<PhoneModel, PhoneIntent, PhoneState, FragmentUpdatePhoneBinding>(),
-    SMSPhoneVerificationBottomSheet.Host,
-    FlowFragment {
+    SMSPhoneVerificationBottomSheet.Host {
 
     private val formatChecker: FormatChecker by inject()
 
@@ -36,8 +34,6 @@ class UpdatePhoneFragment :
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentUpdatePhoneBinding =
         FragmentUpdatePhoneBinding.inflate(inflater, container, false)
-
-    override fun onBackPressed(): Boolean = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

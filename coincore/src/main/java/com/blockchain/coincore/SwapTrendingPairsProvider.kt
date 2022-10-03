@@ -1,8 +1,5 @@
 package com.blockchain.coincore
 
-import com.blockchain.coincore.loader.PAX
-import com.blockchain.nabu.Feature
-import com.blockchain.nabu.UserIdentity
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -12,7 +9,7 @@ import io.reactivex.rxjava3.core.Single
 data class TrendingPair(
     val sourceAccount: CryptoAccount,
     val destinationAccount: CryptoAccount,
-    val isSourceFunded: Boolean
+    val isSourceFunded: Boolean,
 ) {
     val enabled = isSourceFunded
 }
@@ -24,19 +21,17 @@ interface TrendingPairsProvider {
 internal class SwapTrendingPairsProvider(
     private val coincore: Coincore,
     private val assetCatalogue: AssetCatalogue,
-    private val identity: UserIdentity
 ) : TrendingPairsProvider {
 
     override fun getTrendingPairs(): Single<List<TrendingPair>> =
-        identity.isEligibleFor(Feature.SimpleBuy)
+        coincore.activeWallets()
+            .map { it.accounts.isNotEmpty() }
             .flatMap { useCustodial ->
-                val filter = if (useCustodial) AssetFilter.Custodial else AssetFilter.NonCustodial
-
+                val filter = if (useCustodial) AssetFilter.Trading else AssetFilter.NonCustodial
                 val assetList = makeRequiredAssetSet()
                 val accountGroups = assetList.map { asset ->
                     coincore[asset].accountGroup(filter)
                         .toSingle()
-                        .onErrorReturn { NullAccountGroup() }
                 }
 
                 Single.zip(
@@ -60,8 +55,7 @@ internal class SwapTrendingPairsProvider(
             .toSet()
 
     private fun getAccounts(list: Array<Any>): List<CryptoAccount> =
-        list.filter { it !is NullAccountGroup }
-            .filterIsInstance<AccountGroup>()
+        list.filterIsInstance<AccountGroup>()
             .filter { it.accounts.isNotEmpty() }
             .map { it.selectFirstAccount() }
 
@@ -76,7 +70,7 @@ internal class SwapTrendingPairsProvider(
                 }
 
                 val isFunded = source.isFunded &&
-                    (source.isCustodial() || chain == null || chain.isFunded)
+                    (source.isTrading() || chain == null || chain.isFunded)
 
                 TrendingPair(source, target, isFunded)
             } else {
@@ -84,13 +78,15 @@ internal class SwapTrendingPairsProvider(
             }
         }
 
-    companion object {
-        private val DEFAULT_SWAP_PAIRS = listOf(
-            Pair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
-            Pair(CryptoCurrency.BTC, PAX),
-            Pair(CryptoCurrency.BTC, CryptoCurrency.XLM),
-            Pair(CryptoCurrency.BTC, CryptoCurrency.BCH),
-            Pair(CryptoCurrency.ETHER, PAX)
-        )
-    }
+    private val DEFAULT_SWAP_PAIRS = listOfNotNull(
+        Pair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
+        assetCatalogue.assetInfoFromNetworkTicker("PAX")?.let {
+            Pair(CryptoCurrency.BTC, it)
+        },
+        Pair(CryptoCurrency.BTC, CryptoCurrency.XLM),
+        Pair(CryptoCurrency.BTC, CryptoCurrency.BCH),
+        assetCatalogue.assetInfoFromNetworkTicker("PAX")?.let {
+            Pair(CryptoCurrency.ETHER, it)
+        }
+    )
 }

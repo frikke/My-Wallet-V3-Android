@@ -13,6 +13,7 @@ enum class FormatPrecision {
      * Some currencies will be displayed at a shorter length
      */
     Short,
+
     /**
      * Full decimal place precision is used for the display string
      */
@@ -22,14 +23,13 @@ enum class FormatPrecision {
 internal fun CryptoValue.format(
     locale: Locale,
     precision: FormatPrecision = FormatPrecision.Short
-): String =
-    getFormatter(locale).format(this, precision)
+): String = getFormatter(locale).format(this, precision)
 
 internal fun CryptoValue.formatWithUnit(
     locale: Locale,
-    precision: FormatPrecision = FormatPrecision.Short
-) =
-    getFormatter(locale).formatWithUnit(this, precision)
+    precision: FormatPrecision = FormatPrecision.Short,
+    includeDecimalsWhenWhole: Boolean = true
+) = getFormatter(locale).formatWithUnit(this, precision, includeDecimalsWhenWhole)
 
 private val formatterMap: MutableMap<Locale, CryptoCurrencyFormatter> = ConcurrentHashMap()
 
@@ -41,26 +41,37 @@ private class CryptoCurrencyFormatter(private val locale: Locale) {
     fun format(
         cryptoValue: CryptoValue,
         precision: FormatPrecision = FormatPrecision.Short
-    ): String =
-        cryptoValue.currency.decimalFormat(precision).formatWithoutUnit(cryptoValue.toBigDecimal())
+    ): String = cryptoValue.currency.decimalFormat(cryptoValue, precision)
+        .formatWithoutUnit(cryptoValue.toBigDecimal())
 
     fun formatWithUnit(
         cryptoValue: CryptoValue,
-        precision: FormatPrecision = FormatPrecision.Short
-    ) =
-        cryptoValue.currency.decimalFormat(precision).formatWithUnit(
-            cryptoValue.toBigDecimal(),
-            cryptoValue.currency.displayTicker
-        )
+        precision: FormatPrecision = FormatPrecision.Short,
+        includeDecimalsWhenWhole: Boolean
+    ) = cryptoValue.currency.decimalFormat(cryptoValue, precision, includeDecimalsWhenWhole).formatWithUnit(
+        cryptoValue.toBigDecimal(),
+        cryptoValue.currency.displayTicker
+    )
 
-    private fun AssetInfo.decimalFormat(displayMode: FormatPrecision) =
-        createCryptoDecimalFormat(
-            locale,
-            if (displayMode == FormatPrecision.Short)
-                CryptoValue.DISPLAY_DP
-            else
-                this.precisionDp
-        )
+    private fun AssetInfo.decimalFormat(
+        value: Money,
+        displayMode: FormatPrecision,
+        includeDecimalsWhenWhole: Boolean = true
+    ) = createCryptoDecimalFormat(
+        locale,
+        when {
+            includeDecimalsWhenWhole || !value.valueIsWholeNumber() -> {
+                if (displayMode == FormatPrecision.Short) {
+                    CryptoValue.DISPLAY_DP
+                } else {
+                    this.precisionDp
+                }
+            }
+            else -> {
+                0
+            }
+        }
+    )
 
     private fun DecimalFormat.formatWithUnit(value: BigDecimal, symbol: String) =
         "${formatWithoutUnit(value)} $symbol"
@@ -78,9 +89,9 @@ private fun Double.toPositiveDouble() = max(this, 0.0)
  */
 private fun String.toWebZero() = if (this == "0.0" || this == "0,0" || this == "0.00") "0" else this
 
-private fun createCryptoDecimalFormat(locale: Locale, maxDigits: Int) =
+private fun createCryptoDecimalFormat(locale: Locale, maxDigits: Int, minDigits: Int = 1) =
     (NumberFormat.getInstance(locale) as DecimalFormat).apply {
-        minimumFractionDigits = 1
+        minimumFractionDigits = minDigits
         maximumFractionDigits = maxDigits
         roundingMode = RoundingMode.DOWN
     }

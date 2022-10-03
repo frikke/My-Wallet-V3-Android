@@ -8,52 +8,48 @@ import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.api.services.ContactPreference
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
-import com.blockchain.blockchaincard.ui.BlockchainCardFragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
-import com.blockchain.core.payments.LinkedPaymentMethod
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.notificationPreferencesFeatureFlag
-import com.blockchain.koin.scopedInject
+import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.BasicProfileInfo
-import com.blockchain.nabu.Tier
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.walletconnect.ui.dapps.DappsListFragment
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
+import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.databinding.ActivitySettingsBinding
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
+import piuk.blockchain.android.ui.blockchaincard.BlockchainCardFragment
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
+import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.settings.v2.account.AccountFragment
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesAnalyticsEvents
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesFragment
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.details.NotificationPreferenceDetailsFragment
-import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsFragment
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileActivity
 import piuk.blockchain.android.ui.settings.v2.security.SecurityFragment
 import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeFragment
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
-import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import timber.log.Timber
 
 class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragment.Host {
-
-    private val notificationReworkFeatureFlag: FeatureFlag by scopedInject(notificationPreferencesFeatureFlag)
 
     private val binding: ActivitySettingsBinding by lazy {
         ActivitySettingsBinding.inflate(layoutInflater)
     }
 
     private var basicProfileInfo: BasicProfileInfo? = null
-    private var tier: Tier? = null
+    private var tier: KycTier? = null
 
     override val alwaysDisableScreenshots: Boolean = true
 
@@ -62,6 +58,10 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
 
     private val startFor2Fa by lazy {
         intent.getBooleanExtra(START_FOR_2FA, false)
+    }
+
+    private val startForCardLinking by lazy {
+        intent.getBooleanExtra(START_FOR_CARD_LINKING, false)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,12 +79,16 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         if (startFor2Fa) {
             goToSecurity()
         }
+
+        if (startForCardLinking) {
+            startActivity(CardDetailsActivity.newIntent(this))
+        }
     }
 
     private fun setupToolbar() {
         updateToolbar(
             toolbarTitle = getString(R.string.toolbar_settings),
-            backAction = { onBackPressed() }
+            backAction = { onBackPressedDispatcher.onBackPressed() }
         )
         setupSupportButton()
     }
@@ -92,7 +96,10 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
     private fun setupSupportButton() {
         updateToolbarMenuItems(
             listOf(
-                NavigationBarButton.Icon(R.drawable.ic_support_chat) {
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_support_chat,
+                    contentDescription = R.string.accessibility_support
+                ) {
                     analytics.logEvent(AnalyticsEvents.Support)
                     startActivity(SupportCentreActivity.newIntent(this))
                 }
@@ -123,7 +130,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         this.basicProfileInfo = basicProfileInfo
     }
 
-    override fun updateTier(tier: Tier) {
+    override fun updateTier(tier: KycTier) {
         this.tier = tier
     }
 
@@ -140,12 +147,8 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
     }
 
     override fun goToNotifications() {
-        if (notificationReworkFeatureFlag.isEnabled) {
-            analytics.logEvent(NotificationPreferencesAnalyticsEvents.NotificationClicked)
-            replaceCurrentFragment(NotificationPreferencesFragment.newInstance())
-        } else {
-            replaceCurrentFragment(NotificationsFragment.newInstance())
-        }
+        analytics.logEvent(NotificationPreferencesAnalyticsEvents.NotificationClicked)
+        replaceCurrentFragment(NotificationPreferencesFragment.newInstance())
     }
 
     override fun goToNotificationPreferences() {
@@ -176,10 +179,6 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         startActivity(AddressesActivity.newIntent(this))
     }
 
-    override fun goToExchange() {
-        PitPermissionsActivity.start(this, "")
-    }
-
     override fun goToKycLimits() {
         startActivity(KycLimitsActivity.newIntent(this))
     }
@@ -196,6 +195,12 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         replaceCurrentFragment(BlockchainCardFragment.newInstance(blockchainCard))
     }
 
+    override fun goToReferralCode(referral: ReferralInfo.Data) {
+        showBottomSheet(
+            ReferralSheet.newInstance(referral)
+        )
+    }
+
     private fun replaceCurrentFragment(newFragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
@@ -209,20 +214,25 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         const val BASIC_INFO = "basic_info_user"
         const val USER_TIER = "user_tier"
         private const val START_FOR_2FA = "START_FOR_2FA"
+        private const val START_FOR_CARD_LINKING = "START_FOR_CARD_LINKING"
 
         const val SETTINGS_RESULT_DATA = "SETTINGS_RESULT_DATA"
 
         enum class SettingsAction {
             Addresses,
-            Exchange,
             Airdrops,
             WebLogin,
             Logout
         }
 
-        fun newIntent(context: Context, startFor2Fa: Boolean = false): Intent =
+        fun newIntent(
+            context: Context,
+            startFor2Fa: Boolean = false,
+            startForCardLinking: Boolean = false
+        ): Intent =
             Intent(context, SettingsActivity::class.java).apply {
                 putExtra(START_FOR_2FA, startFor2Fa)
+                putExtra(START_FOR_CARD_LINKING, startForCardLinking)
             }
     }
 }
@@ -239,16 +249,16 @@ interface SettingsNavigator {
     fun goToAirdrops()
     fun goToAddresses()
     fun goToWalletConnect()
-    fun goToExchange()
     fun goToKycLimits()
     fun goToPasswordChange()
     fun goToPinChange()
     fun goToOrderBlockchainCard(cardProduct: BlockchainCardProduct)
     fun goToManageBlockchainCard(blockchainCard: BlockchainCard)
     fun goToNotificationPreferencesDetails(preference: ContactPreference)
+    fun goToReferralCode(referral: ReferralInfo.Data)
 }
 
-interface SettingsScreen : FlowFragment {
+interface SettingsScreen {
     fun navigator(): SettingsNavigator
 }
 
@@ -264,5 +274,6 @@ data class LinkablePaymentMethods(
 
 data class BankItem(
     val bank: LinkedPaymentMethod.Bank,
-    val canBeUsedToTransact: Boolean
+    val canBeUsedToTransact: Boolean,
+    val limits: PaymentLimits
 )

@@ -11,6 +11,7 @@ import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NeedsApprovalException
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
@@ -18,19 +19,25 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.limits.LegacyLimits
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankTransferStatus
+import com.blockchain.domain.paymentmethods.model.LegacyLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.SettlementReason
+import com.blockchain.domain.paymentmethods.model.SettlementType
 import com.blockchain.extensions.withoutNullValues
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.network.PollService
+import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.FiatValue
@@ -44,18 +51,22 @@ const val WITHDRAW_LOCKS = "locks"
 private const val PAYMENT_METHOD_LIMITS = "PAYMENT_METHOD_LIMITS"
 
 class FiatDepositTxEngine(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
-    private val paymentsDataManager: PaymentsDataManager,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    private val bankService: BankService,
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val limitsDataManager: LimitsDataManager,
     private val userIdentity: UserIdentity,
-    private val withdrawLocksRepository: WithdrawLocksRepository
+    private val withdrawLocksRepository: WithdrawLocksRepository,
+    private val plaidFeatureFlag: FeatureFlag,
 ) : TxEngine() {
 
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf()
+
     private val userIsGoldVerified: Single<Boolean>
-        get() = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))
+        get() = userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD))
 
     override fun assertInputsValid() {
         check(sourceAccount is BankAccount)
@@ -190,38 +201,106 @@ class FiatDepositTxEngine(
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
         sourceAccount.receiveAddress.flatMap {
-            paymentsDataManager.startBankTransfer(
-                it.address, pendingTx.amount, pendingTx.amount.currencyCode,
-                if (isOpenBankingCurrency()) {
-                    bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY)
-                } else null
-            )
+            plaidFeatureFlag.enabled.flatMap { isPlaidEnabled ->
+                if (isPlaidEnabled) {
+                    checkSettlementBeforeDeposit(it, pendingTx)
+                } else {
+                    startBankTransfer(it, pendingTx)
+                }
+            }
         }.map {
             TxResult.HashedTxResult(it, pendingTx.amount)
         }
 
-    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
-        if (isOpenBankingCurrency()) {
-            val paymentId = (txResult as TxResult.HashedTxResult).txId
-            PollService(paymentsDataManager.getBankTransferCharge(paymentId)) {
-                it.authorisationUrl != null
-            }.start().map { it.value }.flatMap { bankTransferDetails ->
-                paymentsDataManager.getLinkedBank(bankTransferDetails.id).map { linkedBank ->
-                    bankTransferDetails.authorisationUrl?.let {
-                        BankPaymentApproval(
-                            paymentId,
-                            it,
-                            linkedBank,
-                            bankTransferDetails.amount as FiatValue
-                        )
-                    } ?: throw InvalidParameterException("No auth url was returned")
+    private fun checkSettlementBeforeDeposit(it: ReceiveAddress, pendingTx: PendingTx) =
+        bankService.checkSettlement(it.address, pendingTx.amount).flatMap { settlement ->
+            if (settlement.settlementType == SettlementType.UNAVAILABLE) {
+                when (settlement.settlementReason) {
+                    SettlementReason.GENERIC,
+                    SettlementReason.UNKNOWN ->
+                        Single.error(TransactionError.SettlementGenericError)
+                    SettlementReason.INSUFFICIENT_BALANCE ->
+                        Single.error(TransactionError.SettlementInsufficientBalance)
+                    SettlementReason.STALE_BALANCE ->
+                        Single.error(TransactionError.SettlementStaleBalance)
+                    SettlementReason.REQUIRES_UPDATE ->
+                        Single.error(TransactionError.SettlementRefreshRequired(it.address))
+                    SettlementReason.NONE ->
+                        startBankTransfer(it, pendingTx)
                 }
-            }.flatMapCompletable {
-                Completable.error(NeedsApprovalException(it))
+            } else {
+                startBankTransfer(it, pendingTx)
             }
-        } else {
-            Completable.complete()
         }
+
+    private fun startBankTransfer(receiveAddress: ReceiveAddress, pendingTx: PendingTx) =
+        bankService.startBankTransfer(
+            id = receiveAddress.address,
+            amount = pendingTx.amount,
+            currency = pendingTx.amount.currencyCode,
+            callback = if (isOpenBankingCurrency()) {
+                bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY)
+            } else {
+                null
+            }
+        )
+
+    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable {
+        return plaidFeatureFlag.enabled.flatMapCompletable { isPlaidEnabled ->
+            if (isOpenBankingCurrency()) {
+                pollForOpenBanking(txResult)
+            } else if (isPlaidEnabled) {
+                pollForPlaid(txResult)
+            } else {
+                Completable.complete()
+            }
+        }
+    }
+
+    private fun pollForOpenBanking(txResult: TxResult): Completable {
+        val paymentId = (txResult as TxResult.HashedTxResult).txId
+        return PollService(bankService.getBankTransferCharge(paymentId)) {
+            it.authorisationUrl != null || it.status is BankTransferStatus.Error
+        }.start()
+            .map { it.value }
+            .flatMapCompletable { bankTransferDetails ->
+                (bankTransferDetails.status as? BankTransferStatus.Error)?.error?.let { errorCode ->
+                    Completable.error(TransactionError.FiatDepositError(errorCode))
+                } ?: run {
+                    bankService.getLinkedBank(bankTransferDetails.id).map { linkedBank ->
+                        bankTransferDetails.authorisationUrl?.let {
+                            BankPaymentApproval(
+                                paymentId,
+                                it,
+                                linkedBank,
+                                bankTransferDetails.amount as FiatValue
+                            )
+                        } ?: throw InvalidParameterException("No auth url was returned")
+                    }.flatMapCompletable {
+                        Completable.error(NeedsApprovalException(it))
+                    }
+                }
+            }
+    }
+
+    private fun pollForPlaid(txResult: TxResult): Completable {
+        val paymentId = (txResult as TxResult.HashedTxResult).txId
+        return PollService(bankService.getBankTransferCharge(paymentId)) {
+            it.status != BankTransferStatus.Pending
+        }.start()
+            .flatMapCompletable {
+                when (it.value.status) {
+                    BankTransferStatus.Pending,
+                    BankTransferStatus.Unknown,
+                    BankTransferStatus.Complete ->
+                        Completable.complete()
+                    is BankTransferStatus.Error ->
+                        (it.value.status as BankTransferStatus.Error).error?.let { error ->
+                            Completable.error(TransactionError.FiatDepositError(error))
+                        } ?: Completable.complete()
+                }
+            }
+    }
 
     private fun isOpenBankingCurrency(): Boolean {
         return (sourceAccount as? LinkedBankAccount)?.isOpenBankingCurrency() == true

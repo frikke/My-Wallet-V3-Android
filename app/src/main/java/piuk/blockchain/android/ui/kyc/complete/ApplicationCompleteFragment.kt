@@ -1,15 +1,18 @@
 package piuk.blockchain.android.ui.kyc.complete
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.KYCAnalyticsEvents
+import com.blockchain.core.kyc.domain.KycService
+import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.service.TierService
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -38,7 +41,16 @@ class ApplicationCompleteFragment : Fragment() {
 
     private val compositeDisposable = CompositeDisposable()
     private val analytics: Analytics by inject()
-    private val tierService: TierService by scopedInject()
+    private val kycService: KycService by scopedInject()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        requireActivity().onBackPressedDispatcher.addCallback(owner = this) {
+            requireActivity().setResult(AppCompatActivity.RESULT_OK)
+            requireActivity().finish()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,7 +63,7 @@ class ApplicationCompleteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressListener.setHostTitle(R.string.kyc_complete_title)
+        progressListener.setupHostToolbar(R.string.kyc_complete_title)
         progressListener.hideBackButton()
     }
 
@@ -64,8 +76,8 @@ class ApplicationCompleteFragment : Fragment() {
                     if (progressListener.campaignType == CampaignType.Swap ||
                         progressListener.campaignType == CampaignType.None
                     ) {
-                        tierService.tiers().toObservable()
-                            .map { it.isApprovedFor(KycTierLevel.SILVER) || it.isApprovedFor(KycTierLevel.GOLD) }
+                        kycService.getTiersLegacy().toObservable()
+                            .map { it.isApprovedFor(KycTier.SILVER) || it.isApprovedFor(KycTier.GOLD) }
                             .onErrorReturn { false }
                     } else {
                         Observable.just(false)

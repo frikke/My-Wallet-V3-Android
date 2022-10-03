@@ -3,42 +3,40 @@ package info.blockchain.wallet.payload
 import info.blockchain.wallet.bip44.HDAccount
 import info.blockchain.wallet.bip44.HDWallet
 import info.blockchain.wallet.bip44.HDWalletFactory
-import info.blockchain.wallet.exceptions.HDWalletException
+import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.legacyXpubAddresses
 import info.blockchain.wallet.payload.data.segwitXpubAddresses
-import info.blockchain.wallet.stx.STXAccount
-import java.lang.IllegalStateException
 import java.security.SecureRandom
 
 class HDWalletsContainer {
-    private var legacy: HDWallet? = null
+    private lateinit var legacy: HDWallet
     private var segwitBech32: HDWallet? = null
 
     val seedHex
-        get() = legacy?.seedHex
+        get() = legacy.seedHex
 
     val masterKey
-        get() = legacy?.masterKey
+        get() = legacy.masterKey
 
     val seed
-        get() = legacy?.seed
+        get() = legacy.seed
 
     val hdSeed
-        get() = legacy?.hdSeed
+        get() = legacy.hdSeed
 
     val passphrase
-        get() = legacy?.passphrase
+        get() = legacy.passphrase
 
     val mnemonic: List<String>?
-        get() = legacy?.mnemonic
+        get() = legacy.mnemonic
 
     val isInstantiated
-        get() = legacy != null
+        get() = ::legacy.isInitialized
 
     val isDecrypted
-        get() = legacy?.getAccount(0)?.xPriv != null
+        get() = legacy.getAccount(0)?.xPriv != null
 
     fun getHDWallet(purpose: Int): HDWallet? = when (purpose) {
         Derivation.LEGACY_PURPOSE -> legacy
@@ -47,9 +45,7 @@ class HDWalletsContainer {
     }
 
     fun addAccount(): Int {
-        val legacy = legacy ?: throw HDWalletException(
-            "HDWallet not instantiated"
-        )
+        val legacy = legacy
 
         val account = legacy.addAccount()
         segwitBech32?.addAccount()
@@ -58,10 +54,10 @@ class HDWalletsContainer {
     }
 
     val legacyAccounts: List<HDAccount>?
-        get() = legacy?.accounts
+        get() = legacy.accounts
 
-    fun getLegacyAccount(index: Int): HDAccount? {
-        return legacy?.getAccount(index)
+    fun getLegacyAccount(index: Int): HDAccount {
+        return legacy.getAccount(index)
     }
 
     val segwitAccounts: List<HDAccount>?
@@ -141,6 +137,9 @@ class HDWalletsContainer {
         }
     }
 
-    fun getStxAccount(): STXAccount =
-        legacy?.stxAccount ?: throw IllegalStateException("Legacy account hasn't created/restored yet")
+    fun getDynamicAccount(coinConfiguration: CoinConfiguration) =
+        when (coinConfiguration.purpose) {
+            Derivation.SEGWIT_BECH32_PURPOSE -> segwitBech32?.getDynamicHdAccount(coinConfiguration)
+            else -> legacy.getDynamicHdAccount(coinConfiguration)
+        }
 }

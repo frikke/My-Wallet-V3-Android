@@ -1,6 +1,5 @@
 package com.blockchain.coincore
 
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
@@ -36,7 +35,6 @@ class NullCryptoAccount(
     override val activity: Single<ActivitySummaryList>
         get() = Single.just(emptyList())
 
-    override val actions: Single<AvailableActions> = Single.just(emptySet())
     override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
 
     override val isFunded: Boolean = false
@@ -47,12 +45,6 @@ class NullCryptoAccount(
 
     override fun matches(other: CryptoAccount): Boolean =
         other is NullCryptoAccount
-
-    override val isEnabled: Single<Boolean>
-        get() = Single.just(true)
-
-    override val disabledReason: Single<IneligibilityReason>
-        get() = Single.just(IneligibilityReason.NONE)
 }
 
 object NullFiatAccount : FiatAccount {
@@ -76,34 +68,10 @@ object NullFiatAccount : FiatAccount {
     override val activity: Single<ActivitySummaryList>
         get() = Single.just(emptyList())
 
-    override val actions: Single<AvailableActions> = Single.just(emptySet())
     override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
 
     override val isFunded: Boolean = false
     override val hasTransactions: Boolean = false
-
-    override val isEnabled: Single<Boolean>
-        get() = Single.just(true)
-
-    override val disabledReason: Single<IneligibilityReason>
-        get() = Single.just(IneligibilityReason.NONE)
 
     override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
-}
-
-class NullAccountGroup : AccountGroup {
-    override val accounts: SingleAccountList = emptyList()
-
-    override fun includes(account: BlockchainAccount): Boolean = false
-    override val label: String = ""
-
-    override val balance: Observable<AccountBalance> = Observable.error(NotImplementedError())
-    override val activity: Single<ActivitySummaryList> = Single.just(emptyList())
-    override val actions: Single<AvailableActions> = Single.just(emptySet())
-    override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
-    override val isFunded: Boolean = false
-    override val hasTransactions: Boolean = false
-
-    override val receiveAddress: Single<ReceiveAddress> =
-        Single.error(NotImplementedError())
 }

@@ -1,22 +1,24 @@
 package com.blockchain.coincore
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.impl.CustodialTradingAccount
-import com.blockchain.core.custodial.TradingAccountBalance
-import com.blockchain.core.interest.InterestAccountBalance
+import com.blockchain.core.custodial.domain.model.TradingAccountBalance
+import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigDecimal
+import java.math.BigInteger
 
 data class AccountBalance internal constructor(
     val total: Money,
     val withdrawable: Money,
     val pending: Money,
-    val exchangeRate: ExchangeRate
+    val exchangeRate: ExchangeRate,
 ) {
     val totalFiat: Money by lazy {
         exchangeRate.convert(total)
@@ -32,8 +34,19 @@ data class AccountBalance internal constructor(
             )
         }
 
-        internal fun from(balance: InterestAccountBalance, rate: ExchangeRate): AccountBalance {
+        internal fun totalOf(first: AccountBalance, second: AccountBalance): AccountBalance {
+            require(first.total.currency == second.total.currency) {
+                "total of different Account balances is not supported"
+            }
+            return AccountBalance(
+                total = first.total + second.total,
+                withdrawable = first.withdrawable + second.withdrawable,
+                pending = first.pending + second.pending,
+                exchangeRate = first.exchangeRate
+            )
+        }
 
+        internal fun from(balance: InterestAccountBalance, rate: ExchangeRate): AccountBalance {
             return AccountBalance(
                 total = balance.totalBalance,
                 withdrawable = balance.actionableBalance,
@@ -49,6 +62,17 @@ data class AccountBalance internal constructor(
                 pending = Money.zero(assetInfo),
                 exchangeRate = ExchangeRate.zeroRateExchangeRate(assetInfo)
             )
+
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        fun testBalance(assetInfo: Currency, balance: Long) =
+            AccountBalance(
+                total = Money.fromMinor(assetInfo, BigInteger.valueOf(balance)),
+                withdrawable = Money.fromMinor(assetInfo, BigInteger.valueOf(balance)),
+                pending = Money.fromMinor(assetInfo, BigInteger.valueOf(balance)),
+                exchangeRate = ExchangeRate(
+                    BigDecimal.ONE, assetInfo, FiatCurrency.Dollars
+                )
+            )
     }
 }
 
@@ -60,15 +84,9 @@ interface BlockchainAccount {
 
     val activity: Single<ActivitySummaryList>
 
-    val actions: Single<AvailableActions>
-
     val isFunded: Boolean
 
     val hasTransactions: Boolean
-
-    val isEnabled: Single<Boolean>
-
-    val disabledReason: Single<IneligibilityReason>
 
     val receiveAddress: Single<ReceiveAddress>
 
@@ -130,14 +148,78 @@ interface FiatAccount : SingleAccount {
 interface AccountGroup : BlockchainAccount {
     val accounts: SingleAccountList
 
-    override val isEnabled: Single<Boolean>
-        get() = Single.just(true)
+    override val activity: Single<ActivitySummaryList>
+        get() = allActivities()
 
-    override val disabledReason: Single<IneligibilityReason>
-        get() = Single.just(IneligibilityReason.NONE)
+    fun includes(account: BlockchainAccount): Boolean =
+        accounts.contains(account)
 
-    fun includes(account: BlockchainAccount): Boolean
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = Single.just(
+            setOf(
+                StateAwareAction(ActionState.Available, AssetAction.ViewActivity)
+            )
+        )
+
+    override val receiveAddress: Single<ReceiveAddress>
+        get() = throw IllegalStateException("ReceiveAddress is not supported")
+
+    /**
+     * TODO remove those from the interface of account
+     */
+    override val isFunded: Boolean
+        get() = true
+
+    override val hasTransactions: Boolean
+        get() = true
+
+    private fun allActivities(): Single<ActivitySummaryList> =
+        Single.just(accounts).flattenAsObservable { it }
+            .flatMapSingle { account ->
+                account.activity
+                    .onErrorResumeNext { Single.just(emptyList()) }
+            }
+            .reduce { a, l -> a + l }
+            .defaultIfEmpty(emptyList())
+            .map { it.distinct() }
+            .map { it.sorted() }
 }
 
-internal fun BlockchainAccount.isCustodial(): Boolean =
+interface SameCurrencyAccountGroup : AccountGroup {
+    val currency: Currency
+    override val balance: Observable<AccountBalance>
+        get() = Single.just(accounts).flattenAsObservable { it }.flatMapSingle {
+            it.balance.firstOrError()
+        }.reduce { a, v ->
+            AccountBalance.totalOf(a, v)
+        }.toObservable()
+}
+
+interface MultipleCurrenciesAccountGroup : AccountGroup {
+    /**
+     * Balance is calculated in the selected fiat currency
+     */
+    override val balance: Observable<AccountBalance>
+        get() =
+            if (accounts.isEmpty())
+                Observable.just(AccountBalance.zero(baseCurrency))
+            else
+                Single.just(accounts).flattenAsObservable { it }.flatMapSingle { account ->
+                    account.balance.firstOrError()
+                }.reduce { a, v ->
+                    AccountBalance(
+                        total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
+                        withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(v.withdrawable),
+                        pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
+                        exchangeRate = ExchangeRate.identityExchangeRate(a.exchangeRate.to)
+                    )
+                }.toObservable()
+
+    val baseCurrency: Currency
+}
+
+internal fun BlockchainAccount.isTrading(): Boolean =
     this is CustodialTradingAccount
+
+internal fun BlockchainAccount.isNonCustodial(): Boolean =
+    this is NonCustodialAccount

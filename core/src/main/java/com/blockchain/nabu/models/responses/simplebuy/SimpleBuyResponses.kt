@@ -1,10 +1,9 @@
 package com.blockchain.nabu.models.responses.simplebuy
 
+import com.blockchain.api.NabuUxErrorResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
-import java.util.Date
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -32,30 +31,29 @@ data class SimpleBuyEligibility(
 data class SimpleBuyCurrency(val currency: String)
 
 @Serializable
-data class SimpleBuyQuoteResponse(
-    val time: @Contextual Date,
-    val rate: Long,
-    val rateWithoutFee: Long,
-    /* the  fee value is more of a feeRate (ie it is the fee per 1 unit of crypto) to get the actual
-     "fee" you'll need to multiply by amount of crypto
-     */
-    val fee: Long
-)
-
-@Serializable
 data class BankAccountResponse(
     val address: String,
     val agent: BankAgentResponse,
-    val currency: String
-)
+    val currency: String,
+    val state: String?,
+    val partner: String?
+) {
+    companion object {
+        const val PARTNER_BIND = "BIND"
+        const val PARTNER_SILVERGATE = "SILVERGATE"
+    }
+}
 
 @Serializable
 data class BankAgentResponse(
     val account: String? = null,
     val address: String? = null,
+    val label: String? = null,
+    val holderDocument: String? = null,
     val code: String? = null,
     val country: String? = null,
     val name: String? = null,
+    val bankName: String? = null,
     val recipient: String? = null,
     val routingNumber: String? = null,
     val recipientAddress: String? = null,
@@ -119,7 +117,8 @@ data class BuySellOrderResponse(
     val processingErrorType: String? = null,
     val recurringBuyId: String? = null,
     val failureReason: String? = null,
-    val paymentError: String? = null
+    val paymentError: String? = null,
+    val ux: NabuUxErrorResponse? = null
 ) {
     companion object {
         const val PENDING_DEPOSIT = "PENDING_DEPOSIT"
@@ -189,7 +188,8 @@ data class BuySellOrderResponse(
 data class TransferRequest(
     val address: String,
     val currency: String,
-    val amount: String
+    val amount: String,
+    val fee: String
 )
 
 @Serializable
@@ -339,6 +339,7 @@ data class TransactionAttributesResponse(
     val hash: String? = null,
     val id: String? = null,
     val txHash: String? = null,
+    val transferType: String? = null,
     val beneficiary: TransactionBeneficiaryResponse? = null
 )
 

@@ -2,13 +2,15 @@ package piuk.blockchain.android.linkbank
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.banking.BankTransferAction
-import com.blockchain.core.payments.model.BankPartner
-import com.blockchain.core.payments.model.LinkBankTransfer
-import com.blockchain.core.payments.model.LinkedBank
-import com.blockchain.core.payments.model.LinkedBankErrorState
-import com.blockchain.core.payments.model.LinkedBankState
-import com.blockchain.core.payments.model.YapilyAttributes
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
+import com.blockchain.domain.paymentmethods.model.LinkedBankState
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
+import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.network.PollResult
 import com.blockchain.testutils.GBP
 import com.nhaarman.mockitokotlin2.any
@@ -34,6 +36,7 @@ class BankAuthModelTest {
 
     private lateinit var model: BankAuthModel
     private val interactor: SimpleBuyInteractor = mock()
+    private val bankService: BankService = mock()
     private var defaultState = BankAuthState(id = "123")
     private val accountProviderId = "123"
     private val accountId = "1234"
@@ -52,6 +55,7 @@ class BankAuthModelTest {
     fun setup() {
         model = BankAuthModel(
             interactor = interactor,
+            bankService = bankService,
             initialState = defaultState,
             uiScheduler = Schedulers.io(),
             environmentConfig = mock(),
@@ -728,6 +732,166 @@ class BankAuthModelTest {
     }
 
     @Test
+    fun `linkPlaidAccount() - success`() {
+        val linkBankAccountId = "linkBankAccountId"
+        val linkBankToken = "linkBankToken"
+        val linkBankTransfer: LinkBankTransfer = mock()
+        val bankAuthSource: BankAuthSource = mock()
+
+        val intent = BankAuthIntent.LinkPlaidAccount(
+            linkingBankId, linkBankAccountId, linkBankToken, linkBankTransfer, bankAuthSource
+        )
+
+        val expectedBank = LinkedBank(
+            id = linkingBankId,
+            currency = GBP,
+            partner = BankPartner.PLAID,
+            accountName = "name",
+            bankName = "bankName",
+            accountNumber = "123",
+            state = LinkedBankState.PENDING,
+            errorStatus = LinkedBankErrorState.NONE,
+            accountType = "",
+            authorisationUrl = "url",
+            sortCode = "123",
+            accountIban = "123",
+            bic = "123",
+            entity = "entity",
+            iconUrl = "iconUrl",
+            callbackPath = ""
+        )
+
+        whenever(interactor.pollForBankLinkingCompleted(linkingBankId)).thenReturn(Single.just(expectedBank))
+        whenever(bankService.linkPlaidBankAccount(linkingBankId, linkBankAccountId, linkBankToken)).thenReturn(
+            Completable.complete()
+        )
+        val test = model.state.test()
+        model.process(intent)
+
+        test.assertValueAt(0, defaultState)
+        test.assertValueAt(
+            1,
+            defaultState.copy(
+                id = linkingBankId,
+                bankLinkingProcessState = BankLinkingProcessState.LINKING,
+                linkBankTransfer = linkBankTransfer,
+                linkBankAccountId = linkBankAccountId,
+                linkBankToken = linkBankToken
+            )
+        )
+    }
+
+    @Test
+    fun `linkPlaidAccount() - error`() {
+        val linkBankAccountId = "linkBankAccountId"
+        val linkBankToken = "linkBankToken"
+        val linkBankTransfer: LinkBankTransfer = mock()
+        val bankAuthSource: BankAuthSource = mock()
+
+        val intent = BankAuthIntent.LinkPlaidAccount(
+            linkingBankId, linkBankAccountId, linkBankToken, linkBankTransfer, bankAuthSource
+        )
+
+        whenever(bankService.linkPlaidBankAccount(linkingBankId, linkBankAccountId, linkBankToken)).thenReturn(
+            Completable.error(Exception())
+        )
+        whenever(interactor.pollForBankLinkingCompleted(linkingBankId)).thenReturn(Single.error(Exception()))
+        val test = model.state.test()
+        model.process(intent)
+
+        test.assertValueAt(0, defaultState)
+        test.assertValueAt(
+            1,
+            defaultState.copy(
+                id = linkingBankId,
+                bankLinkingProcessState = BankLinkingProcessState.LINKING,
+                linkBankTransfer = linkBankTransfer,
+                linkBankAccountId = linkBankAccountId,
+                linkBankToken = linkBankToken
+            )
+        )
+
+        test.assertValueAt(
+            2,
+            defaultState.copy(
+                id = linkingBankId,
+                linkBankTransfer = linkBankTransfer,
+                linkBankAccountId = linkBankAccountId,
+                linkBankToken = linkBankToken,
+                errorState = BankAuthError.BankLinkingUpdateFailed,
+                bankLinkingProcessState = BankLinkingProcessState.NONE
+            )
+        )
+    }
+
+    @Test
+    fun `refreshPlaidAccount() - success`() {
+        // Arrange
+        val bankAccountId = "refreshBankAccountId"
+        val intent = BankAuthIntent.RefreshPlaidAccount(bankAccountId)
+        val refreshBankAccountInfo = RefreshBankInfo(
+            partner = BankPartner.PLAID,
+            id = bankAccountId,
+            linkToken = "linkToken",
+            linkUrl = "linkUrl",
+            tokenExpiresAt = "tokenExpiresAt"
+        )
+        whenever(bankService.refreshPlaidBankAccount(bankAccountId)).thenReturn(Single.just(refreshBankAccountInfo))
+
+        // Act
+        val test = model.state.test()
+        model.process(intent)
+
+        // Assert
+        test.assertValueAt(0, defaultState)
+        test.assertValueAt(
+            1,
+            defaultState.copy(
+                refreshBankAccountId = bankAccountId,
+                bankLinkingProcessState = BankLinkingProcessState.LINKING
+            )
+        )
+        test.assertValueAt(
+            2,
+            defaultState.copy(
+                refreshBankAccountId = bankAccountId,
+                refreshBankInfo = refreshBankAccountInfo,
+                bankLinkingProcessState = BankLinkingProcessState.IN_REFRESH_FLOW
+            )
+        )
+    }
+
+    @Test
+    fun `refreshPlaidAccount() - error`() {
+        // Arrange
+        val bankAccountId = "refreshBankAccountId"
+        val intent = BankAuthIntent.RefreshPlaidAccount(bankAccountId)
+        whenever(bankService.refreshPlaidBankAccount(bankAccountId)).thenReturn(Single.error(Throwable()))
+
+        // Act
+        val test = model.state.test()
+        model.process(intent)
+
+        // Assert
+        test.assertValueAt(0, defaultState)
+        test.assertValueAt(
+            1,
+            defaultState.copy(
+                refreshBankAccountId = bankAccountId,
+                bankLinkingProcessState = BankLinkingProcessState.LINKING
+            )
+        )
+        test.assertValueAt(
+            2,
+            defaultState.copy(
+                refreshBankAccountId = bankAccountId,
+                errorState = BankAuthError.LinkedBankFailure,
+                bankLinkingProcessState = BankLinkingProcessState.NONE
+            )
+        )
+    }
+
+    @Test
     fun pollLinkStatus_active() {
         setupModelWithBankPartner()
 
@@ -1221,7 +1385,8 @@ class BankAuthModelTest {
         defaultState = defaultState.copy(linkBankTransfer = linkBankTransfer)
 
         model = BankAuthModel(
-            interactor,
+            interactor = interactor,
+            bankService = bankService,
             initialState = defaultState,
             uiScheduler = Schedulers.io(),
             environmentConfig = mock(),

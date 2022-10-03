@@ -1,0 +1,63 @@
+apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply plugin: 'kotlin-parcelize'
+
+android {
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {}
+    }
+
+    lintOptions {
+        warningsAsErrors true
+        abortOnError true
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion Versions.compose
+    }
+}
+
+dependencies {
+    implementation project(':nfts:domain')
+    implementation project(':commonarch')
+    implementation project(':componentlib')
+    implementation project(':common:interface')
+    implementation project(':analytics:domain')
+
+    // android
+    implementation Libraries.design
+
+    // coroutines
+    implementation Libraries.androidCoroutines
+    implementation Libraries.lifecycleViewModelExtensions
+
+    // koin
+    implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
+
+    // Compose
+    implementation Libraries.composeUi
+    implementation Libraries.composeMaterial
+    implementation Libraries.composePreview
+    implementation Libraries.composeNavigation
+    implementation Libraries.accompanistNavigationMaterial
+    implementation Libraries.accompanistFlowLayout
+    implementation Libraries.constraintLayoutCompose
+    implementation Libraries.composeUiPoolingContainer
+
+    // test
+    testImplementation project(':testutils')
+    testImplementation Libraries.kotlinTest
+    testImplementation Libraries.kotlinCoroutinesTest
+    testImplementation Libraries.coreTesting
+    testImplementation Libraries.mockk
+    testImplementation Libraries.turbine
+
+}

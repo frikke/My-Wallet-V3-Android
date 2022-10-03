@@ -7,36 +7,47 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Serializable
-class WalletBaseDto(
+data class WalletBaseDto(
     // payload could be string in V1
     // V2 and up is WalletWrapper
     @SerialName("payload")
-    var payload: String? = null,
-
+    val payload: String,
     // V3
     @SerialName("guid")
-    var guid: String? = null,
+    val guid: String? = null,
 
     @SerialName("extra_seed")
-    var extraSeed: String? = null,
+    val extraSeed: String? = null,
 
     @SerialName("payload_checksum")
-    var payloadChecksum: String? = null,
+    val payloadChecksum: String? = null,
 
     @SerialName("war_checksum")
-    var warChecksum: String? = null,
+    private val warChecksum: String? = null,
 
     @SerialName("language")
-    var language: String? = null,
+    private val language: String? = null,
 
     @SerialName("storage_token")
-    var storageToken: String? = null,
+    private val storageToken: String? = null,
 
     @SerialName("sync_pubkeys")
-    var syncPubkeys: Boolean = false
+    private val _syncPubkeys: Boolean? = null
 ) {
 
     fun toJson() = Json.encodeToString(this)
+
+    fun withUpdatedPayloadCheckSum(newChecksum: String): WalletBaseDto =
+        this.copy(payloadChecksum = newChecksum)
+
+    fun withSyncedKeys(): WalletBaseDto {
+        return this.copy(
+            _syncPubkeys = true
+        )
+    }
+
+    val syncPubkeys: Boolean
+        get() = _syncPubkeys ?: false
 
     companion object {
         @JvmStatic
@@ -46,5 +57,17 @@ class WalletBaseDto(
             }
             return jsonBuilder.decodeFromString(json)
         }
+
+        fun withDefaults() =
+            WalletBaseDto(
+                payload = "",
+                guid = "",
+                extraSeed = "",
+                payloadChecksum = "",
+                warChecksum = "",
+                language = "",
+                storageToken = "",
+                _syncPubkeys = false,
+            )
     }
 }

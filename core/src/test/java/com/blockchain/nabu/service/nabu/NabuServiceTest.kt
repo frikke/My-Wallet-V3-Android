@@ -1,21 +1,22 @@
 package com.blockchain.nabu.service.nabu
 
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.NabuBasicUser
 import com.blockchain.nabu.models.responses.nabu.NabuJwt
 import com.blockchain.nabu.models.responses.nabu.RecordCountryRequest
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
-import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.nabu.SupportedDocumentsResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenRequest
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.util.fakefactory.nabu.FakeAddressFactory
-import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuCountryFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuUserFactory
+import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -26,7 +27,9 @@ import org.junit.Test
 class NabuServiceTest {
 
     private val nabu: Nabu = mock()
-    private val subject: NabuService = NabuService(nabu)
+    private val remoteConfigPrefs: RemoteConfigPrefs = mock()
+    private val environmentConfig: EnvironmentConfig = mock()
+    private val subject: NabuService = NabuService(nabu, remoteConfigPrefs, environmentConfig)
 
     private val jwt = "JWT"
 
@@ -34,7 +37,8 @@ class NabuServiceTest {
     fun getAuthToken() {
         val expectedTokenResponse = NabuOfflineTokenResponse(
             "d753109e-34c2-42bd-82f1-cc90470234kf",
-            "d753109e-23jd-42bd-82f1-cc904702asdfkjf"
+            "d753109e-23jd-42bd-82f1-cc904702asdfkjf",
+            true
         )
 
         whenever(
@@ -154,7 +158,7 @@ class NabuServiceTest {
             addressToAdd.line1!!,
             addressToAdd.line2,
             addressToAdd.city!!,
-            addressToAdd.state,
+            addressToAdd.stateIso,
             addressToAdd.postCode!!,
             addressToAdd.countryCode!!
         ).test().waitForCompletionWithoutErrors()
@@ -187,41 +191,6 @@ class NabuServiceTest {
     }
 
     @Test
-    fun `get kyc countries`() {
-        val scope = Scope.Kyc
-        val expectedCountryList = FakeNabuCountryFactory.list
-
-        whenever(
-            nabu.getCountriesList(scope.value)
-        ).thenReturn(
-            Single.just(expectedCountryList)
-        )
-        subject.getCountriesList(scope).test()
-            .waitForCompletionWithoutErrors()
-            .assertValue {
-                it == expectedCountryList
-            }
-    }
-
-    @Test
-    fun `get all countries with no scope`() {
-        val scope = Scope.None
-        val expectedCountryList = FakeNabuCountryFactory.list
-
-        whenever(
-            nabu.getCountriesList(scope.value)
-        ).thenReturn(
-            Single.just(expectedCountryList)
-        )
-
-        subject.getCountriesList(scope).test()
-            .waitForCompletionWithoutErrors()
-            .assertValue {
-                it == expectedCountryList
-            }
-    }
-
-    @Test
     fun getSupportedDocuments() {
         val countryCode = "US"
         val sessionToken = FakeNabuSessionTokenFactory.any
@@ -244,7 +213,9 @@ class NabuServiceTest {
     @Test
     fun `recover user`() {
         val userId = "userID"
-        val offlineToken = NabuOfflineTokenResponse(userId, "token")
+        val offlineToken = NabuOfflineToken(
+            userId, "token"
+        )
 
         whenever(
             nabu.recoverUser(userId, NabuJwt(jwt), "Bearer ${offlineToken.token}")

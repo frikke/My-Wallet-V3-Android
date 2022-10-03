@@ -36,6 +36,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -58,6 +59,7 @@ fun BottomNavigationBar(
         NavigationItem.Activity
     ),
     onNavigationItemClick: (NavigationItem) -> Unit = {},
+    hasMiddleButton: Boolean,
     onMiddleButtonClick: () -> Unit = {},
     selectedNavigationItem: NavigationItem? = null,
     bottomNavigationState: BottomNavigationState = BottomNavigationState.Add,
@@ -83,7 +85,7 @@ fun BottomNavigationBar(
     val unselectedContentColor: Color = Grey400
     val selectedContentColor: Color = AppTheme.colors.primary
 
-    val middleIndex = navigationItems.size / 2
+    val middleIndex = if (hasMiddleButton) navigationItems.size / 2 else -1
 
     val textColor = if (!isSystemInDarkTheme()) {
         Dark400
@@ -129,7 +131,8 @@ fun BottomNavigationBar(
                                             }
                                         )
                                     }
-                                    .scale(scaling),
+                                    .scale(scaling)
+                                    .semantics(mergeDescendants = true) {},
                                 contentAlignment = Alignment.Center
                             ) {
                                 Crossfade(targetState = isPressed) { state ->
@@ -149,7 +152,7 @@ fun BottomNavigationBar(
                                         .size(22.dp)
                                         .align(Alignment.Center),
                                     painter = painterResource(R.drawable.ic_bottom_nav_plus),
-                                    contentDescription = "BottomNavigation_FAB_Cta",
+                                    contentDescription = stringResource(R.string.accessibility_action_menu),
                                     colorFilter = ColorFilter.tint(backgroundColor)
                                 )
                             }
@@ -161,7 +164,7 @@ fun BottomNavigationBar(
                                 icon = {
                                     Icon(
                                         painter = painterResource(id = item.icon),
-                                        contentDescription = stringResource(item.title)
+                                        contentDescription = null
                                     )
                                 },
                                 label = {
@@ -223,13 +226,14 @@ enum class BottomNavigationState {
 @Composable
 fun BottomNavigationBarPreview() {
     AppTheme {
-        BottomNavigationBar(selectedNavigationItem = NavigationItem.Home)
+        BottomNavigationBar(selectedNavigationItem = NavigationItem.Home, hasMiddleButton = false)
     }
 }
 
-sealed class NavigationItem(var route: String, var icon: Int, var title: Int) {
+sealed class NavigationItem(val route: String, val icon: Int, val title: Int) {
     object Home : NavigationItem("home", R.drawable.ic_bottom_nav_home, R.string.bottom_nav_home)
     object Prices : NavigationItem("prices", R.drawable.ic_bottom_nav_prices, R.string.bottom_nav_prices)
     object BuyAndSell : NavigationItem("buy_and_sell", R.drawable.ic_bottom_nav_buy, R.string.bottom_nav_buy_and_sell)
     object Activity : NavigationItem("activity", R.drawable.ic_bottom_nav_activity, R.string.bottom_nav_activity)
+    object Nfts : NavigationItem("nfts", R.drawable.ic_bottom_nav_nfts, R.string.bottom_nav_nfts)
 }

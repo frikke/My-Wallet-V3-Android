@@ -23,8 +23,6 @@ data class EvmAddressResponse(
 data class EvmBalanceResponse(
     @SerialName("identifier") // contract address or "native"
     val contractAddress: String,
-    @SerialName("currency")
-    val name: String,
     @SerialName("amount")
     val amount: @Contextual BigInteger
 )

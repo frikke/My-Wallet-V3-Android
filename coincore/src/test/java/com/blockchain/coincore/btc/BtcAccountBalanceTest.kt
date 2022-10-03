@@ -4,7 +4,7 @@ import com.blockchain.coincore.impl.AccountRefreshTrigger
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -28,7 +28,7 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
     private val payloadDataManager: PayloadDataManager = mock()
     private val sendDataManager: SendDataManager = mock()
     private val feeDataManager: FeeDataManager = mock()
-    private val walletPrefs: WalletStatus = mock()
+    private val walletPrefs: WalletStatusPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val refreshTrigger: AccountRefreshTrigger = mock()
 
@@ -40,7 +40,7 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
 
     private val subject =
         BtcCryptoWalletAccount(
-            payloadManager = payloadDataManager,
+            payloadDataManager = payloadDataManager,
             hdAccountIndex = -1,
             sendDataManager = sendDataManager,
             feeDataManager = feeDataManager,
@@ -50,7 +50,6 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
             walletPreferences = walletPrefs,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
-            identity = mock(),
             addressResolver = mock()
         )
 

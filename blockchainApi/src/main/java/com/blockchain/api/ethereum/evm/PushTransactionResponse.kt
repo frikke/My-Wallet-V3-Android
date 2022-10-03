@@ -6,7 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PushTransactionResponse(
     @SerialName("txId")
-    val txId: String,
-    @SerialName("success")
-    val success: Boolean
+    val txId: String
 )

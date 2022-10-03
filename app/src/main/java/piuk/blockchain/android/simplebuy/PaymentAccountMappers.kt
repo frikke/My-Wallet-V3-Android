@@ -5,6 +5,7 @@ import com.blockchain.nabu.datamanagers.BankAccount
 import com.blockchain.nabu.datamanagers.BankDetail
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentAccountMapper
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
+import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse.Companion.PARTNER_BIND
 import piuk.blockchain.android.R
 
 class GBPPaymentAccountMapper(private val resources: Resources) : PaymentAccountMapper {
@@ -78,7 +79,16 @@ class USDPaymentAccountMapper(private val resources: Resources) : PaymentAccount
 
     override fun map(bankAccountResponse: BankAccountResponse): BankAccount? {
         if (bankAccountResponse.currency != "USD") return null
-        return BankAccount(
+
+        return if (bankAccountResponse.partner == PARTNER_BIND) {
+            bindUSDBankAccount(bankAccountResponse)
+        } else {
+            regularUSDBankAccount(bankAccountResponse)
+        }
+    }
+
+    private fun regularUSDBankAccount(bankAccountResponse: BankAccountResponse) =
+        BankAccount(
             listOfNotNull(
                 bankAccountResponse.address?.let { address ->
                     BankDetail(
@@ -146,5 +156,132 @@ class USDPaymentAccountMapper(private val resources: Resources) : PaymentAccount
                 )
             )
         )
+
+    private fun bindUSDBankAccount(bankAccountResponse: BankAccountResponse) = BankAccount(
+        listOfNotNull(
+            bankAccountResponse.agent.label?.let { label ->
+                BankDetail(
+                    title = resources.getString(R.string.alias),
+                    value = label,
+                    isCopyable = true,
+                    tooltip = resources.getString(R.string.alias_tooltip)
+                )
+            },
+            bankAccountResponse.agent.name?.let { accountHolder ->
+                BankDetail(
+                    title = resources.getString(R.string.account_holder),
+                    value = accountHolder,
+                    isCopyable = true
+                )
+            },
+            bankAccountResponse.agent.accountType?.let { accountType ->
+                BankDetail(
+                    title = resources.getString(R.string.account_type),
+                    value = accountType,
+                    isCopyable = true
+                )
+            },
+            bankAccountResponse.agent.address?.let { address ->
+                BankDetail(
+                    title = bankAccountResponse.agent.accountType.orEmpty().toBindAccountTypeTitle(),
+                    value = address,
+                    isCopyable = true
+                )
+            },
+            bankAccountResponse.agent.code?.let { accountNumber ->
+                BankDetail(
+                    title = resources.getString(R.string.account_number),
+                    value = accountNumber,
+                    isCopyable = true
+                )
+            },
+            bankAccountResponse.agent.recipient?.let { recipient ->
+                BankDetail(
+                    title = resources.getString(R.string.recipient_name),
+                    value = recipient,
+                    isCopyable = true
+                )
+            }
+        )
+    )
+}
+
+class ARSPaymentAccountMapper(private val resources: Resources) : PaymentAccountMapper {
+
+    enum class AccountType(val value: String) {
+        TRADITIONAL("CBU"),
+        VIRTUAL("CVU")
+    }
+
+    override fun map(bankAccountResponse: BankAccountResponse): BankAccount? {
+        if (bankAccountResponse.currency != "ARS") return null
+        return BankAccount(
+            listOfNotNull(
+                bankAccountResponse.agent.bankName?.let { bankName ->
+                    BankDetail(
+                        title = resources.getString(R.string.bank_name),
+                        value = bankName,
+                        isCopyable = true
+                    )
+                },
+                bankAccountResponse.agent.label?.let { label ->
+                    BankDetail(
+                        title = resources.getString(R.string.alias),
+                        value = label,
+                        isCopyable = true,
+                        tooltip = resources.getString(R.string.alias_tooltip)
+                    )
+                },
+                bankAccountResponse.agent.name?.let { accountHolder ->
+                    BankDetail(
+                        title = resources.getString(R.string.account_holder),
+                        value = accountHolder,
+                        isCopyable = true
+                    )
+                },
+                bankAccountResponse.agent.accountType?.let { accountType ->
+                    BankDetail(
+                        title = resources.getString(R.string.account_type),
+                        value = accountType,
+                        isCopyable = true
+                    )
+                },
+                bankAccountResponse.agent.holderDocument?.let { cuit ->
+                    BankDetail(
+                        title = resources.getString(R.string.cuit),
+                        value = cuit,
+                        isCopyable = true
+                    )
+                },
+                bankAccountResponse.agent.address?.let { address ->
+                    BankDetail(
+                        title = bankAccountResponse.agent.accountType.orEmpty().toBindAccountTypeTitle(),
+                        value = address,
+                        isCopyable = true
+                    )
+                },
+                bankAccountResponse.agent.code?.let { accountNumber ->
+                    BankDetail(
+                        title = resources.getString(R.string.account_number),
+                        value = accountNumber,
+                        isCopyable = true
+                    )
+                },
+                bankAccountResponse.agent.recipient?.let { recipient ->
+                    BankDetail(
+                        title = resources.getString(R.string.recipient_name),
+                        value = recipient,
+                        isCopyable = true
+                    )
+                }
+            )
+        )
     }
 }
+
+fun String.toBindAccountTypeTitle() =
+    if (this == ARSPaymentAccountMapper.AccountType.TRADITIONAL.value) {
+        ARSPaymentAccountMapper.AccountType.TRADITIONAL.value
+    } else {
+        ARSPaymentAccountMapper.AccountType.VIRTUAL.value
+    }

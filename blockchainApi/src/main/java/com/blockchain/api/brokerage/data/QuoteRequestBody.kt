@@ -17,15 +17,18 @@ class BrokerageQuoteResponse(
     val quoteId: String,
     val price: String,
     val quoteMarginPercent: Double,
+    val quoteCreatedAt: String,
+    val quoteExpiresAt: String,
     @SerialName("feeDetails")
     val feeDetails: FeeDetailsResponse,
     @SerialName("settlementDetails")
-    val settlementDetails: SettlementDetails
+    val settlementDetails: SettlementDetails?
 )
 
 @Serializable
 class SettlementDetails(
-    val availability: String?
+    val availability: String?,
+    val reason: String?
 ) {
     companion object {
         val INSTANT = "INSTANT"

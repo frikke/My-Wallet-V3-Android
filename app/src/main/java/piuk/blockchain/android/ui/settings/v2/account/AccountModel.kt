@@ -4,11 +4,11 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.outcome.fold
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import kotlinx.coroutines.rx3.rxSingle
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
+import timber.log.Timber
 
 class AccountModel(
     initialState: AccountState,
@@ -37,49 +37,27 @@ class AccountModel(
                         process(AccountIntent.UpdateErrorState(AccountError.ACCOUNT_INFO_FAIL))
                     }
                 )
-            is AccountIntent.LoadExchangeInformation -> interactor.getExchangeState()
-                .subscribeBy(
-                    onSuccess = {
-                        process(AccountIntent.UpdateExchangeInformation(it))
-                    },
-                    onError = {
-                        process(AccountIntent.UpdateErrorState(AccountError.EXCHANGE_INFO_FAIL))
-                    }
-                )
-            is AccountIntent.LoadExchange -> {
-                interactor.getExchangeState()
-                    .subscribeBy(
-                        onSuccess = {
-                            process(AccountIntent.UpdateViewToLaunch(ViewToLaunch.ExchangeLink(it)))
-                        },
-                        onError = {
-                            process(AccountIntent.UpdateErrorState(AccountError.EXCHANGE_LOAD_FAIL))
-                        }
-                    )
-            }
-
             is AccountIntent.LoadBCDebitCardInformation -> {
-                rxSingle {
+                rxSingleOutcome {
                     interactor.getDebitCardState()
                 }.subscribeBy(
-                    onSuccess = { outcome ->
-                        outcome.fold(
-                            onSuccess = {
-                                process(AccountIntent.UpdateBlockchainCardOrderState(it))
-                            },
-                            onFailure = {
-                                process(AccountIntent.UpdateErrorState(AccountError.BLOCKCHAIN_CARD_LOAD_FAIL))
-                            }
-                        )
+                    onSuccess = {
+                        process(AccountIntent.UpdateBlockchainCardOrderState(it))
+                    },
+                    onError = {
+                        Timber.e(it)
+                        process(AccountIntent.UpdateErrorState(AccountError.BLOCKCHAIN_CARD_LOAD_FAIL))
                     }
                 )
             }
-            is AccountIntent.LoadFiatList -> interactor.getAvailableFiatList()
+            is AccountIntent.LoadDisplayCurrencies -> interactor.getAvailableDisplayCurrencies()
                 .subscribeBy(
                     onSuccess = { list ->
-                        previousState.accountInformation?.userCurrency?.let { currentSelection ->
+                        previousState.accountInformation?.displayCurrency?.let { currentSelection ->
                             process(
-                                AccountIntent.UpdateViewToLaunch(ViewToLaunch.CurrencySelection(currentSelection, list))
+                                AccountIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.DisplayCurrencySelection(currentSelection, list)
+                                )
                             )
                         }
                     },
@@ -87,14 +65,16 @@ class AccountModel(
                         process(AccountIntent.UpdateErrorState(AccountError.FIAT_LIST_FAIL))
                     }
                 )
-            is AccountIntent.UpdateFiatCurrency -> interactor.updateSelectedCurrency(intent.updatedCurrency)
+            is AccountIntent.UpdateSelectedDisplayCurrency -> interactor.updateSelectedDisplayCurrency(
+                intent.updatedCurrency
+            )
                 .subscribeBy(
                     onComplete = {
                         previousState.accountInformation?.let { previousInfo ->
                             process(
                                 AccountIntent.UpdateAccountInformation(
                                     previousInfo.copy(
-                                        userCurrency = intent.updatedCurrency
+                                        displayCurrency = intent.updatedCurrency
                                     )
                                 )
                             )
@@ -104,11 +84,59 @@ class AccountModel(
                         process(AccountIntent.UpdateErrorState(AccountError.ACCOUNT_FIAT_UPDATE_FAIL))
                     }
                 )
+            is AccountIntent.LoadTradingCurrencies -> interactor.getAvailableTradingCurrencies()
+                .subscribeBy(
+                    onSuccess = { list ->
+                        previousState.accountInformation?.tradingCurrency?.let { currentSelection ->
+                            process(
+                                AccountIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.TradingCurrencySelection(currentSelection, list)
+                                )
+                            )
+                        }
+                    },
+                    onError = {
+                        process(AccountIntent.UpdateErrorState(AccountError.FIAT_LIST_FAIL))
+                    }
+                )
+            is AccountIntent.UpdateSelectedTradingCurrency -> interactor.updateSelectedTradingCurrency(
+                intent.updatedCurrency
+            )
+                .subscribeBy(
+                    onComplete = {
+                        previousState.accountInformation?.let { previousInfo ->
+                            process(
+                                AccountIntent.UpdateAccountInformation(
+                                    previousInfo.copy(
+                                        tradingCurrency = intent.updatedCurrency
+                                    )
+                                )
+                            )
+                        }
+                    },
+                    onError = {
+                        process(AccountIntent.UpdateErrorState(AccountError.ACCOUNT_FIAT_UPDATE_FAIL))
+                    }
+                )
+            AccountIntent.ToggleChartVibration -> {
+                previousState.accountInformation?.let { info ->
+                    interactor.toggleChartVibration(
+                        info.isChartVibrationEnabled
+                    ).subscribeBy(
+                        onSuccess = { enabled ->
+                            process(AccountIntent.UpdateChartVibration(enabled))
+                        },
+                        onError = {
+                            Timber.e("Error updating chart toggle")
+                        }
+                    )
+                }
+            }
+            is AccountIntent.UpdateChartVibration,
+            is AccountIntent.UpdateAccountInformation,
             is AccountIntent.UpdateErrorState,
             is AccountIntent.ResetViewState,
             is AccountIntent.UpdateViewToLaunch,
-            is AccountIntent.UpdateAccountInformation,
-            is AccountIntent.UpdateExchangeInformation,
             is AccountIntent.UpdateBlockchainCardOrderState -> null
         }.exhaustive
 }

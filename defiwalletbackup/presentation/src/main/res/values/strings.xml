@@ -1,0 +1,123 @@
+<resources>
+    <string name="app_name">presentation</string>
+    <string name="backup_phrase_title_secure_wallet" />
+    <string name="backup_phrase_title_steps" />
+    <string name="back_up_status_negative" />
+    <string name="back_up_status_positive" />
+
+    <string name="backup_phrase_intro_title" />
+    <string name="backup_phrase_intro_description" />
+    <string name="backup_phrase_intro_ack_1" />
+    <string name="backup_phrase_intro_ack_2" />
+    <string name="backup_phrase_intro_ack_3" />
+    <string name="back_up_now" />
+
+    <string name="skip_backup_title" />
+    <string name="skip_backup_description" />
+    <string name="skip_backup_cta_skip" />
+    <string name="skip_backup_cta_backup" />
+
+    <string name="recovery_phrase_title" />
+    <string name="recovery_phrase_description" />
+    <string name="recovery_phrase_backup_again" />
+    <string name="recovery_phrase_backup_manual" />
+    <string name="recovery_phrase_backup_cloud" />
+
+    <string name="manual_backup_title" />
+    <string name="manual_backup_description" />
+    <string name="manual_backup_copy_description" />
+    <string name="manual_backup_copied" />
+
+    <string name="accessibility_close"/>
+    <string name="common_copy" />
+    <string name="common_next" />
+    <string name="done" />
+    <string name="verify" />
+    <string name="common_skip" />
+
+    <string name="verify_phrase_title" />
+    <string name="verify_phrase_description" />
+    <string name="verify_phrase_incorrect_message" />
+    <string name="verify_phrase_incorrect_button" />
+
+    <string name="backup_success_title" />
+    <string name="backup_success_description" />
+
+    <string name="defi_wallet_name" />
+
+    <string name="defi_onboarding_intro_title" />
+    <string name="defi_onboarding_intro_description" />
+    <string name="defi_onboarding_intro_property1_title" />
+    <string name="defi_onboarding_intro_property1_subtitle" />
+    <string name="defi_onboarding_intro_property2_title" />
+    <string name="defi_onboarding_intro_property2_subtitle" />
+    <string name="defi_onboarding_intro_property3_title" />
+    <string name="defi_onboarding_intro_property3_subtitle" />
+    <string name="defi_onboarding_intro_cta" />
+
+    <string name="defi_onboarding_complete_title" />
+    <string name="defi_onboarding_complete_description" />
+    <string name="common_continue" />
+
+    <!--    <string name="backup_phrase_title_secure_wallet">Secure Your Wallet</string>-->
+    <!--    <string name="backup_phrase_title_steps">Step %1$d of %2$d</string>-->
+    <!--    <string name="back_up_status_negative">Not Backed Up</string>-->
+    <!--    <string name="back_up_status_positive">Backed Up</string>-->
+
+    <!--    <string name="backup_phrase_intro_title">Let’s Back Up Your Wallet</string>-->
+    <!--    <string name="backup_phrase_intro_description">In the next few screens, you will get your 12 words to recover your wallets if ever needed in the future.</string>-->
+    <!--    <string name="backup_phrase_intro_ack_1">If I lose my secret phrase, my funds will be lost forever.</string>-->
+    <!--    <string name="backup_phrase_intro_ack_2">If I expose or share my secret phrase to anybody, my funds can get stolen.</string>-->
+    <!--    <string name="backup_phrase_intro_ack_3">It is my full responsibility to keep my secret phrase secure.</string>-->
+    <!--    <string name="back_up_now">Back Up Now</string>-->
+
+    <!--    <string name="skip_backup_title">Are you sure you want to continue?</string>-->
+    <!--    <string name="skip_backup_description">By skipping your DeFi Wallet backup, you risk losing access to your funds.</string>-->
+    <!--    <string name="skip_backup_cta_skip">Yes, skip backup</string>-->
+    <!--    <string name="skip_backup_cta_backup">Back Up (Recommended)</string>-->
+
+    <!--    <string name="recovery_phrase_title">Your Recovery Phrase</string>-->
+    <!--    <string name="recovery_phrase_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>-->
+    <!--    <string name="recovery_phrase_backup_again">Back Up Again</string>-->
+    <!--    <string name="recovery_phrase_backup_manual">Back Up Manually</string>-->
+    <!--    <string name="recovery_phrase_backup_cloud">Back Up to Cloud</string>-->
+
+    <!--    <string name="manual_backup_title">Manual Back Up</string>-->
+    <!--    <string name="manual_backup_description">Write down your recovery phrase in the order you see below.</string>-->
+    <!--    <string name="manual_backup_copy_description">Copy them to a password manager or write them down with ink and paper. Keep it handy, the next step is to verify your phrase.</string>-->
+    <!--    <string name="manual_backup_copied">Copied for 2 Minutes</string>-->
+
+    <!--    <string name="common_copy">Copy</string>-->
+    <!--    <string name="common_next">Next</string>-->
+    <!--    <string name="done">Done</string>-->
+    <!--    <string name="verify">Verify</string>-->
+    <!--    <string name="ops">Oops!</string>-->
+    <!--    <string name="something_went_wrong_try_again">Something went wrong. Please try again.</string>-->
+    <!--    <string name="common_ok">OK</string>-->
+    <!--    <string name="common_continue">Continue</string>-->
+    <!--    <string name="common_skip">Skip</string>-->
+
+    <!--    <string name="verify_phrase_title">Verify Your Phrase</string>-->
+    <!--    <string name="verify_phrase_description">Tap the words to put them in the correct order.\n</string>-->
+    <!--    <string name="verify_phrase_incorrect_message">Incorrect order. Reset or tap individual words to remove.</string>-->
+    <!--    <string name="verify_phrase_incorrect_button">Reset Words</string>-->
+
+    <!--    <string name="backup_success_title">Back Up Successful!</string>-->
+    <!--    <string name="backup_success_description">Remember to keep your Recovery Phrase stored in a safe location and to never share it with anyone.</string>-->
+
+    <!--    <string name="defi_wallet_name">Private Key Wallet</string>-->
+
+    <!--    <string name="defi_onboarding_intro_title">Introducing the %1$s</string>-->
+    <!--    <string name="defi_onboarding_intro_description">Explore all of Web3 and DeFi in one place</string>-->
+    <!--    <string name="defi_onboarding_intro_property1_title">Self-Custody Your Assets</string>-->
+    <!--    <string name="defi_onboarding_intro_property1_subtitle">DeFi wallets are on-chain</string>-->
+    <!--    <string name="defi_onboarding_intro_property2_title">Multi-chain Support</string>-->
+    <!--    <string name="defi_onboarding_intro_property2_subtitle">Manage your portfolio across 7 chains</string>-->
+    <!--    <string name="defi_onboarding_intro_property3_title">Connect to Decentralized Finance</string>-->
+    <!--    <string name="defi_onboarding_intro_property3_subtitle">Log into DApps and sign transactions</string>-->
+    <!--    <string name="defi_onboarding_intro_cta">Enable DeFi Wallet</string>-->
+
+    <!--    <string name="defi_onboarding_complete_title">Welcome to Your %1$s</string>-->
+    <!--    <string name="defi_onboarding_complete_description">Your DeFi Wallet was successfully created. You DeFi wallet supports Bitcoin, Bitcoin Cash, Ethereum, |etc| and 1500 tokens.</string>-->
+
+</resources>

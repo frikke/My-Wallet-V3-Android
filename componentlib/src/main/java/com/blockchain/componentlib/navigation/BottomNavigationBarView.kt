@@ -13,46 +13,39 @@ import com.blockchain.componentlib.utils.BaseAbstractComposeView
 class BottomNavigationBarView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+    defStyleAttr: Int = 0,
 ) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var navigationItems by mutableStateOf(
-        listOf(
-            NavigationItem.Home,
-            NavigationItem.Prices,
-            NavigationItem.BuyAndSell,
-            NavigationItem.Activity
-        )
+        listOf<NavigationItem>()
     )
     var onNavigationItemClick by mutableStateOf({ _: NavigationItem -> })
     var onMiddleButtonClick by mutableStateOf({})
+    var hasMiddleButton by mutableStateOf(false)
     var selectedNavigationItem by mutableStateOf(null as? NavigationItem?)
     var bottomNavigationState by mutableStateOf(BottomNavigationState.Add)
     var isPulseAnimationEnabled by mutableStateOf(false)
 
     @Composable
     override fun Content() {
+
         AppTheme {
             AppSurface {
                 BottomNavigationBar(
                     navigationItems,
                     onNavigationItemClick,
+                    hasMiddleButton,
                     onMiddleButtonClick,
                     selectedNavigationItem,
                     bottomNavigationState,
-                    isPulseAnimationEnabled
+                    isPulseAnimationEnabled && hasMiddleButton
                 )
             }
         }
     }
 
     fun clearState() {
-        navigationItems = listOf(
-            NavigationItem.Home,
-            NavigationItem.Prices,
-            NavigationItem.BuyAndSell,
-            NavigationItem.Activity
-        )
+        navigationItems = emptyList()
         onNavigationItemClick = { _: NavigationItem -> }
         onMiddleButtonClick = {}
         selectedNavigationItem = null

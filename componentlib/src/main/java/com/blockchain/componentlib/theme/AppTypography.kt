@@ -1,6 +1,8 @@
 package com.blockchain.componentlib.theme
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -13,6 +15,7 @@ private val interSemiBold = FontFamily(Font(R.font.inter_semi_bold, FontWeight.S
 private val interBold = FontFamily(Font(R.font.inter_bold, FontWeight.Bold))
 private val monoFontFeatures = "tnum, lnum, zero, ss01"
 
+@OptIn(ExperimentalTextApi::class)
 data class AppTypography(
     val display: TextStyle = TextStyle(
         fontFamily = interSemiBold,
@@ -80,7 +83,10 @@ data class AppTypography(
     val caption1: TextStyle = TextStyle(
         fontFamily = interMedium,
         fontSize = 12.sp,
-        lineHeight = 16.sp
+        lineHeight = 16.sp,
+        platformStyle = PlatformTextStyle(
+            includeFontPadding = false
+        )
     ),
     val caption2: TextStyle = TextStyle(
         fontFamily = interSemiBold,
@@ -94,11 +100,16 @@ data class AppTypography(
         letterSpacing = 0.1.sp,
         lineHeight = 18.sp
     ),
-    val micro: TextStyle = TextStyle(
+    val micro1: TextStyle = TextStyle(
         fontFamily = interSemiBold,
         fontSize = 10.sp,
         fontFeatureSettings = "ss01, zero",
         letterSpacing = 0.1.sp,
+        lineHeight = 15.sp
+    ),
+    val micro2: TextStyle = TextStyle(
+        fontFamily = interMedium,
+        fontSize = 10.sp,
         lineHeight = 15.sp
     ),
 )

@@ -5,13 +5,15 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.addressverification.ui.USState
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.BlockchainSnackbar
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.BillingAddress
-import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -22,7 +24,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBillingAddressBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.util.AfterTextChangedWatcher
-import piuk.blockchain.android.util.US
 
 class BillingAddressFragment :
     MviFragment<CardModel, CardIntent, CardState, FragmentBillingAddressBinding>(),
@@ -31,15 +32,9 @@ class BillingAddressFragment :
     SlidingModalBottomDialog.Host {
 
     private var usSelected = false
-    private val nabuToken: NabuToken by scopedInject()
-    private val nabuDataManager: NabuDataManager by scopedInject()
+    private val userService: UserService by scopedInject()
 
     private val compositeDisposable = CompositeDisposable()
-    private val nabuUser = nabuToken
-        .fetchNabuToken()
-        .flatMap {
-            nabuDataManager.getUser(it)
-        }
 
     override val cardDetailsPersistence: CardDetailsPersistence
         get() = (activity as? CardDetailsPersistence)
@@ -78,15 +73,6 @@ class BillingAddressFragment :
                     )
                 )
             }
-            state.setOnClickListener {
-                showBottomSheet(
-                    SearchPickerItemBottomSheet.newInstance(
-                        US.values().map {
-                            StatePickerItem(it.ANSIAbbreviation, it.unabbreviated)
-                        }
-                    )
-                )
-            }
 
             fullName.addTextChangedListener(textWatcher)
             addressLine1.addTextChangedListener(textWatcher)
@@ -96,7 +82,7 @@ class BillingAddressFragment :
             state.addTextChangedListener(textWatcher)
             postcode.addTextChangedListener(textWatcher)
 
-            compositeDisposable += nabuUser
+            compositeDisposable += userService.getUser()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(onError = {}, onSuccess = { user ->
                     setupCountryDetails(user.address?.countryCode ?: "")
@@ -124,6 +110,8 @@ class BillingAddressFragment :
             }
         }
         activity.updateToolbarTitle(getString(R.string.add_card_address_title))
+
+        model.process(CardIntent.LoadListOfUsStates)
     }
 
     private fun setupUserDetails(user: NabuUser) {
@@ -135,7 +123,10 @@ class BillingAddressFragment :
                 city.setText(it.city)
                 if (it.countryCode == "US") {
                     zipUsa.setText(it.postCode)
-                    state.setText(it.state?.substringAfter("US-"))
+                    val stateName = it.stateIso?.let {
+                        USState.findStateByIso(it)?.displayName ?: it.substringAfter("US-")
+                    }
+                    state.setText(stateName)
                 } else {
                     postcode.setText(it.postCode)
                 }
@@ -179,11 +170,33 @@ class BillingAddressFragment :
         get() = (activity as? AddCardNavigator)
             ?: throw IllegalStateException("Parent must implement AddCardNavigator")
 
-    override fun onBackPressed(): Boolean = true
-
     override fun render(newState: CardState) {
         if (newState.addCard) {
             navigator.navigateToCardVerification()
+        }
+
+        newState.usStateList?.let { stateList ->
+            if (stateList.isNotEmpty()) {
+                binding.state.setOnClickListener {
+                    showBottomSheet(
+                        SearchPickerItemBottomSheet.newInstance(
+                            stateList.map { state ->
+                                StatePickerItem(state.stateCode, state.name)
+                            }
+                        )
+                    )
+                }
+            } else {
+                BlockchainSnackbar.make(
+                    view = binding.root,
+                    message = getString(R.string.unable_to_load_list_of_states),
+                    type = SnackbarType.Error,
+                    actionLabel = getString(R.string.common_try_again),
+                    onClick = {
+                        model.process(CardIntent.LoadListOfUsStates)
+                    }
+                ).show()
+            }
         }
     }
 

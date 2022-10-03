@@ -2,17 +2,21 @@ package com.blockchain.componentlib.navigation
 
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,10 +27,12 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
 
 sealed class NavigationBarButton(val onClick: () -> Unit) {
@@ -34,9 +40,18 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
         val drawable: Int,
         val color: Color? = Grey400,
         @DimenRes val size: Int = R.dimen.standard_margin,
-        val onIconClick: () -> Unit
+        @StringRes val contentDescription: Int,
+        val onIconClick: () -> Unit,
     ) :
         NavigationBarButton(onIconClick)
+
+    data class DropdownIndicator(
+        val dropDownClicked: () -> Unit,
+        val text: String,
+        val rightIcon: Int,
+        val contentDescription: String,
+        val color: Color = Grey000,
+    ) : NavigationBarButton(dropDownClicked)
 
     data class Text(val text: String, val color: Color? = null, val onTextClick: () -> Unit) :
         NavigationBarButton(onTextClick)
@@ -49,20 +64,25 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
 fun NavigationBar(
     title: String,
     onBackButtonClick: (() -> Unit)? = null,
-    navigationBarButtons: List<NavigationBarButton> = emptyList()
+    dropDownIndicator: NavigationBarButton.DropdownIndicator? = null,
+    navigationBarButtons: List<NavigationBarButton> = emptyList(),
 ) = NavigationBar(
     title = title,
     startNavigationBarButton = onBackButtonClick?.let { onClick ->
-        NavigationBarButton.Icon(drawable = R.drawable.ic_nav_bar_back, onIconClick = onClick)
-    },
+        NavigationBarButton.Icon(
+            drawable = R.drawable.ic_nav_bar_back,
+            onIconClick = onClick,
+            contentDescription = R.string.accessibility_back
+        )
+    } ?: dropDownIndicator,
     endNavigationBarButtons = navigationBarButtons
 )
 
 @Composable
 fun NavigationBar(
     title: String,
-    startNavigationBarButton: NavigationBarButton.Icon? = null,
-    endNavigationBarButtons: List<NavigationBarButton> = emptyList()
+    startNavigationBarButton: NavigationBarButton? = null,
+    endNavigationBarButtons: List<NavigationBarButton> = emptyList(),
 ) {
 
     Box(
@@ -74,42 +94,27 @@ fun NavigationBar(
         Row(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .padding(start = dimensionResource(R.dimen.standard_margin))
+                .padding(horizontal = dimensionResource(R.dimen.standard_margin))
         ) {
             startNavigationBarButton?.let { button ->
-                Box(
-                    modifier = Modifier
-                        .clickable {
-                            button.onClick.invoke()
-                        }
-                        .align(CenterVertically)
-                        .padding(
-                            start = 0.dp,
-                            top = 8.dp,
-                            end = 8.dp,
-                            bottom = 8.dp
-                        )
-                ) {
-                    Image(
-                        painter = painterResource(id = button.drawable),
-                        contentDescription = null,
-                        colorFilter = if (button.color != null) ColorFilter.tint(button.color) else null
-                    )
+                when (button) {
+                    is NavigationBarButton.Icon -> {
+                        StartButton(button = button)
+                    }
+                    is NavigationBarButton.DropdownIndicator -> {
+                        DropDown(button)
+                    }
+                    is NavigationBarButton.Text,
+                    is NavigationBarButton.TextWithColorInt -> {
+                    }
                 }
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_margin)))
             }
             Text(
+                modifier = Modifier.weight(1f),
                 text = title,
                 color = AppTheme.colors.title,
                 style = AppTheme.typography.title2
             )
-        }
-
-        Row(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = dimensionResource(R.dimen.standard_margin))
-        ) {
             endNavigationBarButtons.forEach {
                 Spacer(modifier = Modifier.width(dimensionResource(R.dimen.smallest_margin)))
                 Box(
@@ -118,19 +123,20 @@ fun NavigationBar(
                             it.onClick.invoke()
                         }
                         .align(CenterVertically)
-                        .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
+                        .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
                 ) {
                     when (it) {
                         is NavigationBarButton.Icon -> {
                             Image(
                                 modifier = Modifier.size(dimensionResource(it.size)),
                                 painter = painterResource(id = it.drawable),
-                                contentDescription = null,
+                                contentDescription = stringResource(id = it.contentDescription),
                                 colorFilter = if (it.color != null) ColorFilter.tint(it.color) else null
                             )
                         }
                         is NavigationBarButton.Text -> {
                             Text(
+                                modifier = Modifier.wrapContentWidth(),
                                 text = it.text,
                                 color = it.color ?: AppTheme.colors.error,
                                 style = AppTheme.typography.body2
@@ -143,11 +149,83 @@ fun NavigationBar(
                                 style = AppTheme.typography.body2
                             )
                         }
+                        is NavigationBarButton.DropdownIndicator -> {}
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun RowScope.StartButton(button: NavigationBarButton.Icon) {
+    Box(
+        modifier = Modifier
+            .clickable {
+                button.onClick.invoke()
+            }
+            .align(CenterVertically)
+            .padding(
+                start = 0.dp,
+                top = 8.dp,
+                end = 8.dp,
+                bottom = 8.dp
+            )
+    ) {
+        Image(
+            painter = painterResource(id = button.drawable),
+            contentDescription = stringResource(id = button.contentDescription),
+            colorFilter = if (button.color != null) ColorFilter.tint(button.color) else null
+        )
+    }
+    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_margin)))
+}
+
+@Composable
+fun RowScope.DropDown(dropdownIndicator: NavigationBarButton.DropdownIndicator) {
+    Row(
+        modifier = Modifier
+            .clickable {
+                dropdownIndicator.onClick.invoke()
+            }
+            .background(
+                dropdownIndicator.color,
+                RoundedCornerShape(dimensionResource(id = R.dimen.medium_margin))
+            )
+            .align(CenterVertically)
+            .padding(
+                start = 0.dp,
+                top = 8.dp,
+                bottom = 8.dp
+            )
+    ) {
+        Image(
+            painter = painterResource(id = dropdownIndicator.rightIcon),
+            contentDescription = dropdownIndicator.contentDescription,
+            modifier = Modifier
+                .padding(
+                    start = dimensionResource(id = R.dimen.tiny_margin)
+                )
+        )
+        Text(
+            text = dropdownIndicator.text,
+            style = AppTheme.typography.body1,
+            modifier = Modifier
+                .padding(
+                    start = dimensionResource(id = R.dimen.tiny_margin),
+                    end = dimensionResource(id = R.dimen.tiny_margin)
+                )
+        )
+        Image(
+            painter = painterResource(id = R.drawable.ic_arrow_down),
+            contentDescription = "IconArrowDown",
+            modifier = Modifier
+                .padding(
+                    end = dimensionResource(id = R.dimen.tiny_margin)
+                )
+        )
+    }
+    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_margin)))
 }
 
 @Preview(showBackground = true)
@@ -160,17 +238,73 @@ fun NavigationBarPreview() {
 
 @Preview(showBackground = true)
 @Composable
+fun NavigationBarPreviewLongText() {
+    AppTheme {
+        NavigationBar(
+            title = "Comunicarse con el soporte técnico longer longer longer",
+            onBackButtonClick = { },
+            navigationBarButtons = emptyList()
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NavigationBarPreviewLongTextWithActions() {
+    AppTheme {
+        NavigationBar(
+            title = "Comunicarse con el soporte técnico longer longer longer",
+            onBackButtonClick = { },
+            navigationBarButtons = listOf(
+                NavigationBarButton.Text("Some button") {}
+            )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
 fun NavigationBarPreview2() {
     AppTheme {
         NavigationBar(
             "Test",
             {},
+            null,
             listOf(
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_buy
+                    drawable = R.drawable.ic_bottom_nav_buy,
+                    contentDescription = R.string.accessibility_back
                 ) {},
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_buy
+                    drawable = R.drawable.ic_bottom_nav_buy,
+                    contentDescription = R.string.accessibility_back
+                ) {}
+            )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NavigationBarPreviewDropDown() {
+    AppTheme {
+        NavigationBar(
+            "Test",
+            null,
+            NavigationBarButton.DropdownIndicator(
+                dropDownClicked = {},
+                text = "Portfolio",
+                rightIcon = R.drawable.ic_bottom_nav_home,
+                "123",
+            ),
+            listOf(
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_bottom_nav_buy,
+                    contentDescription = R.string.accessibility_back
+                ) {},
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_bottom_nav_buy,
+                    contentDescription = R.string.accessibility_back
                 ) {}
             )
         )
@@ -182,7 +316,7 @@ fun NavigationBarPreview2() {
 fun NavigationBarPreview3() {
     AppTheme {
         NavigationBar(
-            "Test", {},
+            "Test", {}, null,
             listOf(
                 NavigationBarButton.Text(
                     text = "Cancel"

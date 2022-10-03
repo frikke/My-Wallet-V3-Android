@@ -7,5 +7,6 @@ data class ReferralModelState(
     val rewardSubtitle: String = "",
     val code: String = "",
     val criteria: List<String> = listOf(),
-    val confirmCopiedToClipboard: Boolean = false
+    val confirmCopiedToClipboard: Boolean = false,
+    val promotionStyleInfo: ReferralPromotionStyleInfo? = null
 ) : ModelState

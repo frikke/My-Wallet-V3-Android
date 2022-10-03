@@ -8,15 +8,17 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetAddPaymentMethodBinding
+import piuk.blockchain.android.util.StringLocalizationUtil
 
 class AddPaymentMethodsBottomSheet : SlidingModalBottomDialog<DialogSheetAddPaymentMethodBinding>() {
 
     interface Host : SlidingModalBottomDialog.Host {
         fun onAddCardSelected()
-        fun onAddBankTransferSelected()
-        fun onAddBankAccountSelected()
+        fun onLinkBankSelected()
     }
 
     override val host: Host by lazy {
@@ -31,19 +33,18 @@ class AddPaymentMethodsBottomSheet : SlidingModalBottomDialog<DialogSheetAddPaym
     private val canAddCard by lazy {
         arguments?.getBoolean(CAN_ADD_CARD, false) ?: false
     }
-    private val canAddBankTransfer by lazy {
-        arguments?.getBoolean(CAN_ADD_BANK_TRANSFER, false) ?: false
+    private val canLinkBank by lazy {
+        arguments?.getBoolean(CAN_ADD_LINK_BANK, false) ?: false
     }
-    private val canAddBankAccount by lazy {
-        arguments?.getBoolean(CAN_ADD_BANK_ACCOUNT, false) ?: false
-    }
+
+    private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
 
     override fun initControls(binding: DialogSheetAddPaymentMethodBinding) {
         with(binding) {
             with(addCardParent) {
                 primaryText = getString(R.string.add_credit_or_debit_card_1)
                 startImageResource = ImageResource.Local(R.drawable.ic_payment_card, null)
-                secondaryText = getString(R.string.instantly_available)
+                secondaryText = getString(R.string.buy_small_amounts)
                 paragraphText = getString(R.string.instantly_buy_crypto_with_card)
                 tags = listOf(TagViewState(getString(R.string.most_popular), TagType.Success()))
                 onClick = {
@@ -54,45 +55,34 @@ class AddPaymentMethodsBottomSheet : SlidingModalBottomDialog<DialogSheetAddPaym
             }
 
             with(addBankLinkParent) {
-                primaryText = getString(R.string.link_a_bank)
-                startImageResource = ImageResource.Local(R.drawable.ic_bank_transfer, null)
-                secondaryText = getString(R.string.instantly_available)
-                paragraphText = getString(R.string.instantly_buy_crypto_with_link_a_bank)
+                primaryText = getString(R.string.easy_bank_transfer)
+                startImageResource = ImageResource.Local(R.drawable.ic_bank_icon, null)
+                secondaryText = getString(
+                    StringLocalizationUtil.subtitleForEasyTransfer(
+                        fiatCurrenciesService.selectedTradingCurrency.networkTicker
+                    )
+                )
+                paragraphText = getString(R.string.easy_bank_transfer_blurb)
                 onClick = {
                     dismiss()
-                    host.onAddBankTransferSelected()
+                    host.onLinkBankSelected()
                 }
-                visibleIf { canAddBankTransfer }
-            }
-
-            with(addBankAccountParent) {
-                primaryText = getString(R.string.bank_transfer)
-                startImageResource = ImageResource.Local(R.drawable.ic_funds_deposit, null)
-                secondaryText = getString(R.string.payment_wire_transfer_subtitle)
-                paragraphText = getString(R.string.settings_bank_transfer_blurb)
-                onClick = {
-                    dismiss()
-                    host.onAddBankAccountSelected()
-                }
-                visibleIf { canAddBankAccount }
+                visibleIf { canLinkBank }
             }
         }
     }
 
     companion object {
         private const val CAN_ADD_CARD = "CAN_ADD_CARD"
-        private const val CAN_ADD_BANK_TRANSFER = "CAN_ADD_BANK_TRANSFER"
-        private const val CAN_ADD_BANK_ACCOUNT = "CAN_ADD_BANK_ACCOUNT"
+        private const val CAN_ADD_LINK_BANK = "CAN_ADD_LINK_BANK"
 
         fun newInstance(
             canAddCard: Boolean,
-            canAddBankTransfer: Boolean,
-            canAddBankAccount: Boolean,
+            canLinkBank: Boolean,
         ): AddPaymentMethodsBottomSheet {
             val bundle = Bundle()
             bundle.putBoolean(CAN_ADD_CARD, canAddCard)
-            bundle.putBoolean(CAN_ADD_BANK_TRANSFER, canAddBankTransfer)
-            bundle.putBoolean(CAN_ADD_BANK_ACCOUNT, canAddBankAccount)
+            bundle.putBoolean(CAN_ADD_LINK_BANK, canLinkBank)
             return AddPaymentMethodsBottomSheet().apply {
                 arguments = bundle
             }
