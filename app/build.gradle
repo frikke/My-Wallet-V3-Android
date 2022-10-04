@@ -73,10 +73,8 @@ android {
 
         resConfigs 'en',
                 'es',
-                'b+es+419',
                 'fr',
                 'pt',
-                'pt-rBR',
                 'ru',
                 'tr'
     }

@@ -2815,7 +2815,7 @@ Encontre a aplicação aqui: https://blockchainwallet.page.link/join</string>
     <string name="address_verification_title">Verificação de morada</string>
     <string name="address_verification_description">Confirme o seu endereço abaixo como parte de um requisito de identidade federal.</string>
     <string name="bc_card_out_of_funds_top_up">O seu cartão está sem fundos, carregue-o</string>
-    <string name="bc_card_kyc_address_input_title">[%key_id:39014379%]</string>
+    <string name="bc_card_kyc_address_input_title">Endereço residencial</string>
     <string name="bc_card_kyc_commercial_address_not_accepted">Um apartado ou um endereço comercial não serão aceites</string>
     <string name="bc_card_kyc_ssn_secured_with_encryption">Informações protegidas com criptografia de 256 bits</string>
     <string name="enter_amount_balance_row_sell_label">Disponível para vender</string>

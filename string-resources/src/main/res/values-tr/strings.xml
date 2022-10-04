@@ -2815,7 +2815,7 @@ Uygulama linki: https://blockchainwallet.page.link/join</string>
     <string name="address_verification_title">Adres Doğrulama</string>
     <string name="address_verification_description">Federal kimlik şartı gereği aşağıdaki adresinizi doğrulayın.</string>
     <string name="bc_card_out_of_funds_top_up">Kartınızın bakiyesi yetersiz, para yatırın</string>
-    <string name="bc_card_kyc_address_input_title">[%key_id:39014379%]</string>
+    <string name="bc_card_kyc_address_input_title">Ev Adresi</string>
     <string name="bc_card_kyc_commercial_address_not_accepted">Posta Kutusu veya ticari adres kabul edilmeyecektir</string>
     <string name="bc_card_kyc_ssn_secured_with_encryption">256 bit şifreleme ile korunan bilgiler</string>
     <string name="enter_amount_balance_row_sell_label">satılabilir</string>
