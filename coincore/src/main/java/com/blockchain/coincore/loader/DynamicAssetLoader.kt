@@ -45,7 +45,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -78,8 +77,7 @@ internal class DynamicAssetLoader(
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
     private val selfCustodyService: NonCustodialService,
     private val layerTwoFeatureFlag: FeatureFlag,
-    private val stakingService: StakingService,
-    private val stakingEnabledFlag: FeatureFlag
+    private val stakingService: StakingService
 ) : AssetLoader {
 
     private val assetMap = mutableMapOf<Currency, Asset>()
@@ -290,15 +288,12 @@ internal class DynamicAssetLoader(
             activeInterestFlow,
             supportedFiatsFlow,
             activeStakingFlow,
-            flowOf(stakingEnabledFlag.enabled.blockingGet())
-        ) { activeTrading, activeInterest, supportedFiats, activeStaking, isStakingEnabled ->
+
+        ) { activeTrading, activeInterest, supportedFiats, activeStaking ->
             activeTrading +
                 activeInterest.filter { it.currency !in activeTrading.map { active -> active.currency } } +
-                if (isStakingEnabled) {
-                    activeStaking.filter { it.currency !in activeTrading.map { active -> active.currency } }
-                } else {
-                    emptyList()
-                } + supportedFiats
+                activeStaking.filter { it.currency !in activeTrading.map { active -> active.currency } } +
+                supportedFiats
         }
     }
 

@@ -616,6 +616,7 @@ val coreModule = module {
         scoped<StakingService> {
             StakingRepository(
                 stakingRatesStore = get(),
+                stakingFeatureFlag = get(stakingAccountFeatureFlag),
                 stakingEligibilityStore = get()
             )
         }

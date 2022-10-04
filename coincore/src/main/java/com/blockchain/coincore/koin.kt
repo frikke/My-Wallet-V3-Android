@@ -22,7 +22,6 @@ import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
-import com.blockchain.koin.stakingAccountFeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import org.koin.dsl.bind
@@ -122,8 +121,7 @@ val coincoreModule = module {
                 ethHotWalletAddressResolver = get(),
                 custodialWalletManager = get(),
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
-                stakingService = get(),
-                stakingEnabledFlag = get(stakingAccountFeatureFlag)
+                stakingService = get()
             )
         }.bind(AssetLoader::class)
 

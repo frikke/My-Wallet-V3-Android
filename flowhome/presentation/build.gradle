@@ -31,6 +31,7 @@ dependencies {
     implementation project(':flowhome:domain')
     implementation project(':coincore')
     implementation project(':balance')
+    implementation project(':core')
     implementation project(':componentlib')
 
     // android

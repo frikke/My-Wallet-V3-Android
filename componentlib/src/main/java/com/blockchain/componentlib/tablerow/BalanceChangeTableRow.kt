@@ -171,6 +171,15 @@ sealed interface ValueChange {
         override val indicator: String = ""
         override val color: Color = Grey700
     }
+
+    companion object {
+        fun fromValue(value: Double): ValueChange {
+            return when {
+                value >= 0 -> Up(value)
+                else -> Down(value)
+            }
+        }
+    }
 }
 
 @Preview

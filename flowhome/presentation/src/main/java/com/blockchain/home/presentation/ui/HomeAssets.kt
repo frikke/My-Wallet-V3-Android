@@ -77,7 +77,7 @@ fun HomeAssets(
                         cryptoAssets.data.forEachIndexed { index, cryptoAsset ->
                             BalanceChangeTableRow(
                                 name = cryptoAsset.name,
-                                value = cryptoAsset.balance.map {
+                                value = cryptoAsset.fiatBalance.map {
                                     it.toStringWithSymbol()
                                 },
                                 valueChange = cryptoAsset.change,

@@ -157,3 +157,11 @@ fun <T, R> combineDataResources(
         }
     }
 }
+
+fun <T> DataResource<T>.updateDataWith(updated: DataResource<T>): DataResource<T> {
+    return when (this) {
+        DataResource.Loading -> updated
+        is DataResource.Error -> updated
+        is DataResource.Data -> if (updated is DataResource.Data) updated else this
+    }
+}

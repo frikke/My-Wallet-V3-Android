@@ -10,7 +10,8 @@ val homePresentationModule = module {
         viewModel {
             HomeViewModel(
                 homeAccountsService = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                exchangeRates = get()
             )
         }
     }

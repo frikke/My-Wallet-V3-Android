@@ -7,6 +7,7 @@ import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -15,9 +16,12 @@ class HomeAccountsRepository(private val coincore: Coincore, private val walletM
     HomeAccountsService {
     override fun accounts(): Flow<DataResource<List<SingleAccount>>> {
         return walletModeService.walletMode.flatMapLatest { wMode ->
-            coincore.activeWalletsInMode(wMode)
+            coincore.activeWalletsInMode(wMode).map { it.accounts }
+                .distinctUntilChanged { old, new ->
+                    old.map { it.currency.networkTicker } == new.map { it.currency.networkTicker }
+                }
                 .map {
-                    DataResource.Data(it.accounts) as DataResource<List<SingleAccount>>
+                    DataResource.Data(it) as DataResource<List<SingleAccount>>
                 }.onStart {
                     emit(DataResource.Loading)
                 }.catch {

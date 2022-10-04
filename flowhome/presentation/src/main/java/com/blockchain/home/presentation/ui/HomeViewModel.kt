@@ -9,8 +9,12 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.componentlib.tablerow.ValueChange
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
+import com.blockchain.data.updateDataWith
+import com.blockchain.extensions.replace
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.presentation.HomeCryptoAsset
 import com.blockchain.home.presentation.HomeViewState
@@ -18,15 +22,18 @@ import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.Money
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 
 class HomeViewModel(
     private val homeAccountsService: HomeAccountsService,
     private val currencyPrefs: CurrencyPrefs,
+    private val exchangeRates: ExchangeRatesDataManager,
 ) : MviViewModel<HomeIntent, HomeViewState, HomeModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
     HomeModelState(accounts = DataResource.Data(emptyList()))
 ) {
@@ -68,11 +75,9 @@ class HomeViewModel(
                 name = it.first().singleAccount.currency.name,
                 balance = it.map { acc -> acc.balance }.sumAvailableBalances(),
                 fiatBalance = it.map { acc -> acc.fiatBalance }.sumAvailableBalances(),
-                change = DataResource.Data(
-                    ValueChange.Up(
-                        value = .26
-                    )
-                )
+                change = it.first().exchangeRateDayDelta.map { value ->
+                    ValueChange.fromValue(value)
+                }
             )
         }.sortedWith(
             object : Comparator<HomeCryptoAsset> {
@@ -94,28 +99,41 @@ class HomeViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun loadAccounts() {
-        homeAccountsService.accounts().onEach {
+        homeAccountsService.accounts().onStart {
             updateState { state ->
                 state.copy(
-                    accounts = it.map { accounts ->
-                        accounts.map {
-                            ModelAccount(
-                                singleAccount = it,
-                                balance = DataResource.Loading,
-                                fiatBalance = DataResource.Loading
-                            )
-                        }
-                    }
+                    accounts = DataResource.Loading
                 )
             }
-        }.filterIsInstance<DataResource.Data<List<SingleAccount>>>()
+        }
+            .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
+            .distinctUntilChanged { old, new ->
+                val oldAssets = old.data.map { it.currency.networkTicker }
+                val newAssets = new.data.map { it.currency.networkTicker }
+                newAssets.isNotEmpty() && oldAssets.size == newAssets.size && oldAssets.containsAll(newAssets)
+            }
+            .onEach { data ->
+                updateState { state ->
+                    state.copy(
+                        accounts = DataResource.Data(
+                            data.data.map { account ->
+                                ModelAccount(
+                                    singleAccount = account,
+                                    balance = DataResource.Loading,
+                                    exchangeRateDayDelta = DataResource.Loading,
+                                    fiatBalance = DataResource.Loading
+                                )
+                            }
+                        )
+                    )
+                }
+            }.filterIsInstance<DataResource.Data<List<SingleAccount>>>()
             .flatMapLatest { accounts ->
                 val balances = accounts.data.map { account ->
-                    account.balance.map { balance ->
+                    account.balance.distinctUntilChanged().map { balance ->
                         account to balance
                     }
-                }
-                balances.merge().onEach { (account, balance) ->
+                }.merge().onEach { (account, balance) ->
                     updateState { state ->
                         state.copy(
                             accounts =
@@ -123,6 +141,21 @@ class HomeViewModel(
                         )
                     }
                 }
+
+                val exchangeRates = accounts.data.map { account ->
+                    exchangeRates.getPricesWith24hDelta(
+                        fromAsset = account.currency
+                    ).map {
+                        it to account
+                    }
+                }.merge().onEach { (price, account) ->
+                    updateState { state ->
+                        state.copy(
+                            accounts = state.accounts.withPricing(account, price)
+                        )
+                    }
+                }
+                merge(exchangeRates, balances)
             }.collect()
     }
 
@@ -159,18 +192,36 @@ private fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money
     return total!!
 }
 
+private fun DataResource<List<ModelAccount>>.withPricing(
+    account: SingleAccount,
+    price: DataResource<Prices24HrWithDelta>
+): DataResource<List<ModelAccount>> {
+    return this.map { accounts ->
+        val oldAccount = accounts.first { it.singleAccount == account }
+        accounts.replace(
+            old = oldAccount,
+            new = oldAccount.copy(
+                exchangeRateDayDelta = oldAccount.exchangeRateDayDelta.updateDataWith(
+                    price.map {
+                        it.delta24h
+                    }
+                )
+            )
+        )
+    }
+}
+
 private fun DataResource<List<ModelAccount>>.withBalancedAccount(
     account: SingleAccount,
     balance: AccountBalance
 ): DataResource<List<ModelAccount>> {
-    return this.map { modelAccounts ->
-        modelAccounts.filterNot {
-            it.singleAccount == account
-        }.plus(
-            ModelAccount(
-                singleAccount = account,
+    return this.map { accounts ->
+        val oldAccount = accounts.first { it.singleAccount == account }
+        accounts.replace(
+            old = oldAccount,
+            new = oldAccount.copy(
                 balance = DataResource.Data(balance.total),
-                fiatBalance = DataResource.Data(balance.totalFiat),
+                fiatBalance = DataResource.Data(balance.totalFiat)
             )
         )
     }
@@ -188,6 +239,7 @@ data class ModelAccount(
     val singleAccount: SingleAccount,
     val balance: DataResource<Money>,
     val fiatBalance: DataResource<Money>,
+    val exchangeRateDayDelta: DataResource<Double>
 )
 
 sealed class HomeNavEvent : NavigationEvent
