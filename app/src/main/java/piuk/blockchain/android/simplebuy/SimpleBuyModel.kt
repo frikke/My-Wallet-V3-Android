@@ -606,11 +606,11 @@ class SimpleBuyModel(
                     // 2. when at least one with not enough funds has been detected.
 
                     val shouldRefreshPaymentMethods =
-                        paymentMethodsWithEnoughBalance.isNotEmpty() && paymentMethodsWithNotEnoughBalance.isNotEmpty()
+                        paymentMethodsWithEnoughBalance.isNotEmpty() &&
+                            paymentMethodsWithNotEnoughBalance.isNotEmpty() &&
+                            selectedPaymentMethod.id in paymentMethodsWithNotEnoughBalance.map { it.id }
 
-                    var paymentOptions = PaymentOptions(
-                        paymentMethodsWithEnoughBalance
-                    )
+                    val paymentOptions = PaymentOptions(paymentMethodsWithEnoughBalance)
 
                     if (shouldRefreshPaymentMethods) {
                         val newSelectedPaymentMethodId = selectedMethodId(
@@ -639,7 +639,6 @@ class SimpleBuyModel(
                             )
                         )
                     } else {
-                        paymentOptions = PaymentOptions(availablePaymentMethods)
                         process(
                             SimpleBuyIntent.UpdatedBuyLimitsAndPaymentMethods(
                                 limits = limits,
