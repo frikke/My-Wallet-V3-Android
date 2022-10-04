@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.kyc.profile
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.NabuDataManager
@@ -22,6 +23,7 @@ import kotlin.properties.Delegates
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.base.BasePresenter
+import piuk.blockchain.android.ui.kyc.address.models.OldProfileModel
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.util.StringUtils
 import timber.log.Timber
@@ -31,6 +33,7 @@ class KycProfilePresenter(
     private val userService: UserService,
     private val getUserStore: GetUserStore,
     private val stringUtils: StringUtils,
+    private val loqateFeatureFlag: FeatureFlag,
 ) : BasePresenter<KycProfileView>() {
 
     var firstNameSet by Delegates.observable(false) { _, _, _ -> enableButtonIfComplete() }
@@ -47,18 +50,31 @@ class KycProfilePresenter(
         check(view.dateOfBirth != null) { "dateOfBirth is null" }
 
         compositeDisposable += createBasicUser()
+            .andThen(loqateFeatureFlag.enabled)
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { view.showProgressDialog() }
             .doOnTerminate { view.dismissProgressDialog() }
             .doOnError(Timber::e)
             .subscribeBy(
-                onComplete = {
-                    ProfileModel(
-                        firstName = view.firstName,
-                        lastName = view.lastName,
-                        countryCode = view.countryCode,
-                        stateCode = view.stateCode,
-                    ).run { view.continueSignUp(this) }
+                onSuccess = { loqateFFEnabled ->
+                    if (loqateFFEnabled) {
+                        val profile = ProfileModel(
+                            firstName = view.firstName,
+                            lastName = view.lastName,
+                            countryCode = view.countryCode,
+                            stateCode = view.stateCode,
+                        )
+                        view.navigateToAddressVerification(profile)
+                    } else {
+                        val profile = OldProfileModel(
+                            firstName = view.firstName,
+                            lastName = view.lastName,
+                            countryCode = view.countryCode,
+                            stateCode = view.stateCode,
+                            stateName = view.stateName,
+                        )
+                        view.navigateToOldAddressVerification(profile)
+                    }
                 },
                 onError = {
                     if (it is NabuApiException &&

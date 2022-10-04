@@ -64,6 +64,7 @@ val kycUiModule = module {
                 userService = get(),
                 getUserStore = get(),
                 stringUtils = get(),
+                loqateFeatureFlag = get(loqateFeatureFlag),
             )
         }
 
