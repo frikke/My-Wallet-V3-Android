@@ -52,6 +52,7 @@ class FiatAsset(
                 )
             )
             AssetFilter.NonCustodial,
+            AssetFilter.Staking,
             AssetFilter.Interest -> Maybe.empty() // Only support single accounts
         }
 

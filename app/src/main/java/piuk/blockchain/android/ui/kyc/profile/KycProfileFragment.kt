@@ -34,6 +34,7 @@ import piuk.blockchain.android.databinding.FragmentKycProfileBinding
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
+import piuk.blockchain.android.ui.kyc.address.models.OldProfileModel
 import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
@@ -155,10 +156,18 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
         _binding = null
     }
 
-    override fun continueSignUp(profileModel: ProfileModel) {
+    override fun navigateToAddressVerification(profileModel: ProfileModel) {
         navigate(
             KycProfileFragmentDirections.actionKycProfileFragmentToKycAddressVerificationFragment(
                 profileModel
+            )
+        )
+    }
+
+    override fun navigateToOldAddressVerification(oldProfileModel: OldProfileModel) {
+        navigate(
+            KycProfileFragmentDirections.actionKycProfileFragmentToKycAutocompleteAddressFragment(
+                oldProfileModel
             )
         )
     }

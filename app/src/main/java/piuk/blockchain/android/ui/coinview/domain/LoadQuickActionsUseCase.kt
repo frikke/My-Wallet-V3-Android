@@ -32,7 +32,8 @@ class LoadQuickActionsUseCase(
         totalBalance: CoinviewAssetTotalBalance
     ): Flow<DataResource<CoinviewQuickActions>> {
         return when (accounts) {
-            is CoinviewAccounts.Universal, is CoinviewAccounts.Custodial -> {
+            is CoinviewAccounts.Universal,
+            is CoinviewAccounts.Custodial -> {
                 // center: SWAP
                 // bottom start: SELL
                 // bottom end: BUY

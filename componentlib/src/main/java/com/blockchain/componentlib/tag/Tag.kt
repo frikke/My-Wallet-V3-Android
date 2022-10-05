@@ -35,6 +35,14 @@ fun Tag(
     defaultBackgroundColor: Color,
     defaultTextColor: Color,
     borders: Boolean = false,
+    startImageResource: ImageResource = ImageResource.Local(
+        id = R.drawable.ic_info_outline,
+        colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
+    ),
+    endImageResource: ImageResource = ImageResource.Local(
+        id = R.drawable.ic_chevron_end_small,
+        colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
+    ),
     onClick: (() -> Unit)?
 ) {
 
@@ -67,14 +75,10 @@ fun Tag(
                 .clickable(onClick = action),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                imageResource = ImageResource.Local(
-                    id = R.drawable.ic_info_outline,
-                    colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
-                )
-            )
-
-            Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.minuscule_spacing)))
+            if (startImageResource != ImageResource.None) {
+                Image(imageResource = startImageResource)
+                Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.minuscule_spacing)))
+            }
 
             Text(
                 text = text,
@@ -82,14 +86,10 @@ fun Tag(
                 color = defaultTextColor
             )
 
-            Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.tiny_spacing)))
-
-            Image(
-                imageResource = ImageResource.Local(
-                    id = R.drawable.ic_chevron_end_small,
-                    colorFilter = ColorFilter.tint(defaultTextColor, blendMode = BlendMode.SrcAtop)
-                )
-            )
+            if (endImageResource != ImageResource.None) {
+                Spacer(modifier = Modifier.width(width = dimensionResource(R.dimen.tiny_spacing)))
+                Image(imageResource = endImageResource)
+            }
         }
     } ?: run {
         Text(

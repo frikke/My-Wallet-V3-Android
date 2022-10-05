@@ -90,7 +90,7 @@ class ActivitiesModel(
                             process(ActivityListUpdatedErrorIntent)
                         }
                     )
-                fetchSubscription += intent.account.balance.subscribeBy(onError = {
+                fetchSubscription += intent.account.balanceRx.subscribeBy(onError = {
                     process(BalanceUpdatedErrorIntent)
                 }, onNext = {
                     process(BalanceUpdatedIntent(it.totalFiat))

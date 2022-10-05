@@ -36,7 +36,7 @@ class TradingSellTxEngine(
         get() = TransferDirection.INTERNAL
 
     override val availableBalance: Single<Money>
-        get() = sourceAccount.balance.firstOrError().map {
+        get() = sourceAccount.balanceRx.firstOrError().map {
             it.total
         }
     override fun assertInputsValid() {

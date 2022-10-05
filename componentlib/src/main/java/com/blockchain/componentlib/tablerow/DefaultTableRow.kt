@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
@@ -38,6 +39,9 @@ fun DefaultTableRow(
         id = R.drawable.ic_chevron_end,
         contentDescription = null
     ),
+    backgroundColor: Color = AppTheme.colors.background,
+    primaryTextColor: Color = AppTheme.colors.title,
+    secondaryTextColor: Color = AppTheme.colors.body
 ) {
     DefaultTableRow(
         primaryText = buildAnnotatedString { append(primaryText) },
@@ -48,7 +52,10 @@ fun DefaultTableRow(
         tags = tags,
         endTag = endTag,
         startImageResource = startImageResource,
-        endImageResource = endImageResource
+        endImageResource = endImageResource,
+        backgroundColor = backgroundColor,
+        primaryTextColor = primaryTextColor,
+        secondaryTextColor = secondaryTextColor
     )
 }
 
@@ -66,6 +73,9 @@ fun DefaultTableRow(
         id = R.drawable.ic_chevron_end,
         contentDescription = null
     ),
+    backgroundColor: Color = AppTheme.colors.background,
+    primaryTextColor: Color = AppTheme.colors.title,
+    secondaryTextColor: Color = AppTheme.colors.body
 ) {
     TableRow(
         contentStart = {
@@ -90,14 +100,14 @@ fun DefaultTableRow(
                 Text(
                     text = primaryText,
                     style = AppTheme.typography.body2,
-                    color = AppTheme.colors.title
+                    color = primaryTextColor
                 )
                 if (secondaryText != null) {
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = secondaryText,
                         style = AppTheme.typography.paragraph1,
-                        color = AppTheme.colors.body
+                        color = secondaryTextColor
                     )
                 }
             }
@@ -152,7 +162,8 @@ fun DefaultTableRow(
                     )
                 }
             }
-        }
+        },
+        backgroundColor = backgroundColor
     )
 }
 

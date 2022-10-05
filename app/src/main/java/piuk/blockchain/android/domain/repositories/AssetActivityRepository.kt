@@ -13,7 +13,7 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.impl.AllWalletsAccount
-import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.core.common.caching.ExpiringRepository
 import com.blockchain.nabu.datamanagers.TransactionType
 import info.blockchain.balance.AssetInfo
@@ -41,7 +41,7 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
                     is AccountGroup -> {
                         account.includes(item.account)
                     }
-                    is CryptoInterestAccount -> {
+                    is CustodialInterestAccount -> {
                         account.currency == (item as? CustodialInterestActivitySummaryItem)?.asset
                     }
                     else -> {

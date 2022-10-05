@@ -29,7 +29,7 @@ class BackupWalletUtil(
     }
 
     override fun getMnemonic(secondPassword: String?): List<String>? = try {
-        payloadDataManager.wallet?.let {
+        payloadDataManager.wallet.let {
             it.decryptHDWallet(secondPassword)
             it.walletBody?.getMnemonic()?.toList()
         }

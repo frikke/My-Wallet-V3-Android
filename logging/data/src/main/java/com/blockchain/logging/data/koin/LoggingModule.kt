@@ -22,7 +22,8 @@ val loggingModule = module {
             listOf(
                 FirebaseRemoteLogger(),
                 get(embraceLogger)
-            )
+            ),
+            get()
         )
     }.bind(RemoteLogger::class)
 
@@ -43,6 +44,6 @@ val loggingModule = module {
     }
 
     single(embraceLogger) {
-        EmbraceRemoteLogger()
+        EmbraceRemoteLogger(get())
     }.bind(RemoteLogger::class)
 }

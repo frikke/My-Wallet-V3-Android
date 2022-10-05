@@ -38,7 +38,10 @@ class BuyDefiBottomSheet : ComposeModalBottomDialog() {
             button = BottomSheetButton(
                 type = ButtonType.PRIMARY,
                 text = stringResource(R.string.go_to_trading),
-                onClick = { host.goToTrading(); dismiss() }
+                onClick = {
+                    host.goToTrading()
+                    dismiss()
+                }
             )
         )
     }

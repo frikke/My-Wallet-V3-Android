@@ -105,7 +105,7 @@ class CustodialTradingAccount(
     override fun matches(other: CryptoAccount): Boolean =
         other is CustodialTradingAccount && other.currency == currency
 
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Observable.combineLatest(
             tradingService.getBalanceFor(currency),
             exchangeRates.exchangeRateToUserFiat(currency)
@@ -135,7 +135,7 @@ class CustodialTradingAccount(
         false // Default is, presently, only ever a non-custodial account.
 
     override val sourceState: Single<TxSourceState>
-        get() = balance.firstOrError().map { balance ->
+        get() = balanceRx.firstOrError().map { balance ->
             when {
                 balance.total <= Money.zero(currency) -> TxSourceState.NO_FUNDS
                 balance.withdrawable <= Money.zero(currency) -> TxSourceState.FUNDS_LOCKED
@@ -144,7 +144,7 @@ class CustodialTradingAccount(
         }
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
-        get() = balance.firstOrError().flatMap { balance ->
+        get() = balanceRx.firstOrError().flatMap { balance ->
             baseActions.map {
                 it.eligibility(balance)
             }.zipSingles()

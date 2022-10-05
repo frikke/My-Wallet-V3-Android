@@ -54,7 +54,7 @@ internal class XlmCryptoWalletAccount(
     override val isFunded: Boolean
         get() = hasFunds.get()
 
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Observable.combineLatest(
             getMinBalance(),
             exchangeRates.exchangeRateToUserFiat(currency)

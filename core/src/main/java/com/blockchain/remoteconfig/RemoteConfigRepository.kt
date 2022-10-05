@@ -41,154 +41,128 @@ class RemoteConfigRepository(
             getRemoteConfig(key) as String
         }
 
-    /* This json structure may change
-    {
-    "{returns}": {
-        "experiment": {
-            "experiment-2": {
-                "0": "WEEKLY",
-                "1": "BIWEEKLY",
-                "2": "MONTHLY"
-            }
-        }
-    },
-    "default": "WEEKLY"
-    }
-
-    {
-    "experiment-1" : 2
-    "experiment-2" : 1
-    "experiment-3" : 4
-    }
-    */
-
     private suspend fun getRemoteConfig(key: String): Any {
         val remoteConfigValue = configuration.await().getValue(key).asString()
         return deepMap(remoteConfigValue)
     }
 
-    //    private fun deepMap2(remoteConfigValue: String) {
-    //        val returnsValue: Map<String, String>
-    //        val json = json.decodeFromString<JsonObject>(remoteConfigValue)
-    //        json.forEach { key, value ->
-    //            if (isLast(json, key)) {
-    //                deepMap2(key)
-    //            } else {
-    //
-    //            }
-    //        }
-    //    }
-    //
-    //    private fun isLast(json: Map<String, Any>, key: String): Boolean {
-    //        return try {
-    //            json.getValue(key) as Map<String, Any>
-    //            true
-    //        } catch (e: NoSuchElementException) {
-    //            false
-    //        }
-    //    }
+    private suspend fun getValueFromCacheFlow(): Map<String, Int> {
+        return experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+            .filter { it !is DataResource.Loading }
+            .map { dataResourceMap ->
+                when (dataResourceMap) {
+                    is DataResource.Data -> dataResourceMap.data
+                    is DataResource.Error -> emptyMap()
+                    DataResource.Loading -> {
+                        error("experimentsStore illegal argument exception -  we should never reach this point")
+                    }
+                }
+            }
+            .firstOrNull().orEmpty()
+    }
+
+    /*
+     deepMapJson is a simple algorithm over a Map<Key, Any> to recursively traverse the tree and map it’s contents,
+     reducing it back into a Map<Key, Any>- once mapped and computed this can be then decoded into the final result.
+     */
+    private fun Map<*, *>.deepMapJson(
+        transform: (Map.Entry<*, *>) -> Pair<*, *>
+    ): Map<*, *> = map {
+        val (key, value) = transform(it)
+        when (value) {
+            is Map<*, *> -> (key to value.deepMapJson(transform))
+            is List<*> -> (
+                key to value.map { v ->
+                    if (v is Map<*, *>) v.deepMapJson(transform) else v
+                }
+                )
+            else -> (key to value)
+        }
+    }.toMap()
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    suspend fun getMapToReturn(inputJson: Map<String, Any>): Map<*, *> {
+
+        val experimentStoreValues = getValueFromCacheFlow()
+
+        return inputJson.deepMapJson {
+            val k = it.key
+            when (val v = it.value) {
+                is Map<*, *> -> {
+                    v["{returns}"]
+                        // {"{returns}":{"experiment":{"experimentName": {}}}}
+                        ?.let { returns -> returns as? Map<*, Map<*, Map<*, *>>> }
+                        ?.let { returns -> returns["experiment"] }
+                        ?.let { experiment ->
+                            if (experiment.isNotEmpty()) {
+                                experiment.keys.firstAndOnly()
+                                    ?.let { id -> Pair(id, experimentStoreValues[id]) } // find experiment id in cache
+                                    ?.let { group -> experiment[group.first]?.get(group.second.toString()) }
+                                    ?.let { config -> Pair(k, getContent(config)) }
+
+                                    ?: v["default"]?.let { default ->
+                                        Pair(k, getContent(default))
+                                    } ?: throw NoSuchElementException("Experiment value and default does not exist.")
+                            } else {
+                                v["default"]?.let { default ->
+                                    Pair(k, getContent(default))
+                                } ?: throw NoSuchElementException("Experiment value and default does not exist.")
+                            }
+                        }
+                        ?: Pair(k, getContent(v))
+                }
+                else -> Pair(k, getContent(v))
+            }
+        }
+    }
+
+    fun <T> Iterable<T>.firstAndOnly(): T? {
+        val iterator = iterator()
+        val first = iterator.next()
+        if (iterator.hasNext())
+            throw NoSuchElementException("Collection has more than one element.")
+        return first
+    }
+
     suspend fun deepMap(remoteConfigValue: String): Any {
-
-        if (remoteConfigValue.contains("{returns}") && remoteConfigValue.contains("experiment")) {
-            val json = json.decodeFromString<JsonObject>(remoteConfigValue)
-            // {"{returns}":{"experiment":{"experiment-2":{"0":"WEEKLY","1":"BIWEEKLY","2":"MONTHLY"}}},"default":"WEEKLY"}
-
-            val returnsValue: Map<String, String>
-            val jsonMap = mutableMapOf<String, Any>()
-            val titleValue = json["title"]
-            if (titleValue != null) {
-                jsonMap["title"] = getContent(titleValue)
-
-                val jsonMessage = json.getValue("message") as Map<String, String>
-                returnsValue = jsonMessage.getValue("{returns}") as Map<String, String>
-            } else {
-                returnsValue = json.getValue("{returns}") as Map<String, String>
-                // {"experiment":{"experiment-2":{"0":"WEEKLY","1":"BIWEEKLY","2":"MONTHLY"}}}
-            }
-
-            val experimentValue = returnsValue.getValue("experiment") as Map<String, String>
-            // {"experiment-2":{"0":"WEEKLY","1":"BIWEEKLY","2":"MONTHLY"}}
-
-            val experimentKey = experimentValue.keys.firstOrNull()
-            // "experiment-2"
-
-            val result = experimentKey?.let { key ->
-                val experimentValues = experimentValue[key] as Map<String, Any>
-                // {"0":"WEEKLY","1":"BIWEEKLY","2":"MONTHLY"}
-
-                getValueFromCacheFlow(experimentValues, json, key)
-            } ?: run {
-
-                tryOrCatch(json, "default")
-            }
-            val resultString = getContent(result)
-
-            return if (jsonMap.isNotEmpty() && resultString !is NoSuchElementException) {
-                jsonMap["message"] = resultString
-                jsonMap
-            } else {
-                resultString
+        return if (remoteConfigValue.contains("{returns}")) {
+            try {
+                val json = json.decodeFromString<JsonObject>(remoteConfigValue)
+                getMapToReturn(mapOf<String, Any>("key" to json))["key"] as Any
+            } catch (noSuchElementException: NoSuchElementException) {
+                noSuchElementException
+            } catch (e: Exception) {
+                remoteConfigValue
             }
         } else {
-            return remoteConfigValue
+            remoteConfigValue
         }
     }
 
-    private fun tryOrCatch(json: JsonObject, value: String): Any {
-        return try {
-            getContent(json.getValue(value))
-        } catch (exception: NoSuchElementException) {
-            exception
-        }
-    }
-
-    private fun getContent(result: Any): Any {
+    private fun getContent(result: Any?): Any? {
         return when (result) {
             is JsonPrimitive -> result.content
             is JsonNull -> result.content
             is JsonObject -> {
                 val newMap = mutableMapOf<String, Any>()
                 result.toMap().entries.forEach {
-                    newMap[it.key] = getContent(it.value)
+                    getContent(it.value)?.let { value ->
+                        newMap[it.key] = value
+                    }
                 }
                 newMap
             }
             is JsonArray -> {
                 val newList = mutableListOf<Any>()
                 result.toList().forEach {
-                    newList.add(getContent(it))
+                    getContent(it)?.let { value ->
+                        newList.add(value)
+                    }
                 }
                 newList
             }
             else -> result
         }
-    }
-
-    private suspend fun getValueFromCacheFlow(
-        experimentValues: Map<String, Any>,
-        json: JsonObject,
-        experimentKey: String
-    ): Any? {
-        return experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
-            .filter { it !is DataResource.Loading }
-            .map { dataResourceMap ->
-                when (dataResourceMap) {
-                    is DataResource.Data -> {
-                        // {"experiment-2": 0}
-                        val assignedValue = dataResourceMap.data[experimentKey]
-                        // 0
-                        experimentValues[assignedValue.toString()] ?: tryOrCatch(json, "default")
-                    }
-
-                    is DataResource.Error -> tryOrCatch(json, "default")
-
-                    DataResource.Loading -> {
-                        error("experimentsStore illegal argument exception -  we should never reach this point")
-                    }
-                }
-            }.firstOrNull()
     }
 
     private var remoteConfigFetchAndActivate: Completable? = null

@@ -22,7 +22,6 @@ import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
-import com.blockchain.koin.stxForAllFeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import org.koin.dsl.bind
@@ -122,7 +121,7 @@ val coincoreModule = module {
                 ethHotWalletAddressResolver = get(),
                 custodialWalletManager = get(),
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
-                stxForAllFeatureFlag = get(stxForAllFeatureFlag)
+                stakingService = get()
             )
         }.bind(AssetLoader::class)
 
@@ -196,6 +195,7 @@ val coincoreModule = module {
         factory {
             SwapTrendingPairsProvider(
                 coincore = get(),
+                walletModeService = get(),
                 assetCatalogue = get()
             )
         }.bind(TrendingPairsProvider::class)

@@ -29,6 +29,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark200
 import com.blockchain.componentlib.theme.Dark700
 import com.blockchain.componentlib.theme.Grey600
+import com.blockchain.componentlib.theme.White
 
 data class DialogueButton(
     val text: String,
@@ -45,7 +46,7 @@ fun DialogueCard(
 ) {
 
     val backgroundColor = if (!isSystemInDarkTheme()) {
-        Color.White
+        White
     } else {
         Dark700
     }

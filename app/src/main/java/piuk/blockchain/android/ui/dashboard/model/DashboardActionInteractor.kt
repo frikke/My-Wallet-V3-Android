@@ -117,7 +117,8 @@ class DashboardActionInteractor(
     private val settingsDataManager: SettingsDataManager,
     private val cowboysDataProvider: CowboysPromoDataProvider,
     private val referralService: ReferralService,
-    private val cowboysPrefs: CowboysPrefs
+    private val cowboysPrefs: CowboysPrefs,
+    private val stakingFeatureFlag: FeatureFlag
 ) {
 
     private val defFilter: AssetFilter
@@ -271,7 +272,7 @@ class DashboardActionInteractor(
         coincore[currency].accountGroup(defFilter)
             .logGroupLoadError(currency, defFilter)
             .flatMapObservable { group ->
-                group.balance
+                group.balanceRx
                     .logBalanceLoadError(currency, defFilter)
             }
             .doOnSubscribe {
@@ -915,6 +916,9 @@ class DashboardActionInteractor(
             Timber.e(it)
         }
     )
+
+    fun getStakingFeatureFlag(): Single<Boolean> =
+        stakingFeatureFlag.enabled
 
     companion object {
         private val FLATLINE_CHART = listOf(

@@ -297,7 +297,7 @@ class BuyAssetOrderingTest {
         tradingVolume: Double
     ) {
         val accountGroup: AccountGroup = mock {
-            on { balance }.thenReturn(Observable.just(AccountBalance.testBalance(currency, accountBalance)))
+            on { balanceRx }.thenReturn(Observable.just(AccountBalance.testBalance(currency, accountBalance)))
         }
         val prices24HrWithDelta = Prices24HrWithDelta(
             1.0,

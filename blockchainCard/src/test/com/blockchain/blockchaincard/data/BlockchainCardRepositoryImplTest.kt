@@ -102,6 +102,7 @@ class BlockchainCardRepositoryImplTest {
         expiry = "01/01",
         brand = "VISA",
         status = "ACTIVE",
+        orderStatus = null,
         createdAt = "2020-01-01",
     )
 
@@ -112,6 +113,7 @@ class BlockchainCardRepositoryImplTest {
         expiry = "01/01",
         brand = "VISA",
         status = "LOCKED",
+        orderStatus = null,
         createdAt = "2020-01-01",
     )
 
@@ -122,6 +124,7 @@ class BlockchainCardRepositoryImplTest {
         expiry = "01/01",
         brand = BlockchainCardBrand.VISA,
         status = BlockchainCardStatus.ACTIVE,
+        orderStatus = null,
         createdAt = "2020-01-01"
     )
 
@@ -132,6 +135,7 @@ class BlockchainCardRepositoryImplTest {
         expiry = "01/01",
         brand = BlockchainCardBrand.VISA,
         status = BlockchainCardStatus.LOCKED,
+        orderStatus = null,
         createdAt = "2020-01-01"
     )
 

@@ -7,9 +7,13 @@ import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
 import com.blockchain.blockchaincard.koin.blockchainCardModule
 import com.blockchain.coincore.coincoreModule
+import com.blockchain.common.util.commonMpUtilsModule
+import com.blockchain.core.experiments.experimentsTraitsModule
 import com.blockchain.core.price.pricesModule
 import com.blockchain.deeplinking.koin.deeplinkModule
 import com.blockchain.defiwalletbackup.data.koin.backupPhraseDataModule
+import com.blockchain.home.data.koin.homeDataModule
+import com.blockchain.home.presentation.koin.homePresentationModule
 import com.blockchain.koin.modules.apiInterceptorsModule
 import com.blockchain.koin.modules.appProperties
 import com.blockchain.koin.modules.applicationModule
@@ -27,10 +31,11 @@ import com.blockchain.metadata.metadataModule
 import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.notifications.koin.notificationModule
+import com.blockchain.payments.googlepay.googlePayPresentationModule
 import com.blockchain.presentation.koin.backupPhrasePresentationModule
 import com.blockchain.serializers.jsonSerializers
 import com.blockchain.store_caches_inmemory.storeCachesInMemoryModule
-import com.blockchain.store_caches_persistedjsonsqldelight.storeCachesPersistedJsonSqlDelightModule
+import com.blockchain.store_persisters_persistedjsonsqldelight.storePersistersJsonSqlDelightModule
 import com.blockchain.walletconnect.koin.walletConnectModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -98,6 +103,8 @@ object KoinStarter {
                     apiInterceptorsModule,
                     apiModule,
                     blockchainApiModule,
+                    homePresentationModule,
+                    homeDataModule,
                     applicationModule,
                     jsonSerializers,
                     coroutinesModule,
@@ -107,12 +114,12 @@ object KoinStarter {
                     bitpayModule,
                     coincoreModule,
                     transactionModule,
+                    commonMpUtilsModule,
                     okHttpModule,
                     coreModule,
                     pricesModule,
                     dashboardAnnouncementsModule,
                     environmentModule,
-
                     coinviewPresentationModule, coinviewDomainModule,
                     internalFeatureFlagsModule,
                     kycUiModule,
@@ -138,10 +145,12 @@ object KoinStarter {
                     loggingModule,
                     analyticsModule,
                     accessibilityModule,
+                    experimentsTraitsModule,
                     customerSupportModule,
                     storeCachesInMemoryModule,
-                    storeCachesPersistedJsonSqlDelightModule,
+                    storePersistersJsonSqlDelightModule,
                     blockchainCardModule,
+                    googlePayPresentationModule,
                     interestDashboardDomainModule, interestDashboardPresentationModule,
                     kycAutocompleteModule,
                     addressVerificationModule,

@@ -25,8 +25,6 @@ import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.android.inject
@@ -97,10 +95,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             btnResetPrefs.setOnClickListener { onResetPrefs() }
             btnComponentLib.setOnClickListener { onComponentLib() }
             deviceCurrency.text = "Select a new currency. Current one is ${currencyPrefs.selectedFiatCurrency}"
-
-            compositeDisposable += rxSingle { notificationPrefs.getFirebaseToken() }.subscribe { token ->
-                firebaseToken.text = token
-            }
+            firebaseToken.text = notificationPrefs.firebaseToken
 
             radioDefi.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {

@@ -73,10 +73,8 @@ android {
 
         resConfigs 'en',
                 'es',
-                'b+es+419',
                 'fr',
                 'pt',
-                'pt-rBR',
                 'ru',
                 'tr'
     }
@@ -348,12 +346,13 @@ dependencies {
     implementation project(':coincore')
     implementation project(':core')
     implementation project(':metadata')
-    implementation project(':veriff')
+    implementation project(':veriff:presentation')
     implementation project(':blockchainApi')
     implementation project(':componentlib')
     implementation project(':biometrics')
     implementation project(':walletconnect')
     implementation project(':commonarch')
+    implementation project(':common-mp:utils:data')
     implementation project(':wallet')
     implementation project(':common:interface')
     implementation project(':common:network')
@@ -361,7 +360,7 @@ dependencies {
     implementation project(':common:presentation')
     implementation project(':payments:checkoutcom')
     implementation project(':payments:stripe')
-    implementation project(':payments:googlepay')
+    implementation project(':payments:googlepay:presentation')
     implementation project(':payments:core')
     implementation project(':deeplinking')
     implementation project(':logging:domain')
@@ -371,6 +370,7 @@ dependencies {
     implementation project(':store:core')
     implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':store:caches:inmemory')
+    implementation project(':store:persisters:persistedjsonsqldelight')
     implementation project(':blockchainCard')
     implementation project(':addressVerification')
 
@@ -388,8 +388,12 @@ dependencies {
     implementation project(':appRating:domain')
     implementation project(':appRating:presentaion')
 
+    implementation project(':flowhome:presentation')
+    implementation project(':flowhome:data')
+
     implementation project(':fraud:data')
     implementation project(':fraud:domain')
+
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring

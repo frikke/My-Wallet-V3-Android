@@ -6,11 +6,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
 import androidx.annotation.VisibleForTesting
-import androidx.datastore.preferences.SharedPreferencesMigration
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AppMaintenancePrefs
@@ -23,7 +18,6 @@ import com.blockchain.preferences.BrowserIdentityMapping
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.preferences.EducationalScreensPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
@@ -33,14 +27,14 @@ import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.preferences.SuperAppMvpPrefs
+import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.crypto.AESUtil
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -60,7 +54,6 @@ class PrefsUtil(
     private val uuidGenerator: UUIDGenerator,
     private val assetCatalogue: AssetCatalogue,
     private val environmentConfig: EnvironmentConfig,
-    private val defaultSharedPreferencesName: String
 ) : SessionPrefs,
     CurrencyPrefs,
     NotificationPrefs,
@@ -69,6 +62,7 @@ class PrefsUtil(
     SecureChannelPrefs,
     SimpleBuyPrefs,
     WalletStatusPrefs,
+    TransactionPrefs,
     EncryptedPrefs,
     AuthPrefs,
     BankLinkingPrefs,
@@ -80,15 +74,8 @@ class PrefsUtil(
     NftAnnouncementPrefs,
     ReferralPrefs,
     LocalSettingsPrefs,
-    EducationalScreensPrefs,
+    SuperAppMvpPrefs,
     CowboysPrefs {
-
-    private val Context.dataStore by preferencesDataStore(
-        name = defaultSharedPreferencesName,
-        produceMigrations = { context ->
-            listOf(SharedPreferencesMigration(context, defaultSharedPreferencesName))
-        }
-    )
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -126,6 +113,11 @@ class PrefsUtil(
         get() = getValue(KEY_PRE_IDV_FAILED, false)
         set(value) = setValue(KEY_PRE_IDV_FAILED, value)
 
+    override var showTradingAccountsOnPkwMode: Boolean
+        get() = getValue(KEY_SHOW_TRADING_ON_PKW_MODE, false)
+        set(value) {
+            setValue(KEY_SHOW_TRADING_ON_PKW_MODE, value)
+        }
     override var isOnboardingComplete: Boolean
         get() = getValue(KEY_ONBOARDING_COMPLETE, false)
         set(completed) = setValue(KEY_ONBOARDING_COMPLETE, completed)
@@ -361,19 +353,13 @@ class PrefsUtil(
     }
 
     // Notification prefs
-    override suspend fun arePushNotificationsEnabled(): Boolean =
-        getValueFromDataStorage(KEY_PUSH_NOTIFICATION_ENABLED, true)
+    override var arePushNotificationsEnabled: Boolean
+        get() = getValue(KEY_PUSH_NOTIFICATION_ENABLED, true)
+        set(v) = setValue(KEY_PUSH_NOTIFICATION_ENABLED, v)
 
-    override suspend fun setPushNotificationsEnabled(pushNotificationsEnabled: Boolean) {
-        setValueInDataStorage(KEY_PUSH_NOTIFICATION_ENABLED, pushNotificationsEnabled)
-    }
-
-    override suspend fun getFirebaseToken(): String =
-        getValueFromDataStorage(KEY_FIREBASE_TOKEN, "")
-
-    override suspend fun setFirebaseToken(firebaseToken: String) {
-        setValueInDataStorage(KEY_FIREBASE_TOKEN, firebaseToken)
-    }
+    override var firebaseToken: String
+        get() = getValue(KEY_FIREBASE_TOKEN, "")
+        set(v) = setValue(KEY_FIREBASE_TOKEN, v)
 
     @SuppressLint("ApplySharedPref")
     override fun backupCurrentPrefs(encryptionKey: String, aes: AESUtilWrapper) {
@@ -573,28 +559,6 @@ class PrefsUtil(
         clearBackup()
     }
 
-    private suspend fun getValueFromDataStorage(name: String, defaultValue: String): String =
-        ctx.dataStore.data.map { preferences ->
-            preferences[stringPreferencesKey(name)] ?: defaultValue
-        }.first()
-
-    private suspend fun setValueInDataStorage(name: String, value: String) {
-        ctx.dataStore.edit { preferences ->
-            preferences[stringPreferencesKey(name)] = value
-        }
-    }
-
-    private suspend fun getValueFromDataStorage(name: String, defaultValue: Boolean): Boolean =
-        ctx.dataStore.data.map { preferences ->
-            preferences[booleanPreferencesKey(name)] ?: defaultValue
-        }.first()
-
-    private suspend fun setValueInDataStorage(name: String, value: Boolean) {
-        ctx.dataStore.edit { preferences ->
-            preferences[booleanPreferencesKey(name)] = value
-        }
-    }
-
     // Secure Channel Prefs
     override val deviceKey: String
         get() = if (has(KEY_SECURE_CHANNEL_IDENTITY_KEY)) {
@@ -761,6 +725,10 @@ class PrefsUtil(
         get() = getValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, false)
         set(value) = setValue(HAS_SEEN_EDUCATIONAL_WALLET_MODE, value)
 
+    override var shouldHighlightModeSwitch: Boolean
+        get() = getValue(SHOULD_HIGHLIGHT_MODE_SWITCH, true)
+        set(value) = setValue(SHOULD_HIGHLIGHT_MODE_SWITCH, value)
+
     override var hasSeenCowboysFlow: Boolean
         get() = getValue(HAS_SEEN_COWBOYS_FLOW, false)
         set(value) = setValue(HAS_SEEN_COWBOYS_FLOW, value)
@@ -814,6 +782,7 @@ class PrefsUtil(
         private const val SWAP_KYC_PROMO = "SWAP_KYC_PROMO"
         private const val KEY_NEWLY_CREATED_WALLET = "newly_created_wallet"
         private const val KEY_RESTORED_WALLET = "restored_wallet"
+        private const val KEY_SHOW_TRADING_ON_PKW_MODE = "SHOW_TRADING_ON_PKW_MODE"
 
         private const val TWO_FA_SMS_RETRIES = "TWO_FA_SMS_RETRIES"
         private const val KEY_EMAIL = "KEY_EMAIL"
@@ -895,6 +864,7 @@ class PrefsUtil(
 
         // Educational Screens
         private const val HAS_SEEN_EDUCATIONAL_WALLET_MODE = "has_seen_educational_wallet_mode"
+        private const val SHOULD_HIGHLIGHT_MODE_SWITCH = "should_hightlight_modes_switch"
 
         // Cowboys promo
         private const val HAS_SEEN_COWBOYS_FLOW = "has_seen_cowboys_flow"

@@ -49,6 +49,7 @@
     <string name="common_sell">Sell</string>
     <string name="common_sign">Sign</string>
     <string name="common_buy">Buy</string>
+    <string name="common_balance">Balance</string>
     <string name="common_search">Search</string>
     <string name="common_approve">Approve</string>
     <string name="common_deny">Deny</string>
@@ -330,7 +331,7 @@
     <string name="received_bitcoin_cash">Received Bitcoin Cash</string>
 
     <string name="portfolio">Portfolio</string>
-    <string name="brokerage_wallet_name" translatable="false">Trading Account</string>
+    <string name="brokerage_wallet_name" translatable="false">Accounts</string>
     <string name="brokerage_wallet_name_superapp" translatable="false">Trading</string>
     <string name="prices">Prices</string>
     <string name="send">Send</string>
@@ -1395,11 +1396,15 @@
     <string name="old_default_non_custodial_wallet_label">My %1s Wallet</string>
     <string name="default_label_all_wallets">All Wallets</string>
     <string name="default_label_rewards_wallet">Rewards Account</string>
+    <string name="default_label_staking_wallet">Staking Account</string>
+    <string name="default_label_custodial_wallets">Accounts</string>
     <string name="exchange_default_account_label_1">Exchange Account</string>
     <string name="approximately_symbol">~ %1$s</string>
     <string name="custodial_wallet_default_label_1">Trading Account</string>
     <string name="custodial_wallet_default_label_2">%s Trading Account</string>
     <string name="select_account_sheet_title">Select a Wallet</string>
+    <string name="select_account_sheet_title_defi">Select a Wallet</string>
+    <string name="select_account_sheet_title_brokerage">Select an Account</string>
     <string name="select_account_sheet_empty">You have no eligible Wallets to perform this action.</string>
     <string name="select_send_sheet_title">Send from</string>
     <string name="select_deposit_source_title">Transfer from</string>
@@ -1826,7 +1831,7 @@
 
     <!-- Buy & Sell -->
     <string name="buy_and_sell">Buy &amp; Sell</string>
-    <string name="buy_with_cash">Buy with Cash or Card.</string>
+    <string name="buy_with_cash">Buy with a bank, card, or cash.</string>
     <string name="select_crypto_you_want">Select the crypto you want to buy.</string>
     <string name="sell_intro_kyc_title_1">Verify Your Identity</string>
     <string name="sell_intro_kyc_subtitle_1">To prevent identity theft or fraud, we’ll need a make sure it’s really you by uploading an ID.</string>
@@ -2737,6 +2742,7 @@
     <string name="go_back_to_your_browser">Go back to your browser and try again.</string>
     <string name="dapp_confirmation_warning">This dapp is requesting an action, which could take money from your wallet. Make sure you trust this site.</string>
     <string name="common_chain">Chain</string>
+    <string name="common_network">Network</string>
     <string name="message_from_dapp">Message from %1s</string>
     <string name="signing_confirmation_progress_title">Signing…</string>
     <string name="signed">Signed</string>
@@ -2747,6 +2753,7 @@
     <string name="signature_request">Signature Request</string>
     <string name="no_dapps_connected">No Connected Dapps</string>
     <string name="connect_with_wallet_connect">Connect to a dapp using WalletConnect.</string>
+    <string name="wallet_connect_switch_network">Switch Network</string>
     <string name="are_you_sure">Are you sure?</string>
     <string name="you_are_about_disconnect">You\'re about to disconnect %1$s.</string>
     <plurals name="wallet_connect_connected_apps">
@@ -3011,12 +3018,12 @@
     <string name="defi_onboarding_complete_description">Your DeFi Wallet was successfully created. You DeFi wallet supports Bitcoin, Bitcoin Cash, Ethereum, |etc| and 1500 tokens.</string>
     <!-- Blockchain Card -->
     <string name="order_my_card">Order My Card</string>
-    <string name="order_card_intro">A digital card you can use instantly for online payments.</string>
+    <string name="order_card_intro">Spend your crypto or cash without fees.¹ Earn 0.5%% back in crypto.²</string>
     <string name="link_card_here">Already Have A Card? Link It Here"</string>
     <string name="virtual">Virtual</string>
     <string name="virtual_card_product_description">Our digital only card, use instantly for online payments.</string>
-    <string name="see_card_details">See Card Details</string>
-    <string name="create_card">Create Card</string>
+    <string name="see_card_benefits">See Card Benefits</string>
+    <string name="create_card">Accept &amp; Order Card</string>
     <string name="card_benefits">Card Benefits</string>
     <string name="cashback_rewards">Cashback Rewards</string>
     <string name="annual_fees">Annual Fee</string>
@@ -3050,15 +3057,15 @@
     <string name="virtual_card">Virtual Card</string>
     <string name="ready_to_use">Ready to Use</string>
     <string name="card_details">Card Details</string>
-    <string name="no_fees">No Fees</string>
-    <string name="no_fees_description">No sign up fees. No annual fees. No transaction fees.</string>
+    <string name="no_fees_title">No Fees</string>
+    <string name="no_fees_description">No sign up fees. No annual fees. No transaction fees.¹</string>
     <string name="processing">Processing</string>
     <string name="spend_from">Spend From</string>
     <string name="account_restricted">Account Restricted</string>
     <string name="feature_not_available">Feature is not available.</string>
     <string name="terms_and_conditions_label">I agree to Blockchain.com’s Terms of Service</string>
-    <string name="crypto_rewards">Crypto Rewards</string>
-    <string name="crypto_rewards_description">Earn 1%% back in crypto rewards on all your purchases.</string>
+    <string name="crypto_back_title">Crypto Back</string>
+    <string name="crypto_back_description">Earn 0.5%% back in crypto rewards on all your purchases.²</string>
     <string name="legal_info_title">The Legal Stuff</string>
     <string name="continue_to_card_dashboard">Continue to view your card dashboard.</string>
     <string name="go_to_dashboard">Go To Dashboard</string>
@@ -3109,11 +3116,12 @@
     <string name="address_verification_title">Address Verification</string>
     <string name="address_verification_description">Confirm your address below as part of a federal identity requirement.</string>
     <string name="residential_address">Residential Address</string>
-    <string name="card_intro_title">Get the Blockchain.com Visa Card</string>
+    <string name="card_intro_title">Introducing the Blockchain.com Visa® Card</string>
     <string name="merchant">Merchant</string>
     <string name="type">Type</string>
     <string name="state">State</string>
     <string name="transaction_details_title">Card Transaction</string>
+    <string name="bc_card_transaction_created">Created</string>
     <string name="bc_card_transaction_pending">Pending</string>
     <string name="bc_card_transaction_cancelled">Cancelled</string>
     <string name="bc_card_transaction_declined">Declined</string>
@@ -3128,6 +3136,9 @@
     <string name="bc_card_terms_and_conditions_label">I understand and accept the terms and conditions of the Blockchain.com Visa Card Program, the Pathward Bank Cardholder Agreement, the Pathward Bank E-Sign Agreement and the Pathward Bank Privacy Policy. I also understand and accept that these terms operate in addition to the Blockchain.com Terms of Service and Blockchain.com Privacy Policy.</string>
     <string name="bc_card_transaction_payment">Payment</string>
     <string name="bc_card_transaction_refund">Refund</string>
+    <string name="bc_card_transaction_payment_with_cashback">Payment with Cashback</string>
+    <string name="bc_card_transaction_funding">Funding</string>
+    <string name="bc_card_transaction_chargeback">Chargeback</string>
     <string name="bc_card_change_asset_title">Change Asset</string>
     <string name="bc_card_change_asset_description">Change the asset that will fund the card</string>
     <string name="bc_card_add_funds_title">Add Funds</string>
@@ -3143,6 +3154,7 @@
     <string name="bc_card_transaction_fee">Blockchain.com Fee</string>
     <string name="bc_card_transaction_original_amount">Total %1$s</string>
     <string name="bc_card_dashboard_legal_disclaimer">This Blockchain.com Visa® Card is issued by Pathward, N.A., Member FDIC, pursuant to a license from Visa U.S.A. Inc. Blockchain.com Visa card can be used everywhere Visa debit cards are accepted.</string>
+    <string name="bc_card_order_intro_legal_disclaimer">This Blockchain.com Visa® Card is issued by Pathward, N.A., Member FDIC, pursuant to a license from Visa U.S.A. Inc. Blockchain.com Visa card can be used everywhere Visa debit cards are accepted. ¹No Blockchain.com Fees but a spread applies when we sell cryptocurrencies. ²This optional offer is not a Pathward product or service nor does Pathward endorse this offer.</string>
     <string name="bc_card_transaction_refund_title">Refund by %1$s</string>
     <string name="bc_card_out_of_funds_top_up">Your card is out of funds, top up</string>
     <string name="bc_card_kyc_address_input_title">Home Address</string>
@@ -3189,10 +3201,10 @@
     <string name="educational_wallet_mode_intro_description"> We’ve made some major improvements to the Blockchain.com app.</string>
     <string name="educational_wallet_mode_menu_title">A new way to navigate</string>
     <string name="educational_wallet_mode_menu_description">Easily move between Trading Account and DeFi Wallet.</string>
-    <string name="educational_wallet_mode_defi_title">Your new home for DeFi</string>
+    <string name="educational_wallet_mode_defi_title">Your new home for Private Key Wallet</string>
     <string name="educational_wallet_mode_defi_description">Access your Private Key Wallets and engage with web3 and decentralized finance.</string>
     <string name="educational_wallet_mode_defi_secure_tag">Secured by You</string>
-    <string name="educational_wallet_mode_trading_title">Your trading account</string>
+    <string name="educational_wallet_mode_trading_title">Your accounts</string>
     <string name="educational_wallet_mode_trading_description">Access your Trading and Rewards accounts and buy and sell crypto.</string>
     <string name="educational_wallet_mode_trading_secure_tag">Secured by Blockchain.com</string>
     <string name="educational_wallet_mode_cta">Get Started</string>
@@ -3231,6 +3243,34 @@
     <string name="kyc_postcode_error">Postcode not valid</string>
     <string name="kyc_autocomplete_addresses_error">Failed to retrieve addresses</string>
     <string name="kyc_autocomplete_selected_address_error">Failed to retrieve address</string>
+    <string name="bc_card_spend_limits">Spend Limits</string>
+    <string name="bc_card_atm_limits_disclaimer">One time ATM access in 24hr period</string>
+    <string name="bc_card_atm_limits">ATM Limits</string>
+    <string name="bc_card_benefits_disclaimer">¹No Blockchain.com Fees but a spread applies when we sell cryptocurrencies. ²This optional offer is not a Pathward product or service nor does Pathward endorse this offer</string>
+    <string name="common_daily">Daily</string>
+    <string name="common_monthly">Monthly</string>
+    <string name="common_per_transaction">Per Transaction</string>
+    <string name="bc_card_daily_transaction_limit_description">30 transactions in 24hr period</string>
+    <string name="common_withdrawal">Withdrawal</string>
+    <string name="common_get_started">Get Started</string>
+    <string name="bc_card_how_to_order_title">How To Order Your Card</string>
+    <string name="bc_card_how_to_order_secondary_title">Please read the steps below to order your card before continuing on.</string>
+    <string name="bc_card_instructions_title">How Does This Work:</string>
+    <string name="bc_card_order_time_estimation">Est. time: 2 Min</string>
+    <string name="bc_card_verify_address_identity">Verify Address &amp; Identity</string>
+    <string name="bc_card_verify_address_identity_description">We are required by law to collect a small amount of personal information.</string>
+    <string name="bc_choose_order_card">Choose &amp; Order Your Card</string>
+    <string name="bc_card_choose_order_description">Choose a card that best fits you, review your order and you are done.</string>
+    <string name="bc_card_personal_data_privacy_title">Personal Data &amp; Privacy Matters</string>
+    <string name="bc_card_personal_data_privacy_description">Your personal information will never be sold, tracked or stored by Blockchain.com.</string>
+    <string name="bc_card_review_and_submit_description">Please review the information below, if correct accept the terms to finalize your order</string>
+    <string name="bc_card_want_to_update_name">Want to update your name? Contact Us</string>
+    <string name="bc_card_review_and_submit_title">Review and Submit</string>
 
+    <string name="show_trading_accounts">Show trading accounts</string>
+    <string name="secured_by_bchain">Secured by Blockchain.com</string>
+
+    <!-- multi app home-->
+    <string name="ma_home_assets_title">Assets</string>
 
 </resources>

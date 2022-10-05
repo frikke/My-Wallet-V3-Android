@@ -23,12 +23,12 @@ import piuk.blockchain.android.R
 
 class QuestionnaireSheet() : MVIBottomSheet<QuestionnaireState>(), AndroidScopeComponent {
 
-    interface Host {
+    interface Host : MVIBottomSheet.Host {
         fun questionnaireSubmittedSuccessfully()
         fun questionnaireSkipped()
     }
 
-    private val host: Host by lazy {
+    override val host: Host by lazy {
         (activity as? Host) ?: (parentFragment as? Host) ?: throw IllegalStateException(
             "Host is not a QuestionnaireFragment.Host"
         )

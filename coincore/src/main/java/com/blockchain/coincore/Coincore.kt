@@ -4,7 +4,7 @@ import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.impl.AllCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllNonCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
-import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.loader.AssetCatalogueImpl
@@ -26,6 +26,7 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.asObservable
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
@@ -92,18 +93,22 @@ class Coincore internal constructor(
             WalletMode.UNIVERSAL -> allWallets()
         }
 
-    fun activeWalletsInMode(walletMode: WalletMode): Single<AccountGroup> {
-        val assets = activeAssets(walletMode).asObservable().firstOrError()
-        return assets.flatMap {
-            if (it.isEmpty()) Single.just(allWalletsGroupForAccountsAndMode(emptyList(), walletMode))
+    fun activeWalletsInModeRx(walletMode: WalletMode): Observable<AccountGroup> {
+        val activeAssets = activeAssets(walletMode).asObservable()
+        return activeAssets.flatMap { assets ->
+            if (assets.isEmpty()) Observable.just(allWalletsGroupForAccountsAndMode(emptyList(), walletMode))
             else
-                Single.just(it).flattenAsObservable { assets -> assets }.flatMapMaybe { asset ->
+                Single.just(assets).flattenAsObservable { it }.flatMapMaybe { asset ->
                     asset.accountGroup(walletMode.defaultFilter()).map { grp -> grp.accounts }
                 }.reduce { a, l -> a + l }.switchIfEmpty(Single.just(emptyList()))
                     .map { accounts ->
                         allWalletsGroupForAccountsAndMode(accounts, walletMode)
-                    }
+                    }.toObservable()
         }
+    }
+
+    fun activeWalletsInMode(walletMode: WalletMode): Flow<AccountGroup> {
+        return activeWalletsInModeRx(walletMode).asFlow()
     }
 
     private fun allWalletsGroupForAccountsAndMode(accounts: SingleAccountList, walletMode: WalletMode) =
@@ -154,7 +159,11 @@ class Coincore internal constructor(
             .flatMapMaybe { account ->
                 account.stateAwareActions.flatMapMaybe { availableActions ->
                     val assetActions = availableActions.filter { it.state == ActionState.Available }.map { it.action }
-                    if (assetActions.containsAll(actions)) Maybe.just(account) else Maybe.empty()
+                    if (assetActions.containsAll(actions)) {
+                        Maybe.just(account)
+                    } else {
+                        Maybe.empty()
+                    }
                 }
             }
             .toList()
@@ -171,7 +180,7 @@ class Coincore internal constructor(
             AssetAction.Sell -> allFiats()
             AssetAction.Send -> sameCurrencyTransactionTargets
             AssetAction.InterestDeposit -> sameCurrencyTransactionTargets.map {
-                it.filterIsInstance<CryptoInterestAccount>()
+                it.filterIsInstance<CustodialInterestAccount>()
             }
             AssetAction.InterestWithdraw -> sameCurrencyTransactionTargets.map {
                 it.filterIsInstance<CustodialTradingAccount>()
@@ -285,7 +294,7 @@ class Coincore internal constructor(
         assetLoader.activeAssets(walletMode)
 
     fun activeWallets(walletMode: WalletMode = walletModeService.enabledWalletMode()): Single<AccountGroup> =
-        activeWalletsInMode(walletMode)
+        activeWalletsInModeRx(walletMode).firstOrError()
 
     fun availableCryptoAssets(): Single<List<AssetInfo>> =
         ethLayerTwoFF.enabled.map {

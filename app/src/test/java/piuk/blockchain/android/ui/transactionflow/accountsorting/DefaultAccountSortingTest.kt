@@ -195,7 +195,7 @@ class DefaultAccountSortingTest {
 
     private fun setAccountForAssetWithBalance(currency: Currency, accountBalance: Long): CryptoAccount {
         val singleAccount: CryptoAccount = mock {
-            on { balance }.thenReturn(Observable.just(AccountBalance.testBalance(currency, accountBalance)))
+            on { balanceRx }.thenReturn(Observable.just(AccountBalance.testBalance(currency, accountBalance)))
             on { this.currency }.thenReturn(currency as AssetInfo)
         }
         val prices24HrWithDelta = Prices24HrWithDelta(

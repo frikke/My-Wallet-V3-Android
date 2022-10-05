@@ -19,6 +19,7 @@ import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -76,7 +77,7 @@ internal class DynamicAssetLoader(
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
     private val selfCustodyService: NonCustodialService,
     private val layerTwoFeatureFlag: FeatureFlag,
-    private val stxForAllFeatureFlag: FeatureFlag,
+    private val stakingService: StakingService
 ) : AssetLoader {
 
     private val assetMap = mutableMapOf<Currency, Asset>()
@@ -274,6 +275,10 @@ internal class DynamicAssetLoader(
             .mapList { loadCustodialOnlyAsset(it) }
             .catch { emit(emptyList()) }
 
+        val activeStakingFlow = stakingService.getActiveAssets()
+            .mapList { loadCustodialOnlyAsset(it) }
+            .catch { emit(emptyList()) }
+
         val supportedFiatsFlow = custodialWalletManager.getSupportedFundsFiats()
             .mapList { FiatAsset(currency = it) }
             .catch { emit(emptyList()) }
@@ -281,10 +286,13 @@ internal class DynamicAssetLoader(
         return combine(
             activeTradingFlow,
             activeInterestFlow,
-            supportedFiatsFlow
-        ) { activeTrading, activeInterest, supportedFiats ->
+            supportedFiatsFlow,
+            activeStakingFlow,
+
+        ) { activeTrading, activeInterest, supportedFiats, activeStaking ->
             activeTrading +
                 activeInterest.filter { it.currency !in activeTrading.map { active -> active.currency } } +
+                activeStaking.filter { it.currency !in activeTrading.map { active -> active.currency } } +
                 supportedFiats
         }
     }

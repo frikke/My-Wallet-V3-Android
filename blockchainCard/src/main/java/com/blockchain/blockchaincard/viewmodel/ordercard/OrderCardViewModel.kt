@@ -43,7 +43,8 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
         legalDocuments = state.legalDocuments,
         isLegalDocReviewComplete = state.isLegalDocReviewComplete,
         singleLegalDocumentToSee = state.singleLegalDocumentToSee,
-        isAddressLoading = state.isAddressLoading
+        isAddressLoading = state.isAddressLoading,
+        userFirstAndLastName = state.userFirstAndLastName
     )
 
     override suspend fun handleIntent(
@@ -52,19 +53,22 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
     ) {
         when (intent) {
 
+            is BlockchainCardIntent.HowToOrderCard -> {
+                navigate(BlockchainCardNavigationEvent.ShowHowToOrderCard)
+            }
+
             is BlockchainCardIntent.OrderCardKYCAddress -> {
                 onIntent(BlockchainCardIntent.LoadResidentialAddress)
                 navigate(BlockchainCardNavigationEvent.OrderCardKycAddress)
             }
 
-            is BlockchainCardIntent.OrderCardSSNAddress -> {
+            is BlockchainCardIntent.OrderCardKYCSSN -> {
                 navigate(BlockchainCardNavigationEvent.OrderCardKycSSN)
             }
 
             is BlockchainCardIntent.OrderCardKycComplete -> {
                 updateState { it.copy(ssn = intent.ssn) }
-                onIntent(BlockchainCardIntent.LoadLegalDocuments)
-                navigate(BlockchainCardNavigationEvent.OrderCardConfirm)
+                navigate(BlockchainCardNavigationEvent.ChooseCardProduct)
             }
 
             is BlockchainCardIntent.LoadResidentialAddress -> {
@@ -138,6 +142,12 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
 
             is BlockchainCardIntent.OnSeeProductLegalInfo -> {
                 navigate(BlockchainCardNavigationEvent.SeeProductLegalInfo)
+            }
+
+            is BlockchainCardIntent.OnOrderCardConfirm -> {
+                onIntent(BlockchainCardIntent.LoadLegalDocuments)
+                onIntent(BlockchainCardIntent.LoadUserFirstAndLastName)
+                navigate(BlockchainCardNavigationEvent.ReviewAndSubmitCard)
             }
 
             is BlockchainCardIntent.CreateCard -> {
@@ -226,6 +236,19 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                 updateState { it.copy(isLegalDocReviewComplete = true) }
                 navigate(BlockchainCardNavigationEvent.FinishLegalDocReview)
             }
+
+            is BlockchainCardIntent.LoadUserFirstAndLastName -> {
+                blockchainCardRepository.getUserFirstAndLastName().fold(
+                    onSuccess = { firstAndLastName ->
+                        updateState { it.copy(userFirstAndLastName = firstAndLastName) }
+                    },
+                    onFailure = { error ->
+                        Timber.e("Unable to get user first and last name: $error")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                    }
+                )
+            }
+
             else -> {
                 Timber.e("Unknown intent: $intent")
             }

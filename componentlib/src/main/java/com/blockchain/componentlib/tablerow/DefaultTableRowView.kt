@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppSurface
@@ -32,6 +33,8 @@ class DefaultTableRowView @JvmOverloads constructor(
             contentDescription = null,
         )
     )
+    var primaryTextColor: ComposeColors by mutableStateOf(ComposeColors.Title)
+    var secondaryTextColor: ComposeColors by mutableStateOf(ComposeColors.Body)
 
     @Composable
     override fun Content() {
@@ -46,6 +49,8 @@ class DefaultTableRowView @JvmOverloads constructor(
                     endTag = endTag,
                     startImageResource = startImageResource,
                     endImageResource = endImageResource,
+                    primaryTextColor = primaryTextColor.toComposeColor(),
+                    secondaryTextColor = secondaryTextColor.toComposeColor()
                 )
             }
         }

@@ -226,7 +226,7 @@ class CoinViewInteractor(
     fun getAccountActions(asset: CryptoAsset, account: BlockchainAccount): Single<CoinViewViewState> = Singles.zip(
         account.stateAwareActions,
         custodialWalletManager.isCurrencyAvailableForTradingLegacy(asset.currency),
-        account.balance.firstOrError()
+        account.balanceRx.firstOrError()
     ).map { (actions, isSupportedPair, balance) ->
         assetActionsComparator.initAccount(account, balance)
 
@@ -421,7 +421,7 @@ class CoinViewInteractor(
             (it as? CryptoNonCustodialAccount)?.isArchived?.not() ?: true
         }.map { account ->
             Single.zip(
-                account.balance.firstOrError(),
+                account.balanceRx.firstOrError(),
                 account.stateAwareActions
             ) { balance, actions ->
                 DetailsItem(

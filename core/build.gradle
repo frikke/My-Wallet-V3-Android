@@ -35,12 +35,12 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':metadata')
     api project(':common:domain')
-    implementation project(':common-mp:utils')
+    implementation project(':common-mp:utils:domain')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')
-    implementation project(':veriff')
+    implementation project(':veriff:domain')
     implementation project(':blockchainApi')
-    implementation project(':payments:googlepay')
+    implementation project(':payments:googlepay:domain')
     implementation project(':store:core')
     implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':store:caches:inmemory')
@@ -60,7 +60,6 @@ dependencies {
     // Database
     implementation Libraries.sqlDelight
     implementation Libraries.rxSqlDelight
-    implementation Libraries.preferencesDataStore
 
     // Firebase
     implementation platform(Libraries.firebaseBom)

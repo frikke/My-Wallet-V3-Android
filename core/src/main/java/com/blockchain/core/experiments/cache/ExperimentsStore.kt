@@ -9,7 +9,7 @@ import com.blockchain.store_caches_inmemory.InMemoryCacheStoreBuilder
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class ExperimentsStore(
-    private val experimentsApiService: ExperimentsApiService,
+    private val experimentsApiService: ExperimentsApiService
 ) : Store<Map<String, Int>> by InMemoryCacheStoreBuilder().build(
     storeId = STORE_ID,
     fetcher = Fetcher.ofSingle(
@@ -27,9 +27,6 @@ class ExperimentsStore(
     ),
     mediator = FreshnessMediator(Freshness.ofMinutes(60L))
 ) {
-
-    override fun markAsStale() {
-    }
 
     companion object {
         private const val STORE_ID = "ExperimentsStore"

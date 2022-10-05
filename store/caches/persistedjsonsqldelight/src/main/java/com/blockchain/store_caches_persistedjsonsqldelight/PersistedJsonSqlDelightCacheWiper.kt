@@ -1,10 +1,5 @@
 package com.blockchain.store_caches_persistedjsonsqldelight
 
-import store.StorePersisterDataQueries
+import com.blockchain.store.Wiper
 
-class PersistedJsonSqlDelightCacheWiper(
-    private val storePersisterDataQueries: StorePersisterDataQueries
-) {
-
-    suspend fun wipe() = storePersisterDataQueries.deleteAll()
-}
+interface PersistedJsonSqlDelightCacheWiper : Wiper

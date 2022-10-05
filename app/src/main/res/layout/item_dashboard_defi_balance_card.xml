@@ -16,7 +16,7 @@
             style="@style/Text.Light.16"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/defi_current_balance"
+            android:text="@string/common_balance"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

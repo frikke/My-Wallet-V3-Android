@@ -29,7 +29,7 @@ class NullCryptoAccount(
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.NOT_SUPPORTED)
 
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Observable.error(NotImplementedError())
 
     override val activity: Single<ActivitySummaryList>
@@ -62,7 +62,7 @@ object NullFiatAccount : FiatAccount {
 
     override val label: String = ""
 
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Observable.error(NotImplementedError())
 
     override val activity: Single<ActivitySummaryList>

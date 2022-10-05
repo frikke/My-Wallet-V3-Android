@@ -289,7 +289,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).xpubAddress
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
         verify(bchDataManager).getAddressBalance(SOURCE_XPUB)
         verify(feeManager).bchFeeOptions
         verify(bchFeeOptions).regularFee
@@ -499,7 +499,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
     private fun fundedSourceAccount(totalBalance: Money, availableBalance: Money) =
         mock<BchCryptoWalletAccount> {
             on { currency }.thenReturn(ASSET)
-            on { balance }.thenReturn(
+            on { balanceRx }.thenReturn(
                 Observable.just(
                     AccountBalance(
                         total = totalBalance,

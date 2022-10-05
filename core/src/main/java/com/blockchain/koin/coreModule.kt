@@ -2,7 +2,6 @@ package com.blockchain.koin
 
 import android.content.Context
 import android.preference.PreferenceManager
-import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.Database
 import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
@@ -66,6 +65,10 @@ import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.core.sdd.data.SddRepository
 import com.blockchain.core.sdd.data.datasources.SddEligibilityStore
 import com.blockchain.core.sdd.domain.SddService
+import com.blockchain.core.staking.data.StakingRepository
+import com.blockchain.core.staking.data.datasources.StakingEligibilityStore
+import com.blockchain.core.staking.data.datasources.StakingRatesStore
+import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.core.user.WatchlistDataManager
@@ -89,7 +92,6 @@ import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.preferences.EducationalScreensPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
@@ -99,6 +101,8 @@ import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.preferences.SuperAppMvpPrefs
+import com.blockchain.preferences.TransactionPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.remoteconfig.RemoteConfigRepository
 import com.blockchain.storedatasource.StoreWiper
@@ -596,6 +600,26 @@ val coreModule = module {
                 authPrefs = get()
             )
         }
+
+        scoped {
+            StakingRatesStore(
+                stakingApiService = get()
+            )
+        }
+
+        scoped {
+            StakingEligibilityStore(
+                stakingApiService = get()
+            )
+        }
+
+        scoped<StakingService> {
+            StakingRepository(
+                stakingRatesStore = get(),
+                stakingFeatureFlag = get(stakingAccountFeatureFlag),
+                stakingEligibilityStore = get()
+            )
+        }
     }
 
     single {
@@ -626,12 +650,6 @@ val coreModule = module {
     }
 
     factory {
-        AndroidDeviceIdGenerator(
-            ctx = get()
-        )
-    }
-
-    factory {
         DeviceIdGeneratorImpl(
             platformDeviceIdGenerator = get(),
             analytics = get()
@@ -652,8 +670,7 @@ val coreModule = module {
             idGenerator = get(),
             uuidGenerator = get(),
             assetCatalogue = get(),
-            environmentConfig = get(),
-            defaultSharedPreferencesName = PreferenceManager.getDefaultSharedPreferencesName(get())
+            environmentConfig = get()
         )
     }.apply {
         bind(SessionPrefs::class)
@@ -665,6 +682,7 @@ val coreModule = module {
         bind(SimpleBuyPrefs::class)
         bind(WalletStatusPrefs::class)
         bind(EncryptedPrefs::class)
+        bind(TransactionPrefs::class)
         bind(AuthPrefs::class)
         bind(AppInfoPrefs::class)
         bind(BankLinkingPrefs::class)
@@ -675,7 +693,7 @@ val coreModule = module {
         bind(NftAnnouncementPrefs::class)
         bind(ReferralPrefs::class)
         bind(LocalSettingsPrefs::class)
-        bind(EducationalScreensPrefs::class)
+        bind(SuperAppMvpPrefs::class)
         bind(CowboysPrefs::class)
     }
 

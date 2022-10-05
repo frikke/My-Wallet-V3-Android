@@ -1,5 +1,6 @@
-apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
+apply plugin: 'kotlinx-serialization'
+apply plugin: 'kotlin-parcelize'
 
 dependencies {
     implementation project(':coincore')
@@ -8,7 +9,7 @@ dependencies {
     implementation project(':metadata')
     implementation project(':componentlib')
     implementation project(':common:interface')
-    implementation project(':common-mp:utils')
+    implementation project(':common-mp:utils:domain')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')
 
@@ -24,5 +25,18 @@ dependencies {
     implementation Libraries.glide
 
     // Unit Test dependencies
+    testImplementation Libraries.junit
+    testImplementation Libraries.mockito
+    testImplementation Libraries.mockk
+    testImplementation Libraries.koinTest
+    testImplementation Libraries.hamcrestJunit
+    testImplementation Libraries.kotlinJunit
+    testImplementation Libraries.kotlinCoroutinesTest
+    testImplementation Libraries.kluent
+    testImplementation(Libraries.mockitoKotlin) {
+        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
+    }
+    testImplementation Libraries.turbine
+    testImplementation project(':testutils')
     testImplementation project(':testutils-android')
 }

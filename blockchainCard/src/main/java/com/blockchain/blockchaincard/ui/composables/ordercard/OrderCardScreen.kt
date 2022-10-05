@@ -33,10 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -65,11 +63,15 @@ import com.blockchain.componentlib.system.LinearProgressBar
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.system.Webview
 import com.blockchain.componentlib.tablerow.DefaultTableRow
+import com.blockchain.componentlib.tag.Tag
+import com.blockchain.componentlib.tag.TagSize
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.theme.UltraLight
+import com.blockchain.componentlib.theme.White
 
 @Composable
 fun OrderCard(
@@ -78,7 +80,7 @@ fun OrderCard(
     OrderCardIntro(
         onOrderCard = {
             viewModel.onIntent(
-                BlockchainCardIntent.OrderCardKYCAddress
+                BlockchainCardIntent.HowToOrderCard
             )
         }
     )
@@ -135,7 +137,7 @@ fun OrderCardIntro(onOrderCard: () -> Unit) {
             Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
 
             SimpleText(
-                text = stringResource(R.string.bc_card_dashboard_legal_disclaimer),
+                text = stringResource(R.string.bc_card_order_intro_legal_disclaimer),
                 style = ComposeTypographies.Caption1,
                 color = ComposeColors.Dark,
                 gravity = ComposeGravities.Centre
@@ -148,6 +150,142 @@ fun OrderCardIntro(onOrderCard: () -> Unit) {
 @Composable
 private fun OrderCardIntroPreview() {
     OrderCardIntro { }
+}
+
+@Composable
+fun HowToOrderCard(onCloseBottomSheet: () -> Unit, onContinue: () -> Unit) {
+    val backgroundColor = if (!isSystemInDarkTheme()) {
+        White
+    } else {
+        Dark800
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing)
+            .background(backgroundColor)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = CenterHorizontally
+    ) {
+        SheetHeader(
+            title = stringResource(id = R.string.blockchain_card),
+            onClosePress = onCloseBottomSheet,
+            shouldShowDivider = false
+        )
+
+        Image(
+            painter = painterResource(id = R.drawable.card_with_badge),
+            contentDescription = stringResource(id = R.string.blockchain_card)
+        )
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.mediumSpacing))
+
+        SimpleText(
+            text = stringResource(R.string.bc_card_how_to_order_title),
+            style = ComposeTypographies.Title3,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre
+        )
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+        SimpleText(
+            text = stringResource(R.string.bc_card_how_to_order_secondary_title),
+            style = ComposeTypographies.Body1,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Centre
+        )
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            SimpleText(
+                text = stringResource(R.string.bc_card_instructions_title),
+                style = ComposeTypographies.Paragraph2,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Start
+            )
+
+            Tag(
+                text = stringResource(R.string.bc_card_order_time_estimation),
+                size = TagSize.Primary,
+                defaultBackgroundColor = Grey000,
+                defaultTextColor = AppTheme.colors.title,
+                startImageResource = ImageResource.None,
+                endImageResource = ImageResource.None,
+                onClick = {},
+            )
+        }
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+        Card(
+            shape = AppTheme.shapes.medium,
+            elevation = 0.dp,
+            border = BorderStroke(width = AppTheme.dimensions.borderSmall, color = AppTheme.colors.body)
+        ) {
+            DefaultTableRow(
+                primaryText = stringResource(R.string.bc_card_verify_address_identity),
+                secondaryText = stringResource(R.string.bc_card_verify_address_identity_description),
+                startImageResource = ImageResource.Local(id = R.drawable.ic_one_circle),
+                endImageResource = ImageResource.None,
+                onClick = {},
+            )
+        }
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+        Card(
+            shape = AppTheme.shapes.medium,
+            elevation = 0.dp,
+            border = BorderStroke(width = AppTheme.dimensions.borderSmall, color = AppTheme.colors.body)
+        ) {
+            DefaultTableRow(
+                primaryText = stringResource(R.string.bc_choose_order_card),
+                secondaryText = stringResource(R.string.bc_card_choose_order_description),
+                startImageResource = ImageResource.Local(id = R.drawable.ic_two_circle),
+                endImageResource = ImageResource.None,
+                onClick = {},
+            )
+        }
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
+
+        Card(
+            shape = AppTheme.shapes.medium,
+            elevation = 0.dp,
+            border = BorderStroke(width = 1.dp, color = Grey000)
+        ) {
+            DefaultTableRow(
+                primaryText = stringResource(R.string.bc_card_personal_data_privacy_title),
+                secondaryText = stringResource(R.string.bc_card_personal_data_privacy_description),
+                startImageResource = ImageResource.Local(id = R.drawable.ic_security),
+                endImageResource = ImageResource.None,
+                onClick = {},
+                backgroundColor = UltraLight
+            )
+        }
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
+
+        PrimaryButton(
+            text = stringResource(R.string.common_get_started),
+            onClick = onContinue,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewHowToOrderCard() {
+    HowToOrderCard({}, {})
 }
 
 @Composable
@@ -367,107 +505,78 @@ private fun OrderCardSsnKYCPreview() {
 
 @Composable
 fun OrderCardContent(
-    isLegalDocReviewComplete: Boolean = false,
-    onCreateCard: () -> Unit,
+    onContinue: () -> Unit,
     onSeeProductDetails: () -> Unit,
-    onSeeLegalDocuments: () -> Unit,
 ) {
-    Column(
-        horizontalAlignment = CenterHorizontally,
-        modifier = Modifier
-            .padding(
-                start = AppTheme.dimensions.standardSpacing,
-                end = AppTheme.dimensions.standardSpacing,
-                bottom = AppTheme.dimensions.standardSpacing
-            )
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.card_front),
-            contentDescription = stringResource(id = R.string.blockchain_card)
-        )
 
-        SimpleText(
-            modifier = Modifier.fillMaxWidth(),
-            text = stringResource(id = R.string.virtual),
-            style = ComposeTypographies.Title2,
-            color = ComposeColors.Title,
-            gravity = ComposeGravities.Centre
-        )
-
-        SimpleText(
-            modifier = Modifier.fillMaxWidth(),
-            text = stringResource(id = R.string.order_card_intro),
-            style = ComposeTypographies.Paragraph1,
-            color = ComposeColors.Body,
-            gravity = ComposeGravities.Centre
-        )
-
-        MinimalButton(
-            text = stringResource(R.string.see_card_details),
-            onClick = onSeeProductDetails,
-            state = ButtonState.Enabled,
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            horizontalAlignment = CenterHorizontally,
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(
-                    vertical = AppTheme.dimensions.standardSpacing
+                    start = AppTheme.dimensions.standardSpacing,
+                    end = AppTheme.dimensions.standardSpacing,
+                    bottom = AppTheme.dimensions.standardSpacing
                 )
-                .wrapContentWidth(),
-            shape = AppTheme.shapes.extraLarge
-        )
-
-        SimpleText(
-            text = stringResource(R.string.bc_card_dashboard_legal_disclaimer),
-            style = ComposeTypographies.Caption1,
-            color = ComposeColors.Dark,
-            gravity = ComposeGravities.Centre
-        )
-
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
-
-        val termsAndConditionsCheckboxState = remember { mutableStateOf(CheckboxState.Unchecked) }
-
-        Row(
-            modifier = Modifier
-                .wrapContentHeight()
-                .padding(bottom = AppTheme.dimensions.largeSpacing),
-            verticalAlignment = Alignment.CenterVertically
         ) {
-            Checkbox(
-                modifier = Modifier.padding(dimensionResource(R.dimen.very_small_spacing)),
-                state = termsAndConditionsCheckboxState.value,
-                onCheckChanged = { checked ->
-                    if (checked) {
-                        if (isLegalDocReviewComplete) {
-                            termsAndConditionsCheckboxState.value = CheckboxState.Checked
-                        } else {
-                            onSeeLegalDocuments()
-                        }
-                    } else {
-                        termsAndConditionsCheckboxState.value = CheckboxState.Unchecked
-                    }
-                },
+            Image(
+                painter = painterResource(id = R.drawable.card_front),
+                contentDescription = stringResource(id = R.string.blockchain_card)
             )
 
-            ExpandableSimpleText(
-                text = stringResource(id = R.string.bc_card_terms_and_conditions_label),
-                style = ComposeTypographies.Caption1,
+            SimpleText(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.virtual),
+                style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
-                gravity = ComposeGravities.Start,
+                gravity = ComposeGravities.Centre
+            )
+
+            SimpleText(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.order_card_intro),
+                style = ComposeTypographies.Paragraph1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Centre
+            )
+
+            MinimalButton(
+                text = stringResource(R.string.see_card_benefits),
+                onClick = onSeeProductDetails,
+                state = ButtonState.Enabled,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onSeeLegalDocuments() },
-                maxLinesWhenCollapsed = 3
+                    .padding(
+                        vertical = AppTheme.dimensions.standardSpacing
+                    )
+                    .wrapContentWidth(),
+                shape = AppTheme.shapes.extraLarge
             )
         }
 
-        PrimaryButton(
-            text = stringResource(id = R.string.create_card),
-            onClick = onCreateCard,
-            modifier = Modifier.fillMaxWidth(),
-            state = when (termsAndConditionsCheckboxState.value) {
-                CheckboxState.Checked -> ButtonState.Enabled
-                else -> ButtonState.Disabled
-            }
-        )
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.standardSpacing)
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = CenterHorizontally
+        ) {
+
+            SimpleText(
+                text = stringResource(R.string.bc_card_dashboard_legal_disclaimer),
+                style = ComposeTypographies.Caption1,
+                color = ComposeColors.Dark,
+                gravity = ComposeGravities.Centre
+            )
+
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+            PrimaryButton(
+                text = stringResource(id = R.string.common_continue),
+                onClick = onContinue,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
@@ -476,73 +585,236 @@ fun OrderCardContent(
 private fun PreviewOrderCardContent() {
     AppTheme(darkTheme = false) {
         AppSurface {
-            OrderCardContent(false, { }, {}, {})
+            OrderCardContent({}, {})
         }
     }
 }
 
 @Composable
 fun ProductDetails(
-    onCloseProductDetailsBottomSheet: () -> Unit,
-    onSeeProductLegalInfo: () -> Unit
+    onCloseProductDetailsBottomSheet: () -> Unit
 ) {
 
     val backgroundColor = if (!isSystemInDarkTheme()) {
-        Color.White
+        White
     } else {
         Dark800
     }
 
     Column(
-        horizontalAlignment = CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
+            .padding(AppTheme.dimensions.smallSpacing)
             .background(backgroundColor)
+            .verticalScroll(rememberScrollState())
     ) {
 
         SheetHeader(
-            title = stringResource(id = R.string.virtual_card),
-            startImageResource = ImageResource.Local(
-                id = R.drawable.credit_card,
-                contentDescription = null,
-            ),
-            onClosePress = onCloseProductDetailsBottomSheet
+            title = stringResource(id = R.string.card_benefits),
+            onClosePress = onCloseProductDetailsBottomSheet,
+            shouldShowDivider = false
         )
 
-        DefaultTableRow(
-            primaryText = stringResource(id = R.string.no_fees),
-            secondaryText = stringResource(id = R.string.no_fees_description),
-            startImageResource = ImageResource.Local(
-                id = R.drawable.flag,
-                contentDescription = null,
-            ),
-            endImageResource = ImageResource.None,
-            onClick = {},
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+        SimpleText(
+            text = stringResource(R.string.card_benefits),
+            style = ComposeTypographies.Paragraph2,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Start
         )
 
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
 
-        DefaultTableRow(
-            primaryText = stringResource(id = R.string.crypto_rewards),
-            secondaryText = stringResource(id = R.string.crypto_rewards_description),
-            startImageResource = ImageResource.Local(
-                id = R.drawable.present,
-                contentDescription = null,
-            ),
-            endImageResource = ImageResource.None,
-            onClick = {},
+        Card(
+            shape = AppTheme.shapes.medium,
+            elevation = 0.dp,
+            border = BorderStroke(width = 1.dp, color = Grey000)
+        ) {
+            DefaultTableRow(
+                primaryText = stringResource(id = R.string.no_fees_title),
+                secondaryText = stringResource(id = R.string.no_fees_description),
+                startImageResource = ImageResource.Local(id = R.drawable.ic_flag),
+                endImageResource = ImageResource.None,
+                onClick = {},
+                backgroundColor = UltraLight
+            )
+        }
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+        Card(
+            shape = AppTheme.shapes.medium,
+            elevation = 0.dp,
+            border = BorderStroke(width = 1.dp, color = Grey000)
+        ) {
+            DefaultTableRow(
+                primaryText = stringResource(id = R.string.crypto_back_title),
+                secondaryText = stringResource(id = R.string.crypto_back_description),
+                startImageResource = ImageResource.Local(id = R.drawable.ic_gift),
+                endImageResource = ImageResource.None,
+                onClick = {},
+                backgroundColor = UltraLight
+            )
+        }
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+        // Spend Limits
+        SimpleText(
+            text = stringResource(R.string.bc_card_spend_limits),
+            style = ComposeTypographies.Paragraph2,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Start
         )
 
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
 
-        DefaultTableRow(
-            primaryText = stringResource(id = R.string.legal_info_title),
-            startImageResource = ImageResource.Local(
-                id = R.drawable.list_bullets,
-                contentDescription = null,
-            ),
-            onClick = onSeeProductLegalInfo,
+        Card(
+            shape = AppTheme.shapes.medium,
+            elevation = 0.dp,
+            border = BorderStroke(width = 1.dp, color = Grey000),
+            backgroundColor = UltraLight
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+
+                // Daily
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(AppTheme.dimensions.smallSpacing)
+                ) {
+                    SimpleText(
+                        text = stringResource(R.string.common_daily),
+                        style = ComposeTypographies.Body1,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
+                    )
+
+                    SimpleText(
+                        text = "$2,500", // TODO(labreu): hardcoded until BE provides this
+                        style = ComposeTypographies.Body1,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
+                    )
+                }
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                // Monthly
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(AppTheme.dimensions.smallSpacing)
+                ) {
+                    SimpleText(
+                        text = stringResource(R.string.common_monthly),
+                        style = ComposeTypographies.Body1,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
+                    )
+
+                    SimpleText(
+                        text = "$75,000", // TODO(labreu): hardcoded until BE provides this
+                        style = ComposeTypographies.Body1,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
+                    )
+                }
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                // Per Transaction
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(AppTheme.dimensions.smallSpacing)
+                ) {
+                    SimpleText(
+                        text = stringResource(R.string.common_per_transaction),
+                        style = ComposeTypographies.Body1,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
+                    )
+
+                    SimpleText(
+                        text = "$2,500", // TODO(labreu): hardcoded until BE provides this
+                        style = ComposeTypographies.Body1,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+        SimpleText(
+            text = stringResource(R.string.bc_card_daily_transaction_limit_description),
+            style = ComposeTypographies.Caption1,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Start
+        )
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+        SimpleText(
+            text = stringResource(R.string.bc_card_atm_limits),
+            style = ComposeTypographies.Paragraph2,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Start
+        )
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+        Card(
+            shape = AppTheme.shapes.medium,
+            elevation = 0.dp,
+            border = BorderStroke(width = 1.dp, color = Grey000),
+            backgroundColor = UltraLight
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.smallSpacing)
+            ) {
+                SimpleText(
+                    text = stringResource(R.string.common_withdrawal),
+                    style = ComposeTypographies.Body1,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Start
+                )
+
+                SimpleText(
+                    text = "$1,000/daily", // TODO(labreu): hardcoded until BE provides this
+                    style = ComposeTypographies.Body1,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Start
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+        SimpleText(
+            text = stringResource(R.string.bc_card_atm_limits_disclaimer),
+            style = ComposeTypographies.Paragraph2,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Start
+        )
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+        SimpleText(
+            text = stringResource(R.string.bc_card_benefits_disclaimer),
+            style = ComposeTypographies.Caption1,
+            color = ComposeColors.Dark,
+            gravity = ComposeGravities.Centre
         )
     }
 }
@@ -552,9 +824,181 @@ fun ProductDetails(
 fun PreviewProductDetails() {
     AppTheme(darkTheme = false) {
         AppSurface {
-            ProductDetails({}, {})
+            ProductDetails({})
         }
     }
+}
+
+@Composable
+fun ReviewAndSubmit(
+    firstAndLastName: String?,
+    line1: String?,
+    city: String?,
+    postalCode: String?,
+    isLegalDocReviewComplete: Boolean = false,
+    onCheckBillingAddress: () -> Unit,
+    onSeeLegalDocuments: () -> Unit,
+    onCreateCard: () -> Unit,
+) {
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.standardSpacing)
+        ) {
+
+            SimpleText(
+                text = stringResource(R.string.bc_card_review_and_submit_title),
+                style = ComposeTypographies.Title3,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Start
+            )
+
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+            SimpleText(
+                text = stringResource(R.string.bc_card_review_and_submit_description),
+                style = ComposeTypographies.Paragraph1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Start
+            )
+
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
+
+            // Full Name
+            SimpleText(
+                text = stringResource(R.string.full_name),
+                style = ComposeTypographies.Paragraph1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+            firstAndLastName?.let {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    border = BorderStroke(1.dp, Grey000),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = 0.dp
+                ) {
+                    DefaultTableRow(
+                        primaryText = firstAndLastName,
+                        secondaryText = stringResource(R.string.bc_card_want_to_update_name),
+                        onClick = {},
+                        endImageResource = ImageResource.None
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+            // Home Address
+            SimpleText(
+                text = stringResource(R.string.bc_card_kyc_address_input_title),
+                style = ComposeTypographies.Paragraph1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                border = BorderStroke(1.dp, Grey000),
+                shape = RoundedCornerShape(16.dp),
+                elevation = 0.dp
+            ) {
+                line1?.let {
+                    DefaultTableRow(
+                        primaryText = line1,
+                        secondaryText = "$city, $postalCode",
+                        onClick = onCheckBillingAddress,
+                        endImageResource = ImageResource.Local(
+                            R.drawable.ic_edit,
+                            colorFilter = ColorFilter.tint(AppTheme.colors.primary)
+                        )
+                    )
+                }
+            }
+        }
+
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.standardSpacing)
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = CenterHorizontally
+        ) {
+
+            val termsAndConditionsCheckboxState = remember { mutableStateOf(CheckboxState.Unchecked) }
+            Row(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .padding(bottom = AppTheme.dimensions.largeSpacing),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Checkbox(
+                    modifier = Modifier.padding(AppTheme.dimensions.tinySpacing),
+                    state = termsAndConditionsCheckboxState.value,
+                    onCheckChanged = { checked ->
+                        if (checked) {
+                            if (isLegalDocReviewComplete) {
+                                termsAndConditionsCheckboxState.value = CheckboxState.Checked
+                            } else {
+                                onSeeLegalDocuments()
+                            }
+                        } else {
+                            termsAndConditionsCheckboxState.value = CheckboxState.Unchecked
+                        }
+                    },
+                )
+
+                ExpandableSimpleText(
+                    text = stringResource(id = R.string.bc_card_terms_and_conditions_label),
+                    style = ComposeTypographies.Caption1,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onSeeLegalDocuments() },
+                    maxLinesWhenCollapsed = 3
+                )
+            }
+
+            PrimaryButton(
+                text = stringResource(id = R.string.create_card),
+                onClick = onCreateCard,
+                modifier = Modifier.fillMaxWidth(),
+                state = when (termsAndConditionsCheckboxState.value) {
+                    CheckboxState.Checked -> ButtonState.Enabled
+                    else -> ButtonState.Disabled
+                }
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewReviewAndSubmit() {
+    ReviewAndSubmit(
+        firstAndLastName = "Jason Bourne",
+        line1 = "1330 Rivera Court Apt 204...",
+        city = "Sacramento",
+        postalCode = "CA 93401",
+        onCheckBillingAddress = { /*TODO*/ },
+        onSeeLegalDocuments = { /*TODO*/ },
+        onCreateCard = { /*TODO*/ }
+    )
 }
 
 @Composable
@@ -564,7 +1008,7 @@ fun ProductLegalInfo(
     onSeeLegalDocument: (BlockchainCardLegalDocument) -> Unit
 ) {
     val backgroundColor = if (!isSystemInDarkTheme()) {
-        Color.White
+        White
     } else {
         Dark800
     }
@@ -623,7 +1067,9 @@ fun CardCreationInProgress() {
         CircularProgressIndicator()
         SimpleText(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(R.string.processing), style = ComposeTypographies.Title3, color = ComposeColors.Body,
+            text = stringResource(R.string.processing),
+            style = ComposeTypographies.Title3,
+            color = ComposeColors.Body,
             gravity = ComposeGravities.Centre
         )
     }

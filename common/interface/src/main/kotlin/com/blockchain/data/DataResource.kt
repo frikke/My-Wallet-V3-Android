@@ -22,6 +22,24 @@ fun <T, R> DataResource<T>.map(transform: (T) -> R): DataResource<R> {
     }
 }
 
+fun <T> DataResource<T>.doOnLoading(f: () -> Unit): DataResource<T> {
+    return also {
+        if (this is DataResource.Loading) f()
+    }
+}
+
+fun <T> DataResource<T>.doOnData(f: (T) -> Unit): DataResource<T> {
+    return also {
+        if (this is DataResource.Data) f(this.data)
+    }
+}
+
+fun <T> DataResource<T>.doOnError(f: (Exception) -> Unit): DataResource<T> {
+    return also {
+        if (this is DataResource.Error) f(this.error)
+    }
+}
+
 fun <T> List<DataResource<T>>.anyLoading() = any { it is DataResource.Loading }
 fun <T> List<DataResource<T>>.anyError() = any { it is DataResource.Error }
 fun <T> List<DataResource<T>>.getFirstError() = (first { it is DataResource.Error } as DataResource.Error)
@@ -137,5 +155,13 @@ fun <T, R> combineDataResources(
         else -> {
             DataResource.Data(transform(results.map { (it as DataResource.Data).data }))
         }
+    }
+}
+
+fun <T> DataResource<T>.updateDataWith(updated: DataResource<T>): DataResource<T> {
+    return when (this) {
+        DataResource.Loading -> updated
+        is DataResource.Error -> updated
+        is DataResource.Data -> if (updated is DataResource.Data) updated else this
     }
 }

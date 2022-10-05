@@ -30,7 +30,7 @@ import piuk.blockchain.android.util.putAccount
 class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
 
     interface Host {
-        fun navigateToActionSheet(actions: Array<StateAwareAction>)
+        fun navigateToActionSheet(actions: Array<StateAwareAction>, account: BlockchainAccount)
     }
 
     val host: Host by lazy {
@@ -70,7 +70,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
                             type = ButtonType.PRIMARY,
                             text = account.buttonText,
                             onClick = {
-                                host.navigateToActionSheet(accountActions)
+                                host.navigateToActionSheet(accountActions, selectedAccount)
                                 explainerAcceptedToAnalytics(selectedAccount, networkTicker)
                                 super.dismiss()
                             }

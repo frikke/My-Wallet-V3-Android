@@ -67,7 +67,6 @@ class AvailableBalanceView @JvmOverloads constructor(
     }
 
     fun onClick(onClick: () -> Unit) {
-        this.isTappable = true
         this.onClick = onClick
     }
 
@@ -116,7 +115,7 @@ fun TxFlowEnterAmountBalanceRow(
                 horizontal = dimensionResource(id = R.dimen.standard_spacing),
                 vertical = dimensionResource(R.dimen.tiny_spacing)
             )
-            .clickable(enabled = isTappable, onClick = onClick)
+            .clickable(enabled = true, onClick = onClick)
     ) {
         SimpleText(
             text = labelText, style = ComposeTypographies.Caption1, color = ComposeColors.Muted,
@@ -153,16 +152,6 @@ fun enterAmountView_notTappable() {
     AppTheme {
         AppSurface {
             TxFlowEnterAmountBalanceRow(labelText = "test", amountText = "12345$", onClick = {})
-        }
-    }
-}
-
-@Preview
-@Composable
-fun enterAmountView_Tappable() {
-    AppTheme {
-        AppSurface {
-            TxFlowEnterAmountBalanceRow(labelText = "test", amountText = "12345$", onClick = {}, isTappable = true)
         }
     }
 }

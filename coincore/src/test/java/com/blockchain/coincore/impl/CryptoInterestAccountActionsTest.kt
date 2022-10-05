@@ -155,8 +155,8 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
             }
     }
 
-    private fun configureActionSubject(): CryptoInterestAccount =
-        CryptoInterestAccount(
+    private fun configureActionSubject(): CustodialInterestAccount =
+        CustodialInterestAccount(
             label = "Test Account",
             currency = TEST_ASSET,
             exchangeRates = exchangeRates,

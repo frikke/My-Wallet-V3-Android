@@ -20,6 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.chrome.ListStateInfo
+import com.blockchain.componentlib.chrome.extractStatesInfo
+import com.blockchain.componentlib.swiperefresh.SwipeRefreshWithoutOverscroll
 import com.blockchain.componentlib.theme.AppTheme
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.delay

@@ -13,6 +13,8 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
 import java.math.BigInteger
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.rx3.asFlow
 
 data class AccountBalance internal constructor(
     val total: Money,
@@ -80,7 +82,10 @@ interface BlockchainAccount {
 
     val label: String
 
-    val balance: Observable<AccountBalance>
+    val balanceRx: Observable<AccountBalance>
+
+    val balance: Flow<AccountBalance>
+        get() = balanceRx.asFlow()
 
     val activity: Single<ActivitySummaryList>
 
@@ -125,6 +130,7 @@ interface TradingAccount
 interface NonCustodialAccount
 interface BankAccount
 interface ExchangeAccount
+interface StakingAccount
 
 typealias SingleAccountList = List<SingleAccount>
 
@@ -187,9 +193,9 @@ interface AccountGroup : BlockchainAccount {
 
 interface SameCurrencyAccountGroup : AccountGroup {
     val currency: Currency
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Single.just(accounts).flattenAsObservable { it }.flatMapSingle {
-            it.balance.firstOrError()
+            it.balanceRx.firstOrError()
         }.reduce { a, v ->
             AccountBalance.totalOf(a, v)
         }.toObservable()
@@ -199,13 +205,13 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
     /**
      * Balance is calculated in the selected fiat currency
      */
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() =
             if (accounts.isEmpty())
                 Observable.just(AccountBalance.zero(baseCurrency))
             else
                 Single.just(accounts).flattenAsObservable { it }.flatMapSingle { account ->
-                    account.balance.firstOrError()
+                    account.balanceRx.firstOrError()
                 }.reduce { a, v ->
                     AccountBalance(
                         total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),

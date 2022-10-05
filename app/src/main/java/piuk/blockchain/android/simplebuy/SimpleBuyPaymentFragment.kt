@@ -888,7 +888,7 @@ class SimpleBuyPaymentFragment :
                 arguments = Bundle().apply {
                     putBoolean(IS_PAYMENT_AUTHORISED, isFromDeepLink)
                     putBoolean(RECURRING_BUY_TOGGLE, showRecurringBuySuggestion)
-                    putSerializable(RECURRING_BUY_REMOTE, recurringBuyFrequency)
+                    putString(RECURRING_BUY_REMOTE, recurringBuyFrequency?.name)
                 }
             }
     }
