@@ -123,7 +123,15 @@ class AddNewCardFragment :
                 addTextChangedListener(cardTextWatcher)
                 attachListener(object : CardNumberEditText.CardNumberListener {
                     override fun onPaste() {
-                        model.process(CardIntent.CheckProviderFailureRate(cardNumber.text.toString()))
+                        val cardNumberValue = cardNumber.text.toString()
+
+                        if (cardNumberValue.length >= CARD_BIN_LENGTH) {
+                            model.process(
+                                CardIntent.CheckProviderFailureRate(
+                                    cardNumberValue.substring(0, CARD_BIN_LENGTH)
+                                )
+                            )
+                        }
                     }
 
                     override fun onCut() {

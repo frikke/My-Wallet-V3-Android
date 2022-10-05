@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppTheme
@@ -24,7 +25,8 @@ private fun TableRow(
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
-    onContentClicked: (() -> Unit)? = null
+    onContentClicked: (() -> Unit)? = null,
+    backgroundColor: Color = AppTheme.colors.background
 ) {
 
     Column(
@@ -38,7 +40,7 @@ private fun TableRow(
                     this
                 }
             }
-            .background(AppTheme.colors.background)
+            .background(backgroundColor)
             .padding(paddingValues)
     ) {
         Row(
@@ -61,7 +63,8 @@ fun TableRow(
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
-    onContentClicked: (() -> Unit)? = null
+    onContentClicked: (() -> Unit)? = null,
+    backgroundColor: Color = AppTheme.colors.background
 ) {
     TableRow(
         paddingValues = PaddingValues(
@@ -72,7 +75,8 @@ fun TableRow(
         contentStart = contentStart,
         contentEnd = contentEnd,
         contentBottom = contentBottom,
-        onContentClicked = onContentClicked
+        onContentClicked = onContentClicked,
+        backgroundColor = backgroundColor
     )
 }
 

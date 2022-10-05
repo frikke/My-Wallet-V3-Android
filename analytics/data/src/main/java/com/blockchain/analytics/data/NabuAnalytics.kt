@@ -4,9 +4,9 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsContextProvider
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.AnalyticsLocalPersistence
+import com.blockchain.analytics.NabuAnalyticsEvent
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.services.AnalyticsService
-import com.blockchain.api.services.NabuAnalyticsEvent
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.RemoteLogger
@@ -18,9 +18,9 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.lang.IllegalArgumentException
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -129,15 +129,19 @@ class NabuAnalytics(
     }
 
     private fun postEvents(events: List<NabuAnalyticsEvent>): Completable =
-        tokenStore.getAccessToken().firstOrError().flatMapCompletable {
-            analyticsService.postEvents(
-                events = events,
-                id = id,
-                analyticsContext = analyticsContextProvider.context(),
-                platform = "WALLET",
-                device = "APP-Android",
-                authorization = if (it is Optional.Some) it.element.authHeader else null
-            )
+        rxSingle {
+            analyticsContextProvider.context()
+        }.flatMapCompletable { context ->
+            tokenStore.getAccessToken().firstOrError().flatMapCompletable {
+                analyticsService.postEvents(
+                    events = events,
+                    id = id,
+                    analyticsContext = context,
+                    platform = "WALLET",
+                    device = "APP-Android",
+                    authorization = if (it is Optional.Some) it.element.authHeader else null
+                )
+            }
         }
 
     override fun logEventOnce(analyticsEvent: AnalyticsEvent) {}

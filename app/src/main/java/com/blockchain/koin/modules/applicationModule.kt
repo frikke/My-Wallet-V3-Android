@@ -30,6 +30,7 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
+import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -42,11 +43,6 @@ import com.blockchain.network.websocket.newBlockchainWebSocket
 import com.blockchain.payments.checkoutcom.CheckoutCardProcessor
 import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
-import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
-import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptorImpl
-import com.blockchain.payments.googlepay.interceptor.PaymentDataMapper
-import com.blockchain.payments.googlepay.manager.GooglePayManager
-import com.blockchain.payments.googlepay.manager.GooglePayManagerImpl
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.ui.password.SecondPasswordHandler
@@ -59,7 +55,6 @@ import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -454,7 +449,8 @@ val applicationModule = module {
                 rbFrequencySuggestionFF = get(rbFrequencyFeatureFlag),
                 cardRejectionFF = get(cardRejectionCheckFeatureFlag),
                 rbExperimentFF = get(rbExperimentFeatureFlag),
-                remoteConfigRepository = get()
+                remoteConfigRepository = get(),
+                quickFillRoundingService = get()
             )
         }
 
@@ -670,7 +666,8 @@ val applicationModule = module {
                 deeplinkRedirector = get(),
                 destinationArgs = get(),
                 notificationManager = get(),
-                analytics = get()
+                analytics = get(),
+                stakingFF = get(stakingAccountFeatureFlag)
             )
         }
 
@@ -883,24 +880,6 @@ val applicationModule = module {
             checkoutFactory = get()
         )
     }.bind(CardProcessor::class)
-
-    single {
-        GooglePayManagerImpl(
-            environmentConfig = get(),
-            context = get()
-        )
-    }.bind(GooglePayManager::class)
-
-    single {
-        PaymentDataMapper()
-    }
-
-    factory {
-        GooglePayResponseInterceptorImpl(
-            paymentDataMapper = get(),
-            coroutineContext = Dispatchers.IO
-        )
-    }.bind(GooglePayResponseInterceptor::class)
 }
 
 fun getCardProcessors(): List<CardProcessor> {

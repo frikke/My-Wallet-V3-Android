@@ -47,6 +47,7 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.blockchain.componentlib.chrome.ANIMATION_DURATION
 import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.cancelChildren

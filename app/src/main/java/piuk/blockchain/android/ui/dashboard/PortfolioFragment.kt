@@ -54,6 +54,7 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
 import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.cowboys.CowboysFlowActivity
 import piuk.blockchain.android.ui.cowboys.FlowStep
@@ -132,6 +133,8 @@ class PortfolioFragment :
     private val dashboardPrefs: DashboardPrefs by inject()
     private val assetResources: AssetResources by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
+    private val momentLogger: MomentLogger by inject()
+
     private var activeFiat = currencyPrefs.selectedFiatCurrency
 
     private val theAdapter: PortfolioDelegateAdapter by lazy {
@@ -140,6 +143,7 @@ class PortfolioFragment :
             assetCatalogue = get(),
             onCardClicked = { onAssetClicked(it) },
             analytics = get(),
+            walletModeService = get(),
             onFundsItemClicked = { onFundsClicked(it) },
             assetResources = assetResources,
             onHoldAmountClicked = { onHoldAmountClicked(it) }
@@ -189,8 +193,6 @@ class PortfolioFragment :
             }
         }
     }
-
-    private val momentLogger: MomentLogger by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -335,11 +337,18 @@ class PortfolioFragment :
             }
             is DashboardNavigationAction.Coinview -> {
                 activityResultsContract.launch(
-                    CoinViewActivity.newIntent(
-                        context = requireContext(),
-                        asset = navigationAction.asset,
-                        originScreen = LaunchOrigin.HOME.name,
-                    )
+                    if (state?.isStakingEnabled == true) {
+                        CoinViewActivityV2.newIntent(
+                            context = requireContext(),
+                            asset = navigationAction.asset
+                        )
+                    } else {
+                        CoinViewActivity.newIntent(
+                            context = requireContext(),
+                            asset = navigationAction.asset,
+                            originScreen = LaunchOrigin.HOME.name,
+                        )
+                    }
                 )
                 model.process(DashboardIntent.ResetNavigation)
             }
@@ -638,6 +647,7 @@ class PortfolioFragment :
         model.process(DashboardIntent.CheckCowboysFlow)
         model.process(DashboardIntent.GetActiveAssets(loadSilently = true))
         model.process(DashboardIntent.FetchReferralSuccess)
+        model.process(DashboardIntent.LoadStakingFlag)
     }
 
     // This method doesn't get called when we use the split portfolio/prices dashboard.
@@ -733,7 +743,6 @@ class PortfolioFragment :
     private fun onAssetClicked(asset: AssetInfo) {
         analytics.logEvent(assetActionEvent(AssetDetailsAnalytics.WALLET_DETAILS, asset))
         model.process(
-
             DashboardIntent.UpdateNavigationAction(
                 DashboardNavigationAction.Coinview(
                     asset = asset

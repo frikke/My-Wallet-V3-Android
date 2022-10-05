@@ -42,7 +42,7 @@ class OnChainSellTxEngine(
         get() = TransferDirection.FROM_USERKEY
 
     override val availableBalance: Single<Money>
-        get() = sourceAccount.balance.firstOrError().map {
+        get() = sourceAccount.balanceRx.firstOrError().map {
             it.total
         }
 

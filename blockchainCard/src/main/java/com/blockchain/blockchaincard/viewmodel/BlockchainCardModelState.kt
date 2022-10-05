@@ -23,6 +23,7 @@ data class BlockchainCardModelState(
     val shortTransactionList: List<BlockchainCardTransaction>? = null,
     val pendingTransactions: List<BlockchainCardTransaction>? = null,
     val completedTransactionsGroupedByMonth: Map<String?, List<BlockchainCardTransaction>>? = null,
+    val nextPageId: String? = null,
     val selectedCardTransaction: BlockchainCardTransaction? = null,
     val ssn: String? = null,
     val countryStateList: List<Region.State>? = null,

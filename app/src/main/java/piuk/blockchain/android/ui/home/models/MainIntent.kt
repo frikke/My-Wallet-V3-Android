@@ -62,7 +62,7 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    class UpdateViewToLaunch(private val nextState: ViewToLaunch) : MainIntent() {
+    class UpdateViewToLaunch(val nextState: ViewToLaunch) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(
                 viewToLaunch = nextState
@@ -99,6 +99,14 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
+    class SelectNetworkForWCSession(val session: WalletConnectSession) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    class GetNetworkInfoForWCSession(val session: WalletConnectSession) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
     class SwitchWalletMode(val walletMode: WalletMode) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
@@ -119,5 +127,14 @@ sealed class MainIntent : MviIntent<MainState> {
 
     data class ProcessPendingDeeplinkIntent(val deeplinkIntent: Intent) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    object LoadStakingFlag : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState.copy()
+    }
+
+    class UpdateStakingFlag(private val isStakingEnabled: Boolean) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState =
+            oldState.copy(isStakingEnabled = isStakingEnabled)
     }
 }

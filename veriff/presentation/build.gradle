@@ -1,0 +1,19 @@
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
+
+android {
+    lintOptions {
+        baseline file("lint-baseline.xml")
+        warningsAsErrors true
+        abortOnError true
+    }
+}
+
+dependencies {
+    api project(":veriff:domain")
+    implementation Libraries.kotlin
+    implementation Libraries.veriff
+    implementation Libraries.jjwt
+    implementation(Libraries.retrofit) { exclude module: 'okhttp' }
+    implementation Libraries.okHttp
+    implementation Libraries.okHttpInterceptor
+}

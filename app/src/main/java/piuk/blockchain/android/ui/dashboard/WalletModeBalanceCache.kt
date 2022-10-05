@@ -16,7 +16,7 @@ class WalletModeBalanceCache(private val coincore: Coincore) : KeyedStore<
     storeId = "WalletModeBalanceCache",
     fetcher = Fetcher.Keyed.ofSingle(
         mapper = { walletMode: WalletMode ->
-            coincore.activeWalletsInMode(walletMode).flatMap { it.balance.firstOrError() }
+            coincore.activeWalletsInModeRx(walletMode).firstOrError().flatMap { it.balanceRx.firstOrError() }
         }
     ),
     mediator = FreshnessMediator(Freshness.ofMinutes(30))

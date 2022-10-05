@@ -35,7 +35,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         )
 
         val account: CryptoAccount = mock {
-            on { balance }.thenReturn(Observable.just(accountBalance))
+            on { balanceRx }.thenReturn(Observable.just(accountBalance))
         }
 
         val subject = CryptoAccountNonCustodialGroup(
@@ -45,7 +45,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         )
 
         // Act
-        subject.balance.test()
+        subject.balanceRx.test()
             .assertComplete()
             .assertValue {
                 it.total == accountBalance.total &&
@@ -66,7 +66,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         )
 
         val account1: CryptoAccount = mock {
-            on { balance }.thenReturn(Observable.just(accountBalance1))
+            on { balanceRx }.thenReturn(Observable.just(accountBalance1))
         }
 
         val accountBalance2 = AccountBalance(
@@ -76,7 +76,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
             exchangeRate = TEST_TO_USER_RATE
         )
         val account2: CryptoAccount = mock {
-            on { balance }.thenReturn(Observable.just(accountBalance2))
+            on { balanceRx }.thenReturn(Observable.just(accountBalance2))
         }
 
         val subject = CryptoAccountNonCustodialGroup(
@@ -86,7 +86,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         )
 
         // Act
-        subject.balance.test()
+        subject.balanceRx.test()
             .assertComplete()
             .assertValue {
                 it.total == accountBalance1.total + accountBalance2.total &&

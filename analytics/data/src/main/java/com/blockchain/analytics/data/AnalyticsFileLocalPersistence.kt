@@ -2,7 +2,7 @@ package com.blockchain.analytics.data
 
 import android.content.Context
 import com.blockchain.analytics.AnalyticsLocalPersistence
-import com.blockchain.api.services.NabuAnalyticsEvent
+import com.blockchain.analytics.NabuAnalyticsEvent
 import com.blockchain.nabu.filesystem.QueueFile
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single

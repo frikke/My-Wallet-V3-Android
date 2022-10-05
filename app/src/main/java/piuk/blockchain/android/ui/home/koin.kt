@@ -1,7 +1,8 @@
 package piuk.blockchain.android.ui.home
 
-import com.blockchain.analytics.data.TraitsService
+import com.blockchain.analytics.TraitsService
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.superAppModeService
 import com.blockchain.walletmode.WalletModeService
@@ -55,7 +56,9 @@ val mainModule = module {
                 secureChannelService = get(),
                 cancelOrderUseCase = get(),
                 referralPrefs = get(),
-                referralRepository = get()
+                referralRepository = get(),
+                ethDataManager = get(),
+                stakingAccountFlag = get(stakingAccountFeatureFlag)
             )
         }
 

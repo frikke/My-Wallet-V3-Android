@@ -87,6 +87,15 @@ class DashboardModel(
                 process(DashboardIntent.GetActiveAssets(true))
                 null
             }
+            is DashboardIntent.LoadStakingFlag ->
+                interactor.getStakingFeatureFlag().subscribeBy(
+                    onSuccess = {
+                        process(DashboardIntent.UpdateStakingFlag(it))
+                    },
+                    onError = {
+                        process(DashboardIntent.UpdateStakingFlag(false))
+                    }
+                )
             is DashboardIntent.ShowBankLinkingWithAlias,
             is DashboardIntent.ShowReferralSuccess,
             is DashboardIntent.BalanceUpdateError,
@@ -114,7 +123,8 @@ class DashboardModel(
             DashboardIntent.NoActiveAssets,
             is DashboardIntent.BalanceFetching,
             is DashboardIntent.UpdateNavigationAction,
-            is DashboardIntent.UpdateCowboysViewState -> null
+            is DashboardIntent.UpdateCowboysViewState,
+            is DashboardIntent.UpdateStakingFlag -> null
         }.exhaustive
     }
 

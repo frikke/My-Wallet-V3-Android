@@ -1,10 +1,14 @@
 package piuk.blockchain.android.ui.multiapp.composable
 
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.blockchain.componentlib.chrome.ChromeScreen
+import com.blockchain.componentlib.chrome.ListStateInfo
+import com.blockchain.home.presentation.ui.HomeScreen
 import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
 
 @Composable
@@ -18,11 +22,16 @@ fun MultiAppNavigationGraph(
 ) {
     NavHost(navController, startDestination = ChromeBottomNavigationItem.Home.route) {
         composable(ChromeBottomNavigationItem.Home.route) {
-            DemoScreen(
+            val listState = rememberLazyListState()
+            ChromeScreen(
                 modifier = modifier,
-                tag = "Home",
-                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Home, it)) },
-                isPullToRefreshEnabled = enableRefresh,
+                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Trade, it)) },
+                content = {
+                    HomeScreen(
+                        listState = listState
+                    )
+                },
+                listState = listState,
                 refreshStarted = refreshStarted,
                 refreshComplete = refreshComplete
             )

@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.interest.presentation
 
 import app.cash.turbine.test
 import com.blockchain.coincore.impl.CryptoAccountTradingGroup
-import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.kyc.domain.model.KycTiers
@@ -59,7 +59,7 @@ class InterestDashboardViewModelTest {
         coEvery { getAccountGroupUseCase(any(), any()) } returns
             Outcome.Success(
                 CryptoAccountTradingGroup(
-                    "label", listOf(mockk<CryptoInterestAccount>())
+                    "label", listOf(mockk<CustodialInterestAccount>())
                 )
             )
 

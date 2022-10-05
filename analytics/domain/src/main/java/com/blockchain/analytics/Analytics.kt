@@ -23,8 +23,6 @@ interface UserAnalytics {
         const val FUNDED_COINS = "funded_coins"
         const val USD_BALANCE = "usd_balance"
         const val COWBOYS_USER = "cowboys_user"
-        const val IS_SUPERAPP_MVP = "is_superapp_mvp"
-        const val WALLET_MODE = "app_mode"
     }
 }
 

@@ -134,7 +134,8 @@ data class DashboardState(
     val canPotentiallyTransactWithBanks: Boolean = true,
     val showedAppRating: Boolean = false,
     val referralSuccessData: Pair<String, String>? = null,
-    val dashboardCowboysState: DashboardCowboysState = DashboardCowboysState.Hidden
+    val dashboardCowboysState: DashboardCowboysState = DashboardCowboysState.Hidden,
+    val isStakingEnabled: Boolean = false
 ) : MviState, DashboardBalanceStateHost {
 
     override val dashboardBalance: DashboardBalance?

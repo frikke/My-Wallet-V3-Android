@@ -17,6 +17,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
+import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
@@ -178,7 +179,7 @@ internal class BlockchainCardRepositoryImpl(
     override suspend fun loadAccountBalance(
         tradingAccount: BlockchainAccount
     ): Outcome<BlockchainCardError, AccountBalance> =
-        tradingAccount.balance.firstOrError().awaitOutcome().wrapBlockchainCardError()
+        tradingAccount.balanceRx.firstOrError().awaitOutcome().wrapBlockchainCardError()
 
     override suspend fun getAsset(networkTicker: String): Outcome<BlockchainCardError, AssetInfo> =
         assetCatalogue.assetInfoFromNetworkTicker(networkTicker)?.let { asset ->
@@ -213,8 +214,11 @@ internal class BlockchainCardRepositoryImpl(
                 response.firstName + " " + response.lastName
             }.wrapBlockchainCardError()
 
-    override suspend fun getTransactions(): Outcome<BlockchainCardError, List<BlockchainCardTransaction>> =
-        blockchainCardService.getTransactions().map { response ->
+    override suspend fun getTransactions(
+        limit: Int?,
+        toId: String?
+    ): Outcome<BlockchainCardError, List<BlockchainCardTransaction>> =
+        blockchainCardService.getTransactions(limit = limit, toId = toId).map { response ->
             response.map { it.toDomainModel() }
         }.wrapBlockchainCardError()
 
@@ -259,6 +263,7 @@ internal class BlockchainCardRepositoryImpl(
             expiry = expiry,
             brand = BlockchainCardBrand.valueOf(brand),
             status = BlockchainCardStatus.valueOf(status),
+            orderStatus = orderStatus?.let { BlockchainCardOrderStatus.valueOf(it) },
             createdAt = createdAt
         )
 

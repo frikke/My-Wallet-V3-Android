@@ -75,7 +75,10 @@ interface BlockchainCardRepository {
 
     suspend fun getUserFirstAndLastName(): Outcome<BlockchainCardError, String>
 
-    suspend fun getTransactions(): Outcome<BlockchainCardError, List<BlockchainCardTransaction>>
+    suspend fun getTransactions(
+        limit: Int? = null,
+        toId: String? = null
+    ): Outcome<BlockchainCardError, List<BlockchainCardTransaction>>
 
     suspend fun getStatesList(countryCode: String): Outcome<BlockchainCardError, List<Region.State>>
 

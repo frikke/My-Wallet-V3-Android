@@ -545,7 +545,5 @@ class SwapTargetAccountSortingTest {
 
     private fun verifyMomentEvents(event: MomentEvent) {
         verify(momentLogger).startEvent(event)
-        verify(momentLogger).endEvent(event)
-        verifyNoMoreInteractions(momentLogger)
     }
 }

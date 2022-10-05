@@ -230,21 +230,19 @@ class EnterAmountFragment :
                 upperSlot?.update(newState)
                 upperSecondSlot?.update(newState)
 
-                if (frameUpperSecondSlot.getChildAt(0) is AvailableBalanceView) {
-                    (frameUpperSecondSlot.getChildAt(0) as AvailableBalanceView).onClick {
-                        newState.pendingTx?.let { pTx ->
-                            showBottomSheet(
-                                TxFeeExplanationBottomSheet.newInstance(
-                                    title = customiser.getFeeSheetTitle(newState),
-                                    displayTicker = newState.maxSpendable.currencyCode,
-                                    availableLabel = customiser.getFeeSheetAvailableLabel(newState),
-                                    totalBalance = state.convertBalanceToFiat(pTx.totalBalance, state.fiatRate),
-                                    estimatedFee = state.convertBalanceToFiat(pTx.feeAmount, state.fiatRate),
-                                    availableBalance = state.convertBalanceToFiat(pTx.availableBalance, state.fiatRate),
-                                    isTransactionFree = pTx.feeSelection.selectedLevel == FeeLevel.None
-                                )
+                (frameUpperSecondSlot.getChildAt(0) as? AvailableBalanceView)?.onClick {
+                    newState.pendingTx?.let { pTx ->
+                        showBottomSheet(
+                            TxFeeExplanationBottomSheet.newInstance(
+                                title = customiser.getFeeSheetTitle(newState),
+                                displayTicker = newState.maxSpendable.currencyCode,
+                                availableLabel = customiser.getFeeSheetAvailableLabel(newState),
+                                totalBalance = state.convertBalanceToFiat(pTx.totalBalance, state.fiatRate),
+                                estimatedFee = state.convertBalanceToFiat(pTx.feeAmount, state.fiatRate),
+                                availableBalance = state.convertBalanceToFiat(pTx.availableBalance, state.fiatRate),
+                                isTransactionFree = pTx.feeSelection.selectedLevel == FeeLevel.None
                             )
-                        }
+                        )
                     }
                 }
 

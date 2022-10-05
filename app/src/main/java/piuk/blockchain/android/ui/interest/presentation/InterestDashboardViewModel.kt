@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.interest.presentation
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AssetFilter
-import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.kyc.domain.KycService
@@ -144,7 +144,7 @@ class InterestDashboardViewModel(
         viewModelScope.launch {
             getAccountGroupUseCase(cryptoCurrency = cryptoCurrency, filter = AssetFilter.Interest).let { result ->
                 result.doOnSuccess {
-                    val interestAccount = it.accounts.first() as CryptoInterestAccount
+                    val interestAccount = it.accounts.first() as CustodialInterestAccount
                     navigate(
                         if (hasBalance) {
                             InterestDashboardNavigationEvent.InterestSummary(interestAccount)

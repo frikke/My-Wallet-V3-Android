@@ -74,9 +74,9 @@ private class ComplexConfirmationCheckoutItemItemViewHolder(
 
                 this[ConfirmationPropertyKey.IS_IMPORTANT]?.let { isImportant ->
                     if (isImportant as Boolean) {
-                        subtitleText.setTextAppearance(R.style.Text_Semibold_16)
+                        complexItemTitle.setTextAppearance(R.style.Text_Semibold_16)
                     } else {
-                        subtitleText.setTextAppearance(R.style.Text_Standard_14)
+                        complexItemTitle.setTextAppearance(R.style.Text_Standard_14)
                     }
                 }
             }

@@ -4,8 +4,8 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.StateAwareAction
-import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.AssetCategory
@@ -74,7 +74,7 @@ class StateAwareActionsComparatorTest {
             StateAwareAction(ActionState.Available, AssetAction.ViewActivity),
             StateAwareAction(ActionState.Available, AssetAction.Sign)
         )
-        val account: CryptoInterestAccount = mock()
+        val account: CustodialInterestAccount = mock()
         val balance: AccountBalance = mock {
             on { total }.thenReturn(Money.zero(testAsset))
         }

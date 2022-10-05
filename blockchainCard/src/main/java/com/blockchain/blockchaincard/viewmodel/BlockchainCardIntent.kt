@@ -14,6 +14,7 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object LoadLegalDocuments : BlockchainCardIntent()
 
     // Order Card
+    object HowToOrderCard : BlockchainCardIntent()
     data class OrderCardKycComplete(val ssn: String) : BlockchainCardIntent()
     object RetryOrderCard : BlockchainCardIntent()
     object LinkCard : BlockchainCardIntent()
@@ -26,11 +27,12 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object OnSeeProductLegalInfo : BlockchainCardIntent()
     object ManageCard : BlockchainCardIntent()
     object OrderCardKYCAddress : BlockchainCardIntent()
-    object OrderCardSSNAddress : BlockchainCardIntent()
+    object OrderCardKYCSSN : BlockchainCardIntent()
     data class OnSeeSingleLegalDocument(val legalDocument: BlockchainCardLegalDocument) : BlockchainCardIntent()
     object OnSeeLegalDocuments : BlockchainCardIntent()
     data class OnLegalDocSeen(val name: String) : BlockchainCardIntent()
     object OnFinishLegalDocReview : BlockchainCardIntent()
+    object OnOrderCardConfirm : BlockchainCardIntent()
 
     // ManageCard
     object LockCard : BlockchainCardIntent()
@@ -58,6 +60,7 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object ConfirmCloseCard : BlockchainCardIntent()
     object LoadUserFirstAndLastName : BlockchainCardIntent()
     object LoadTransactions : BlockchainCardIntent()
+    object LoadNextTransactionsPage : BlockchainCardIntent()
     object RefreshTransactions : BlockchainCardIntent()
     object SeeCardLostPage : BlockchainCardIntent()
     object SeeFAQPage : BlockchainCardIntent()

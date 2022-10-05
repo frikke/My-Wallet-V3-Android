@@ -96,7 +96,7 @@ class DynamicOnChanTxEngine(
         require(amount is CryptoValue)
         require(amount.currency == sourceAsset)
 
-        return sourceAccount.balance.firstOrError().map { balance ->
+        return sourceAccount.balanceRx.firstOrError().map { balance ->
             pendingTx.copy(
                 amount = amount,
                 totalBalance = balance.total,
@@ -206,7 +206,7 @@ class DynamicOnChanTxEngine(
         }
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
-        sourceAccount.balance.firstOrError().map { it.withdrawable }
+        sourceAccount.balanceRx.firstOrError().map { it.withdrawable }
             .map { balance ->
                 if (pendingTx.amount > balance) {
                     throw TxValidationFailure(

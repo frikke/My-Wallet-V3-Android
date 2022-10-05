@@ -10,6 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TrendingPair
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemTrendingPairRowBinding
 import piuk.blockchain.android.databinding.ViewTrendingPairsBinding
@@ -93,21 +96,28 @@ private class TrendingPairsAdapter(
     private val items: List<TrendingPair>,
     private val assetResources: AssetResources
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
+    private val compositeDisposable = CompositeDisposable()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         TrendingPairViewHolder(
-            ItemTrendingPairRowBinding.inflate(LayoutInflater.from(parent.context), parent, false), itemClicked
+            ItemTrendingPairRowBinding.inflate(LayoutInflater.from(parent.context), parent, false), itemClicked,
+            compositeDisposable
         )
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as TrendingPairViewHolder).bind(type, items[position], assetResources)
     }
 
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        compositeDisposable.clear()
+        super.onViewDetachedFromWindow(holder)
+    }
+
     override fun getItemCount(): Int = items.size
 
     private class TrendingPairViewHolder(
         private val binding: ItemTrendingPairRowBinding,
-        val itemClicked: (TrendingPair) -> Unit
+        private val itemClicked: (TrendingPair) -> Unit,
+        private val compositeDisposable: CompositeDisposable
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(type: TrendingPairsView.TrendingType, item: TrendingPair, assetResources: AssetResources) {
@@ -118,13 +128,21 @@ private class TrendingPairsAdapter(
                     contentDescription =
                         "$TRENDING_PAIR_SWAP_VIEW_ID${item.sourceAccount.currency.networkTicker}" +
                         "$FOR_CONTENT_DESCRIPTION${item.destinationAccount.currency.networkTicker}"
-                    if (item.enabled) {
-                        setOnClickListener { itemClicked(item) }
-                        alpha = 1f
-                    } else {
+                    compositeDisposable += item.enabled.doOnSubscribe {
                         setOnClickListener(null)
                         alpha = 0.6f
-                    }
+                    }.subscribeBy(onSuccess = { enabled ->
+                        alpha = if (enabled) {
+                            setOnClickListener { itemClicked(item) }
+                            1f
+                        } else {
+                            setOnClickListener(null)
+                            0.6f
+                        }
+                    }, onError = {
+                        setOnClickListener(null)
+                        alpha = 0.6f
+                    })
                 }
 
                 when (type) {

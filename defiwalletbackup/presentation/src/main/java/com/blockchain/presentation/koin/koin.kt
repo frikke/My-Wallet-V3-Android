@@ -19,6 +19,7 @@ val backupPhrasePresentationModule = module {
                 backupPhraseService = get(),
                 settingsDataManager = get(),
                 backupPrefs = get(),
+                analytics = get(),
                 walletStatusPrefs = get(),
                 authPrefs = get()
             )

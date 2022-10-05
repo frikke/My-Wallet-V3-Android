@@ -25,7 +25,7 @@ dependencies {
     implementation project(':common:network')
     implementation project(':common:interface')
     implementation project(':common:domain')
-    implementation project(':common-mp:utils')
+    implementation project(':common-mp:utils:domain')
     implementation project(':blockchainApi')
     implementation project(':store:core')
 

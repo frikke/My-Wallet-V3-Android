@@ -1,7 +1,9 @@
 package com.blockchain.store_caches_inmemory
 
+import com.blockchain.store.Wiper
+
 class InMemoryCacheWiper(
     private val provider: InMemoryCacheProvider
-) {
-    suspend fun wipe() = provider.wipeAll()
+) : Wiper {
+    override suspend fun wipe() = provider.wipeAll()
 }

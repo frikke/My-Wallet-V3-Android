@@ -138,7 +138,7 @@ class NotificationsModelTest {
     fun togglePushNotificationsOn_success() {
         whenever(defaultState.emailNotificationsEnabled).thenReturn(true)
         whenever(defaultState.pushNotificationsEnabled).thenReturn(false)
-        whenever(interactor.arePushNotificationsEnabled()).thenReturn(Single.just(false))
+        whenever(interactor.arePushNotificationsEnabled()).thenReturn(false)
         whenever(interactor.enablePushNotifications()).thenReturn(Completable.complete())
 
         val testState = model.state.test()
@@ -155,7 +155,7 @@ class NotificationsModelTest {
     fun togglePushNotificationsOff_success() {
         whenever(defaultState.emailNotificationsEnabled).thenReturn(true)
         whenever(defaultState.pushNotificationsEnabled).thenReturn(true)
-        whenever(interactor.arePushNotificationsEnabled()).thenReturn(Single.just(true))
+        whenever(interactor.arePushNotificationsEnabled()).thenReturn(true)
         whenever(interactor.disablePushNotifications()).thenReturn(Completable.complete())
 
         val testState = model.state.test()
@@ -172,7 +172,7 @@ class NotificationsModelTest {
     fun togglePushNotifications_error() {
         whenever(defaultState.emailNotificationsEnabled).thenReturn(true)
         whenever(defaultState.pushNotificationsEnabled).thenReturn(true)
-        whenever(interactor.arePushNotificationsEnabled()).thenReturn(Single.just(true))
+        whenever(interactor.arePushNotificationsEnabled()).thenReturn(true)
         whenever(interactor.disablePushNotifications()).thenReturn(Completable.error(Exception()))
 
         val testState = model.state.test()

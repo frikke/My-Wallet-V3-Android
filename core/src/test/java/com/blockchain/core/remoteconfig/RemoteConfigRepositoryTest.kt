@@ -43,31 +43,31 @@ import org.junit.Test
 
     @Test
     fun `GIVEN deepMap for key experiment == null THEN return default value`() = runTest {
-        val mapReturned = mapOf("experiment-no-existent" to 1)
+        val mapReturned = mapOf("experiment-1" to 1)
         val flowResult = flowOf(DataResource.Data(mapReturned))
         coEvery {
             experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
         } returns flowResult
         val default = "WEEKLY"
-        val result = remoteConfigRepository.deepMap(experimentJson)
+        val result = remoteConfigRepository.deepMap(experimentJsonNoKey)
         assertTrue { result == default }
     }
 
     @Test
     fun `GIVEN deepMap for key experiment == null and default doesn't exist THEN return throw error`() = runTest {
-        val mapReturned = mapOf("experiment-no-existent" to 1)
+        val mapReturned = mapOf("experiment-1" to 1)
         val flowResult = flowOf(DataResource.Data(mapReturned))
         coEvery {
             experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
         } returns flowResult
         val error = NoSuchElementException()
-        val result = remoteConfigRepository.deepMap(experimentJsonNoDefault)
+        val result = remoteConfigRepository.deepMap(experimentJsonNoKeyNoDefault)
         assertTrue { (result as Throwable).cause == error.cause }
     }
 
     @Test
     fun `GIVEN deepMap for key and rootJson != {returns} WHEN Data is success THEN returns expected type`() = runTest {
-        val mapReturned = mapOf("experiment-1" to 1)
+        val mapReturned = mapOf("experiment-1" to 1, "experiment-2" to 0)
         val flowResult = flowOf(DataResource.Data(mapReturned))
         coEvery {
             experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
@@ -81,7 +81,7 @@ import org.junit.Test
     }
 
     @Test
-    fun `GIVEN deepMap for key and rootJson != {returns} and experimentKey == null WHEN Data is success THEN returns Error`() =
+    fun `GIVEN deepMap for experimentValue no existent and no default WHEN Data is success THEN returns Error`() =
         runTest {
             val mapReturned = mapOf("experiment-1" to 13)
             val flowResult = flowOf(DataResource.Data(mapReturned))
@@ -94,7 +94,7 @@ import org.junit.Test
         }
 
     @Test
-    fun `GIVEN deepMap for key WHEN Data is success THEN returns Map`() =
+    fun `GIVEN deepMap for rootJson == {returns} WHEN Data is success THEN returns Map`() =
         runTest {
             val mapReturned = mapOf("experiment-1" to 0)
 
@@ -171,6 +171,11 @@ import org.junit.Test
 
     @Test
     fun `GIVEN deepMap for key WHEN experimentKey is missing THEN returns default value String`() = runTest {
+        val mapReturned = emptyMap<String, Int>()
+        val flowResult = flowOf(DataResource.Data(mapReturned))
+        coEvery {
+            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+        } returns flowResult
         val result = remoteConfigRepository.deepMap(experimentJsonNoKey)
         val default = "WEEKLY"
         assertTrue { result == default }
@@ -178,6 +183,11 @@ import org.junit.Test
 
     @Test
     fun `GIVEN deepMap for key WHEN experimentKey is missing THEN returns default value Map`() = runTest {
+        val mapReturned = emptyMap<String, Int>()
+        val flowResult = flowOf(DataResource.Data(mapReturned))
+        coEvery {
+            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+        } returns flowResult
         val result = remoteConfigRepository.deepMap(experimentJsonNoKeyMap)
         val mapDefault = mapOf("algo" to "something")
         assertTrue { result == mapDefault }
@@ -185,6 +195,11 @@ import org.junit.Test
 
     @Test
     fun `GIVEN deepMap for key WHEN experimentKey is missing THEN returns default value Array`() = runTest {
+        val mapReturned = emptyMap<String, Int>()
+        val flowResult = flowOf(DataResource.Data(mapReturned))
+        coEvery {
+            experimentsStore.stream(FreshnessStrategy.Cached(forceRefresh = false))
+        } returns flowResult
         val result = remoteConfigRepository.deepMap(experimentJsonNoKeyArray)
         val defaultArray = listOf("one", "two", "three")
         assertTrue { result == defaultArray }
@@ -232,6 +247,7 @@ import org.junit.Test
             "}"
 
         private const val experimentJsonNoKey = """{"{returns}":{"experiment":{}},"default":"WEEKLY"}"""
+        private const val experimentJsonNoKeyNoDefault = """{"{returns}":{"experiment":{}}}"""
 
         private const val experimentJsonNoKeyArray =
             """{"{returns}":{"experiment":{}},"default":["one","two","three"]}"""

@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 ) : FiatAccount, TradingAccount {
     private val hasFunds = AtomicBoolean(false)
 
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Observable.combineLatest(
             tradingService.getBalanceFor(currency),
             exchangeRates.exchangeRateToUserFiat(currency)
@@ -84,7 +84,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = bankService.canTransactWithBankMethods(currency)
-            .zipWith(balance.firstOrError().map { it.withdrawable.isPositive })
+            .zipWith(balanceRx.firstOrError().map { it.withdrawable.isPositive })
             .map { (canTransactWithBanks, hasActionableBalance) ->
                 if (canTransactWithBanks) {
                     setOfNotNull(

@@ -46,8 +46,11 @@ import com.blockchain.nfts.help.NftHelpFragment
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletconnect.ui.networks.NetworkInfo
+import com.blockchain.walletconnect.ui.networks.SelectNetworkBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
 import com.blockchain.walletmode.WalletMode
@@ -78,6 +81,7 @@ import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginSheet
 import piuk.blockchain.android.ui.auth.newlogin.presentation.SecureChannelBrowserMessageArg
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
+import piuk.blockchain.android.ui.coinview.presentation.CoinViewActivityV2
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
@@ -128,6 +132,7 @@ class MainActivity :
     SlidingModalBottomDialog.Host,
     AuthNewLoginSheet.Host,
     AccountWalletLinkAlertSheet.Host,
+    SelectNetworkBottomSheet.Host,
     WCApproveSessionBottomSheet.Host,
     BuyDefiBottomSheet.Host,
     ActionBottomSheetHost,
@@ -151,6 +156,7 @@ class MainActivity :
 
     private val dashboardPrefs: DashboardPrefs by scopedInject()
     private val walletModeService: WalletModeService by inject()
+    private val mvpPrefs: SuperAppMvpPrefs by inject()
 
     @Deprecated("Use MVI loop instead")
     private val compositeDisposable = CompositeDisposable()
@@ -161,8 +167,6 @@ class MainActivity :
     private val destinationArgs: DestinationArgs by scopedInject()
 
     private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
-
-    private var onEmailVerificationCompleteAction: () -> Unit = {}
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -192,6 +196,8 @@ class MainActivity :
             }
         }
     }
+
+    private var isStakingAccountEnabled: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -241,6 +247,7 @@ class MainActivity :
         if (savedInstanceState == null) {
             model.process(MainIntent.PerformInitialChecks(intent))
             model.process(MainIntent.CheckReferralCode)
+            model.process(MainIntent.LoadStakingFlag)
             if (startUiTour) {
                 binding.uiTour.host = this
                 showUiTour()
@@ -300,8 +307,10 @@ class MainActivity :
             updateToolbarStartItem(
                 NavigationBarButton.DropdownIndicator(
                     dropDownClicked = {
+                        mvpPrefs.shouldHighlightModeSwitch = false
                         showBottomSheet(WalletModeSelectionBottomSheet.newInstance())
                     },
+                    isHighlighted = mvpPrefs.shouldHighlightModeSwitch,
                     text = getString(walletModeService.enabledWalletMode().title()),
                     rightIcon = walletModeService.enabledWalletMode().icon(),
                     contentDescription = walletModeService.enabledWalletMode().name
@@ -547,6 +556,8 @@ class MainActivity :
     private var launchSellAction: () -> Unit = {}
 
     override fun render(newState: MainState) {
+        isStakingAccountEnabled = newState.isStakingEnabled
+
         when (val view = newState.viewToLaunch) {
             is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
             is ViewToLaunch.LaunchAssetAction -> launchAssetAction(view.action, view.account)
@@ -668,9 +679,15 @@ class MainActivity :
             is ViewToLaunch.None -> {
                 // do nothing
             }
-            is ViewToLaunch.LaunchWalletConnectSessionApproval -> launchWalletConnectSessionApproval(
-                view.walletConnectSession
-            )
+            is ViewToLaunch.LaunchWalletConnectSessionNetworkSelection ->
+                launchWalletConnectSessionSelectNetwork(view.walletConnectSession)
+            is ViewToLaunch.LaunchWalletConnectSessionApproval ->
+                launchWalletConnectSessionApproval(view.walletConnectSession)
+            is ViewToLaunch.LaunchWalletConnectSessionApprovalWithNetwork ->
+                launchWalletConnectSessionApprovalWithNetwork(
+                    view.walletConnectSession,
+                    view.networkInfo
+                )
             is ViewToLaunch.LaunchWalletConnectSessionApproved -> launchWalletConnectSessionApproved(
                 view.walletConnectSession
             )
@@ -751,12 +768,20 @@ class MainActivity :
             is Destination.AssetViewDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     activityResultsContract.launch(
-                        CoinViewActivity.newIntent(
-                            context = this,
-                            asset = assetInfo,
-                            originScreen = LaunchOrigin.DEEPLINK.name,
-                            recurringBuyId = destination.recurringBuyId
-                        )
+                        // TODO(dserrano) - STAKING - Ask Othman about recurring buy deeplinks
+                        if (isStakingAccountEnabled) {
+                            CoinViewActivityV2.newIntent(
+                                context = this,
+                                asset = assetInfo
+                            )
+                        } else {
+                            CoinViewActivity.newIntent(
+                                context = this,
+                                asset = assetInfo,
+                                originScreen = LaunchOrigin.DEEPLINK.name,
+                                recurringBuyId = destination.recurringBuyId
+                            )
+                        }
                     )
                 } ?: run {
                     Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
@@ -857,9 +882,27 @@ class MainActivity :
         model.process(MainIntent.ClearDeepLinkResult)
     }
 
+    private fun launchWalletConnectSessionSelectNetwork(walletConnectSession: WalletConnectSession) {
+        showBottomSheet(
+            SelectNetworkBottomSheet.newInstance(walletConnectSession)
+        )
+    }
+
     private fun launchWalletConnectSessionApproval(walletConnectSession: WalletConnectSession) {
         showBottomSheet(
             WCApproveSessionBottomSheet.newInstance(walletConnectSession)
+        )
+    }
+
+    private fun launchWalletConnectSessionApprovalWithNetwork(
+        walletConnectSession: WalletConnectSession,
+        networkInfo: NetworkInfo
+    ) {
+        showBottomSheet(
+            WCApproveSessionBottomSheet.newInstance(
+                walletConnectSession,
+                networkInfo
+            )
         )
     }
 
@@ -986,6 +1029,21 @@ class MainActivity :
         }
     }
 
+    override fun onSelectNetworkClicked(session: WalletConnectSession) {
+        model.process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchWalletConnectSessionNetworkSelection(session)))
+    }
+
+    override fun onNetworkSelected(session: WalletConnectSession, networkInfo: NetworkInfo) {
+        model.process(
+            MainIntent.UpdateViewToLaunch(
+                ViewToLaunch.LaunchWalletConnectSessionApprovalWithNetwork(
+                    session,
+                    networkInfo
+                )
+            )
+        )
+    }
+
     override fun onSessionApproved(session: WalletConnectSession) {
         model.process(MainIntent.ApproveWCSession(session))
         analytics.logEvent(
@@ -1007,6 +1065,7 @@ class MainActivity :
     override fun goToTrading() {
         analytics.logEvent(BuyDefiAnalyticsEvents.SwitchedToTrading)
         model.process(MainIntent.SwitchWalletMode(WalletMode.CUSTODIAL_ONLY))
+        startBuy()
     }
 
     override fun onSheetClosed() {

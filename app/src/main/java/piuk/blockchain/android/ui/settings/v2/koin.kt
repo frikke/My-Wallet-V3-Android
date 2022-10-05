@@ -197,6 +197,7 @@ val redesignSettingsModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
+                walletModeCache = get(),
                 remoteLogger = get()
             )
         }

@@ -494,4 +494,13 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             isSwipingToRefresh = true
         )
     }
+
+    object LoadStakingFlag : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState.copy()
+    }
+
+    class UpdateStakingFlag(private val isStakingEnabled: Boolean) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState =
+            oldState.copy(isStakingEnabled = isStakingEnabled)
+    }
 }

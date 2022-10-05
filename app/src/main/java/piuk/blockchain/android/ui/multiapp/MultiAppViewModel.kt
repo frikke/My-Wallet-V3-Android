@@ -64,8 +64,6 @@ class MultiAppViewModel(
     override suspend fun handleIntent(modelState: MultiAppModelState, intent: MultiAppIntents) {
         when (intent) {
             is MultiAppIntents.WalletModeChanged -> {
-                // update wallet mode - since we observe it in viewCreated level
-                // it will automatically be updated
                 walletModeService.updateEnabledWalletMode(intent.walletMode)
             }
         }

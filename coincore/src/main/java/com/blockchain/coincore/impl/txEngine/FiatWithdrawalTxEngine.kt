@@ -52,7 +52,7 @@ class FiatWithdrawalTxEngine(
         val withdrawFeeAndMinLimit = (txTarget as LinkedBankAccount).getWithdrawalFeeAndMinLimit().cache()
         val zeroFiat = Money.zero((sourceAccount as FiatAccount).currency)
         return Single.zip(
-            sourceAccount.balance.firstOrError(),
+            sourceAccount.balanceRx.firstOrError(),
             withdrawFeeAndMinLimit,
             limitsDataManager.getLimits(
                 outputCurrency = zeroFiat.currency,

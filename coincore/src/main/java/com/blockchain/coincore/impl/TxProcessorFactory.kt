@@ -81,14 +81,14 @@ class TxProcessorFactory(
         when (source) {
             is CryptoNonCustodialAccount -> createOnChainProcessor(source, target, action)
             is CustodialTradingAccount -> createTradingProcessor(source, target)
-            is CryptoInterestAccount -> createInterestWithdrawalProcessor(source, target, action)
+            is CustodialInterestAccount -> createInterestWithdrawalProcessor(source, target, action)
             is BankAccount -> createFiatDepositProcessor(source, target, action)
             is FiatAccount -> createFiatWithdrawalProcessor(source, target, action)
             else -> Single.error(NotImplementedError())
         }
 
     private fun createInterestWithdrawalProcessor(
-        source: CryptoInterestAccount,
+        source: CustodialInterestAccount,
         target: TransactionTarget,
         action: AssetAction,
     ): Single<TransactionProcessor> =
@@ -223,7 +223,7 @@ class TxProcessorFactory(
                 )
             )
 
-            is CryptoInterestAccount ->
+            is CustodialInterestAccount ->
                 target.receiveAddress
                     .map {
                         TransactionProcessor(

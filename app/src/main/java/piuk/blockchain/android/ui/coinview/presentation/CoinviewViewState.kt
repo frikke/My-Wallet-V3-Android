@@ -4,8 +4,10 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.blockchain.charts.ChartEntry
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.core.price.HistoricalTimeSpan
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 
 data class CoinviewViewState(
@@ -16,7 +18,9 @@ data class CoinviewViewState(
     val centerQuickAction: CoinviewCenterQuickActionsState,
     val recurringBuys: CoinviewRecurringBuysState,
     val bottomQuickAction: CoinviewBottomQuickActionsState,
-    val assetInfo: CoinviewAssetInfoState
+    val assetInfo: CoinviewAssetInfoState,
+
+    val snackbarError: CoinviewSnackbarAlertState
 ) : ViewState
 
 // Price
@@ -61,7 +65,11 @@ sealed interface CoinviewAccountsState {
         val accounts: List<CoinviewAccountState>
     ) : CoinviewAccountsState {
         sealed interface CoinviewAccountState {
+            // todo find a better way to identify an account for the viewmodel without sending the whole object
+            val cvAccount: CoinviewAccount
+
             data class Available(
+                override val cvAccount: CoinviewAccount,
                 val title: String,
                 val subtitle: SimpleValue,
                 val cryptoBalance: String,
@@ -71,6 +79,7 @@ sealed interface CoinviewAccountsState {
             ) : CoinviewAccountState
 
             data class Unavailable(
+                override val cvAccount: CoinviewAccount,
                 val title: String,
                 val subtitle: SimpleValue,
                 val logo: LogoSource
@@ -159,9 +168,9 @@ sealed interface CoinviewQuickActionState {
     }
 
     object None : CoinviewQuickActionState {
-        override val name = error("None action doesn't have name property")
-        override val logo = error("None action doesn't have log property")
-        override val enabled = error("None action doesn't have enabled property")
+        override val name: SimpleValue get() = error("None action doesn't have name property")
+        override val logo: LogoSource.Resource get() = error("None action doesn't have log property")
+        override val enabled: Boolean get() = error("None action doesn't have enabled property")
     }
 }
 
@@ -176,6 +185,17 @@ fun CoinviewQuickAction.toViewState(): CoinviewQuickActionState = run {
     }
 }
 
+fun CoinviewQuickActionState.toModelState(): CoinviewQuickAction = run {
+    when (this) {
+        is CoinviewQuickActionState.Buy -> CoinviewQuickAction.Buy(enabled)
+        is CoinviewQuickActionState.Sell -> CoinviewQuickAction.Sell(enabled)
+        is CoinviewQuickActionState.Send -> CoinviewQuickAction.Send(enabled)
+        is CoinviewQuickActionState.Receive -> CoinviewQuickAction.Receive(enabled)
+        is CoinviewQuickActionState.Swap -> CoinviewQuickAction.Swap(enabled)
+        CoinviewQuickActionState.None -> CoinviewQuickAction.None
+    }
+}
+
 // Info
 sealed interface CoinviewAssetInfoState {
     object Loading : CoinviewAssetInfoState
@@ -185,6 +205,22 @@ sealed interface CoinviewAssetInfoState {
         val description: String?,
         val website: String?
     ) : CoinviewAssetInfoState
+}
+
+// Snackbar errors
+sealed interface CoinviewSnackbarAlertState {
+    val message: Int
+    val snackbarType: SnackbarType
+
+    object ActionsLoadError : CoinviewSnackbarAlertState {
+        override val message: Int = R.string.coinview_actions_error
+        override val snackbarType: SnackbarType = SnackbarType.Warning
+    }
+
+    object None : CoinviewSnackbarAlertState {
+        override val message: Int get() = error("None error doesn't have message property")
+        override val snackbarType: SnackbarType get() = error("None error doesn't have snackbarType property")
+    }
 }
 
 /**

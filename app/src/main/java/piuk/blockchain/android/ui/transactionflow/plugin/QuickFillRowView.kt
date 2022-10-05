@@ -19,6 +19,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.PrefillAmounts
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
+import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transactionflow.flow.convertFiatToCrypto
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
 
@@ -86,43 +87,29 @@ class QuickFillRowView @JvmOverloads constructor(
         val fiatCurrency = spendableFiatBalance.currency
 
         val listOfAmounts = mutableListOf<Money>()
+
+        val roundingData = state.quickFillRoundingData
+
         val spendableBalanceWithinLimits = limits.getSpendableBalanceWithinLimits(
             amount = state.maxSpendable,
             currency = fiatCurrency
         )
 
-        val lowestPrefillValues = getRoundedFiatAndCryptoValues(
-            state = state,
-            spendableBalance = spendableBalanceWithinLimits,
-            fiatRate = fiatRate,
-            multiplicationFactor = TWENTY_FIVE_PERCENT
-        )
+        if (roundingData.all { it is QuickFillRoundingData.SellSwapRoundingData }) {
+            roundingData.forEach {
+                val data = it as QuickFillRoundingData.SellSwapRoundingData
+                val prefillValue = getRoundedFiatAndCryptoValues(
+                    state = state,
+                    spendableBalance = spendableBalanceWithinLimits,
+                    fiatRate = fiatRate,
+                    multiplicationFactor = data.multiplier,
+                    roundingValues = data.rounding
+                )
 
-        if (limits.isAmountInRange(lowestPrefillValues.second)) {
-            listOfAmounts.add(lowestPrefillValues.first)
-        }
-
-        val mediumPrefillValues = getRoundedFiatAndCryptoValues(
-            state = state,
-            spendableBalance = spendableBalanceWithinLimits,
-            fiatRate = fiatRate,
-            multiplicationFactor = FIFTY_PERCENT
-        )
-
-        if (limits.isAmountInRange(mediumPrefillValues.second)) {
-            listOfAmounts.add(mediumPrefillValues.first)
-        }
-
-        val largestPrefillValues =
-            getRoundedFiatAndCryptoValues(
-                state = state,
-                spendableBalance = spendableBalanceWithinLimits,
-                fiatRate = fiatRate,
-                multiplicationFactor = SEVENTY_FIVE_PERCENT
-            )
-
-        if (limits.isAmountInRange(largestPrefillValues.second)) {
-            listOfAmounts.add(state.convertBalanceToFiat(largestPrefillValues.first, fiatRate))
+                if (limits.isAmountInRange(prefillValue.roundedCryptoValue)) {
+                    listOfAmounts.add(prefillValue.roundedFiatValue)
+                }
+            }
         }
 
         quickFillButtonData = QuickFillButtonData(
@@ -157,37 +144,24 @@ class QuickFillRowView @JvmOverloads constructor(
 
         val listOfAmounts = mutableListOf<QuickFillDisplayAndAmount>()
 
-        val lowestPrefillAmount = adjustedBalance.times(TWENTY_FIVE_PERCENT)
-
-        if (limits.isAmountInRange(lowestPrefillAmount)) {
-            listOfAmounts.add(
-                QuickFillDisplayAndAmount(
-                    displayValue = resources.getString(R.string.enter_amount_quickfill_25),
-                    amount = lowestPrefillAmount
-                )
+        val multiplierValues =
+            listOf(
+                Pair(TWENTY_FIVE_PERCENT, resources.getString(R.string.enter_amount_quickfill_25)),
+                Pair(FIFTY_PERCENT, resources.getString(R.string.enter_amount_quickfill_50)),
+                Pair(SEVENTY_FIVE_PERCENT, resources.getString(R.string.enter_amount_quickfill_75))
             )
-        }
 
-        val mediumPrefillAmount = adjustedBalance.times(FIFTY_PERCENT)
+        multiplierValues.forEach { value ->
+            val prefillAmount = adjustedBalance.times(value.first)
 
-        if (limits.isAmountInRange(mediumPrefillAmount)) {
-            listOfAmounts.add(
-                QuickFillDisplayAndAmount(
-                    displayValue = resources.getString(R.string.enter_amount_quickfill_50),
-                    amount = mediumPrefillAmount
+            if (limits.isAmountInRange(prefillAmount)) {
+                listOfAmounts.add(
+                    QuickFillDisplayAndAmount(
+                        displayValue = value.second,
+                        amount = prefillAmount
+                    )
                 )
-            )
-        }
-
-        val largestPrefillAmount = adjustedBalance.times(SEVENTY_FIVE_PERCENT)
-
-        if (limits.isAmountInRange(largestPrefillAmount)) {
-            listOfAmounts.add(
-                QuickFillDisplayAndAmount(
-                    displayValue = resources.getString(R.string.enter_amount_quickfill_75),
-                    amount = largestPrefillAmount
-                )
-            )
+            }
         }
 
         quickFillButtonData = QuickFillButtonData(
@@ -211,42 +185,44 @@ class QuickFillRowView @JvmOverloads constructor(
         state: TransactionState,
         spendableBalance: Money,
         fiatRate: ExchangeRate,
-        multiplicationFactor: Float
-    ): Pair<Money, Money> {
+        multiplicationFactor: Float,
+        roundingValues: List<Int>
+    ): RoundedFiatAndCryptoValues {
+        require(roundingValues.size == 6) { "rounding values missing" }
 
-        val lowestPrefillCrypto = spendableBalance.times(multiplicationFactor)
-        val lowestPrefillFiat = state.convertBalanceToFiat(lowestPrefillCrypto, fiatRate)
-        val lowestPrefillFiatParts = lowestPrefillFiat.toStringParts()
+        val prefillCrypto = spendableBalance.times(multiplicationFactor)
+        val prefillFiat = state.convertBalanceToFiat(prefillCrypto, fiatRate)
+        val prefillFiatParts = prefillFiat.toStringParts()
 
         val lowestPrefillRoundedFiat = when (
-            lowestPrefillFiatParts.major.filterNot {
-                it == lowestPrefillFiatParts.groupingSeparator
+            prefillFiatParts.major.filterNot {
+                it == prefillFiatParts.groupingSeparator
             }.length
         ) {
             0,
             1 -> {
-                roundToNearest(lowestPrefillFiat, NEAREST_ONE)
+                roundToNearest(prefillFiat, roundingValues[0])
             }
             2 -> {
-                roundToNearest(lowestPrefillFiat, NEAREST_TEN)
+                roundToNearest(prefillFiat, roundingValues[1])
             }
             3 -> {
-                roundToNearest(lowestPrefillFiat, NEAREST_TWENTY_FIVE)
+                roundToNearest(prefillFiat, roundingValues[2])
             }
             4 -> {
-                roundToNearest(lowestPrefillFiat, NEAREST_HUNDRED)
+                roundToNearest(prefillFiat, roundingValues[3])
             }
             5 -> {
-                roundToNearest(lowestPrefillFiat, NEAREST_FIVE_HUNDRED)
+                roundToNearest(prefillFiat, roundingValues[4])
             }
             else -> {
-                roundToNearest(lowestPrefillFiat, NEAREST_THOUSAND)
+                roundToNearest(prefillFiat, roundingValues[5])
             }
         }
 
         val lowestPrefillRoundedCrypto = lowestPrefillRoundedFiat.convertFiatToCrypto(fiatRate, state)
 
-        return Pair(lowestPrefillRoundedFiat, lowestPrefillRoundedCrypto)
+        return RoundedFiatAndCryptoValues(lowestPrefillRoundedFiat, lowestPrefillRoundedCrypto)
     }
 
     private fun TxLimits.getSpendableBalanceWithinLimits(amount: Money, currency: Currency): Money {
@@ -283,3 +259,8 @@ class QuickFillRowView @JvmOverloads constructor(
         private const val NEAREST_THOUSAND = 1000
     }
 }
+
+private data class RoundedFiatAndCryptoValues(
+    val roundedFiatValue: Money,
+    val roundedCryptoValue: Money
+)

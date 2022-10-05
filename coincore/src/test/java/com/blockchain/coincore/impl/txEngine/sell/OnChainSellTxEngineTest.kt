@@ -526,7 +526,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(SRC_ASSET)
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(SRC_ASSET)
-        on { balance }.thenReturn(
+        on { balanceRx }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,

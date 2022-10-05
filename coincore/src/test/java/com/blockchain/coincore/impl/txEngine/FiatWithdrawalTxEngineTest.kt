@@ -113,7 +113,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
             on { withdrawable }.thenReturn(expectedBalance)
         }
         val sourceAccount = mock<FiatAccount>()
-        whenever(sourceAccount.balance).thenReturn(Observable.just(balance))
+        whenever(sourceAccount.balanceRx).thenReturn(Observable.just(balance))
         whenever(sourceAccount.currency).thenReturn(TEST_API_FIAT)
 
         val expectedMinAmountAndFee = FiatWithdrawalFeeAndLimit(

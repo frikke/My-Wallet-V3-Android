@@ -67,7 +67,7 @@ class WalletConnectTransactionEngine(
     }
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        sourceAccount.balance.firstOrError().zipWith(absoluteFees()).map { (balance, fees) ->
+        sourceAccount.balanceRx.firstOrError().zipWith(absoluteFees()).map { (balance, fees) ->
             pendingTx.copy(
                 availableBalance = balance.withdrawable - fees,
                 feeForFullAvailable = fees,
@@ -148,7 +148,7 @@ class WalletConnectTransactionEngine(
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
         Single.zip(
-            sourceAccount.balance.map { it.withdrawable }.firstOrError(),
+            sourceAccount.balanceRx.map { it.withdrawable }.firstOrError(),
             absoluteFees()
         ) { balance: Money, fee ->
             if (fee + pendingTx.amount > balance) {

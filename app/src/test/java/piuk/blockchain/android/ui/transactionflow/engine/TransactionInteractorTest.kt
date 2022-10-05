@@ -26,6 +26,7 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
+import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 
 class TransactionInteractorTest {
@@ -53,6 +54,7 @@ class TransactionInteractorTest {
     private val dismissRecorder: DismissRecorder = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
     private val quickfillSwapSellFF: FeatureFlag = mock()
+    private val quickFillRoundingService: QuickFillRoundingService = mock()
 
     private lateinit var subject: TransactionInteractor
 
@@ -74,7 +76,8 @@ class TransactionInteractorTest {
             bankLinkingPrefs = bankLinkingPrefs,
             dismissRecorder = dismissRecorder,
             fiatCurrenciesService = fiatCurrenciesService,
-            swapSellQuickFillFF = quickfillSwapSellFF
+            swapSellQuickFillFF = quickfillSwapSellFF,
+            quickFillRoundingService = quickFillRoundingService
         )
     }
 

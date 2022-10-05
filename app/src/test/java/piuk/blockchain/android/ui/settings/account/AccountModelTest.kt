@@ -49,6 +49,7 @@ class AccountModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             remoteLogger = mock(),
+            walletModeCache = mock(),
             interactor = interactor
         )
     }
