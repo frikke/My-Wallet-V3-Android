@@ -2206,7 +2206,7 @@
     <string name="bank_transfer_payment_expired_title">Payment Request Expired</string>
     <string name="bank_transfer_payment_expired_subtitle">We haven’t heard from your bank. The payment request has expired. Please try to submit the order again. If this keeps happening, please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_limited_exceeded_title">Incomplete Charges</string>
-    <string name="bank_transfer_payment_limited_exceeded_subtitle">This payment method has incomplete charges against it. To use this payment method again, place <annotation link="contact_support">contact support.</annotation></string>
+    <string name="bank_transfer_payment_limited_exceeded_subtitle">This payment method has incomplete charges against it. To use this payment method again, please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_insufficient_funds_title">Insufficient Funds</string>
     <string name="bank_transfer_payment_insufficient_funds_subtitle">Payment failed due to insufficient funds in your account. Try another payment method. If this keep happening, please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_transfer_go_back">Cancel &amp; Go Back</string>
