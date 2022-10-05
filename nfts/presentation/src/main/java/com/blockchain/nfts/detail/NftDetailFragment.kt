@@ -27,11 +27,11 @@ class NftDetailFragment :
     MVIBottomSheet<NftDetailViewState>(),
     NavigationRouter<NftDetailNavigationEvent> {
 
-    interface Host {
+    interface Host : MVIBottomSheet.Host {
         fun openExternalUrl(url: String)
     }
 
-    private val host: Host by lazy {
+    override val host: Host by lazy {
         activity as? Host ?: error("Host activity is not a NftDetailFragment.Host")
     }
 
