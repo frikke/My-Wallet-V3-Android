@@ -1,5 +1,6 @@
 package com.blockchain.api.staking
 
+import com.blockchain.api.staking.data.StakingBalanceDto
 import com.blockchain.api.staking.data.StakingEligibilityDto
 import com.blockchain.api.staking.data.StakingRatesDto
 import com.blockchain.outcome.Outcome
@@ -13,7 +14,6 @@ class StakingApiService internal constructor(
     suspend fun getStakingEligibility(): Outcome<Exception, Map<String, StakingEligibilityDto>> =
         stakingApi.getStakingEligibility()
 
-    // TODO(dserrano) - STAKING
-    //    suspend fun getAccountBalances(): Outcome<Exception, Map<String, StakingAccountBalanceDto>> =
-    //        stakingApi.getAccountBalances()
+    suspend fun getStakingBalances(): Outcome<Exception, Map<String, StakingBalanceDto>> =
+        stakingApi.getAccountBalances()
 }

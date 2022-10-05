@@ -175,7 +175,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
 
     private fun loadStakingAccounts(): Flow<DataResource<SingleAccountList>> =
         stakingService.getAvailabilityForAsset(
-            currency.networkTicker,
+            currency,
             FreshnessStrategy.Cached(false)
         ).filterNotLoading()
             .mapData {
