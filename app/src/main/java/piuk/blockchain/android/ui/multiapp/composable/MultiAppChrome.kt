@@ -491,11 +491,13 @@ fun MultiAppChromeScreen(
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
+                    val revealPadding = remember { 40 }
+
                     TotalBalance(
                         modifier = Modifier
                             .fillMaxWidth()
                             .graphicsLayer {
-                                translationY = (balanceRevealAlpha - 1) * 40
+                                translationY = (balanceRevealAlpha - 1) * revealPadding
                             }
                             .alpha(min(balanceRevealAlpha, switcherScrollAlpha)),
                         balance = balance
@@ -509,7 +511,7 @@ fun MultiAppChromeScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .graphicsLayer {
-                                translationY = -1 * ((switcherRevealAlpha - 1) * 40)
+                                translationY = -1 * ((switcherRevealAlpha - 1) * revealPadding)
                             }
                             .alpha(
                                 if (isBalanceRevealInProgress) {
