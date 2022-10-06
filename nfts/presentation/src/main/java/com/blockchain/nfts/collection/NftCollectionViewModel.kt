@@ -9,7 +9,6 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
-import com.blockchain.data.combineDataResources
 import com.blockchain.data.map
 import com.blockchain.nfts.OPENSEA_URL
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
@@ -40,7 +39,7 @@ class NftCollectionViewModel(
     override fun reduce(state: NftCollectionModelState): NftCollectionViewState = state.run {
         NftCollectionViewState(
             isPullToRefreshLoading = isPullToRefreshLoading,
-            collection = collection
+            collection = collection.map { it.distinct() }
         )
     }
 
@@ -125,6 +124,7 @@ class NftCollectionViewModel(
                             )
                         }
                     }
+
                     is DataResource.Error -> {
                         updateState {
                             it.copy(
@@ -133,21 +133,21 @@ class NftCollectionViewModel(
                             )
                         }
                     }
+
                     is DataResource.Data -> {
                         updateState {
+                            val allPreviousPagesData = if (isFromPullToRefresh) emptyList() else it.allPreviousPagesData
+
                             it.copy(
                                 isPullToRefreshLoading = false,
                                 nextPageKey = dataResource.data.nextPageKey,
+                                allPreviousPagesData = allPreviousPagesData + dataResource.data.assets,
                                 // combine current page and new page items
-                                collection = combineDataResources(
-                                    it.collection,
-                                    dataResource.map { it.assets }
-                                ) { existing, new -> existing + new }
+                                collection = dataResource.map { data -> allPreviousPagesData + data.assets }
                             )
                         }
                     }
                 }
-
             }
         }
     }
