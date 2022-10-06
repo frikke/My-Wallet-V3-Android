@@ -2,6 +2,7 @@ package com.blockchain.api
 
 import com.blockchain.api.adapters.OutcomeCallAdapterFactory
 import com.blockchain.api.addressmapping.AddressMappingApiInterface
+import com.blockchain.api.addressverification.AddressVerificationApi
 import com.blockchain.api.analytics.AnalyticsApiInterface
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
 import com.blockchain.api.assetdiscovery.data.AssetInformationDto
@@ -23,6 +24,7 @@ import com.blockchain.api.dataremediation.DataRemediationApi
 import com.blockchain.api.eligibility.EligibilityApi
 import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.ethereum.evm.EvmApi
+import com.blockchain.api.experiments.ExperimentsApi
 import com.blockchain.api.fiatcurrencies.FiatCurrenciesApi
 import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.interest.InterestApiService
@@ -36,6 +38,7 @@ import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.referral.ReferralApi
 import com.blockchain.api.selfcustody.SelfCustodyApi
 import com.blockchain.api.services.AddressMappingService
+import com.blockchain.api.services.AddressVerificationApiService
 import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.AssetPriceService
@@ -46,6 +49,7 @@ import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.DataRemediationApiService
 import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.api.services.EligibilityApiService
+import com.blockchain.api.services.ExperimentsApiService
 import com.blockchain.api.services.FiatCurrenciesApiService
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.api.services.NftService
@@ -56,9 +60,14 @@ import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.ReferralApiService
+import com.blockchain.api.services.SessionService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.api.services.WatchlistService
+import com.blockchain.api.session.SessionApi
+import com.blockchain.api.staking.StakingApi
+import com.blockchain.api.staking.StakingApiService
 import com.blockchain.api.services.WatchlistApiService
 import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
@@ -139,7 +148,7 @@ val blockchainApiModule = module {
     }
 
     // *****
-    ///BaseJson
+    // BaseJson
     @OptIn(ExperimentalSerializationApi::class)
     single {
         Json {
@@ -271,6 +280,13 @@ val blockchainApiModule = module {
     }
 
     factory {
+        val api = get<Retrofit>(nabuApi).create(AddressVerificationApi::class.java)
+        AddressVerificationApiService(
+            api
+        )
+    }
+
+    factory {
         val api = get<Retrofit>(nabuApi).create(NabuUserApi::class.java)
         NabuUserService(
             api
@@ -363,6 +379,13 @@ val blockchainApiModule = module {
     }
 
     factory {
+        val api = get<Retrofit>(nabuApi).create(SessionApi::class.java)
+        SessionService(
+            api
+        )
+    }
+
+    factory {
         object : WalletHelperUrl {
             override val url: String
                 get() = getProperty("wallet-helper-url")
@@ -387,6 +410,20 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(explorerApi).create(NftApi::class.java)
         NftService(
             nftApi = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(ExperimentsApi::class.java)
+        ExperimentsApiService(
+            api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(StakingApi::class.java)
+        StakingApiService(
+            stakingApi = api
         )
     }
 }

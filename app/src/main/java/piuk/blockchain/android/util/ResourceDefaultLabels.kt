@@ -49,6 +49,12 @@ internal class ResourceDefaultLabels(
     override fun getDefaultExchangeWalletLabel(): String =
         resources.getString(R.string.exchange_default_account_label_1)
 
+    override fun getDefaultStakingWalletLabel(): String =
+        resources.getString(R.string.default_label_staking_wallet)
+
+    override fun getDefaultCustodialGroupLabel(): String =
+        resources.getString(R.string.default_label_custodial_wallets)
+
     override fun getDefaultCustodialFiatWalletLabel(fiatCurrency: FiatCurrency): String =
         fiatCurrency.name
 }

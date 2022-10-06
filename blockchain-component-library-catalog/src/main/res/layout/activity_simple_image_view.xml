@@ -15,7 +15,7 @@
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/very_small_margin"
+            android:layout_marginBottom="@dimen/very_small_spacing"
             android:text="Local Image"
             android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
 
@@ -27,7 +27,7 @@
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/very_small_margin"
+            android:layout_marginBottom="@dimen/very_small_spacing"
             android:text="Local Image with background"
             android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
 
@@ -39,7 +39,7 @@
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/very_small_margin"
+            android:layout_marginBottom="@dimen/very_small_spacing"
             android:text="Remote Image"
             android:textAppearance="@style/TextAppearance.Blockchain.Title3" />
 

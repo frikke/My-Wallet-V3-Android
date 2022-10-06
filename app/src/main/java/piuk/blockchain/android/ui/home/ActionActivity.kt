@@ -23,7 +23,7 @@ import piuk.blockchain.android.ui.upsell.UpsellHost
 class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, UpsellHost, SwapFragment.Host {
 
     override val alwaysDisableScreenshots: Boolean
-        get() = true
+        get() = false
 
     private val binding: ActivityActionBinding by lazy {
         ActivityActionBinding.inflate(layoutInflater)

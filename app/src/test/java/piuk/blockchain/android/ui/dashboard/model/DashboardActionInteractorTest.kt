@@ -76,6 +76,7 @@ class DashboardActionInteractorTest {
     private val cowboysDataProvider: CowboysPromoDataProvider = mock()
     private val referralService: ReferralService = mock()
     private val cowboysPrefs: CowboysPrefs = mock()
+    private val stakingFF: FeatureFlag = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -107,13 +108,15 @@ class DashboardActionInteractorTest {
             nftAnnouncementPrefs = nftAnnouncementPrefs,
             exchangeRates = mock(),
             walletModeBalanceCache = mock(),
+            productsEligibilityStore = mock(),
             bankService = bankService,
             referralPrefs = referralPrefs,
             cowboysFeatureFlag = cowboysFeatureFlag,
             settingsDataManager = settingsDataManager,
             cowboysDataProvider = cowboysDataProvider,
             referralService = referralService,
-            cowboysPrefs = cowboysPrefs
+            cowboysPrefs = cowboysPrefs,
+            stakingFeatureFlag = stakingFF
         )
     }
 

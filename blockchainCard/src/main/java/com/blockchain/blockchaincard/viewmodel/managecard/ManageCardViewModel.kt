@@ -1,6 +1,12 @@
 package com.blockchain.blockchaincard.viewmodel.managecard
 
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletData
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
+import com.blockchain.blockchaincard.util.BlockchainCardTransactionUtils
+import com.blockchain.blockchaincard.util.getCompletedTransactionsGroupedByMonth
+import com.blockchain.blockchaincard.util.getPendingTransactions
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardErrorState
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
@@ -15,9 +21,13 @@ import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.fold
+import com.blockchain.utils.fromIso8601ToUtc
+import com.blockchain.utils.getMonthName
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import timber.log.Timber
+
+const val TRANSACTIONS_PAGE_SIZE = 30
 
 class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRepository) : BlockchainCardViewModel() {
 
@@ -29,6 +39,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 onIntent(BlockchainCardIntent.LoadCardWidget)
                 onIntent(BlockchainCardIntent.LoadLinkedAccount)
                 onIntent(BlockchainCardIntent.LoadTransactions)
+                onIntent(BlockchainCardIntent.LoadGoogleWalletTokenizationStatus)
             }
 
             is BlockchainCardArgs.ProductArgs -> {
@@ -51,10 +62,13 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
         linkedAccountBalance = state.linkedAccountBalance,
         residentialAddress = state.residentialAddress,
         userFirstAndLastName = state.userFirstAndLastName,
-        transactionList = state.transactionList,
+        shortTransactionList = state.shortTransactionList,
+        pendingTransactions = state.pendingTransactions,
+        completedTransactionsGroupedByMonth = state.completedTransactionsGroupedByMonth,
         selectedCardTransaction = state.selectedCardTransaction,
         isTransactionListRefreshing = state.isTransactionListRefreshing,
         countryStateList = state.countryStateList,
+        googleWalletStatus = state.googleWalletStatus
     )
 
     override suspend fun handleIntent(
@@ -143,7 +157,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 }
             }
 
-            is BlockchainCardIntent.TopUp -> {
+            is BlockchainCardIntent.AddFunds -> {
                 modelState.linkedAccountBalance?.let { accountBalance ->
                     when (accountBalance.total) {
                         is FiatValue -> {
@@ -286,8 +300,8 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         .doOnFailure {
                             Timber.e("Unable to get states: $it")
                         }
+                    navigate(BlockchainCardNavigationEvent.SeeBillingAddress(address))
                 }
-                navigate(BlockchainCardNavigationEvent.SeeBillingAddress)
             }
 
             is BlockchainCardIntent.UpdateBillingAddress -> {
@@ -346,10 +360,28 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             }
 
             is BlockchainCardIntent.LoadTransactions -> {
-                blockchainCardRepository.getTransactions().fold(
+                blockchainCardRepository.getTransactions(limit = TRANSACTIONS_PAGE_SIZE).fold(
                     onSuccess = { transactions ->
                         Timber.d("Transactions loaded: $transactions")
-                        updateState { it.copy(transactionList = transactions, isTransactionListRefreshing = false) }
+
+                        val pendingTransactions = transactions.filter {
+                            it.state == BlockchainCardTransactionState.PENDING
+                        }
+                        val completedTransactionsGroupedByMonth = transactions.filter {
+                            it.state != BlockchainCardTransactionState.PENDING
+                        }.groupBy {
+                            it.userTransactionTime.fromIso8601ToUtc()?.getMonthName()
+                        }
+
+                        updateState {
+                            it.copy(
+                                shortTransactionList = transactions.take(4), // We only display the first 4
+                                pendingTransactions = pendingTransactions,
+                                completedTransactionsGroupedByMonth = completedTransactionsGroupedByMonth,
+                                isTransactionListRefreshing = false,
+                                nextPageId = if (transactions.isNotEmpty()) transactions.last().id else null
+                            )
+                        }
                     },
                     onFailure = { error ->
                         Timber.e("Unable to get transactions: $error")
@@ -358,9 +390,63 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 )
             }
 
+            is BlockchainCardIntent.LoadNextTransactionsPage -> {
+
+                if (!modelState.nextPageId.isNullOrEmpty()) {
+                    blockchainCardRepository.getTransactions(
+                        limit = TRANSACTIONS_PAGE_SIZE,
+                        toId = modelState.nextPageId
+                    ).fold(
+                        onSuccess = { transactions ->
+                            Timber.d(
+                                "Loaded Next Page. Elements loaded: ${transactions.size}"
+                            )
+
+                            val pendingTransactions =
+                                transactions.getPendingTransactions()
+
+                            val finalPendingTransactions = BlockchainCardTransactionUtils.mergeTransactionList(
+                                firstList = modelState.pendingTransactions,
+                                secondList = pendingTransactions
+                            )
+
+                            val completedTransactionsGroupedByMonth =
+                                transactions.getCompletedTransactionsGroupedByMonth()
+
+                            val finalCompletedTransactionsGroupedByMonth =
+                                modelState.completedTransactionsGroupedByMonth?.let {
+                                    BlockchainCardTransactionUtils.mergeGroupedTransactionList(
+                                        firstGroupedList = it,
+                                        secondGroupedList = completedTransactionsGroupedByMonth
+                                    )
+                                } ?: completedTransactionsGroupedByMonth
+
+                            updateState {
+                                it.copy(
+                                    pendingTransactions = finalPendingTransactions,
+                                    completedTransactionsGroupedByMonth = finalCompletedTransactionsGroupedByMonth,
+                                    isTransactionListRefreshing = false,
+                                    nextPageId = if (transactions.isNotEmpty()) transactions.last().id else null
+                                )
+                            }
+                        },
+                        onFailure = { error ->
+                            Timber.e("Unable to get transactions: $error")
+                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                        }
+                    )
+                }
+            }
+
             is BlockchainCardIntent.RefreshTransactions -> {
                 updateState { it.copy(isTransactionListRefreshing = true) }
                 onIntent(BlockchainCardIntent.LoadTransactions)
+            }
+
+            is BlockchainCardIntent.SeeAllTransactions -> {
+                if (modelState.pendingTransactions != null && modelState.completedTransactionsGroupedByMonth != null) {
+                    navigate(BlockchainCardNavigationEvent.SeeAllTransactions)
+                }
             }
 
             is BlockchainCardIntent.SeeTransactionDetails -> {
@@ -387,6 +473,94 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             is BlockchainCardIntent.SeeContactSupportPage -> {
                 navigate(BlockchainCardNavigationEvent.SeeContactSupportPage)
             }
+
+            is BlockchainCardIntent.LoadGoogleWalletTokenizationStatus -> {
+                modelState.card?.let { card ->
+                    blockchainCardRepository.getGoogleWalletTokenizationStatus(card.last4)
+                        .doOnSuccess { isTokenized ->
+                            if (isTokenized) {
+                                Timber.d("Card Already Tokenized")
+                                updateState { it.copy(googleWalletStatus = BlockchainCardGoogleWalletStatus.ADDED) }
+                            } else {
+                                onIntent(BlockchainCardIntent.LoadGoogleWalletDetails)
+                            }
+                        }
+                        .doOnFailure { error ->
+                            Timber.e("Unable to get tokenization status")
+                            updateState {
+                                it.copy(
+                                    googleWalletStatus = BlockchainCardGoogleWalletStatus.ADDED,
+                                    errorState = BlockchainCardErrorState.SnackbarErrorState(error)
+                                )
+                            }
+                        }
+                }
+            }
+
+            is BlockchainCardIntent.LoadGoogleWalletDetails -> {
+                blockchainCardRepository.getGoogleWalletId()
+                    .doOnSuccess { walletId ->
+                        updateState { it.copy(googleWalletId = walletId) }
+                    }
+                    .doOnFailure { error ->
+                        Timber.e("Unable to retrieve google wallet id")
+                        updateState {
+                            it.copy(
+                                googleWalletStatus = BlockchainCardGoogleWalletStatus.ADDED,
+                                errorState = BlockchainCardErrorState.SnackbarErrorState(error)
+                            )
+                        }
+                    }
+
+                blockchainCardRepository.getGoogleWalletStableHardwareId()
+                    .doOnSuccess { stableHardwareId ->
+                        updateState { it.copy(stableHardwareId = stableHardwareId) }
+                    }
+                    .doOnFailure { error ->
+                        Timber.e("Unable to retrieve stable hardware id")
+                        updateState {
+                            it.copy(
+                                googleWalletStatus = BlockchainCardGoogleWalletStatus.ADDED,
+                                errorState = BlockchainCardErrorState.SnackbarErrorState(error)
+                            )
+                        }
+                    }
+            }
+
+            is BlockchainCardIntent.LoadGoogleWalletPushTokenizeData -> {
+                if (!modelState.stableHardwareId.isNullOrEmpty() && !modelState.googleWalletId.isNullOrEmpty()) {
+                    updateState { it.copy(googleWalletStatus = BlockchainCardGoogleWalletStatus.ADD_IN_PROGRESS) }
+                    modelState.card?.let { card ->
+                        blockchainCardRepository.provisionGoogleWalletCard(
+                            cardId = card.id,
+                            provisionRequest = BlockchainCardGoogleWalletData(
+                                deviceId = modelState.stableHardwareId,
+                                deviceType = "MOBILE_PHONE", // TODO (labreu): hardcoded
+                                provisioningAppVersion = "alpha", // TODO (labreu): hardcoded
+                                walletAccountId = modelState.googleWalletId
+                            )
+                        ).doOnSuccess { tokenizeData ->
+                            navigate(BlockchainCardNavigationEvent.AddCardToGoogleWallet(tokenizeData))
+                        }.doOnFailure { error ->
+                            updateState {
+                                it.copy(
+                                    googleWalletStatus = BlockchainCardGoogleWalletStatus.ADD_FAILED,
+                                    errorState = BlockchainCardErrorState.SnackbarErrorState(error)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            is BlockchainCardIntent.GoogleWalletAddCardFailed -> {
+                updateState { it.copy(googleWalletStatus = BlockchainCardGoogleWalletStatus.ADD_FAILED) }
+            }
+
+            is BlockchainCardIntent.GoogleWalletAddCardSuccess -> {
+                updateState { it.copy(googleWalletStatus = BlockchainCardGoogleWalletStatus.ADD_SUCCESS) }
+            }
+
             else -> {
                 Timber.e("Unknown intent: $intent")
             }

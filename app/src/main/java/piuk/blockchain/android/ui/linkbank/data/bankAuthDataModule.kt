@@ -9,7 +9,7 @@ val bankAuthDataModule = module {
     scope(payloadScopeQualifier) {
         scoped <SafeConnectService> {
             SafeConnectRepository(
-                remoteConfig = get()
+                remoteConfigService = get()
             )
         }
     }

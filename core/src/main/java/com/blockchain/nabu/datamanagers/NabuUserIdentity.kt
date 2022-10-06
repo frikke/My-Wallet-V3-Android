@@ -85,7 +85,7 @@ class NabuUserIdentity(
 
     override fun getUserState(): Maybe<String> =
         userService.getUser().flatMapMaybe {
-            val state = it.address?.state
+            val state = it.address?.stateIso
             if (state.isNullOrEmpty()) {
                 Maybe.empty()
             } else {
@@ -179,6 +179,8 @@ private fun ProductEligibility.toFeatureAccess(): FeatureAccess =
         when (val reason = reasonNotEligible) {
             ProductNotEligibleReason.InsufficientTier.Tier1TradeLimitExceeded ->
                 BlockedReason.InsufficientTier.Tier1TradeLimitExceeded
+            ProductNotEligibleReason.InsufficientTier.Tier1Required ->
+                BlockedReason.InsufficientTier.Tier1Required
             ProductNotEligibleReason.InsufficientTier.Tier2Required ->
                 BlockedReason.InsufficientTier.Tier2Required
             is ProductNotEligibleReason.InsufficientTier.Unknown ->
@@ -187,7 +189,7 @@ private fun ProductEligibility.toFeatureAccess(): FeatureAccess =
                 BlockedReason.Sanctions.RussiaEU5
             is ProductNotEligibleReason.Sanctions.Unknown ->
                 BlockedReason.Sanctions.Unknown(reason.message)
-            is ProductNotEligibleReason.Unknown -> BlockedReason.NotEligible
-            null -> BlockedReason.NotEligible
+            is ProductNotEligibleReason.Unknown -> BlockedReason.NotEligible(reason.message)
+            null -> BlockedReason.NotEligible(null)
         }
     )

@@ -3,6 +3,8 @@ package com.blockchain.api.services
 import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.blockchainCard.WalletHelperUrl
 import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocsFormDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionRequestDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardAccountDto
@@ -20,18 +22,16 @@ class BlockchainCardService internal constructor(
     private val api: BlockchainCardApi,
     private val walletHelperUrl: WalletHelperUrl
 ) {
-    suspend fun getProducts(authHeader: String): Outcome<Exception, List<ProductDto>> =
-        api.getProducts(authHeader)
+    suspend fun getProducts(): Outcome<Exception, List<ProductDto>> =
+        api.getProducts()
 
-    suspend fun getCards(authHeader: String): Outcome<Exception, List<CardDto>> =
-        api.getCards(authHeader)
+    suspend fun getCards(): Outcome<Exception, List<CardDto>> =
+        api.getCards()
 
     suspend fun createCard(
-        authHeader: String,
         productCode: String,
         ssn: String
     ): Outcome<Exception, CardDto> = api.createCard(
-        authorization = authHeader,
         cardCreationRequest = CardCreationRequestBodyDto(
             productCode = productCode,
             ssn = ssn
@@ -39,18 +39,14 @@ class BlockchainCardService internal constructor(
     )
 
     suspend fun deleteCard(
-        authHeader: String,
         cardId: String
     ): Outcome<Exception, CardDto> = api.deleteCard(
-        authorization = authHeader,
         cardId = cardId
     )
 
     suspend fun getCardWidgetToken(
-        authHeader: String,
         cardId: String
     ): Outcome<Exception, CardWidgetTokenDto> = api.getCardWidgetToken(
-        authorization = authHeader,
         cardId = cardId
     )
 
@@ -67,19 +63,15 @@ class BlockchainCardService internal constructor(
     ): String = "${walletHelperUrl.url}wallet-helper/marqeta-card/#/$widgetToken/$last4Digits/$userFullName"
 
     suspend fun getEligibleAccounts(
-        authHeader: String,
         cardId: String
     ): Outcome<Exception, List<CardAccountDto>> = api.getEligibleAccounts(
-        authorization = authHeader,
         cardId = cardId
     )
 
     suspend fun linkCardAccount(
-        authHeader: String,
         cardId: String,
         accountCurrency: String
     ): Outcome<Exception, CardAccountLinkDto> = api.linkCardAccount(
-        authorization = authHeader,
         cardId = cardId,
         cardAccountLinkDto = CardAccountLinkDto(
             accountCurrency = accountCurrency
@@ -87,45 +79,32 @@ class BlockchainCardService internal constructor(
     )
 
     suspend fun getCardLinkedAccount(
-        authHeader: String,
         cardId: String
     ): Outcome<Exception, CardAccountLinkDto> = api.getCardLinkedAccount(
-        authorization = authHeader,
         cardId = cardId
     )
 
     suspend fun lockCard(
-        authHeader: String,
         cardId: String
     ): Outcome<Exception, CardDto> = api.lockCard(
-        authorization = authHeader,
         cardId = cardId
     )
 
     suspend fun unlockCard(
-        authHeader: String,
         cardId: String
     ): Outcome<Exception, CardDto> = api.unlockCard(
-        authorization = authHeader,
         cardId = cardId
     )
 
-    suspend fun getResidentialAddress(
-        authHeader: String,
-    ): Outcome<Exception, ResidentialAddressRequestDto> = api.getResidentialAddress(
-        authorization = authHeader
-    )
+    suspend fun getResidentialAddress(): Outcome<Exception, ResidentialAddressRequestDto> = api.getResidentialAddress()
 
     suspend fun updateResidentialAddress(
-        authHeader: String,
         residentialAddress: ResidentialAddressDto
     ): Outcome<Exception, ResidentialAddressRequestDto> = api.updateResidentialAddress(
-        authorization = authHeader,
         residentialAddress = ResidentialAddressUpdateDto(address = residentialAddress)
     )
 
     suspend fun getTransactions(
-        authHeader: String,
         cardId: String? = null,
         types: List<String>? = null,
         from: String? = null,
@@ -134,7 +113,6 @@ class BlockchainCardService internal constructor(
         fromId: String? = null,
         limit: Int? = null,
     ): Outcome<Exception, List<BlockchainCardTransactionDto>> = api.getTransactions(
-        authorization = authHeader,
         cardId = cardId,
         types = types,
         from = from,
@@ -144,17 +122,19 @@ class BlockchainCardService internal constructor(
         limit = limit
     )
 
-    suspend fun getLegalDocuments(
-        authHeader: String
-    ): Outcome<Exception, List<BlockchainCardLegalDocumentDto>> = api.getLegalDocuments(
-        authorization = authHeader
-    )
+    suspend fun getLegalDocuments(): Outcome<Exception, List<BlockchainCardLegalDocumentDto>> = api.getLegalDocuments()
 
     suspend fun acceptLegalDocuments(
-        authHeader: String,
         acceptedDocumentsForm: BlockchainCardAcceptedDocsFormDto
     ): Outcome<Exception, List<BlockchainCardLegalDocumentDto>> = api.acceptLegalDocuments(
-        authorization = authHeader,
         acceptedDocumentsForm = acceptedDocumentsForm
+    )
+
+    suspend fun provisionGoogleWalletCard(
+        cardId: String,
+        provisionRequest: BlockchainCardGoogleWalletProvisionRequestDto
+    ): Outcome<Exception, BlockchainCardGoogleWalletProvisionResponseDto> = api.provisionGoogleWalletCard(
+        cardId = cardId,
+        provisionRequest = provisionRequest
     )
 }

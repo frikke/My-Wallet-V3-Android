@@ -305,28 +305,28 @@ private class ExpandableCheckoutItemViewHolder(
             ConstraintSet.START,
             ConstraintSet.PARENT_ID,
             ConstraintSet.START,
-            view.resources.getDimensionPixelOffset(R.dimen.standard_margin)
+            view.resources.getDimensionPixelOffset(R.dimen.standard_spacing)
         )
         constraintSet.connect(
             view.id,
             ConstraintSet.END,
             ConstraintSet.PARENT_ID,
             ConstraintSet.END,
-            view.resources.getDimensionPixelOffset(R.dimen.standard_margin)
+            view.resources.getDimensionPixelOffset(R.dimen.standard_spacing)
         )
         constraintSet.connect(
             view.id,
             ConstraintSet.TOP,
             binding.expandableItemTitle.id,
             ConstraintSet.BOTTOM,
-            view.resources.getDimensionPixelOffset(R.dimen.tiny_margin)
+            view.resources.getDimensionPixelOffset(R.dimen.tiny_spacing)
         )
         constraintSet.connect(
             binding.expandableItemExpansion.id,
             ConstraintSet.TOP,
             view.id,
             ConstraintSet.BOTTOM,
-            view.resources.getDimensionPixelOffset(R.dimen.smallest_margin)
+            view.resources.getDimensionPixelOffset(R.dimen.smallest_spacing)
         )
         constraintSet.applyTo(binding.root)
     }

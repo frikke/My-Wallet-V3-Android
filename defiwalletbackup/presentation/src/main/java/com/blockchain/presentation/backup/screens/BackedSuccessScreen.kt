@@ -45,7 +45,7 @@ fun BackupSuccessScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_margin)),
+                .padding(dimensionResource(id = R.dimen.standard_spacing)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.weight(1F))
@@ -54,7 +54,7 @@ fun BackupSuccessScreen(
                 imageResource = ImageResource.Local(R.drawable.ic_backup_successful)
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
             Text(
                 text = stringResource(R.string.backup_success_title),
@@ -62,7 +62,7 @@ fun BackupSuccessScreen(
                 color = Grey900,
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
 
             Text(
                 text = stringResource(R.string.backup_success_description),

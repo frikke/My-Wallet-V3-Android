@@ -4,12 +4,12 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
@@ -26,6 +26,7 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
+import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 
 class TransactionInteractorTest {
@@ -45,32 +46,38 @@ class TransactionInteractorTest {
     private val paymentMethodService: PaymentMethodService = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val identity: UserIdentity = mock()
-    private val accountsSorting: AccountsSorting = mock()
+    private val defaultAccountSorting: AccountsSorting = mock()
+    private val swapSourceAccountsSorting: AccountsSorting = mock()
+    private val swapTargetAccountsSorting: AccountsSorting = mock()
     private val linkedBanksFactory: LinkedBanksFactory = mock()
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
     private val dismissRecorder: DismissRecorder = mock()
-    private val showSendToDomainAnnouncementFeatureFlag: IntegratedFeatureFlag = mock()
     private val fiatCurrenciesService: FiatCurrenciesService = mock()
+    private val quickfillSwapSellFF: FeatureFlag = mock()
+    private val quickFillRoundingService: QuickFillRoundingService = mock()
 
     private lateinit var subject: TransactionInteractor
 
     @Before
     fun setUp() {
         subject = TransactionInteractor(
-            coincore,
-            addressFactory,
-            custodialRepository,
-            custodialWalletManager,
-            bankService,
-            paymentMethodService,
-            currencyPrefs,
-            identity,
-            accountsSorting,
-            linkedBanksFactory,
-            bankLinkingPrefs,
-            dismissRecorder,
-            showSendToDomainAnnouncementFeatureFlag,
-            fiatCurrenciesService
+            coincore = coincore,
+            addressFactory = addressFactory,
+            custodialRepository = custodialRepository,
+            custodialWalletManager = custodialWalletManager,
+            bankService = bankService,
+            paymentMethodService = paymentMethodService,
+            currencyPrefs = currencyPrefs,
+            identity = identity,
+            defaultAccountsSorting = defaultAccountSorting,
+            swapSourceAccountsSorting = swapSourceAccountsSorting,
+            swapTargetAccountsSorting = swapTargetAccountsSorting,
+            linkedBanksFactory = linkedBanksFactory,
+            bankLinkingPrefs = bankLinkingPrefs,
+            dismissRecorder = dismissRecorder,
+            fiatCurrenciesService = fiatCurrenciesService,
+            swapSellQuickFillFF = quickfillSwapSellFF,
+            quickFillRoundingService = quickFillRoundingService
         )
     }
 

@@ -36,7 +36,7 @@ class NabuUserSerializationTest {
                 line1 = "line1",
                 line2 = "line2",
                 city = "city",
-                state = "state",
+                stateIso = "state",
                 postCode = "postCode",
                 countryCode = "countryCode"
             ),

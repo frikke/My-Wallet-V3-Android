@@ -15,7 +15,16 @@ val coinviewDomainModule = module {
                 walletModeService = get(),
                 interestService = get(),
                 watchlistDataManager = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                stakingService = get()
+            )
+        }
+
+        scoped {
+            GetAccountActionsUseCase(
+                assetActionsComparator = get(),
+                dashboardPrefs = get(),
+                dispatcher = Dispatchers.IO
             )
         }
 
@@ -39,12 +48,6 @@ val coinviewDomainModule = module {
                 kycService = get(),
                 userFeaturePermissionService = get(),
                 custodialWalletManager = get()
-            )
-        }
-
-        scoped {
-            LoadAssetInfoUseCase(
-                assetService = get()
             )
         }
     }

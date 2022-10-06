@@ -1,14 +1,19 @@
 package com.blockchain.koin
 
 import android.app.Application
+import com.blockchain.addressverification.koin.addressVerificationModule
 import com.blockchain.analytics.data.koin.analyticsModule
 import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
 import com.blockchain.blockchaincard.koin.blockchainCardModule
 import com.blockchain.coincore.coincoreModule
+import com.blockchain.common.util.commonMpUtilsModule
+import com.blockchain.core.experiments.experimentsTraitsModule
 import com.blockchain.core.price.pricesModule
 import com.blockchain.deeplinking.koin.deeplinkModule
 import com.blockchain.defiwalletbackup.data.koin.backupPhraseDataModule
+import com.blockchain.home.data.koin.homeDataModule
+import com.blockchain.home.presentation.koin.homePresentationModule
 import com.blockchain.koin.modules.apiInterceptorsModule
 import com.blockchain.koin.modules.appProperties
 import com.blockchain.koin.modules.applicationModule
@@ -26,10 +31,11 @@ import com.blockchain.metadata.metadataModule
 import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.notifications.koin.notificationModule
+import com.blockchain.payments.googlepay.googlePayPresentationModule
 import com.blockchain.presentation.koin.backupPhrasePresentationModule
 import com.blockchain.serializers.jsonSerializers
 import com.blockchain.store_caches_inmemory.storeCachesInMemoryModule
-import com.blockchain.store_caches_persistedjsonsqldelight.storeCachesPersistedJsonSqlDelightModule
+import com.blockchain.store_persisters_persistedjsonsqldelight.storePersistersJsonSqlDelightModule
 import com.blockchain.walletconnect.koin.walletConnectModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -39,6 +45,7 @@ import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.campaign.campaignModule
+import piuk.blockchain.android.fraud.data.fraudDataModule
 import piuk.blockchain.android.maintenance.data.appMaintenanceDataModule
 import piuk.blockchain.android.maintenance.domain.appMaintenanceDomainModule
 import piuk.blockchain.android.maintenance.presentation.appMaintenancePresentationModule
@@ -66,6 +73,7 @@ import piuk.blockchain.android.ui.linkbank.data.bankAuthDataModule
 import piuk.blockchain.android.ui.linkbank.domain.bankAuthDomainModule
 import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.bankAuthPresentationModule
 import piuk.blockchain.android.ui.login.loginUiModule
+import piuk.blockchain.android.ui.multiapp.multiAppModule
 import piuk.blockchain.android.ui.prices.presentation.pricesPresentationModule
 import piuk.blockchain.android.ui.referral.presentation.referralPresentationModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
@@ -73,6 +81,7 @@ import piuk.blockchain.android.ui.settings.v2.redesignSettingsModule
 import piuk.blockchain.android.ui.start.startupUiModule
 import piuk.blockchain.android.ui.transactionflow.transactionModule
 import piuk.blockchain.android.ui.transfer.receive.receiveCryptoModule
+import piuk.blockchain.android.util.accessibilityModule
 import piuk.blockchain.com.internalFeatureFlagsModule
 import timber.log.Timber
 
@@ -94,6 +103,8 @@ object KoinStarter {
                     apiInterceptorsModule,
                     apiModule,
                     blockchainApiModule,
+                    homePresentationModule,
+                    homeDataModule,
                     applicationModule,
                     jsonSerializers,
                     coroutinesModule,
@@ -103,15 +114,14 @@ object KoinStarter {
                     bitpayModule,
                     coincoreModule,
                     transactionModule,
+                    commonMpUtilsModule,
                     okHttpModule,
                     coreModule,
                     pricesModule,
                     dashboardAnnouncementsModule,
                     environmentModule,
-
                     coinviewPresentationModule, coinviewDomainModule,
                     internalFeatureFlagsModule,
-                    authenticationModule,
                     kycUiModule,
                     kycUiNabuModule,
                     loginUiModule,
@@ -128,18 +138,22 @@ object KoinStarter {
                     sunriverModule,
                     walletModule,
                     xlmModule,
-                    kycAutocompleteModule,
                     mainModule,
                     redesignSettingsModule,
                     remoteFeatureFlagsModule,
                     deeplinkModule,
                     loggingModule,
                     analyticsModule,
+                    accessibilityModule,
+                    experimentsTraitsModule,
                     customerSupportModule,
                     storeCachesInMemoryModule,
-                    storeCachesPersistedJsonSqlDelightModule,
+                    storePersistersJsonSqlDelightModule,
                     blockchainCardModule,
+                    googlePayPresentationModule,
                     interestDashboardDomainModule, interestDashboardPresentationModule,
+                    kycAutocompleteModule,
+                    addressVerificationModule,
                     appMaintenanceDataModule, appMaintenanceDomainModule, appMaintenancePresentationModule,
                     bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule,
                     referralPresentationModule,
@@ -147,7 +161,9 @@ object KoinStarter {
                     backupPhraseDataModule, backupPhrasePresentationModule,
                     pricesPresentationModule,
                     bankAliasLinkPresentationModule,
-                    educationalWalletModesPresentationModule
+                    educationalWalletModesPresentationModule,
+                    fraudDataModule,
+                    multiAppModule
                 )
             )
         }

@@ -5,7 +5,6 @@ import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.veriff.VeriffApplicantAndToken
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -14,18 +13,17 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.kyc.BaseKycPresenter
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.navhost.models.UiState
 import piuk.blockchain.androidcore.utils.SessionPrefs
 import timber.log.Timber
 
 class VeriffSplashPresenter(
-    nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
     private val kycTiersStore: KycTiersStore,
     private val prefs: SessionPrefs,
     private val analytics: Analytics
-) : BaseKycPresenter<VeriffSplashView>(nabuToken) {
+) : BasePresenter<VeriffSplashView>() {
 
     private var applicantToken: VeriffApplicantAndToken? = null
 
@@ -52,10 +50,7 @@ class VeriffSplashPresenter(
     }
 
     private fun fetchRequiredDocumentList() {
-        compositeDisposable += fetchOfflineToken
-            .flatMap { token ->
-                nabuDataManager.getSupportedDocuments(token, view.countryCode)
-            }
+        compositeDisposable += nabuDataManager.getSupportedDocuments(view.countryCode)
             .doOnError(Timber::e)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy { documents ->
@@ -65,10 +60,7 @@ class VeriffSplashPresenter(
 
     private fun fetchVeriffStartApplicantToken() {
         compositeDisposable +=
-            fetchOfflineToken
-                .flatMap { token ->
-                    nabuDataManager.startVeriffSession(token)
-                }
+            nabuDataManager.startVeriffSession()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onSuccess = {
@@ -110,11 +102,8 @@ class VeriffSplashPresenter(
 
     internal fun submitVerification() {
         compositeDisposable +=
-            fetchOfflineToken
-                .flatMapCompletable { tokenResponse ->
-                    nabuDataManager.submitVeriffVerification(tokenResponse)
-                        .subscribeOn(Schedulers.io())
-                }
+            nabuDataManager.submitVeriffVerification()
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { view.showProgressDialog(false) }
                 .doOnTerminate { view.dismissProgressDialog() }

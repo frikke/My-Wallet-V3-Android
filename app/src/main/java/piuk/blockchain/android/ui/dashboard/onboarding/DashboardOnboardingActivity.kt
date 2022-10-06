@@ -18,6 +18,7 @@ import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
@@ -166,9 +167,10 @@ class DashboardOnboardingActivity :
                 }
                 showBottomSheet(
                     PaymentMethodChooserBottomSheet.newInstance(
-                        action.eligiblePaymentMethods,
+                        paymentMethods = action.eligiblePaymentMethods,
                         mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES,
-                        canAddNewPayment = true
+                        canAddNewPayment = true,
+                        cardRejectionFFEnabled = false
                     )
                 )
             }
@@ -211,6 +213,10 @@ class DashboardOnboardingActivity :
     override fun showAvailableToAddPaymentMethods() {
         // The paymentmethodchooser bottomsheet should be correctly configured so not to show Add Payment method button
         throw UnsupportedOperationException()
+    }
+
+    override fun onRejectableCardSelected(cardInfo: CardRejectionState) {
+        // do nothing
     }
 
     override fun onErrorPrimaryCta() {

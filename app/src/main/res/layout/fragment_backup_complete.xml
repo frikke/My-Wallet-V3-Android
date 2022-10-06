@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_toStartOf="@+id/icon"
-            android:layout_marginEnd="@dimen/smallest_margin"
+            android:layout_marginEnd="@dimen/smallest_spacing"
             android:orientation="vertical">
 
             <TextView
@@ -62,14 +62,14 @@
         style="@style/Text.Standard.Centered.14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/huge_margin"
+        android:layout_marginTop="@dimen/huge_spacing"
         android:text="@string/backup_complete_message_1" />
 
     <TextView
         style="@style/Text.Standard.Centered.12"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/huge_margin"
+        android:layout_marginTop="@dimen/huge_spacing"
         android:text="@string/backup_lost_mnemonic_1" />
 
     <androidx.appcompat.widget.AppCompatButton
@@ -77,7 +77,7 @@
         style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/huge_margin"
+        android:layout_marginTop="@dimen/huge_spacing"
         android:text="@string/done" />
 
     <androidx.appcompat.widget.AppCompatButton
@@ -85,6 +85,6 @@
         style="@style/CtaButton.White"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginTop="@dimen/small_spacing"
         android:text="@string/backup_again" />
 </LinearLayout>

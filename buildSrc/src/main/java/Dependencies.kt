@@ -8,7 +8,7 @@ object Versions {
     const val compileSdk = 32
 
     const val versionCode = 21422
-    const val versionName = "202209.2.0"
+    const val versionName = "202210.2.0"
 
     const val buildTools = "30.0.3"
 
@@ -30,7 +30,7 @@ object Versions {
     const val recyclerview = "1.2.1"
     const val cardview = "1.0.0"
     const val gridlayout = "1.0.0"
-    const val design = "1.1.0"
+    const val design = "1.4.0"
     const val preference = "1.1.0"
     const val dynamicanimation = "1.0.0"
     const val annotations = "1.2.0"
@@ -49,6 +49,10 @@ object Versions {
     const val googleServicesPlaces = "2.6.0"
     const val googleServicesReCaptcha = "16.0.0"
     const val googleServicesWallet = "19.0.1"
+    const val googleServicesCoroutines = "1.6.4"
+    const val googleServicesTapAndPay = "18.2.0"
+    const val googleServicesBasement = "18.1.0"
+    const val googleServicesTasks = "18.0.2"
     const val googlePlayCore = "1.8.2"
     const val firebaseBom = "29.2.1"
     const val supportTesting = "1.0.2"
@@ -116,6 +120,7 @@ object Versions {
     const val swipeRefresh = "0.25.0"
     const val pager = "0.25.0"
     const val pagerIndicators = "0.25.0"
+    const val drawablePainter = "0.25.0"
 
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
@@ -134,7 +139,7 @@ object Versions {
     const val zendeskMessagingVersion = "5.2.3"
     const val checkoutComVersion = "3.0.1"
     const val stripeVersion = "20.3.0"
-    const val intercomVersion = "10.6.0"
+    const val intercomVersion = "12.3.0"
     const val plaidLinkVersion = "3.9.0"
     const val exoPlayerVersion = "2.18.1"
 
@@ -220,6 +225,10 @@ object Libraries {
     const val firebaseDynamicLink = "com.google.firebase:firebase-dynamic-links"
     const val googlePlayServicesBase =
         "com.google.android.gms:play-services-base:${Versions.googleServices}"
+    const val googlePlayServicesBasement =
+        "com.google.android.gms:play-services-basement:${Versions.googleServicesBasement}"
+    const val googlePlayServicesTasks =
+        "com.google.android.gms:play-services-tasks:${Versions.googleServicesTasks}"
     const val googlePlayServicesAuth =
         "com.google.android.gms:play-services-auth:${Versions.googleServicesAuth}"
     const val googlePlaces =
@@ -229,8 +238,14 @@ object Libraries {
     const val googleServicesWallet =
         "com.google.android.gms:play-services-wallet:${Versions.googleServicesWallet}"
     const val googlePlayCore = "com.google.android.play:core:${Versions.googlePlayCore}"
+    const val googlePlayServicesCoroutines =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:${Versions.googleServicesCoroutines}"
+    const val googlePlayServicesTapAndPay =
+        "com.google.android.gms:play-services-tapandpay:${Versions.googleServicesTapAndPay}"
+
     const val biometricsApi = "androidx.biometric:biometric:${Versions.biometrics}"
     const val adsIdentifier = "com.google.android.gms:play-services-ads-identifier:${Versions.adsIdentifier}"
+
 
     // Networking, RxJava
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
@@ -331,6 +346,8 @@ object Libraries {
     const val accompanistPager = "com.google.accompanist:accompanist-pager:${Versions.pager}"
     const val accompanistPagerIndicators =
         "com.google.accompanist:accompanist-pager-indicators:${Versions.pagerIndicators}"
+    const val accompanistDrawablePainter =
+        "com.google.accompanist:accompanist-drawablepainter:${Versions.drawablePainter}"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"

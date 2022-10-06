@@ -6,7 +6,7 @@
     style="@style/DashboardCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/small_margin">
+    android:padding="@dimen/small_spacing">
 
     <piuk.blockchain.android.ui.customviews.FiatCurrencySymbolView
         android:id="@+id/funds_icon"
@@ -21,7 +21,7 @@
         style="@style/Text.Standard.20"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/small_margin"
+        android:layout_marginStart="@dimen/small_spacing"
         app:layout_constraintStart_toEndOf="@id/funds_icon"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="British Pound" />
@@ -31,7 +31,7 @@
         style="@style/Text.Light.14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/very_small_margin"
+        android:layout_marginEnd="@dimen/very_small_spacing"
         android:ellipsize="end"
         app:layout_constraintEnd_toStartOf="@id/funds_balance"
         app:layout_constraintHorizontal_bias="0"

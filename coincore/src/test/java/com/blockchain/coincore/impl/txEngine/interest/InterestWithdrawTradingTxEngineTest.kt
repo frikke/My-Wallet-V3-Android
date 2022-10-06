@@ -7,7 +7,7 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.ValidationState
-import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.data.store.TradingStore
@@ -167,7 +167,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
         verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
         verify(currencyPrefs).selectedFiatCurrency
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
         verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -201,7 +201,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
         verify(interestService).getLimitsForAsset(ASSET)
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(ASSET, Product.SAVINGS)
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -240,7 +240,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
         verify(custodialWalletManager).fetchCryptoWithdrawFeeAndMinLimit(
             ASSET, Product.SAVINGS
         )
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -293,9 +293,9 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
     private fun mockSourceAccount(
         totalBalance: Money = CryptoValue.zero(ASSET),
         availableBalance: Money = CryptoValue.zero(ASSET),
-    ) = mock<CryptoInterestAccount> {
+    ) = mock<CustodialInterestAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balance }.thenReturn(
+        on { balanceRx }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,

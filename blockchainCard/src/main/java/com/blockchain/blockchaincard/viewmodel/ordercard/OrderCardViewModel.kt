@@ -43,6 +43,8 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
         legalDocuments = state.legalDocuments,
         isLegalDocReviewComplete = state.isLegalDocReviewComplete,
         singleLegalDocumentToSee = state.singleLegalDocumentToSee,
+        isAddressLoading = state.isAddressLoading,
+        userFirstAndLastName = state.userFirstAndLastName
     )
 
     override suspend fun handleIntent(
@@ -51,29 +53,40 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
     ) {
         when (intent) {
 
+            is BlockchainCardIntent.HowToOrderCard -> {
+                navigate(BlockchainCardNavigationEvent.ShowHowToOrderCard)
+            }
+
             is BlockchainCardIntent.OrderCardKYCAddress -> {
                 onIntent(BlockchainCardIntent.LoadResidentialAddress)
                 navigate(BlockchainCardNavigationEvent.OrderCardKycAddress)
             }
 
-            is BlockchainCardIntent.OrderCardSSNAddress -> {
+            is BlockchainCardIntent.OrderCardKYCSSN -> {
                 navigate(BlockchainCardNavigationEvent.OrderCardKycSSN)
             }
 
             is BlockchainCardIntent.OrderCardKycComplete -> {
                 updateState { it.copy(ssn = intent.ssn) }
-                onIntent(BlockchainCardIntent.LoadLegalDocuments)
-                navigate(BlockchainCardNavigationEvent.OrderCardConfirm)
+                navigate(BlockchainCardNavigationEvent.ChooseCardProduct)
             }
 
             is BlockchainCardIntent.LoadResidentialAddress -> {
+
+                updateState { it.copy(isAddressLoading = true) }
+
                 blockchainCardRepository.getResidentialAddress().fold(
                     onSuccess = { address ->
-                        updateState { it.copy(residentialAddress = address) }
+                        updateState { it.copy(residentialAddress = address, isAddressLoading = false) }
                     },
                     onFailure = { error ->
                         Timber.e("Unable to get residential address: $error")
-                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                        updateState {
+                            it.copy(
+                                errorState = BlockchainCardErrorState.SnackbarErrorState(error),
+                                isAddressLoading = false
+                            )
+                        }
                     }
                 )
             }
@@ -87,21 +100,29 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                         .doOnFailure {
                             Timber.e("Unable to get states: $it")
                         }
+                    navigate(BlockchainCardNavigationEvent.SeeBillingAddress(address))
                 }
-                navigate(BlockchainCardNavigationEvent.SeeBillingAddress)
             }
 
             is BlockchainCardIntent.UpdateBillingAddress -> {
+
+                updateState { it.copy(isAddressLoading = true) }
+
                 blockchainCardRepository.updateResidentialAddress(
                     intent.newAddress
                 ).fold(
                     onSuccess = { newAddress ->
-                        updateState { it.copy(residentialAddress = newAddress) }
+                        updateState { it.copy(residentialAddress = newAddress, isAddressLoading = false) }
                         navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = true))
                     },
                     onFailure = { error ->
                         Timber.e("Unable to update residential address: $error")
-                        updateState { it.copy(errorState = BlockchainCardErrorState.ScreenErrorState(error)) }
+                        updateState {
+                            it.copy(
+                                errorState = BlockchainCardErrorState.ScreenErrorState(error),
+                                isAddressLoading = false
+                            )
+                        }
                         navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = false))
                     }
                 )
@@ -121,6 +142,12 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
 
             is BlockchainCardIntent.OnSeeProductLegalInfo -> {
                 navigate(BlockchainCardNavigationEvent.SeeProductLegalInfo)
+            }
+
+            is BlockchainCardIntent.OnOrderCardConfirm -> {
+                onIntent(BlockchainCardIntent.LoadLegalDocuments)
+                onIntent(BlockchainCardIntent.LoadUserFirstAndLastName)
+                navigate(BlockchainCardNavigationEvent.ReviewAndSubmitCard)
             }
 
             is BlockchainCardIntent.CreateCard -> {
@@ -209,6 +236,19 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                 updateState { it.copy(isLegalDocReviewComplete = true) }
                 navigate(BlockchainCardNavigationEvent.FinishLegalDocReview)
             }
+
+            is BlockchainCardIntent.LoadUserFirstAndLastName -> {
+                blockchainCardRepository.getUserFirstAndLastName().fold(
+                    onSuccess = { firstAndLastName ->
+                        updateState { it.copy(userFirstAndLastName = firstAndLastName) }
+                    },
+                    onFailure = { error ->
+                        Timber.e("Unable to get user first and last name: $error")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                    }
+                )
+            }
+
             else -> {
                 Timber.e("Unknown intent: $intent")
             }

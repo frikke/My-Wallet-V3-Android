@@ -1,12 +1,16 @@
 package piuk.blockchain.android.ui.createwallet
 
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.domain.eligibility.model.Region
 
 data class CreateWalletViewState(
+    val step: CreateWalletStep,
+
     val emailInput: String,
+    val isShowingInvalidEmailError: Boolean,
     val passwordInput: String,
-    val passwordConfirmationInput: String,
+    val passwordInputError: CreateWalletPasswordError?,
 
     val countryInputState: CountryInputState,
     val stateInputState: StateInputState,
@@ -17,8 +21,7 @@ data class CreateWalletViewState(
     val isInvalidReferralErrorShowing: Boolean,
 
     val isCreateWalletLoading: Boolean,
-
-    val isNextEnabled: Boolean,
+    val nextButtonState: ButtonState,
 
     val error: CreateWalletError? = null,
 ) : ViewState

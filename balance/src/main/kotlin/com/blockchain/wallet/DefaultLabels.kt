@@ -16,5 +16,7 @@ interface DefaultLabels {
     fun getDefaultFiatWalletLabel(): String
     fun getDefaultInterestWalletLabel(): String
     fun getDefaultExchangeWalletLabel(): String
+    fun getDefaultStakingWalletLabel(): String
     fun getDefaultCustodialFiatWalletLabel(fiatCurrency: FiatCurrency): String
+    fun getDefaultCustodialGroupLabel(): String
 }

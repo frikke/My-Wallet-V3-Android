@@ -79,7 +79,7 @@ class TradingToOnChainTxEngine(
         val withdrawFeeAndMinLimit =
             walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.BUY).cache()
         return Single.zip(
-            sourceAccount.balance.firstOrError(),
+            sourceAccount.balanceRx.firstOrError(),
             withdrawFeeAndMinLimit,
             limitsDataManager.getLimits(
                 outputCurrency = sourceAsset,
@@ -116,7 +116,7 @@ class TradingToOnChainTxEngine(
         require(amount.currency == sourceAsset)
 
         return Single.zip(
-            sourceAccount.balance.firstOrError(),
+            sourceAccount.balanceRx.firstOrError(),
             walletManager.fetchCryptoWithdrawFeeAndMinLimit(sourceAssetInfo, Product.BUY)
         ) { balance, cryptoFeeAndMin ->
             val fees = Money.fromMinor(sourceAsset, cryptoFeeAndMin.fee)

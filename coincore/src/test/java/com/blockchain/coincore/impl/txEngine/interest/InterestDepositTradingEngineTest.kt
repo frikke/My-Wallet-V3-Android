@@ -5,7 +5,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
-import com.blockchain.coincore.impl.CryptoInterestAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
@@ -31,7 +31,7 @@ import org.junit.Test
 
 class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
-    private fun mockTransactionTarget() = mock<CryptoInterestAccount> {
+    private fun mockTransactionTarget() = mock<CustodialInterestAccount> {
         on { currency }.thenReturn(ASSET)
     }
 
@@ -75,7 +75,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
     @Test(expected = IllegalStateException::class)
     fun `inputs fail validation when assets mismatched`() {
         val sourceAccount = mockSourceAccount()
-        val txTarget: CryptoInterestAccount = mock {
+        val txTarget: CustodialInterestAccount = mock {
             on { currency }.thenReturn(WRONG_ASSET)
         }
 
@@ -151,7 +151,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
 
         verify(interestService).getLimitsForAsset(ASSET)
         verify(currencyPrefs).selectedFiatCurrency
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
         verify(exchangeRates).getLastCryptoToFiatRate(ASSET, TEST_API_FIAT)
 
         noMoreInteractions(sourceAccount, txTarget)
@@ -180,7 +180,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
         verify(sourceAccount, atLeastOnce()).currency
 
         verify(interestService).getLimitsForAsset(ASSET)
-        verify(sourceAccount).balance
+        verify(sourceAccount).balanceRx
 
         noMoreInteractions(sourceAccount, txTarget)
 
@@ -200,7 +200,7 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
         availableBalance: Money = CryptoValue.zero(ASSET),
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(ASSET)
-        on { balance }.thenReturn(
+        on { balanceRx }.thenReturn(
             Observable.just(
                 AccountBalance(
                     total = totalBalance,

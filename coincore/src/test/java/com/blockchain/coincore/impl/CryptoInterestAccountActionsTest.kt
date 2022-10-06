@@ -69,7 +69,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
 
         configureActionTest(
             tier = KycTier.GOLD,
-            userAccessForFeature = FeatureAccess.Blocked(BlockedReason.NotEligible),
+            userAccessForFeature = FeatureAccess.Blocked(BlockedReason.NotEligible(null)),
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN)
         )
 
@@ -93,7 +93,7 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             tier = KycTier.GOLD,
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
-            userAccessForFeature = FeatureAccess.Blocked(BlockedReason.NotEligible)
+            userAccessForFeature = FeatureAccess.Blocked(BlockedReason.NotEligible(null))
         )
 
         subject.stateAwareActions
@@ -155,8 +155,8 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
             }
     }
 
-    private fun configureActionSubject(): CryptoInterestAccount =
-        CryptoInterestAccount(
+    private fun configureActionSubject(): CustodialInterestAccount =
+        CustodialInterestAccount(
             label = "Test Account",
             currency = TEST_ASSET,
             exchangeRates = exchangeRates,

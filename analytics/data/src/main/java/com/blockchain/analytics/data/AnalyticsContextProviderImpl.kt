@@ -1,27 +1,27 @@
 package com.blockchain.analytics.data
 
-import android.content.Context
 import android.content.res.Resources
 import android.os.Build
-import android.view.accessibility.AccessibilityManager
+import com.blockchain.analytics.AnalyticsContext
 import com.blockchain.analytics.AnalyticsContextProvider
-import com.blockchain.api.analytics.AnalyticsContext
-import com.blockchain.api.analytics.DeviceInfo
-import com.blockchain.api.analytics.ScreenInfo
+import com.blockchain.analytics.DeviceInfo
+import com.blockchain.analytics.ScreenInfo
+import com.blockchain.analytics.TraitsService
 import java.util.Locale
 import java.util.TimeZone
 
 class AnalyticsContextProviderImpl constructor(
-    private val context: Context
+    private val traitsServices: List<TraitsService>
 ) : AnalyticsContextProvider {
 
-    override fun context(): AnalyticsContext {
+    override suspend fun context(): AnalyticsContext {
         return AnalyticsContext(
             device = getDeviceInfo(),
             locale = Locale.getDefault().toString(),
             screen = getScreenInfo(),
             timezone = TimeZone.getDefault().id,
-            traits = getTraits()
+            traits = traitsServices.map { traitsService -> traitsService.traits() }
+                .reduce { acc, map -> acc.plus(map) }
         )
     }
 
@@ -40,13 +40,4 @@ class AnalyticsContextProviderImpl constructor(
             density = Resources.getSystem().displayMetrics.density
         )
     }
-
-    private fun getTraits() = mapOf(
-        "accessibility_enabled" to "${isAccessibilityEnabled()}"
-    )
-
-    private fun isAccessibilityEnabled(): Boolean =
-        (context.getSystemService(Context.ACCESSIBILITY_SERVICE) as? AccessibilityManager)?.let {
-            it.isTouchExplorationEnabled
-        } ?: false
 }

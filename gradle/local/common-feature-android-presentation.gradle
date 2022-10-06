@@ -1,6 +1,11 @@
 apply from: rootProject.file('gradle/local/common-feature-android.gradle')
 
 android {
+    defaultConfig {
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+    }
+
     buildFeatures {
         compose true
         viewBinding true
@@ -12,6 +17,8 @@ android {
 }
 
 dependencies {
+    implementation project(':string-resources')
+
     // android
     implementation Libraries.appCompat
     implementation Libraries.androidXAnnotations

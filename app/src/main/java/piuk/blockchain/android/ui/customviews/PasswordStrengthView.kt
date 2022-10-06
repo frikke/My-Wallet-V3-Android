@@ -12,7 +12,7 @@ import piuk.blockchain.android.databinding.ViewPasswordStrengthBinding
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
 
-class PasswordStrengthView(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
+class PasswordStrengthView(context: Context, attrs: AttributeSet?) : ConstraintLayout(context, attrs) {
     private val binding: ViewPasswordStrengthBinding =
         ViewPasswordStrengthBinding.inflate(LayoutInflater.from(context), this, true)
 

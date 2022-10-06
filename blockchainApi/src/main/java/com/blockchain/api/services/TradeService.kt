@@ -6,33 +6,38 @@ import com.blockchain.api.wrapErrorMessage
 class TradeService internal constructor(
     private val api: TradeApi
 ) {
-    fun isFirstTimeBuyer(authHeader: String) =
-        api.isFirstTimeBuyer(authHeader)
+    fun isFirstTimeBuyer() = api.isFirstTimeBuyer()
 
-    fun getNextPaymentDate(authHeader: String) =
-        api.getNextPaymentDate(authHeader)
+    fun getNextPaymentDate() =
+        api.getNextPaymentDate()
 
     fun getRecurringBuysForAsset(
-        authHeader: String,
         assetTicker: String
     ) = api.getRecurringBuysForAsset(
-        authorization = authHeader,
         assetTicker = assetTicker
     ).wrapErrorMessage()
 
     fun getRecurringBuyForId(
-        authHeader: String,
         recurringBuyId: String
     ) = api.getRecurringBuyById(
-        authorization = authHeader,
         recurringBuyId = recurringBuyId
     ).wrapErrorMessage()
 
     fun cancelRecurringBuy(
-        authHeader: String,
         id: String
     ) = api.cancelRecurringBuy(
-        authorization = authHeader,
         id = id
     ).wrapErrorMessage()
+
+    fun getQuotePrice(
+        currencyPair: String,
+        amount: String,
+        paymentMethod: String,
+        orderProfileName: String
+    ) = api.getQuotePrice(
+        currencyPair = currencyPair,
+        amount = amount,
+        paymentMethod = paymentMethod,
+        orderProfileName = orderProfileName
+    )
 }

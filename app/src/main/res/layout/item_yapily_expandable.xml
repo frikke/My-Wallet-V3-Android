@@ -6,7 +6,7 @@
     android:id="@+id/expandable_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/standard_margin">
+    android:padding="@dimen/standard_spacing">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/expandable_title"
@@ -24,7 +24,7 @@
         style="@style/Text.Light.14"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/medium_margin"
+        android:layout_marginTop="@dimen/medium_spacing"
         android:visibility="gone"
         android:autoLink="all"
         app:layout_constraintBottom_toBottomOf="parent"

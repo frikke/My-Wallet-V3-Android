@@ -19,9 +19,9 @@ data class CoinviewViewState(
     val watchlist: CoinviewWatchlistState,
     val totalBalance: CoinviewTotalBalanceState,
     val accounts: CoinviewAccountsState,
-    val quickActionCenter: CoinviewQuickActionsCenterState,
+    val centerQuickAction: CoinviewCenterQuickActionsState,
     val recurringBuys: CoinviewRecurringBuysState,
-    val quickActionBottom: CoinviewQuickActionsBottomState,
+    val bottomQuickAction: CoinviewBottomQuickActionsState,
     val assetInfo: CoinviewAssetInfoState,
 
     val snackbarError: CoinviewSnackbarAlertState
@@ -155,22 +155,20 @@ sealed interface CoinviewRecurringBuysState {
 
 // Quick actions
 // center
-sealed interface CoinviewQuickActionsCenterState {
-    object NotSupported : CoinviewQuickActionsCenterState
-    object Loading : CoinviewQuickActionsCenterState
+sealed interface CoinviewCenterQuickActionsState {
+    object Loading : CoinviewCenterQuickActionsState
     data class Data(
         val center: CoinviewQuickActionState,
-    ) : CoinviewQuickActionsCenterState
+    ) : CoinviewCenterQuickActionsState
 }
 
 // bottom
-sealed interface CoinviewQuickActionsBottomState {
-    object NotSupported : CoinviewQuickActionsBottomState
-    object Loading : CoinviewQuickActionsBottomState
+sealed interface CoinviewBottomQuickActionsState {
+    object Loading : CoinviewBottomQuickActionsState
     data class Data(
         val start: CoinviewQuickActionState,
         val end: CoinviewQuickActionState
-    ) : CoinviewQuickActionsBottomState
+    ) : CoinviewBottomQuickActionsState
 }
 
 sealed interface CoinviewQuickActionState {
@@ -238,8 +236,8 @@ sealed interface CoinviewAssetInfoState {
     object Error : CoinviewAssetInfoState
     data class Data(
         val assetName: String,
-        val description: ValueAvailability,
-        val website: ValueAvailability
+        val description: String?,
+        val website: String?
     ) : CoinviewAssetInfoState
 }
 

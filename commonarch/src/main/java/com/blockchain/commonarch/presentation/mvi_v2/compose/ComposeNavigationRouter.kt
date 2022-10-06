@@ -102,8 +102,8 @@ fun <TNavEvent : NavigationEvent> MviBottomSheetNavHost(
     ModalBottomSheetLayout(
         bottomSheetNavigator = bottomSheetNavigator,
         sheetShape = RoundedCornerShape(
-            topEnd = dimensionResource(R.dimen.small_margin),
-            topStart = dimensionResource(R.dimen.small_margin)
+            topEnd = dimensionResource(R.dimen.small_spacing),
+            topStart = dimensionResource(R.dimen.small_spacing)
         )
     ) {
         NavHost(

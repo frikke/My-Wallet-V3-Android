@@ -15,14 +15,15 @@ import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.network.PollResult
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
+import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
+import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Scheduler
@@ -54,8 +55,7 @@ class MainModel(
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     private val walletModeService: WalletModeService,
     environmentConfig: EnvironmentConfig,
-    remoteLogger: RemoteLogger,
-    private val deeplinkingV2FF: FeatureFlag
+    remoteLogger: RemoteLogger
 ) : MviModel<MainState, MainIntent>(
     initialState,
     mainScheduler,
@@ -71,7 +71,7 @@ class MainModel(
         compositeDisposable += walletConnectServiceAPI.sessionEvents.subscribeBy { sessionEvent ->
             when (sessionEvent) {
                 is WalletConnectSessionEvent.ReadyForApproval -> process(
-                    MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchWalletConnectSessionApproval(sessionEvent.session))
+                    MainIntent.GetNetworkInfoForWCSession(sessionEvent.session)
                 )
                 is WalletConnectSessionEvent.DidConnect -> process(
                     MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchWalletConnectSessionApproved(sessionEvent.session))
@@ -122,15 +122,9 @@ class MainModel(
                 null
             }
             is MainIntent.PerformInitialChecks -> {
-                interactor.checkForUserWalletErrors().toSingleDefault(Any()).flatMap {
-                    deeplinkingV2FF.enabled
-                }.subscribeBy(
-                    onSuccess = { isEnabled ->
-                        if (isEnabled) {
-                            process(MainIntent.ProcessPendingDeeplinkIntent(intent.deeplinkIntent))
-                        } else {
-                            process(MainIntent.CheckForPendingLinks(intent.deeplinkIntent))
-                        }
+                interactor.checkForUserWalletErrors().subscribeBy(
+                    onComplete = {
+                        process(MainIntent.ProcessPendingDeeplinkIntent(intent.deeplinkIntent))
                     },
                     onError = { throwable ->
                         if (throwable is NabuApiException && throwable.isUserWalletLinkError()) {
@@ -255,12 +249,24 @@ class MainModel(
             }
             is MainIntent.RejectWCSession -> walletConnectServiceAPI.denyConnection(intent.session).emptySubscribe()
             is MainIntent.StartWCSession -> walletConnectServiceAPI.attemptToConnect(intent.url).emptySubscribe()
+            is MainIntent.GetNetworkInfoForWCSession -> getNetworkInfoForWCSession(intent.session)
+            is MainIntent.LoadStakingFlag ->
+                interactor.isStakingEnabled().subscribeBy(
+                    onSuccess = {
+                        process(MainIntent.UpdateStakingFlag(it))
+                    },
+                    onError = {
+                        process(MainIntent.UpdateStakingFlag(false))
+                    }
+                )
+            is MainIntent.UpdateStakingFlag,
             MainIntent.ResetViewState,
-            is MainIntent.UpdateViewToLaunch -> null
-            is MainIntent.UpdateDeepLinkResult -> null
-            is MainIntent.ReferralCodeIntent -> null
-            is MainIntent.ShowReferralWhenAvailable -> null
-            is MainIntent.UpdateCurrentTab -> null
+            is MainIntent.SelectNetworkForWCSession,
+            is MainIntent.UpdateViewToLaunch,
+            is MainIntent.UpdateDeepLinkResult,
+            is MainIntent.ReferralCodeIntent,
+            is MainIntent.ShowReferralWhenAvailable,
+            is MainIntent.UpdateCurrentTab,
             is MainIntent.UpdateTabs -> null
         }
 
@@ -587,6 +593,45 @@ class MainModel(
                 )
         }
     }
+
+    private fun getNetworkInfoForWCSession(session: WalletConnectSession) =
+        interactor.getSupportedEvmNetworks().subscribeBy(
+            onError = {
+                Timber.e(it)
+                process(
+                    MainIntent.UpdateViewToLaunch(
+                        ViewToLaunch.LaunchWalletConnectSessionApproval(
+                            session
+                        )
+                    )
+                )
+            },
+            onSuccess = { networks ->
+                val network = networks.find { it.chainId == session.dAppInfo.chainId }
+                network?.let {
+                    val networkInfo = NetworkInfo(
+                        networkTicker = network.networkTicker,
+                        name = network.networkName,
+                        chainId = network.chainId,
+                        logo = interactor.getAssetFromTicker(network.networkTicker)?.logo
+                    )
+                    process(
+                        MainIntent.UpdateViewToLaunch(
+                            ViewToLaunch.LaunchWalletConnectSessionApprovalWithNetwork(
+                                session,
+                                networkInfo
+                            )
+                        )
+                    )
+                } ?: process(
+                    MainIntent.UpdateViewToLaunch(
+                        ViewToLaunch.LaunchWalletConnectSessionApproval(
+                            session
+                        )
+                    )
+                )
+            }
+        )
 
     private fun handleOrderState(state: SimpleBuyState) {
         if (state.orderState == OrderState.AWAITING_FUNDS) {

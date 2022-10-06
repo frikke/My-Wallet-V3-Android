@@ -124,6 +124,10 @@
             android:theme="@style/AppTheme.MainActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
+            android:name=".ui.multiapp.MultiAppActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" >
+        </activity>
+        <activity
             android:name=".ui.scan.QrScanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
@@ -256,8 +260,9 @@
             android:name=".ui.settings.v2.profile.ProfileActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.dashboard.coinview.CoinViewActivity" />
-        <activity android:name=".ui.coinview.presentation.CoinviewActivity" />
+        <activity android:name=".ui.coinview.presentation.CoinViewActivityV2" />
         <activity android:name=".ui.cowboys.CowboysFlowActivity" />
+        <activity android:name=".ui.blockchaincard.BlockchainCardActivity" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

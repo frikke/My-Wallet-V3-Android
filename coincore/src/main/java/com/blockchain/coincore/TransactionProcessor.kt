@@ -121,10 +121,10 @@ data class PendingTx(
         )
 
     internal fun isMinLimitViolated(): Boolean =
-        limits?.isMinViolatedByAmount(amount) ?: throw IllegalStateException("Limits are undefined")
+        limits?.isAmountUnderMin(amount) ?: throw IllegalStateException("Limits are undefined")
 
     internal fun isMaxLimitViolated() =
-        limits?.isMaxViolatedByAmount(amount) ?: throw IllegalStateException("Limits are undefined")
+        limits?.isAmountOverMax(amount) ?: throw IllegalStateException("Limits are undefined")
 }
 
 enum class TxConfirmation {

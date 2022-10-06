@@ -67,7 +67,7 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
         whenever(payloadDataManager.getAddressBalanceRefresh(eq(xpubs), any()))
             .thenReturn(Single.just(btcBalance))
 
-        subject.balance
+        subject.balanceRx
             .test()
             .assertValue {
                 it.total == btcBalance &&
@@ -86,7 +86,7 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
         whenever(payloadDataManager.getAddressBalanceRefresh(eq(xpubs), any()))
             .thenReturn(Single.just(btcBalance))
 
-        subject.balance
+        subject.balanceRx
             .test()
             .assertValue {
                 it.total.isZero &&

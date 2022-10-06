@@ -15,21 +15,23 @@ import com.blockchain.core.Database
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
-import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cardRejectionCheckFeatureFlag
-import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
+import com.blockchain.koin.feynmanFeatureFlag
 import com.blockchain.koin.gbp
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.quickFillButtonsFeatureFlag
+import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.rbExperimentFeatureFlag
+import com.blockchain.koin.rbFrequencyFeatureFlag
+import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -42,11 +44,6 @@ import com.blockchain.network.websocket.newBlockchainWebSocket
 import com.blockchain.payments.checkoutcom.CheckoutCardProcessor
 import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
-import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
-import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptorImpl
-import com.blockchain.payments.googlepay.interceptor.PaymentDataMapper
-import com.blockchain.payments.googlepay.manager.GooglePayManager
-import com.blockchain.payments.googlepay.manager.GooglePayManagerImpl
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.ui.password.SecondPasswordHandler
@@ -57,8 +54,8 @@ import com.squareup.sqldelight.db.SqlDriver
 import exchange.ExchangeLinking
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -169,7 +166,6 @@ import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
-import java.io.File
 
 val applicationModule = module {
 
@@ -240,10 +236,6 @@ val applicationModule = module {
 
         factory {
             KycStatusHelper(
-                eligibilityService = get(),
-                userService = get(),
-                nabuToken = get(),
-                settingsDataManager = get(),
                 kycService = get()
             )
         }
@@ -257,6 +249,7 @@ val applicationModule = module {
                 appUtil = get(),
                 ethDataManager = get(),
                 bchDataManager = get(),
+                walletModeService = get(),
                 metadataService = get(),
                 walletOptionsState = get(),
                 nabuDataManager = get(),
@@ -432,6 +425,7 @@ val applicationModule = module {
             SimpleBuyInteractor(
                 withdrawLocksRepository = get(),
                 kycService = get(),
+                tradeDataService = get(),
                 custodialWalletManager = get(),
                 limitsDataManager = get(),
                 coincore = get(),
@@ -448,11 +442,18 @@ val applicationModule = module {
                 cardService = get(),
                 paymentMethodService = get(),
                 paymentsRepository = get(),
-                quickFillButtonsFeatureFlag = get(quickFillButtonsFeatureFlag),
                 simpleBuyPrefs = get(),
                 onboardingPrefs = get(),
-                cardRejectionCheckFF = get(cardRejectionCheckFeatureFlag),
-                eligibilityService = get()
+                eligibilityService = get(),
+                cardPaymentAsyncFF = get(cardPaymentAsyncFeatureFlag),
+                buyQuoteRefreshFF = get(buyRefreshQuoteFeatureFlag),
+                plaidFF = get(plaidFeatureFlag),
+                rbFrequencySuggestionFF = get(rbFrequencyFeatureFlag),
+                cardRejectionFF = get(cardRejectionCheckFeatureFlag),
+                rbExperimentFF = get(rbExperimentFeatureFlag),
+                feynmanFF = get(feynmanFeatureFlag),
+                remoteConfigRepository = get(),
+                quickFillRoundingService = get()
             )
         }
 
@@ -532,17 +533,16 @@ val applicationModule = module {
         factory<TradeDataService> {
             TradeDataRepository(
                 tradeService = get(),
-                authenticator = get(),
                 accumulatedInPeriodMapper = GetAccumulatedInPeriodToIsFirstTimeBuyerMapper(),
                 nextPaymentRecurringBuyMapper = GetNextPaymentDateListToFrequencyDateMapper(),
                 recurringBuyMapper = get(),
-                getRecurringBuysStore = get()
+                getRecurringBuysStore = get(),
+                assetCatalogue = get()
             )
         }
 
         scoped {
             GetRecurringBuysStore(
-                authenticator = get(),
                 tradeService = get()
             )
         }
@@ -667,11 +667,11 @@ val applicationModule = module {
             GlobalEventHandler(
                 application = get(),
                 walletConnectServiceAPI = get(),
-                deeplinkFeatureFlag = get(deeplinkingFeatureFlag),
                 deeplinkRedirector = get(),
                 destinationArgs = get(),
                 notificationManager = get(),
-                analytics = get()
+                analytics = get(),
+                stakingFF = get(stakingAccountFeatureFlag)
             )
         }
 
@@ -844,7 +844,6 @@ val applicationModule = module {
             envSettings = get(),
             authPrefs = get(),
             getAppMaintenanceConfigUseCase = get(),
-            appMaintenanceFF = get(appMaintenanceFeatureFlag),
             sessionPrefs = get(),
             securityPrefs = get(),
             referralPrefs = get(),
@@ -885,24 +884,6 @@ val applicationModule = module {
             checkoutFactory = get()
         )
     }.bind(CardProcessor::class)
-
-    single {
-        GooglePayManagerImpl(
-            environmentConfig = get(),
-            context = get()
-        )
-    }.bind(GooglePayManager::class)
-
-    single {
-        PaymentDataMapper()
-    }
-
-    factory {
-        GooglePayResponseInterceptorImpl(
-            paymentDataMapper = get(),
-            coroutineContext = Dispatchers.IO
-        )
-    }.bind(GooglePayResponseInterceptor::class)
 }
 
 fun getCardProcessors(): List<CardProcessor> {

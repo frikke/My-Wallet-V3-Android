@@ -1,14 +1,12 @@
 package com.blockchain.nabu
 
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.data.DataResource
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.flow.Flow
 import java.io.Serializable
 
 interface UserIdentity {
@@ -54,12 +52,13 @@ sealed class FeatureAccess {
     data class Blocked(val reason: BlockedReason) : FeatureAccess()
 
     fun isBlockedDueToEligibility(): Boolean =
-        this is Blocked && reason == BlockedReason.NotEligible
+        this is Blocked && reason is BlockedReason.NotEligible
 }
 
 sealed class BlockedReason : Serializable {
-    object NotEligible : BlockedReason()
+    data class NotEligible(val message: String?) : BlockedReason()
     sealed class InsufficientTier : BlockedReason() {
+        object Tier1Required : InsufficientTier()
         object Tier2Required : InsufficientTier()
         object Tier1TradeLimitExceeded : InsufficientTier()
         data class Unknown(val message: String) : InsufficientTier()

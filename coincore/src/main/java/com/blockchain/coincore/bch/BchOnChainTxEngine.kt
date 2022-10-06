@@ -102,7 +102,7 @@ class BchOnChainTxEngine(
         require(amount.currency == sourceAsset)
 
         return Singles.zip(
-            sourceAccount.balance.firstOrError().map { it.total as CryptoValue },
+            sourceAccount.balanceRx.firstOrError().map { it.total as CryptoValue },
             getUnspentApiResponse(bchSource.xpubAddress),
             getDynamicFeePerKb()
         ) { balance, coins, feePerKb ->

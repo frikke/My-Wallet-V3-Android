@@ -62,14 +62,15 @@ fun ReasonNotEligibleResponse.toDomain(): ProductNotEligibleReason {
     val reason = enumValueOfOrNull<ReasonNotEligibleReasonResponse>(reason, ignoreCase = true)
     return when (type) {
         ReasonNotEligibleTypeResponse.INSUFFICIENT_TIER -> when (reason) {
+            ReasonNotEligibleReasonResponse.TIER_1_REQUIRED -> ProductNotEligibleReason.InsufficientTier.Tier1Required
             ReasonNotEligibleReasonResponse.TIER_2_REQUIRED -> ProductNotEligibleReason.InsufficientTier.Tier2Required
             ReasonNotEligibleReasonResponse.TIER_1_TRADE_LIMIT ->
                 ProductNotEligibleReason.InsufficientTier.Tier1TradeLimitExceeded
-            else -> ProductNotEligibleReason.Unknown(message)
+            else -> ProductNotEligibleReason.InsufficientTier.Unknown(message)
         }
         ReasonNotEligibleTypeResponse.SANCTIONS -> when (reason) {
             ReasonNotEligibleReasonResponse.EU_5_SANCTION -> ProductNotEligibleReason.Sanctions.RussiaEU5
-            else -> ProductNotEligibleReason.Unknown(message)
+            else -> ProductNotEligibleReason.Sanctions.Unknown(message)
         }
         null -> ProductNotEligibleReason.Unknown(message)
     }

@@ -5,7 +5,7 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
 import com.blockchain.preferences.AuthPrefs
-import com.blockchain.preferences.EducationalScreensPrefs
+import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.wallet.exceptions.HDWalletException
@@ -29,7 +29,7 @@ class LoaderModel(
     private val authPrefs: AuthPrefs,
     private val interactor: LoaderInteractor,
     private val walletModeService: WalletModeService,
-    private val educationalScreensPrefs: EducationalScreensPrefs
+    private val educationalScreensPrefs: SuperAppMvpPrefs
 ) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
         return when (intent) {

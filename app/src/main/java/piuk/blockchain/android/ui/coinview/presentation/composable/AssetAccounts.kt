@@ -86,7 +86,7 @@ fun AssetAccountsError() {
             .fillMaxWidth()
             .padding(
                 horizontal = AppTheme.dimensions.paddingLarge,
-                vertical = AppTheme.dimensions.paddingMedium
+                vertical = AppTheme.dimensions.smallSpacing
             )
     ) {
         CardAlert(
@@ -190,7 +190,7 @@ fun Separator() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(AppTheme.dimensions.xxxPaddingSmall)
+            .height(AppTheme.dimensions.borderSmall)
             .background(AppTheme.colors.medium)
     )
 }
@@ -200,10 +200,10 @@ private fun Modifier.applyStyle(style: CoinviewAccountsStyle): Modifier {
     return when (style) {
         CoinviewAccountsStyle.Boxed -> {
             run {
-                padding(AppTheme.dimensions.paddingMedium)
+                padding(AppTheme.dimensions.smallSpacing)
             }.run {
                 border(
-                    width = AppTheme.dimensions.xxxPaddingSmall,
+                    width = AppTheme.dimensions.borderSmall,
                     color = AppTheme.colors.medium,
                     shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
                 )
@@ -311,22 +311,22 @@ fun PreviewAssetAccounts_Data_Boxed() {
 
 private val previewBlockchainAccount = object : BlockchainAccount {
     override val label: String
-        get() = TODO("Not yet implemented")
-    override val balance: Observable<AccountBalance>
-        get() = TODO("Not yet implemented")
+        get() = error("preview")
+    override val balanceRx: Observable<AccountBalance>
+        get() = error("preview")
     override val activity: Single<ActivitySummaryList>
-        get() = TODO("Not yet implemented")
+        get() = error("preview")
     override val isFunded: Boolean
-        get() = TODO("Not yet implemented")
+        get() = error("preview")
     override val hasTransactions: Boolean
-        get() = TODO("Not yet implemented")
+        get() = error("preview")
     override val receiveAddress: Single<ReceiveAddress>
-        get() = TODO("Not yet implemented")
+        get() = error("preview")
     override val stateAwareActions: Single<Set<StateAwareAction>>
-        get() = TODO("Not yet implemented")
+        get() = error("preview")
 }
 
-val previewCvAccount: CoinviewAccount = CoinviewAccount.Defi(
+val previewCvAccount: CoinviewAccount = CoinviewAccount.PrivateKey(
     account = previewBlockchainAccount,
     cryptoBalance = Money.zero(CryptoCurrency.BTC),
     fiatBalance = Money.zero(CryptoCurrency.BTC),

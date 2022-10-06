@@ -6,49 +6,74 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/subtitle"
+        style="@style/Text.Standard.16"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/tiny_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Blurb about screen" />
+
+    <com.blockchain.componentlib.control.PrimarySwitchView
+        android:id="@+id/trading_accounts_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/small_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subtitle" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/show_trading_accounts"
+        style="@style/Text.Standard.16"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing"
+        android:text="@string/show_trading_accounts"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/trading_accounts_switch"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/trading_accounts_switch"
+        tools:text="Show trading accounts" />
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="@dimen/minuscule_margin"
+        android:layout_marginBottom="@dimen/minuscule_spacing"
         android:fadingEdge="vertical"
-        android:fadingEdgeLength="@dimen/very_small_margin"
+        android:fadingEdgeLength="@dimen/smallest_spacing"
         android:fillViewport="true"
         android:requiresFadingEdge="vertical"
         app:layout_constraintBottom_toTopOf="@id/cta_button"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/trading_accounts_switch">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/subtitle"
-                style="@style/Text.Standard.16"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_margin"
-                android:layout_marginTop="@dimen/tiny_margin"
-                android:layout_marginEnd="@dimen/standard_margin"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Blurb about screen" />
-
             <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
                 android:id="@+id/title_from"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/small_margin"
+                android:layout_marginTop="@dimen/small_spacing"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/subtitle" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <FrameLayout
                 android:id="@+id/from_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/small_margin"
+                android:layout_marginTop="@dimen/small_spacing"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/title_from" />
@@ -57,7 +82,7 @@
                 android:id="@+id/title_to"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/small_margin"
+                android:layout_marginTop="@dimen/small_spacing"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/from_details" />
@@ -81,10 +106,10 @@
                     android:layout_height="wrap_content"
                     android:imeOptions="actionDone"
                     android:inputType="textNoSuggestions"
-                    android:paddingStart="@dimen/very_small_margin"
-                    android:paddingTop="@dimen/very_small_margin"
-                    android:paddingEnd="@dimen/very_small_margin"
-                    android:paddingBottom="@dimen/very_small_margin"
+                    android:paddingStart="@dimen/very_small_spacing"
+                    android:paddingTop="@dimen/very_small_spacing"
+                    android:paddingEnd="@dimen/very_small_spacing"
+                    android:paddingBottom="@dimen/very_small_spacing"
                     app:boxStrokeColor="@color/text_input_color_states"
                     app:endIconDrawable="@drawable/ic_qr_scan_inverse"
                     app:endIconMode="custom"
@@ -109,8 +134,8 @@
                         style="@style/Text.Semibold.12"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/tiny_margin"
-                        android:layout_marginTop="@dimen/minuscule_margin"
+                        android:layout_marginStart="@dimen/tiny_spacing"
+                        android:layout_marginTop="@dimen/minuscule_spacing"
                         android:text="@string/send_address_warning"
                         android:visibility="visible"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -123,19 +148,19 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/standard_margin"
-                    android:layout_marginTop="@dimen/tiny_margin"
-                    android:layout_marginEnd="@dimen/standard_margin"
-                    android:layout_marginBottom="@dimen/tiny_margin"
+                    android:layout_marginStart="@dimen/standard_spacing"
+                    android:layout_marginTop="@dimen/tiny_spacing"
+                    android:layout_marginEnd="@dimen/standard_spacing"
+                    android:layout_marginBottom="@dimen/tiny_spacing"
                     android:background="@drawable/rounded_view_grey_border"
                     android:orientation="vertical"
-                    android:padding="@dimen/small_margin">
+                    android:padding="@dimen/small_spacing">
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/internal_send_close"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:padding="@dimen/minuscule_margin"
+                        android:padding="@dimen/minuscule_spacing"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:srcCompat="@drawable/ic_close_circle_grey" />
@@ -153,7 +178,7 @@
                         style="@style/Text.Light.12"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/minuscule_margin"
+                        android:layout_marginTop="@dimen/minuscule_spacing"
                         android:text="@string/send_internal_transfer_message_1_1"
                         app:layout_constraintTop_toBottomOf="@id/internal_send_title" />
 
@@ -175,9 +200,9 @@
                 style="@style/Text.Standard.12"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_margin"
-                android:layout_marginTop="@dimen/tiny_margin"
-                android:layout_marginEnd="@dimen/standard_margin"
+                android:layout_marginStart="@dimen/standard_spacing"
+                android:layout_marginTop="@dimen/tiny_spacing"
+                android:layout_marginEnd="@dimen/standard_spacing"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -187,9 +212,9 @@
                 android:id="@+id/domains_alert"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_margin"
-                android:layout_marginTop="@dimen/medium_margin"
-                android:layout_marginEnd="@dimen/standard_margin"
+                android:layout_marginStart="@dimen/standard_spacing"
+                android:layout_marginTop="@dimen/medium_spacing"
+                android:layout_marginEnd="@dimen/standard_spacing"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -199,7 +224,7 @@
                 android:id="@+id/title_pick"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/standard_margin"
+                android:layout_marginTop="@dimen/standard_spacing"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/domains_alert" />
@@ -209,8 +234,8 @@
                 android:id="@+id/wallet_select"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/very_small_margin"
-                android:layout_marginBottom="@dimen/small_margin"
+                android:layout_marginTop="@dimen/very_small_spacing"
+                android:layout_marginBottom="@dimen/small_spacing"
                 android:nestedScrollingEnabled="false"
                 app:layout_constrainedHeight="true"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -218,7 +243,7 @@
                 app:layout_constraintTop_toBottomOf="@id/title_pick"
                 app:layout_constraintVertical_bias="0"
                 app:layout_constraintVertical_chainStyle="packed"
-                app:layout_goneMarginBottom="@dimen/standard_margin"
+                app:layout_goneMarginBottom="@dimen/standard_spacing"
                 tools:itemCount="1"
                 tools:listitem="@layout/item_account_select_crypto"
                 tools:visibility="visible" />
@@ -227,11 +252,23 @@
 
     </androidx.core.widget.NestedScrollView>
 
+    <com.blockchain.componentlib.system.CircularProgressBarView
+        android:id="@+id/list_loading_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/cta_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/show_trading_accounts"
+        app:layout_constraintVertical_bias="0.6"
+        tools:visibility="visible" />
+
     <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/cta_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/standard_margin"
+        android:layout_margin="@dimen/standard_spacing"
         android:contentDescription="@string/common_next"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

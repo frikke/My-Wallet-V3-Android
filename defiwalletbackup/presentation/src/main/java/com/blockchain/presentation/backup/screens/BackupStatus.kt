@@ -25,11 +25,11 @@ fun BackupStatus(backupStatus: BackUpStatus) {
         modifier = Modifier
             .background(
                 color = backupStatus.bgColor,
-                shape = RoundedCornerShape(dimensionResource(id = R.dimen.tiny_margin))
+                shape = RoundedCornerShape(dimensionResource(id = R.dimen.tiny_spacing))
             )
             .padding(
-                horizontal = dimensionResource(id = R.dimen.very_small_margin),
-                vertical = dimensionResource(id = R.dimen.tiny_margin)
+                horizontal = dimensionResource(id = R.dimen.very_small_spacing),
+                vertical = dimensionResource(id = R.dimen.tiny_spacing)
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -40,7 +40,7 @@ fun BackupStatus(backupStatus: BackUpStatus) {
             )
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
 
         Text(
             text = stringResource(backupStatus.text),

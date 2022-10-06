@@ -46,6 +46,7 @@ import com.blockchain.network.PollResult
 import com.blockchain.outcome.getOrThrow
 import com.blockchain.payments.core.CardAcquirer
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -99,6 +100,52 @@ class SimpleBuyModel(
 
     override fun performAction(previousState: SimpleBuyState, intent: SimpleBuyIntent): Disposable? =
         when (intent) {
+            is SimpleBuyIntent.InitializeFeatureFlags -> {
+                interactor.initializeFeatureFlags().subscribeBy(
+                    onSuccess = { featureFlagSet ->
+                        process(SimpleBuyIntent.UpdateFeatureFlags(featureFlagSet))
+                    },
+                    onError = {
+                        process(SimpleBuyIntent.UpdateFeatureFlags(FeatureFlagsSet()))
+                    }
+                )
+            }
+            is SimpleBuyIntent.GetRecurringBuyFrequencyRemote -> {
+                if (previousState.featureFlagSet.rbFrequencySuggestionFF) {
+                    getRemoteRecurringBuy().subscribeBy(
+                        onSuccess = {
+                            process(SimpleBuyIntent.UpdateRecurringFrequencyRemote(it))
+                        },
+                        onError = {
+                            Timber.e("SimpleBuyModel - getRemoteRecurringBuy error: " + it.message)
+                            process(
+                                SimpleBuyIntent.UpdateRecurringFrequencyRemote(
+                                    RecurringBuyFrequency.ONE_TIME
+                                )
+                            )
+                        }
+                    )
+                }
+                if (previousState.featureFlagSet.buyQuoteRefreshFF) {
+                    process(SimpleBuyIntent.ListenToQuotesUpdate)
+                }
+                null
+            }
+            is SimpleBuyIntent.GetQuotePrice -> {
+                interactor.getQuotePrice(
+                    currencyPair = intent.currencyPair,
+                    amount = intent.amount,
+                    paymentMethod = intent.paymentMethod,
+                ).subscribeBy(
+                    onNext = {
+                        process(SimpleBuyIntent.UpdateQuote(it.resultAmount as CryptoValue))
+                    },
+                    onError = {
+                        Timber.e("SimpleBuyModel - GetQuote error: " + it.message)
+                        processOrderErrors(it)
+                    }
+                )
+            }
             is SimpleBuyIntent.UpdateExchangeRate -> interactor.updateExchangeRate(intent.fiatCurrency, intent.asset)
                 .subscribeBy(
                     onSuccess = { process(SimpleBuyIntent.ExchangeRateUpdated(it)) },
@@ -574,11 +621,11 @@ class SimpleBuyModel(
                     // 2. when at least one with not enough funds has been detected.
 
                     val shouldRefreshPaymentMethods =
-                        paymentMethodsWithEnoughBalance.isNotEmpty() && paymentMethodsWithNotEnoughBalance.isNotEmpty()
+                        paymentMethodsWithEnoughBalance.isNotEmpty() &&
+                            paymentMethodsWithNotEnoughBalance.isNotEmpty() &&
+                            selectedPaymentMethod.id in paymentMethodsWithNotEnoughBalance.map { it.id }
 
-                    var paymentOptions = PaymentOptions(
-                        paymentMethodsWithEnoughBalance
-                    )
+                    val paymentOptions = PaymentOptions(paymentMethodsWithEnoughBalance)
 
                     if (shouldRefreshPaymentMethods) {
                         val newSelectedPaymentMethodId = selectedMethodId(
@@ -607,7 +654,6 @@ class SimpleBuyModel(
                             )
                         )
                     } else {
-                        paymentOptions = PaymentOptions(availablePaymentMethods)
                         process(
                             SimpleBuyIntent.UpdatedBuyLimitsAndPaymentMethods(
                                 limits = limits,
@@ -685,8 +731,8 @@ class SimpleBuyModel(
         Single.defer {
             when {
                 balance != null && balance < amount -> Single.just(TransactionErrorState.INSUFFICIENT_FUNDS)
-                buyLimits.isMinViolatedByAmount(amount) -> Single.just(TransactionErrorState.BELOW_MIN_LIMIT)
-                buyLimits.isMaxViolatedByAmount(amount) -> {
+                buyLimits.isAmountUnderMin(amount) -> Single.just(TransactionErrorState.BELOW_MIN_LIMIT)
+                buyLimits.isAmountOverMax(amount) -> {
                     userIdentity.isVerifiedFor(Feature.TierLevel(KycTier.GOLD))
                         .onErrorReturnItem(false)
                         .map { gold ->
@@ -696,11 +742,11 @@ class SimpleBuyModel(
                                 TransactionErrorState.OVER_SILVER_TIER_LIMIT
                         }
                 }
-                paymentMethodLimits.isMaxViolatedByAmount(amount) -> Single.just(
+                paymentMethodLimits.isAmountOverMax(amount) -> Single.just(
                     TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT
                 )
 
-                paymentMethodLimits.isMinViolatedByAmount(amount) -> Single.just(
+                paymentMethodLimits.isAmountUnderMin(amount) -> Single.just(
                     TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT
                 )
                 else -> Single.just(TransactionErrorState.NONE)
@@ -810,7 +856,7 @@ class SimpleBuyModel(
                 getEligibilityAndNextPaymentDateUseCase(Unit)
                     .map { paymentMethods to it }
                     .onErrorReturn { paymentMethods to emptyList() }
-            }
+            }.trackProgress(activityIndicator)
             .subscribeBy(
                 onSuccess = { (availablePaymentMethods, eligibilityNextPaymentList) ->
                     process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibilityNextPaymentList))
@@ -878,6 +924,7 @@ class SimpleBuyModel(
     ): String? =
         preselectedId?.let { availablePaymentMethods.firstOrNull { it.id == preselectedId }?.id }
             ?: interactor.getLastPaymentMethodId()
+                ?.let { lastPaymentMethod -> availablePaymentMethods.firstOrNull { it.id == lastPaymentMethod }?.id }
             ?: previousSelectedId?.let { availablePaymentMethods.firstOrNull { it.id == previousSelectedId }?.id }
             ?: let {
                 val paymentMethodsThatCanBePreselected =
@@ -944,6 +991,9 @@ class SimpleBuyModel(
         )
     }
 
+    private fun getRemoteRecurringBuy(): Single<RecurringBuyFrequency> =
+        interactor.getRecurringBuyFrequency()
+
     private fun createRecurringBuy(
         selectedCryptoAsset: AssetInfo?,
         order: SimpleBuyOrder,
@@ -972,7 +1022,8 @@ class SimpleBuyModel(
         return cardPaymentAsyncFF.enabled.flatMap { cardPaymentAsync ->
             interactor.confirmOrder(
                 orderId = id,
-                paymentMethodId = googlePayBeneficiaryId ?: selectedPaymentMethod.takeIf { it.isBank() }?.concreteId(),
+                paymentMethodId = googlePayBeneficiaryId ?: selectedPaymentMethod.takeIf { it.isBank() }
+                    ?.concreteId(),
                 attributes = if (selectedPaymentMethod.isBank()) {
                     // redirectURL is for card providers only.
                     SimpleBuyConfirmationAttributes(

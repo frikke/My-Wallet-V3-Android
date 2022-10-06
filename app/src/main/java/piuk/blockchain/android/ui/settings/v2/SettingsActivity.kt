@@ -18,9 +18,6 @@ import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.model.ReferralInfo
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.notificationPreferencesFeatureFlag
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.walletconnect.ui.dapps.DappsListFragment
 import info.blockchain.balance.FiatCurrency
@@ -30,7 +27,7 @@ import piuk.blockchain.android.databinding.ActivitySettingsBinding
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
-import piuk.blockchain.android.ui.blockchaincard.BlockchainCardFragment
+import piuk.blockchain.android.ui.blockchaincard.BlockchainCardActivity
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
@@ -39,7 +36,6 @@ import piuk.blockchain.android.ui.settings.v2.account.AccountFragment
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesAnalyticsEvents
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesFragment
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.details.NotificationPreferenceDetailsFragment
-import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsFragment
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileActivity
 import piuk.blockchain.android.ui.settings.v2.security.SecurityFragment
 import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeFragment
@@ -47,8 +43,6 @@ import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import timber.log.Timber
 
 class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragment.Host {
-
-    private val notificationReworkFeatureFlag: FeatureFlag by scopedInject(notificationPreferencesFeatureFlag)
 
     private val binding: ActivitySettingsBinding by lazy {
         ActivitySettingsBinding.inflate(layoutInflater)
@@ -153,12 +147,8 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
     }
 
     override fun goToNotifications() {
-        if (notificationReworkFeatureFlag.isEnabled) {
-            analytics.logEvent(NotificationPreferencesAnalyticsEvents.NotificationClicked)
-            replaceCurrentFragment(NotificationPreferencesFragment.newInstance())
-        } else {
-            replaceCurrentFragment(NotificationsFragment.newInstance())
-        }
+        analytics.logEvent(NotificationPreferencesAnalyticsEvents.NotificationClicked)
+        replaceCurrentFragment(NotificationPreferencesFragment.newInstance())
     }
 
     override fun goToNotificationPreferences() {
@@ -198,11 +188,11 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
     }
 
     override fun goToOrderBlockchainCard(cardProduct: BlockchainCardProduct) {
-        replaceCurrentFragment(BlockchainCardFragment.newInstance(cardProduct))
+        startActivity(BlockchainCardActivity.newIntent(this, cardProduct))
     }
 
     override fun goToManageBlockchainCard(blockchainCard: BlockchainCard) {
-        replaceCurrentFragment(BlockchainCardFragment.newInstance(blockchainCard))
+        startActivity(BlockchainCardActivity.newIntent(this, blockchainCard))
     }
 
     override fun goToReferralCode(referral: ReferralInfo.Data) {

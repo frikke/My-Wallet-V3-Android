@@ -10,22 +10,16 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.SmallMinimalButton
 import com.blockchain.componentlib.switcher.SwitcherState
+import com.blockchain.componentlib.tablerow.DefaultTableRowView
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
@@ -44,11 +38,12 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod.UndefinedCard.Ca
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.presentation.complexcomponents.QuickFillButtonData
+import com.blockchain.presentation.complexcomponents.QuickFillRow
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
@@ -64,6 +59,7 @@ import java.math.BigDecimal
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -98,14 +94,15 @@ import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.transactionflow.analytics.InfoBottomSheetDismissed
 import piuk.blockchain.android.ui.transactionflow.analytics.InfoBottomSheetKycUpsellActionClicked
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
-import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowInfoBottomSheet
-import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowInfoHost
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoActionType
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoBottomSheetType
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
+import piuk.blockchain.android.ui.transactionflow.flow.sheets.TransactionFlowInfoBottomSheet
+import piuk.blockchain.android.ui.transactionflow.flow.sheets.TransactionFlowInfoHost
 import piuk.blockchain.android.util.StringLocalizationUtil
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
+import timber.log.Timber
 
 class SimpleBuyCryptoFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyBuyCryptoBinding>(),
@@ -119,7 +116,6 @@ class SimpleBuyCryptoFragment :
     private val assetResources: AssetResources by inject()
     private val assetCatalogue: AssetCatalogue by inject()
     private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
-    private val cardRejectionFF: FeatureFlag by inject(cardRejectionCheckFeatureFlag)
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private var infoActionCallback: () -> Unit = {}
 
@@ -173,6 +169,7 @@ class SimpleBuyCryptoFragment :
             toolbarTitle = getString(R.string.tx_title_buy, asset.displayTicker),
             backAction = { activity.onBackPressedDispatcher.onBackPressed() }
         )
+        model.process(SimpleBuyIntent.InitializeFeatureFlags)
         model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, fiatCurrency))
         model.process(
             SimpleBuyIntent.FetchSuggestedPaymentMethod(
@@ -184,14 +181,21 @@ class SimpleBuyCryptoFragment :
         analytics.logEvent(SimpleBuyAnalytics.BUY_FORM_SHOWN)
 
         compositeDisposable += binding.inputAmount.amount
+            .throttleFirst(1000L, TimeUnit.MILLISECONDS)
             .doOnSubscribe {
                 preselectedAmount?.let { amount ->
                     model.process(SimpleBuyIntent.AmountUpdated(amount))
                 }
             }
-            .subscribe {
-                when (it) {
-                    is FiatValue -> model.process(SimpleBuyIntent.AmountUpdated(it))
+            .subscribe { amount ->
+                when (amount) {
+                    is FiatValue -> {
+                        model.process(SimpleBuyIntent.AmountUpdated(amount))
+                        if (lastState?.featureFlagSet?.feynmanFF == true) {
+                            Timber.e("quote new number")
+                            updateQuote(amount)
+                        }
+                    }
                     else -> throw IllegalStateException("CryptoValue is not supported as input yet")
                 }
             }
@@ -210,13 +214,81 @@ class SimpleBuyCryptoFragment :
         shouldShowPaymentMethodSheet = launchSelectPaymentMethod
     }
 
+    private fun updateQuote(amount: Money) {
+        model.process(
+            SimpleBuyIntent.GetQuotePrice(
+                currencyPair = CurrencyPair(fiatCurrency, asset),
+                amount = amount,
+                paymentMethod = lastState?.selectedPaymentMethod?.paymentMethodType
+                    ?: PaymentMethodType.FUNDS
+            )
+        )
+    }
+
     override fun showAvailableToAddPaymentMethods() =
         showPaymentMethodsBottomSheet(
             paymentOptions = lastState?.paymentOptions ?: PaymentOptions(),
-            state = PaymentMethodsChooserState.AVAILABLE_TO_ADD
+            state = PaymentMethodsChooserState.AVAILABLE_TO_ADD,
+            cardRejectionFFEnabled = false
         )
 
-    private fun showPaymentMethodsBottomSheet(paymentOptions: PaymentOptions, state: PaymentMethodsChooserState) {
+    override fun onRejectableCardSelected(cardInfo: CardRejectionState) {
+        when (cardInfo) {
+            is CardRejectionState.AlwaysRejected ->
+                showCardRejectionInfo(
+                    title = cardInfo.title.orEmpty(),
+                    description = cardInfo.description.orEmpty(),
+                    errorId = cardInfo.errorId,
+                    iconUrl = cardInfo.iconUrl.orEmpty(),
+                    statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
+                    actions = cardInfo.actions,
+                    analyticsCategories = cardInfo.analyticsCategories
+                )
+            is CardRejectionState.MaybeRejected -> showCardRejectionInfo(
+                title = cardInfo.title.orEmpty(),
+                description = cardInfo.description.orEmpty(),
+                errorId = cardInfo.errorId,
+                iconUrl = cardInfo.iconUrl.orEmpty(),
+                statusIconUrl = cardInfo.statusIconUrl.orEmpty(),
+                actions = cardInfo.actions,
+                analyticsCategories = cardInfo.analyticsCategories
+            )
+            CardRejectionState.NotRejected -> {
+                // do nothing
+            }
+        }
+    }
+
+    private fun showCardRejectionInfo(
+        title: String?,
+        description: String?,
+        errorId: String?,
+        iconUrl: String?,
+        statusIconUrl: String?,
+        actions: List<ServerErrorAction>,
+        analyticsCategories: List<String>
+    ) {
+        navigator().showErrorInBottomSheet(
+            title = title.orEmpty(),
+            description = description.orEmpty(),
+            error = CardRejectionState.toString(),
+            serverSideUxErrorInfo = ServerSideUxErrorInfo(
+                id = errorId,
+                title = title.orEmpty(),
+                description = description.orEmpty(),
+                iconUrl = iconUrl.orEmpty(),
+                statusUrl = statusIconUrl.orEmpty(),
+                actions = actions,
+                categories = analyticsCategories
+            )
+        )
+    }
+
+    private fun showPaymentMethodsBottomSheet(
+        paymentOptions: PaymentOptions,
+        state: PaymentMethodsChooserState,
+        cardRejectionFFEnabled: Boolean
+    ) {
         showBottomSheet(
             when (state) {
                 PaymentMethodsChooserState.AVAILABLE_TO_PAY ->
@@ -227,7 +299,8 @@ class SimpleBuyCryptoFragment :
                                     method is PaymentMethod.UndefinedBankAccount
                             },
                         mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHODS,
-                        canAddNewPayment = paymentOptions.availablePaymentMethods.any { method -> method.canBeAdded() }
+                        canAddNewPayment = paymentOptions.availablePaymentMethods.any { method -> method.canBeAdded() },
+                        cardRejectionFFEnabled = cardRejectionFFEnabled
                     )
                 PaymentMethodsChooserState.AVAILABLE_TO_ADD ->
                     PaymentMethodChooserBottomSheet.newInstance(
@@ -237,7 +310,8 @@ class SimpleBuyCryptoFragment :
                             },
                         mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES,
                         canAddNewPayment = true,
-                        canUseCreditCards = canUseCreditCards()
+                        canUseCreditCards = canUseCreditCards(),
+                        cardRejectionFFEnabled = cardRejectionFFEnabled
                     )
             }
         )
@@ -311,53 +385,42 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun loadQuickFillButtons(
-        quickFillButtonData: QuickFillButtonData,
+        quickFillButtonData: QuickFillButtonData
     ) {
         with(binding.quickFillButtons) {
             visible()
             setContent {
                 AppTheme {
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        LazyRow(modifier = Modifier.weight(1f)) {
-                            items(
-                                items = quickFillButtonData.quickFillButtons,
-                                itemContent = { item ->
-                                    SmallMinimalButton(
-                                        text = item.toStringWithSymbol(includeDecimalsWhenWhole = false),
-                                        onClick = {
-                                            model.process(SimpleBuyIntent.PrefillEnterAmount(item))
-                                            sendAnalyticsQuickFillButtonTapped(
-                                                item,
-                                                quickFillButtonData.quickFillButtons.indexOf(item)
-                                            )
-                                        },
-                                        modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_margin))
-                                    )
-                                }
+                    QuickFillRow(
+                        quickFillButtonData = quickFillButtonData,
+                        onQuickFillItemClick = { item ->
+                            model.process(SimpleBuyIntent.PrefillEnterAmount(item.amount))
+                            sendAnalyticsQuickFillButtonTapped(
+                                item.amount,
+                                quickFillButtonData.quickFillButtons.indexOf(item)
                             )
-                        }
-                        if (quickFillButtonData.buyMaxAmount.isPositive) {
-                            SmallMinimalButton(
-                                text = getString(R.string.buy_max),
-                                onClick = {
-                                    model.process(
-                                        SimpleBuyIntent.PrefillEnterAmount(
-                                            quickFillButtonData.buyMaxAmount as FiatValue
-                                        )
-                                    )
-                                },
-                                state = ButtonState.Enabled,
-                                modifier = Modifier
-                                    .wrapContentSize(Alignment.Center)
+                        },
+                        onMaxItemClick = { maxAmount ->
+                            model.process(
+                                SimpleBuyIntent.PrefillEnterAmount(maxAmount as FiatValue)
                             )
-                        }
-                    }
+                        },
+                        maxButtonText = stringResource(R.string.buy_max)
+                    )
                 }
             }
         }
     }
 
     override fun render(newState: SimpleBuyState) {
+        if (newState.shouldRequestNewQuote(lastState)) {
+            updateQuote(newState.amount)
+        }
+
+        if (newState.shouldUpdateNewQuote(lastState)) {
+            binding.inputAmount.updateExchangeAmount(newState.amountInCrypto!!)
+        }
+
         lastState = newState
 
         model.process(
@@ -389,7 +452,7 @@ class SimpleBuyCryptoFragment :
                 exchangeCurrency = it,
                 canSwap = false,
                 predefinedAmount = newState.order.amount ?: FiatValue.zero(newState.fiatCurrency),
-                showExchangeRate = false
+                showExchangeRate = true
             )
             binding.buyIcon.setAssetIconColoursWithTint(it)
         }
@@ -441,7 +504,8 @@ class SimpleBuyCryptoFragment :
             if (shouldShowPaymentMethodSheet) {
                 showPaymentMethodsBottomSheet(
                     paymentOptions = newState.paymentOptions,
-                    state = PaymentMethodsChooserState.AVAILABLE_TO_PAY
+                    state = PaymentMethodsChooserState.AVAILABLE_TO_PAY,
+                    cardRejectionFFEnabled = newState.featureFlagSet.cardRejectionFF
                 )
                 shouldShowPaymentMethodSheet = false
             }
@@ -473,7 +537,8 @@ class SimpleBuyCryptoFragment :
 
     private fun showCtaOrError(newState: SimpleBuyState) {
         when {
-            cardRejectionFF.isEnabled && newState.selectedPaymentMethodDetails?.isCardAndAlwaysRejected() == true -> {
+            newState.featureFlagSet.cardRejectionFF &&
+                newState.selectedPaymentMethodDetails?.isCardAndAlwaysRejected() == true -> {
                 (
                     (newState.selectedPaymentMethodDetails as PaymentMethod.Card).cardRejectionState
                         as CardRejectionState.AlwaysRejected
@@ -639,14 +704,15 @@ class SimpleBuyCryptoFragment :
                 onClick = {
                     showPaymentMethodsBottomSheet(
                         state = state.paymentOptions.availablePaymentMethods.toPaymentMethodChooserState(),
-                        paymentOptions = state.paymentOptions
+                        paymentOptions = state.paymentOptions,
+                        cardRejectionFFEnabled = state.featureFlagSet.cardRejectionFF
                     )
                 }
             }
         }
 
         when (selectedPaymentMethod) {
-            is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod)
+            is PaymentMethod.Card -> renderCardPayment(selectedPaymentMethod, state.featureFlagSet.cardRejectionFF)
             is PaymentMethod.Funds -> renderFundsPayment(selectedPaymentMethod)
             is PaymentMethod.Bank -> renderBankPayment(selectedPaymentMethod)
             is PaymentMethod.UndefinedCard -> renderUndefinedCardPayment(selectedPaymentMethod)
@@ -658,7 +724,7 @@ class SimpleBuyCryptoFragment :
             }
         }
 
-        if (cardRejectionFF.isEnabled && selectedPaymentMethod !is PaymentMethod.Card) {
+        if (state.featureFlagSet.cardRejectionFF && selectedPaymentMethod !is PaymentMethod.Card) {
             with(binding) {
                 btnError.gone()
                 btnContinue.visible()
@@ -719,10 +785,11 @@ class SimpleBuyCryptoFragment :
         binding.paymentMethodDetailsRoot.apply {
             primaryText = paymentMethod.fiatCurrency.name
             secondaryText = paymentMethod.limits.max.toStringWithSymbol()
+            showDefaultTextColours()
             startImageResource = if (paymentMethod.fiatCurrency.logo.isNotEmpty()) {
-                ImageResource.Remote(paymentMethod.fiatCurrency.logo)
+                ImageResource.Remote(paymentMethod.fiatCurrency.logo, shape = RoundedCornerShape(2.dp))
             } else {
-                ImageResource.Local(R.drawable.ic_default_asset_logo)
+                ImageResource.Local(R.drawable.ic_default_asset_logo, shape = RoundedCornerShape(2.dp))
             }
         }
     }
@@ -731,6 +798,7 @@ class SimpleBuyCryptoFragment :
         binding.paymentMethodDetailsRoot.apply {
             primaryText = paymentMethod.bankName
             secondaryText = getString(R.string.payment_method_limit, paymentMethod.limits.max.toStringWithSymbol())
+            showDefaultTextColours()
             startImageResource = if (paymentMethod.iconUrl.isNotEmpty()) {
                 ImageResource.Remote(paymentMethod.iconUrl)
             } else {
@@ -748,6 +816,7 @@ class SimpleBuyCryptoFragment :
             }
             secondaryText =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+            showDefaultTextColours()
             startImageResource =
                 ImageResource.Local(contentDescription = "UndefinedCard", id = R.drawable.ic_payment_card)
         }
@@ -758,8 +827,9 @@ class SimpleBuyCryptoFragment :
             primaryText = getString(R.string.easy_bank_transfer)
             secondaryText =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+            showDefaultTextColours()
             startImageResource = ImageResource.Local(
-                contentDescription = "UnderfinedBankTransfer",
+                contentDescription = "UndefinedBankTransfer",
                 id = R.drawable.ic_bank_icon
             )
         }
@@ -772,14 +842,15 @@ class SimpleBuyCryptoFragment :
             )
             secondaryText =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+            showDefaultTextColours()
             startImageResource = ImageResource.Local(
-                contentDescription = "UnderfinedBankTransfer",
+                contentDescription = "UndefinedBankTransfer",
                 id = R.drawable.ic_bank_icon
             )
         }
     }
 
-    private fun renderCardPayment(selectedPaymentMethod: PaymentMethod.Card) {
+    private fun renderCardPayment(selectedPaymentMethod: PaymentMethod.Card, cardRejectionFF: Boolean) {
         with(binding) {
             paymentMethodDetailsRoot.apply {
                 primaryText = selectedPaymentMethod.dottedEndDigits()
@@ -788,15 +859,19 @@ class SimpleBuyCryptoFragment :
                 startImageResource = ImageResource.Local(
                     selectedPaymentMethod.cardType.toCardType().icon()
                 )
-                if (cardRejectionFF.isEnabled) {
+                if (cardRejectionFF) {
                     when (val cardState = selectedPaymentMethod.cardRejectionState) {
                         is CardRejectionState.AlwaysRejected -> {
                             cardState.renderAlwaysRejectedCardError()
+                            showErrorColours()
                             btnContinue.gone()
+                            tags = emptyList()
                         }
                         is CardRejectionState.MaybeRejected -> {
+                            showDefaultTextColours()
                             btnError.gone()
                             btnContinue.visible()
+                            secondaryText = null
                             tags = listOf(
                                 TagViewState(
                                     cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
@@ -805,6 +880,8 @@ class SimpleBuyCryptoFragment :
                             )
                         }
                         else -> {
+                            showDefaultTextColours()
+                            tags = emptyList()
                             btnError.gone()
                             btnContinue.visible()
                         }
@@ -814,9 +891,20 @@ class SimpleBuyCryptoFragment :
         }
     }
 
+    private fun DefaultTableRowView.showErrorColours() {
+        primaryTextColor = ComposeColors.Error
+        secondaryTextColor = ComposeColors.Error
+    }
+
+    private fun DefaultTableRowView.showDefaultTextColours() {
+        primaryTextColor = ComposeColors.Title
+        secondaryTextColor = ComposeColors.Body
+    }
+
     private fun renderGooglePayPayment(selectedPaymentMethod: PaymentMethod.GooglePay) {
         binding.paymentMethodDetailsRoot.apply {
             primaryText = selectedPaymentMethod.detailedLabel()
+            showDefaultTextColours()
             startImageResource = ImageResource.Local(
                 contentDescription = "googlePayIcon",
                 id = R.drawable.google_pay_mark
@@ -1271,8 +1359,7 @@ class SimpleBuyCryptoFragment :
                 R.string.not_enough_funds, state.fiatCurrency.displayTicker
             )
             TransactionErrorState.OVER_SILVER_TIER_LIMIT,
-            TransactionErrorState.OVER_GOLD_TIER_LIMIT,
-            -> resources.getString(
+            TransactionErrorState.OVER_GOLD_TIER_LIMIT -> resources.getString(
                 R.string.over_your_limit
             )
             TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT -> resources.getString(
@@ -1346,7 +1433,6 @@ fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context, dateTim
             }
         }
         RecurringBuyFrequency.ONE_TIME,
-        RecurringBuyFrequency.UNKNOWN,
-        -> ""
+        RecurringBuyFrequency.UNKNOWN -> ""
     }
 }

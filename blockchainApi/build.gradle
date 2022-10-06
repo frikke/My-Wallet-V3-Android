@@ -1,20 +1,12 @@
-apply plugin: 'java-library'
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file('gradle/local/common-feature.gradle')
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
 
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = Versions.kotlinJvmTarget
-    }
-}
-java {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-}
 dependencies {
     implementation project(':common:domain')
     implementation project(':common:interface')
     implementation project(':common:network')
+    implementation project(':analytics:domain')
+    implementation project(':balance')
 
     implementation Libraries.kotlin
     implementation Libraries.okHttpInterceptor
@@ -22,23 +14,9 @@ dependencies {
     implementation Libraries.kotlinJson
     implementation Libraries.retrofitKotlinJsonConverter
     implementation Libraries.androidXAnnotations
-
-    implementation Libraries.koin
+    implementation Libraries.rxJava
+    implementation Libraries.rxKotlin
+    implementation Libraries.rxAndroid
 
     api Libraries.retrofit
-    api Libraries.rxJava
-    api Libraries.rxKotlin
-    api Libraries.rxAndroid
-
-    testImplementation project(':testutils')
-    testImplementation Libraries.junit
-    testImplementation Libraries.mockito
-    testImplementation Libraries.mockk
-    testImplementation Libraries.kotlinCoroutinesTest
-    testImplementation Libraries.hamcrestJunit
-    testImplementation Libraries.kotlinJunit
-    testImplementation Libraries.kluent
-    testImplementation(Libraries.mockitoKotlin) {
-        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
-    }
 }

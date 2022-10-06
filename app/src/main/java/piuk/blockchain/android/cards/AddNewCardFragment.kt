@@ -123,7 +123,15 @@ class AddNewCardFragment :
                 addTextChangedListener(cardTextWatcher)
                 attachListener(object : CardNumberEditText.CardNumberListener {
                     override fun onPaste() {
-                        model.process(CardIntent.CheckProviderFailureRate(cardNumber.text.toString()))
+                        val cardNumberValue = cardNumber.text.toString()
+
+                        if (cardNumberValue.length >= CARD_BIN_LENGTH) {
+                            model.process(
+                                CardIntent.CheckProviderFailureRate(
+                                    cardNumberValue.substring(0, CARD_BIN_LENGTH)
+                                )
+                            )
+                        }
                     }
 
                     override fun onCut() {
@@ -240,6 +248,7 @@ class AddNewCardFragment :
 
                     showCardRejectionAlert(title = actionTitle, isError = true)
                     showCardRejectionLearnMore(
+                        errorId = state.errorId,
                         title = actionTitle,
                         description = state.description ?: getString(R.string.card_issuer_always_rejects_desc),
                         primaryCtaText = ctaCopies.first,
@@ -261,6 +270,7 @@ class AddNewCardFragment :
 
                     showCardRejectionAlert(title = actionTitle, isError = false)
                     showCardRejectionLearnMore(
+                        errorId = state.errorId,
                         title = actionTitle,
                         description = state.description ?: getString(R.string.card_issuer_sometimes_rejects_desc),
                         primaryCtaText = ctaCopies.first,
@@ -309,6 +319,7 @@ class AddNewCardFragment :
     }
 
     private fun showCardRejectionLearnMore(
+        errorId: String?,
         title: String,
         description: String,
         primaryCtaText: String,
@@ -327,6 +338,7 @@ class AddNewCardFragment :
                 showBottomSheet(
                     ErrorSlidingBottomDialog.newInstance(
                         ErrorDialogData(
+                            errorId = errorId,
                             title = title,
                             description = description,
                             errorButtonCopies = ErrorButtonCopies(

@@ -23,7 +23,8 @@ enum class AssetFilter {
     NonCustodial,
     Trading,
     Interest,
-    Custodial // Trading + Interest (Whatever lives in our backend)
+    Staking,
+    Custodial // Trading + Interest + Staking (Accounts held by Blockchain.com)
 }
 
 fun WalletMode.defaultFilter(): AssetFilter =
@@ -121,7 +122,7 @@ internal inline fun AssetAction.takeEnabledIf(
 internal fun FeatureAccess.Blocked.toActionState(): ActionState = when (val reason = reason) {
     is BlockedReason.InsufficientTier -> ActionState.LockedForTier
     is BlockedReason.Sanctions -> ActionState.LockedDueToSanctions(reason)
-    BlockedReason.NotEligible -> ActionState.Unavailable
+    is BlockedReason.NotEligible -> ActionState.Unavailable
     is BlockedReason.TooManyInFlightTransactions -> ActionState.Unavailable
 }
 

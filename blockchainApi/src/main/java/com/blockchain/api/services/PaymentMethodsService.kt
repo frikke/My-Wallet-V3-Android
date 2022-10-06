@@ -32,12 +32,10 @@ class PaymentMethodsService internal constructor(
      * Any payment method with the flag visible=false should be discarded.
      */
     fun getAvailablePaymentMethodsTypes(
-        authorization: String,
         currency: String,
         tier: Int?,
         eligibleOnly: Boolean
     ): Single<List<PaymentMethodResponse>> = api.getAvailablePaymentMethodsTypes(
-        authorization,
         currency,
         tier,
         eligibleOnly
@@ -51,50 +49,43 @@ class PaymentMethodsService internal constructor(
      * cards which were tokenised with the new providers on other platforms if
      * the feature flag is off.
      */
-    fun getCards(authorization: String, cardProvidersSupported: Boolean) =
-        api.getCards(authorization, cardProvidersSupported)
+    fun getCards(cardProvidersSupported: Boolean) =
+        api.getCards(cardProvidersSupported)
 
     fun addNewCard(
-        authorization: String,
         addNewCardBodyRequest: AddNewCardBodyRequest
-    ) = api.addNewCard(authorization, addNewCardBodyRequest, getLocalisedErrorIfEnabled())
+    ) = api.addNewCard(addNewCardBodyRequest, getLocalisedErrorIfEnabled())
 
     fun activateCard(
-        authorization: String,
         cardId: String,
         attributes: SimpleBuyConfirmationAttributes
-    ) = api.activateCard(authorization, cardId, attributes)
+    ) = api.activateCard(cardId, attributes)
 
     fun getCardDetails(
-        authorization: String,
         cardId: String
-    ) = api.getCardDetails(authorization, cardId)
+    ) = api.getCardDetails(cardId)
 
-    fun deleteCard(authorization: String, cardId: String) = api.deleteCard(authorization, cardId)
+    fun deleteCard(cardId: String) = api.deleteCard(cardId)
 
-    fun getLinkedBank(authorization: String, id: String) = api.getLinkedBank(
-        authorization = authorization,
+    fun getLinkedBank(id: String) = api.getLinkedBank(
         id = id,
         localisedError = getLocalisedErrorIfEnabled()
     )
 
-    fun getBanks(authorization: String) = api.getBanks(authorization)
+    fun getBanks() = api.getBanks()
 
-    fun removeBeneficiary(authorization: String, id: String) = api.removeBeneficiary(authorization, id)
+    fun removeBeneficiary(id: String) = api.removeBeneficiary(id)
 
-    fun removeLinkedBank(authorization: String, id: String) = api.removeLinkedBank(
-        authHeader = authorization,
+    fun removeLinkedBank(id: String) = api.removeLinkedBank(
         id = id,
         localisedError = getLocalisedErrorIfEnabled()
     )
 
     fun linkBank(
-        authorization: String,
         fiatCurrency: String,
         supportedPartners: List<String>,
         applicationId: String
     ) = api.linkBank(
-        authorization = authorization,
         body = CreateLinkBankRequestBody(
             fiatCurrency,
             Attributes(supportedPartners, applicationId)
@@ -103,54 +94,44 @@ class PaymentMethodsService internal constructor(
     )
 
     fun updateAccountProviderId(
-        authorization: String,
         id: String,
         body: UpdateProviderAccountBody
     ) = api.updateProviderAccount(
-        authorization = authorization,
         id = id,
         body = body,
         localisedError = getLocalisedErrorIfEnabled()
     )
 
     fun linkPLaidAccount(
-        authorization: String,
         id: String,
         body: LinkPlaidAccountBody
     ) = api.linkPlaidAccount(
-        authorization,
         id,
         body
     )
 
     fun checkSettlement(
-        authorization: String,
         accountId: String,
         body: SettlementBody
     ) = api.checkSettlement(
-        authorization,
         accountId,
         body,
         localisedError = getLocalisedErrorIfEnabled()
     )
 
     fun startBankTransferPayment(
-        authorization: String,
         id: String,
         body: BankTransferPaymentBody
     ) = api.startBankTransferPayment(
-        authorization = authorization,
         id = id,
         body = body,
         localisedError = getLocalisedErrorIfEnabled()
     )
 
     fun refreshPlaidAccount(
-        authorization: String,
         bankAccountId: String,
         body: RefreshPlaidRequestBody
     ) = api.refreshPlaidAccount(
-        authorization = authorization,
         id = bankAccountId,
         body = body,
         localisedError = getLocalisedErrorIfEnabled()
@@ -158,37 +139,29 @@ class PaymentMethodsService internal constructor(
 
     fun updateOpenBankingToken(
         url: String,
-        authorization: String,
         body: OpenBankingTokenBody
     ) = api.updateOpenBankingToken(
         url = url,
-        authorization = authorization,
         body = body
     )
 
     fun getBankTransferCharge(
-        authorization: String,
         paymentId: String
     ) = api.getBankTransferCharge(
-        authorization = authorization,
         paymentId = paymentId,
         localisedError = getLocalisedErrorIfEnabled()
     )
 
     fun getGooglePayInfo(
-        authorization: String,
         currency: String
     ) = api.getGooglePayInfo(
-        authorization = authorization,
         currency = currency
     )
 
     suspend fun getBeneficiaryInfo(
-        authorization: String,
         currency: String,
         address: String
     ) = api.getBeneficiaryInfo(
-        authorization = authorization,
         body = AliasInfoRequestBody(
             currency = currency,
             address = address
@@ -197,18 +170,14 @@ class PaymentMethodsService internal constructor(
     )
 
     suspend fun activateBeneficiary(
-        authorization: String,
         beneficiaryId: String
     ) = api.activateBeneficiary(
-        authorization = authorization,
         body = LinkWithAliasRequestBody(beneficiaryId)
     )
 
     suspend fun checkCardRejectionState(
-        authorization: String,
         binNumber: String
     ) = api.checkNewCardRejectionState(
-        authorization = authorization,
         binNumber = binNumber
     )
 

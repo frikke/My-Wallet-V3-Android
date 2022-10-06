@@ -5,13 +5,14 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 import piuk.blockchain.android.ui.coinview.domain.GetAccountActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetDetail
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistory
-import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewRecurringBuys
 
@@ -28,9 +29,8 @@ data class CoinviewModelState(
     val isNonTradeableAsset: Boolean = false,
 
     // price
-    val isPriceDataLoading: Boolean = false,
-    val isPriceDataError: Boolean = false,
-    val assetPriceHistory: CoinviewAssetPriceHistory? = null,
+    val isChartDataLoading: Boolean = false,
+    val assetPriceHistory: DataResource<CoinviewAssetPriceHistory> = DataResource.Loading,
     val requestedTimeSpan: HistoricalTimeSpan? = null,
     val interactiveAssetPrice: CoinviewAssetPrice? = null,
 
@@ -39,34 +39,24 @@ data class CoinviewModelState(
     val isWatchlistError: Boolean = false,
     val watchlist: Boolean? = null,
 
-    // total balance
-    val isTotalBalanceLoading: Boolean = false,
-    val isTotalBalanceError: Boolean = false,
-    val totalBalance: CoinviewAssetTotalBalance? = null,
-
-    // accounts
-    val isAccountsLoading: Boolean = false,
-    val isAccountsError: Boolean = false,
-    val accounts: CoinviewAccounts? = null,
+    // asset detail (accounts/non tradeable)
+    val assetDetail: DataResource<CoinviewAssetDetail> = DataResource.Loading,
 
     // recurring buys
-    val isRecurringBuysLoading: Boolean = false,
-    val isRecurringBuysError: Boolean = false,
-    val recurringBuys: CoinviewRecurringBuys? = null,
+    val recurringBuys: DataResource<CoinviewRecurringBuys> = DataResource.Loading,
 
     // quick actions
-    val isQuickActionsLoading: Boolean = false,
-    val isQuickActionsError: Boolean = false,
-    val quickActions: CoinviewQuickActions? = null,
+    val quickActions: DataResource<CoinviewQuickActions> = DataResource.Loading,
 
     // asset info
-    val isAssetInfoLoading: Boolean = false,
-    val isAssetInfoError: Boolean = false,
-    val assetInfo: DetailedAssetInformation? = null,
+    val assetInfo: DataResource<DetailedAssetInformation> = DataResource.Loading,
 
     // errors
     val error: CoinviewError = CoinviewError.None
 ) : ModelState {
+    val accounts: CoinviewAccounts?
+        get() = ((assetDetail as? DataResource.Data)?.data as? CoinviewAssetDetail.Tradeable)?.accounts
+
     /**
      * Returns the first account that is:
      *
@@ -86,17 +76,24 @@ data class CoinviewModelState(
      */
     val actionableAccount: CoinviewAccount
         get() {
-            require(accounts != null) { "accounts not initialized" }
+            check(assetDetail is DataResource.Data) {
+                "accounts not initialized"
+            }
+            check(assetDetail.data is CoinviewAssetDetail.Tradeable) {
+                "asset is not tradeable"
+            }
 
-            return accounts.accounts.firstOrNull {
-                val isUniversalTradingDefiAccount = it is CoinviewAccount.Universal &&
-                    (it.filter == AssetFilter.Trading || it.filter == AssetFilter.NonCustodial)
-                val isTradingAccount = it is CoinviewAccount.Custodial.Trading
-                val isDefiAccount = it is CoinviewAccount.Defi
-                val hasPositiveBalance = it.cryptoBalance.isPositive
+            return with((assetDetail.data as CoinviewAssetDetail.Tradeable).accounts) {
+                accounts.firstOrNull { account ->
+                    val isUniversalTradingDefiAccount = account is CoinviewAccount.Universal &&
+                        (account.filter == AssetFilter.Trading || account.filter == AssetFilter.NonCustodial)
+                    val isTradingAccount = account is CoinviewAccount.Custodial.Trading
+                    val isPrivateKeyAccount = account is CoinviewAccount.PrivateKey
+                    val hasPositiveBalance = account.cryptoBalance.isPositive
 
-                (isUniversalTradingDefiAccount || isTradingAccount || isDefiAccount) && hasPositiveBalance
-            } ?: error("No actionable account found - maybe a quick action is active when it should be disabled")
+                    (isUniversalTradingDefiAccount || isTradingAccount || isPrivateKeyAccount) && hasPositiveBalance
+                } ?: error("No actionable account found - maybe a quick action is active when it should be disabled")
+            }
         }
 }
 

@@ -20,7 +20,6 @@ import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.preferences.CurrencyPrefs
@@ -42,7 +41,6 @@ import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onErrorReturn
 
 internal class InterestRepository(
     private val assetCatalogue: AssetCatalogue,
@@ -53,7 +51,6 @@ internal class InterestRepository(
     private val interestRateStore: InterestRateStore,
     private val paymentTransactionHistoryStore: PaymentTransactionHistoryStore,
     private val currencyPrefs: CurrencyPrefs,
-    private val authenticator: Authenticator,
     private val interestApiService: InterestApiService
 ) : InterestService {
 
@@ -107,10 +104,8 @@ internal class InterestRepository(
             .asObservable().firstOrError()
     }
 
-    override fun getAvailableAssetsForInterestFlow(
-        refreshStrategy: FreshnessStrategy
-    ): Flow<DataResource<List<AssetInfo>>> {
-        return interestAvailableAssetsStore.stream(refreshStrategy).mapData { response ->
+    override fun getAvailableAssetsForInterestFlow(): Flow<DataResource<List<AssetInfo>>> {
+        return interestAvailableAssetsStore.stream(FreshnessStrategy.Cached(false)).mapData { response ->
             response.networkTickers.mapNotNull { networkTicker ->
                 assetCatalogue.assetInfoFromNetworkTicker(networkTicker)
             }
@@ -124,10 +119,9 @@ internal class InterestRepository(
     }
 
     override fun isAssetAvailableForInterestFlow(
-        asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy
+        asset: AssetInfo
     ): Flow<DataResource<Boolean>> {
-        return getAvailableAssetsForInterestFlow(refreshStrategy)
+        return getAvailableAssetsForInterestFlow()
             .mapData { assets -> assets.contains(asset) }
     }
 
@@ -251,10 +245,8 @@ internal class InterestRepository(
 
     // address
     override fun getAddress(asset: AssetInfo): Single<String> {
-        return authenticator.authenticate { sessionToken ->
-            interestApiService.getAddress(sessionToken.authHeader, asset.networkTicker)
-                .map { interestAddressResponse -> interestAddressResponse.address }
-        }
+        return interestApiService.getAddress(asset.networkTicker)
+            .map { interestAddressResponse -> interestAddressResponse.address }
     }
 
     // activity
@@ -287,16 +279,13 @@ internal class InterestRepository(
 
     // withdrawal
     override fun withdraw(asset: AssetInfo, amount: Money, address: String): Completable {
-        return authenticator.authenticateCompletable { sessionToken ->
-            interestApiService.performWithdrawal(
-                authHeader = sessionToken.authHeader,
-                body = InterestWithdrawalBodyDto(
-                    withdrawalAddress = address,
-                    amount = amount.toBigInteger().toString(),
-                    currency = asset.networkTicker
-                )
+        return interestApiService.performWithdrawal(
+            body = InterestWithdrawalBodyDto(
+                withdrawalAddress = address,
+                amount = amount.toBigInteger().toString(),
+                currency = asset.networkTicker
             )
-        }
+        )
     }
 
     companion object {

@@ -29,7 +29,8 @@ data class BlockchainCard(
     val expiry: String,
     val brand: BlockchainCardBrand,
     val status: BlockchainCardStatus,
-    val createdAt: String
+    val orderStatus: BlockchainCardOrderStatus?,
+    val createdAt: String,
 ) : Parcelable
 
 @Parcelize
@@ -80,6 +81,34 @@ data class BlockchainCardLegalDocument(
     var seen: Boolean = false
 ) : Parcelable
 
+data class BlockchainCardGoogleWalletData(
+    val deviceId: String,
+    val deviceType: String,
+    val provisioningAppVersion: String,
+    val walletAccountId: String
+)
+
+data class BlockchainCardGoogleWalletPushTokenizeData(
+    val cardType: String,
+    val displayName: String,
+    val opaquePaymentCard: String,
+    val last4: String,
+    val network: String,
+    val tokenServiceProvider: String,
+    val googleWalletUserAddress: BlockchainCardGoogleWalletUserAddress
+)
+
+data class BlockchainCardGoogleWalletUserAddress(
+    val name: String,
+    val address1: String,
+    val address2: String,
+    val city: String,
+    val stateCode: String,
+    val postalCode: String,
+    val countryCode: String,
+    val phone: String
+)
+
 enum class BlockchainCardBrand {
     VISA,
     MASTERCARD,
@@ -93,16 +122,18 @@ enum class BlockchainCardType {
 }
 
 enum class BlockchainCardStatus {
-    CREATED,
+    INITIATED,
+    UNACTIVATED,
     ACTIVE,
     LOCKED,
     TERMINATED
 }
 
 enum class BlockchainCardTransactionState {
+    CREATED,
     PENDING,
-    CANCELLED,
     DECLINED,
+    CANCELLED,
     COMPLETED;
 
     override fun toString(): String {
@@ -113,9 +144,10 @@ enum class BlockchainCardTransactionState {
 
     fun getStringResource(): Int {
         return when (this) {
+            CREATED -> R.string.bc_card_transaction_created
             PENDING -> R.string.bc_card_transaction_pending
-            CANCELLED -> R.string.bc_card_transaction_cancelled
             DECLINED -> R.string.bc_card_transaction_declined
+            CANCELLED -> R.string.bc_card_transaction_cancelled
             COMPLETED -> R.string.bc_card_transaction_completed
         }
     }
@@ -123,12 +155,32 @@ enum class BlockchainCardTransactionState {
 
 enum class BlockchainCardTransactionType {
     PAYMENT,
-    REFUND;
+    PAYMENT_WITH_CASHBACK,
+    REFUND,
+    FUNDING,
+    CHARGEBACK;
 
     fun getStringResource(): Int {
         return when (this) {
             PAYMENT -> R.string.bc_card_transaction_payment
+            PAYMENT_WITH_CASHBACK -> R.string.bc_card_transaction_payment_with_cashback
             REFUND -> R.string.bc_card_transaction_refund
+            FUNDING -> R.string.bc_card_transaction_funding
+            CHARGEBACK -> R.string.bc_card_transaction_chargeback
         }
     }
+}
+
+enum class BlockchainCardOrderStatus {
+    ORDERED,
+    SHIPPED,
+    DELIVERED
+}
+
+enum class BlockchainCardGoogleWalletStatus {
+    NOT_ADDED,
+    ADDED,
+    ADD_IN_PROGRESS,
+    ADD_SUCCESS,
+    ADD_FAILED
 }

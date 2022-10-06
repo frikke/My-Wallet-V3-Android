@@ -27,7 +27,8 @@ val receiveCryptoModule = module {
                 walletModeService = get(),
                 coincore = get(),
                 getAvailableCryptoAssetsUseCase = get(),
-                getReceiveAccountsForAssetUseCase = get()
+                getReceiveAccountsForAssetUseCase = get(),
+                exchangeRatesDataManager = get()
             )
         }
     }

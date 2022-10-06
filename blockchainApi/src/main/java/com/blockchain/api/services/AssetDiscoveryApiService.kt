@@ -10,6 +10,8 @@ import com.blockchain.api.assetdiscovery.data.FiatAsset
 import com.blockchain.api.assetdiscovery.data.UnsupportedAsset
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
+import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
 
 enum class DynamicAssetProducts {
@@ -78,7 +80,8 @@ class AssetDiscoveryApiService internal constructor(
 
     private fun DynamicCurrency.toDynamicAsset(): DynamicAsset? =
         when {
-            coinType is Erc20Asset && !supportedErc20Chains.contains(coinType.parentChain) -> null
+            coinType is Erc20Asset &&
+                !isParentChainEnabledEvm(CryptoCurrency.evmCurrencies, coinType.parentChain) -> null
             coinType is CeloTokenAsset && coinType.parentChain != CELO -> null
             coinType is UnsupportedAsset -> null
             else -> DynamicAsset(
@@ -96,7 +99,7 @@ class AssetDiscoveryApiService internal constructor(
                 logoUrl = coinType.logoUrl,
                 websiteUrl = coinType.websiteUrl,
                 minConfirmations = when (coinType) {
-                    is Erc20Asset -> if (supportedErc20Chains.contains(coinType.parentChain)) {
+                    is Erc20Asset -> if (isParentChainEnabledEvm(CryptoCurrency.evmCurrencies, coinType.parentChain)) {
                         ERC20_CONFIRMATIONS
                     } else {
                         throw IllegalStateException("Unknown parent chain")
@@ -127,10 +130,12 @@ class AssetDiscoveryApiService internal constructor(
             }
         }.toSet()
 
+    private fun isParentChainEnabledEvm(evmChains: List<AssetInfo>, parentChain: String) =
+        evmChains.find {
+            it.networkTicker == parentChain || it.displayTicker == parentChain
+        } != null
+
     companion object {
-        const val ETHEREUM = "ETH"
-        const val MATIC = "MATIC"
-        val supportedErc20Chains = listOf(ETHEREUM, MATIC)
         const val CELO = "CELO"
         private const val ERC20_CONFIRMATIONS = 12
         private const val CELO_CONFIRMATIONS = 1

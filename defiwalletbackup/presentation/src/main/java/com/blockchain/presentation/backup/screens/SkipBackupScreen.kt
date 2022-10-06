@@ -53,7 +53,7 @@ fun SkipBackupScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_margin)),
+                .padding(dimensionResource(id = R.dimen.standard_spacing)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.weight(1F))
@@ -62,7 +62,7 @@ fun SkipBackupScreen(
                 imageResource = ImageResource.Local(R.drawable.ic_backup_warning)
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
             Text(
                 text = stringResource(R.string.skip_backup_title),
@@ -70,7 +70,7 @@ fun SkipBackupScreen(
                 color = Grey900,
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_spacing)))
 
             Text(
                 text = stringResource(R.string.skip_backup_description),
@@ -87,7 +87,7 @@ fun SkipBackupScreen(
                 onClick = skipOnClick
             )
 
-            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.smallSpacing))
 
             MinimalButton(
                 modifier = Modifier.fillMaxWidth(),

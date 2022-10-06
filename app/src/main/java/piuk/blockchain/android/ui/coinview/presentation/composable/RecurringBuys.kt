@@ -75,8 +75,8 @@ fun RecurringBuysError() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = AppTheme.dimensions.paddingLarge,
-                    vertical = AppTheme.dimensions.paddingMedium
+                    horizontal = AppTheme.dimensions.standardSpacing,
+                    vertical = AppTheme.dimensions.smallSpacing
                 )
         ) {
             CardAlert(
@@ -98,8 +98,8 @@ fun RecurringBuysUpsell(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = AppTheme.dimensions.paddingLarge,
-                vertical = AppTheme.dimensions.paddingMedium
+                horizontal = AppTheme.dimensions.standardSpacing,
+                vertical = AppTheme.dimensions.smallSpacing
             )
     ) {
         DefaultCard(
@@ -126,7 +126,7 @@ fun RecurringBuysData(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        //header
+        // header
         SmallSectionHeader(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.dashboard_recurring_buy_title)
@@ -175,26 +175,29 @@ fun PreviewRecurringBuys_Upsell() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewRecurringBuys_Data() {
-    RecurringBuys(CoinviewRecurringBuysState.Data(
-        listOf(
-            CoinviewRecurringBuyState(
-                id = "1",
-                description = SimpleValue.StringValue("RecurringBuyState description 1"),
-                status = SimpleValue.StringValue("RecurringBuyState status 1"),
-                assetColor = "#2949F8"
-            ),
-            CoinviewRecurringBuyState(
-                id = "2",
-                description = SimpleValue.StringValue("RecurringBuyState description 2"),
-                status = SimpleValue.StringValue("RecurringBuyState status 2"),
-                assetColor = "#2949F8"
-            ),
-            CoinviewRecurringBuyState(
-                id = "3",
-                description = SimpleValue.StringValue("RecurringBuyState description 3"),
-                status = SimpleValue.StringValue("RecurringBuyState status 3"),
-                assetColor = "#2949F8"
+    RecurringBuys(
+        CoinviewRecurringBuysState.Data(
+            listOf(
+                CoinviewRecurringBuyState(
+                    id = "1",
+                    description = SimpleValue.StringValue("RecurringBuyState description 1"),
+                    status = SimpleValue.StringValue("RecurringBuyState status 1"),
+                    assetColor = "#2949F8"
+                ),
+                CoinviewRecurringBuyState(
+                    id = "2",
+                    description = SimpleValue.StringValue("RecurringBuyState description 2"),
+                    status = SimpleValue.StringValue("RecurringBuyState status 2"),
+                    assetColor = "#2949F8"
+                ),
+                CoinviewRecurringBuyState(
+                    id = "3",
+                    description = SimpleValue.StringValue("RecurringBuyState description 3"),
+                    status = SimpleValue.StringValue("RecurringBuyState status 3"),
+                    assetColor = "#2949F8"
+                )
             )
-        )
-    ), {}, {})
+        ),
+        {}, {}
+    )
 }

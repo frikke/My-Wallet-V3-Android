@@ -4,14 +4,12 @@ import com.blockchain.api.txlimits.data.GetCrossborderLimitsResponse
 import com.blockchain.api.txlimits.data.GetFeatureLimitsResponse
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Query
 
 interface TxLimitsApi {
 
     @GET("limits/crossborder/transaction")
     fun getCrossborderLimits(
-        @Header("authorization") authorization: String, // FLAG_AUTH_REMOVAL
         @Query("currency")
         outputCurrency: String,
         @Query("inputCurrency")
@@ -25,7 +23,5 @@ interface TxLimitsApi {
     ): Single<GetCrossborderLimitsResponse>
 
     @GET("limits/overview")
-    fun getFeatureLimits(
-        @Header("authorization") authorization: String // FLAG_AUTH_REMOVAL
-    ): Single<GetFeatureLimitsResponse>
+    fun getFeatureLimits(): Single<GetFeatureLimitsResponse>
 }

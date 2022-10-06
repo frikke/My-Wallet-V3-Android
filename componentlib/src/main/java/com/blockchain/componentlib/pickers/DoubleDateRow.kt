@@ -38,17 +38,17 @@ fun DoubleDateRow(
     }
 
     val topRowShape = RoundedCornerShape(
-        topStart = dimensionResource(R.dimen.smallest_margin),
-        topEnd = dimensionResource(R.dimen.smallest_margin),
-        bottomEnd = dimensionResource(R.dimen.zero_margin),
-        bottomStart = dimensionResource(R.dimen.zero_margin)
+        topStart = dimensionResource(R.dimen.smallest_spacing),
+        topEnd = dimensionResource(R.dimen.smallest_spacing),
+        bottomEnd = dimensionResource(R.dimen.zero_spacing),
+        bottomStart = dimensionResource(R.dimen.zero_spacing)
 
     )
     val bottomRowShape = RoundedCornerShape(
-        topStart = dimensionResource(R.dimen.zero_margin),
-        topEnd = dimensionResource(R.dimen.zero_margin),
-        bottomEnd = dimensionResource(R.dimen.smallest_margin),
-        bottomStart = dimensionResource(R.dimen.smallest_margin)
+        topStart = dimensionResource(R.dimen.zero_spacing),
+        topEnd = dimensionResource(R.dimen.zero_spacing),
+        bottomEnd = dimensionResource(R.dimen.smallest_spacing),
+        bottomStart = dimensionResource(R.dimen.smallest_spacing)
     )
 
     Column {
@@ -61,8 +61,8 @@ fun DoubleDateRow(
                     shape = topRowShape
                 )
                 .padding(
-                    horizontal = dimensionResource(R.dimen.medium_margin),
-                    vertical = dimensionResource(R.dimen.very_small_margin)
+                    horizontal = dimensionResource(R.dimen.medium_spacing),
+                    vertical = dimensionResource(R.dimen.very_small_spacing)
                 )
         ) {
             Text(
@@ -102,8 +102,8 @@ fun DoubleDateRow(
                     shape = bottomRowShape
                 )
                 .padding(
-                    horizontal = dimensionResource(R.dimen.medium_margin),
-                    vertical = dimensionResource(R.dimen.very_small_margin)
+                    horizontal = dimensionResource(R.dimen.medium_spacing),
+                    vertical = dimensionResource(R.dimen.very_small_spacing)
                 )
         ) {
             Text(

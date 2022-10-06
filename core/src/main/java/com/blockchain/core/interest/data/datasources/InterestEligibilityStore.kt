@@ -2,7 +2,6 @@ package com.blockchain.core.interest.data.datasources
 
 import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.interest.data.InterestEligibilityDto
-import com.blockchain.nabu.Authenticator
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
 import com.blockchain.store.impl.Freshness
@@ -13,16 +12,13 @@ import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 
 class InterestEligibilityStore(
-    private val authenticator: Authenticator,
     private val interestApiService: InterestApiService
 ) : Store<Map<String, InterestEligibilityDto>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.ofSingle(
             mapper = {
-                authenticator.authenticate { token ->
-                    interestApiService.getTickersEligibility(token.authHeader)
-                }
+                interestApiService.getTickersEligibility()
             }
         ),
         dataSerializer = MapSerializer(

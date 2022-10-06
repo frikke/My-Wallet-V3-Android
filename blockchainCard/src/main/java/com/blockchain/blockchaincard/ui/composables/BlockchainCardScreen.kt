@@ -21,6 +21,7 @@ import com.blockchain.blockchaincard.ui.composables.managecard.AccountPicker
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddress
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddressUpdated
 import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionDetails
+import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionHistory
 import com.blockchain.blockchaincard.ui.composables.managecard.FundingAccountActionChooser
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCardDetails
@@ -32,6 +33,7 @@ import com.blockchain.blockchaincard.ui.composables.managecard.TransactionContro
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationFailed
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationInProgress
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationSuccess
+import com.blockchain.blockchaincard.ui.composables.ordercard.HowToOrderCard
 import com.blockchain.blockchaincard.ui.composables.ordercard.LegalDocument
 import com.blockchain.blockchaincard.ui.composables.ordercard.LegalDocumentsViewer
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCard
@@ -40,6 +42,7 @@ import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardContent
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardSsnKYC
 import com.blockchain.blockchaincard.ui.composables.ordercard.ProductDetails
 import com.blockchain.blockchaincard.ui.composables.ordercard.ProductLegalInfo
+import com.blockchain.blockchaincard.ui.composables.ordercard.ReviewAndSubmit
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardDestination
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardErrorState
@@ -89,34 +92,61 @@ fun BlockchainCardNavHost(
                 OrderCard(viewModel as OrderCardViewModel)
             }
 
+            bottomSheet(BlockchainCardDestination.HowToOrderCardDestination) {
+                HowToOrderCard(
+                    onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) },
+                    onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardKYCAddress) }
+                )
+            }
+
             composable(BlockchainCardDestination.OrderCardKycAddressDestination) {
                 state?.let { state ->
                     OrderCardAddressKYC(
-                        onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardSSNAddress) },
+                        onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardKYCSSN) },
                         onCheckBillingAddress = { viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress) },
-                        shortAddress = state.residentialAddress?.getShortAddress()
+                        line1 = state.residentialAddress?.line1,
+                        city = state.residentialAddress?.city,
+                        postalCode = state.residentialAddress?.postCode,
+                        isAddressLoading = state.isAddressLoading
                     )
                 }
             }
 
             composable(BlockchainCardDestination.OrderCardKycSSNDestination) {
                 OrderCardSsnKYC(
-                    onContinue = { ssn -> viewModel.onIntent(BlockchainCardIntent.OrderCardKycComplete(ssn)) }
+                    onContinue = { ssn ->
+                        viewModel.onIntent(BlockchainCardIntent.OrderCardKycComplete(ssn))
+                    }
                 )
             }
 
-            composable(BlockchainCardDestination.OrderCardConfirmDestination) {
+            composable(BlockchainCardDestination.ChooseCardProductDestination) {
+                OrderCardContent(
+                    onContinue = {
+                        viewModel.onIntent(BlockchainCardIntent.OnOrderCardConfirm)
+                    },
+                    onSeeProductDetails = {
+                        viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails)
+                    }
+                )
+            }
+
+            composable(BlockchainCardDestination.ReviewAndSubmitCardDestination) {
                 state?.let { state ->
-                    OrderCardContent(
+                    ReviewAndSubmit(
+                        firstAndLastName = state.userFirstAndLastName,
+                        line1 = state.residentialAddress?.line1,
+                        city = state.residentialAddress?.city,
+                        postalCode = state.residentialAddress?.postCode,
                         isLegalDocReviewComplete = state.isLegalDocReviewComplete,
-                        onCreateCard = {
-                            viewModel.onIntent(BlockchainCardIntent.CreateCard)
-                        },
-                        onSeeProductDetails = {
-                            viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails)
+                        onCheckBillingAddress = {
+                            viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress)
                         },
                         onSeeLegalDocuments = {
                             viewModel.onIntent(BlockchainCardIntent.OnSeeLegalDocuments)
+                        },
+                        onCreateCard = {
+                            viewModel.onIntent(BlockchainCardIntent.CreateCard)
                         }
                     )
                 }
@@ -165,9 +195,6 @@ fun BlockchainCardNavHost(
                 ProductDetails(
                     onCloseProductDetailsBottomSheet = {
                         viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
-                    },
-                    onSeeProductLegalInfo = {
-                        viewModel.onIntent(BlockchainCardIntent.OnSeeProductLegalInfo)
                     }
                 )
             }
@@ -216,7 +243,8 @@ fun BlockchainCardNavHost(
                             linkedAccountBalance = state.linkedAccountBalance,
                             isBalanceLoading = state.isLinkedAccountBalanceLoading,
                             isTransactionListRefreshing = state.isTransactionListRefreshing,
-                            transactionList = state.transactionList,
+                            transactionList = state.shortTransactionList,
+                            googleWalletState = state.googleWalletStatus,
                             onManageCardDetails = {
                                 viewModel.onIntent(BlockchainCardIntent.ManageCardDetails)
                             },
@@ -226,6 +254,9 @@ fun BlockchainCardNavHost(
                             onRefreshBalance = {
                                 viewModel.onIntent(BlockchainCardIntent.LoadLinkedAccount)
                             },
+                            onSeeAllTransactions = {
+                                viewModel.onIntent(BlockchainCardIntent.SeeAllTransactions)
+                            },
                             onSeeTransactionDetails = { transaction ->
                                 viewModel.onIntent(BlockchainCardIntent.SeeTransactionDetails(transaction))
                             },
@@ -234,6 +265,12 @@ fun BlockchainCardNavHost(
                             },
                             onRefreshCardWidgetUrl = {
                                 viewModel.onIntent(BlockchainCardIntent.LoadCardWidget)
+                            },
+                            onAddFunds = {
+                                viewModel.onIntent(BlockchainCardIntent.AddFunds)
+                            },
+                            onAddToGoogleWallet = {
+                                viewModel.onIntent(BlockchainCardIntent.LoadGoogleWalletPushTokenizeData)
                             }
                         )
                     }
@@ -259,7 +296,7 @@ fun BlockchainCardNavHost(
 
             bottomSheet(BlockchainCardDestination.FundingAccountActionsDestination) {
                 FundingAccountActionChooser(
-                    onAddFunds = { viewModel.onIntent(BlockchainCardIntent.TopUp) },
+                    onAddFunds = { viewModel.onIntent(BlockchainCardIntent.AddFunds) },
                     onChangeAsset = { viewModel.onIntent(BlockchainCardIntent.ChoosePaymentMethod) },
                     onClose = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
                 )
@@ -377,23 +414,38 @@ fun BlockchainCardNavHost(
                 }
             }
 
-            bottomSheet(BlockchainCardDestination.TransactionDetailsDestination) {
-                state?.selectedCardTransaction?.let { transaction ->
-                    CardTransactionDetails(
-                        cardTransaction = transaction,
-                        onCloseBottomSheet = {
-                            viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
-                        }
-                    )
+            composable(BlockchainCardDestination.AllTransactionsDestination) {
+                state?.let { state ->
+                    if (state.pendingTransactions != null && state.completedTransactionsGroupedByMonth != null) {
+                        CardTransactionHistory(
+                            pendingTransactions = state.pendingTransactions,
+                            completedTransactionsGroupedByMonth = state.completedTransactionsGroupedByMonth,
+                            onSeeTransactionDetails = { transaction ->
+                                viewModel.onIntent(BlockchainCardIntent.SeeTransactionDetails(transaction))
+                            },
+                            onRefreshTransactions = {
+                                viewModel.onIntent(BlockchainCardIntent.RefreshTransactions)
+                            },
+                            isTransactionListRefreshing = state.isTransactionListRefreshing,
+                            onGetNextPage = {
+                                viewModel.onIntent(BlockchainCardIntent.LoadNextTransactionsPage)
+                            }
+                        )
+                    }
                 }
             }
 
             bottomSheet(BlockchainCardDestination.TransactionDetailsDestination) {
-                state?.selectedCardTransaction?.let { transaction ->
-                    CardTransactionDetails(
-                        cardTransaction = transaction,
-                        onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
-                    )
+                state?.let { state ->
+                    if (state.selectedCardTransaction != null && state.card != null) {
+                        CardTransactionDetails(
+                            cardTransaction = state.selectedCardTransaction,
+                            onCloseBottomSheet = {
+                                viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
+                            },
+                            last4digits = state.card.last4
+                        )
+                    }
                 }
             }
 

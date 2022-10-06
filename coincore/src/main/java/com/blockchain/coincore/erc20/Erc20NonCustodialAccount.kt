@@ -14,9 +14,7 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.rx.printTime
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -50,7 +48,6 @@ class Erc20NonCustodialAccount(
 
     override fun getOnChainBalance(): Observable<Money> =
         erc20DataManager.getErc20Balance(currency)
-            .printTime("----- ::getErc20Balance")
             .doOnNext { hasFunds.set(it.balance.isPositive) }
             .doOnNext { setHasTransactions(it.hasTransactions) }
             .map { it.balance }
@@ -72,12 +69,7 @@ class Erc20NonCustodialAccount(
                         exchangeRates = exchangeRates,
                         lastBlockNumber = latestBlockNumber,
                         account = this,
-                        supportsDescription = erc20DataManager.supportsErc20TxNote(currency),
-                        timeStampMultiplier = if (l1Network.networkTicker == CryptoCurrency.ETHER.networkTicker) {
-                            ETH_CHAIN_TX_HISTORY_MULTIPLIER
-                        } else {
-                            1
-                        }
+                        supportsDescription = erc20DataManager.supportsErc20TxNote(currency)
                     )
                 }
             }.flatMap {

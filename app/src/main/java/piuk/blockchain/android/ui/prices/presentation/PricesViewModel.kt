@@ -17,7 +17,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
@@ -100,18 +99,21 @@ class PricesViewModel(
                 modelState.copy(tradableCurrencies = tradableCurrencies.map { it.source.networkTicker })
             }
         }.flatMapObservable {
-            walletModeService.walletMode.map { walletMode ->
-                coincore.availableCryptoAssets().filter {
-                    when (walletMode) {
-                        WalletMode.NON_CUSTODIAL_ONLY -> it.isNonCustodial
-                        WalletMode.CUSTODIAL_ONLY -> it.isCustodial
-                        WalletMode.UNIVERSAL -> true
+            walletModeService.walletMode.asObservable().flatMapSingle { walletMode ->
+                coincore.availableCryptoAssets().map { list ->
+                    list.filter { assetInfo ->
+                        when (walletMode) {
+                            WalletMode.NON_CUSTODIAL_ONLY -> assetInfo.isNonCustodial
+                            WalletMode.CUSTODIAL_ONLY -> assetInfo.isCustodial
+                            WalletMode.UNIVERSAL -> true
+                        }
                     }
                 }
-            }.asObservable().doOnNext {
+            }.doOnNext {
                 updateState {
                     modelState.copy(
                         isLoadingData = true,
+                        filterBy = "",
                         data = emptyList()
                     )
                 }

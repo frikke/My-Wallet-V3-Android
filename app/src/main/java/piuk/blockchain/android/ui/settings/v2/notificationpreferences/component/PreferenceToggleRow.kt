@@ -57,8 +57,8 @@ fun PreferenceToggleRow(
                 .wrapContentHeight()
                 .background(AppTheme.colors.background)
                 .padding(
-                    start = dimensionResource(R.dimen.standard_margin),
-                    end = dimensionResource(R.dimen.standard_margin)
+                    start = dimensionResource(R.dimen.standard_spacing),
+                    end = dimensionResource(R.dimen.standard_spacing)
                 ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween

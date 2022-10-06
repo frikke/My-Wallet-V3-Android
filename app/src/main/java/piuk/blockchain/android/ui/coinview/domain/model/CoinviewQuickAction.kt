@@ -23,6 +23,6 @@ sealed interface CoinviewQuickAction {
     data class Receive(override val enabled: Boolean) : CoinviewQuickAction
     data class Swap(override val enabled: Boolean) : CoinviewQuickAction
     object None : CoinviewQuickAction {
-        override val enabled : Boolean get() = error("None action doesn't have enabled property")
+        override val enabled: Boolean get() = error("None action doesn't have enabled property")
     }
 }

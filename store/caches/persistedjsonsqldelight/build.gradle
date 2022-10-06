@@ -1,22 +1,12 @@
-apply plugin: 'com.squareup.sqldelight'
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
 
 dependencies {
     implementation project(':store:core')
     implementation project(':common:interface')
-    implementation Libraries.kotlinCoroutines
-    implementation Libraries.sqlDelight
-    implementation Libraries.coroutinesSqlDelight
 
+    implementation Libraries.kotlinCoroutines
     implementation Libraries.kotlinJson
 
+    // koin
     implementation Libraries.koin
-    implementation Libraries.koinAndroid
-
-    testImplementation Libraries.junit
-    testImplementation Libraries.turbine
-    testImplementation Libraries.kluent
-    testImplementation Libraries.kotlinJunit
-    testImplementation Libraries.kotlinCoroutinesTest
-    testImplementation Libraries.mockk
 }

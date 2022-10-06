@@ -138,7 +138,7 @@ class Erc20OnChainTxEngine(
         require(amount is CryptoValue)
         require(amount.currency == sourceAsset)
         return Single.zip(
-            sourceAccount.balance.firstOrError(),
+            sourceAccount.balanceRx.firstOrError(),
             absoluteFees(),
             l1Asset
         ) { balance, feesForLevels, asset ->
@@ -198,7 +198,7 @@ class Erc20OnChainTxEngine(
         }
 
     private fun validateSufficientFunds(pendingTx: PendingTx): Completable =
-        sourceAccount.balance.firstOrError().map { it.withdrawable }
+        sourceAccount.balanceRx.firstOrError().map { it.withdrawable }
             .map { balance ->
                 if (pendingTx.amount > balance) {
                     throw TxValidationFailure(

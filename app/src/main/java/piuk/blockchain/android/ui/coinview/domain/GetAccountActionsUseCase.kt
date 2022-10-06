@@ -24,7 +24,7 @@ data class GetAccountActionsUseCase(
     suspend operator fun invoke(account: CoinviewAccount): DataResource<List<StateAwareAction>> {
         return supervisorScope {
             val actionsDeferred = async(dispatcher) { account.account.stateAwareActions.await() }
-            val balanceDeferred = async(dispatcher) { account.account.balance.awaitFirst() }
+            val balanceDeferred = async(dispatcher) { account.account.balanceRx.awaitFirst() }
 
             try {
                 val actions = actionsDeferred.await()
@@ -74,7 +74,11 @@ data class GetAccountActionsUseCase(
             is CoinviewAccount.Custodial.Trading -> {
                 Pair(dashboardPrefs.isRewardsIntroSeen) { dashboardPrefs.isRewardsIntroSeen = true }
             }
-            is CoinviewAccount.Defi -> {
+            is CoinviewAccount.Custodial.Staking -> {
+                // TODO(dserrano) - STAKING - ask about interstitial when tapping on staking account
+                Pair(true) {}
+            }
+            is CoinviewAccount.PrivateKey -> {
                 Pair(dashboardPrefs.isPrivateKeyIntroSeen) { dashboardPrefs.isPrivateKeyIntroSeen = true }
             }
         }

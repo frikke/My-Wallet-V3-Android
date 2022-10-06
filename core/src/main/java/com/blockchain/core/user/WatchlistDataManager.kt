@@ -2,7 +2,6 @@ package com.blockchain.core.user
 
 import com.blockchain.api.services.AssetTag
 import com.blockchain.api.services.WatchlistApiService
-import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.outcome.map
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
@@ -20,7 +19,6 @@ interface WatchlistDataManager {
 }
 
 class WatchlistDataManagerImpl(
-    private val authenticator: AuthHeaderProvider,
     private val watchlistService: WatchlistApiService,
     private val assetCatalogue: AssetCatalogue
 ) : WatchlistDataManager {
@@ -36,43 +34,37 @@ class WatchlistDataManagerImpl(
         }
 
     override fun getWatchlist(): Single<Watchlist> =
-        authenticator.getAuthHeader().flatMap { header ->
-            rxSingleOutcome {
-                watchlistService.getWatchlist(header)
-                    .map { response ->
-                        val assetMap = mutableMapOf<Currency, List<AssetTag>>()
-                        response.items.forEach { item ->
-                            assetCatalogue.fromNetworkTicker(item.asset)?.let { currency ->
-                                assetMap[currency] = item.tags.map { tagItem ->
-                                    AssetTag.fromString(tagItem.tag)
-                                }
+        rxSingleOutcome {
+            watchlistService.getWatchlist()
+                .map { response ->
+                    val assetMap = mutableMapOf<Currency, List<AssetTag>>()
+                    response.items.forEach { item ->
+                        assetCatalogue.fromNetworkTicker(item.asset)?.let { currency ->
+                            assetMap[currency] = item.tags.map { tagItem ->
+                                AssetTag.fromString(tagItem.tag)
                             }
                         }
-                        Watchlist(assetMap)
                     }
-            }
+                    Watchlist(assetMap)
+                }
         }
 
     override fun addToWatchlist(asset: Currency, tags: List<AssetTag>): Single<WatchlistInfo> =
-        authenticator.getAuthHeader().flatMap { header ->
-            rxSingleOutcome {
-                watchlistService.addToWatchlist(header, asset.networkTicker)
-                    .map { response ->
-                        WatchlistInfo(
-                            asset,
-                            response.tags.map { tagItem ->
-                                AssetTag.fromString(tagItem.tag)
-                            }
-                        )
-                    }
-            }
+        rxSingleOutcome {
+            watchlistService.addToWatchlist(asset.networkTicker)
+                .map { response ->
+                    WatchlistInfo(
+                        asset,
+                        response.tags.map { tagItem ->
+                            AssetTag.fromString(tagItem.tag)
+                        }
+                    )
+                }
         }
 
     override fun removeFromWatchList(asset: Currency, tags: List<AssetTag>): Completable =
-        authenticator.getAuthHeader().flatMapCompletable { header ->
-            rxCompletableOutcome {
-                watchlistService.removeFromWatchlist(header, asset.networkTicker)
-            }
+        rxCompletableOutcome {
+            watchlistService.removeFromWatchlist(asset.networkTicker)
         }
 }
 

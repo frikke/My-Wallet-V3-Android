@@ -3,7 +3,7 @@
     <item>
         <shape android:shape="rectangle">
             <solid android:color="@color/white" />
-            <corners android:radius="@dimen/tiny_margin" />
+            <corners android:radius="@dimen/tiny_spacing" />
             <stroke
                 android:width="1dp"
                 android:color="@color/green_600" />
@@ -13,9 +13,9 @@
         </shape>
     </item>
     <item
-        android:bottom="@dimen/medium_margin"
+        android:bottom="@dimen/medium_spacing"
         android:drawable="@drawable/ic_pin_mark"
-        android:left="@dimen/medium_margin"
-        android:right="@dimen/medium_margin"
-        android:top="@dimen/medium_margin" />
+        android:left="@dimen/medium_spacing"
+        android:right="@dimen/medium_spacing"
+        android:top="@dimen/medium_spacing" />
 </layer-list>

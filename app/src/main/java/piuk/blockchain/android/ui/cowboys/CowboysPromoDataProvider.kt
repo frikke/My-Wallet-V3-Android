@@ -6,14 +6,14 @@ import com.blockchain.api.referral.data.StyleInfo
 import com.blockchain.api.referral.data.UrlInfo
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.common.model.ServerErrorAction
-import com.blockchain.remoteconfig.RemoteConfig
+import com.blockchain.domain.experiments.RemoteConfigService
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 class CowboysPromoDataProvider(
-    private val config: RemoteConfig,
+    private val config: RemoteConfigService,
     private val json: Json
 ) {
 

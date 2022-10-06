@@ -1,6 +1,6 @@
 package com.blockchain.nabu.metadata
 
-import com.blockchain.serializers.jsonSerializers
+import com.blockchain.api.blockchainApiModule
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
@@ -18,7 +18,7 @@ class NabuLegacyCredentialsMetadataTest : KoinTest {
 
     @get:Rule
     val koinTestRule = KoinTestRule.create {
-        modules(jsonSerializers)
+        modules(blockchainApiModule)
     }
 
     @Test

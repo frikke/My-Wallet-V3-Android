@@ -53,7 +53,7 @@ val analyticsModule = module {
 
     factory {
         AnalyticsContextProviderImpl(
-            context = get()
+            traitsServices = getAll()
         )
     }.bind(AnalyticsContextProvider::class)
 

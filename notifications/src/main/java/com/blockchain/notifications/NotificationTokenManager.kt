@@ -5,17 +5,17 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.google.common.base.Optional
-import info.blockchain.wallet.payload.PayloadManager
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
 class NotificationTokenManager(
     private val notificationService: NotificationService,
-    private val payloadManager: PayloadManager,
+    private val payloadDataManager: PayloadDataManager,
     private val prefs: NotificationPrefs,
     private val authPrefs: AuthPrefs,
     private val notificationTokenProvider: NotificationTokenProvider,
@@ -107,13 +107,12 @@ class NotificationTokenManager(
     }
 
     private fun sendFirebaseToken(refreshedToken: String): Completable {
-        return if (prefs.arePushNotificationsEnabled && payloadManager.payload != null) {
-            val payload = payloadManager.payload
-            payload?.let {
-                notificationService.sendNotificationToken(refreshedToken, it.guid, it.sharedKey)
-                    .retry(2)
-                    .subscribeOn(Schedulers.io())
-            } ?: Completable.complete()
+        return if (prefs.arePushNotificationsEnabled && payloadDataManager.initialised) {
+            notificationService.sendNotificationToken(
+                refreshedToken, payloadDataManager.guid, payloadDataManager.sharedKey
+            )
+                .retry(2)
+                .subscribeOn(Schedulers.io())
         } else {
             Completable.complete()
         }

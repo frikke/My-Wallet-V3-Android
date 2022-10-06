@@ -13,7 +13,7 @@ sealed class ReceiveIntent : MviIntent<ReceiveState> {
     }
 
     data class UpdateAssets(
-        val assets: List<AssetInfo>,
+        val assets: List<ReceiveItem>,
         private val loadAccountsForAsset: (AssetInfo) -> Single<List<CryptoAccount>>,
     ) : ReceiveIntent() {
         override fun reduce(oldState: ReceiveState): ReceiveState =

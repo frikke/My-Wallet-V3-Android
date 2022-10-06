@@ -24,15 +24,20 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.CryptoCurrency
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetTradeableState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntent
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewBottomQuickActionsState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewCenterQuickActionsState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntent
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewPriceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsBottomState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionsCenterState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewRecurringBuysState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewSnackbarAlertState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
@@ -91,7 +96,7 @@ fun Coinview(
                 viewModel.onIntent(CoinviewIntent.LockedAccountSelected)
             },
 
-            quickActionsCenter = state.quickActionCenter,
+            quickActionsCenter = state.centerQuickAction,
 
             recurringBuys = state.recurringBuys,
             onRecurringBuyUpsellClick = {
@@ -101,13 +106,13 @@ fun Coinview(
                 viewModel.onIntent(CoinviewIntent.ShowRecurringBuyDetail(recurringBuyId))
             },
 
-            quickActionsBottom = state.quickActionBottom,
+            quickActionsBottom = state.bottomQuickAction,
             onQuickActionClick = { quickAction ->
                 viewModel.onIntent(CoinviewIntent.QuickActionSelected(quickAction.toModelState()))
             },
 
             assetInfo = state.assetInfo,
-            onWebsiteClick = {},
+            onWebsiteClick = { /*todo*/ },
 
             snackbarAlert = state.snackbarError
         )
@@ -137,13 +142,13 @@ fun CoinviewScreen(
     onAccountClick: (CoinviewAccount) -> Unit,
     onLockedAccountClick: () -> Unit,
 
-    quickActionsCenter: CoinviewQuickActionsCenterState,
+    quickActionsCenter: CoinviewCenterQuickActionsState,
 
     recurringBuys: CoinviewRecurringBuysState,
     onRecurringBuyUpsellClick: () -> Unit,
     onRecurringBuyItemClick: (String) -> Unit,
 
-    quickActionsBottom: CoinviewQuickActionsBottomState,
+    quickActionsBottom: CoinviewBottomQuickActionsState,
     onQuickActionClick: (CoinviewQuickActionState) -> Unit,
 
     assetInfo: CoinviewAssetInfoState,
@@ -194,7 +199,7 @@ fun CoinviewScreen(
                                 onLockedAccountClick = onLockedAccountClick
                             )
 
-                            QuickActionsCenter(
+                            CenterQuickActions(
                                 data = quickActionsCenter,
                                 onQuickActionClick = onQuickActionClick
                             )
@@ -212,7 +217,7 @@ fun CoinviewScreen(
                         }
 
                         Column(modifier = Modifier.fillMaxWidth()) {
-                            QuickActionsBottom(
+                            BottomQuickActions(
                                 data = quickActionsBottom,
                                 onQuickActionClick = onQuickActionClick
                             )
@@ -260,18 +265,17 @@ fun PreviewCoinviewScreen() {
         onWatchlistClick = {},
 
         totalBalance = CoinviewTotalBalanceState.Loading,
-
         accounts = CoinviewAccountsState.Loading,
         onAccountClick = {},
         onLockedAccountClick = {},
 
-        quickActionsCenter = CoinviewQuickActionsCenterState.Loading,
+        quickActionsCenter = CoinviewCenterQuickActionsState.Loading,
 
         recurringBuys = CoinviewRecurringBuysState.Loading,
         onRecurringBuyUpsellClick = {},
         onRecurringBuyItemClick = {},
 
-        quickActionsBottom = CoinviewQuickActionsBottomState.Loading,
+        quickActionsBottom = CoinviewBottomQuickActionsState.Loading,
         onQuickActionClick = {},
 
         assetInfo = CoinviewAssetInfoState.Loading,

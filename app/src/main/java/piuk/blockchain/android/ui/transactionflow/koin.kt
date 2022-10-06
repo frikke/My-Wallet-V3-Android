@@ -1,8 +1,11 @@
 package piuk.blockchain.android.ui.transactionflow
 
 import android.content.Context
+import com.blockchain.koin.defaultOrder
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
+import com.blockchain.koin.quickFillSellSwapFeatureFlag
+import com.blockchain.koin.swapSourceOrder
+import com.blockchain.koin.swapTargetOrder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
@@ -12,6 +15,8 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionInteractor
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TxFlowErrorReporting
+import piuk.blockchain.android.ui.transactionflow.engine.data.QuickFillRoundingRepository
+import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transactionflow.flow.AmountFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.ChainPropertyFormatter
 import piuk.blockchain.android.ui.transactionflow.flow.CompoundNetworkFeeFormatter
@@ -49,7 +54,6 @@ val transactionModule = module {
         TransactionFlowCustomiserImpl(
             resources = get<Context>().resources,
             assetResources = get(),
-            stringUtils = get(),
             walletModeService = get()
         )
     }.apply {
@@ -185,6 +189,13 @@ val transactionModule = module {
         )
     }
 
+    factory {
+        QuickFillRoundingRepository(
+            remoteConfigService = get(),
+            json = get()
+        )
+    }.bind(QuickFillRoundingService::class)
+
     scope(transactionFlowActivityScope) {
         scoped {
             TransactionInteractor(
@@ -196,12 +207,15 @@ val transactionModule = module {
                 paymentMethodService = payloadScope.get(),
                 currencyPrefs = get(),
                 identity = payloadScope.get(),
-                accountsSorting = payloadScope.get(),
+                defaultAccountsSorting = payloadScope.get(defaultOrder),
+                swapSourceAccountsSorting = payloadScope.get(swapSourceOrder),
+                swapTargetAccountsSorting = payloadScope.get(swapTargetOrder),
                 linkedBanksFactory = payloadScope.get(),
                 bankLinkingPrefs = payloadScope.get(),
                 dismissRecorder = payloadScope.get(),
-                showSendToDomainsAnnouncementFeatureFlag = get(sendToDomainsAnnouncementFeatureFlag),
                 fiatCurrenciesService = payloadScope.get(),
+                swapSellQuickFillFF = payloadScope.get(quickFillSellSwapFeatureFlag),
+                quickFillRoundingService = get()
             )
         }
 
@@ -210,6 +224,7 @@ val transactionModule = module {
                 initialState = TransactionState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
+                walletModeService = get(),
                 errorLogger = get(),
                 environmentConfig = get(),
                 remoteLogger = get()

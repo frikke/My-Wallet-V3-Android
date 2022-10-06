@@ -98,7 +98,10 @@ open class CryptoCurrency(
         colour = "#FF9B22",
         logo = "file:///android_asset/logo/bitcoin/logo.png",
         txExplorerUrlBase = "https://www.blockchain.com/btc/tx/"
-    )
+    ) {
+        override val index: Int
+            get() = BITCOIN_ORDER_INDEX
+    }
 
     object ETHER : CryptoCurrency(
         displayTicker = "ETH",
@@ -111,7 +114,10 @@ open class CryptoCurrency(
         colour = "#473BCB",
         logo = "file:///android_asset/logo/ethereum/logo.png",
         txExplorerUrlBase = "https://www.blockchain.com/eth/tx/"
-    )
+    ) {
+        override val index: Int
+            get() = ETHER_ORDER_INDEX
+    }
 
     object BCH : CryptoCurrency(
         displayTicker = "BCH",
@@ -124,7 +130,10 @@ open class CryptoCurrency(
         colour = "#8DC351",
         logo = "file:///android_asset/logo/bitcoin_cash/logo.png",
         txExplorerUrlBase = "https://www.blockchain.com/bch/tx/"
-    )
+    ) {
+        override val index: Int
+            get() = BCH_ORDER_INDEX
+    }
 
     object XLM : CryptoCurrency(
         displayTicker = "XLM",
@@ -137,7 +146,10 @@ open class CryptoCurrency(
         colour = "#000000",
         logo = "file:///android_asset/logo/stellar/logo.png",
         txExplorerUrlBase = "https://stellarchain.io/tx/"
-    )
+    ) {
+        override val index: Int
+            get() = XLM_ORDER_INDEX
+    }
 
     object MATIC : CryptoCurrency(
         displayTicker = "MATIC",
@@ -149,6 +161,43 @@ open class CryptoCurrency(
         startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
         colour = "#8247E5",
         logo = "file:///android_asset/logo/matic/logo.png",
-        txExplorerUrlBase = "https://www.blockchain.com/matic/tx/"
+        txExplorerUrlBase = "https://polygonscan.com/tx/"
     )
+
+    object BNB : CryptoCurrency(
+        displayTicker = "BNB",
+        networkTicker = "BNB",
+        name = "Binance Coin",
+        categories = setOf(AssetCategory.NON_CUSTODIAL),
+        precisionDp = 18,
+        requiredConfirmations = 12,
+        startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
+        colour = "#F0B90B",
+        logo = "file:///android_asset/logo/bsc/logo.png",
+        txExplorerUrlBase = "https://bscscan.com/tx/"
+    )
+
+    object AVAX : CryptoCurrency(
+        displayTicker = "AVAX",
+        networkTicker = "AVAX",
+        name = "Avalanche",
+        categories = setOf(AssetCategory.NON_CUSTODIAL),
+        precisionDp = 18,
+        requiredConfirmations = 12,
+        startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
+        colour = "#E84142",
+        logo = "file:///android_asset/logo/avax/logo.png",
+        txExplorerUrlBase = "https://snowtrace.io/tx/"
+    )
+
+    companion object {
+        val evmCurrencies by lazy {
+            listOf(ETHER, MATIC, BNB, AVAX)
+        }
+    }
 }
+
+private const val BITCOIN_ORDER_INDEX = 4
+private const val ETHER_ORDER_INDEX = 3
+private const val BCH_ORDER_INDEX = 2
+private const val XLM_ORDER_INDEX = 1

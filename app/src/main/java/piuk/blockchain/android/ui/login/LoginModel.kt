@@ -4,7 +4,6 @@ import android.net.Uri
 import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.PollResult
 import io.reactivex.rxjava3.core.Scheduler
@@ -31,7 +30,6 @@ class LoginModel(
     remoteLogger: RemoteLogger,
     private val interactor: LoginInteractor,
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
-    private val appMaintenanceFF: FeatureFlag,
     private val analytics: Analytics
 ) : MviModel<LoginState, LoginIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
 
@@ -89,22 +87,16 @@ class LoginModel(
     }
 
     private fun checkAppMaintenanceStatus(action: String?, uri: Uri?) {
-        appMaintenanceFF.enabled.subscribe { enabled ->
-            if (enabled) {
-                rxSingle { getAppMaintenanceConfigUseCase() }.subscribe { status ->
-                    when (status) {
-                        AppMaintenanceStatus.NonActionable.Unknown,
-                        AppMaintenanceStatus.NonActionable.AllClear -> {
-                            checkExistingSessionOrDeepLink(action, uri)
-                        }
-
-                        else -> {
-                            process(LoginIntents.ShowAppMaintenance)
-                        }
-                    }
+        rxSingle { getAppMaintenanceConfigUseCase() }.subscribe { status ->
+            when (status) {
+                AppMaintenanceStatus.NonActionable.Unknown,
+                AppMaintenanceStatus.NonActionable.AllClear -> {
+                    checkExistingSessionOrDeepLink(action, uri)
                 }
-            } else {
-                checkExistingSessionOrDeepLink(action, uri)
+
+                else -> {
+                    process(LoginIntents.ShowAppMaintenance)
+                }
             }
         }
     }

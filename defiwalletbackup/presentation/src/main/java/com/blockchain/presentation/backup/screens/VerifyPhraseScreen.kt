@@ -115,32 +115,34 @@ fun VerifyPhraseScreen(
             onBackButtonClick = backOnClick
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_spacing)))
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.standard_margin)),
+                .padding(dimensionResource(id = R.dimen.standard_spacing)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.verify_phrase_title),
                 style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_spacing)))
 
             SimpleText(
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.verify_phrase_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
             MnemonicVerification(userMnemonic, mnemonicVerificationStatus) { selectableWord ->
                 if (isLoading.not()) {
@@ -157,7 +159,7 @@ fun VerifyPhraseScreen(
             }
 
             if (mnemonicVerificationStatus == UserMnemonicVerificationStatus.IDLE) {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_spacing)))
 
                 MnemonicSelection(randomizedMnemonic) { selectableWord ->
                     if (isLoading.not()) {
@@ -171,7 +173,7 @@ fun VerifyPhraseScreen(
                     }
                 }
             } else {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
                 VerifyPhraseIncorrect(resetOnClick = {
                     resetWords = true
@@ -203,7 +205,7 @@ fun VerifyPhraseIncorrect(resetOnClick: () -> Unit) {
             onClick = resetOnClick
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_spacing)))
 
         Text(
             text = stringResource(R.string.verify_phrase_incorrect_message),

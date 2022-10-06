@@ -121,13 +121,6 @@ sealed class LoginAuthIntents : MviIntent<LoginAuthState> {
             )
     }
 
-    object ShowAccountUnification : LoginAuthIntents() {
-        override fun reduce(oldState: LoginAuthState): LoginAuthState =
-            oldState.copy(
-                authStatus = AuthStatus.AskForAccountUnification
-            )
-    }
-
     object ShowAuthComplete : LoginAuthIntents() {
         override fun reduce(oldState: LoginAuthState): LoginAuthState =
             oldState.copy(

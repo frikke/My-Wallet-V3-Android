@@ -52,8 +52,7 @@ class Erc20ActivitySummaryTest {
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
             account = mock(),
-            supportsDescription = true,
-            timeStampMultiplier = TX_TIMESTAMP_MULTIPLIER
+            supportsDescription = true
         )
 
         assertEquals(TransactionSummary.TransactionType.RECEIVED, subject.transactionType)
@@ -81,8 +80,7 @@ class Erc20ActivitySummaryTest {
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
             account = mock(),
-            supportsDescription = true,
-            timeStampMultiplier = TX_TIMESTAMP_MULTIPLIER
+            supportsDescription = true
         )
 
         assertEquals(TransactionSummary.TransactionType.TRANSFERRED, subject.transactionType)
@@ -110,8 +108,7 @@ class Erc20ActivitySummaryTest {
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
             account = mock(),
-            supportsDescription = true,
-            timeStampMultiplier = TX_TIMESTAMP_MULTIPLIER
+            supportsDescription = true
         )
 
         assertEquals(TransactionSummary.TransactionType.SENT, subject.transactionType)
@@ -143,8 +140,7 @@ class Erc20ActivitySummaryTest {
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
             account = mock(),
-            supportsDescription = true,
-            timeStampMultiplier = TX_TIMESTAMP_MULTIPLIER
+            supportsDescription = true
         )
 
         val result = subject.description
@@ -187,8 +183,7 @@ class Erc20ActivitySummaryTest {
             exchangeRates = exchangeRates,
             lastBlockNumber = 100.toBigInteger(),
             account = mock(),
-            supportsDescription = true,
-            timeStampMultiplier = TX_TIMESTAMP_MULTIPLIER
+            supportsDescription = true
         )
 
         subject.updateDescription(description).test().assertComplete()
@@ -205,7 +200,6 @@ class Erc20ActivitySummaryTest {
 
     companion object {
         private const val TX_HASH = "0xfd7d583fa54bf55f6cfbfec97c0c55cc6af8c121b71addb7d06a9e1e305ae8ff"
-        private const val TX_TIMESTAMP_MULTIPLIER = 1000
 
         @Suppress("ClassName")
         private object ERC20_TOKEN : CryptoCurrency(

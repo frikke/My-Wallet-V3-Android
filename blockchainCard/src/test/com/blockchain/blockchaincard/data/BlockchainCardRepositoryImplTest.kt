@@ -17,11 +17,11 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardType
+import com.blockchain.blockchaincard.googlewallet.manager.GoogleWalletManager
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.domain.eligibility.model.Region
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrNull
@@ -46,24 +46,23 @@ class BlockchainCardRepositoryImplTest {
 
     private val eligibilityApiService = mockk<EligibilityApiService>()
 
-    private val authenticator = mockk<Authenticator>()
-
     private val coincore = mockk<Coincore>()
 
     private val assetCatalogue = mockk<AssetCatalogue>()
 
     private val userIdentity = mockk<UserIdentity>()
 
+    private val googleWalletManager = mockk<GoogleWalletManager>()
+
     private val blockchainCardRepository = BlockchainCardRepositoryImpl(
         blockchainCardService = blockchainCardService,
         eligibilityApiService = eligibilityApiService,
-        authenticator = authenticator,
         coincore = coincore,
         assetCatalogue = assetCatalogue,
-        userIdentity = userIdentity
+        userIdentity = userIdentity,
+        googleWalletManager = googleWalletManager
     )
 
-    private val authToken = "authToken"
     private val widgetToken = "widgetToken"
     private val cardWidgetUrl = "cardWidgetUrl"
 
@@ -107,6 +106,7 @@ class BlockchainCardRepositoryImplTest {
         expiry = "01/01",
         brand = "VISA",
         status = "ACTIVE",
+        orderStatus = null,
         createdAt = "2020-01-01",
     )
 
@@ -117,6 +117,7 @@ class BlockchainCardRepositoryImplTest {
         expiry = "01/01",
         brand = "VISA",
         status = "LOCKED",
+        orderStatus = null,
         createdAt = "2020-01-01",
     )
 
@@ -127,6 +128,7 @@ class BlockchainCardRepositoryImplTest {
         expiry = "01/01",
         brand = BlockchainCardBrand.VISA,
         status = BlockchainCardStatus.ACTIVE,
+        orderStatus = null,
         createdAt = "2020-01-01"
     )
 
@@ -137,6 +139,7 @@ class BlockchainCardRepositoryImplTest {
         expiry = "01/01",
         brand = BlockchainCardBrand.VISA,
         status = BlockchainCardStatus.LOCKED,
+        orderStatus = null,
         createdAt = "2020-01-01"
     )
 
@@ -197,7 +200,6 @@ class BlockchainCardRepositoryImplTest {
 
     @Before
     fun setUp() {
-        coEvery { authenticator.getAuthHeader() } returns Single.just(authToken)
         coEvery { coincore.allWallets() } returns Single.just(
             mockk {
                 every { accounts } returns listOf(fiatCustodialAccount, custodialTradingAccount)
@@ -211,7 +213,7 @@ class BlockchainCardRepositoryImplTest {
     @Test
     fun `WHEN getProducts api call succeeds, THEN response is correctly constructed into a domain object`() = runTest {
 
-        coEvery { blockchainCardService.getProducts(authToken) } returns Outcome.Success(listOf(productResponseDto))
+        coEvery { blockchainCardService.getProducts() } returns Outcome.Success(listOf(productResponseDto))
 
         val productListUnderTest = blockchainCardRepository.getProducts()
 
@@ -221,7 +223,7 @@ class BlockchainCardRepositoryImplTest {
     @Test
     fun `WHEN getCards api call succeeds, THEN response is correctly constructed into a domain object`() = runTest {
 
-        coEvery { blockchainCardService.getCards(authToken) } returns Outcome.Success(listOf(cardResponseDto))
+        coEvery { blockchainCardService.getCards() } returns Outcome.Success(listOf(cardResponseDto))
 
         val cardListUnderTest = blockchainCardRepository.getCards()
 
@@ -231,7 +233,7 @@ class BlockchainCardRepositoryImplTest {
     @Test
     fun `WHEN createCard gets called, THEN request body is correctly constructed AND response is correctly constructed into a domain object`() =
         runTest {
-            coEvery { blockchainCardService.createCard(any(), any(), any()) } returns Outcome.Success(cardResponseDto)
+            coEvery { blockchainCardService.createCard(any(), any()) } returns Outcome.Success(cardResponseDto)
 
             val cardUnderTest = blockchainCardRepository.createCard(
                 productCode = "productCode",
@@ -243,7 +245,7 @@ class BlockchainCardRepositoryImplTest {
 
     @Test
     fun `WHEN deleteCard api call succeeds, THEN response is correctly constructed into a domain object`() = runTest {
-        coEvery { blockchainCardService.deleteCard(any(), any()) } returns Outcome.Success(cardResponseDto)
+        coEvery { blockchainCardService.deleteCard(any()) } returns Outcome.Success(cardResponseDto)
 
         val cardUnderTest = blockchainCardRepository.deleteCard(
             cardId = "cardId"
@@ -254,7 +256,7 @@ class BlockchainCardRepositoryImplTest {
 
     @Test
     fun `WHEN lockCard api call succeeds, THEN response is correctly constructed into a domain object`() = runTest {
-        coEvery { blockchainCardService.lockCard(any(), any()) } returns Outcome.Success(cardLockedResponseDto)
+        coEvery { blockchainCardService.lockCard(any()) } returns Outcome.Success(cardLockedResponseDto)
 
         val cardUnderTest = blockchainCardRepository.lockCard(
             cardId = "cardId"
@@ -265,7 +267,7 @@ class BlockchainCardRepositoryImplTest {
 
     @Test
     fun `WHEN unlockCard api call succeeds, THEN response is correctly constructed into a domain object`() = runTest {
-        coEvery { blockchainCardService.unlockCard(any(), any()) } returns Outcome.Success(cardResponseDto)
+        coEvery { blockchainCardService.unlockCard(any()) } returns Outcome.Success(cardResponseDto)
 
         val cardUnderTest = blockchainCardRepository.unlockCard(
             cardId = "cardId"
@@ -277,7 +279,7 @@ class BlockchainCardRepositoryImplTest {
     @Test
     fun `WHEN getCardWidgetUrl api call succeeds, THEN response is correctly constructed into a domain object`() =
         runTest {
-            coEvery { blockchainCardService.getCardWidgetToken(any(), any()) } returns Outcome.Success(
+            coEvery { blockchainCardService.getCardWidgetToken(any()) } returns Outcome.Success(
                 cardWidgetTokenDto
             )
             coEvery { blockchainCardService.getCardWidgetUrl(any(), any(), any()) } returns Outcome.Success(cardWidgetUrl)
@@ -295,7 +297,7 @@ class BlockchainCardRepositoryImplTest {
     fun `WHEN getEligibleTradingAccounts api call succeeds, THEN response include a valid list of TradingAccount objects`() =
         runTest {
 
-            coEvery { blockchainCardService.getEligibleAccounts(any(), any()) } returns Outcome.Success(
+            coEvery { blockchainCardService.getEligibleAccounts(any()) } returns Outcome.Success(
                 cardAccountListDto
             )
 
@@ -319,7 +321,7 @@ class BlockchainCardRepositoryImplTest {
     @Test
     fun `WHEN linkCardAccount api calls succeeds, THEN response must include the currency sent in the request`() =
         runTest {
-            coEvery { blockchainCardService.linkCardAccount(any(), any(), any()) } returns Outcome.Success(
+            coEvery { blockchainCardService.linkCardAccount(any(), any()) } returns Outcome.Success(
                 cardAccountLinkDto
             )
 
@@ -333,7 +335,7 @@ class BlockchainCardRepositoryImplTest {
 
     @Test
     fun `WHEN getCardLinkedAccount api call succeeds, THEN response must include a valid TradingAccount`() = runTest {
-        coEvery { blockchainCardService.getCardLinkedAccount(any(), any()) } returns Outcome.Success(cardAccountLinkDto)
+        coEvery { blockchainCardService.getCardLinkedAccount(any()) } returns Outcome.Success(cardAccountLinkDto)
 
         val cardLinkCurrencyUnderTest = blockchainCardRepository.getCardLinkedAccount(
             cardId = "cardId"
@@ -349,7 +351,7 @@ class BlockchainCardRepositoryImplTest {
     @Test
     fun `WHEN getResidentialAddress api call succeeds, THEN response must include a valid BlockchainCardAddress domain object`() =
         runTest {
-            coEvery { blockchainCardService.getResidentialAddress(any()) } returns Outcome.Success(
+            coEvery { blockchainCardService.getResidentialAddress() } returns Outcome.Success(
                 residentialAddressRequestDto
             )
 
@@ -360,7 +362,7 @@ class BlockchainCardRepositoryImplTest {
 
     @Test
     fun `WHEN updateResidentialAddress `() = runTest {
-        coEvery { blockchainCardService.updateResidentialAddress(any(), any()) } returns Outcome.Success(
+        coEvery { blockchainCardService.updateResidentialAddress(any()) } returns Outcome.Success(
             residentialAddressRequestDto
         )
 

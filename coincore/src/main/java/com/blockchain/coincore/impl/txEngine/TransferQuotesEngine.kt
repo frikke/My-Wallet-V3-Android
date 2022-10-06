@@ -104,7 +104,7 @@ class TransferQuotesEngine(
     fun updateAmount(newAmount: Money) = amount.onNext(newAmount)
 
     companion object {
-        const val MIN_QUOTE_REFRESH: Long = 30000L
+        const val MIN_QUOTE_REFRESH: Long = 90000L
         private const val TIMER_DELAY: Long = 1
     }
 }

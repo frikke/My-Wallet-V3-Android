@@ -23,11 +23,12 @@ fun SheetNub(
     Box(
         modifier = modifier
             .size(
-                width = dimensionResource(R.dimen.standard_margin), height = dimensionResource(R.dimen.smallest_margin)
+                width = dimensionResource(R.dimen.standard_spacing),
+                height = dimensionResource(R.dimen.smallest_spacing)
             )
             .background(
                 color = if (isDarkMode) Dark300 else Grey100,
-                shape = RoundedCornerShape(size = dimensionResource(R.dimen.smallest_margin))
+                shape = RoundedCornerShape(size = dimensionResource(R.dimen.smallest_spacing))
             )
     )
 }

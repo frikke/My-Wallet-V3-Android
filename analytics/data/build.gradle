@@ -1,5 +1,5 @@
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
 
 dependencies {
     implementation project(':analytics:domain')
@@ -8,23 +8,14 @@ dependencies {
     implementation project(':blockchainApi')
     implementation project(':core')
     implementation project(':wallet')
+    implementation project(':store:core')
 
     implementation Libraries.koinAndroid
     implementation Libraries.kotlinJson
-    implementation Libraries.timber
+    implementation Libraries.rxKotlin
+
+    implementation Libraries.rxjava3Coroutines
 
     implementation platform(Libraries.firebaseBom)
     implementation Libraries.firebaseAnalytics
-
-    // Unit Test dependencies
-    testImplementation project(':testutils')
-    testImplementation project(':testutils-android')
-    testImplementation Libraries.junit
-    testImplementation Libraries.mockito
-    testImplementation Libraries.hamcrestJunit
-    testImplementation Libraries.kotlinJunit
-    testImplementation Libraries.kluent
-    testImplementation(Libraries.mockitoKotlin) {
-        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
-    }
 }

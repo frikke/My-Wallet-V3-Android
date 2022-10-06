@@ -13,6 +13,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.button.ButtonState
@@ -22,9 +23,11 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
+import com.blockchain.preferences.TransactionPrefs
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -101,19 +104,24 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         }
     }
 
+    private val transactionPrefs: TransactionPrefs by inject()
+
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! EnterTargetAddressFragment")
 
         with(binding) {
 
+            listLoadingProgress.visibleIf { newState.isLoading }
+
             if (sourceSlot == null) {
                 sourceSlot = customiser.installAddressSheetSource(requireContext(), fromDetails, newState)
-
-                setupTransferList(newState)
                 setupLabels(newState)
+                setupTransferList(newState)
                 showSendNetworkWarning(newState)
                 showDomainCardAlert(newState)
             }
+            configureSwitch(newState)
+            updateList(newState)
             sourceSlot?.update(newState)
 
             if (customiser.selectTargetShowManualEnterAddress(newState)) {
@@ -133,6 +141,40 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             }
         }
         state = newState
+    }
+
+    private fun updateList(newState: TransactionState) {
+        if (newState.selectedTarget == NullAddress) {
+            binding.walletSelect.loadItems(
+                accountsSource = Single.just(
+                    newState.availableTargets.filterIsInstance<BlockchainAccount>().map {
+                        if (newState.action == AssetAction.Send && it is CryptoAccount) {
+                            mapToSendRecipientAccountItem(it)
+                        } else {
+                            AccountListViewItem.create(it)
+                        }
+                    }
+                ),
+                accountsLocksSource = Single.just(emptyList())
+            )
+        }
+    }
+
+    private fun configureSwitch(newState: TransactionState) {
+        with(binding) {
+            val canFilterOutTradingAccounts = newState.canFilterOutTradingAccounts
+            showTradingAccounts.visibleIf { canFilterOutTradingAccounts }
+            tradingAccountsSwitch.visibleIf { canFilterOutTradingAccounts }
+            if (canFilterOutTradingAccounts) {
+                tradingAccountsSwitch.onCheckChanged = { isChecked ->
+                    transactionPrefs.showTradingAccountsOnPkwMode = isChecked
+                    model.process(TransactionIntent.FilterTradingTargets(showTrading = isChecked))
+                }
+                val showTrading = transactionPrefs.showTradingAccountsOnPkwMode
+                binding.tradingAccountsSwitch.isChecked = showTrading
+                model.process(TransactionIntent.FilterTradingTargets(showTrading = showTrading))
+            }
+        }
     }
 
     private fun setupLabels(state: TransactionState) {
@@ -235,9 +277,9 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 bankAliasLinkLauncher.launch(state.sendingAccount.currency.networkTicker)
             }
 
-            when (fragmentState) {
+            onAccountSelected = when (fragmentState) {
                 is TargetAddressSheetState.SelectAccountWhenWithinMaxLimit -> {
-                    onAccountSelected = {
+                    {
                         accountSelected(it)
                     }
                 }
@@ -245,12 +287,11 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                     updatedSelectedAccount(
                         fragmentState.accounts.filterIsInstance<BlockchainAccount>().first()
                     )
-                    onAccountSelected = {
-                        accountSelected(it)
-                    }
-                }
-                else -> {
-                    // do nothing
+                    (
+                        {
+                            accountSelected(it)
+                        }
+                        )
                 }
             }
         }
@@ -309,6 +350,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             data.getRawScanData()?.let { rawScan ->
                 disposables += qrProcessor.processScan(rawScan, false)
                     .flatMapMaybe { qrProcessor.selectAssetTargetFromScan(state.sendingAsset.asAssetInfoOrThrow(), it) }
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(
                         onSuccess = {
                             // TODO update the selected target (address type) instead so the render method knows what to show  & hide

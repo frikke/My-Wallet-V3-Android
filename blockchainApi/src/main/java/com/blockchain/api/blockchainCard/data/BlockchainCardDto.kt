@@ -18,6 +18,7 @@ data class CardDto(
     val expiry: String,
     val brand: String,
     val status: String,
+    val orderStatus: String?,
     val createdAt: String
 )
 
@@ -106,4 +107,35 @@ data class BlockchainCardAcceptedDocsFormDto(
 data class BlockchainCardAcceptedDocumentDto(
     val name: String,
     val acceptedVersion: String
+)
+
+@Serializable
+data class BlockchainCardGoogleWalletProvisionRequestDto(
+    val deviceId: String,
+    val deviceType: String,
+    val provisioningAppVersion: String,
+    val walletAccountId: String
+)
+
+@Serializable
+data class BlockchainCardGoogleWalletProvisionResponseDto(
+    val cardType: String,
+    val displayName: String,
+    val opaquePaymentCard: String,
+    val last4: String,
+    val network: String,
+    val tokenServiceProvider: String,
+    val userAddress: BlockchainCardGoogleWalletUserAddressDto
+)
+
+@Serializable
+data class BlockchainCardGoogleWalletUserAddressDto(
+    val name: String,
+    val address1: String,
+    val address2: String,
+    val city: String,
+    val stateCode: String,
+    val postalCode: String,
+    val countryCode: String,
+    val phone: String
 )

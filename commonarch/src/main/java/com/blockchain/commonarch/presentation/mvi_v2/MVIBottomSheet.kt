@@ -6,6 +6,7 @@ import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs.ParcelableArgs
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -23,6 +24,14 @@ fun <TViewState : ViewState, TFragment : MVIBottomSheet<TViewState>, TArgs : Par
 }
 
 abstract class MVIBottomSheet<TViewState : ViewState> : BottomSheetDialogFragment() {
+
+    interface Host : HostedBottomSheet.Host
+
+    protected open val host: HostedBottomSheet.Host by lazy {
+        parentFragment as? HostedBottomSheet.Host
+            ?: activity as? HostedBottomSheet.Host
+            ?: throw IllegalStateException("Host is not a MVIBottomSheet.Host")
+    }
 
     abstract fun onStateUpdated(state: TViewState)
 

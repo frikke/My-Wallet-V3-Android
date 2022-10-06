@@ -29,7 +29,7 @@ class PrimarySwitchView @JvmOverloads constructor(
             AppSurface {
                 PrimarySwitch(
                     modifier = Modifier
-                        .padding(dimensionResource(R.dimen.very_small_margin)),
+                        .padding(dimensionResource(R.dimen.very_small_spacing)),
                     isChecked = isChecked,
                     onCheckChanged = {
                         isChecked = it

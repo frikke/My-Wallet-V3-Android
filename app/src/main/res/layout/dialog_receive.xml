@@ -11,7 +11,7 @@
         android:id="@+id/receive_main_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/standard_margin">
+        android:padding="@dimen/standard_spacing">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/sheet_indicator"
@@ -28,7 +28,7 @@
             style="@style/Text.Semibold.20"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/tiny_spacing"
             android:text="@string/tx_title_received"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -39,13 +39,13 @@
             android:id="@+id/receive_account_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/tiny_spacing"
             app:layout_constraintTop_toBottomOf="@id/receive_title" />
 
         <View
             android:id="@+id/separator"
             style="@style/SeparatorWithoutMargins"
-            android:paddingTop="@dimen/smallest_margin"
+            android:paddingTop="@dimen/smallest_spacing"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/receive_account_details" />
@@ -54,10 +54,10 @@
             android:id="@+id/content_scroll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tiny_margin"
-            android:layout_marginBottom="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/tiny_spacing"
+            android:layout_marginBottom="@dimen/tiny_spacing"
             android:fadeScrollbars="true"
-            android:fadingEdgeLength="@dimen/very_small_margin"
+            android:fadingEdgeLength="@dimen/very_small_spacing"
             android:requiresFadingEdge="vertical"
             android:scrollbars="vertical"
             app:layout_constrainedHeight="true"
@@ -85,7 +85,7 @@
                     android:layout_width="200dp"
                     android:layout_height="200dp"
                     android:layout_gravity="center"
-                    android:layout_marginTop="@dimen/small_margin"
+                    android:layout_marginTop="@dimen/small_spacing"
                     android:contentDescription="@string/scan_qr"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -96,7 +96,7 @@
                     style="@style/Text.Semibold.16"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/tiny_margin"
+                    android:layout_marginTop="@dimen/tiny_spacing"
                     android:text="@string/receive_details_address_label"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -108,8 +108,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start|center_vertical"
-                    android:layout_marginTop="@dimen/smallest_margin"
-                    android:layout_marginBottom="@dimen/small_margin"
+                    android:layout_marginTop="@dimen/smallest_spacing"
+                    android:layout_marginBottom="@dimen/small_spacing"
                     android:ellipsize="middle"
                     android:gravity="start|center_vertical"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -121,7 +121,7 @@
                     android:id="@+id/network_alert"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/small_margin"
+                    android:layout_marginTop="@dimen/small_spacing"
                     android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -136,21 +136,21 @@
             style="@style/CtaButton.NoMargin.White"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/tiny_spacing"
             android:text="@string/receive_copy"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/content_scroll"
-            app:layout_goneMarginBottom="@dimen/small_margin" />
+            app:layout_goneMarginBottom="@dimen/small_spacing" />
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/customisation_scroll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/small_margin"
-            android:layout_marginBottom="@dimen/tiny_margin"
+            android:layout_marginTop="@dimen/small_spacing"
+            android:layout_marginBottom="@dimen/tiny_spacing"
             android:fadeScrollbars="false"
-            android:fadingEdgeLength="@dimen/very_small_margin"
+            android:fadingEdgeLength="@dimen/very_small_spacing"
             android:requiresFadingEdge="vertical"
             android:scrollbars="vertical"
             app:layout_constrainedHeight="true"
@@ -180,7 +180,7 @@
         android:id="@+id/share_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/standard_margin">
+        android:padding="@dimen/standard_spacing">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/share_back"
@@ -196,7 +196,7 @@
             style="@style/Text.Semibold.20"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/medium_margin"
+            android:layout_marginStart="@dimen/medium_spacing"
             android:text="@string/tx_title_received"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/share_back"
@@ -207,7 +207,7 @@
             android:id="@+id/share_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/small_margin"
+            android:layout_marginTop="@dimen/small_spacing"
             android:elevation="5dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"

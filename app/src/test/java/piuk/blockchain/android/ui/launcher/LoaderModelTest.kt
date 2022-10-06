@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.launcher
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.preferences.AuthPrefs
-import com.blockchain.preferences.EducationalScreensPrefs
+import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.nhaarman.mockitokotlin2.mock
@@ -42,7 +42,7 @@ class LoaderModelTest {
         on { pinId }.thenReturn(PIN_ID)
     }
     private val walletModeService: WalletModeService = mock()
-    private val educationalScreensPrefs: EducationalScreensPrefs = mock()
+    private val educationalScreensPrefs: SuperAppMvpPrefs = mock()
 
     @get:Rule
     val rx = rxInit {

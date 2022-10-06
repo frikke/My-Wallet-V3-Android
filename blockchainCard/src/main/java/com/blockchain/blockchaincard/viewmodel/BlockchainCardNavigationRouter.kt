@@ -2,6 +2,9 @@ package com.blockchain.blockchaincard.viewmodel
 
 import androidx.navigation.NavHostController
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
+import com.blockchain.blockchaincard.ui.BlockchainCardHostActivity
 import com.blockchain.blockchaincard.ui.BlockchainCardHostFragment
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -20,6 +23,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
         @Suppress("IMPLICIT_CAST_TO_ANY")
         when (navigationEvent) {
 
+            is BlockchainCardNavigationEvent.ShowHowToOrderCard -> {
+                destination = BlockchainCardDestination.HowToOrderCardDestination
+            }
+
             is BlockchainCardNavigationEvent.OrderCardKycAddress -> {
                 destination = BlockchainCardDestination.OrderCardKycAddressDestination
             }
@@ -28,12 +35,16 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                 destination = BlockchainCardDestination.OrderCardKycSSNDestination
             }
 
-            is BlockchainCardNavigationEvent.OrderCardConfirm -> {
+            is BlockchainCardNavigationEvent.ChooseCardProduct -> {
+                destination = BlockchainCardDestination.ChooseCardProductDestination
+            }
+
+            is BlockchainCardNavigationEvent.ReviewAndSubmitCard -> {
                 // Check if this destination is already in the backstack (popBackStack returns true)
                 // If not, create it and navigate to it
                 // If yes pop to it and return null.
-                if (!navController.popBackStack(BlockchainCardDestination.OrderCardConfirmDestination.route, false))
-                    destination = BlockchainCardDestination.OrderCardConfirmDestination
+                if (!navController.popBackStack(BlockchainCardDestination.ReviewAndSubmitCardDestination.route, false))
+                    destination = BlockchainCardDestination.ReviewAndSubmitCardDestination
                 else null
             }
 
@@ -94,7 +105,7 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.CardClosed -> {
-                finishHostFragment()
+                (navController.context as? BlockchainCardHostActivity)?.finish()
             }
 
             is BlockchainCardNavigationEvent.ChooseFundingAccountAction -> {
@@ -102,15 +113,11 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.TopUpCrypto -> {
-                val fragmentManager = (navController.context as? BlockchainActivity)?.supportFragmentManager
-                val fragmentOld = fragmentManager?.fragments?.first { it is BlockchainCardHostFragment }
-                (fragmentOld as BlockchainCardHostFragment).startBuy(navigationEvent.asset)
+                (navController.context as? BlockchainCardHostActivity)?.startBuy(navigationEvent.asset)
             }
 
             is BlockchainCardNavigationEvent.TopUpFiat -> {
-                val fragmentManager = (navController.context as? BlockchainActivity)?.supportFragmentManager
-                val fragmentOld = fragmentManager?.fragments?.first { it is BlockchainCardHostFragment }
-                (fragmentOld as BlockchainCardHostFragment).startDeposit(navigationEvent.account)
+                (navController.context as? BlockchainCardHostActivity)?.startDeposit(navigationEvent.account)
             }
 
             is BlockchainCardNavigationEvent.SeeTransactionControls -> {
@@ -122,7 +129,9 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.SeeBillingAddress -> {
-                destination = BlockchainCardDestination.BillingAddressDestination
+                (navController.context as? BlockchainCardHostActivity)?.startKycAddressVerification(
+                    address = navigationEvent.address
+                )
             }
 
             is BlockchainCardNavigationEvent.SeeSupport -> {
@@ -145,6 +154,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                 navController.popBackStack()
             }
 
+            is BlockchainCardNavigationEvent.SeeAllTransactions -> {
+                destination = BlockchainCardDestination.AllTransactionsDestination
+            }
+
             is BlockchainCardNavigationEvent.SeeTransactionDetails -> {
                 destination = BlockchainCardDestination.TransactionDetailsDestination
             }
@@ -158,18 +171,28 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.FinishLegalDocReview -> {
-                navController.popBackStack(BlockchainCardDestination.OrderCardConfirmDestination.route, false)
+                navController.popBackStack(
+                    route = BlockchainCardDestination.ReviewAndSubmitCardDestination.route,
+                    inclusive = false
+                )
             }
 
-            // For now, all support pages go to the same place
             is BlockchainCardNavigationEvent.SeeCardLostPage -> {
                 destination = BlockchainCardDestination.CardLostPageDestination
             }
+
             is BlockchainCardNavigationEvent.SeeFAQPage -> {
                 destination = BlockchainCardDestination.FAQPageDestination
             }
+
             is BlockchainCardNavigationEvent.SeeContactSupportPage -> {
                 destination = BlockchainCardDestination.ContactSupportPageDestination
+            }
+
+            is BlockchainCardNavigationEvent.AddCardToGoogleWallet -> {
+                (navController.context as BlockchainCardHostActivity).startAddCardToGoogleWallet(
+                    pushTokenizeData = navigationEvent.blockchainCardTokenizationRequest
+                )
             }
         }.exhaustive
 
@@ -182,11 +205,15 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     // Order Card
 
+    object ShowHowToOrderCard : BlockchainCardNavigationEvent()
+
     object OrderCardKycAddress : BlockchainCardNavigationEvent()
 
     object OrderCardKycSSN : BlockchainCardNavigationEvent()
 
-    object OrderCardConfirm : BlockchainCardNavigationEvent()
+    object ChooseCardProduct : BlockchainCardNavigationEvent()
+
+    object ReviewAndSubmitCard : BlockchainCardNavigationEvent()
 
     object RetryOrderCard : BlockchainCardNavigationEvent()
 
@@ -221,7 +248,7 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     object SeePersonalDetails : BlockchainCardNavigationEvent()
 
-    object SeeBillingAddress : BlockchainCardNavigationEvent()
+    data class SeeBillingAddress(val address: BlockchainCardAddress) : BlockchainCardNavigationEvent()
 
     object SeeSupport : BlockchainCardNavigationEvent()
 
@@ -232,6 +259,8 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
     data class BillingAddressUpdated(val success: Boolean) : BlockchainCardNavigationEvent()
 
     object DismissBillingAddressUpdateResult : BlockchainCardNavigationEvent()
+
+    object SeeAllTransactions : BlockchainCardNavigationEvent()
 
     object SeeTransactionDetails : BlockchainCardNavigationEvent()
 
@@ -244,6 +273,10 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
     object SeeFAQPage : BlockchainCardNavigationEvent()
 
     object SeeContactSupportPage : BlockchainCardNavigationEvent()
+
+    data class AddCardToGoogleWallet(
+        val blockchainCardTokenizationRequest: BlockchainCardGoogleWalletPushTokenizeData
+    ) : BlockchainCardNavigationEvent()
 }
 
 sealed class BlockchainCardDestination(override val route: String) : ComposeNavigationDestination {
@@ -252,11 +285,15 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
 
     object OrderCardDestination : BlockchainCardDestination(route = "order_card")
 
+    object HowToOrderCardDestination : BlockchainCardDestination(route = "how_to_order_card")
+
     object OrderCardKycAddressDestination : BlockchainCardDestination(route = "order_card_kyc_address")
 
     object OrderCardKycSSNDestination : BlockchainCardDestination(route = "order_card_kyc_ssn")
 
-    object OrderCardConfirmDestination : BlockchainCardDestination(route = "order_card_confirm")
+    object ChooseCardProductDestination : BlockchainCardDestination(route = "choose_card_product")
+
+    object ReviewAndSubmitCardDestination : BlockchainCardDestination(route = "review_and_submit")
 
     object CreateCardInProgressDestination : BlockchainCardDestination(route = "create_card_in_progress")
 
@@ -292,6 +329,8 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
 
     object BillingAddressUpdateFailedDestination :
         BlockchainCardDestination(route = "billing_address_update_failed")
+
+    object AllTransactionsDestination : BlockchainCardDestination(route = "all_transactions")
 
     object TransactionDetailsDestination : BlockchainCardDestination(route = "transaction_details")
 

@@ -3,6 +3,9 @@ package com.blockchain.blockchaincard.data
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocsFormDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocumentDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionRequestDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletUserAddressDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardDto
@@ -16,13 +19,18 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletData
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletUserAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
+import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionType
 import com.blockchain.blockchaincard.domain.models.BlockchainCardType
+import com.blockchain.blockchaincard.googlewallet.manager.GoogleWalletManager
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
@@ -32,7 +40,6 @@ import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.eligibility.mapper.toDomain
 import com.blockchain.domain.eligibility.model.Region
-import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
@@ -43,36 +50,29 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import java.math.BigDecimal
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 internal class BlockchainCardRepositoryImpl(
     private val blockchainCardService: BlockchainCardService,
     private val eligibilityApiService: EligibilityApiService,
-    private val authenticator: Authenticator,
     private val coincore: Coincore,
     private val assetCatalogue: AssetCatalogue,
-    private val userIdentity: UserIdentity
+    private val userIdentity: UserIdentity,
+    private val googleWalletManager: GoogleWalletManager
 ) : BlockchainCardRepository {
 
     override suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainCardProduct>> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.getProducts(
-                    tokenResponse
-                )
-            }.map { productList ->
+        blockchainCardService.getProducts()
+            .map { productList ->
                 productList.map { product ->
                     product.toDomainModel()
                 }
             }.wrapBlockchainCardError()
 
     override suspend fun getCards(): Outcome<BlockchainCardError, List<BlockchainCard>> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.getCards(
-                    tokenResponse
-                )
-            }.map { response ->
+        blockchainCardService.getCards()
+            .map { response ->
                 response.map {
                     it.toDomainModel()
                 }
@@ -82,145 +82,113 @@ internal class BlockchainCardRepositoryImpl(
         productCode: String,
         ssn: String
     ): Outcome<BlockchainCardError, BlockchainCard> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.createCard(
-                    authHeader = tokenResponse,
-                    productCode = productCode,
-                    ssn = ssn
-                )
-            }.map { card ->
-                card.toDomainModel()
-            }.wrapBlockchainCardError()
+        blockchainCardService.createCard(
+            productCode = productCode,
+            ssn = ssn
+        ).map { card ->
+            card.toDomainModel()
+        }.wrapBlockchainCardError()
 
     override suspend fun deleteCard(cardId: String): Outcome<BlockchainCardError, BlockchainCard> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.deleteCard(
-                    authHeader = tokenResponse,
-                    cardId = cardId
-                )
-            }.map { card ->
-                card.toDomainModel()
-            }.wrapBlockchainCardError()
+        blockchainCardService.deleteCard(
+            cardId = cardId
+        ).map { card ->
+            card.toDomainModel()
+        }.wrapBlockchainCardError()
 
     override suspend fun lockCard(cardId: String): Outcome<BlockchainCardError, BlockchainCard> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.lockCard(
-                    authHeader = tokenResponse,
-                    cardId = cardId
-                )
-            }.map { card ->
-                card.toDomainModel()
-            }.wrapBlockchainCardError()
+        blockchainCardService.lockCard(
+            cardId = cardId
+        ).map { card ->
+            card.toDomainModel()
+        }.wrapBlockchainCardError()
 
     override suspend fun unlockCard(cardId: String): Outcome<BlockchainCardError, BlockchainCard> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.unlockCard(
-                    authHeader = tokenResponse,
-                    cardId = cardId
-                )
-            }.map { card ->
-                card.toDomainModel()
-            }.wrapBlockchainCardError()
+        blockchainCardService.unlockCard(
+            cardId = cardId
+        ).map { card ->
+            card.toDomainModel()
+        }.wrapBlockchainCardError()
 
     override suspend fun getCardWidgetUrl(
         cardId: String,
         last4Digits: String,
         userFullName: String
     ): Outcome<BlockchainCardError, String> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.getCardWidgetToken(
-                    authHeader = tokenResponse,
-                    cardId = cardId,
-                )
-            }.flatMap { widgetToken ->
-                blockchainCardService.getCardWidgetUrl(widgetToken.token, last4Digits, userFullName)
-            }.wrapBlockchainCardError()
+        blockchainCardService.getCardWidgetToken(
+            cardId = cardId,
+        ).flatMap { widgetToken ->
+            blockchainCardService.getCardWidgetUrl(widgetToken.token, last4Digits, userFullName)
+        }.wrapBlockchainCardError()
 
     override suspend fun getEligibleTradingAccounts(
         cardId: String
     ): Outcome<BlockchainCardError, List<TradingAccount>> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.getEligibleAccounts(
-                    authHeader = tokenResponse,
-                    cardId = cardId
-                )
-            }.flatMap { eligibleAccountsList ->
-                val eligibleCurrencies = eligibleAccountsList.map { cardAccount ->
-                    cardAccount.balance.symbol
-                }
+        blockchainCardService.getEligibleAccounts(
+            cardId = cardId
+        ).flatMap { eligibleAccountsList ->
+            val eligibleCurrencies = eligibleAccountsList.map { cardAccount ->
+                cardAccount.balance.symbol
+            }
 
-                coincore.allWallets().awaitOutcome().map { accountGroup ->
-                    accountGroup.accounts.filterIsInstance<TradingAccount>().filter { tradingAccount ->
-                        eligibleCurrencies.any {
-                            when (tradingAccount) {
-                                is FiatCustodialAccount ->
-                                    tradingAccount.currency.networkTicker == it
-                                is CustodialTradingAccount ->
-                                    tradingAccount.currency.networkTicker == it
-                                else ->
-                                    throw IllegalStateException(
-                                        "Account is not a FiatCustodialAccount nor CustodialTradingAccount"
-                                    )
-                            }
+            coincore.allWallets().awaitOutcome().map { accountGroup ->
+                accountGroup.accounts.filterIsInstance<TradingAccount>().filter { tradingAccount ->
+                    eligibleCurrencies.any {
+                        when (tradingAccount) {
+                            is FiatCustodialAccount ->
+                                tradingAccount.currency.networkTicker == it
+                            is CustodialTradingAccount ->
+                                tradingAccount.currency.networkTicker == it
+                            else ->
+                                throw IllegalStateException(
+                                    "Account is not a FiatCustodialAccount nor CustodialTradingAccount"
+                                )
                         }
                     }
                 }
-            }.wrapBlockchainCardError()
+            }
+        }.wrapBlockchainCardError()
 
     override suspend fun linkCardAccount(
         cardId: String,
         accountCurrency: String
     ): Outcome<BlockchainCardError, String> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.linkCardAccount(
-                    authHeader = tokenResponse,
-                    cardId = cardId,
-                    accountCurrency = accountCurrency
-                )
-            }.map { cardAccountLinkResponse ->
-                cardAccountLinkResponse.accountCurrency
-            }.wrapBlockchainCardError()
+        blockchainCardService.linkCardAccount(
+            cardId = cardId,
+            accountCurrency = accountCurrency
+        ).map { cardAccountLinkResponse ->
+            cardAccountLinkResponse.accountCurrency
+        }.wrapBlockchainCardError()
 
     override suspend fun getCardLinkedAccount(
         cardId: String
     ): Outcome<BlockchainCardError, TradingAccount> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.getCardLinkedAccount(
-                    authHeader = tokenResponse,
-                    cardId = cardId
-                )
-            }.flatMap { cardLinkedAccountResponse ->
-                coincore.allWallets().awaitOutcome()
-                    .map { accountGroup ->
-                        accountGroup.accounts.filterIsInstance<TradingAccount>().first { tradingAccount ->
-                            when (tradingAccount) {
-                                is FiatCustodialAccount ->
-                                    tradingAccount
-                                        .currency.networkTicker == cardLinkedAccountResponse.accountCurrency
-                                is CustodialTradingAccount ->
-                                    tradingAccount
-                                        .currency.networkTicker == cardLinkedAccountResponse.accountCurrency
-                                else ->
-                                    throw IllegalStateException(
-                                        "Account is not a FiatCustodialAccount nor CustodialTradingAccount"
-                                    )
-                            }
+        blockchainCardService.getCardLinkedAccount(
+            cardId = cardId
+        ).flatMap { cardLinkedAccountResponse ->
+            coincore.allWallets().awaitOutcome()
+                .map { accountGroup ->
+                    accountGroup.accounts.filterIsInstance<TradingAccount>().first { tradingAccount ->
+                        when (tradingAccount) {
+                            is FiatCustodialAccount ->
+                                tradingAccount
+                                    .currency.networkTicker == cardLinkedAccountResponse.accountCurrency
+                            is CustodialTradingAccount ->
+                                tradingAccount
+                                    .currency.networkTicker == cardLinkedAccountResponse.accountCurrency
+                            else ->
+                                throw IllegalStateException(
+                                    "Account is not a FiatCustodialAccount nor CustodialTradingAccount"
+                                )
                         }
-                    }.wrapBlockchainCardError()
-            }.wrapBlockchainCardError()
+                    }
+                }.wrapBlockchainCardError()
+        }.wrapBlockchainCardError()
 
     override suspend fun loadAccountBalance(
         tradingAccount: BlockchainAccount
     ): Outcome<BlockchainCardError, AccountBalance> =
-        tradingAccount.balance.firstOrError().awaitOutcome().wrapBlockchainCardError()
+        tradingAccount.balanceRx.firstOrError().awaitOutcome().wrapBlockchainCardError()
 
     override suspend fun getAsset(networkTicker: String): Outcome<BlockchainCardError, AssetInfo> =
         assetCatalogue.assetInfoFromNetworkTicker(networkTicker)?.let { asset ->
@@ -236,27 +204,18 @@ internal class BlockchainCardRepositoryImpl(
             }.wrapBlockchainCardError()
 
     override suspend fun getResidentialAddress(): Outcome<BlockchainCardError, BlockchainCardAddress> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.getResidentialAddress(
-                    authHeader = tokenResponse
-                )
-            }.map { response ->
-                response.address.toDomainModel()
-            }.wrapBlockchainCardError()
+        blockchainCardService.getResidentialAddress().map { response ->
+            response.address.toDomainModel()
+        }.wrapBlockchainCardError()
 
     override suspend fun updateResidentialAddress(
         address: BlockchainCardAddress
     ): Outcome<BlockchainCardError, BlockchainCardAddress> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.updateResidentialAddress(
-                    authHeader = tokenResponse,
-                    residentialAddress = address.toDto(address)
-                )
-            }.map { response ->
-                response.address.toDomainModel()
-            }.wrapBlockchainCardError()
+        blockchainCardService.updateResidentialAddress(
+            residentialAddress = address.toDto(address)
+        ).map { response ->
+            response.address.toDomainModel()
+        }.wrapBlockchainCardError()
 
     override suspend fun getUserFirstAndLastName(): Outcome<BlockchainCardError, String> =
         userIdentity.getBasicProfileInformation().awaitOutcome()
@@ -264,13 +223,13 @@ internal class BlockchainCardRepositoryImpl(
                 response.firstName + " " + response.lastName
             }.wrapBlockchainCardError()
 
-    override suspend fun getTransactions(): Outcome<BlockchainCardError, List<BlockchainCardTransaction>> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.getTransactions(tokenResponse)
-            }.map { response ->
-                response.map { it.toDomainModel() }
-            }.wrapBlockchainCardError()
+    override suspend fun getTransactions(
+        limit: Int?,
+        toId: String?
+    ): Outcome<BlockchainCardError, List<BlockchainCardTransaction>> =
+        blockchainCardService.getTransactions(limit = limit, toId = toId).map { response ->
+            response.map { it.toDomainModel() }
+        }.wrapBlockchainCardError()
 
     override suspend fun getStatesList(countryCode: String): Outcome<BlockchainCardError, List<Region.State>> =
         eligibilityApiService.getStatesList(countryCode)
@@ -278,27 +237,44 @@ internal class BlockchainCardRepositoryImpl(
             .wrapBlockchainCardError()
 
     override suspend fun getLegalDocuments(): Outcome<BlockchainCardError, List<BlockchainCardLegalDocument>> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.getLegalDocuments(
-                    authHeader = tokenResponse
-                )
-            }.map { response ->
-                response.map { it.toDomainModel() }
-            }.wrapBlockchainCardError()
+        blockchainCardService.getLegalDocuments().map { response ->
+            response.map { it.toDomainModel() }
+        }.wrapBlockchainCardError()
 
     override suspend fun acceptLegalDocuments(
         acceptedLegalDocuments: List<BlockchainCardLegalDocument>
     ): Outcome<BlockchainCardError, List<BlockchainCardLegalDocument>> =
-        authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { tokenResponse ->
-                blockchainCardService.acceptLegalDocuments(
-                    authHeader = tokenResponse,
-                    acceptedDocumentsForm = acceptedLegalDocuments.toAcceptedLegalDocForm()
-                )
-            }.map { response ->
-                response.map { it.toDomainModel() }
-            }.wrapBlockchainCardError()
+        blockchainCardService.acceptLegalDocuments(
+            acceptedDocumentsForm = acceptedLegalDocuments.toAcceptedLegalDocForm()
+        ).map { response ->
+            response.map { it.toDomainModel() }
+        }.wrapBlockchainCardError()
+
+    override suspend fun provisionGoogleWalletCard(
+        cardId: String,
+        provisionRequest: BlockchainCardGoogleWalletData
+    ): Outcome<BlockchainCardError, BlockchainCardGoogleWalletPushTokenizeData> =
+        blockchainCardService.provisionGoogleWalletCard(
+            cardId = cardId,
+            provisionRequest = provisionRequest.toDto()
+        ).map { response ->
+            response.toDomainModel()
+        }.wrapBlockchainCardError()
+
+    override suspend fun getGoogleWalletId(): Outcome<BlockchainCardError, String> =
+        rxSingle {
+            googleWalletManager.getWalletId()
+        }.awaitOutcome().wrapBlockchainCardError()
+
+    override suspend fun getGoogleWalletStableHardwareId(): Outcome<BlockchainCardError, String> =
+        rxSingle {
+            googleWalletManager.getStableHardwareId()
+        }.awaitOutcome().wrapBlockchainCardError()
+
+    override suspend fun getGoogleWalletTokenizationStatus(last4Digits: String): Outcome<BlockchainCardError, Boolean> =
+        rxSingle {
+            googleWalletManager.getTokenizationStatus(last4Digits)
+        }.awaitOutcome().wrapBlockchainCardError()
 
     //
     // Domain Model Conversion
@@ -322,6 +298,7 @@ internal class BlockchainCardRepositoryImpl(
             expiry = expiry,
             brand = BlockchainCardBrand.valueOf(brand),
             status = BlockchainCardStatus.valueOf(status),
+            orderStatus = orderStatus?.let { BlockchainCardOrderStatus.valueOf(it) },
             createdAt = createdAt
         )
 
@@ -397,6 +374,38 @@ internal class BlockchainCardRepositoryImpl(
     private fun List<BlockchainCardLegalDocument>.toAcceptedLegalDocForm(): BlockchainCardAcceptedDocsFormDto =
         BlockchainCardAcceptedDocsFormDto(
             legalPolicies = this.map { BlockchainCardAcceptedDocumentDto(it.name, it.version) }
+        )
+
+    private fun BlockchainCardGoogleWalletData.toDto(): BlockchainCardGoogleWalletProvisionRequestDto =
+        BlockchainCardGoogleWalletProvisionRequestDto(
+            deviceId = deviceId,
+            deviceType = deviceType,
+            provisioningAppVersion = provisioningAppVersion,
+            walletAccountId = walletAccountId
+        )
+
+    private fun BlockchainCardGoogleWalletProvisionResponseDto.toDomainModel():
+        BlockchainCardGoogleWalletPushTokenizeData =
+        BlockchainCardGoogleWalletPushTokenizeData(
+            cardType = cardType,
+            displayName = displayName,
+            opaquePaymentCard = opaquePaymentCard,
+            last4 = last4,
+            network = network,
+            tokenServiceProvider = tokenServiceProvider,
+            googleWalletUserAddress = userAddress.toDomainModel()
+        )
+
+    private fun BlockchainCardGoogleWalletUserAddressDto.toDomainModel(): BlockchainCardGoogleWalletUserAddress =
+        BlockchainCardGoogleWalletUserAddress(
+            name = name,
+            address1 = address1,
+            address2 = address2,
+            city = city,
+            stateCode = stateCode,
+            postalCode = postalCode,
+            countryCode = countryCode,
+            phone = phone
         )
 
     private fun NabuApiException.toBlockchainCardError(): BlockchainCardError =

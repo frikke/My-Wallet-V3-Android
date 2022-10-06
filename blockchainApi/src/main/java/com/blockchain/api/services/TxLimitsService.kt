@@ -7,14 +7,12 @@ class TxLimitsService(
 ) {
 
     fun getCrossborderLimits(
-        authHeader: String,
         outputCurrency: String,
         sourceCurrency: String,
         targetCurrency: String,
         sourceAccountType: String,
         targetAccountType: String
     ) = api.getCrossborderLimits(
-        authorization = authHeader,
         outputCurrency = outputCurrency,
         sourceCurrency = sourceCurrency,
         targetCurrency = targetCurrency,
@@ -22,5 +20,5 @@ class TxLimitsService(
         targetAccountType = targetAccountType
     )
 
-    fun getFeatureLimits(authHeader: String) = api.getFeatureLimits(authHeader)
+    fun getFeatureLimits() = api.getFeatureLimits()
 }

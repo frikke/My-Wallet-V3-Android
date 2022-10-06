@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.FiatCurrency
@@ -30,6 +31,7 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
     interface Host : SlidingModalBottomDialog.Host {
         fun onPaymentMethodChanged(paymentMethod: PaymentMethod)
         fun showAvailableToAddPaymentMethods()
+        fun onRejectableCardSelected(cardInfo: CardRejectionState)
     }
 
     private val paymentMethods: List<PaymentMethod> by unsafeLazy {
@@ -49,6 +51,10 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         arguments?.getBoolean(CAN_USE_CREDIT_CARDS) ?: true
     }
 
+    private val cardRejectionFFEnabled: Boolean by lazy {
+        arguments?.getBoolean(CARD_REJECTION_FF_ENABLED) ?: false
+    }
+
     private val assetResources: AssetResources by inject()
     private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
 
@@ -62,12 +68,11 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         binding.recycler.apply {
             adapter =
                 PaymentMethodsAdapter(
-                    paymentMethods
-                        .map {
-                            it.toPaymentMethodItem()
-                        },
-                    assetResources,
-                    canUseCreditCards
+                    adapterItems = paymentMethods.map { it.toPaymentMethodItem() },
+                    assetResources = assetResources,
+                    canUseCreditCards = canUseCreditCards,
+                    onRejectableCardSelected = ::onRejectableCardSelected,
+                    cardRejectionFFEnabled = cardRejectionFFEnabled
                 )
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
             layoutManager = LinearLayoutManager(context)
@@ -92,6 +97,11 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         }
     }
 
+    private fun onRejectableCardSelected(cardInfo: CardRejectionState) {
+        (host as? Host)?.onRejectableCardSelected(cardInfo)
+        dismiss()
+    }
+
     private fun PaymentMethod.toPaymentMethodItem(): PaymentMethodItem {
         return PaymentMethodItem(this, clickAction())
     }
@@ -107,18 +117,21 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         private const val CAN_ADD_NEW_PAYMENT = "CAN_ADD_NEW_PAYMENT"
         private const val DISPLAY_MODE = "DISPLAY_MODE"
         private const val CAN_USE_CREDIT_CARDS = "CAN_USE_CREDIT_CARDS"
+        private const val CARD_REJECTION_FF_ENABLED = "CARD_REJECTION_FF_ENABLED"
 
         fun newInstance(
             paymentMethods: List<PaymentMethod>,
             mode: DisplayMode,
             canAddNewPayment: Boolean,
-            canUseCreditCards: Boolean = true
+            canUseCreditCards: Boolean = true,
+            cardRejectionFFEnabled: Boolean
         ): PaymentMethodChooserBottomSheet {
             val bundle = Bundle()
             bundle.putSerializable(SUPPORTED_PAYMENT_METHODS, paymentMethods as Serializable)
             bundle.putSerializable(DISPLAY_MODE, mode)
             bundle.putBoolean(CAN_ADD_NEW_PAYMENT, canAddNewPayment)
             bundle.putBoolean(CAN_USE_CREDIT_CARDS, canUseCreditCards)
+            bundle.putBoolean(CARD_REJECTION_FF_ENABLED, cardRejectionFFEnabled)
             return PaymentMethodChooserBottomSheet().apply {
                 arguments = bundle
             }
@@ -135,11 +148,16 @@ data class PaymentMethodItem(val paymentMethod: PaymentMethod, val clickAction: 
 private class PaymentMethodsAdapter(
     adapterItems: List<PaymentMethodItem>,
     assetResources: AssetResources,
-    canUseCreditCards: Boolean
+    canUseCreditCards: Boolean,
+    onRejectableCardSelected: (cardInfo: CardRejectionState) -> Unit,
+    cardRejectionFFEnabled: Boolean
 ) :
     DelegationAdapter<PaymentMethodItem>(AdapterDelegatesManager(), adapterItems) {
     init {
-        val cardPaymentDelegate = CardPaymentDelegate()
+        val cardPaymentDelegate = CardPaymentDelegate(
+            onRejectableCardSelected = onRejectableCardSelected,
+            cardRejectionFFEnabled = cardRejectionFFEnabled
+        )
         val bankPaymentDelegate = BankPaymentDelegate()
         val depositTooltipDelegate = DepositTooltipDelegate()
         val addCardPaymentDelegate = AddCardDelegate(canUseCreditCards)

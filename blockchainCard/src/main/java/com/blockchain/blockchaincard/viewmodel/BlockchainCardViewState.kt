@@ -3,6 +3,7 @@ package com.blockchain.blockchaincard.viewmodel
 import androidx.compose.runtime.mutableStateListOf
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
@@ -20,7 +21,9 @@ data class BlockchainCardViewState(
     val eligibleTradingAccountBalances: List<AccountBalance> = mutableStateListOf(),
     val residentialAddress: BlockchainCardAddress? = null,
     val userFirstAndLastName: String? = null,
-    val transactionList: List<BlockchainCardTransaction>? = null,
+    val shortTransactionList: List<BlockchainCardTransaction>? = null,
+    val pendingTransactions: List<BlockchainCardTransaction>? = null,
+    val completedTransactionsGroupedByMonth: Map<String?, List<BlockchainCardTransaction>>? = null,
     val selectedCardTransaction: BlockchainCardTransaction? = null,
     val ssn: String? = null,
     val countryStateList: List<Region.State>? = null,
@@ -28,4 +31,6 @@ data class BlockchainCardViewState(
     val legalDocuments: List<BlockchainCardLegalDocument>? = null,
     val isLegalDocReviewComplete: Boolean = false,
     val singleLegalDocumentToSee: BlockchainCardLegalDocument? = null,
+    val isAddressLoading: Boolean = true,
+    val googleWalletStatus: BlockchainCardGoogleWalletStatus = BlockchainCardGoogleWalletStatus.NOT_ADDED
 ) : ViewState

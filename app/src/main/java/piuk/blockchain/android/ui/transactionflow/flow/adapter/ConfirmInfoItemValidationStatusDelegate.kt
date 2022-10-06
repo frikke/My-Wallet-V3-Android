@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.ValidationState
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.asAssetInfoOrThrow
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemSendConfirmErrorNoticeBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
@@ -50,7 +52,12 @@ class ConfirmInfoItemValidationStatusDelegate<in T> :
                 ValidationState.CAN_EXECUTE -> throw IllegalStateException("Displaying OK in error status")
                 ValidationState.UNINITIALISED -> throw IllegalStateException("Displaying OK in error status")
                 ValidationState.INSUFFICIENT_FUNDS -> ctx.getString(R.string.confirm_status_msg_insufficient_funds)
-                ValidationState.INSUFFICIENT_GAS -> ctx.getString(R.string.confirm_status_msg_insufficient_gas)
+                ValidationState.INSUFFICIENT_GAS -> ctx.getString(
+                    R.string.confirm_status_msg_insufficient_gas,
+                    this.money?.currency?.asAssetInfoOrThrow()?.let { asset ->
+                        asset.l1chainTicker ?: asset.displayTicker
+                    } ?: CryptoCurrency.ETHER.displayTicker
+                )
                 ValidationState.OPTION_INVALID -> ctx.getString(R.string.confirm_status_msg_option_invalid)
                 ValidationState.MEMO_INVALID -> ctx.getString(R.string.confirm_status_memo_invalid)
                 ValidationState.INVOICE_EXPIRED -> ctx.getString(R.string.confirm_status_msg_invoice_expired)

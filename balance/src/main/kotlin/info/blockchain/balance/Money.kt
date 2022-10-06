@@ -6,7 +6,7 @@ import java.math.BigInteger
 import java.math.RoundingMode
 import java.util.Locale
 
-abstract class Money : Serializable {
+abstract class Money : Serializable, Comparable<Money> {
 
     abstract val currency: Currency
 
@@ -52,20 +52,27 @@ abstract class Money : Serializable {
      */
     fun toStringParts() =
         toStringWithoutSymbol().let {
-            val index = it.lastIndexOf(LocaleDecimalFormat[Locale.getDefault()].decimalFormatSymbols.decimalSeparator)
+            val decimalSeparator = LocaleDecimalFormat[Locale.getDefault()].decimalFormatSymbols.decimalSeparator
+            val groupingSeparator = LocaleDecimalFormat[Locale.getDefault()].decimalFormatSymbols.groupingSeparator
+
+            val index = it.lastIndexOf(decimalSeparator)
             if (index != -1) {
                 Parts(
                     symbol = symbol,
                     major = it.substring(0, index),
                     minor = it.substring(index + 1),
-                    majorAndMinor = it
+                    majorAndMinor = it,
+                    decimalSeparator = decimalSeparator,
+                    groupingSeparator = groupingSeparator
                 )
             } else {
                 Parts(
                     symbol = symbol,
                     major = it,
                     minor = "",
-                    majorAndMinor = it
+                    majorAndMinor = it,
+                    decimalSeparator = decimalSeparator,
+                    groupingSeparator = groupingSeparator
                 )
             }
         }
@@ -74,7 +81,9 @@ abstract class Money : Serializable {
         val symbol: String,
         val major: String,
         val minor: String,
-        val majorAndMinor: String
+        val majorAndMinor: String,
+        val groupingSeparator: Char,
+        val decimalSeparator: Char
     )
 
     fun formatOrSymbolForZero() =
@@ -99,7 +108,11 @@ abstract class Money : Serializable {
         return division(other)
     }
 
-    operator fun compareTo(other: Money): Int {
+    operator fun times(multiplier: Float): Money {
+        return multiply(multiplier)
+    }
+
+    override operator fun compareTo(other: Money): Int {
         ensureComparable("compare", other)
         return compare(other)
     }
@@ -109,6 +122,7 @@ abstract class Money : Serializable {
     protected abstract fun subtract(other: Money): Money
     protected abstract fun division(other: Money): Money
     protected abstract fun compare(other: Money): Int
+    protected abstract fun multiply(multiplier: Float): Money
 
     companion object {
         fun min(a: Money, b: Money): Money {

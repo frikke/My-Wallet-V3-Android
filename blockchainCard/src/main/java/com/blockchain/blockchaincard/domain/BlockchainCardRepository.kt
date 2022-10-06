@@ -3,6 +3,8 @@ package com.blockchain.blockchaincard.domain
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletData
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
@@ -75,7 +77,10 @@ interface BlockchainCardRepository {
 
     suspend fun getUserFirstAndLastName(): Outcome<BlockchainCardError, String>
 
-    suspend fun getTransactions(): Outcome<BlockchainCardError, List<BlockchainCardTransaction>>
+    suspend fun getTransactions(
+        limit: Int? = null,
+        toId: String? = null
+    ): Outcome<BlockchainCardError, List<BlockchainCardTransaction>>
 
     suspend fun getStatesList(countryCode: String): Outcome<BlockchainCardError, List<Region.State>>
 
@@ -84,4 +89,13 @@ interface BlockchainCardRepository {
     suspend fun acceptLegalDocuments(
         acceptedLegalDocuments: List<BlockchainCardLegalDocument>
     ): Outcome<BlockchainCardError, List<BlockchainCardLegalDocument>>
+
+    suspend fun provisionGoogleWalletCard(
+        cardId: String,
+        provisionRequest: BlockchainCardGoogleWalletData
+    ): Outcome<BlockchainCardError, BlockchainCardGoogleWalletPushTokenizeData>
+
+    suspend fun getGoogleWalletId(): Outcome<BlockchainCardError, String>
+    suspend fun getGoogleWalletStableHardwareId(): Outcome<BlockchainCardError, String>
+    suspend fun getGoogleWalletTokenizationStatus(last4Digits: String): Outcome<BlockchainCardError, Boolean>
 }

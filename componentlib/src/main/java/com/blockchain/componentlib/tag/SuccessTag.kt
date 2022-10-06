@@ -11,7 +11,7 @@ import com.blockchain.componentlib.theme.Green400
 import com.blockchain.componentlib.theme.Green600
 
 @Composable
-fun SuccessTag(text: String, size: TagSize = TagSize.Primary) {
+fun SuccessTag(text: String, size: TagSize = TagSize.Primary, onClick: (() -> Unit)? = null) {
 
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
         Green100
@@ -29,7 +29,8 @@ fun SuccessTag(text: String, size: TagSize = TagSize.Primary) {
         text = text,
         size = size,
         defaultBackgroundColor = defaultBackgroundColor,
-        defaultTextColor = defaultTextColor
+        defaultTextColor = defaultTextColor,
+        onClick = onClick
     )
 }
 
@@ -38,7 +39,7 @@ fun SuccessTag(text: String, size: TagSize = TagSize.Primary) {
 fun SuccessTag_Basic() {
     AppTheme {
         AppSurface {
-            SuccessTag(text = "Default")
+            SuccessTag(text = "Default", onClick = null)
         }
     }
 }
@@ -48,7 +49,17 @@ fun SuccessTag_Basic() {
 fun SuccessTag_Dark() {
     AppTheme(darkTheme = true) {
         AppSurface {
-            SuccessTag(text = "Default")
+            SuccessTag(text = "Default", onClick = null)
+        }
+    }
+}
+
+@Preview
+@Composable
+fun SuccessTag_clickable() {
+    AppTheme(darkTheme = true) {
+        AppSurface {
+            SuccessTag(text = "Click me", onClick = { })
         }
     }
 }

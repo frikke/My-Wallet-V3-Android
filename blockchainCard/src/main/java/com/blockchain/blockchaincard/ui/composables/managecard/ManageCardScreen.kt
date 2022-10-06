@@ -9,14 +9,19 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -24,8 +29,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
@@ -42,9 +49,13 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -53,6 +64,7 @@ import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
@@ -69,24 +81,28 @@ import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.DropdownMenuSearch
 import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.divider.VerticalDivider
+import com.blockchain.componentlib.lazylist.PaginatedLazyColumn
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.system.Webview
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tablerow.ToggleTableRow
-import com.blockchain.componentlib.tag.TagType
-import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
+import com.blockchain.componentlib.theme.GOOGLE_PAY_BUTTON_BORDER
+import com.blockchain.componentlib.theme.GOOGLE_PAY_BUTTON_DIVIDER
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.UltraLight
+import com.blockchain.componentlib.theme.White
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.utils.fromIso8601ToUtc
-import com.blockchain.utils.toFormattedDate
-import com.blockchain.utils.toFormattedString
+import com.blockchain.utils.getMonthName
+import com.blockchain.utils.toFormattedDateTime
 import com.blockchain.utils.toLocalTime
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -103,12 +119,16 @@ fun ManageCard(
     isBalanceLoading: Boolean,
     isTransactionListRefreshing: Boolean,
     transactionList: List<BlockchainCardTransaction>?,
+    googleWalletState: BlockchainCardGoogleWalletStatus,
     onManageCardDetails: () -> Unit,
     onFundingAccountClicked: () -> Unit,
     onRefreshBalance: () -> Unit,
+    onSeeAllTransactions: () -> Unit,
     onSeeTransactionDetails: (BlockchainCardTransaction) -> Unit,
     onRefreshTransactions: () -> Unit,
-    onRefreshCardWidgetUrl: () -> Unit
+    onRefreshCardWidgetUrl: () -> Unit,
+    onAddFunds: () -> Unit,
+    onAddToGoogleWallet: () -> Unit
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -128,7 +148,7 @@ fun ManageCard(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = AppTheme.dimensions.paddingSmall)
+            .padding(top = AppTheme.dimensions.tinySpacing)
             .verticalScroll(rememberScrollState())
     ) {
         Column(
@@ -136,7 +156,7 @@ fun ManageCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = AppTheme.dimensions.paddingMedium
+                    horizontal = AppTheme.dimensions.smallSpacing
                 )
         ) {
 
@@ -171,8 +191,8 @@ fun ManageCard(
                 null -> {
                     CircularProgressIndicator(
                         modifier = Modifier.padding(
-                            horizontal = AppTheme.dimensions.paddingMedium,
-                            vertical = AppTheme.dimensions.xxxPaddingLarge
+                            horizontal = AppTheme.dimensions.smallSpacing,
+                            vertical = AppTheme.dimensions.xHugeSpacing
                         )
                     )
                 }
@@ -183,7 +203,9 @@ fun ManageCard(
                         style = ComposeTypographies.Body1,
                         color = ComposeColors.Dark,
                         gravity = ComposeGravities.Centre,
-                        modifier = Modifier.padding(top = AppTheme.dimensions.paddingLarge)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = AppTheme.dimensions.standardSpacing)
                     )
 
                     SimpleText(
@@ -192,7 +214,8 @@ fun ManageCard(
                         color = ComposeColors.Primary,
                         gravity = ComposeGravities.Centre,
                         modifier = Modifier
-                            .padding(vertical = AppTheme.dimensions.paddingSmall)
+                            .fillMaxWidth()
+                            .padding(vertical = AppTheme.dimensions.tinySpacing)
                             .clickable {
                                 onRefreshCardWidgetUrl()
                             }
@@ -205,7 +228,7 @@ fun ManageCard(
                         disableScrolling = true,
                         modifier = Modifier
                             .padding(
-                                top = AppTheme.dimensions.paddingMedium
+                                top = AppTheme.dimensions.smallSpacing
                             )
                             .requiredHeight(355.dp)
                             .requiredWidth(200.dp)
@@ -213,36 +236,85 @@ fun ManageCard(
                 }
             }
 
-            Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+            Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                border = BorderStroke(1.dp, Grey000),
                 elevation = 0.dp,
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(16.dp),
+                backgroundColor = UltraLight
             ) {
                 if (linkedAccountBalance != null)
-                    FundingAccount(
-                        accountBalance = linkedAccountBalance,
-                        onFundingAccountClicked = onFundingAccountClicked,
-                    )
+                    Column(modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)) {
+
+                        val hasFunds = when (linkedAccountBalance.total) {
+                            is FiatValue -> linkedAccountBalance.totalFiat.isPositive
+                            is CryptoValue -> linkedAccountBalance.total.isPositive
+                            else -> false
+                        }
+
+                        if (!hasFunds) {
+                            Box(
+                                modifier = Modifier.border(
+                                    width = 1.dp,
+                                    color = AppTheme.colors.warning,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                            ) {
+                                DefaultTableRow(
+                                    primaryText = stringResource(R.string.bc_card_out_of_funds_top_up),
+                                    onClick = onAddFunds
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+                        }
+                        SimpleText(
+                            text = stringResource(id = R.string.bc_card_transaction_payment_method),
+                            style = ComposeTypographies.Paragraph1,
+                            color = ComposeColors.Body,
+                            gravity = ComposeGravities.Start
+                        )
+
+                        Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+                        FundingAccount(
+                            accountBalance = linkedAccountBalance,
+                            onFundingAccountClicked = onFundingAccountClicked,
+                        )
+                    }
                 else if (isBalanceLoading)
                     ShimmerLoadingTableRow()
             }
         }
 
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+        when (googleWalletState) {
+            BlockchainCardGoogleWalletStatus.NOT_ADDED -> GooglePayButton(
+                onClick = onAddToGoogleWallet,
+                modifier = Modifier.requiredWidth(153.dp)
+            )
+            BlockchainCardGoogleWalletStatus.ADDED -> {}
+            BlockchainCardGoogleWalletStatus.ADD_IN_PROGRESS -> CircularProgressBar()
+            BlockchainCardGoogleWalletStatus.ADD_SUCCESS -> GooglePayButtonAddSuccess()
+            BlockchainCardGoogleWalletStatus.ADD_FAILED -> GooglePayButtonAddFailed()
+        }
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    AppTheme.dimensions.paddingMedium
+                    AppTheme.dimensions.smallSpacing
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = AppTheme.dimensions.paddingMedium),
+                    .padding(vertical = AppTheme.dimensions.smallSpacing),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
@@ -251,21 +323,23 @@ fun ManageCard(
                     style = ComposeTypographies.Title3,
                     color = ComposeColors.Title,
                     gravity = ComposeGravities.Start,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.wrapContentWidth(),
+                    isMultiline = false
                 )
 
-                // TODO (labreu): disabled for MVP
-                /*Spacer(modifier = Modifier.weight(1f))
+                if (transactionList != null && transactionList.isNotEmpty()) {
+                    Spacer(modifier = Modifier.weight(1f))
 
-                MinimalButton(
-                    text = stringResource(R.string.bc_card_see_all),
-                    onClick = {},
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .weight(1f),
-                    minHeight = 16.dp,
-                    shape = AppTheme.shapes.extraLarge
-                )*/
+                    MinimalButton(
+                        text = stringResource(R.string.bc_card_see_all),
+                        onClick = onSeeAllTransactions,
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .weight(1f),
+                        minHeight = 16.dp,
+                        shape = AppTheme.shapes.extraLarge
+                    )
+                }
             }
 
             when {
@@ -279,7 +353,7 @@ fun ManageCard(
                         contentDescription = stringResource(R.string.recent_purchases_here),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = AppTheme.dimensions.paddingLarge),
+                            .padding(top = AppTheme.dimensions.standardSpacing),
                     )
 
                     SimpleText(
@@ -287,7 +361,9 @@ fun ManageCard(
                         style = ComposeTypographies.Body2,
                         color = ComposeColors.Title,
                         gravity = ComposeGravities.Centre,
-                        modifier = Modifier.padding(top = AppTheme.dimensions.paddingSmall)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = AppTheme.dimensions.tinySpacing)
                     )
 
                     SimpleText(
@@ -295,7 +371,9 @@ fun ManageCard(
                         style = ComposeTypographies.Paragraph1,
                         color = ComposeColors.Dark,
                         gravity = ComposeGravities.Centre,
-                        modifier = Modifier.padding(top = AppTheme.dimensions.paddingSmall)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = AppTheme.dimensions.tinySpacing)
                     )
 
                     SimpleText(
@@ -304,7 +382,11 @@ fun ManageCard(
                         color = ComposeColors.Primary,
                         gravity = ComposeGravities.Centre,
                         modifier = Modifier
-                            .padding(top = AppTheme.dimensions.paddingSmall, bottom = AppTheme.dimensions.paddingLarge)
+                            .fillMaxWidth()
+                            .padding(
+                                top = AppTheme.dimensions.tinySpacing,
+                                bottom = AppTheme.dimensions.standardSpacing
+                            )
                             .clickable {
                                 onRefreshTransactions()
                             }
@@ -313,12 +395,19 @@ fun ManageCard(
                 else -> {
                     CardTransactionList(
                         transactionList = transactionList,
-                        onSeeTransactionDetails = onSeeTransactionDetails,
-                        onRefreshTransactions = onRefreshTransactions,
-                        isTransactionListRefreshing = isTransactionListRefreshing
+                        onSeeTransactionDetails = onSeeTransactionDetails
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+            SimpleText(
+                text = stringResource(R.string.bc_card_dashboard_legal_disclaimer),
+                style = ComposeTypographies.Caption1,
+                color = ComposeColors.Dark,
+                gravity = ComposeGravities.Centre
+            )
         }
     }
 }
@@ -333,13 +422,114 @@ private fun PreviewManageCard() {
         isBalanceLoading = false,
         isTransactionListRefreshing = false,
         transactionList = null,
+        googleWalletState = BlockchainCardGoogleWalletStatus.NOT_ADDED,
         onManageCardDetails = {},
         onFundingAccountClicked = {},
         onRefreshBalance = {},
+        onSeeAllTransactions = {},
         onSeeTransactionDetails = {},
         onRefreshTransactions = {},
-        onRefreshCardWidgetUrl = {}
+        onRefreshCardWidgetUrl = {},
+        onAddFunds = {},
+        onAddToGoogleWallet = {}
     )
+}
+
+@Composable
+fun GooglePayButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    OutlinedButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(AppTheme.dimensions.borderSmall, GOOGLE_PAY_BUTTON_BORDER),
+        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Black),
+        modifier = modifier
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.add_to_googlepay_button_content),
+            contentDescription = stringResource(R.string.add_to_google_pay),
+            modifier = Modifier.wrapContentSize()
+        )
+    }
+}
+
+@Composable
+fun GooglePayButtonAddSuccess(modifier: Modifier = Modifier) {
+    OutlinedButton(
+        onClick = {},
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(AppTheme.dimensions.borderSmall, GOOGLE_PAY_BUTTON_BORDER),
+        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Black),
+        modifier = modifier.height(IntrinsicSize.Min)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.googlepay_button_content),
+            contentDescription = stringResource(R.string.add_to_google_pay),
+            modifier = Modifier.wrapContentSize()
+        )
+
+        Spacer(modifier = Modifier.width(AppTheme.dimensions.tinySpacing))
+        VerticalDivider(
+            dividerColor = GOOGLE_PAY_BUTTON_DIVIDER,
+            modifier = Modifier.fillMaxHeight()
+        )
+        Spacer(modifier = Modifier.width(AppTheme.dimensions.tinySpacing))
+
+        SimpleText(
+            text = stringResource(R.string.card_added_to_google_pay),
+            style = ComposeTypographies.Body1,
+            color = ComposeColors.Light,
+            gravity = ComposeGravities.Centre
+        )
+    }
+}
+
+@Composable
+fun GooglePayButtonAddFailed(modifier: Modifier = Modifier) {
+    OutlinedButton(
+        onClick = {},
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(AppTheme.dimensions.borderSmall, GOOGLE_PAY_BUTTON_BORDER),
+        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Black),
+        modifier = modifier.height(IntrinsicSize.Min)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.googlepay_button_content),
+            contentDescription = stringResource(R.string.add_to_google_pay),
+            modifier = Modifier.wrapContentSize()
+        )
+
+        Spacer(modifier = Modifier.width(AppTheme.dimensions.tinySpacing))
+        VerticalDivider(
+            dividerColor = GOOGLE_PAY_BUTTON_DIVIDER,
+            modifier = Modifier.fillMaxHeight()
+        )
+        Spacer(modifier = Modifier.width(AppTheme.dimensions.tinySpacing))
+
+        SimpleText(
+            text = stringResource(R.string.failed_to_add_card_to_google_pay),
+            style = ComposeTypographies.Body1,
+            color = ComposeColors.Error,
+            gravity = ComposeGravities.Centre
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewGooglePayButtonAddFailed() {
+    GooglePayButtonAddFailed()
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewGooglePayButtonAddSuccess() {
+    GooglePayButtonAddSuccess()
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewGooglePayButton() {
+    GooglePayButton(onClick = { /*TODO*/ })
 }
 
 @Composable
@@ -370,8 +560,8 @@ fun ManageCardDetails(
             cardStatus = cardStatus,
             last4digits = last4digits,
             modifier = Modifier.padding(
-                AppTheme.dimensions.paddingLarge,
-                AppTheme.dimensions.paddingMedium
+                AppTheme.dimensions.standardSpacing,
+                AppTheme.dimensions.smallSpacing
             )
         )
 
@@ -411,20 +601,20 @@ private fun PreviewManageCardDetails() {
 @Composable
 fun CardTransactionList(
     transactionList: List<BlockchainCardTransaction>,
-    onSeeTransactionDetails: (transaction: BlockchainCardTransaction) -> Unit,
-    onRefreshTransactions: () -> Unit,
-    isTransactionListRefreshing: Boolean,
+    onSeeTransactionDetails: (transaction: BlockchainCardTransaction) -> Unit
 ) {
-    SwipeRefresh(
-        state = rememberSwipeRefreshState(isRefreshing = isTransactionListRefreshing),
-        onRefresh = onRefreshTransactions
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        border = BorderStroke(1.dp, Grey000),
+        elevation = 0.dp,
+        shape = RoundedCornerShape(20.dp)
     ) {
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
+                .wrapContentHeight()
         ) {
-            itemsIndexed(items = transactionList) { index, transaction ->
+            transactionList.forEachIndexed { index, transaction ->
                 CardTransactionItem(
                     merchantName = transaction.merchantName,
                     timestamp = transaction.userTransactionTime,
@@ -438,6 +628,636 @@ fun CardTransactionList(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewCardTransactionList() {
+
+    val transactionList = listOf(
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-07-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.PAYMENT,
+            state = BlockchainCardTransactionState.COMPLETED,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        ),
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-07-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.REFUND,
+            state = BlockchainCardTransactionState.COMPLETED,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        ),
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-07-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.PAYMENT,
+            state = BlockchainCardTransactionState.COMPLETED,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        )
+    )
+
+    CardTransactionList(
+        transactionList = transactionList,
+        onSeeTransactionDetails = {}
+    )
+}
+
+@Composable
+fun CardTransactionHistory(
+    pendingTransactions: List<BlockchainCardTransaction>,
+    completedTransactionsGroupedByMonth: Map<String?, List<BlockchainCardTransaction>>,
+    onSeeTransactionDetails: (transaction: BlockchainCardTransaction) -> Unit,
+    onGetNextPage: () -> Unit,
+    onRefreshTransactions: () -> Unit,
+    isTransactionListRefreshing: Boolean,
+) {
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing = isTransactionListRefreshing),
+        onRefresh = onRefreshTransactions
+    ) {
+        PaginatedLazyColumn(
+            modifier = Modifier.padding(AppTheme.dimensions.standardSpacing),
+            verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.standardSpacing),
+            onGetNextPage = onGetNextPage
+        ) {
+            if (pendingTransactions.isNotEmpty()) {
+                item {
+                    SimpleText(
+                        text = stringResource(id = R.string.bc_card_transaction_pending),
+                        style = ComposeTypographies.Body2,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Start
+                    )
+
+                    Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        border = BorderStroke(1.dp, Grey000),
+                        elevation = 0.dp,
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                        ) {
+                            pendingTransactions.forEachIndexed { index, transaction ->
+                                CardTransactionItem(
+                                    merchantName = transaction.merchantName,
+                                    timestamp = transaction.userTransactionTime,
+                                    amount = transaction.originalAmount.toStringWithSymbol(),
+                                    state = transaction.state,
+                                    isRefund = transaction.type == BlockchainCardTransactionType.REFUND,
+                                    onClick = { onSeeTransactionDetails(transaction) }
+                                )
+                                if (index < pendingTransactions.lastIndex)
+                                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (completedTransactionsGroupedByMonth.isNotEmpty()) {
+                completedTransactionsGroupedByMonth.forEach { (month, transactions) ->
+                    if (month != null) {
+                        item {
+                            SimpleText(
+                                text = month,
+                                style = ComposeTypographies.Body2,
+                                color = ComposeColors.Body,
+                                gravity = ComposeGravities.Start
+                            )
+
+                            Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                border = BorderStroke(1.dp, Grey000),
+                                elevation = 0.dp,
+                                shape = RoundedCornerShape(20.dp)
+                            ) {
+                                Column {
+                                    transactions.forEachIndexed { index, transaction ->
+                                        CardTransactionItem(
+                                            merchantName = transaction.merchantName,
+                                            timestamp = transaction.userTransactionTime,
+                                            amount = transaction.originalAmount.toStringWithSymbol(),
+                                            state = transaction.state,
+                                            isRefund = transaction.type == BlockchainCardTransactionType.REFUND,
+                                            onClick = { onSeeTransactionDetails(transaction) }
+                                        )
+
+                                        if (index < transactions.lastIndex)
+                                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCardTransactionHistory() {
+    val transactionList = listOf(
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-06-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.PAYMENT,
+            state = BlockchainCardTransactionState.COMPLETED,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        ),
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-06-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.PAYMENT,
+            state = BlockchainCardTransactionState.DECLINED,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        ),
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-07-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.REFUND,
+            state = BlockchainCardTransactionState.COMPLETED,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        ),
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-07-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.PAYMENT,
+            state = BlockchainCardTransactionState.COMPLETED,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        ),
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-07-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.PAYMENT,
+            state = BlockchainCardTransactionState.PENDING,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        ),
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-07-11T17:50:00.000Z",
+            type = BlockchainCardTransactionType.PAYMENT,
+            state = BlockchainCardTransactionState.PENDING,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        )
+    )
+
+    val pendingTransactions = transactionList.filter {
+        it.state == BlockchainCardTransactionState.PENDING
+    }
+    val completedTransactionsGroupedByMonth = transactionList.filter {
+        it.state != BlockchainCardTransactionState.PENDING
+    }.groupBy {
+        it.userTransactionTime.fromIso8601ToUtc()?.getMonthName()
+    }
+
+    CardTransactionHistory(
+        pendingTransactions = pendingTransactions,
+        completedTransactionsGroupedByMonth = completedTransactionsGroupedByMonth,
+        onSeeTransactionDetails = {},
+        onRefreshTransactions = {},
+        isTransactionListRefreshing = false,
+        onGetNextPage = {}
+    )
+}
+
+@Composable
+fun CardTransactionItem(
+    merchantName: String,
+    timestamp: String,
+    amount: String,
+    state: BlockchainCardTransactionState,
+    isRefund: Boolean,
+    onClick: () -> Unit,
+) {
+    val transactionTitle: AnnotatedString
+    val transactionAmount: AnnotatedString
+    val transactionTimestamp: AnnotatedString?
+    val transactionIcon: ImageResource
+
+    val transactionTimestampFormatted = timestamp.fromIso8601ToUtc()?.toLocalTime()?.toFormattedDateTime()
+
+    if (isRefund) {
+        transactionTitle = buildAnnotatedString {
+            append(stringResource(R.string.bc_card_transaction_refund_title, merchantName))
+        }
+        transactionAmount = buildAnnotatedString { append("+$amount") }
+        transactionTimestamp = buildAnnotatedString { transactionTimestampFormatted?.let { append(it) } }
+        transactionIcon = ImageResource.LocalWithBackground(
+            R.drawable.ic_receive,
+            backgroundColour = R.color.paletteBaseLight,
+            iconTintColour = R.color.paletteBaseTextTitle,
+            alpha = 1F
+        )
+    } else if (state == BlockchainCardTransactionState.DECLINED || state == BlockchainCardTransactionState.CANCELLED) {
+        transactionTitle = buildAnnotatedString { append(merchantName) }
+        transactionAmount = buildAnnotatedString {
+            withStyle(style = SpanStyle(textDecoration = TextDecoration.LineThrough)) {
+                append("-$amount")
+            }
+        }
+        transactionTimestamp = buildAnnotatedString {
+            withStyle(style = SpanStyle(color = AppTheme.colors.error)) {
+                append(stringResource(id = state.getStringResource()))
+            }
+        }
+        transactionIcon = ImageResource.LocalWithBackground(
+            R.drawable.ic_minus,
+            backgroundColour = R.color.paletteBaseLight,
+            iconTintColour = R.color.paletteBaseTextTitle,
+            alpha = 1F
+        )
+    } else {
+        transactionTitle = buildAnnotatedString { append(merchantName) }
+        transactionAmount = buildAnnotatedString { append("-$amount") }
+        transactionTimestamp = buildAnnotatedString { transactionTimestampFormatted?.let { append(it) } }
+        transactionIcon = ImageResource.LocalWithBackground(
+            R.drawable.ic_minus,
+            backgroundColour = R.color.paletteBaseLight,
+            iconTintColour = R.color.paletteBaseTextTitle,
+            alpha = 1F
+        )
+    }
+
+    DefaultTableRow(
+        startImageResource = transactionIcon,
+        primaryText = transactionTitle,
+        secondaryText = transactionTimestamp,
+        endText = transactionAmount,
+        endImageResource = ImageResource.None,
+        onClick = onClick,
+    )
+}
+
+@Preview
+@Composable
+fun PreviewCardTransactionItem() {
+    CardTransactionItem(
+        merchantName = "Starbucks",
+        timestamp = "2020-01-01T00:00:00.000Z",
+        amount = "-$1.00",
+        state = BlockchainCardTransactionState.COMPLETED,
+        isRefund = false,
+        onClick = { }
+    )
+}
+
+@Composable
+fun CardTransactionDetails(
+    cardTransaction: BlockchainCardTransaction,
+    last4digits: String,
+    onCloseBottomSheet: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = AppTheme.dimensions.standardSpacing),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+
+        val isRefund = cardTransaction.type == BlockchainCardTransactionType.REFUND
+
+        val transactionAmount =
+            when {
+                isRefund -> {
+                    buildAnnotatedString {
+                        append("+${cardTransaction.fundingAmount.toStringWithSymbol()}")
+                    }
+                }
+                cardTransaction.state == BlockchainCardTransactionState.DECLINED -> {
+                    buildAnnotatedString {
+                        withStyle(style = SpanStyle(textDecoration = TextDecoration.LineThrough)) {
+                            append("-${cardTransaction.fundingAmount.toStringWithSymbol()}")
+                        }
+                    }
+                }
+                else -> {
+                    buildAnnotatedString { append("-${cardTransaction.fundingAmount.toStringWithSymbol()}") }
+                }
+            }
+
+        val merchantName = cardTransaction.merchantName
+
+        val transactionDateTime =
+            cardTransaction.userTransactionTime.fromIso8601ToUtc()?.toLocalTime()?.toFormattedDateTime() ?: ""
+
+        val transactionStatus =
+            if (cardTransaction.state == BlockchainCardTransactionState.DECLINED) {
+                buildAnnotatedString {
+                    withStyle(style = SpanStyle(color = AppTheme.colors.error)) {
+                        append(cardTransaction.state.toString())
+                    }
+                }
+            } else {
+                buildAnnotatedString {
+                    append(cardTransaction.state.toString())
+                }
+            }
+
+        val transactionPaymentMethod = cardTransaction.fundingAmount.currency.networkTicker
+
+        val transactionFee = cardTransaction.fee.toStringWithSymbol()
+
+        val originalTransactionAmount = cardTransaction.originalAmount.toStringWithSymbol()
+
+        SheetHeader(
+            onClosePress = onCloseBottomSheet,
+            title = stringResource(R.string.transaction_details_title),
+            shouldShowDivider = true
+        )
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+        // Transaction Amount
+        SimpleText(
+            text = transactionAmount,
+            style = ComposeTypographies.Title1,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+        // Merchant Name
+        SimpleText(
+            text = merchantName,
+            style = ComposeTypographies.Body2,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+
+        // Transaction timestamp
+        SimpleText(
+            text = transactionDateTime,
+            style = ComposeTypographies.Paragraph1,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+        // Transaction Status
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, Grey000),
+            shape = RoundedCornerShape(6.dp),
+            elevation = 0.dp
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.padding(AppTheme.dimensions.smallSpacing)
+            ) {
+                SimpleText(
+                    text = stringResource(R.string.bc_card_transaction_status),
+                    style = ComposeTypographies.Body1,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Start,
+                )
+
+                SimpleText(
+                    text = transactionStatus,
+                    style = ComposeTypographies.Body2,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Start,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+        // Other Transaction details
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, Grey000),
+            shape = RoundedCornerShape(6.dp),
+            elevation = 0.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                // Card last 4 digits
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(AppTheme.dimensions.smallSpacing)
+                ) {
+                    SimpleText(
+                        text = stringResource(id = R.string.card),
+                        style = ComposeTypographies.Body1,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Start
+                    )
+
+                    SimpleText(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(color = AppTheme.colors.primary)) {
+                                append("•••• $last4digits")
+                            }
+                        },
+                        style = ComposeTypographies.Body2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
+                    )
+                }
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                // Payment Method
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(AppTheme.dimensions.smallSpacing)
+                ) {
+                    SimpleText(
+                        text = stringResource(R.string.bc_card_transaction_payment_method),
+                        style = ComposeTypographies.Body1,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Start
+                    )
+
+                    SimpleText(
+                        text = transactionPaymentMethod,
+                        style = ComposeTypographies.Body2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
+                    )
+                }
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                // Fee
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(AppTheme.dimensions.smallSpacing)
+                ) {
+                    SimpleText(
+                        text = stringResource(R.string.bc_card_transaction_fee),
+                        style = ComposeTypographies.Body1,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Start
+                    )
+
+                    SimpleText(
+                        text = transactionFee,
+                        style = ComposeTypographies.Body2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
+                    )
+                }
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                // Original transaction amount (total - fees)
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(AppTheme.dimensions.smallSpacing)
+                ) {
+                    SimpleText(
+                        text = stringResource(
+                            id = R.string.bc_card_transaction_original_amount,
+                            transactionPaymentMethod
+                        ),
+                        style = ComposeTypographies.Body1,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Start
+                    )
+
+                    SimpleText(
+                        text = originalTransactionAmount,
+                        style = ComposeTypographies.Body2,
+                        color = ComposeColors.Title,
+                        gravity = ComposeGravities.Start
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCardTransactionDetails() {
+    CardTransactionDetails(
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            userTransactionTime = "2020-06-21T12:00:00.000Z",
+            type = BlockchainCardTransactionType.PAYMENT,
+            state = BlockchainCardTransactionState.COMPLETED,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(100.00)),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(0.20)),
+            declineReason = null,
+            networkConversionRate = null
+        ),
+        onCloseBottomSheet = {},
+        last4digits = "1234"
+    )
 }
 
 @Composable
@@ -515,8 +1335,8 @@ fun PersonalDetails(
             CircularProgressIndicator(
                 modifier = Modifier
                     .padding(
-                        horizontal = AppTheme.dimensions.paddingMedium,
-                        vertical = AppTheme.dimensions.xxxPaddingLarge
+                        horizontal = AppTheme.dimensions.smallSpacing,
+                        vertical = AppTheme.dimensions.xHugeSpacing
                     )
                     .align(Alignment.CenterHorizontally)
             )
@@ -542,7 +1362,7 @@ fun BillingAddress(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
             .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.paddingMedium)
+            .padding(horizontal = AppTheme.dimensions.smallSpacing)
     ) {
         var addressLine1 by remember {
             mutableStateOf(address.line1)
@@ -578,7 +1398,9 @@ fun BillingAddress(
 
         // Address line 1
         SimpleText(
-            modifier = Modifier.padding(vertical = 4.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
             text = stringResource(R.string.address_line_1),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Body,
@@ -600,11 +1422,13 @@ fun BillingAddress(
                 unfocusedBorderColor = Grey000
             )
         )
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         // Address line 2
         SimpleText(
-            modifier = Modifier.padding(vertical = 4.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
             text = stringResource(R.string.address_line_2),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Body,
@@ -626,11 +1450,13 @@ fun BillingAddress(
                 unfocusedBorderColor = Grey000
             )
         )
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         // City
         SimpleText(
-            modifier = Modifier.padding(vertical = 4.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
             text = stringResource(R.string.address_city),
             style = ComposeTypographies.Paragraph2,
             color = ComposeColors.Body,
@@ -652,7 +1478,7 @@ fun BillingAddress(
                 unfocusedBorderColor = Grey000
             )
         )
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         // State & Zip
         Row(
@@ -662,7 +1488,9 @@ fun BillingAddress(
             // State
             Column(modifier = Modifier.weight(1f)) {
                 SimpleText(
-                    modifier = Modifier.padding(vertical = 4.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
                     text = stringResource(R.string.address_state),
                     style = ComposeTypographies.Paragraph2,
                     color = ComposeColors.Body,
@@ -680,12 +1508,14 @@ fun BillingAddress(
                 }
             }
 
-            Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+            Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
             // Postal code
             Column(modifier = Modifier.weight(1f)) {
                 SimpleText(
-                    modifier = Modifier.padding(vertical = 4.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
                     text = stringResource(R.string.address_zip),
                     style = ComposeTypographies.Paragraph2,
                     color = ComposeColors.Body,
@@ -708,7 +1538,7 @@ fun BillingAddress(
                 )
             }
         }
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         val isFormValid = (
             addressLine1.isNotEmpty() &&
@@ -725,10 +1555,10 @@ fun BillingAddress(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_margin),
-                    top = AppTheme.dimensions.paddingSmall,
-                    end = dimensionResource(id = R.dimen.standard_margin),
-                    bottom = dimensionResource(id = R.dimen.standard_margin)
+                    start = dimensionResource(id = R.dimen.standard_spacing),
+                    top = AppTheme.dimensions.tinySpacing,
+                    end = dimensionResource(id = R.dimen.standard_spacing),
+                    bottom = dimensionResource(id = R.dimen.standard_spacing)
                 ),
             onClick = {
                 onUpdateAddress(
@@ -774,7 +1604,7 @@ fun BillingAddressUpdated(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.paddingMedium),
+            .padding(horizontal = AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Header
@@ -784,7 +1614,7 @@ fun BillingAddressUpdated(
             shouldShowDivider = false
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xxxPaddingLarge))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xHugeSpacing))
 
         if (success) {
             BillingAddressUpdatedSuccess()
@@ -802,17 +1632,17 @@ fun BillingAddressUpdated(
             BillingAddressUpdatedFailed(errorTitle, errorDescription)
         }
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xxxPaddingLarge))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xHugeSpacing))
 
         PrimaryButton(
             text = stringResource(id = R.string.common_confirm),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_margin),
-                    top = AppTheme.dimensions.paddingSmall,
-                    end = dimensionResource(id = R.dimen.standard_margin),
-                    bottom = dimensionResource(id = R.dimen.standard_margin)
+                    start = dimensionResource(id = R.dimen.standard_spacing),
+                    top = AppTheme.dimensions.tinySpacing,
+                    end = dimensionResource(id = R.dimen.standard_spacing),
+                    bottom = dimensionResource(id = R.dimen.standard_spacing)
                 ),
             onClick = onDismiss,
         )
@@ -834,18 +1664,20 @@ fun BillingAddressUpdatedSuccess() {
             modifier = Modifier.wrapContentWidth(),
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.address_update_success),
             style = ComposeTypographies.Title3,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.address_update_success_description),
             style = ComposeTypographies.Paragraph1,
             color = ComposeColors.Body,
@@ -871,18 +1703,20 @@ fun BillingAddressUpdatedFailed(errorTitle: String, errorDescription: String) {
                 .size(74.dp),
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = errorTitle,
             style = ComposeTypographies.Title3,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.tinySpacing))
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = errorDescription,
             style = ComposeTypographies.Paragraph1,
             color = ComposeColors.Body,
@@ -942,7 +1776,7 @@ fun Support(
             onClick = onClickContactSupport,
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.smallSpacing))
 
         // Close card
         DestructivePrimaryButton(
@@ -950,10 +1784,10 @@ fun Support(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_margin),
-                    top = AppTheme.dimensions.paddingSmall,
-                    end = dimensionResource(id = R.dimen.standard_margin),
-                    bottom = dimensionResource(id = R.dimen.standard_margin)
+                    start = dimensionResource(id = R.dimen.standard_spacing),
+                    top = AppTheme.dimensions.tinySpacing,
+                    end = dimensionResource(id = R.dimen.standard_spacing),
+                    bottom = dimensionResource(id = R.dimen.standard_spacing)
                 ),
             onClick = onCloseCard,
         )
@@ -971,7 +1805,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = AppTheme.dimensions.paddingMedium),
+            .padding(horizontal = AppTheme.dimensions.smallSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Header
@@ -981,7 +1815,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             shouldShowDivider = false
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingLarge))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.standardSpacing))
 
         Image(
             painter = painterResource(id = R.drawable.credit_card_failed),
@@ -989,9 +1823,10 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             modifier = Modifier.wrapContentWidth(),
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.smallSpacing))
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(id = R.string.terminate_card_number, last4digits),
             style = ComposeTypographies.Body1,
             color = ComposeColors.Body,
@@ -999,13 +1834,14 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
         )
 
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.terminate_card_warning),
             style = ComposeTypographies.Caption1,
             color = ComposeColors.Muted,
             gravity = ComposeGravities.Centre
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.smallSpacing))
 
         var closeCardConfirmationText by remember { mutableStateOf("") }
 
@@ -1013,6 +1849,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             modifier = Modifier.fillMaxWidth(),
             label = {
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.terminate_card_confirm_description),
                     style = ComposeTypographies.Caption1,
                     color = ComposeColors.Body,
@@ -1025,6 +1862,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             },
             placeholder = {
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.terminate_card_confirmation_text),
                     style = ComposeTypographies.Body1,
                     color = ComposeColors.Muted,
@@ -1041,7 +1879,7 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             )
         )
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingLarge))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.standardSpacing))
 
         // Close card
         DestructivePrimaryButton(
@@ -1049,10 +1887,10 @@ fun TerminateCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBo
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = dimensionResource(id = R.dimen.standard_margin),
-                    top = AppTheme.dimensions.paddingSmall,
-                    end = dimensionResource(id = R.dimen.standard_margin),
-                    bottom = dimensionResource(id = R.dimen.standard_margin)
+                    start = dimensionResource(id = R.dimen.standard_spacing),
+                    top = AppTheme.dimensions.tinySpacing,
+                    end = dimensionResource(id = R.dimen.standard_spacing),
+                    bottom = dimensionResource(id = R.dimen.standard_spacing)
                 ),
             onClick = onConfirmCloseCard,
             state = if (closeCardConfirmationText == stringResource(R.string.terminate_card_confirmation_text))
@@ -1082,11 +1920,12 @@ private fun CardDetailsBottomSheetElement(
             .background(UltraLight)
     ) {
         Row(
-            modifier = Modifier.padding(AppTheme.dimensions.paddingMedium),
+            modifier = Modifier.padding(AppTheme.dimensions.smallSpacing),
             verticalAlignment = Alignment.Top
         ) {
-            Column(modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingSmall)) {
+            Column(modifier = Modifier.padding(horizontal = AppTheme.dimensions.tinySpacing)) {
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.virtual_card),
                     style = ComposeTypographies.Paragraph2,
                     color = ComposeColors.Title,
@@ -1102,6 +1941,7 @@ private fun CardDetailsBottomSheetElement(
                     else ComposeColors.Success
 
                 SimpleText(
+                    modifier = Modifier.fillMaxWidth(),
                     text = cardStatusLabel,
                     style = ComposeTypographies.Caption2,
                     color = cardStatusColor,
@@ -1115,7 +1955,9 @@ private fun CardDetailsBottomSheetElement(
             style = ComposeTypographies.Caption1,
             color = ComposeColors.Body,
             gravity = ComposeGravities.End,
-            modifier = Modifier.padding(AppTheme.dimensions.paddingMedium)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.smallSpacing)
         )
     }
 }
@@ -1123,20 +1965,20 @@ private fun CardDetailsBottomSheetElement(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewCardDetailsBottomSheetElement() {
-    CardDetailsBottomSheetElement(BlockchainCardStatus.ACTIVE, "***3458",)
+    CardDetailsBottomSheetElement(BlockchainCardStatus.ACTIVE, "***3458")
 }
 
 @Composable
 fun FundingAccountActionChooser(onAddFunds: () -> Unit, onChangeAsset: () -> Unit, onClose: () -> Unit) {
     Column(
         modifier = Modifier
-            .padding(horizontal = AppTheme.dimensions.paddingLarge)
+            .padding(horizontal = AppTheme.dimensions.standardSpacing)
             .fillMaxWidth()
     ) {
 
         SheetHeader(onClosePress = onClose, title = stringResource(R.string.select_one))
 
-        Spacer(modifier = Modifier.padding(vertical = AppTheme.dimensions.paddingMedium))
+        Spacer(modifier = Modifier.padding(vertical = AppTheme.dimensions.smallSpacing))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -1155,7 +1997,7 @@ fun FundingAccountActionChooser(onAddFunds: () -> Unit, onChangeAsset: () -> Uni
             )
         }
 
-        Spacer(modifier = Modifier.padding(vertical = AppTheme.dimensions.xPaddingSmall))
+        Spacer(modifier = Modifier.padding(vertical = AppTheme.dimensions.smallestSpacing))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -1189,7 +2031,7 @@ fun AccountPicker(
     onCloseBottomSheet: () -> Unit,
 ) {
     val backgroundColor = if (!isSystemInDarkTheme()) {
-        Color.White
+        White
     } else {
         Dark800
     }
@@ -1205,7 +2047,9 @@ fun AccountPicker(
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Start,
-            modifier = Modifier.padding(AppTheme.dimensions.paddingLarge)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.standardSpacing)
         )
 
         AccountsContent(eligibleTradingAccountBalances, onAccountSelected)
@@ -1233,6 +2077,7 @@ fun AccountsContent(
         }
     } else {
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.no_accounts_eligible_for_linking),
             style = ComposeTypographies.Caption1,
             color = ComposeColors.Body,
@@ -1243,33 +2088,41 @@ fun AccountsContent(
 
 @Composable
 fun FundingAccount(accountBalance: AccountBalance, onFundingAccountClicked: () -> Unit) {
-    when (accountBalance.total) {
-        is FiatValue -> {
-            FiatAccountItem(
-                currencyName = accountBalance.totalFiat.currency.name,
-                currencyTicker = accountBalance.totalFiat.currency.networkTicker,
-                currentBalance = accountBalance.totalFiat.toStringWithSymbol(),
-                currencyLogo = accountBalance.totalFiat.currency.logo,
-                endImageResource = ImageResource.Local(
-                    id = R.drawable.ic_chevron_end,
-                    contentDescription = null,
-                ),
-                onClick = onFundingAccountClicked
-            )
-        }
-        is CryptoValue -> {
-            CryptoAccountItem(
-                currencyName = accountBalance.total.currency.name,
-                currencyTicker = accountBalance.total.currency.networkTicker,
-                currentBalance = accountBalance.total.toStringWithSymbol(),
-                currentBalanceInFiat = accountBalance.totalFiat.toStringWithSymbol(),
-                currencyLogo = accountBalance.total.currency.logo,
-                endImageResource = ImageResource.Local(
-                    id = R.drawable.ic_chevron_end,
-                    contentDescription = null,
-                ),
-                onClick = onFundingAccountClicked
-            )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        border = BorderStroke(1.dp, Grey000),
+        elevation = 0.dp,
+        shape = RoundedCornerShape(16.dp),
+    ) {
+        when (accountBalance.total) {
+            is FiatValue -> {
+                FiatAccountItem(
+                    currencyName = accountBalance.totalFiat.currency.name,
+                    currencyTicker = accountBalance.totalFiat.currency.networkTicker,
+                    currentBalance = accountBalance.totalFiat.toStringWithSymbol(),
+                    currencyLogo = accountBalance.totalFiat.currency.logo,
+                    endImageResource = ImageResource.Local(
+                        id = R.drawable.ic_chevron_end,
+                        contentDescription = null,
+                    ),
+                    onClick = onFundingAccountClicked
+                )
+            }
+            is CryptoValue -> {
+                CryptoAccountItem(
+                    currencyName = accountBalance.total.currency.name,
+                    currencyTicker = accountBalance.total.currency.networkTicker,
+                    currentBalance = accountBalance.total.toStringWithSymbol(),
+                    currentBalanceInFiat = accountBalance.totalFiat.toStringWithSymbol(),
+                    currencyLogo = accountBalance.total.currency.logo,
+                    endImageResource = ImageResource.Local(
+                        id = R.drawable.ic_chevron_end,
+                        contentDescription = null,
+                    ),
+                    onClick = onFundingAccountClicked
+                )
+            }
         }
     }
 }
@@ -1317,6 +2170,7 @@ fun CryptoAccountItem(
         startImageResource = ImageResource.Remote(
             url = currencyLogo,
             contentDescription = null,
+            shape = RoundedCornerShape(2.dp)
         ),
         endImageResource = endImageResource,
         tags = emptyList(),
@@ -1335,140 +2189,15 @@ fun FiatAccountItem(
 ) {
     BalanceTableRow(
         titleStart = buildAnnotatedString { append(currencyName) },
-        bodyStart = buildAnnotatedString { append(currencyTicker) },
         titleEnd = buildAnnotatedString { append(currentBalance) },
         startImageResource = ImageResource.Remote(
             url = currencyLogo,
             contentDescription = null,
+            shape = RoundedCornerShape(2.dp)
         ),
         endImageResource = endImageResource,
         tags = emptyList(),
         onClick = onClick
-    )
-}
-
-@Composable
-fun CardTransactionItem(
-    merchantName: String,
-    timestamp: String,
-    amount: String,
-    state: BlockchainCardTransactionState,
-    isRefund: Boolean,
-    onClick: () -> Unit,
-) {
-    val tagType = when (state) {
-        BlockchainCardTransactionState.COMPLETED -> TagType.Success()
-        BlockchainCardTransactionState.DECLINED -> TagType.Error()
-        BlockchainCardTransactionState.CANCELLED,
-        BlockchainCardTransactionState.PENDING -> TagType.InfoAlt()
-    }
-
-    val transactionTitle =
-        if (isRefund) "(${stringResource(id = R.string.bc_card_transaction_refund)}) $merchantName"
-        else merchantName
-    val transactionAmount = if (isRefund) "+$amount" else "-$amount"
-
-    DefaultTableRow(
-        startImageResource = ImageResource.Local(R.drawable.credit_card),
-        primaryText = transactionTitle,
-        secondaryText = timestamp.fromIso8601ToUtc()?.toLocalTime()?.toFormattedDate(),
-        endText = transactionAmount,
-        endTag = TagViewState(stringResource(id = state.getStringResource()), tagType),
-        onClick = onClick,
-    )
-}
-
-@Preview
-@Composable
-fun PreviewCardTransactionItem() {
-    CardTransactionItem(
-        merchantName = "Starbucks",
-        timestamp = "2020-01-01T00:00:00.000Z",
-        amount = "-$1.00",
-        state = BlockchainCardTransactionState.COMPLETED,
-        isRefund = false,
-        onClick = { }
-    )
-}
-
-@Composable
-fun CardTransactionDetails(cardTransaction: BlockchainCardTransaction, onCloseBottomSheet: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-
-        val isRefund = cardTransaction.type == BlockchainCardTransactionType.REFUND
-        val transactionAmount =
-            if (isRefund)
-                "+${cardTransaction.originalAmount.toStringWithSymbol()}"
-            else
-                "-${cardTransaction.originalAmount.toStringWithSymbol()}"
-
-        SheetHeader(
-            onClosePress = onCloseBottomSheet,
-            title = stringResource(R.string.transaction_details),
-            shouldShowDivider = true
-        )
-
-        Spacer(modifier = Modifier.height(AppTheme.dimensions.paddingLarge))
-
-        SimpleText(
-            text = transactionAmount,
-            style = ComposeTypographies.Title2,
-            color = ComposeColors.Title,
-            gravity = ComposeGravities.Start,
-            modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
-        )
-
-        DefaultTableRow(
-            primaryText = stringResource(R.string.merchant),
-            secondaryText = cardTransaction.merchantName,
-            endImageResource = ImageResource.None,
-            onClick = {},
-        )
-        DefaultTableRow(
-            primaryText = stringResource(R.string.date),
-            secondaryText = cardTransaction.userTransactionTime.fromIso8601ToUtc()?.toLocalTime()?.toFormattedString(),
-            endImageResource = ImageResource.None,
-            onClick = {},
-        )
-        DefaultTableRow(
-            primaryText = stringResource(R.string.type),
-            secondaryText = stringResource(cardTransaction.type.getStringResource()),
-            endImageResource = ImageResource.None,
-            onClick = {},
-        )
-        DefaultTableRow(
-            primaryText = stringResource(R.string.state),
-            secondaryText = stringResource(cardTransaction.state.getStringResource()),
-            endImageResource = ImageResource.None,
-            onClick = {},
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewCardTransactionDetails() {
-    CardTransactionDetails(
-        BlockchainCardTransaction(
-            merchantName = "Coffee Beans Inc.",
-            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(-100.00)),
-            userTransactionTime = "2020-06-21T12:00:00.000Z",
-            type = BlockchainCardTransactionType.PAYMENT,
-            state = BlockchainCardTransactionState.COMPLETED,
-            id = "123456789",
-            cardId = "123456789",
-            fundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
-            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
-            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
-            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
-            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
-            declineReason = null,
-            networkConversionRate = null
-        ),
-        onCloseBottomSheet = {}
     )
 }
 
@@ -1478,6 +2207,6 @@ fun SupportPage() {
     Webview(
         url = "https://www.blockchain.com/faq",
         modifier = Modifier
-            .padding(top = AppTheme.dimensions.paddingMedium)
+            .padding(top = AppTheme.dimensions.smallSpacing)
     )
 }

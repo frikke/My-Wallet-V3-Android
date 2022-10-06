@@ -11,7 +11,11 @@ import com.blockchain.componentlib.theme.Orange400
 import com.blockchain.componentlib.theme.Orange600
 
 @Composable
-fun WarningTag(text: String, size: TagSize = TagSize.Primary) {
+fun WarningTag(
+    text: String,
+    size: TagSize = TagSize.Primary,
+    onClick: (() -> Unit)? = null
+) {
 
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
         Orange100
@@ -29,7 +33,8 @@ fun WarningTag(text: String, size: TagSize = TagSize.Primary) {
         text = text,
         size = size,
         defaultBackgroundColor = defaultBackgroundColor,
-        defaultTextColor = defaultTextColor
+        defaultTextColor = defaultTextColor,
+        onClick = onClick
     )
 }
 
@@ -38,7 +43,7 @@ fun WarningTag(text: String, size: TagSize = TagSize.Primary) {
 fun WarningTag_Basic() {
     AppTheme {
         AppSurface {
-            WarningTag(text = "Default")
+            WarningTag(text = "Default", onClick = null)
         }
     }
 }
@@ -48,7 +53,7 @@ fun WarningTag_Basic() {
 fun WarningTag_Dark() {
     AppTheme(darkTheme = true) {
         AppSurface {
-            WarningTag(text = "Default")
+            WarningTag(text = "Default", onClick = null)
         }
     }
 }

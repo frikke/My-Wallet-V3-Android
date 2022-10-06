@@ -44,8 +44,8 @@ fun OpenBankingPermissionScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(
-                horizontal = dimensionResource(R.dimen.huge_margin),
-                vertical = dimensionResource(R.dimen.small_margin)
+                horizontal = dimensionResource(R.dimen.huge_spacing),
+                vertical = dimensionResource(R.dimen.small_spacing)
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -59,7 +59,7 @@ fun OpenBankingPermissionScreen(
                 ?: ImageResource.None
         )
 
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.standard_margin)))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.standard_spacing)))
 
         Text(
             modifier = Modifier.fillMaxWidth(),
@@ -69,7 +69,7 @@ fun OpenBankingPermissionScreen(
             text = stringResource(id = R.string.open_banking_permission_link_to_bank, institution.name)
         )
 
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.smallest_margin)))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.smallest_spacing)))
 
         TermAndPrivacyText(
             termsOfServiceLink = termsOfServiceLink,
@@ -84,7 +84,7 @@ fun OpenBankingPermissionScreen(
             onClick = approveOnClick
         )
 
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.small_margin)))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.small_spacing)))
 
         DestructiveMinimalButton(
             modifier = Modifier.fillMaxWidth(),

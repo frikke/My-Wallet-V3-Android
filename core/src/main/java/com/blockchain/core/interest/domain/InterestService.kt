@@ -63,9 +63,7 @@ interface InterestService {
      *
      * @see [getEligibilityForAssetsLegacy]
      */
-    fun getAvailableAssetsForInterestFlow(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
-    ): Flow<DataResource<List<AssetInfo>>>
+    fun getAvailableAssetsForInterestFlow(): Flow<DataResource<List<AssetInfo>>>
 
     /**
      * Returns if an [asset] can earn rewards
@@ -78,8 +76,7 @@ interface InterestService {
      * True doesn't mean the asset is eligible, it can be [InterestEligibility.Ineligible]
      */
     fun isAssetAvailableForInterestFlow(
-        asset: AssetInfo,
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+        asset: AssetInfo
     ): Flow<DataResource<Boolean>>
 
     /**

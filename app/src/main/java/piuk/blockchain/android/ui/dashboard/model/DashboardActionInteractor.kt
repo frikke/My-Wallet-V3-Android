@@ -13,6 +13,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
+import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
@@ -45,6 +46,7 @@ import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.store.asSingle
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
@@ -106,6 +108,7 @@ class DashboardActionInteractor(
     private val kycService: KycService,
     private val dataRemediationService: DataRemediationService,
     private val walletModeBalanceCache: WalletModeBalanceCache,
+    private val productsEligibilityStore: ProductsEligibilityStore,
     private val walletModeService: WalletModeService,
     private val analytics: Analytics,
     private val remoteLogger: RemoteLogger,
@@ -114,7 +117,8 @@ class DashboardActionInteractor(
     private val settingsDataManager: SettingsDataManager,
     private val cowboysDataProvider: CowboysPromoDataProvider,
     private val referralService: ReferralService,
-    private val cowboysPrefs: CowboysPrefs
+    private val cowboysPrefs: CowboysPrefs,
+    private val stakingFeatureFlag: FeatureFlag
 ) {
 
     private val defFilter: AssetFilter
@@ -205,7 +209,9 @@ class DashboardActionInteractor(
         warmWalletModeBalanceCache().forEach {
             it.addTo(compositeDisposable)
         }
-
+        warmProductsCache().also {
+            it.addTo(compositeDisposable)
+        }
         return compositeDisposable
     }
 
@@ -225,6 +231,10 @@ class DashboardActionInteractor(
                 )
             ).asObservable().emptySubscribe()
         )
+    }
+
+    private fun warmProductsCache(): Disposable {
+        return productsEligibilityStore.stream(FreshnessStrategy.Cached(true)).asSingle().emptySubscribe()
     }
 
     private fun loadBalances(
@@ -262,7 +272,7 @@ class DashboardActionInteractor(
         coincore[currency].accountGroup(defFilter)
             .logGroupLoadError(currency, defFilter)
             .flatMapObservable { group ->
-                group.balance
+                group.balanceRx
                     .logBalanceLoadError(currency, defFilter)
             }
             .doOnSubscribe {
@@ -906,6 +916,9 @@ class DashboardActionInteractor(
             Timber.e(it)
         }
     )
+
+    fun getStakingFeatureFlag(): Single<Boolean> =
+        stakingFeatureFlag.enabled
 
     companion object {
         private val FLATLINE_CHART = listOf(

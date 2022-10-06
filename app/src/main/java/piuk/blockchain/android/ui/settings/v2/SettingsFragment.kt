@@ -40,8 +40,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.preferences.CurrencyPrefs
@@ -101,7 +99,6 @@ class SettingsFragment :
 
     private val environmentConfig: EnvironmentConfig by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
-    private val cardRejectionFF: FeatureFlag by inject(cardRejectionCheckFeatureFlag)
 
     override val model: SettingsModel by scopedInject()
 
@@ -163,7 +160,8 @@ class SettingsFragment :
                 totalLinkedPaymentMethods = newState.paymentMethodInfo.linkedBanks.count() +
                     newState.paymentMethodInfo.linkedCards.count(),
                 isUserGold = newState.tier == KycTier.GOLD,
-                canPayWithBind = newState.canPayWithBind
+                canPayWithBind = newState.canPayWithBind,
+                cardRejectionFF = newState.featureFlagsSet.cardRejectionFF
             )
         } else {
             with(binding.paymentsContainer) {
@@ -176,8 +174,8 @@ class SettingsFragment :
                         playAnimation()
                     },
                     LinearLayoutCompat.LayoutParams(
-                        resources.getDimensionPixelOffset(R.dimen.xlarge_margin),
-                        resources.getDimensionPixelOffset(R.dimen.xlarge_margin)
+                        resources.getDimensionPixelOffset(R.dimen.xlarge_spacing),
+                        resources.getDimensionPixelOffset(R.dimen.xlarge_spacing)
                     ).apply {
                         gravity = Gravity.CENTER
                     }
@@ -197,8 +195,13 @@ class SettingsFragment :
                     isCloseable = false
                     title = announcementInfo.title
                     subtitle = announcementInfo.message
-                    backgroundResource = ImageResource.Remote(announcementInfo.backgroundUrl)
-                    iconResource = ImageResource.Remote(announcementInfo.iconUrl)
+                    if (announcementInfo.backgroundUrl.isNotEmpty()) {
+                        backgroundResource = ImageResource.Remote(announcementInfo.backgroundUrl)
+                    }
+
+                    if (announcementInfo.iconUrl.isNotEmpty()) {
+                        iconResource = ImageResource.Remote(announcementInfo.iconUrl)
+                    }
                 } ?: run {
                     // keep old functionality here if no data returned
                     title = getString(R.string.referral_program)
@@ -297,7 +300,8 @@ class SettingsFragment :
         paymentMethodInfo: PaymentMethods,
         totalLinkedPaymentMethods: Int,
         isUserGold: Boolean,
-        canPayWithBind: Boolean
+        canPayWithBind: Boolean,
+        cardRejectionFF: Boolean
     ) {
         val availablePaymentMethodTypes = paymentMethodInfo.availablePaymentMethodTypes
         val linkAccessMap = availablePaymentMethodTypes.associate { it.type to it.linkAccess }
@@ -313,7 +317,7 @@ class SettingsFragment :
                 with(binding.paymentsContainer) {
                     if (totalLinkedPaymentMethods > 0) {
                         addBanks(paymentMethodInfo)
-                        addCards(paymentMethodInfo)
+                        addCards(paymentMethodInfo, cardRejectionFF)
                         val canLinkNewMethods = availablePaymentMethodTypes.any { it.linkAccess == LinkAccess.GRANTED }
                         if (canLinkNewMethods) {
                             addView(
@@ -338,8 +342,8 @@ class SettingsFragment :
                                     MATCH_PARENT,
                                     WRAP_CONTENT,
                                 ).apply {
-                                    marginStart = resources.getDimensionPixelOffset(R.dimen.standard_margin)
-                                    marginEnd = resources.getDimensionPixelOffset(R.dimen.standard_margin)
+                                    marginStart = resources.getDimensionPixelOffset(R.dimen.standard_spacing)
+                                    marginEnd = resources.getDimensionPixelOffset(R.dimen.standard_spacing)
                                 }
                             )
                         }
@@ -374,7 +378,7 @@ class SettingsFragment :
                 if (totalLinkedPaymentMethods > 0) {
                     with(binding.paymentsContainer) {
                         addBanks(paymentMethodInfo)
-                        addCards(paymentMethodInfo)
+                        addCards(paymentMethodInfo, cardRejectionFF)
                     }
                 } else {
                     with(binding) {
@@ -390,7 +394,7 @@ class SettingsFragment :
         }
     }
 
-    private fun LinearLayoutCompat.addCards(paymentMethodInfo: PaymentMethods) {
+    private fun LinearLayoutCompat.addCards(paymentMethodInfo: PaymentMethods, cardRejectionFF: Boolean) {
         paymentMethodInfo.linkedCards.forEach { card ->
             addView(
                 BalanceTableRowView(requireContext()).apply {
@@ -418,7 +422,7 @@ class SettingsFragment :
                     onClick = {
                         showBottomSheet(RemoveCardBottomSheet.newInstance(card))
                     }
-                    if (cardRejectionFF.isEnabled) {
+                    if (cardRejectionFF) {
                         tags = when (val cardState = card.cardRejectionState) {
                             is CardRejectionState.AlwaysRejected -> {
                                 listOf(

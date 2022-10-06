@@ -13,6 +13,7 @@ import com.blockchain.walletconnect.domain.WalletConnectEthAccountProvider
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
 import com.blockchain.walletconnect.ui.dapps.DappsListModel
+import com.blockchain.walletconnect.ui.networks.SelectNetworkViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -67,6 +68,13 @@ val walletConnectModule = module {
                 remoteLogger = get(),
                 sessionsRepository = get(),
                 walletConnectServiceAPI = get()
+            )
+        }
+
+        factory {
+            SelectNetworkViewModel(
+                coincore = get(),
+                ethDataManager = get()
             )
         }
     }

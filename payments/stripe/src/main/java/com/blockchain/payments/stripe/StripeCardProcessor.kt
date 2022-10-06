@@ -1,17 +1,17 @@
 package com.blockchain.payments.stripe
 
 import com.blockchain.outcome.Outcome
-import com.blockchain.payments.core.CardBillingAddress
 import com.blockchain.payments.core.CardAcquirer
-import com.blockchain.payments.core.CardProcessor
+import com.blockchain.payments.core.CardBillingAddress
 import com.blockchain.payments.core.CardDetails
 import com.blockchain.payments.core.CardProcessingFailure
+import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.core.PaymentToken
-import com.stripe.android.createPaymentMethod
 import com.stripe.android.core.exception.APIConnectionException
 import com.stripe.android.core.exception.APIException
 import com.stripe.android.core.exception.AuthenticationException
 import com.stripe.android.core.exception.InvalidRequestException
+import com.stripe.android.createPaymentMethod
 import com.stripe.android.model.Address
 import com.stripe.android.model.CardParams
 import com.stripe.android.model.PaymentMethodCreateParams
@@ -31,7 +31,7 @@ class StripeCardProcessor(
     ): Outcome<CardProcessingFailure, PaymentToken> {
         return try {
             Outcome.Success(
-            stripeFactory.getOrCreate(apiKey).createPaymentMethod(
+                stripeFactory.getOrCreate(apiKey).createPaymentMethod(
                     paymentMethodCreateParams = PaymentMethodCreateParams.createCard(
                         createStripeCardParams(
                             cardDetails = cardDetails,

@@ -60,6 +60,9 @@ class FiatCryptoInputView(
             convertAmount()
         }
 
+    var syncLatestAmount: Money? = null
+        private set
+
     private val exchangeRates: ExchangeRatesDataManager by inject()
 
     private val currencyPrefs: CurrencyPrefs by inject()
@@ -137,9 +140,9 @@ class FiatCryptoInputView(
             fakeHint.afterMeasured {
                 it.translationX =
                     if (hasPrefix) (enterAmount.width / 2f + textSize / 2f) +
-                        resources.getDimensionPixelOffset(R.dimen.smallest_margin) else
+                        resources.getDimensionPixelOffset(R.dimen.smallest_spacing) else
                         enterAmount.width / 2f - textSize / 2f - it.width -
-                            resources.getDimensionPixelOffset(R.dimen.smallest_margin)
+                            resources.getDimensionPixelOffset(R.dimen.smallest_spacing)
             }
         }
     }
@@ -287,10 +290,12 @@ class FiatCryptoInputView(
                 updateValue(amounts.outputAmount)
             }
             amountSubject.onNext(amounts.outputAmount)
+            syncLatestAmount = amounts.outputAmount
         }
     }
 
-    fun fixExchange(it: Money) {
+    fun updateExchangeAmount(it: Money) {
+        binding.exchangeAmount.visible()
         binding.exchangeAmount.text = it.toStringWithSymbol()
     }
 

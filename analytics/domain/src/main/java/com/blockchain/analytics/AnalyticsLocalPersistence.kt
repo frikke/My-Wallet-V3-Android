@@ -1,6 +1,5 @@
 package com.blockchain.analytics
 
-import com.blockchain.api.services.NabuAnalyticsEvent
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 

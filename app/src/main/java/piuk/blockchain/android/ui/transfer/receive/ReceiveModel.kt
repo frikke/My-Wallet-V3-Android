@@ -7,6 +7,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.filterByActionAndState
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.walletmode.WalletMode
@@ -29,6 +30,7 @@ class ReceiveModel(
     private val walletModeService: WalletModeService,
     private val coincore: Coincore,
     private val getReceiveAccountsForAssetUseCase: GetReceiveAccountsForAssetUseCase,
+    private val exchangeRatesDataManager: ExchangeRatesDataManager
 ) : MviModel<ReceiveState, ReceiveIntent>(initialState, uiScheduler, environmentConfig, remoteLogger) {
 
     override fun performAction(previousState: ReceiveState, intent: ReceiveIntent): Disposable? {
@@ -43,7 +45,11 @@ class ReceiveModel(
     }
 
     private fun getAvailableAssets(): Disposable =
-        getAvailableCryptoAssetsUseCase(Unit)
+        getAvailableCryptoAssetsUseCase(Unit).flatMap { assets ->
+            Single.concat(
+                assets.map { fetchAssetPrice(it) }
+            ).toList()
+        }
             .subscribeBy(
                 onSuccess = { assets ->
                     process(
@@ -80,5 +86,22 @@ class ReceiveModel(
         return getReceiveAccountsForAssetUseCase(assetInfo).map {
             it.filterIsInstance<CryptoAccount>()
         }
+    }
+
+    private fun fetchAssetPrice(assetInfo: AssetInfo): Single<ReceiveItem> {
+        return exchangeRatesDataManager.getPricesWith24hDeltaLegacy(assetInfo).firstOrError()
+            .map {
+                ReceiveItem(
+                    assetInfo = assetInfo,
+                    priceWithDelta = it
+                )
+            }
+            .onErrorReturn {
+                Timber.e(it)
+                ReceiveItem(
+                    assetInfo = assetInfo,
+                    priceWithDelta = null
+                )
+            }
     }
 }

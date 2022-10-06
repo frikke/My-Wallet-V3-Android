@@ -27,10 +27,12 @@ class NonCustodialEvmService(
             )
         )
 
-    suspend fun pushTransaction(rawTransaction: String, network: String) = evmApi.pushTransaction(
+    suspend fun getFeeLevels(assetTicker: String) = evmApi.getFees(assetTicker)
+
+    suspend fun pushTransaction(rawTransaction: String, networkCurrency: String) = evmApi.pushTransaction(
         request = PushTransactionRequest(
             rawTransaction = rawTransaction,
-            networkName = network,
+            currency = networkCurrency,
             apiCode = apiCode
         )
     )

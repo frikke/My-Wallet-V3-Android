@@ -26,7 +26,7 @@ data class WalletBaseDto(
     private val warChecksum: String? = null,
 
     @SerialName("language")
-    private val language: String,
+    private val language: String? = null,
 
     @SerialName("storage_token")
     private val storageToken: String? = null,

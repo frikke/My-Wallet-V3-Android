@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="@dimen/standard_margin"
+        app:layout_constraintGuide_begin="@dimen/standard_spacing"
         />
 
     <androidx.constraintlayout.widget.Guideline
@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="@dimen/standard_margin"
+        app:layout_constraintGuide_end="@dimen/standard_spacing"
         />
 
     <piuk.blockchain.android.ui.customviews.RoundedCornersProgressView
@@ -58,7 +58,7 @@
         android:lineSpacingExtra="3sp"
         android:text="@string/dashboard_onboarding_title1"
         android:gravity="center"
-        android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginTop="@dimen/very_small_spacing"
         app:layout_constraintTop_toBottomOf="@id/progress_steps"
         app:layout_constraintStart_toStartOf="@id/guide_start"
         app:layout_constraintEnd_toEndOf="@id/guide_end"
@@ -70,7 +70,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/dashboard_onboarding_title2"
-        android:layout_marginTop="@dimen/medium_margin"
+        android:layout_marginTop="@dimen/medium_spacing"
         android:lineSpacingExtra="6sp"
         android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/text_title1"
@@ -83,7 +83,7 @@
         style="@style/Text.Standard.14"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/tiny_margin"
+        android:layout_margin="@dimen/tiny_spacing"
         android:text="@string/dashboard_onboarding_title3"
         android:lineSpacingExtra="3sp"
         android:gravity="center"
@@ -96,8 +96,8 @@
         android:id="@+id/recyclerview_steps"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/small_margin"
-        android:layout_marginBottom="@dimen/tiny_margin"
+        android:layout_marginTop="@dimen/small_spacing"
+        android:layout_marginBottom="@dimen/tiny_spacing"
         android:overScrollMode="never"
         app:layout_constraintTop_toBottomOf="@id/text_title3"
         app:layout_constraintStart_toStartOf="@id/guide_start"
@@ -109,7 +109,7 @@
         style="@style/CtaButton.Blue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/standard_spacing"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

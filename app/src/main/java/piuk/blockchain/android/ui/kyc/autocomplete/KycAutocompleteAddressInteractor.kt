@@ -10,7 +10,7 @@ import com.google.android.libraries.places.api.net.FetchPlaceResponse
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.kyc.profile.models.AddressDetailsModel
+import piuk.blockchain.android.ui.kyc.address.models.OldAddressDetailsModel
 
 class KycAutocompleteAddressInteractor(val placesClientProvider: PlacesClientProvider) {
 
@@ -38,7 +38,7 @@ class KycAutocompleteAddressInteractor(val placesClientProvider: PlacesClientPro
         }
     }
 
-    fun getAddressDetails(placeId: String): Single<AddressDetailsModel> {
+    fun getAddressDetails(placeId: String): Single<OldAddressDetailsModel> {
         val client = placesClientProvider.getClient()
         val token = AutocompleteSessionToken.newInstance()
 
@@ -68,7 +68,7 @@ class KycAutocompleteAddressInteractor(val placesClientProvider: PlacesClientPro
                     }?.name.orEmpty()
 
                     emitter.onSuccess(
-                        AddressDetailsModel(
+                        OldAddressDetailsModel(
                             address = "$streetNumber $route", postalCode = postalCode?.name, locality = locality?.name
                         )
                     )

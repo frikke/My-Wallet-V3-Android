@@ -7,6 +7,7 @@ import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
 
@@ -14,6 +15,7 @@ class AccountModel(
     initialState: AccountState,
     mainScheduler: Scheduler,
     private val interactor: AccountInteractor,
+    private val walletModeCache: WalletModeBalanceCache,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
 ) : MviModel<AccountState, AccountIntent>(
@@ -67,7 +69,9 @@ class AccountModel(
                 )
             is AccountIntent.UpdateSelectedDisplayCurrency -> interactor.updateSelectedDisplayCurrency(
                 intent.updatedCurrency
-            )
+            ).doOnComplete {
+                walletModeCache.markStoreAsStale()
+            }
                 .subscribeBy(
                     onComplete = {
                         previousState.accountInformation?.let { previousInfo ->

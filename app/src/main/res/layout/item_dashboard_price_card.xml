@@ -26,7 +26,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             style="@style/Text.Standard.20"
-            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginStart="@dimen/small_spacing"
             app:layout_constraintStart_toEndOf="@id/icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline"
@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/Text.Standard.14"
-            android:paddingEnd="@dimen/small_margin"
+            android:paddingEnd="@dimen/small_spacing"
             app:layout_constraintStart_toStartOf="@id/currency"
             app:layout_constraintTop_toBottomOf="@id/currency"
             tools:text="15,879.90" />

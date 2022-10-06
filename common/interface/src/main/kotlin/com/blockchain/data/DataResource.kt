@@ -14,6 +14,14 @@ sealed class DataResource<out T> {
     data class Error(val error: Exception) : DataResource<Nothing>()
 }
 
+fun <T, R> DataResource<T>.map(transform: (T) -> R): DataResource<R> {
+    return when (this) {
+        DataResource.Loading -> DataResource.Loading
+        is DataResource.Error -> DataResource.Error(error)
+        is DataResource.Data -> DataResource.Data(transform(data))
+    }
+}
+
 fun <T> DataResource<T>.doOnLoading(f: () -> Unit): DataResource<T> {
     return also {
         if (this is DataResource.Loading) f()
@@ -34,7 +42,7 @@ fun <T> Flow<DataResource<T>>.doOnData(f: suspend (T) -> Unit): Flow<DataResourc
     }
 }
 
-fun <T> DataResource<T>.doOnFailure(f: (Exception) -> Unit): DataResource<T> {
+fun <T> DataResource<T>.doOnError(f: (Exception) -> Unit): DataResource<T> {
     return also {
         if (this is DataResource.Error) f(this.error)
     }
@@ -155,5 +163,13 @@ fun <T, R> combineDataResources(
         else -> {
             DataResource.Data(transform(results.map { (it as DataResource.Data).data }))
         }
+    }
+}
+
+fun <T> DataResource<T>.updateDataWith(updated: DataResource<T>): DataResource<T> {
+    return when (this) {
+        DataResource.Loading -> updated
+        is DataResource.Error -> updated
+        is DataResource.Data -> if (updated is DataResource.Data) updated else this
     }
 }

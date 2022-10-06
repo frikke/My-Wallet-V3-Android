@@ -31,6 +31,14 @@ interface EnterAmountCustomisations {
     ): EnterAmountWidget
 
     fun installEnterAmountUpperSlotView(ctx: Context, frame: FrameLayout, state: TransactionState): EnterAmountWidget
+    fun installEnterAmountUpperSecondSlotView(
+        ctx: Context,
+        frame: FrameLayout,
+        state: TransactionState
+    ): EnterAmountWidget?
+
+    fun quickFillRowMaxButtonLabel(state: TransactionState): String
+    fun balanceRowLabel(state: TransactionState): String
     fun shouldShowMaxLimit(state: TransactionState): Boolean
     fun enterAmountLimitsViewTitle(state: TransactionState): String
     fun enterAmountLimitsViewInfo(state: TransactionState): String
@@ -38,4 +46,6 @@ interface EnterAmountCustomisations {
     fun shouldNotDisplayNetworkFee(state: TransactionState): Boolean
     fun enterAmountGetNoBalanceMessage(state: TransactionState): String
     fun enterAmountCtaText(state: TransactionState): String
+    fun getFeeSheetTitle(state: TransactionState): String
+    fun getFeeSheetAvailableLabel(state: TransactionState): String
 }

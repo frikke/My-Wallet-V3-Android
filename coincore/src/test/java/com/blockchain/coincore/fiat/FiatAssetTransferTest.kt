@@ -1,8 +1,8 @@
 package com.blockchain.coincore.fiat
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.custodial.domain.TradingService
@@ -80,7 +80,7 @@ class FiatAssetTransferTest : KoinTest {
 
     @Test
     fun transferListForInterestSource() {
-        val sourceAccount: CryptoInterestAccount = mock()
+        val sourceAccount: CustodialInterestAccount = mock()
 
         subject.transactionTargets(sourceAccount)
             .test()

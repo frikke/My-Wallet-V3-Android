@@ -3,15 +3,15 @@ package piuk.blockchain.androidcore.utils
 import android.annotation.SuppressLint
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
-import com.blockchain.common.util.AndroidDeviceIdGenerator
-import com.blockchain.common.util.AndroidDeviceIdSource
+import com.blockchain.common.util.DeviceIdSource
+import com.blockchain.common.util.PlatformDeviceIdGenerator
 
 interface DeviceIdGenerator {
     fun generateId(): String
 }
 
 internal class DeviceIdGeneratorImpl(
-    private val platformDeviceIdGenerator: AndroidDeviceIdGenerator,
+    private val platformDeviceIdGenerator: PlatformDeviceIdGenerator<DeviceIdSource>,
     private val analytics: Analytics
 ) : DeviceIdGenerator {
 
@@ -20,9 +20,9 @@ internal class DeviceIdGeneratorImpl(
         val result = platformDeviceIdGenerator.generateId()
 
         val analyticsEvent = when (result.deviceIdSource) {
-            AndroidDeviceIdSource.Uuid -> SOURCE_UUID_GEN
-            AndroidDeviceIdSource.MacAddress -> SOURCE_MAC_ADDRESS
-            AndroidDeviceIdSource.AndroidId -> SOURCE_ANDROID_ID
+            DeviceIdSource.Android.Uuid -> SOURCE_UUID_GEN
+            DeviceIdSource.Android.MacAddress -> SOURCE_MAC_ADDRESS
+            DeviceIdSource.Android.AndroidId -> SOURCE_ANDROID_ID
         }
         analytics.logEvent(AnalyticsGenEvent(analyticsEvent))
 

@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.kyc.address
 
+import com.blockchain.addressverification.ui.AddressDetails
+import com.blockchain.addressverification.ui.AddressVerificationSavingError
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
@@ -7,7 +9,6 @@ import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.extensions.exhaustive
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -15,7 +16,6 @@ import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.network.PollService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -23,11 +23,9 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.SortedMap
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
-import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.sdd.SDDAnalytics
-import piuk.blockchain.android.ui.kyc.BaseKycPresenter
-import piuk.blockchain.android.ui.kyc.address.models.AddressModel
+import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -50,7 +48,6 @@ interface KycNextStepDecision {
 }
 
 class KycHomeAddressPresenter(
-    nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
     private val eligibilityService: EligibilityService,
     private val userService: UserService,
@@ -59,15 +56,12 @@ class KycHomeAddressPresenter(
     private val custodialWalletManager: CustodialWalletManager,
     private val analytics: Analytics,
     private val kycTiersStore: KycTiersStore,
-) : BaseKycPresenter<KycHomeAddressView>(nabuToken) {
+) : BasePresenter<KycHomeAddressView>() {
 
     val countryCodeSingle: Single<SortedMap<String, String>> by unsafeLazy {
-        fetchOfflineToken
-            .flatMap {
-                rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
-                    eligibilityService.getCountriesList(GetRegionScope.None)
-                }.subscribeOn(Schedulers.io())
-            }
+        rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+            eligibilityService.getCountriesList(GetRegionScope.None)
+        }.subscribeOn(Schedulers.io())
             .map { list ->
                 list.associateBy({ it.name }, { it.countryCode })
                     .toSortedMap()
@@ -76,70 +70,13 @@ class KycHomeAddressPresenter(
             .cache()
     }
 
-    override fun onViewReady() {
-        compositeDisposable += view.address
-            .subscribeBy(
-                onNext = { enableButtonIfComplete(it) },
-                onError = {
-                    Timber.e(it)
-                    // This is fatal - back out and allow the user to try again
-                    view.finishPage()
-                }
-            )
-
-        restoreDataIfPresent()
-    }
-
-    private fun restoreDataIfPresent() {
-        compositeDisposable +=
-            view.address
-                .firstElement()
-                .flatMap { addressModel ->
-                    // Don't attempt to restore state if data is already present
-                    if (addressModel.containsData()) {
-                        Maybe.empty()
-                    } else {
-                        userService.getUser()
-                            .subscribeOn(Schedulers.io())
-                            .flatMapMaybe { user ->
-                                user.address?.let { address ->
-                                    Maybe.just(address)
-                                        .flatMap { getCountryName(address.countryCode!!) }
-                                        .map { it to address }
-                                } ?: Maybe.empty()
-                            }
-                            .observeOn(AndroidSchedulers.mainThread())
-                    }
-                }
-                .subscribeBy(
-                    onSuccess = { (countryName, address) ->
-                        view.restoreUiState(
-                            address.line1,
-                            address.line2,
-                            address.city,
-                            address.state,
-                            address.postCode,
-                            countryName
-                        )
-                    },
-                    onError = {
-                        // Silently fail
-                        Timber.e(it)
-                    }
-                )
-    }
-
     private data class State(
         val progressToKycNextStep: KycNextStepDecision.NextStep,
         val countryCode: String,
     )
 
-    internal fun onContinueClicked(campaignType: CampaignType? = null) {
-        compositeDisposable += view.address
-            .firstOrError()
-            .flatMap { address ->
-                addAddress(address).toSingle { address.country }
-            }
+    internal fun onContinueClicked(campaignType: CampaignType? = null, address: AddressDetails) {
+        compositeDisposable += addAddress(address).toSingle { address.countryIso }
             .flatMap { countryCode ->
                 kycTiersStore.markAsStale()
                 nabuUserSync.syncUser().thenSingle { Single.just(countryCode) }
@@ -176,8 +113,9 @@ class KycHomeAddressPresenter(
                 },
                 onError = {
                     when ((it as? NabuApiException?)?.getErrorCode()) {
-                        NabuErrorCodes.InvalidPostcode -> view.showInvalidPostcode()
-                        else -> view.showErrorSnackbar(R.string.kyc_address_error_saving)
+                        NabuErrorCodes.InvalidPostcode ->
+                            view.showErrorWhileSaving(AddressVerificationSavingError.InvalidPostCode)
+                        else -> view.showErrorWhileSaving(AddressVerificationSavingError.Unknown(it.message))
                     }
                 }
             )
@@ -217,49 +155,19 @@ class KycHomeAddressPresenter(
             campaignType == CampaignType.SimpleBuy
     }
 
-    private fun addAddress(address: AddressModel): Completable = fetchOfflineToken.flatMapCompletable {
+    private fun addAddress(address: AddressDetails): Completable =
         nabuDataManager.addAddress(
-            it,
             address.firstLine,
             address.secondLine,
             address.city,
-            address.state,
+            address.stateIso,
             address.postCode,
-            address.country
+            address.countryIso
         ).subscribeOn(Schedulers.io())
-    }
-
-    private fun getCountryName(countryCode: String): Maybe<String> = countryCodeSingle
-        .map { it.entries.first { (_, value) -> value == countryCode }.key }
-        .toMaybe()
-
-    private fun enableButtonIfComplete(addressModel: AddressModel) {
-        if (addressModel.country.equals("US", ignoreCase = true)) {
-            view.setButtonEnabled(
-                addressModel.firstLine.isNotEmpty() &&
-                    addressModel.city.isNotEmpty() &&
-                    addressModel.state.isNotEmpty() &&
-                    addressModel.postCode.isNotEmpty()
-            )
-        } else {
-            view.setButtonEnabled(
-                addressModel.firstLine.isNotEmpty() &&
-                    addressModel.city.isNotEmpty() &&
-                    addressModel.postCode.isNotEmpty()
-            )
-        }
-    }
 
     internal fun onProgressCancelled() {
         compositeDisposable.clear()
     }
-
-    private fun AddressModel.containsData(): Boolean =
-        firstLine.isNotEmpty() ||
-            !secondLine.isNullOrEmpty() ||
-            city.isNotEmpty() ||
-            state.isNotEmpty() ||
-            postCode.isNotEmpty()
 }
 
 private fun CampaignType.shouldCheckForSddVerification(): Boolean =

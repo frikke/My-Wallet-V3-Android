@@ -3,8 +3,8 @@
     <solid android:color="@color/colorMarkerBackground" />
     <corners android:radius="8dp" />
     <padding
-        android:bottom="@dimen/minuscule_margin"
-        android:left="@dimen/minuscule_margin"
-        android:right="@dimen/minuscule_margin"
-        android:top="@dimen/minuscule_margin" />
+        android:bottom="@dimen/minuscule_spacing"
+        android:left="@dimen/minuscule_spacing"
+        android:right="@dimen/minuscule_spacing"
+        android:top="@dimen/minuscule_spacing" />
 </shape>

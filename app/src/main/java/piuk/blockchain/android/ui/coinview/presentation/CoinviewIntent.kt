@@ -5,9 +5,12 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
 import com.github.mikephil.charting.data.Entry
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 
 sealed interface CoinviewIntent : Intent<CoinviewModelState> {
@@ -18,35 +21,19 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
      * * recurring buys
      * * todo
      */
-    object LoadAllData : CoinviewIntent {
-        override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.asset != null
-        }
-    }
+    object LoadAllData : CoinviewIntent
 
     /**
      * Load asset price and chart data
      */
-    object LoadPriceData : CoinviewIntent {
-        override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.asset != null
-        }
-    }
+    object LoadPriceData : CoinviewIntent
 
-    object LoadWatchlistData : CoinviewIntent {
-        override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.asset != null
-        }
-    }
+    object LoadWatchlistData : CoinviewIntent
 
     /**
      * Load total balance and accounts
      */
-    object LoadAccountsData : CoinviewIntent {
-        override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.asset != null
-        }
-    }
+    object LoadAccountsData : CoinviewIntent
 
     /**
      * Load recurring buys / show upsell when no data (if eligible)
@@ -54,39 +41,31 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
      */
     object LoadRecurringBuysData : CoinviewIntent {
         override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.asset != null && modelState.walletMode != WalletMode.NON_CUSTODIAL_ONLY
+            return modelState.walletMode != WalletMode.NON_CUSTODIAL_ONLY
         }
     }
 
     /**
      * Load quick actions to setup the center and bottom buttons
      *
-     * Should only load when accounts are already loaded
-     * todo(othman) remove this check once accounts are cached
-     * Should only load when balances are already loaded
-     * todo(othman) remove this check once accounts are cached
+     * todo(othman) remove these params once accounts are cached
      */
-    object LoadQuickActions : CoinviewIntent {
-        override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.asset != null && modelState.accounts != null && modelState.totalBalance != null
-        }
-    }
+    data class LoadQuickActions(
+        val accounts: CoinviewAccounts,
+        val totalBalance: CoinviewAssetTotalBalance
+    ) : CoinviewIntent
 
     /**
      * Load asset description / website
      */
-    object LoadAssetInfo : CoinviewIntent {
-        override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.asset != null
-        }
-    }
+    object LoadAssetInfo : CoinviewIntent
 
     /**
      * Performs price updates while chart is interactive
      */
     data class UpdatePriceForChartSelection(val entry: Entry) : CoinviewIntent {
         override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.assetPriceHistory?.historicRates?.isNotEmpty() ?: false
+            return (modelState.assetPriceHistory as? DataResource.Data)?.data?.historicRates?.isNotEmpty() ?: false
         }
     }
 
@@ -100,7 +79,7 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
      */
     data class NewTimeSpanSelected(val timeSpan: HistoricalTimeSpan) : CoinviewIntent {
         override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.assetPriceHistory?.priceDetail?.timeSpan != timeSpan
+            return (modelState.assetPriceHistory as? DataResource.Data)?.data?.priceDetail?.timeSpan != timeSpan
         }
     }
 

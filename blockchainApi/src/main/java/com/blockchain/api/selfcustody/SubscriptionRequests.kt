@@ -39,8 +39,8 @@ data class SubscriptionInfo(
     val currency: String,
     @SerialName("account")
     val accountInfo: AccountInfo,
-    @SerialName("pubkeys")
-    val pubkeys: List<PubKeyInfo>
+    @SerialName("pubKeys")
+    val pubKeys: List<PubKeyInfo>
 )
 
 @Serializable
@@ -53,7 +53,7 @@ data class AccountInfo(
 
 @Serializable
 data class PubKeyInfo(
-    @SerialName("pubkey")
+    @SerialName("pubKey")
     val pubKey: String,
     @SerialName("style")
     val style: String = "SINGLE",

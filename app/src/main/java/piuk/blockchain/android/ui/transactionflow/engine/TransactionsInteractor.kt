@@ -19,13 +19,13 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
@@ -39,6 +39,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -49,12 +50,13 @@ import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
-import okio.`-DeprecatedOkio`.source
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
+import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
+import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.androidcore.utils.extensions.mapList
 import timber.log.Timber
@@ -68,12 +70,15 @@ class TransactionInteractor(
     private val paymentMethodService: PaymentMethodService,
     private val currencyPrefs: CurrencyPrefs,
     private val identity: UserIdentity,
-    private val accountsSorting: AccountsSorting,
+    private val defaultAccountsSorting: AccountsSorting,
+    private val swapSourceAccountsSorting: AccountsSorting,
+    private val swapTargetAccountsSorting: AccountsSorting,
     private val linkedBanksFactory: LinkedBanksFactory,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val dismissRecorder: DismissRecorder,
-    private val showSendToDomainsAnnouncementFeatureFlag: IntegratedFeatureFlag,
     private val fiatCurrenciesService: FiatCurrenciesService,
+    private val swapSellQuickFillFF: FeatureFlag,
+    private val quickFillRoundingService: QuickFillRoundingService
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
@@ -170,6 +175,8 @@ class TransactionInteractor(
                 .filter { account ->
                     pairs.any { it.source == sourceAccount.currency && account.currency == it.destination }
                 }
+        }.flatMap { list ->
+            swapTargetAccountsSorting.sorter().invoke(list)
         }
 
     fun getAvailableSourceAccounts(
@@ -178,7 +185,7 @@ class TransactionInteractor(
     ): Single<SingleAccountList> =
         when (action) {
             AssetAction.Swap -> {
-                coincore.walletsWithActions(actions = setOf(action), sorter = accountsSorting.sorter())
+                coincore.walletsWithActions(actions = setOf(action), sorter = swapSourceAccountsSorting.sorter())
                     .zipWith(
                         custodialRepository.getSwapAvailablePairs()
                     ).map { (accounts, pairs) ->
@@ -192,7 +199,7 @@ class TransactionInteractor(
             AssetAction.InterestDeposit -> {
                 require(targetAccount is InterestAccount)
                 require(targetAccount is CryptoAccount)
-                coincore.walletsWithActions(actions = setOf(action), sorter = accountsSorting.sorter()).map {
+                coincore.walletsWithActions(actions = setOf(action), sorter = defaultAccountsSorting.sorter()).map {
                     it.filter { acc ->
                         acc is CryptoAccount &&
                             acc.currency == targetAccount.currency &&
@@ -204,8 +211,31 @@ class TransactionInteractor(
             AssetAction.FiatDeposit -> {
                 linkedBanksFactory.getNonWireTransferBanks().map { it }
             }
+            AssetAction.Sell -> sellSourceAccounts()
             else -> throw IllegalStateException("Source account should be preselected for action $action")
         }
+
+    private fun sellSourceAccounts(): Single<List<SingleAccount>> {
+        return supportedCryptoCurrencies().zipWith(
+            coincore.walletsWithActions(actions = setOf(AssetAction.Sell), sorter = defaultAccountsSorting.sorter())
+        ).map { (assets, accounts) ->
+            accounts.filterIsInstance<CryptoAccount>().filter { account ->
+                account.currency.networkTicker in assets.map { it.networkTicker }
+            }
+        }
+    }
+
+    private fun supportedCryptoCurrencies(): Single<List<AssetInfo>> {
+        val availableFiats =
+            rxSingle { custodialWalletManager.getSupportedFundsFiats(currencyPrefs.selectedFiatCurrency).first() }
+        return Single.zip(
+            custodialWalletManager.getSupportedBuySellCryptoCurrencies(), availableFiats
+        ) { supportedPairs, fiats ->
+            supportedPairs
+                .filter { fiats.contains(it.destination) }
+                .map { it.source.asAssetInfoOrThrow() }
+        }
+    }
 
     fun verifyAndExecute(secondPassword: String): Completable =
         transactionProcessor?.execute(secondPassword) ?: throw IllegalStateException("TxProcessor not initialised")
@@ -305,13 +335,7 @@ class TransactionInteractor(
     }
 
     fun loadSendToDomainAnnouncementPref(prefsKey: String): Single<Boolean> =
-        showSendToDomainsAnnouncementFeatureFlag.enabled.map { isEnabled ->
-            if (isEnabled) {
-                !dismissRecorder.isDismissed(prefsKey)
-            } else {
-                false
-            }
-        }
+        Single.just(!dismissRecorder.isDismissed(prefsKey))
 
     fun dismissSendToDomainAnnouncementPref(prefsKey: String): Single<Boolean> =
         Single.fromCallable {
@@ -320,6 +344,11 @@ class TransactionInteractor(
         }
 
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess> = identity.userAccessForFeature(feature)
+
+    fun isSwapSellQuickFillFFEnabled() = swapSellQuickFillFF.enabled
+
+    fun getRoundingDataForAction(action: AssetAction): Single<List<QuickFillRoundingData>> =
+        quickFillRoundingService.getQuickFillRoundingForAction(action)
 }
 
 private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair>): Boolean =

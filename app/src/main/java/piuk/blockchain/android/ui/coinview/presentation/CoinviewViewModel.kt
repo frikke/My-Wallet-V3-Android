@@ -11,13 +11,13 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.core.price.HistoricalRate
+import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
 import com.blockchain.data.doOnData
-import com.blockchain.data.doOnFailure
+import com.blockchain.data.doOnError
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.toFormattedDateWithoutYear
 import com.blockchain.wallet.DefaultLabels
@@ -28,6 +28,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -37,13 +38,13 @@ import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.ui.coinview.domain.GetAccountActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
-import piuk.blockchain.android.ui.coinview.domain.LoadAssetInfoUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetRecurringBuysUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadQuickActionsUseCase
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
-import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetInformation
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetDetail
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistory
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState.Data.CoinviewAccountState.Available
@@ -68,8 +69,7 @@ class CoinviewViewModel(
     private val loadAssetRecurringBuysUseCase: LoadAssetRecurringBuysUseCase,
 
     private val loadQuickActionsUseCase: LoadQuickActionsUseCase,
-
-    private val loadAssetInfoUseCase: LoadAssetInfoUseCase
+    private val assetService: AssetService
 ) : MviViewModel<
     CoinviewIntent,
     CoinviewViewState,
@@ -82,6 +82,7 @@ class CoinviewViewModel(
     }
 
     private var loadPriceDataJob: Job? = null
+    private var accountActionsJob: Job? = null
     private var loadWatchlistJob: Job? = null
     private var loadAccountsJob: Job? = null
     private var loadQuickActionsJob: Job? = null
@@ -99,7 +100,7 @@ class CoinviewViewModel(
         (coincore[args.networkTicker] as? CryptoAsset)?.let { asset ->
             updateState {
                 it.copy(
-//                    asset = asset
+                    asset = asset
                 )
             }
         } ?: Timber.e("asset ${args.networkTicker} not found")
@@ -113,11 +114,10 @@ class CoinviewViewModel(
             watchlist = reduceWatchlist(this),
             totalBalance = reduceTotalBalance(this),
             accounts = reduceAccounts(this),
-            quickActionCenter = reduceQuickActionsCenter(this),
+            centerQuickAction = reduceCenterQuickActions(this),
             recurringBuys = reduceRecurringBuys(this),
-            quickActionBottom = reduceQuickActionsBottom(this),
+            bottomQuickAction = reduceBottomQuickActions(this),
             assetInfo = reduceAssetInfo(this),
-
             snackbarError = reduceSnackbarError(this)
         )
     }
@@ -134,7 +134,7 @@ class CoinviewViewModel(
 
     private fun reduceAssetTradeable(state: CoinviewModelState): CoinviewAssetTradeableState = state.run {
         if (isNonTradeableAsset) {
-            require(asset != null) { "asset not initialized" }
+            check(asset != null) { "asset not initialized" }
 
             CoinviewAssetTradeableState.NonTradeable(
                 assetName = asset.currency.name,
@@ -146,63 +146,60 @@ class CoinviewViewModel(
     }
 
     private fun reduceAssetPrice(state: CoinviewModelState): CoinviewPriceState = state.run {
-        when {
-            isPriceDataLoading && assetPriceHistory == null -> {
-                // show loading when data is loading and no data is previously available
+        when (assetPriceHistory) {
+            DataResource.Loading -> {
                 CoinviewPriceState.Loading
             }
 
-            isPriceDataError -> {
+            is DataResource.Error -> {
                 CoinviewPriceState.Error
             }
 
-            assetPriceHistory != null -> {
-                // priceFormattedWithFiatSymbol, priceChangeFormattedWithFiatSymbol, percentChange
+            is DataResource.Data -> {
+                // price, priceChange, percentChange
                 // will contain values from interactiveAssetPrice to correspond with user interaction
 
                 // intervalName will be empty if user is interacting with the chart
 
-                require(asset != null) { "asset not initialized" }
+                check(asset != null) { "asset not initialized" }
 
-                CoinviewPriceState.Data(
-                    assetName = asset.currency.name,
-                    assetLogo = asset.currency.logo,
-                    fiatSymbol = fiatCurrency.symbol,
-                    price = (interactiveAssetPrice ?: assetPriceHistory.priceDetail)
-                        .price.toStringWithSymbol(),
-                    priceChange = (interactiveAssetPrice ?: assetPriceHistory.priceDetail)
-                        .changeDifference.toStringWithSymbol(),
-                    percentChange = (interactiveAssetPrice ?: assetPriceHistory.priceDetail).percentChange,
-                    intervalName = if (interactiveAssetPrice != null) R.string.empty else
-                        when ((assetPriceHistory.priceDetail).timeSpan) {
-                            HistoricalTimeSpan.DAY -> R.string.coinview_price_day
-                            HistoricalTimeSpan.WEEK -> R.string.coinview_price_week
-                            HistoricalTimeSpan.MONTH -> R.string.coinview_price_month
-                            HistoricalTimeSpan.YEAR -> R.string.coinview_price_year
-                            HistoricalTimeSpan.ALL_TIME -> R.string.coinview_price_all
-                        },
-                    chartData = when {
-                        isPriceDataLoading &&
-                            requestedTimeSpan != null &&
-                            assetPriceHistory.priceDetail.timeSpan != requestedTimeSpan -> {
-                            // show chart loading when data is loading and a new timespan is selected
-                            CoinviewPriceState.Data.CoinviewChartState.Loading
-                        }
-                        else -> CoinviewPriceState.Data.CoinviewChartState.Data(
-                            assetPriceHistory.historicRates.map { point ->
-                                ChartEntry(
-                                    point.timestamp.toFloat(),
-                                    point.rate.toFloat()
-                                )
+                with(assetPriceHistory.data) {
+                    CoinviewPriceState.Data(
+                        assetName = asset.currency.name,
+                        assetLogo = asset.currency.logo,
+                        fiatSymbol = fiatCurrency.symbol,
+                        price = (interactiveAssetPrice ?: priceDetail)
+                            .price.toStringWithSymbol(),
+                        priceChange = (interactiveAssetPrice ?: priceDetail)
+                            .changeDifference.toStringWithSymbol(),
+                        percentChange = (interactiveAssetPrice ?: priceDetail).percentChange,
+                        intervalName = if (interactiveAssetPrice != null) R.string.empty else
+                            when ((priceDetail).timeSpan) {
+                                HistoricalTimeSpan.DAY -> R.string.coinview_price_day
+                                HistoricalTimeSpan.WEEK -> R.string.coinview_price_week
+                                HistoricalTimeSpan.MONTH -> R.string.coinview_price_month
+                                HistoricalTimeSpan.YEAR -> R.string.coinview_price_year
+                                HistoricalTimeSpan.ALL_TIME -> R.string.coinview_price_all
+                            },
+                        chartData = when {
+                            isChartDataLoading &&
+                                requestedTimeSpan != null &&
+                                priceDetail.timeSpan != requestedTimeSpan -> {
+                                // show chart loading when data is loading and a new timespan is selected
+                                CoinviewPriceState.Data.CoinviewChartState.Loading
                             }
-                        )
-                    },
-                    selectedTimeSpan = (interactiveAssetPrice ?: assetPriceHistory.priceDetail).timeSpan
-                )
-            }
-
-            else -> {
-                CoinviewPriceState.Loading
+                            else -> CoinviewPriceState.Data.CoinviewChartState.Data(
+                                historicRates.map { point ->
+                                    ChartEntry(
+                                        point.timestamp.toFloat(),
+                                        point.rate.toFloat()
+                                    )
+                                }
+                            )
+                        },
+                        selectedTimeSpan = (interactiveAssetPrice ?: priceDetail).timeSpan
+                    )
+                }
             }
         }
     }
@@ -241,23 +238,26 @@ class CoinviewViewModel(
                 CoinviewTotalBalanceState.NotSupported
             }
 
-            isTotalBalanceLoading && totalBalance == null -> {
+            assetDetail is DataResource.Loading -> {
                 CoinviewTotalBalanceState.Loading
             }
 
-            isTotalBalanceError -> {
+            assetDetail is DataResource.Error -> {
                 CoinviewTotalBalanceState.Error
             }
 
-            totalBalance != null -> {
-                require(asset != null) { "asset not initialized" }
-                require(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
+            assetDetail is DataResource.Data && assetDetail.data is CoinviewAssetDetail.Tradeable -> {
+                check(asset != null) { "asset not initialized" }
 
-                CoinviewTotalBalanceState.Data(
-                    assetName = asset.currency.name,
-                    totalFiatBalance = totalBalance.totalFiatBalance.toStringWithSymbol(),
-                    totalCryptoBalance = totalBalance.totalCryptoBalance[AssetFilter.All]!!.toStringWithSymbol()
-                )
+                with(assetDetail.data as CoinviewAssetDetail.Tradeable) {
+                    check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
+
+                    CoinviewTotalBalanceState.Data(
+                        assetName = asset.currency.name,
+                        totalFiatBalance = totalBalance.totalFiatBalance.toStringWithSymbol(),
+                        totalCryptoBalance = totalBalance.totalCryptoBalance[AssetFilter.All]!!.toStringWithSymbol()
+                    )
+                }
             }
 
             else -> {
@@ -272,217 +272,77 @@ class CoinviewViewModel(
                 CoinviewAccountsState.NotSupported
             }
 
-            isAccountsLoading && accounts == null -> {
+            assetDetail is DataResource.Loading -> {
                 CoinviewAccountsState.Loading
             }
 
-            isAccountsError -> {
+            assetDetail is DataResource.Error -> {
                 CoinviewAccountsState.Error
             }
 
-            accounts != null -> {
-                require(asset != null) { "asset not initialized" }
+            assetDetail is DataResource.Data && assetDetail.data is CoinviewAssetDetail.Tradeable -> {
+                check(asset != null) { "asset not initialized" }
 
-                CoinviewAccountsState.Data(
-                    style = when (accounts) {
-                        is CoinviewAccounts.Universal,
-                        is CoinviewAccounts.Custodial -> CoinviewAccountsStyle.Simple
-                        is CoinviewAccounts.Defi -> CoinviewAccountsStyle.Boxed
-                    },
-                    header = when (accounts) {
-                        is CoinviewAccounts.Universal,
-                        is CoinviewAccounts.Custodial -> CoinviewAccountsHeaderState.ShowHeader(
-                            SimpleValue.IntResValue(R.string.coinview_accounts_label)
-                        )
-                        is CoinviewAccounts.Defi -> CoinviewAccountsHeaderState.NoHeader
-                    },
-                    accounts = accounts.accounts.map { cvAccount ->
-                        val account: CryptoAccount = cvAccount.account.let { blockchainAccount ->
-                            when (blockchainAccount) {
-                                is CryptoAccount -> blockchainAccount
-                                is AccountGroup -> blockchainAccount.selectFirstAccount()
-                                else -> throw IllegalStateException(
-                                    "Unsupported account type for asset details ${cvAccount.account}"
-                                )
-                            }
-                        }
-
-                        when (cvAccount.isEnabled) {
-                            true -> {
-                                when (cvAccount) {
-                                    is CoinviewAccount.Universal -> {
-                                        Available(
-                                            cvAccount = cvAccount,
-                                            title = when (cvAccount.filter) {
-                                                AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
-                                                AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
-                                                AssetFilter.NonCustodial -> account.label
-                                                else -> error(
-                                                    "Filer ${cvAccount.filter} not supported for account label"
-                                                )
-                                            },
-                                            subtitle = when (cvAccount.filter) {
-                                                AssetFilter.Trading -> {
-                                                    SimpleValue.IntResValue(R.string.coinview_c_available_desc)
-                                                }
-                                                AssetFilter.Interest -> {
-                                                    SimpleValue.IntResValue(
-                                                        R.string.coinview_interest_with_balance,
-                                                        listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
-                                                    )
-                                                }
-                                                AssetFilter.NonCustodial -> {
-                                                    if (account is MultiChainAccount) {
-                                                        SimpleValue.IntResValue(
-                                                            R.string.coinview_multi_nc_desc,
-                                                            listOf(account.l1Network.networkName)
-                                                        )
-                                                    } else {
-                                                        SimpleValue.IntResValue(R.string.coinview_nc_desc)
-                                                    }
-                                                }
-                                                else -> error("${cvAccount.filter} Not a supported filter")
-                                            },
-                                            cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-                                            fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
-                                            logo = LogoSource.Resource(
-                                                when (cvAccount.filter) {
-                                                    AssetFilter.Trading -> {
-                                                        R.drawable.ic_custodial_account_indicator
-                                                    }
-                                                    AssetFilter.Interest -> {
-                                                        R.drawable.ic_interest_account_indicator
-                                                    }
-                                                    AssetFilter.NonCustodial -> {
-                                                        R.drawable.ic_non_custodial_account_indicator
-                                                    }
-                                                    else -> error("${cvAccount.filter} Not a supported filter")
-                                                }
-                                            ),
-                                            assetColor = asset.currency.colour
-                                        )
-                                    }
-                                    is CoinviewAccount.Custodial.Trading -> {
-                                        Available(
-                                            cvAccount = cvAccount,
-                                            title = labels.getDefaultCustodialWalletLabel(),
-                                            subtitle = SimpleValue.IntResValue(R.string.coinview_c_available_desc),
-                                            cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-                                            fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
-                                            logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
-                                            assetColor = asset.currency.colour
-                                        )
-                                    }
-                                    is CoinviewAccount.Custodial.Interest -> {
-                                        Available(
-                                            cvAccount = cvAccount,
-                                            title = labels.getDefaultInterestWalletLabel(),
-                                            subtitle = SimpleValue.IntResValue(
-                                                R.string.coinview_interest_with_balance,
-                                                listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
-                                            ),
-                                            cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-                                            fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
-                                            logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
-                                            assetColor = asset.currency.colour
-                                        )
-                                    }
-                                    is CoinviewAccount.Defi -> {
-                                        Available(
-                                            cvAccount = cvAccount,
-                                            title = account.label,
-                                            subtitle = SimpleValue.StringValue(account.currency.displayTicker),
-                                            cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-                                            fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
-                                            logo = LogoSource.Remote(account.currency.logo),
-                                            assetColor = asset.currency.colour
-                                        )
-                                    }
+                // TODO (dserrano) - STAKING - this existing code chunk is huge and needs to be broken down
+                with(assetDetail.data as CoinviewAssetDetail.Tradeable) {
+                    CoinviewAccountsState.Data(
+                        style = when (accounts) {
+                            is CoinviewAccounts.Universal,
+                            is CoinviewAccounts.Custodial -> CoinviewAccountsStyle.Simple
+                            is CoinviewAccounts.Defi -> CoinviewAccountsStyle.Boxed
+                        },
+                        header = when (accounts) {
+                            is CoinviewAccounts.Universal,
+                            is CoinviewAccounts.Custodial -> CoinviewAccountsHeaderState.ShowHeader(
+                                SimpleValue.IntResValue(R.string.coinview_accounts_label)
+                            )
+                            is CoinviewAccounts.Defi -> CoinviewAccountsHeaderState.NoHeader
+                        },
+                        accounts = accounts.accounts.map { cvAccount ->
+                            val account: CryptoAccount = cvAccount.account.let { blockchainAccount ->
+                                when (blockchainAccount) {
+                                    is CryptoAccount -> blockchainAccount
+                                    is AccountGroup -> blockchainAccount.selectFirstAccount()
+                                    else -> throw IllegalStateException(
+                                        "Unsupported account type for asset details ${cvAccount.account}"
+                                    )
                                 }
                             }
 
-                            false -> {
-                                when (cvAccount) {
-                                    is CoinviewAccount.Universal -> {
-                                        Unavailable(
-                                            cvAccount = cvAccount,
-                                            title = when (cvAccount.filter) {
-                                                AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
-                                                AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
-                                                AssetFilter.NonCustodial -> account.label
-                                                else -> error(
-                                                    "Filer ${cvAccount.filter} not supported for account label"
-                                                )
-                                            },
-                                            subtitle = when (cvAccount.filter) {
-                                                AssetFilter.Trading -> {
-                                                    SimpleValue.IntResValue(
-                                                        R.string.coinview_c_unavailable_desc,
-                                                        listOf(asset.currency.name)
-                                                    )
-                                                }
-                                                AssetFilter.Interest -> {
-                                                    SimpleValue.IntResValue(
-                                                        R.string.coinview_interest_no_balance,
-                                                        listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
-                                                    )
-                                                }
-                                                AssetFilter.NonCustodial -> {
-                                                    SimpleValue.IntResValue(R.string.coinview_nc_desc)
-                                                }
-                                                else -> error("${cvAccount.filter} Not a supported filter")
-                                            },
-                                            logo = LogoSource.Resource(
-                                                when (cvAccount.filter) {
-                                                    AssetFilter.Trading -> {
-                                                        R.drawable.ic_custodial_account_indicator
-                                                    }
-                                                    AssetFilter.Interest -> {
-                                                        R.drawable.ic_interest_account_indicator
-                                                    }
-                                                    AssetFilter.NonCustodial -> {
-                                                        R.drawable.ic_non_custodial_account_indicator
-                                                    }
-                                                    else -> error("${cvAccount.filter} Not a supported filter")
-                                                }
-                                            )
-                                        )
+                            when (cvAccount.isEnabled) {
+                                true -> {
+                                    when (cvAccount) {
+                                        is CoinviewAccount.Universal ->
+                                            makeAvailableUniversalAccount(cvAccount, account, asset)
+                                        is CoinviewAccount.Custodial.Trading ->
+                                            makeAvailableTradingAccount(cvAccount, asset)
+                                        is CoinviewAccount.Custodial.Interest ->
+                                            makeAvailableInterestAccount(cvAccount, asset)
+                                        is CoinviewAccount.Custodial.Staking ->
+                                            makeAvailableStakingAccount(cvAccount, asset)
+                                        is CoinviewAccount.PrivateKey ->
+                                            makeAvailablePrivateKeyAccount(cvAccount, account, asset)
                                     }
-                                    is CoinviewAccount.Custodial.Trading -> {
-                                        Unavailable(
-                                            cvAccount = cvAccount,
-                                            title = labels.getDefaultCustodialWalletLabel(),
-                                            subtitle = SimpleValue.IntResValue(
-                                                R.string.coinview_c_unavailable_desc,
-                                                listOf(asset.currency.name)
-                                            ),
-                                            logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator)
-                                        )
-                                    }
-                                    is CoinviewAccount.Custodial.Interest -> {
-                                        Unavailable(
-                                            cvAccount = cvAccount,
-                                            title = labels.getDefaultInterestWalletLabel(),
-                                            subtitle = SimpleValue.IntResValue(
-                                                R.string.coinview_interest_no_balance,
-                                                listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
-                                            ),
-                                            logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
-                                        )
-                                    }
-                                    is CoinviewAccount.Defi -> {
-                                        Unavailable(
-                                            cvAccount = cvAccount,
-                                            title = account.currency.name,
-                                            subtitle = SimpleValue.IntResValue(R.string.coinview_nc_desc),
-                                            logo = LogoSource.Remote(account.currency.logo)
-                                        )
+                                }
+                                false -> {
+                                    when (cvAccount) {
+                                        is CoinviewAccount.Universal ->
+                                            makeUnavailableUniversalAccount(cvAccount, account, asset)
+                                        is CoinviewAccount.Custodial.Trading ->
+                                            makeUnavailableTradingAccount(cvAccount, asset)
+                                        is CoinviewAccount.Custodial.Interest ->
+                                            makeUnavailableInterestAccount(cvAccount)
+                                        is CoinviewAccount.Custodial.Staking ->
+                                            makeUnavailableStakingAccount(cvAccount)
+                                        is CoinviewAccount.PrivateKey -> {
+                                            makeUnavailablePrivateKeyAccount(cvAccount, account)
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
 
             else -> {
@@ -491,6 +351,230 @@ class CoinviewViewModel(
         }
     }
 
+    private fun makeUnavailablePrivateKeyAccount(
+        cvAccount: CoinviewAccount,
+        account: CryptoAccount
+    ) = Unavailable(
+        cvAccount = cvAccount,
+        title = account.currency.name,
+        subtitle = SimpleValue.IntResValue(R.string.coinview_nc_desc),
+        logo = LogoSource.Remote(account.currency.logo)
+    )
+
+    private fun makeUnavailableStakingAccount(cvAccount: CoinviewAccount.Custodial.Staking) =
+        Unavailable(
+            cvAccount = cvAccount,
+            title = labels.getDefaultStakingWalletLabel(),
+            subtitle = SimpleValue.IntResValue(
+                R.string.coinview_interest_no_balance,
+                listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
+            ),
+            logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator)
+        )
+
+    private fun makeUnavailableInterestAccount(cvAccount: CoinviewAccount.Custodial.Interest) =
+        Unavailable(
+            cvAccount = cvAccount,
+            title = labels.getDefaultInterestWalletLabel(),
+            subtitle = SimpleValue.IntResValue(
+                R.string.coinview_interest_no_balance,
+                listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
+            ),
+            logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
+        )
+
+    private fun makeUnavailableTradingAccount(
+        cvAccount: CoinviewAccount,
+        asset: CryptoAsset
+    ) = Unavailable(
+        cvAccount = cvAccount,
+        title = labels.getDefaultCustodialWalletLabel(),
+        subtitle = SimpleValue.IntResValue(
+            R.string.coinview_c_unavailable_desc,
+            listOf(asset.currency.name)
+        ),
+        logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator)
+    )
+
+    private fun makeUnavailableUniversalAccount(
+        cvAccount: CoinviewAccount.Universal,
+        account: CryptoAccount,
+        asset: CryptoAsset
+    ) = Unavailable(
+        cvAccount = cvAccount,
+        title = when (cvAccount.filter) {
+            AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
+            AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
+            AssetFilter.Staking -> labels.getDefaultStakingWalletLabel()
+            AssetFilter.NonCustodial -> account.label
+            else -> error(
+                "Filer ${cvAccount.filter} not supported for account label"
+            )
+        },
+        subtitle = when (cvAccount.filter) {
+            AssetFilter.Trading -> {
+                SimpleValue.IntResValue(
+                    R.string.coinview_c_unavailable_desc,
+                    listOf(asset.currency.name)
+                )
+            }
+            AssetFilter.Interest -> {
+                SimpleValue.IntResValue(
+                    R.string.coinview_interest_no_balance,
+                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
+                )
+            }
+            AssetFilter.Staking -> {
+                SimpleValue.IntResValue(
+                    R.string.coinview_interest_no_balance,
+                    listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
+                )
+            }
+            AssetFilter.NonCustodial -> {
+                SimpleValue.IntResValue(R.string.coinview_nc_desc)
+            }
+            else -> error("${cvAccount.filter} Not a supported filter")
+        },
+        logo = LogoSource.Resource(
+            when (cvAccount.filter) {
+                AssetFilter.Trading -> {
+                    R.drawable.ic_custodial_account_indicator
+                }
+                AssetFilter.Interest -> {
+                    R.drawable.ic_interest_account_indicator
+                }
+                AssetFilter.NonCustodial -> {
+                    R.drawable.ic_non_custodial_account_indicator
+                }
+                else -> error("${cvAccount.filter} Not a supported filter")
+            }
+        )
+    )
+
+    private fun makeAvailablePrivateKeyAccount(
+        cvAccount: CoinviewAccount,
+        account: CryptoAccount,
+        asset: CryptoAsset
+    ) = Available(
+        cvAccount = cvAccount,
+        title = account.label,
+        subtitle = SimpleValue.StringValue(account.currency.displayTicker),
+        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        logo = LogoSource.Remote(account.currency.logo),
+        assetColor = asset.currency.colour
+    )
+
+    private fun makeAvailableStakingAccount(
+        cvAccount: CoinviewAccount.Custodial.Staking,
+        asset: CryptoAsset
+    ) = Available(
+        cvAccount = cvAccount,
+        title = labels.getDefaultStakingWalletLabel(),
+        subtitle = SimpleValue.IntResValue(
+            R.string.coinview_interest_with_balance,
+            listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
+        ),
+        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator),
+        assetColor = asset.currency.colour
+    )
+
+    private fun makeAvailableInterestAccount(
+        cvAccount: CoinviewAccount.Custodial.Interest,
+        asset: CryptoAsset
+    ) = Available(
+        cvAccount = cvAccount,
+        title = labels.getDefaultInterestWalletLabel(),
+        subtitle = SimpleValue.IntResValue(
+            R.string.coinview_interest_with_balance,
+            listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
+        ),
+        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
+        assetColor = asset.currency.colour
+    )
+
+    private fun makeAvailableTradingAccount(
+        cvAccount: CoinviewAccount,
+        asset: CryptoAsset
+    ) = Available(
+        cvAccount = cvAccount,
+        title = labels.getDefaultCustodialWalletLabel(),
+        subtitle = SimpleValue.IntResValue(R.string.coinview_c_available_desc),
+        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
+        assetColor = asset.currency.colour
+    )
+
+    private fun makeAvailableUniversalAccount(
+        cvAccount: CoinviewAccount.Universal,
+        account: CryptoAccount,
+        asset: CryptoAsset
+    ) = Available(
+        cvAccount = cvAccount,
+        title = when (cvAccount.filter) {
+            AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
+            AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
+            AssetFilter.Staking -> labels.getDefaultStakingWalletLabel()
+            AssetFilter.NonCustodial -> account.label
+            else -> error(
+                "Filter ${cvAccount.filter} not supported for account label"
+            )
+        },
+        subtitle = when (cvAccount.filter) {
+            AssetFilter.Trading -> {
+                SimpleValue.IntResValue(R.string.coinview_c_available_desc)
+            }
+            AssetFilter.Interest -> {
+                SimpleValue.IntResValue(
+                    R.string.coinview_interest_with_balance,
+                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
+                )
+            }
+            AssetFilter.Staking -> {
+                SimpleValue.IntResValue(
+                    R.string.coinview_interest_with_balance,
+                    listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
+                )
+            }
+            AssetFilter.NonCustodial -> {
+                if (account is MultiChainAccount) {
+                    SimpleValue.IntResValue(
+                        R.string.coinview_multi_nc_desc,
+                        listOf(account.l1Network.networkName)
+                    )
+                } else {
+                    SimpleValue.IntResValue(R.string.coinview_nc_desc)
+                }
+            }
+            else -> error("${cvAccount.filter} Not a supported filter")
+        },
+        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        logo = LogoSource.Resource(
+            when (cvAccount.filter) {
+                AssetFilter.Trading -> {
+                    R.drawable.ic_custodial_account_indicator
+                }
+                AssetFilter.Interest -> {
+                    R.drawable.ic_interest_account_indicator
+                }
+                AssetFilter.Staking -> {
+                    R.drawable.ic_staking_account_indicator
+                }
+                AssetFilter.NonCustodial -> {
+                    R.drawable.ic_non_custodial_account_indicator
+                }
+                else -> error("${cvAccount.filter} Not a supported filter")
+            }
+        ),
+        assetColor = asset.currency.colour
+    )
+
     private fun reduceRecurringBuys(state: CoinviewModelState): CoinviewRecurringBuysState = state.run {
         when {
             // not supported for non custodial
@@ -498,51 +582,57 @@ class CoinviewViewModel(
                 CoinviewRecurringBuysState.NotSupported
             }
 
-            isRecurringBuysLoading && recurringBuys == null -> {
+            recurringBuys is DataResource.Loading -> {
                 CoinviewRecurringBuysState.Loading
             }
 
-            isRecurringBuysError -> {
+            recurringBuys is DataResource.Error -> {
                 CoinviewRecurringBuysState.Error
             }
 
-            recurringBuys != null -> {
-                require(asset != null) { "asset not initialized" }
+            recurringBuys is DataResource.Data -> {
+                check(asset != null) { "asset not initialized" }
 
-                if (recurringBuys.data.isEmpty()) {
-                    if (recurringBuys.isAvailableForTrading) {
-                        CoinviewRecurringBuysState.Upsell
-                    } else {
-                        CoinviewRecurringBuysState.NotSupported
-                    }
-                } else {
-                    CoinviewRecurringBuysState.Data(
-                        recurringBuys.data.map { recurringBuy ->
-                            CoinviewRecurringBuyState(
-                                id = recurringBuy.id,
-                                description = SimpleValue.IntResValue(
-                                    R.string.dashboard_recurring_buy_item_title_1,
-                                    listOf(
-                                        recurringBuy.amount.toStringWithSymbol(),
-                                        recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
-                                    )
-                                ),
-
-                                status = if (recurringBuy.state == com.blockchain.nabu.models.data.RecurringBuyState.ACTIVE) {
-                                    SimpleValue.IntResValue(
-                                        R.string.dashboard_recurring_buy_item_label,
-                                        listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
-                                    )
-                                } else {
-                                    SimpleValue.IntResValue(
-                                        R.string.dashboard_recurring_buy_item_label_error
-                                    )
-                                },
-
-                                assetColor = asset.currency.colour
-                            )
+                with(recurringBuys.data) {
+                    when {
+                        data.isEmpty() && isAvailableForTrading -> {
+                            CoinviewRecurringBuysState.Upsell
                         }
-                    )
+
+                        data.isEmpty() && isAvailableForTrading.not() -> {
+                            CoinviewRecurringBuysState.NotSupported
+                        }
+
+                        else -> CoinviewRecurringBuysState.Data(
+                            data.map { recurringBuy ->
+                                CoinviewRecurringBuyState(
+                                    id = recurringBuy.id,
+                                    description = SimpleValue.IntResValue(
+                                        R.string.dashboard_recurring_buy_item_title_1,
+                                        listOf(
+                                            recurringBuy.amount.toStringWithSymbol(),
+                                            recurringBuy.recurringBuyFrequency.toHumanReadableRecurringBuy()
+                                        )
+                                    ),
+
+                                    status = if (recurringBuy.state ==
+                                        com.blockchain.nabu.models.data.RecurringBuyState.ACTIVE
+                                    ) {
+                                        SimpleValue.IntResValue(
+                                            R.string.dashboard_recurring_buy_item_label,
+                                            listOf(recurringBuy.nextPaymentDate.toFormattedDateWithoutYear())
+                                        )
+                                    } else {
+                                        SimpleValue.IntResValue(
+                                            R.string.dashboard_recurring_buy_item_label_error
+                                        )
+                                    },
+
+                                    assetColor = asset.currency.colour
+                                )
+                            }
+                        )
+                    }
                 }
             }
 
@@ -552,94 +642,88 @@ class CoinviewViewModel(
         }
     }
 
-    private fun reduceQuickActionsCenter(state: CoinviewModelState): CoinviewQuickActionsCenterState = state.run {
+    private fun reduceCenterQuickActions(state: CoinviewModelState): CoinviewCenterQuickActionsState = state.run {
         when {
             isNonTradeableAsset -> {
-                CoinviewQuickActionsCenterState.NotSupported
+                CoinviewCenterQuickActionsState.NotSupported
             }
 
-            isQuickActionsLoading && quickActions == null -> {
-                CoinviewQuickActionsCenterState.Loading
+            quickActions is DataResource.Loading -> {
+                CoinviewCenterQuickActionsState.Loading
             }
 
-            isQuickActionsError -> {
-                CoinviewQuickActionsCenterState.Data(
+            quickActions is DataResource.Error -> {
+                CoinviewCenterQuickActionsState.Data(
                     center = CoinviewQuickAction.None.toViewState()
                 )
             }
 
-            quickActions != null -> {
-                CoinviewQuickActionsCenterState.Data(
-                    center = quickActions.center.toViewState()
-                )
+            quickActions  is DataResource.Data -> {
+                with(quickActions.data) {
+                    CoinviewCenterQuickActionsState.Data(
+                        center = center.toViewState()
+                    )
+                }
             }
 
             else -> {
-                CoinviewQuickActionsCenterState.Loading
+                CoinviewCenterQuickActionsState.Loading
             }
         }
     }
 
-    private fun reduceQuickActionsBottom(state: CoinviewModelState): CoinviewQuickActionsBottomState = state.run {
-        when {
+    private fun reduceBottomQuickActions(state: CoinviewModelState): CoinviewBottomQuickActionsState = state.run {
+        when  {
             isNonTradeableAsset -> {
-                CoinviewQuickActionsBottomState.NotSupported
+                CoinviewBottomQuickActionsState.NotSupported
             }
 
-            isQuickActionsLoading && quickActions == null -> {
-                CoinviewQuickActionsBottomState.Loading
+            quickActions is DataResource.Loading -> {
+                CoinviewBottomQuickActionsState.Loading
             }
 
-            isQuickActionsError -> {
-                CoinviewQuickActionsBottomState.Data(
+            quickActions   is DataResource.Error -> {
+                CoinviewBottomQuickActionsState.Data(
                     start = CoinviewQuickAction.None.toViewState(),
                     end = CoinviewQuickAction.None.toViewState()
                 )
             }
 
-            quickActions != null -> {
-                CoinviewQuickActionsBottomState.Data(
-                    start = quickActions.bottomStart.toViewState(),
-                    end = quickActions.bottomEnd.toViewState()
-                )
+            quickActions  is DataResource.Data -> {
+                with(quickActions.data) {
+                    CoinviewBottomQuickActionsState.Data(
+                        start = bottomStart.toViewState(),
+                        end = bottomEnd.toViewState()
+                    )
+                }
             }
 
             else -> {
-                CoinviewQuickActionsBottomState.Loading
+                CoinviewBottomQuickActionsState.Loading
             }
         }
     }
 
     private fun reduceAssetInfo(state: CoinviewModelState): CoinviewAssetInfoState = state.run {
-        when {
-            isAssetInfoLoading && assetInfo == null -> {
+        when (assetInfo) {
+            DataResource.Loading -> {
                 CoinviewAssetInfoState.Loading
             }
 
-            isAssetInfoError -> {
+            is DataResource.Error -> {
                 CoinviewAssetInfoState.Error
             }
 
-            assetInfo != null -> {
+            is DataResource.Data -> {
                 require(asset != null) { "asset not initialized" }
 
-                CoinviewAssetInfoState.Data(
-                    assetName = asset.currency.name,
-                    description = if (assetInfo.description.isEmpty()) {
-                        ValueAvailability.NotAvailable
-                    } else {
-                        ValueAvailability.Available(value = assetInfo.description)
-                    },
-                    website = if (assetInfo.website.isEmpty()) {
-                        ValueAvailability.NotAvailable
-                    } else {
-                        ValueAvailability.Available(value = assetInfo.website)
-                    }
-                )
-            }
-
-            else -> {
-                CoinviewAssetInfoState.Loading
+                with(assetInfo.data) {
+                    CoinviewAssetInfoState.Data(
+                        assetName = asset.currency.name,
+                        description = if (description.isEmpty().not()) description else null,
+                        website = if (website.isEmpty().not()) website else null,
+                    )
+                }
             }
         }
     }
@@ -668,7 +752,7 @@ class CoinviewViewModel(
     override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntent) {
         when (intent) {
             is CoinviewIntent.LoadAllData -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
                 onIntent(CoinviewIntent.LoadPriceData)
                 onIntent(CoinviewIntent.LoadAccountsData)
                 onIntent(CoinviewIntent.LoadWatchlistData)
@@ -677,11 +761,12 @@ class CoinviewViewModel(
             }
 
             CoinviewIntent.LoadPriceData -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
 
                 loadPriceData(
                     asset = modelState.asset,
-                    requestedTimeSpan = modelState.assetPriceHistory?.priceDetail?.timeSpan ?: defaultTimeSpan
+                    requestedTimeSpan = (modelState.assetPriceHistory as? DataResource.Data)
+                        ?.data?.priceDetail?.timeSpan ?: defaultTimeSpan
                 )
             }
 
@@ -694,7 +779,7 @@ class CoinviewViewModel(
             }
 
             CoinviewIntent.LoadAccountsData -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
 
                 loadAccountsData(
                     asset = modelState.asset,
@@ -702,29 +787,25 @@ class CoinviewViewModel(
             }
 
             CoinviewIntent.LoadRecurringBuysData -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
 
                 loadRecurringBuysData(
                     asset = modelState.asset,
                 )
             }
 
-            CoinviewIntent.LoadQuickActions -> {
-                require(modelState.asset != null) { "asset not initialized" }
-                require(modelState.accounts != null) { "accounts not initialized" }
-                // todo(othman) remove this check once accounts are cached
-                require(modelState.totalBalance != null) { "balances not initialized" }
-                // todo(othman) remove this check once accounts are cached
+            is CoinviewIntent.LoadQuickActions -> {
+                check(modelState.asset != null) { "asset not initialized" }
 
                 loadQuickActionsData(
                     asset = modelState.asset,
-                    accounts = modelState.accounts,
-                    totalBalance = modelState.totalBalance
+                    accounts = intent.accounts,
+                    totalBalance = intent.totalBalance
                 )
             }
 
             CoinviewIntent.LoadAssetInfo -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
 
                 loadAssetInformation(
                     asset = modelState.asset,
@@ -732,7 +813,12 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntent.UpdatePriceForChartSelection -> {
-                updatePriceForChartSelection(intent.entry, modelState.assetPriceHistory?.historicRates!!)
+                check(modelState.assetPriceHistory is DataResource.Data) { "price data not initialized" }
+
+                updatePriceForChartSelection(
+                    entry = intent.entry,
+                    assetPriceHistory = modelState.assetPriceHistory.data
+                )
             }
 
             is CoinviewIntent.ResetPriceSelection -> {
@@ -740,7 +826,7 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntent.NewTimeSpanSelected -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
 
                 updateState { it.copy(requestedTimeSpan = intent.timeSpan) }
 
@@ -751,8 +837,8 @@ class CoinviewViewModel(
             }
 
             CoinviewIntent.ToggleWatchlist -> {
-                require(modelState.asset != null) { "asset not initialized" }
-                require(modelState.watchlist != null) { "watchlist not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
+                check(modelState.watchlist != null) { "watchlist not initialized" }
 
                 updateWatchlist(
                     asset = modelState.asset,
@@ -761,7 +847,7 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntent.AccountSelected -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "asset not initialized" }
 
                 handleAccountSelected(
                     account = intent.account,
@@ -770,27 +856,13 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntent.AccountExplainerAcknowledged -> {
-                require(modelState.accounts != null) { "accounts not initialized" }
+                check(modelState.accounts != null) { "accounts not initialized" }
 
-                val cvAccount = modelState.accounts.accounts.first { it.account == intent.account }
+                val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
                 navigate(
                     CoinviewNavigationEvent.ShowAccountActions(
                         cvAccount = cvAccount,
-                        interestRate = when (cvAccount) {
-                            is CoinviewAccount.Universal -> {
-                                if (cvAccount.filter == AssetFilter.Interest) {
-                                    cvAccount.interestRate
-                                } else {
-                                    0.0
-                                }
-                            }
-                            is CoinviewAccount.Custodial.Interest -> {
-                                cvAccount.interestRate
-                            }
-                            else -> {
-                                0.0
-                            }
-                        },
+                        interestRate = cvAccount.interestRate(),
                         actions = intent.actions
                     )
                 )
@@ -800,7 +872,7 @@ class CoinviewViewModel(
                 require(modelState.asset != null) { "asset not initialized" }
                 require(modelState.accounts != null) { "accounts not initialized" }
 
-                val cvAccount = modelState.accounts.accounts.first { it.account == intent.account }
+                val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
 
                 handleAccountActionSelected(
                     account = cvAccount,
@@ -812,7 +884,7 @@ class CoinviewViewModel(
             is CoinviewIntent.NoBalanceUpsell -> {
                 require(modelState.accounts != null) { "accounts not initialized" }
 
-                val cvAccount = modelState.accounts.accounts.first { it.account == intent.account }
+                val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
 
                 navigate(
                     CoinviewNavigationEvent.ShowNoBalanceUpsell(
@@ -914,15 +986,22 @@ class CoinviewViewModel(
                 when (dataResource) {
                     DataResource.Loading -> {
                         updateState {
-                            it.copy(isPriceDataLoading = true)
+                            it.copy(
+                                isChartDataLoading = true,
+                                assetPriceHistory = if (it.assetPriceHistory is DataResource.Data) {
+                                    it.assetPriceHistory
+                                } else {
+                                    dataResource
+                                }
+                            )
                         }
                     }
 
                     is DataResource.Error -> {
                         updateState {
                             it.copy(
-                                isPriceDataLoading = false,
-                                isPriceDataError = true,
+                                isChartDataLoading = false,
+                                assetPriceHistory = dataResource,
                             )
                         }
                     }
@@ -931,16 +1010,15 @@ class CoinviewViewModel(
                         if (dataResource.data.historicRates.isEmpty()) {
                             updateState {
                                 it.copy(
-                                    isPriceDataLoading = false,
-                                    isPriceDataError = true
+                                    isChartDataLoading = false,
+                                    assetPriceHistory = DataResource.Error(Exception("no historicRates"))
                                 )
                             }
                         } else {
                             updateState {
                                 it.copy(
-                                    isPriceDataLoading = false,
-                                    isPriceDataError = false,
-                                    assetPriceHistory = dataResource.data,
+                                    isChartDataLoading = false,
+                                    assetPriceHistory = dataResource,
                                     requestedTimeSpan = null
                                 )
                             }
@@ -957,8 +1035,9 @@ class CoinviewViewModel(
      */
     private fun updatePriceForChartSelection(
         entry: Entry,
-        historicRates: List<HistoricalRate>,
+        assetPriceHistory: CoinviewAssetPriceHistory,
     ) {
+        val historicRates = assetPriceHistory.historicRates
         historicRates.firstOrNull { it.timestamp.toFloat() == entry.x }?.let { selectedHistoricalRate ->
             val firstForPeriod = historicRates.first()
             val difference = selectedHistoricalRate.rate - firstForPeriod.rate
@@ -973,7 +1052,7 @@ class CoinviewViewModel(
                         price = Money.fromMajor(
                             fiatCurrency, selectedHistoricalRate.rate.toBigDecimal()
                         ),
-                        timeSpan = it.assetPriceHistory!!.priceDetail.timeSpan,
+                        timeSpan = assetPriceHistory.priceDetail.timeSpan,
                         changeDifference = changeDifference,
                         percentChange = percentChange
                     )
@@ -1054,97 +1133,81 @@ class CoinviewViewModel(
         loadAccountsJob?.cancel()
         loadAccountsJob = viewModelScope.launch {
             loadAssetAccountsUseCase(asset = asset).collectLatest { dataResource ->
-                when (dataResource) {
-                    DataResource.Loading -> {
-                        updateState {
-                            it.copy(
-                                isTotalBalanceLoading = true,
-                                isAccountsLoading = true
-                            )
+
+//                // fail quick actions
+//                isQuickActionsLoading = false,
+//                isQuickActionsError = true,
+//
+//
+                updateState {
+                    it.copy(
+                        assetDetail = if (dataResource is DataResource.Loading && it.assetDetail is DataResource.Data) {
+                            // if data is present already - don't show loading
+                            it.assetDetail
+                        } else {
+                            dataResource
+                        },
+                        //// testttttttt this
+                        error = if (dataResource is DataResource.Error){
+                            CoinviewError.AccountsLoadError
+                        } else {
+                            it.error
                         }
+                    )
+                }
+
+                // get quick actions
+                if (dataResource is DataResource.Data && dataResource.data is CoinviewAssetDetail.Tradeable) {
+                    with(dataResource.data as CoinviewAssetDetail.Tradeable) {
+                        onIntent(
+                            CoinviewIntent.LoadQuickActions(
+                                accounts = accounts,
+                                totalBalance = totalBalance
+                            )
+                        )
                     }
+                }
 
-                    is DataResource.Error -> {
-                        updateState {
-                            it.copy(
-                                isTotalBalanceLoading = false,
-                                isTotalBalanceError = true,
-
-                                isAccountsLoading = false,
-                                isAccountsError = true,
-
-                                // fail quick actions
-                                isQuickActionsLoading = false,
-                                isQuickActionsError = true,
-
-                                // error
-                                error = CoinviewError.AccountsLoadError
-                            )
-                        }
-                    }
-
-                    is DataResource.Data -> {
-                        updateState {
-                            it.copy(
-                                isTotalBalanceLoading = false,
-                                isTotalBalanceError = false,
-
-                                isAccountsLoading = false,
-                                isAccountsError = false
+                if(dataResource is DataResource.Data){
+                    when(dataResource.data){
+                        is CoinviewAssetDetail.Tradeable -> {
+                            onIntent(
+                                CoinviewIntent.LoadQuickActions(
+                                    accounts = dataResource.data.accounts,
+                                    totalBalance = dataResource.data.totalBalance
+                                )
                             )
                         }
 
-                        when (dataResource.data) {
-                            is CoinviewAssetInformation.AccountsInfo -> {
-                                (dataResource.data as CoinviewAssetInformation.AccountsInfo).let { data ->
-                                    extractTotalBalance(data)
-                                    extractAccounts(data)
-                                }
-                            }
-                            is CoinviewAssetInformation.NonTradeable -> {
-                                updateState {
-                                    it.copy(
-                                        isNonTradeableAsset = true,
+                        is CoinviewAssetDetail.NonTradeable -> {
+                            updateState {
+                                it.copy(
+                                    isNonTradeableAsset = true,
 
-                                        // zero asset balance
-                                        totalBalance = CoinviewAssetTotalBalance(
-                                            totalCryptoBalance = hashMapOf(
-                                                AssetFilter.All to CryptoValue.zero(asset.currency)
-                                            ),
-                                            totalFiatBalance = FiatValue.zero(fiatCurrency),
-                                        )
+                                    // zero asset balance
+                                    totalBalance = CoinviewAssetTotalBalance(
+                                        totalCryptoBalance = hashMapOf(
+                                            AssetFilter.All to CryptoValue.zero(asset.currency)
+                                        ),
+                                        totalFiatBalance = FiatValue.zero(fiatCurrency),
                                     )
-                                }
-
-                                // cancel flows
-                                loadAccountsJob?.cancel()
-                                loadQuickActionsJob?.cancel()
-                                loadRecurringBuyJob?.cancel()
+                                )
                             }
-                        }
 
-                        onIntent(CoinviewIntent.LoadQuickActions)
+                            // cancel flows
+                            loadAccountsJob?.cancel()
+                            loadQuickActionsJob?.cancel()
+                            loadRecurringBuyJob?.cancel()
+                        }
                     }
                 }
             }
         }
     }
 
-    private fun extractTotalBalance(accountsInfo: CoinviewAssetInformation.AccountsInfo) {
-        updateState {
-            it.copy(totalBalance = accountsInfo.totalBalance)
-        }
-    }
-
-    private fun extractAccounts(accountsInfo: CoinviewAssetInformation.AccountsInfo) {
-        updateState {
-            it.copy(accounts = accountsInfo.accounts)
-        }
-    }
-
     private fun handleAccountSelected(account: CoinviewAccount, asset: CryptoAsset) {
-        loadAccountActionsJob?.cancel()
-        loadAccountActionsJob = viewModelScope.launch {
+        accountActionsJob?.cancel()
+        accountActionsJob = viewModelScope.launch {
             getAccountActionsUseCase(account)
                 .doOnData { actions ->
                     getAccountActionsUseCase.getSeenAccountExplainerState(account).let { (hasSeen, markAsSeen) ->
@@ -1154,21 +1217,7 @@ class CoinviewViewModel(
                                 CoinviewNavigationEvent.ShowAccountExplainer(
                                     cvAccount = account,
                                     networkTicker = asset.currency.networkTicker,
-                                    interestRate = when (account) {
-                                        is CoinviewAccount.Universal -> {
-                                            if (account.filter == AssetFilter.Interest) {
-                                                account.interestRate
-                                            } else {
-                                                0.0
-                                            }
-                                        }
-                                        is CoinviewAccount.Custodial.Interest -> {
-                                            account.interestRate
-                                        }
-                                        else -> {
-                                            0.0
-                                        }
-                                    },
+                                    interestRate = account.interestRate(),
                                     actions = actions
                                 )
                             )
@@ -1177,32 +1226,37 @@ class CoinviewViewModel(
                             navigate(
                                 CoinviewNavigationEvent.ShowAccountActions(
                                     cvAccount = account,
-                                    interestRate = when (account) {
-                                        is CoinviewAccount.Universal -> {
-                                            if (account.filter == AssetFilter.Interest) {
-                                                account.interestRate
-                                            } else {
-                                                0.0
-                                            }
-                                        }
-                                        is CoinviewAccount.Custodial.Interest -> {
-                                            account.interestRate
-                                        }
-                                        else -> {
-                                            0.0
-                                        }
-                                    },
+                                    interestRate = account.interestRate(),
                                     actions = actions
                                 )
                             )
                         }
                     }
                 }
-                .doOnFailure {
+                .doOnError {
                     updateState {
                         it.copy(error = CoinviewError.ActionsLoadError)
                     }
                 }
+        }
+    }
+
+    private fun CoinviewAccount.interestRate(): Double {
+        val noInterestRate = 0.0
+        return when (this) {
+            is CoinviewAccount.Universal -> {
+                if (filter == AssetFilter.Interest) {
+                    interestRate
+                } else {
+                    noInterestRate
+                }
+            }
+            is CoinviewAccount.Custodial.Interest -> {
+                interestRate
+            }
+            else -> {
+                noInterestRate
+            }
         }
     }
 
@@ -1275,34 +1329,17 @@ class CoinviewViewModel(
     private fun loadRecurringBuysData(asset: CryptoAsset) {
         loadRecurringBuyJob?.cancel()
         loadRecurringBuyJob = viewModelScope.launch {
-            loadAssetRecurringBuysUseCase(asset).collectLatest { dataResource ->
-                when (dataResource) {
-                    DataResource.Loading -> {
-                        updateState {
-                            it.copy(
-                                isRecurringBuysLoading = true
-                            )
+            loadAssetRecurringBuysUseCase(asset = asset).collectLatest { dataResource ->
+                updateState {
+                    it.copy(
+                        recurringBuys = if (dataResource is DataResource.Loading &&
+                            it.recurringBuys is DataResource.Data
+                        ) {
+                            it.recurringBuys
+                        } else {
+                            dataResource
                         }
-                    }
-
-                    is DataResource.Error -> {
-                        updateState {
-                            it.copy(
-                                isRecurringBuysLoading = false,
-                                isRecurringBuysError = true
-                            )
-                        }
-                    }
-
-                    is DataResource.Data -> {
-                        updateState {
-                            it.copy(
-                                isRecurringBuysLoading = false,
-                                isRecurringBuysError = false,
-                                recurringBuys = dataResource.data
-                            )
-                        }
-                    }
+                    )
                 }
             }
         }
@@ -1318,35 +1355,20 @@ class CoinviewViewModel(
         loadQuickActionsJob?.cancel()
         loadQuickActionsJob = viewModelScope.launch {
             loadQuickActionsUseCase(
-                asset = asset, accounts = accounts, totalBalance = totalBalance
+                asset = asset,
+                accounts = accounts,
+                totalBalance = totalBalance
             ).collectLatest { dataResource ->
-                when (dataResource) {
-                    DataResource.Loading -> {
-                        updateState {
-                            it.copy(
-                                isQuickActionsLoading = true,
-                            )
+                updateState {
+                    it.copy(
+                        quickActions = if (dataResource is DataResource.Loading &&
+                            it.quickActions is DataResource.Data
+                        ) {
+                            it.quickActions
+                        } else {
+                            dataResource
                         }
-                    }
-
-                    is DataResource.Error -> {
-                        updateState {
-                            it.copy(
-                                isQuickActionsLoading = false,
-                                isQuickActionsError = true,
-                            )
-                        }
-                    }
-
-                    is DataResource.Data -> {
-                        updateState {
-                            it.copy(
-                                isQuickActionsLoading = false,
-                                isQuickActionsError = false,
-                                quickActions = dataResource.data
-                            )
-                        }
-                    }
+                    )
                 }
             }
         }
@@ -1357,34 +1379,17 @@ class CoinviewViewModel(
     private fun loadAssetInformation(asset: CryptoAsset) {
         loadAssetInfoJob?.cancel()
         loadAssetInfoJob = viewModelScope.launch {
-            loadAssetInfoUseCase(asset = asset.currency).collectLatest { dataResource ->
-                when (dataResource) {
-                    DataResource.Loading -> {
-                        updateState {
-                            it.copy(
-                                isAssetInfoLoading = true,
-                            )
+            assetService.getAssetInformation(asset = asset.currency).collectLatest { dataResource ->
+                updateState {
+                    it.copy(
+                        assetInfo = if (dataResource is DataResource.Loading &&
+                            it.assetInfo is DataResource.Data
+                        ) {
+                            it.assetInfo
+                        } else {
+                            dataResource
                         }
-                    }
-
-                    is DataResource.Error -> {
-                        updateState {
-                            it.copy(
-                                isAssetInfoLoading = false,
-                                isAssetInfoError = true,
-                            )
-                        }
-                    }
-
-                    is DataResource.Data -> {
-                        updateState {
-                            it.copy(
-                                isAssetInfoLoading = false,
-                                isAssetInfoError = false,
-                                assetInfo = dataResource.data
-                            )
-                        }
-                    }
+                    )
                 }
             }
         }

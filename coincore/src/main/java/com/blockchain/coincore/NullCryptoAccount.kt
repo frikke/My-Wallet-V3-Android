@@ -1,13 +1,10 @@
 package com.blockchain.coincore
 
-import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 object NullCryptoAddress : CryptoAddress {
     override val asset: AssetInfo = CryptoCurrency.BTC
@@ -32,7 +29,7 @@ class NullCryptoAccount(
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.NOT_SUPPORTED)
 
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Observable.error(NotImplementedError())
 
     override val activity: Single<ActivitySummaryList>
@@ -65,7 +62,7 @@ object NullFiatAccount : FiatAccount {
 
     override val label: String = ""
 
-    override val balance: Observable<AccountBalance>
+    override val balanceRx: Observable<AccountBalance>
         get() = Observable.error(NotImplementedError())
 
     override val activity: Single<ActivitySummaryList>
@@ -77,22 +74,4 @@ object NullFiatAccount : FiatAccount {
     override val hasTransactions: Boolean = false
 
     override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
-}
-
-object EmptyAccountGroup : AccountGroup, KoinComponent {
-    override val accounts: SingleAccountList = emptyList()
-    private val currencyPrefs: CurrencyPrefs by inject()
-    override fun includes(account: BlockchainAccount): Boolean = false
-    override val label: String = ""
-
-    override val balance: Observable<AccountBalance> =
-        Observable.just(AccountBalance.zero(currencyPrefs.selectedFiatCurrency))
-
-    override val activity: Single<ActivitySummaryList> = Single.just(emptyList())
-    override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
-    override val isFunded: Boolean = false
-    override val hasTransactions: Boolean = false
-
-    override val receiveAddress: Single<ReceiveAddress> =
-        Single.error(NotImplementedError())
 }

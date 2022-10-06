@@ -6,14 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/small_margin">
+    android:paddingBottom="@dimen/small_spacing">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/recurring_buy_sheet_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/tiny_margin"
+        android:layout_marginTop="@dimen/tiny_spacing"
         app:srcCompat="@drawable/vector_sheet_indicator_small" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -21,17 +21,17 @@
         style="@style/Text.Semibold.20"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginTop="@dimen/standard_spacing"
+        android:layout_marginBottom="@dimen/standard_spacing"
         android:text="@string/recurring_buy_selection_title" />
 
     <RadioGroup
         android:id="@+id/recurring_buy_selection_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin">
+        android:layout_marginStart="@dimen/standard_spacing"
+        android:layout_marginEnd="@dimen/standard_spacing">
 
         <RadioButton
             android:id="@+id/rb_one_time"
@@ -40,9 +40,9 @@
             android:layout_height="wrap_content"
             android:button="@null"
             android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
-            android:drawablePadding="@dimen/small_margin"
-            android:paddingTop="@dimen/very_small_margin"
-            android:paddingBottom="@dimen/very_small_margin"
+            android:drawablePadding="@dimen/small_spacing"
+            android:paddingTop="@dimen/very_small_spacing"
+            android:paddingBottom="@dimen/very_small_spacing"
             android:text="@string/recurring_buy_one_time_selector"
             android:visibility="gone"
             tools:visibility="visible" />
@@ -54,27 +54,27 @@
             android:layout_height="wrap_content"
             android:button="@null"
             android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
-            android:drawablePadding="@dimen/small_margin"
-            android:paddingTop="@dimen/very_small_margin"
-            android:paddingBottom="@dimen/very_small_margin"
+            android:drawablePadding="@dimen/small_spacing"
+            android:paddingTop="@dimen/very_small_spacing"
+            android:paddingBottom="@dimen/very_small_spacing"
             android:text="@string/recurring_buy_daily_selector"
             android:visibility="gone"
             tools:visibility="visible" />
 
         <TextView
             android:layout_width="wrap_content"
+            style="@style/Text.Semibold.16"
             android:layout_height="wrap_content"
             android:text="@string/recurring_buy_weekly_selector" />
 
         <RadioButton
             android:id="@+id/rb_weekly"
-            style="@style/Text.Semibold.16"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:button="@null"
             android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
-            android:drawablePadding="@dimen/small_margin"
-            android:paddingBottom="@dimen/very_small_margin"
+            android:drawablePadding="@dimen/small_spacing"
+            android:paddingBottom="@dimen/very_small_spacing"
             android:visibility="gone"
             tools:text="on Mondays"
             tools:visibility="visible" />
@@ -82,17 +82,17 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/Text.Semibold.16"
             android:text="@string/recurring_buy_bi_weekly_1" />
 
         <RadioButton
             android:id="@+id/rb_bi_weekly"
-            style="@style/Text.Semibold.16"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:button="@null"
             android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
-            android:drawablePadding="@dimen/small_margin"
-            android:paddingBottom="@dimen/very_small_margin"
+            android:drawablePadding="@dimen/small_spacing"
+            android:paddingBottom="@dimen/very_small_spacing"
             android:visibility="gone"
             tools:text="On day 14 and 28"
             tools:visibility="visible" />
@@ -100,17 +100,17 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/Text.Semibold.16"
             android:text="@string/recurring_buy_monthly_selector" />
 
         <RadioButton
             android:id="@+id/rb_monthly"
-            style="@style/Text.Semibold.16"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:button="@null"
             android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
-            android:drawablePadding="@dimen/small_margin"
-            android:paddingBottom="@dimen/very_small_margin"
+            android:drawablePadding="@dimen/small_spacing"
+            android:paddingBottom="@dimen/very_small_spacing"
             android:visibility="gone"
             tools:text="On day 14"
             tools:visibility="visible" />
@@ -121,7 +121,7 @@
         style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginTop="@dimen/small_spacing"
         android:text="@string/common_ok"
         android:textAllCaps="true" />
 

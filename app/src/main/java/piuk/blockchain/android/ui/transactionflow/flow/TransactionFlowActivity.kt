@@ -41,6 +41,7 @@ import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
+import piuk.blockchain.android.ui.customviews.BlockedDueToNotEligibleSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
@@ -260,8 +261,8 @@ class TransactionFlowActivity :
             TransactionStep.CLOSED -> null
             TransactionStep.FEATURE_BLOCKED -> when (featureBlockedReason) {
                 is BlockedReason.Sanctions -> BlockedDueToSanctionsSheet.newInstance(featureBlockedReason)
+                is BlockedReason.NotEligible -> BlockedDueToNotEligibleSheet.newInstance(featureBlockedReason)
                 is BlockedReason.TooManyInFlightTransactions,
-                BlockedReason.NotEligible,
                 is BlockedReason.InsufficientTier -> KycUpgradeNowSheet.newInstance()
                 null -> throw IllegalStateException(
                     "No featureBlockedReason provided for TransactionStep.FEATURE_BLOCKED, state $state"

@@ -13,11 +13,13 @@ import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.BuySellOrder
+import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
+import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
@@ -29,11 +31,35 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 
 sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
+    object InitializeFeatureFlags : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
+    }
+
+    class UpdateFeatureFlags(
+        private val featureFlagSet: FeatureFlagsSet
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(featureFlagSet = featureFlagSet)
+    }
+
     object ShowAppRating : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(showAppRating = true)
 
         override fun isValidFor(oldState: SimpleBuyState) = oldState.showAppRating.not()
+    }
+
+    class GetQuotePrice(
+        val currencyPair: CurrencyPair,
+        val amount: Money,
+        val paymentMethod: PaymentMethodType
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
+    }
+
+    class UpdateQuote(val amountInCrypto: CryptoValue) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(amountInCrypto = amountInCrypto)
     }
 
     object AppRatingShown : SimpleBuyIntent() {
@@ -258,8 +284,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     }
 
     data class UpdateExchangeRate(val fiatCurrency: FiatCurrency, val asset: AssetInfo) : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
     }
 
     data class ExchangeRateUpdated(private val exchangeRate: ExchangeRate) : SimpleBuyIntent() {
@@ -563,6 +588,16 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     object AddNewPaymentMethodHandled : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(newPaymentMethodToBeAdded = null)
+    }
+
+    object GetRecurringBuyFrequencyRemote : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
+    }
+
+    class UpdateRecurringFrequencyRemote(private val recurringBuyFrequencyRemote: RecurringBuyFrequency) :
+        SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(recurringBuyForExperiment = recurringBuyFrequencyRemote)
     }
 
     class RecurringBuyIntervalUpdated(private val recurringBuyFrequency: RecurringBuyFrequency) :

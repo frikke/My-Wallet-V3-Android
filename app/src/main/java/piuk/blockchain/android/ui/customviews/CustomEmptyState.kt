@@ -40,13 +40,14 @@ fun CustomEmptyState(
             .background(Color.White)
     ) {
         SimpleText(
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(title),
             style = ComposeTypographies.Title3,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
         )
         SimpleText(
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             text = descriptionText ?: stringResource(description),
             style = ComposeTypographies.Paragraph1,
             color = ComposeColors.Body,

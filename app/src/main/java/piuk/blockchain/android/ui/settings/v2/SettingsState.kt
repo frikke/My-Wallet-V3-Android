@@ -17,7 +17,8 @@ data class SettingsState(
     val tier: KycTier = KycTier.BRONZE,
     val error: SettingsError = SettingsError.None,
     val referralInfo: ReferralInfo = ReferralInfo.NotAvailable,
-    val canPayWithBind: Boolean = false
+    val canPayWithBind: Boolean = false,
+    val featureFlagsSet: FeatureFlagsSet = FeatureFlagsSet()
 ) : MviState
 
 sealed class ViewToLaunch {
@@ -45,4 +46,9 @@ data class UserDetails(
     val kycTier: KycTier,
     val userInfo: BasicProfileInfo,
     val referralInfo: ReferralInfo
+)
+
+@kotlinx.serialization.Serializable
+data class FeatureFlagsSet(
+    val cardRejectionFF: Boolean = false
 )

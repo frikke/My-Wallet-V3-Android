@@ -1,22 +1,12 @@
 apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
 
-android {
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-}
-
 dependencies {
     implementation project(':common:interface')
     implementation project(':componentlib')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')
 
-    implementation Libraries.koin
     implementation Libraries.rxJava
     implementation Libraries.rxKotlin
     implementation Libraries.rxRelay
@@ -25,9 +15,4 @@ dependencies {
 
     implementation Libraries.lifecycleViewModel
     implementation Libraries.lifecycleViewModelExtensions
-
-    // Logging
-    implementation Libraries.timber
-
-    testImplementation Libraries.junit
 }

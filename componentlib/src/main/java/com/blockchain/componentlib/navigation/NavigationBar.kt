@@ -3,8 +3,10 @@ package com.blockchain.componentlib.navigation
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -16,11 +18,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -39,7 +47,7 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
     data class Icon(
         val drawable: Int,
         val color: Color? = Grey400,
-        @DimenRes val size: Int = R.dimen.standard_margin,
+        @DimenRes val size: Int = R.dimen.standard_spacing,
         @StringRes val contentDescription: Int,
         val onIconClick: () -> Unit,
     ) :
@@ -48,6 +56,7 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
     data class DropdownIndicator(
         val dropDownClicked: () -> Unit,
         val text: String,
+        val isHighlighted: Boolean,
         val rightIcon: Int,
         val contentDescription: String,
         val color: Color = Grey000,
@@ -94,7 +103,7 @@ fun NavigationBar(
         Row(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .padding(horizontal = dimensionResource(R.dimen.standard_margin))
+                .padding(horizontal = dimensionResource(R.dimen.medium_spacing))
         ) {
             startNavigationBarButton?.let { button ->
                 when (button) {
@@ -116,7 +125,7 @@ fun NavigationBar(
                 style = AppTheme.typography.title2
             )
             endNavigationBarButtons.forEach {
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.smallest_margin)))
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.smallest_spacing)))
                 Box(
                     modifier = Modifier
                         .clickable {
@@ -178,54 +187,85 @@ fun RowScope.StartButton(button: NavigationBarButton.Icon) {
             colorFilter = if (button.color != null) ColorFilter.tint(button.color) else null
         )
     }
-    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_margin)))
+    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_spacing)))
 }
 
 @Composable
 fun RowScope.DropDown(dropdownIndicator: NavigationBarButton.DropdownIndicator) {
-    Row(
+
+    var isHighlighted by remember { mutableStateOf(dropdownIndicator.isHighlighted) }
+
+    Box(
         modifier = Modifier
-            .clickable {
-                dropdownIndicator.onClick.invoke()
-            }
-            .background(
-                dropdownIndicator.color,
-                RoundedCornerShape(dimensionResource(id = R.dimen.medium_margin))
-            )
+            .wrapContentWidth()
             .align(CenterVertically)
-            .padding(
-                start = 0.dp,
-                top = 8.dp,
-                bottom = 8.dp
-            )
     ) {
-        Image(
-            painter = painterResource(id = dropdownIndicator.rightIcon),
-            contentDescription = dropdownIndicator.contentDescription,
+        Row(
             modifier = Modifier
-                .padding(
-                    start = dimensionResource(id = R.dimen.tiny_margin)
+                .clickable {
+                    isHighlighted = false
+                    dropdownIndicator.onClick.invoke()
+                }
+                .background(
+                    dropdownIndicator.color,
+                    RoundedCornerShape(dimensionResource(id = R.dimen.medium_spacing))
                 )
-        )
-        Text(
-            text = dropdownIndicator.text,
-            style = AppTheme.typography.body1,
-            modifier = Modifier
                 .padding(
-                    start = dimensionResource(id = R.dimen.tiny_margin),
-                    end = dimensionResource(id = R.dimen.tiny_margin)
+                    start = 0.dp,
+                    top = 8.dp,
+                    bottom = 8.dp
                 )
-        )
-        Image(
-            painter = painterResource(id = R.drawable.ic_arrow_down),
-            contentDescription = "IconArrowDown",
-            modifier = Modifier
-                .padding(
-                    end = dimensionResource(id = R.dimen.tiny_margin)
-                )
-        )
+        ) {
+            Image(
+                painter = painterResource(id = dropdownIndicator.rightIcon),
+                contentDescription = dropdownIndicator.contentDescription,
+                modifier = Modifier
+                    .padding(
+                        start = dimensionResource(id = R.dimen.tiny_spacing)
+                    )
+            )
+            Text(
+                text = dropdownIndicator.text,
+                style = AppTheme.typography.body1,
+                modifier = Modifier
+                    .padding(
+                        start = dimensionResource(id = R.dimen.tiny_spacing),
+                        end = dimensionResource(id = R.dimen.tiny_spacing)
+                    )
+            )
+            Image(
+                painter = painterResource(id = R.drawable.ic_arrow_down),
+                contentDescription = "IconArrowDown",
+                modifier = Modifier
+                    .padding(
+                        end = dimensionResource(id = R.dimen.tiny_spacing)
+                    )
+            )
+        }
+        if (isHighlighted) {
+            DropDownHighLightIndicator(modifier = Modifier.align(TopEnd))
+        }
     }
-    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_margin)))
+    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.very_small_spacing)))
+}
+
+@Composable
+fun DropDownHighLightIndicator(modifier: Modifier) {
+    Canvas(
+        modifier = modifier
+            .border(
+                2.dp,
+                Color.White,
+                shape = CircleShape
+            )
+            .size(12.dp),
+        onDraw = {
+            drawCircle(
+                color = Color(0xFFDE0082),
+                radius = 5.dp.toPx()
+            )
+        }
+    )
 }
 
 @Preview(showBackground = true)
@@ -295,7 +335,8 @@ fun NavigationBarPreviewDropDown() {
                 dropDownClicked = {},
                 text = "Portfolio",
                 rightIcon = R.drawable.ic_bottom_nav_home,
-                "123",
+                isHighlighted = true,
+                contentDescription = "123",
             ),
             listOf(
                 NavigationBarButton.Icon(

@@ -1,0 +1,28 @@
+apply plugin: 'kotlin'
+apply plugin: 'java-library'
+apply plugin: 'kotlinx-serialization'
+apply from: rootProject.file("quality/ktlint.gradle")
+apply from: rootProject.file("quality/detekt.gradle")
+apply from: rootProject.file('gradle/local/common-tests.gradle')
+
+java {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = Versions.kotlinJvmTarget
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = Versions.kotlinJvmTarget
+    }
+}
+
+dependencies {
+    // koin
+    implementation Libraries.koin
+    implementation Libraries.kotlinJson
+}

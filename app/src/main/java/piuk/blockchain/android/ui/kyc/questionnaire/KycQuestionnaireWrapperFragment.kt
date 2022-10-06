@@ -71,4 +71,7 @@ class KycQuestionnaireWrapperFragment : Fragment(), QuestionnaireSheet.Host {
     override fun questionnaireSkipped() {
         navigate(KycNavXmlDirections.actionStartVeriff(countryCode))
     }
+
+    override fun onSheetClosed() {
+    }
 }

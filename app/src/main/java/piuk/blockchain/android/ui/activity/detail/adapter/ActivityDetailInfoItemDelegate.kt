@@ -84,7 +84,7 @@ private class InfoItemViewHolder(
 
     private fun setupCopyContentForType(infoType: ActivityDetailsType) {
         (infoType as? Copyable)?.let { copyable ->
-            val tinyPadding = context.resources.getDimension(R.dimen.tiny_margin).toInt()
+            val tinyPadding = context.resources.getDimension(R.dimen.tiny_spacing).toInt()
             itemView.setPadding(itemView.paddingLeft, itemView.paddingTop, tinyPadding, itemView.paddingBottom)
             itemView.setOnLongClickListener {
                 onLongClick(copyable.filed)

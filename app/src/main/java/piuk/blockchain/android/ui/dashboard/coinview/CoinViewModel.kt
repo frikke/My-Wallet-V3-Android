@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard.coinview
 
 import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -74,7 +73,11 @@ class CoinViewModel(
                 } else null
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
             is CoinViewIntent.ToggleWatchlist -> toggleWatchlist(previousState)
-            is CoinViewIntent.CheckScreenToOpen -> getAccountActions(intent)
+            is CoinViewIntent.CheckScreenToOpen -> {
+                previousState.asset?.let {
+                    getAccountActions(it, intent)
+                }
+            }
             is CoinViewIntent.CheckBuyStatus -> {
                 require(previousState.asset != null)
                 checkUserBuyStatus(previousState.asset)
@@ -135,8 +138,8 @@ class CoinViewModel(
             }
         )
 
-    private fun getAccountActions(intent: CoinViewIntent.CheckScreenToOpen) =
-        interactor.getAccountActions(intent.cryptoAccountSelected.account)
+    private fun getAccountActions(asset: CryptoAsset, intent: CoinViewIntent.CheckScreenToOpen) =
+        interactor.getAccountActions(asset, intent.cryptoAccountSelected.account)
             .subscribeBy(
                 onSuccess = { screenToNavigate ->
                     process(CoinViewIntent.UpdateViewState(screenToNavigate))
