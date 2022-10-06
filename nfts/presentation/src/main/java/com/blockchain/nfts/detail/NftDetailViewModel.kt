@@ -46,7 +46,8 @@ class NftDetailViewModel(
         viewModelScope.launch {
             nftService.getNftAsset(
                 address = address,
-                nftId = nftId
+                nftId = nftId,
+                pageKey = null
             ).collectLatest { dataResource ->
                 updateState {
                     it.copy(

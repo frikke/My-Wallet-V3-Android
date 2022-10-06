@@ -20,7 +20,7 @@ class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftSer
         freshnessStrategy: FreshnessStrategy,
         address: String,
         pageKey: String?
-    ): Flow<DataResource<List<NftAsset>>> {
+    ): Flow<DataResource<NftAssetsPage>> {
         return nftCollectionStore.stream(
             freshnessStrategy.withKey(
                 NftCollectionStore.Key(address = address, pageKey = pageKey)
@@ -41,7 +41,7 @@ class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftSer
             address = address,
             pageKey = pageKey
         ).mapData {
-            it.firstOrNull { it.id == nftId }
+            it.assets.firstOrNull { it.id == nftId }
         }
     }
 

@@ -9,6 +9,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.combineDataResources
+import com.blockchain.data.map
 import com.blockchain.nfts.OPENSEA_URL
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.domain.service.NftService
@@ -57,7 +59,7 @@ class NftCollectionViewModel(
                 check(modelState.account != null) { "account not initialized" }
                 loadNftCollection(
                     account = modelState.account,
-                    pageKey = intent.pageKey,
+                    pageKey = modelState.nextPageKey,
                     isFromPullToRefresh = false
                 )
             }
@@ -109,17 +111,43 @@ class NftCollectionViewModel(
                 address = address,
                 pageKey = pageKey
             ).collectLatest { dataResource ->
-                updateState {
-                    it.copy(
-                        isPullToRefreshLoading = isFromPullToRefresh && dataResource is DataResource.Loading,
-                        collection = if (dataResource is DataResource.Loading && it.collection is DataResource.Data) {
-                            // if data is present already - don't show loading
-                            it.collection
-                        } else {
-                            dataResource
+                when (dataResource) {
+                    is DataResource.Loading -> {
+                        updateState {
+                            it.copy(
+                                isPullToRefreshLoading = isFromPullToRefresh,
+                                collection = if (it.collection is DataResource.Data) {
+                                    // if data is present already - don't show loading
+                                    it.collection
+                                } else {
+                                    dataResource
+                                }
+                            )
                         }
-                    )
+                    }
+                    is DataResource.Error -> {
+                        updateState {
+                            it.copy(
+                                isPullToRefreshLoading = false,
+                                collection = dataResource
+                            )
+                        }
+                    }
+                    is DataResource.Data -> {
+                        updateState {
+                            it.copy(
+                                isPullToRefreshLoading = false,
+                                nextPageKey = dataResource.data.nextPageKey,
+                                // combine current page and new page items
+                                collection = combineDataResources(
+                                    it.collection,
+                                    dataResource.map { it.assets }
+                                ) { existing, new -> existing + new }
+                            )
+                        }
+                    }
                 }
+
             }
         }
     }
