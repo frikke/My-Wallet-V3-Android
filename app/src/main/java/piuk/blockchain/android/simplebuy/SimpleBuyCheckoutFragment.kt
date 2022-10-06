@@ -496,8 +496,10 @@ class SimpleBuyCheckoutFragment :
     }
 
     private fun SimpleBuyState.suggestEnablingRecurringBuyFrequency(): Boolean =
-        featureFlagSet.rbFrequencySuggestionFF && this.recurringBuyForExperiment != RecurringBuyFrequency.ONE_TIME &&
-            this.isSelectedPaymentMethodRecurringBuyEligible()
+        featureFlagSet.rbFrequencySuggestionFF &&
+            this.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME &&
+            this.isSelectedPaymentMethodRecurringBuyEligible() &&
+            this.recurringBuyForExperiment != RecurringBuyFrequency.ONE_TIME
 
     private fun SimpleBuyState.recurringBuySuggestionHasNotBeenEnabled(): Boolean =
         featureFlagSet.rbFrequencySuggestionFF && this.recurringBuyState == RecurringBuyState.UNINITIALISED
