@@ -5,6 +5,7 @@ import org.koin.core.qualifier.named
 
 val applicationScope = StringQualifier("applicationScope")
 val featureFlagsPrefs = StringQualifier("FeatureFlagsPrefs")
+val feynmanFeatureFlag = StringQualifier("ff_feynman")
 val googlePayFeatureFlag = StringQualifier("ff_gpay")
 val superAppFeatureFlag = StringQualifier("ff_super_app")
 val intercomChatFeatureFlag = StringQualifier("ff_intercom_chat")

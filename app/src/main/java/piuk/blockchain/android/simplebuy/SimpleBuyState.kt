@@ -72,6 +72,7 @@ data class SimpleBuyState constructor(
     val eligibleAndNextPaymentRecurringBuy: List<EligibleAndNextPaymentRecurringBuy> = emptyList(),
     val googlePayDetails: GooglePayDetails? = null,
     val featureFlagSet: FeatureFlagsSet = FeatureFlagsSet(),
+    val amountInCrypto: @Contextual CryptoValue? = null,
     @Transient val quickFillButtonData: QuickFillButtonData? = null,
     @Transient val safeConnectTosLink: String? = null,
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
@@ -173,6 +174,18 @@ data class SimpleBuyState constructor(
 
     override val availableBalance: Money?
         get() = selectedPaymentMethodDetails?.availableBalance
+
+    fun shouldRequestNewQuote(lastState: SimpleBuyState?): Boolean {
+        return this.featureFlagSet.feynmanFF &&
+            this.amount.isPositive &&
+            lastState?.selectedPaymentMethod != this.selectedPaymentMethod
+    }
+
+    fun shouldUpdateNewQuote(lastState: SimpleBuyState?): Boolean {
+        return this.featureFlagSet.feynmanFF &&
+            this.amountInCrypto != null &&
+            lastState?.amountInCrypto != this.amountInCrypto
+    }
 }
 
 enum class KycState {
@@ -204,6 +217,7 @@ data class FeatureFlagsSet(
     val rbFrequencySuggestionFF: Boolean = false,
     val cardRejectionFF: Boolean = false,
     val rbExperimentFF: Boolean = false,
+    val feynmanFF: Boolean = false,
 )
 
 enum class FlowScreen {

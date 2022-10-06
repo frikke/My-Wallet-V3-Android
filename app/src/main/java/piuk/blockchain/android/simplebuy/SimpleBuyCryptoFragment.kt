@@ -39,6 +39,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
@@ -58,6 +59,7 @@ import java.math.BigDecimal
 import java.time.ZonedDateTime
 import java.time.format.TextStyle
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -100,6 +102,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.sheets.TransactionFlowInf
 import piuk.blockchain.android.ui.transactionflow.flow.sheets.TransactionFlowInfoHost
 import piuk.blockchain.android.util.StringLocalizationUtil
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
+import timber.log.Timber
 
 class SimpleBuyCryptoFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyBuyCryptoBinding>(),
@@ -178,14 +181,21 @@ class SimpleBuyCryptoFragment :
         analytics.logEvent(SimpleBuyAnalytics.BUY_FORM_SHOWN)
 
         compositeDisposable += binding.inputAmount.amount
+            .throttleFirst(1000L, TimeUnit.MILLISECONDS)
             .doOnSubscribe {
                 preselectedAmount?.let { amount ->
                     model.process(SimpleBuyIntent.AmountUpdated(amount))
                 }
             }
-            .subscribe {
-                when (it) {
-                    is FiatValue -> model.process(SimpleBuyIntent.AmountUpdated(it))
+            .subscribe { amount ->
+                when (amount) {
+                    is FiatValue -> {
+                        model.process(SimpleBuyIntent.AmountUpdated(amount))
+                        if (lastState?.featureFlagSet?.feynmanFF == true) {
+                            Timber.e("quote new number")
+                            updateQuote(amount)
+                        }
+                    }
                     else -> throw IllegalStateException("CryptoValue is not supported as input yet")
                 }
             }
@@ -202,6 +212,17 @@ class SimpleBuyCryptoFragment :
         }
 
         shouldShowPaymentMethodSheet = launchSelectPaymentMethod
+    }
+
+    private fun updateQuote(amount: Money) {
+        model.process(
+            SimpleBuyIntent.GetQuotePrice(
+                currencyPair = CurrencyPair(fiatCurrency, asset),
+                amount = amount,
+                paymentMethod = lastState?.selectedPaymentMethod?.paymentMethodType
+                    ?: PaymentMethodType.FUNDS
+            )
+        )
     }
 
     override fun showAvailableToAddPaymentMethods() =
@@ -392,6 +413,14 @@ class SimpleBuyCryptoFragment :
     }
 
     override fun render(newState: SimpleBuyState) {
+        if (newState.shouldRequestNewQuote(lastState)) {
+            updateQuote(newState.amount)
+        }
+
+        if (newState.shouldUpdateNewQuote(lastState)) {
+            binding.inputAmount.updateExchangeAmount(newState.amountInCrypto!!)
+        }
+
         lastState = newState
 
         model.process(
@@ -423,7 +452,7 @@ class SimpleBuyCryptoFragment :
                 exchangeCurrency = it,
                 canSwap = false,
                 predefinedAmount = newState.order.amount ?: FiatValue.zero(newState.fiatCurrency),
-                showExchangeRate = false
+                showExchangeRate = true
             )
             binding.buyIcon.setAssetIconColoursWithTint(it)
         }

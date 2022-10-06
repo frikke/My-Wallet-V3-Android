@@ -36,6 +36,7 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.BuySellOrder
+import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
@@ -71,6 +72,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
@@ -83,6 +85,8 @@ import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.json.Json
 import piuk.blockchain.android.cards.CardData
 import piuk.blockchain.android.cards.CardIntent
+import piuk.blockchain.android.data.QuotePrice
+import piuk.blockchain.android.domain.repositories.TradeDataService
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
@@ -102,6 +106,7 @@ import timber.log.Timber
 class SimpleBuyInteractor(
     private val kycService: KycService,
     private val custodialWalletManager: CustodialWalletManager,
+    private val tradeDataService: TradeDataService,
     private val limitsDataManager: LimitsDataManager,
     private val withdrawLocksRepository: WithdrawLocksRepository,
     private val analytics: Analytics,
@@ -127,6 +132,7 @@ class SimpleBuyInteractor(
     private val rbFrequencySuggestionFF: FeatureFlag,
     private val cardRejectionFF: FeatureFlag,
     private val rbExperimentFF: FeatureFlag,
+    private val feynmanFF: FeatureFlag,
     private val remoteConfigRepository: RemoteConfigRepository,
     private val quickFillRoundingService: QuickFillRoundingService
 ) {
@@ -175,6 +181,33 @@ class SimpleBuyInteractor(
                 product = Product.BUY
             ).map { it as LegacyLimits }
         )
+    }
+
+    fun getQuotePrice(
+        currencyPair: CurrencyPair,
+        amount: Money,
+        paymentMethod: PaymentMethodType,
+    ): Observable<QuotePrice> {
+        return tradeDataService.getQuotePrice(
+            currencyPair = currencyPair.rawValue,
+            amount = amount.toBigInteger().toString(),
+            paymentMethod = paymentMethod.name,
+            orderProfileName = SIMPLEBUY_PROFILE_NAME
+        ).flatMap { quotePrice ->
+            Observable.interval(
+                INTERVAL_QUOTE_PRICE,
+                TimeUnit.MILLISECONDS
+            ).flatMap {
+                tradeDataService.getQuotePrice(
+                    currencyPair = currencyPair.rawValue,
+                    amount = amount.toBigInteger().toString(),
+                    paymentMethod = paymentMethod.name,
+                    orderProfileName = SIMPLEBUY_PROFILE_NAME
+                )
+            }.startWithItem(
+                quotePrice
+            )
+        }
     }
 
     fun cancelOrder(orderId: String): Completable = cancelOrderUseCase.invoke(orderId)
@@ -529,14 +562,16 @@ class SimpleBuyInteractor(
             buyQuoteRefreshFF.enabled,
             plaidFF.enabled,
             rbFrequencySuggestionFF.enabled,
-            rbExperimentFF.enabled
-        ) { cardRejectionFF, buyQuoteRefreshFF, plaidFF, rbFrequencySuggestionFF, rbExperimentFF ->
+            rbExperimentFF.enabled,
+            feynmanFF.enabled
+        ) { cardRejectionFF, buyQuoteRefreshFF, plaidFF, rbFrequencySuggestionFF, rbExperimentFF, feynmanFF ->
             FeatureFlagsSet(
                 cardRejectionFF = cardRejectionFF,
                 buyQuoteRefreshFF = buyQuoteRefreshFF,
                 plaidFF = plaidFF,
                 rbFrequencySuggestionFF = rbFrequencySuggestionFF,
-                rbExperimentFF = rbExperimentFF
+                rbExperimentFF = rbExperimentFF,
+                feynmanFF = feynmanFF
             )
         }
     }
@@ -703,6 +738,9 @@ class SimpleBuyInteractor(
         private const val MONTHLY = "MONTHLY"
 
         const val PENDING = "pending"
+
+        private const val INTERVAL_QUOTE_PRICE = 5000L
+        private const val SIMPLEBUY_PROFILE_NAME = "SIMPLEBUY"
 
         private const val INTERVAL: Long = 5
         private const val RETRIES_SHORT = 6
