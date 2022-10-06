@@ -33,8 +33,8 @@ fun NonTradeableAssetData(data: CoinviewAssetTradeableState.NonTradeable) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = AppTheme.dimensions.paddingLarge,
-                vertical = AppTheme.dimensions.paddingMedium
+                horizontal = AppTheme.dimensions.standardSpacing,
+                vertical = AppTheme.dimensions.smallSpacing
             )
     ) {
         CardAlert(

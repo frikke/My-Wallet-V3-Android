@@ -29,7 +29,7 @@ fun UnknownAsset(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(AppTheme.dimensions.xxxPaddingLarge),
+            .padding(AppTheme.dimensions.xHugeSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.weight(1F))
@@ -38,7 +38,7 @@ fun UnknownAsset(
             ImageResource.Local(R.drawable.ic_coinview_error)
         )
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
         Text(
             text = stringResource(R.string.coinview_no_asset_title),
@@ -47,7 +47,7 @@ fun UnknownAsset(
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+        Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
 
         val descriptionAnnotation = buildAnnotatedString {
             withStyle(

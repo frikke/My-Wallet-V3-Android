@@ -573,18 +573,16 @@ val coreModule = module {
             )
         }.bind(WatchlistDataManager::class)
 
-        scoped {
+        scoped<WatchlistService> {
             WatchlistRepository(
                 watchlistStore = get(),
-                authenticator = get(),
                 watchlistApiService = get(),
                 assetCatalogue = get()
             )
-        }.bind(WatchlistService::class)
+        }
 
         scoped {
             WatchlistStore(
-                authenticator = get(),
                 watchlistService = get()
             )
         }

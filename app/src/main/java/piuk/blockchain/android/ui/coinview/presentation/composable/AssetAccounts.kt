@@ -85,7 +85,7 @@ fun AssetAccountsError() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = AppTheme.dimensions.paddingLarge,
+                horizontal = AppTheme.dimensions.standardSpacing,
                 vertical = AppTheme.dimensions.smallSpacing
             )
     ) {

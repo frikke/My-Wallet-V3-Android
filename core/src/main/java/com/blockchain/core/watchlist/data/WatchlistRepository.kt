@@ -8,7 +8,6 @@ import com.blockchain.core.watchlist.domain.model.WatchlistToggle
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.doOnData
-import com.blockchain.nabu.Authenticator
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
@@ -21,7 +20,6 @@ typealias Watchlist = List<Currency>
 
 class WatchlistRepository(
     private val watchlistStore: WatchlistStore,
-    private val authenticator: Authenticator,
     private val watchlistApiService: WatchlistApiService,
     private val assetCatalogue: AssetCatalogue
 ) : WatchlistService {
@@ -51,10 +49,8 @@ class WatchlistRepository(
     }
 
     override suspend fun addToWatchlist(asset: Currency): Flow<DataResource<Unit>> {
-        return authenticator.authenticate {
-            rxSingleOutcome {
-                watchlistApiService.addToWatchlist(it.authHeader, asset.networkTicker)
-            }
+        return rxSingleOutcome {
+            watchlistApiService.addToWatchlist(asset.networkTicker)
         }.toDataResource().doOnData {
             // refresh store - will refresh any collectors of isAssetInWatchlist
             getWatchlist(FreshnessStrategy.Fresh).collect()
@@ -62,10 +58,8 @@ class WatchlistRepository(
     }
 
     override suspend fun removeFromWatchlist(asset: Currency): Flow<DataResource<Unit>> {
-        return authenticator.authenticate {
-            rxSingleOutcome {
-                watchlistApiService.removeFromWatchlist(it.authHeader, asset.networkTicker)
-            }
+        return rxSingleOutcome {
+            watchlistApiService.removeFromWatchlist(asset.networkTicker)
         }.toDataResource().doOnData {
             // refresh store - will refresh any collectors of isAssetInWatchlist
             getWatchlist(FreshnessStrategy.Fresh).collect()
