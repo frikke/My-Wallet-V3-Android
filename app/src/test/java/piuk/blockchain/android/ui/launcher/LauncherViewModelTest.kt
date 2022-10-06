@@ -14,6 +14,7 @@ import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,17 +43,22 @@ class LauncherViewModelTest {
 
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase = mockk()
 
-    private val viewModel = LauncherViewModel(
-        appUtil,
-        deepLinkPersistence,
-        environmentConfig,
-        authPrefs,
-        getAppMaintenanceConfigUseCase,
-        sessionPrefs,
-        securityPrefs,
-        referralPrefs,
-        encryptedPrefs
-    )
+    private lateinit var viewModel: LauncherViewModel
+
+    @Before
+    fun setUp() {
+        viewModel = LauncherViewModel(
+            appUtil,
+            deepLinkPersistence,
+            environmentConfig,
+            authPrefs,
+            getAppMaintenanceConfigUseCase,
+            sessionPrefs,
+            securityPrefs,
+            referralPrefs,
+            encryptedPrefs
+        )
+    }
 
     @Test
     fun `GIVEN bitcoin scheme, WHEN viewCreated is called, THEN keySchemeUrl should be bitcoin uri`() {
