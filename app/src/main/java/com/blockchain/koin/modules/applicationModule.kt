@@ -134,7 +134,7 @@ import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.GlobalEventHandler
-import piuk.blockchain.android.ui.launcher.LauncherPresenter
+import piuk.blockchain.android.ui.launcher.LauncherViewModel
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.ui.linkbank.BankAuthModel
 import piuk.blockchain.android.ui.linkbank.BankAuthState
@@ -833,8 +833,8 @@ val applicationModule = module {
         )
     }
 
-    factory {
-        LauncherPresenter(
+    viewModel {
+        LauncherViewModel(
             appUtil = get(),
             deepLinkPersistence = get(),
             envSettings = get(),
