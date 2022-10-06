@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.launcher
 
 import android.content.Intent
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AuthPrefs
@@ -27,6 +28,9 @@ import piuk.blockchain.androidcore.utils.SessionPrefs
 
 @RunWith(MockitoJUnitRunner::class)
 class LauncherViewModelTest {
+
+    @get:Rule
+    val rule = InstantTaskExecutorRule()
 
     @ExperimentalCoroutinesApi
     @get:Rule
@@ -61,7 +65,7 @@ class LauncherViewModelTest {
     }
 
     @Test
-    fun `GIVEN bitcoin scheme, WHEN viewCreated is called, THEN keySchemeUrl should be bitcoin uri`() {
+    fun `GIVEN bitcoin scheme, WHEN viewCreated is called, THEN keySchemeUrl should be bitcoin uri`() = runTest {
         // Arrange
         val args = LauncherState(
             action = Intent.ACTION_VIEW,
