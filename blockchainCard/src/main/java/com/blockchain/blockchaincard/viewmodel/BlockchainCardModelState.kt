@@ -3,6 +3,7 @@ package com.blockchain.blockchaincard.viewmodel
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
@@ -32,6 +33,9 @@ data class BlockchainCardModelState(
     val isLegalDocReviewComplete: Boolean = false,
     val singleLegalDocumentToSee: BlockchainCardLegalDocument? = null,
     val isAddressLoading: Boolean = false,
+    val googleWalletId: String? = null,
+    val stableHardwareId: String? = null,
+    val googleWalletStatus: BlockchainCardGoogleWalletStatus = BlockchainCardGoogleWalletStatus.NOT_ADDED,
 ) : ModelState
 
 sealed class BlockchainCardErrorState {

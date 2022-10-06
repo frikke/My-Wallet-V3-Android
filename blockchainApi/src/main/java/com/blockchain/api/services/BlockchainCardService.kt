@@ -3,6 +3,8 @@ package com.blockchain.api.services
 import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.blockchainCard.WalletHelperUrl
 import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocsFormDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionRequestDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardAccountDto
@@ -126,5 +128,13 @@ class BlockchainCardService internal constructor(
         acceptedDocumentsForm: BlockchainCardAcceptedDocsFormDto
     ): Outcome<Exception, List<BlockchainCardLegalDocumentDto>> = api.acceptLegalDocuments(
         acceptedDocumentsForm = acceptedDocumentsForm
+    )
+
+    suspend fun provisionGoogleWalletCard(
+        cardId: String,
+        provisionRequest: BlockchainCardGoogleWalletProvisionRequestDto
+    ): Outcome<Exception, BlockchainCardGoogleWalletProvisionResponseDto> = api.provisionGoogleWalletCard(
+        cardId = cardId,
+        provisionRequest = provisionRequest
     )
 }

@@ -3,6 +3,9 @@ package com.blockchain.blockchaincard.data
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocsFormDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocumentDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionRequestDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletUserAddressDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardDto
@@ -16,6 +19,9 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletData
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletUserAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
@@ -24,6 +30,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionType
 import com.blockchain.blockchaincard.domain.models.BlockchainCardType
+import com.blockchain.blockchaincard.googlewallet.manager.GoogleWalletManager
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
@@ -43,6 +50,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import java.math.BigDecimal
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 internal class BlockchainCardRepositoryImpl(
@@ -50,7 +58,8 @@ internal class BlockchainCardRepositoryImpl(
     private val eligibilityApiService: EligibilityApiService,
     private val coincore: Coincore,
     private val assetCatalogue: AssetCatalogue,
-    private val userIdentity: UserIdentity
+    private val userIdentity: UserIdentity,
+    private val googleWalletManager: GoogleWalletManager
 ) : BlockchainCardRepository {
 
     override suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainCardProduct>> =
@@ -241,6 +250,32 @@ internal class BlockchainCardRepositoryImpl(
             response.map { it.toDomainModel() }
         }.wrapBlockchainCardError()
 
+    override suspend fun provisionGoogleWalletCard(
+        cardId: String,
+        provisionRequest: BlockchainCardGoogleWalletData
+    ): Outcome<BlockchainCardError, BlockchainCardGoogleWalletPushTokenizeData> =
+        blockchainCardService.provisionGoogleWalletCard(
+            cardId = cardId,
+            provisionRequest = provisionRequest.toDto()
+        ).map { response ->
+            response.toDomainModel()
+        }.wrapBlockchainCardError()
+
+    override suspend fun getGoogleWalletId(): Outcome<BlockchainCardError, String> =
+        rxSingle {
+            googleWalletManager.getWalletId()
+        }.awaitOutcome().wrapBlockchainCardError()
+
+    override suspend fun getGoogleWalletStableHardwareId(): Outcome<BlockchainCardError, String> =
+        rxSingle {
+            googleWalletManager.getStableHardwareId()
+        }.awaitOutcome().wrapBlockchainCardError()
+
+    override suspend fun getGoogleWalletTokenizationStatus(last4Digits: String): Outcome<BlockchainCardError, Boolean> =
+        rxSingle {
+            googleWalletManager.getTokenizationStatus(last4Digits)
+        }.awaitOutcome().wrapBlockchainCardError()
+
     //
     // Domain Model Conversion
     //
@@ -339,6 +374,38 @@ internal class BlockchainCardRepositoryImpl(
     private fun List<BlockchainCardLegalDocument>.toAcceptedLegalDocForm(): BlockchainCardAcceptedDocsFormDto =
         BlockchainCardAcceptedDocsFormDto(
             legalPolicies = this.map { BlockchainCardAcceptedDocumentDto(it.name, it.version) }
+        )
+
+    private fun BlockchainCardGoogleWalletData.toDto(): BlockchainCardGoogleWalletProvisionRequestDto =
+        BlockchainCardGoogleWalletProvisionRequestDto(
+            deviceId = deviceId,
+            deviceType = deviceType,
+            provisioningAppVersion = provisioningAppVersion,
+            walletAccountId = walletAccountId
+        )
+
+    private fun BlockchainCardGoogleWalletProvisionResponseDto.toDomainModel():
+        BlockchainCardGoogleWalletPushTokenizeData =
+        BlockchainCardGoogleWalletPushTokenizeData(
+            cardType = cardType,
+            displayName = displayName,
+            opaquePaymentCard = opaquePaymentCard,
+            last4 = last4,
+            network = network,
+            tokenServiceProvider = tokenServiceProvider,
+            googleWalletUserAddress = userAddress.toDomainModel()
+        )
+
+    private fun BlockchainCardGoogleWalletUserAddressDto.toDomainModel(): BlockchainCardGoogleWalletUserAddress =
+        BlockchainCardGoogleWalletUserAddress(
+            name = name,
+            address1 = address1,
+            address2 = address2,
+            city = city,
+            stateCode = stateCode,
+            postalCode = postalCode,
+            countryCode = countryCode,
+            phone = phone
         )
 
     private fun NabuApiException.toBlockchainCardError(): BlockchainCardError =

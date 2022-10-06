@@ -3,6 +3,8 @@ package com.blockchain.blockchaincard.viewmodel
 import androidx.navigation.NavHostController
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
+import com.blockchain.blockchaincard.ui.BlockchainCardHostActivity
 import com.blockchain.blockchaincard.ui.BlockchainCardHostFragment
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -103,7 +105,7 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.CardClosed -> {
-                finishHostFragment()
+                (navController.context as? BlockchainCardHostActivity)?.finish()
             }
 
             is BlockchainCardNavigationEvent.ChooseFundingAccountAction -> {
@@ -111,15 +113,11 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.TopUpCrypto -> {
-                val fragmentManager = (navController.context as? BlockchainActivity)?.supportFragmentManager
-                val fragmentOld = fragmentManager?.fragments?.first { it is BlockchainCardHostFragment }
-                (fragmentOld as BlockchainCardHostFragment).startBuy(navigationEvent.asset)
+                (navController.context as? BlockchainCardHostActivity)?.startBuy(navigationEvent.asset)
             }
 
             is BlockchainCardNavigationEvent.TopUpFiat -> {
-                val fragmentManager = (navController.context as? BlockchainActivity)?.supportFragmentManager
-                val fragmentOld = fragmentManager?.fragments?.first { it is BlockchainCardHostFragment }
-                (fragmentOld as BlockchainCardHostFragment).startDeposit(navigationEvent.account)
+                (navController.context as? BlockchainCardHostActivity)?.startDeposit(navigationEvent.account)
             }
 
             is BlockchainCardNavigationEvent.SeeTransactionControls -> {
@@ -131,9 +129,9 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.SeeBillingAddress -> {
-                val fragmentManager = (navController.context as? BlockchainActivity)?.supportFragmentManager
-                val fragmentOld = fragmentManager?.fragments?.first { it is BlockchainCardHostFragment }
-                (fragmentOld as BlockchainCardHostFragment).startKycAddressVerification(navigationEvent.address)
+                (navController.context as? BlockchainCardHostActivity)?.startKycAddressVerification(
+                    address = navigationEvent.address
+                )
             }
 
             is BlockchainCardNavigationEvent.SeeSupport -> {
@@ -179,15 +177,22 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                 )
             }
 
-            // For now, all support pages go to the same place
             is BlockchainCardNavigationEvent.SeeCardLostPage -> {
                 destination = BlockchainCardDestination.CardLostPageDestination
             }
+
             is BlockchainCardNavigationEvent.SeeFAQPage -> {
                 destination = BlockchainCardDestination.FAQPageDestination
             }
+
             is BlockchainCardNavigationEvent.SeeContactSupportPage -> {
                 destination = BlockchainCardDestination.ContactSupportPageDestination
+            }
+
+            is BlockchainCardNavigationEvent.AddCardToGoogleWallet -> {
+                (navController.context as BlockchainCardHostActivity).startAddCardToGoogleWallet(
+                    pushTokenizeData = navigationEvent.blockchainCardTokenizationRequest
+                )
             }
         }.exhaustive
 
@@ -268,6 +273,10 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
     object SeeFAQPage : BlockchainCardNavigationEvent()
 
     object SeeContactSupportPage : BlockchainCardNavigationEvent()
+
+    data class AddCardToGoogleWallet(
+        val blockchainCardTokenizationRequest: BlockchainCardGoogleWalletPushTokenizeData
+    ) : BlockchainCardNavigationEvent()
 }
 
 sealed class BlockchainCardDestination(override val route: String) : ComposeNavigationDestination {

@@ -49,6 +49,10 @@ object Versions {
     const val googleServicesPlaces = "2.6.0"
     const val googleServicesReCaptcha = "16.0.0"
     const val googleServicesWallet = "19.0.1"
+    const val googleServicesCoroutines = "1.6.4"
+    const val googleServicesTapAndPay = "18.2.0"
+    const val googleServicesBasement = "18.1.0"
+    const val googleServicesTasks = "18.0.2"
     const val googlePlayCore = "1.8.2"
     const val firebaseBom = "29.2.1"
     const val supportTesting = "1.0.2"
@@ -221,6 +225,10 @@ object Libraries {
     const val firebaseDynamicLink = "com.google.firebase:firebase-dynamic-links"
     const val googlePlayServicesBase =
         "com.google.android.gms:play-services-base:${Versions.googleServices}"
+    const val googlePlayServicesBasement =
+        "com.google.android.gms:play-services-basement:${Versions.googleServicesBasement}"
+    const val googlePlayServicesTasks =
+        "com.google.android.gms:play-services-tasks:${Versions.googleServicesTasks}"
     const val googlePlayServicesAuth =
         "com.google.android.gms:play-services-auth:${Versions.googleServicesAuth}"
     const val googlePlaces =
@@ -230,8 +238,14 @@ object Libraries {
     const val googleServicesWallet =
         "com.google.android.gms:play-services-wallet:${Versions.googleServicesWallet}"
     const val googlePlayCore = "com.google.android.play:core:${Versions.googlePlayCore}"
+    const val googlePlayServicesCoroutines =
+        "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:${Versions.googleServicesCoroutines}"
+    const val googlePlayServicesTapAndPay =
+        "com.google.android.gms:play-services-tapandpay:${Versions.googleServicesTapAndPay}"
+
     const val biometricsApi = "androidx.biometric:biometric:${Versions.biometrics}"
     const val adsIdentifier = "com.google.android.gms:play-services-ads-identifier:${Versions.adsIdentifier}"
+
 
     // Networking, RxJava
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"

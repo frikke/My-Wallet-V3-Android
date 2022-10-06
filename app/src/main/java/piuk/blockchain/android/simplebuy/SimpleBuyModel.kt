@@ -46,6 +46,7 @@ import com.blockchain.network.PollResult
 import com.blockchain.outcome.getOrThrow
 import com.blockchain.payments.core.CardAcquirer
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -101,8 +102,8 @@ class SimpleBuyModel(
         when (intent) {
             is SimpleBuyIntent.InitializeFeatureFlags -> {
                 interactor.initializeFeatureFlags().subscribeBy(
-                    onSuccess = {
-                        process(SimpleBuyIntent.UpdateFeatureFlags(it))
+                    onSuccess = { featureFlagSet ->
+                        process(SimpleBuyIntent.UpdateFeatureFlags(featureFlagSet))
                     },
                     onError = {
                         process(SimpleBuyIntent.UpdateFeatureFlags(FeatureFlagsSet()))
@@ -130,7 +131,21 @@ class SimpleBuyModel(
                 }
                 null
             }
-
+            is SimpleBuyIntent.GetQuotePrice -> {
+                interactor.getQuotePrice(
+                    currencyPair = intent.currencyPair,
+                    amount = intent.amount,
+                    paymentMethod = intent.paymentMethod,
+                ).subscribeBy(
+                    onNext = {
+                        process(SimpleBuyIntent.UpdateQuote(it.resultAmount as CryptoValue))
+                    },
+                    onError = {
+                        Timber.e("SimpleBuyModel - GetQuote error: " + it.message)
+                        processOrderErrors(it)
+                    }
+                )
+            }
             is SimpleBuyIntent.UpdateExchangeRate -> interactor.updateExchangeRate(intent.fiatCurrency, intent.asset)
                 .subscribeBy(
                     onSuccess = { process(SimpleBuyIntent.ExchangeRateUpdated(it)) },

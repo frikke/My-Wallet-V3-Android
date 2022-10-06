@@ -295,6 +295,7 @@ class FiatCryptoInputView(
     }
 
     fun updateExchangeAmount(it: Money) {
+        binding.exchangeAmount.visible()
         binding.exchangeAmount.text = it.toStringWithSymbol()
     }
 

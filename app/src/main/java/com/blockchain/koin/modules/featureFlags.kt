@@ -13,6 +13,7 @@ import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.evmWithoutL1BalanceFeatureFlag
+import com.blockchain.koin.feynmanFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.loqateFeatureFlag
@@ -181,6 +182,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_rb_frequency_suggestion",
                 "Enable Recurring Buy suggestion"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(feynmanFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_enter_amount_screen_ff_feynman",
+                "Feynman quote enter amount screen"
             )
         )
     }.bind(FeatureFlag::class)

@@ -22,6 +22,7 @@ import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
+import com.blockchain.koin.feynmanFeatureFlag
 import com.blockchain.koin.gbp
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
@@ -424,6 +425,7 @@ val applicationModule = module {
             SimpleBuyInteractor(
                 withdrawLocksRepository = get(),
                 kycService = get(),
+                tradeDataService = get(),
                 custodialWalletManager = get(),
                 limitsDataManager = get(),
                 coincore = get(),
@@ -449,6 +451,7 @@ val applicationModule = module {
                 rbFrequencySuggestionFF = get(rbFrequencyFeatureFlag),
                 cardRejectionFF = get(cardRejectionCheckFeatureFlag),
                 rbExperimentFF = get(rbExperimentFeatureFlag),
+                feynmanFF = get(feynmanFeatureFlag),
                 remoteConfigRepository = get(),
                 quickFillRoundingService = get()
             )
@@ -533,7 +536,8 @@ val applicationModule = module {
                 accumulatedInPeriodMapper = GetAccumulatedInPeriodToIsFirstTimeBuyerMapper(),
                 nextPaymentRecurringBuyMapper = GetNextPaymentDateListToFrequencyDateMapper(),
                 recurringBuyMapper = get(),
-                getRecurringBuysStore = get()
+                getRecurringBuysStore = get(),
+                assetCatalogue = get()
             )
         }
 

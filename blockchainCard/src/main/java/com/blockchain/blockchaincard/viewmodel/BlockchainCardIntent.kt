@@ -53,7 +53,6 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     data class UpdateBillingAddress(val newAddress: BlockchainCardAddress) : BlockchainCardIntent()
     object SeeAllTransactions : BlockchainCardIntent()
     data class SeeTransactionDetails(val transaction: BlockchainCardTransaction) : BlockchainCardIntent()
-
     object DismissBillingAddressUpdateResult : BlockchainCardIntent()
     object SeeSupport : BlockchainCardIntent()
     object CloseCard : BlockchainCardIntent()
@@ -65,4 +64,9 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object SeeCardLostPage : BlockchainCardIntent()
     object SeeFAQPage : BlockchainCardIntent()
     object SeeContactSupportPage : BlockchainCardIntent()
+    object LoadGoogleWalletDetails : BlockchainCardIntent()
+    object LoadGoogleWalletTokenizationStatus : BlockchainCardIntent()
+    object LoadGoogleWalletPushTokenizeData : BlockchainCardIntent()
+    object GoogleWalletAddCardSuccess : BlockchainCardIntent()
+    object GoogleWalletAddCardFailed : BlockchainCardIntent()
 }

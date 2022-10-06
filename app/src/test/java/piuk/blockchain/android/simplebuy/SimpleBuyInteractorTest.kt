@@ -42,6 +42,7 @@ import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
 import org.junit.Before
 import org.junit.Test
+import piuk.blockchain.android.domain.repositories.TradeDataService
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
@@ -72,9 +73,11 @@ class SimpleBuyInteractorTest {
     private val rbFrequencySuggestion: FeatureFlag = mock()
     private val rbExperimentFF: FeatureFlag = mock()
     private val remoteConfigRepository: RemoteConfigRepository = mock()
+    private val tradeDataService: TradeDataService = mock()
     private val buyQuoteRefreshFF: FeatureFlag = mock()
     private val plaidFF: FeatureFlag = mock()
     private val cardPaymentAsyncFF: FeatureFlag = mock()
+    private val feynmannFF: FeatureFlag = mock()
     private val simpleBuyPrefs: SimpleBuyPrefs = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
     private val eligibilityService: EligibilityService = mock {
@@ -121,6 +124,8 @@ class SimpleBuyInteractorTest {
             cardRejectionFF = cardRejectionCheckFeatureFlag,
             rbExperimentFF = rbExperimentFF,
             remoteConfigRepository = remoteConfigRepository,
+            tradeDataService = tradeDataService,
+            feynmanFF = feynmannFF,
             quickFillRoundingService = quickFillRoundingService
         )
 

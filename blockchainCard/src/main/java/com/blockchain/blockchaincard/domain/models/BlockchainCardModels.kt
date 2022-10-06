@@ -81,6 +81,34 @@ data class BlockchainCardLegalDocument(
     var seen: Boolean = false
 ) : Parcelable
 
+data class BlockchainCardGoogleWalletData(
+    val deviceId: String,
+    val deviceType: String,
+    val provisioningAppVersion: String,
+    val walletAccountId: String
+)
+
+data class BlockchainCardGoogleWalletPushTokenizeData(
+    val cardType: String,
+    val displayName: String,
+    val opaquePaymentCard: String,
+    val last4: String,
+    val network: String,
+    val tokenServiceProvider: String,
+    val googleWalletUserAddress: BlockchainCardGoogleWalletUserAddress
+)
+
+data class BlockchainCardGoogleWalletUserAddress(
+    val name: String,
+    val address1: String,
+    val address2: String,
+    val city: String,
+    val stateCode: String,
+    val postalCode: String,
+    val countryCode: String,
+    val phone: String
+)
+
 enum class BlockchainCardBrand {
     VISA,
     MASTERCARD,
@@ -147,4 +175,12 @@ enum class BlockchainCardOrderStatus {
     ORDERED,
     SHIPPED,
     DELIVERED
+}
+
+enum class BlockchainCardGoogleWalletStatus {
+    NOT_ADDED,
+    ADDED,
+    ADD_IN_PROGRESS,
+    ADD_SUCCESS,
+    ADD_FAILED
 }

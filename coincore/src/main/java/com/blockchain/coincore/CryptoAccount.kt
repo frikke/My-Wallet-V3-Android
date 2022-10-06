@@ -5,6 +5,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.staking.domain.model.StakingAccountBalance
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
@@ -56,6 +57,14 @@ data class AccountBalance internal constructor(
                 exchangeRate = rate
             )
         }
+
+        internal fun from(balance: StakingAccountBalance, rate: ExchangeRate): AccountBalance =
+            AccountBalance(
+                total = balance.totalBalance,
+                withdrawable = balance.availableBalance,
+                pending = balance.pendingDeposit,
+                exchangeRate = rate
+            )
 
         fun zero(assetInfo: Currency) =
             AccountBalance(

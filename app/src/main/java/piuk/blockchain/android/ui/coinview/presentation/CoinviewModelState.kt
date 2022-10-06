@@ -80,10 +80,10 @@ data class CoinviewModelState(
                     val isUniversalTradingDefiAccount = account is CoinviewAccount.Universal &&
                         (account.filter == AssetFilter.Trading || account.filter == AssetFilter.NonCustodial)
                     val isTradingAccount = account is CoinviewAccount.Custodial.Trading
-                    val isDefiAccount = account is CoinviewAccount.Defi
+                    val isPrivateKeyAccount = account is CoinviewAccount.PrivateKey
                     val hasPositiveBalance = account.cryptoBalance.isPositive
 
-                    (isUniversalTradingDefiAccount || isTradingAccount || isDefiAccount) && hasPositiveBalance
+                    (isUniversalTradingDefiAccount || isTradingAccount || isPrivateKeyAccount) && hasPositiveBalance
                 } ?: error("No actionable account found - maybe a quick action is active when it should be disabled")
             }
         }

@@ -496,8 +496,10 @@ class SimpleBuyCheckoutFragment :
     }
 
     private fun SimpleBuyState.suggestEnablingRecurringBuyFrequency(): Boolean =
-        featureFlagSet.rbFrequencySuggestionFF && this.recurringBuyForExperiment != RecurringBuyFrequency.ONE_TIME &&
-            this.recurringBuyEligiblePaymentMethods.contains(this.selectedPaymentMethod?.paymentMethodType)
+        featureFlagSet.rbFrequencySuggestionFF &&
+            this.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME &&
+            this.isSelectedPaymentMethodRecurringBuyEligible() &&
+            this.recurringBuyForExperiment != RecurringBuyFrequency.ONE_TIME
 
     private fun SimpleBuyState.recurringBuySuggestionHasNotBeenEnabled(): Boolean =
         featureFlagSet.rbFrequencySuggestionFF && this.recurringBuyState == RecurringBuyState.UNINITIALISED
@@ -585,7 +587,7 @@ class SimpleBuyCheckoutFragment :
                                 if (updateRecurringBuy) {
                                     model.process(
                                         SimpleBuyIntent.RecurringBuySuggestionAccepted(
-                                            recurringBuyFrequency = RecurringBuyFrequency.WEEKLY
+                                            recurringBuyFrequency = state.recurringBuyForExperiment
                                         )
                                     )
                                 } else {
@@ -612,7 +614,7 @@ class SimpleBuyCheckoutFragment :
                             navigator().exitSimpleBuyFlow()
                         } else {
                             navigator().goToPaymentScreen(
-                                showRecurringBuySuggestion = state.featureFlagSet.rbFrequencySuggestionFF &&
+                                showRecurringBuySuggestion = state.suggestEnablingRecurringBuyFrequency() &&
                                     !updateRecurringBuy,
                                 recurringBuyFrequencyRemote = state.recurringBuyForExperiment
                             )
@@ -898,13 +900,16 @@ class SimpleBuyCheckoutFragment :
             )
         }
 
-    override fun onGooglePayTokenReceived(token: String, address: PaymentDataResponse.Address?) {
+    override fun onGooglePayTokenReceived(
+        token: String,
+        address: PaymentDataResponse.Address?,
+    ) {
         val googlePayAddress = getGooglePayAddress(address)
 
         if (updateRecurringBuy) {
             model.process(
                 SimpleBuyIntent.RecurringBuySuggestionAccepted(
-                    recurringBuyFrequency = RecurringBuyFrequency.WEEKLY,
+                    recurringBuyFrequency = lastState?.recurringBuyForExperiment ?: RecurringBuyFrequency.ONE_TIME,
                     googlePayPayload = token,
                     googlePayAddress = googlePayAddress
                 ),

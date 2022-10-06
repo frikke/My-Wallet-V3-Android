@@ -16,7 +16,7 @@ sealed interface CoinviewAccounts {
     ) : CoinviewAccounts
 
     data class Defi(
-        override val accounts: List<CoinviewAccount.Defi>
+        override val accounts: List<CoinviewAccount.PrivateKey>
     ) : CoinviewAccounts
 }
 
@@ -37,7 +37,8 @@ sealed interface CoinviewAccount {
         override val account: BlockchainAccount,
         override val cryptoBalance: Money,
         override val fiatBalance: Money,
-        val interestRate: Double
+        val interestRate: Double,
+        val stakingRate: Double
     ) : CoinviewAccount
 
     /**
@@ -69,7 +70,7 @@ sealed interface CoinviewAccount {
             override val account: BlockchainAccount,
             override val cryptoBalance: Money,
             override val fiatBalance: Money,
-            val interestRate: Double
+            val stakingRate: Double
         ) : Custodial {
             override val filter: AssetFilter = AssetFilter.Staking
         }
@@ -78,7 +79,7 @@ sealed interface CoinviewAccount {
     /**
      * Defi mode
      */
-    data class Defi(
+    data class PrivateKey(
         override val account: BlockchainAccount,
         override val cryptoBalance: Money,
         override val fiatBalance: Money,

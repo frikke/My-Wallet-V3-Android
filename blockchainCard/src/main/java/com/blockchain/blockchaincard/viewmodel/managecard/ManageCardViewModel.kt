@@ -1,6 +1,8 @@
 package com.blockchain.blockchaincard.viewmodel.managecard
 
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletData
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
 import com.blockchain.blockchaincard.util.BlockchainCardTransactionUtils
 import com.blockchain.blockchaincard.util.getCompletedTransactionsGroupedByMonth
@@ -37,6 +39,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 onIntent(BlockchainCardIntent.LoadCardWidget)
                 onIntent(BlockchainCardIntent.LoadLinkedAccount)
                 onIntent(BlockchainCardIntent.LoadTransactions)
+                onIntent(BlockchainCardIntent.LoadGoogleWalletTokenizationStatus)
             }
 
             is BlockchainCardArgs.ProductArgs -> {
@@ -65,6 +68,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
         selectedCardTransaction = state.selectedCardTransaction,
         isTransactionListRefreshing = state.isTransactionListRefreshing,
         countryStateList = state.countryStateList,
+        googleWalletStatus = state.googleWalletStatus
     )
 
     override suspend fun handleIntent(
@@ -469,6 +473,94 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             is BlockchainCardIntent.SeeContactSupportPage -> {
                 navigate(BlockchainCardNavigationEvent.SeeContactSupportPage)
             }
+
+            is BlockchainCardIntent.LoadGoogleWalletTokenizationStatus -> {
+                modelState.card?.let { card ->
+                    blockchainCardRepository.getGoogleWalletTokenizationStatus(card.last4)
+                        .doOnSuccess { isTokenized ->
+                            if (isTokenized) {
+                                Timber.d("Card Already Tokenized")
+                                updateState { it.copy(googleWalletStatus = BlockchainCardGoogleWalletStatus.ADDED) }
+                            } else {
+                                onIntent(BlockchainCardIntent.LoadGoogleWalletDetails)
+                            }
+                        }
+                        .doOnFailure { error ->
+                            Timber.e("Unable to get tokenization status")
+                            updateState {
+                                it.copy(
+                                    googleWalletStatus = BlockchainCardGoogleWalletStatus.ADDED,
+                                    errorState = BlockchainCardErrorState.SnackbarErrorState(error)
+                                )
+                            }
+                        }
+                }
+            }
+
+            is BlockchainCardIntent.LoadGoogleWalletDetails -> {
+                blockchainCardRepository.getGoogleWalletId()
+                    .doOnSuccess { walletId ->
+                        updateState { it.copy(googleWalletId = walletId) }
+                    }
+                    .doOnFailure { error ->
+                        Timber.e("Unable to retrieve google wallet id")
+                        updateState {
+                            it.copy(
+                                googleWalletStatus = BlockchainCardGoogleWalletStatus.ADDED,
+                                errorState = BlockchainCardErrorState.SnackbarErrorState(error)
+                            )
+                        }
+                    }
+
+                blockchainCardRepository.getGoogleWalletStableHardwareId()
+                    .doOnSuccess { stableHardwareId ->
+                        updateState { it.copy(stableHardwareId = stableHardwareId) }
+                    }
+                    .doOnFailure { error ->
+                        Timber.e("Unable to retrieve stable hardware id")
+                        updateState {
+                            it.copy(
+                                googleWalletStatus = BlockchainCardGoogleWalletStatus.ADDED,
+                                errorState = BlockchainCardErrorState.SnackbarErrorState(error)
+                            )
+                        }
+                    }
+            }
+
+            is BlockchainCardIntent.LoadGoogleWalletPushTokenizeData -> {
+                if (!modelState.stableHardwareId.isNullOrEmpty() && !modelState.googleWalletId.isNullOrEmpty()) {
+                    updateState { it.copy(googleWalletStatus = BlockchainCardGoogleWalletStatus.ADD_IN_PROGRESS) }
+                    modelState.card?.let { card ->
+                        blockchainCardRepository.provisionGoogleWalletCard(
+                            cardId = card.id,
+                            provisionRequest = BlockchainCardGoogleWalletData(
+                                deviceId = modelState.stableHardwareId,
+                                deviceType = "MOBILE_PHONE", // TODO (labreu): hardcoded
+                                provisioningAppVersion = "alpha", // TODO (labreu): hardcoded
+                                walletAccountId = modelState.googleWalletId
+                            )
+                        ).doOnSuccess { tokenizeData ->
+                            navigate(BlockchainCardNavigationEvent.AddCardToGoogleWallet(tokenizeData))
+                        }.doOnFailure { error ->
+                            updateState {
+                                it.copy(
+                                    googleWalletStatus = BlockchainCardGoogleWalletStatus.ADD_FAILED,
+                                    errorState = BlockchainCardErrorState.SnackbarErrorState(error)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            is BlockchainCardIntent.GoogleWalletAddCardFailed -> {
+                updateState { it.copy(googleWalletStatus = BlockchainCardGoogleWalletStatus.ADD_FAILED) }
+            }
+
+            is BlockchainCardIntent.GoogleWalletAddCardSuccess -> {
+                updateState { it.copy(googleWalletStatus = BlockchainCardGoogleWalletStatus.ADD_SUCCESS) }
+            }
+
             else -> {
                 Timber.e("Unknown intent: $intent")
             }

@@ -28,4 +28,16 @@ class TradeService internal constructor(
     ) = api.cancelRecurringBuy(
         id = id
     ).wrapErrorMessage()
+
+    fun getQuotePrice(
+        currencyPair: String,
+        amount: String,
+        paymentMethod: String,
+        orderProfileName: String
+    ) = api.getQuotePrice(
+        currencyPair = currencyPair,
+        amount = amount,
+        paymentMethod = paymentMethod,
+        orderProfileName = orderProfileName
+    )
 }

@@ -41,7 +41,6 @@ import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onErrorReturn
 
 internal class InterestRepository(
     private val assetCatalogue: AssetCatalogue,

@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 // TODO(dserrano) - STAKING - unused at the moment
 @Serializable
-data class StakingAccountBalanceDto(
+data class StakingBalanceDto(
     @SerialName("balance")
     val totalBalance: String,
     // going through payments processing - after a deposit

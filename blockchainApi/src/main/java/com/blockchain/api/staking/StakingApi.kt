@@ -1,5 +1,6 @@
 package com.blockchain.api.staking
 
+import com.blockchain.api.staking.data.StakingBalanceDto
 import com.blockchain.api.staking.data.StakingEligibilityDto
 import com.blockchain.api.staking.data.StakingRatesDto
 import com.blockchain.outcome.Outcome
@@ -18,10 +19,10 @@ internal interface StakingApi {
         @Query("product") product: String = "STAKING"
     ): Outcome<Exception, StakingRatesDto>
 
+    @GET("accounts/staking")
+    suspend fun getAccountBalances(): Outcome<Exception, Map<String, StakingBalanceDto>>
+
     // TODO(dserrano) - STAKING
-    //    @GET("accounts/staking")
-    //    suspend fun getAccountBalances(): Outcome<Exception, Map<String, StakingAccountBalanceDto>>
-    //
     //    @GET("earn/limits")
     //    suspend fun getTickersLimits(
     //        @Query("currency") ticker: String

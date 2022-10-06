@@ -16,9 +16,11 @@ import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.staking.domain.StakingService
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.store.asObservable
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -77,17 +79,16 @@ class CustodialStakingAccount(
     override fun matches(other: CryptoAccount): Boolean =
         other is CustodialStakingAccount && other.currency == currency
 
-    // TODO(dserrano) - STAKING
     override val balanceRx: Observable<AccountBalance>
-        get() = Observable.just(AccountBalance.zero(currency))
-
-    /* Observable.combineLatest(
-            stakingService.getBalanceFor(currency),
+        get() = Observable.combineLatest(
+            stakingService.getBalanceForAsset(
+                currency = currency,
+                refreshStrategy = FreshnessStrategy.Cached(forceRefresh = false)
+            ).asObservable(),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             AccountBalance.from(balance, rate)
         }.doOnNext { hasFunds.set(it.total.isPositive) }
-    */
 
     // TODO(dserrano) - STAKING
     override val activity: Single<ActivitySummaryList>

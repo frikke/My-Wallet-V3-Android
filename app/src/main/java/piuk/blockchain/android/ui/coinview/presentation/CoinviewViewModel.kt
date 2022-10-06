@@ -53,16 +53,11 @@ class CoinviewViewModel(
     private val coincore: Coincore,
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
-
     private val getAssetPriceUseCase: GetAssetPriceUseCase,
-
     private val loadAssetAccountsUseCase: LoadAssetAccountsUseCase,
     private val getAccountActionsUseCase: GetAccountActionsUseCase,
-
     private val loadAssetRecurringBuysUseCase: LoadAssetRecurringBuysUseCase,
-
     private val loadQuickActionsUseCase: LoadQuickActionsUseCase,
-
     private val assetService: AssetService
 ) : MviViewModel<
     CoinviewIntent,
@@ -104,7 +99,6 @@ class CoinviewViewModel(
             recurringBuys = reduceRecurringBuys(this),
             bottomQuickAction = reduceBottomQuickActions(this),
             assetInfo = reduceAssetInfo(this),
-
             snackbarError = reduceSnackbarError(this)
         )
     }
@@ -241,205 +235,30 @@ class CoinviewViewModel(
                             when (cvAccount.isEnabled) {
                                 true -> {
                                     when (cvAccount) {
-                                        is CoinviewAccount.Universal -> {
-                                            Available(
-                                                cvAccount = cvAccount,
-                                                title = when (cvAccount.filter) {
-                                                    AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
-                                                    AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
-                                                    AssetFilter.Staking -> labels.getDefaultStakingWalletLabel()
-                                                    AssetFilter.NonCustodial -> account.label
-                                                    else -> error(
-                                                        "Filter ${cvAccount.filter} not supported for account label"
-                                                    )
-                                                },
-                                                subtitle = when (cvAccount.filter) {
-                                                    AssetFilter.Trading -> {
-                                                        SimpleValue.IntResValue(R.string.coinview_c_available_desc)
-                                                    }
-                                                    AssetFilter.Interest,
-                                                    AssetFilter.Staking -> {
-                                                        SimpleValue.IntResValue(
-                                                            R.string.coinview_interest_with_balance,
-                                                            listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
-                                                        )
-                                                    }
-                                                    AssetFilter.NonCustodial -> {
-                                                        if (account is MultiChainAccount) {
-                                                            SimpleValue.IntResValue(
-                                                                R.string.coinview_multi_nc_desc,
-                                                                listOf(account.l1Network.networkName)
-                                                            )
-                                                        } else {
-                                                            SimpleValue.IntResValue(R.string.coinview_nc_desc)
-                                                        }
-                                                    }
-                                                    else -> error("${cvAccount.filter} Not a supported filter")
-                                                },
-                                                cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-                                                fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
-                                                logo = LogoSource.Resource(
-                                                    when (cvAccount.filter) {
-                                                        AssetFilter.Trading -> {
-                                                            R.drawable.ic_custodial_account_indicator
-                                                        }
-                                                        AssetFilter.Interest -> {
-                                                            R.drawable.ic_interest_account_indicator
-                                                        }
-                                                        AssetFilter.Staking -> {
-                                                            R.drawable.ic_staking_account_indicator
-                                                        }
-                                                        AssetFilter.NonCustodial -> {
-                                                            R.drawable.ic_non_custodial_account_indicator
-                                                        }
-                                                        else -> error("${cvAccount.filter} Not a supported filter")
-                                                    }
-                                                ),
-                                                assetColor = asset.currency.colour
-                                            )
-                                        }
-                                        is CoinviewAccount.Custodial.Trading -> {
-                                            Available(
-                                                cvAccount = cvAccount,
-                                                title = labels.getDefaultCustodialWalletLabel(),
-                                                subtitle = SimpleValue.IntResValue(R.string.coinview_c_available_desc),
-                                                cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-                                                fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
-                                                logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
-                                                assetColor = asset.currency.colour
-                                            )
-                                        }
-                                        is CoinviewAccount.Custodial.Interest -> {
-                                            Available(
-                                                cvAccount = cvAccount,
-                                                title = labels.getDefaultInterestWalletLabel(),
-                                                subtitle = SimpleValue.IntResValue(
-                                                    R.string.coinview_interest_with_balance,
-                                                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
-                                                ),
-                                                cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-                                                fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
-                                                logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
-                                                assetColor = asset.currency.colour
-                                            )
-                                        }
-                                        is CoinviewAccount.Custodial.Staking -> {
-                                            Available(
-                                                cvAccount = cvAccount,
-                                                title = labels.getDefaultStakingWalletLabel(),
-                                                subtitle = SimpleValue.IntResValue(
-                                                    R.string.coinview_interest_with_balance,
-                                                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
-                                                ),
-                                                cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-                                                fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
-                                                logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator),
-                                                assetColor = asset.currency.colour
-                                            )
-                                        }
-                                        is CoinviewAccount.Defi -> {
-                                            Available(
-                                                cvAccount = cvAccount,
-                                                title = account.label,
-                                                subtitle = SimpleValue.StringValue(account.currency.displayTicker),
-                                                cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
-                                                fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
-                                                logo = LogoSource.Remote(account.currency.logo),
-                                                assetColor = asset.currency.colour
-                                            )
-                                        }
+                                        is CoinviewAccount.Universal ->
+                                            makeAvailableUniversalAccount(cvAccount, account, asset)
+                                        is CoinviewAccount.Custodial.Trading ->
+                                            makeAvailableTradingAccount(cvAccount, asset)
+                                        is CoinviewAccount.Custodial.Interest ->
+                                            makeAvailableInterestAccount(cvAccount, asset)
+                                        is CoinviewAccount.Custodial.Staking ->
+                                            makeAvailableStakingAccount(cvAccount, asset)
+                                        is CoinviewAccount.PrivateKey ->
+                                            makeAvailablePrivateKeyAccount(cvAccount, account, asset)
                                     }
                                 }
-
                                 false -> {
                                     when (cvAccount) {
-                                        is CoinviewAccount.Universal -> {
-                                            Unavailable(
-                                                cvAccount = cvAccount,
-                                                title = when (cvAccount.filter) {
-                                                    AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
-                                                    AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
-                                                    AssetFilter.Staking -> labels.getDefaultStakingWalletLabel()
-                                                    AssetFilter.NonCustodial -> account.label
-                                                    else -> error(
-                                                        "Filer ${cvAccount.filter} not supported for account label"
-                                                    )
-                                                },
-                                                subtitle = when (cvAccount.filter) {
-                                                    AssetFilter.Trading -> {
-                                                        SimpleValue.IntResValue(
-                                                            R.string.coinview_c_unavailable_desc,
-                                                            listOf(asset.currency.name)
-                                                        )
-                                                    }
-                                                    AssetFilter.Interest,
-                                                    AssetFilter.Staking -> {
-                                                        SimpleValue.IntResValue(
-                                                            R.string.coinview_interest_no_balance,
-                                                            listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
-                                                        )
-                                                    }
-                                                    AssetFilter.NonCustodial -> {
-                                                        SimpleValue.IntResValue(R.string.coinview_nc_desc)
-                                                    }
-                                                    else -> error("${cvAccount.filter} Not a supported filter")
-                                                },
-                                                logo = LogoSource.Resource(
-                                                    when (cvAccount.filter) {
-                                                        AssetFilter.Trading -> {
-                                                            R.drawable.ic_custodial_account_indicator
-                                                        }
-                                                        AssetFilter.Interest -> {
-                                                            R.drawable.ic_interest_account_indicator
-                                                        }
-                                                        AssetFilter.NonCustodial -> {
-                                                            R.drawable.ic_non_custodial_account_indicator
-                                                        }
-                                                        else -> error("${cvAccount.filter} Not a supported filter")
-                                                    }
-                                                )
-                                            )
-                                        }
-                                        is CoinviewAccount.Custodial.Trading -> {
-                                            Unavailable(
-                                                cvAccount = cvAccount,
-                                                title = labels.getDefaultCustodialWalletLabel(),
-                                                subtitle = SimpleValue.IntResValue(
-                                                    R.string.coinview_c_unavailable_desc,
-                                                    listOf(asset.currency.name)
-                                                ),
-                                                logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator)
-                                            )
-                                        }
-                                        is CoinviewAccount.Custodial.Interest -> {
-                                            Unavailable(
-                                                cvAccount = cvAccount,
-                                                title = labels.getDefaultInterestWalletLabel(),
-                                                subtitle = SimpleValue.IntResValue(
-                                                    R.string.coinview_interest_no_balance,
-                                                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
-                                                ),
-                                                logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
-                                            )
-                                        }
-                                        is CoinviewAccount.Custodial.Staking -> {
-                                            Unavailable(
-                                                cvAccount = cvAccount,
-                                                title = labels.getDefaultStakingWalletLabel(),
-                                                subtitle = SimpleValue.IntResValue(
-                                                    R.string.coinview_interest_no_balance,
-                                                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
-                                                ),
-                                                logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator)
-                                            )
-                                        }
-                                        is CoinviewAccount.Defi -> {
-                                            Unavailable(
-                                                cvAccount = cvAccount,
-                                                title = account.currency.name,
-                                                subtitle = SimpleValue.IntResValue(R.string.coinview_nc_desc),
-                                                logo = LogoSource.Remote(account.currency.logo)
-                                            )
+                                        is CoinviewAccount.Universal ->
+                                            makeUnavailableUniversalAccount(cvAccount, account, asset)
+                                        is CoinviewAccount.Custodial.Trading ->
+                                            makeUnavailableTradingAccount(cvAccount, asset)
+                                        is CoinviewAccount.Custodial.Interest ->
+                                            makeUnavailableInterestAccount(cvAccount)
+                                        is CoinviewAccount.Custodial.Staking ->
+                                            makeUnavailableStakingAccount(cvAccount)
+                                        is CoinviewAccount.PrivateKey -> {
+                                            makeUnavailablePrivateKeyAccount(cvAccount, account)
                                         }
                                     }
                                 }
@@ -454,6 +273,230 @@ class CoinviewViewModel(
             }
         }
     }
+
+    private fun makeUnavailablePrivateKeyAccount(
+        cvAccount: CoinviewAccount,
+        account: CryptoAccount
+    ) = Unavailable(
+        cvAccount = cvAccount,
+        title = account.currency.name,
+        subtitle = SimpleValue.IntResValue(R.string.coinview_nc_desc),
+        logo = LogoSource.Remote(account.currency.logo)
+    )
+
+    private fun makeUnavailableStakingAccount(cvAccount: CoinviewAccount.Custodial.Staking) =
+        Unavailable(
+            cvAccount = cvAccount,
+            title = labels.getDefaultStakingWalletLabel(),
+            subtitle = SimpleValue.IntResValue(
+                R.string.coinview_interest_no_balance,
+                listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
+            ),
+            logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator)
+        )
+
+    private fun makeUnavailableInterestAccount(cvAccount: CoinviewAccount.Custodial.Interest) =
+        Unavailable(
+            cvAccount = cvAccount,
+            title = labels.getDefaultInterestWalletLabel(),
+            subtitle = SimpleValue.IntResValue(
+                R.string.coinview_interest_no_balance,
+                listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
+            ),
+            logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator)
+        )
+
+    private fun makeUnavailableTradingAccount(
+        cvAccount: CoinviewAccount,
+        asset: CryptoAsset
+    ) = Unavailable(
+        cvAccount = cvAccount,
+        title = labels.getDefaultCustodialWalletLabel(),
+        subtitle = SimpleValue.IntResValue(
+            R.string.coinview_c_unavailable_desc,
+            listOf(asset.currency.name)
+        ),
+        logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator)
+    )
+
+    private fun makeUnavailableUniversalAccount(
+        cvAccount: CoinviewAccount.Universal,
+        account: CryptoAccount,
+        asset: CryptoAsset
+    ) = Unavailable(
+        cvAccount = cvAccount,
+        title = when (cvAccount.filter) {
+            AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
+            AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
+            AssetFilter.Staking -> labels.getDefaultStakingWalletLabel()
+            AssetFilter.NonCustodial -> account.label
+            else -> error(
+                "Filer ${cvAccount.filter} not supported for account label"
+            )
+        },
+        subtitle = when (cvAccount.filter) {
+            AssetFilter.Trading -> {
+                SimpleValue.IntResValue(
+                    R.string.coinview_c_unavailable_desc,
+                    listOf(asset.currency.name)
+                )
+            }
+            AssetFilter.Interest -> {
+                SimpleValue.IntResValue(
+                    R.string.coinview_interest_no_balance,
+                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
+                )
+            }
+            AssetFilter.Staking -> {
+                SimpleValue.IntResValue(
+                    R.string.coinview_interest_no_balance,
+                    listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
+                )
+            }
+            AssetFilter.NonCustodial -> {
+                SimpleValue.IntResValue(R.string.coinview_nc_desc)
+            }
+            else -> error("${cvAccount.filter} Not a supported filter")
+        },
+        logo = LogoSource.Resource(
+            when (cvAccount.filter) {
+                AssetFilter.Trading -> {
+                    R.drawable.ic_custodial_account_indicator
+                }
+                AssetFilter.Interest -> {
+                    R.drawable.ic_interest_account_indicator
+                }
+                AssetFilter.NonCustodial -> {
+                    R.drawable.ic_non_custodial_account_indicator
+                }
+                else -> error("${cvAccount.filter} Not a supported filter")
+            }
+        )
+    )
+
+    private fun makeAvailablePrivateKeyAccount(
+        cvAccount: CoinviewAccount,
+        account: CryptoAccount,
+        asset: CryptoAsset
+    ) = Available(
+        cvAccount = cvAccount,
+        title = account.label,
+        subtitle = SimpleValue.StringValue(account.currency.displayTicker),
+        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        logo = LogoSource.Remote(account.currency.logo),
+        assetColor = asset.currency.colour
+    )
+
+    private fun makeAvailableStakingAccount(
+        cvAccount: CoinviewAccount.Custodial.Staking,
+        asset: CryptoAsset
+    ) = Available(
+        cvAccount = cvAccount,
+        title = labels.getDefaultStakingWalletLabel(),
+        subtitle = SimpleValue.IntResValue(
+            R.string.coinview_interest_with_balance,
+            listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
+        ),
+        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        logo = LogoSource.Resource(R.drawable.ic_staking_account_indicator),
+        assetColor = asset.currency.colour
+    )
+
+    private fun makeAvailableInterestAccount(
+        cvAccount: CoinviewAccount.Custodial.Interest,
+        asset: CryptoAsset
+    ) = Available(
+        cvAccount = cvAccount,
+        title = labels.getDefaultInterestWalletLabel(),
+        subtitle = SimpleValue.IntResValue(
+            R.string.coinview_interest_with_balance,
+            listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
+        ),
+        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        logo = LogoSource.Resource(R.drawable.ic_interest_account_indicator),
+        assetColor = asset.currency.colour
+    )
+
+    private fun makeAvailableTradingAccount(
+        cvAccount: CoinviewAccount,
+        asset: CryptoAsset
+    ) = Available(
+        cvAccount = cvAccount,
+        title = labels.getDefaultCustodialWalletLabel(),
+        subtitle = SimpleValue.IntResValue(R.string.coinview_c_available_desc),
+        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
+        assetColor = asset.currency.colour
+    )
+
+    private fun makeAvailableUniversalAccount(
+        cvAccount: CoinviewAccount.Universal,
+        account: CryptoAccount,
+        asset: CryptoAsset
+    ) = Available(
+        cvAccount = cvAccount,
+        title = when (cvAccount.filter) {
+            AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
+            AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
+            AssetFilter.Staking -> labels.getDefaultStakingWalletLabel()
+            AssetFilter.NonCustodial -> account.label
+            else -> error(
+                "Filter ${cvAccount.filter} not supported for account label"
+            )
+        },
+        subtitle = when (cvAccount.filter) {
+            AssetFilter.Trading -> {
+                SimpleValue.IntResValue(R.string.coinview_c_available_desc)
+            }
+            AssetFilter.Interest -> {
+                SimpleValue.IntResValue(
+                    R.string.coinview_interest_with_balance,
+                    listOf(DecimalFormat("0.#").format(cvAccount.interestRate))
+                )
+            }
+            AssetFilter.Staking -> {
+                SimpleValue.IntResValue(
+                    R.string.coinview_interest_with_balance,
+                    listOf(DecimalFormat("0.#").format(cvAccount.stakingRate))
+                )
+            }
+            AssetFilter.NonCustodial -> {
+                if (account is MultiChainAccount) {
+                    SimpleValue.IntResValue(
+                        R.string.coinview_multi_nc_desc,
+                        listOf(account.l1Network.networkName)
+                    )
+                } else {
+                    SimpleValue.IntResValue(R.string.coinview_nc_desc)
+                }
+            }
+            else -> error("${cvAccount.filter} Not a supported filter")
+        },
+        cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
+        fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
+        logo = LogoSource.Resource(
+            when (cvAccount.filter) {
+                AssetFilter.Trading -> {
+                    R.drawable.ic_custodial_account_indicator
+                }
+                AssetFilter.Interest -> {
+                    R.drawable.ic_interest_account_indicator
+                }
+                AssetFilter.Staking -> {
+                    R.drawable.ic_staking_account_indicator
+                }
+                AssetFilter.NonCustodial -> {
+                    R.drawable.ic_non_custodial_account_indicator
+                }
+                else -> error("${cvAccount.filter} Not a supported filter")
+            }
+        ),
+        assetColor = asset.currency.colour
+    )
 
     private fun reduceRecurringBuys(state: CoinviewModelState): CoinviewRecurringBuysState = state.run {
         when {
