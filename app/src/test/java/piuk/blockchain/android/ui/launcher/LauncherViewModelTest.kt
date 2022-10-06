@@ -3,13 +3,16 @@ package piuk.blockchain.android.ui.launcher
 import android.content.Intent
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
+import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.testutils.CoroutineTestRule
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import kotlin.test.assertEquals
@@ -62,6 +65,19 @@ class LauncherViewModelTest {
             referralPrefs,
             encryptedPrefs
         )
+
+        every { sessionPrefs.keySchemeUrl = any() } just Runs
+        every { deepLinkPersistence.pushDeepLink(any()) } just Runs
+        every { referralPrefs.referralSuccessTitle = any() } just Runs
+        every { referralPrefs.referralSuccessBody = any() } just Runs
+        every { sessionPrefs.metadataUri = any() } just Runs
+        every { securityPrefs.setIsUnderTest() } just Runs
+        every { environmentConfig.environment } returns Environment.STAGING
+        every { environmentConfig.environment } returns Environment.STAGING
+        every { encryptedPrefs.hasBackup() } returns false
+        every { authPrefs.walletGuid } returns ""
+        every { authPrefs.pinId } returns ""
+        every { appUtil.clearCredentialsAndRestart() } just Runs
     }
 
     @Test
