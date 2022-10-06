@@ -13,8 +13,10 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.walletmode.WalletMode
@@ -37,7 +39,8 @@ class LoadAssetAccountsUseCase(
     private val walletModeService: WalletModeService,
     private val interestService: InterestService,
     private val watchlistDataManager: WatchlistDataManager,
-    private val currencyPrefs: CurrencyPrefs
+    private val currencyPrefs: CurrencyPrefs,
+    private val stakingService: StakingService
 ) {
     suspend operator fun invoke(asset: CryptoAsset): Flow<DataResource<CoinviewAssetDetail>> {
 
@@ -52,7 +55,8 @@ class LoadAssetAccountsUseCase(
             asset.getPricesWith24hDelta(),
             interestService.getInterestRateFlow(asset.currency),
             flowOf(DataResource.Data(watchlistDataManager.isAssetInWatchlist(asset.currency).await())),
-        ) { accounts, prices, interestRate, isAddedToWatchlist ->
+            stakingService.getRateForAsset(asset.currency, FreshnessStrategy.Cached(forceRefresh = false))
+        ) { accounts, prices, interestRate, isAddedToWatchlist, stakingRate ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // available accounts to see if we support custodial or PK balances as a guideline to asset support
 
@@ -60,8 +64,9 @@ class LoadAssetAccountsUseCase(
                 accounts,
                 prices,
                 interestRate,
-                isAddedToWatchlist
-            ) { accountsData, pricesData, interestRateData, isAddedToWatchlistData ->
+                isAddedToWatchlist,
+                stakingRate
+            ) { accountsData, pricesData, interestRateData, isAddedToWatchlistData, stakingRateData ->
                 val isTradeableAsset = accountsData.any {
                     it.account is NonCustodialAccount || it.account is CustodialTradingAccount
                 }
@@ -71,7 +76,8 @@ class LoadAssetAccountsUseCase(
                         walletMode = walletModeService.enabledWalletMode(),
                         accounts = accountsData,
                         exchangeRate = pricesData.currentRate,
-                        interestRate = interestRateData
+                        interestRate = interestRateData,
+                        stakingRate = stakingRateData
                     )
 
                     var totalCryptoMoneyAll = Money.zero(asset.currency)
@@ -142,7 +148,8 @@ class LoadAssetAccountsUseCase(
         walletMode: WalletMode,
         accounts: List<CoinviewAccountDetail>,
         exchangeRate: ExchangeRate,
-        interestRate: Double = Double.NaN
+        interestRate: Double = Double.NaN,
+        stakingRate: Double = Double.NaN
     ): CoinviewAccounts {
 
         val sortedAccounts = accounts.sorted()
@@ -163,7 +170,8 @@ class LoadAssetAccountsUseCase(
                         cryptoBalance = it.balance,
                         fiatBalance = exchangeRate.convert(it.balance),
                         interestRate = interestRate,
-                        isEnabled = it.isAvailable
+                        isEnabled = it.isAvailable,
+                        stakingRate = stakingRate
                     )
                 }.run { CoinviewAccounts.Universal(this) }
             }
@@ -194,8 +202,7 @@ class LoadAssetAccountsUseCase(
                                 account = it.account,
                                 cryptoBalance = it.balance,
                                 fiatBalance = exchangeRate.convert(it.balance),
-                                // TODO(dserrano) - STAKING - load interest rates
-                                interestRate = 0.0
+                                stakingRate = stakingRate
                             )
                         }
 
@@ -206,7 +213,7 @@ class LoadAssetAccountsUseCase(
 
             WalletMode.NON_CUSTODIAL_ONLY -> {
                 sortedAccounts.map {
-                    CoinviewAccount.Defi(
+                    CoinviewAccount.PrivateKey(
                         account = it.account,
                         cryptoBalance = it.balance,
                         fiatBalance = exchangeRate.convert(it.balance),

@@ -286,7 +286,7 @@ private val previewBlockchainAccount = object : BlockchainAccount {
         get() = error("preview")
 }
 
-val previewCvAccount: CoinviewAccount = CoinviewAccount.Defi(
+val previewCvAccount: CoinviewAccount = CoinviewAccount.PrivateKey(
     account = previewBlockchainAccount,
     cryptoBalance = Money.zero(CryptoCurrency.BTC),
     fiatBalance = Money.zero(CryptoCurrency.BTC),
