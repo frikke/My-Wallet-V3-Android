@@ -4,11 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.NotificationAppOpened
+import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
+import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
@@ -27,17 +28,20 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceFragment
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceSharedViewModel
-import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.LandingActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
 import piuk.blockchain.android.util.wiper.DataWiper
 import timber.log.Timber
 
-class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), LauncherView {
+class LauncherActivity : MVIActivity<LauncherState>(), NavigationRouter<LaunchNavigationEvent> {
+
+    override val alwaysDisableScreenshots: Boolean = false
 
     private val appMaintenanceViewModel: AppMaintenanceSharedViewModel by viewModel()
     private var appMaintenanceJob: Job? = null
+
+    private val viewModel: LauncherViewModel by viewModel()
 
     private val dataWiper: DataWiper by scopedInject()
 
@@ -45,6 +49,8 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        bindViewModel(viewModel, this, getViewIntentData())
 
         momentLogger.endEvent(MomentEvent.LAUNCHER_TO_SPLASH)
         momentLogger.startEvent(MomentEvent.SPLASH_TO_FIRST_SCREEN)
@@ -67,7 +73,7 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
         }
     }
 
-    override fun getViewIntentData(): ViewIntentData {
+    private fun getViewIntentData(): LauncherState {
         var deeplinkURL: String? = null
         var referralSuccessTitle: String? = null
         var referralSuccessBody: String? = null
@@ -91,23 +97,57 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
             }
         }
 
-        return ViewIntentData(
+        return LauncherState(
             action = intent.action,
             scheme = intent.scheme,
             dataString = intent.dataString,
             data = deeplinkURL,
             isAutomationTesting = intent.extras?.getBoolean(INTENT_AUTOMATION_TEST, false) ?: false,
-            referralSuccessTitle,
-            referralSuccessBody
+            referralSuccessTitle = referralSuccessTitle,
+            referralSuccessBody = referralSuccessBody
         )
     }
 
-    /**
-     * Show maintenance screen and observe resume flow
-     */
-    override fun onAppMaintenance() {
-        showBottomSheet(AppMaintenanceFragment.newInstance())
-        observeResumeAppFlow()
+    override fun onStateUpdated(state: LauncherState) {
+    }
+
+    override fun route(navigationEvent: LaunchNavigationEvent) {
+        when (navigationEvent) {
+            LaunchNavigationEvent.AppMaintenance -> {
+                showBottomSheet(AppMaintenanceFragment.newInstance())
+                observeResumeAppFlow()
+            }
+
+            LaunchNavigationEvent.RequestPin -> {
+                startActivity(
+                    PinActivity.newIntent(
+                        context = this,
+                        startForResult = false,
+                        originScreen = PinActivity.Companion.OriginScreenToPin.LAUNCHER_SCREEN,
+                        addFlagsToClear = true
+                    )
+                )
+            }
+
+            LaunchNavigationEvent.ReenterPassword -> {
+                startSingleActivity(PasswordRequiredActivity::class.java, null)
+            }
+
+            LaunchNavigationEvent.CorruptPayload -> {
+                AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                    .setTitle(R.string.app_name)
+                    .setMessage(getString(R.string.not_sane_error))
+                    .setCancelable(false)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        viewModel.onIntent(LauncherIntent.ClearCredentialsAndRestart)
+                    }
+                    .show()
+            }
+
+            LaunchNavigationEvent.NoGuid -> {
+                LandingActivity.start(this)
+            }
+        }
     }
 
     /**
@@ -119,44 +159,12 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
         appMaintenanceJob = lifecycleScope.launch {
             appMaintenanceViewModel.resumeAppFlow.collect {
 
-                presenter.resumeAppFlow()
+                viewModel.onIntent(LauncherIntent.ResumeAppFlow)
 
                 appMaintenanceJob?.cancel()
                 appMaintenanceJob = null
             }
         }
-    }
-
-    override fun onNoGuid() {
-        Handler(Looper.getMainLooper()).postDelayed({
-            LandingActivity.start(this)
-        }, 500)
-    }
-
-    override fun onRequestPin() {
-        startActivity(
-            PinActivity.newIntent(
-                context = this,
-                startForResult = false,
-                originScreen = PinActivity.Companion.OriginScreenToPin.LAUNCHER_SCREEN,
-                addFlagsToClear = true
-            )
-        )
-    }
-
-    override fun onReenterPassword() {
-        startSingleActivity(PasswordRequiredActivity::class.java, null)
-    }
-
-    override fun onCorruptPayload() {
-        AlertDialog.Builder(this, R.style.AlertDialogStyle)
-            .setTitle(R.string.app_name)
-            .setMessage(getString(R.string.not_sane_error))
-            .setCancelable(false)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                presenter.clearCredentialsAndRestart()
-            }
-            .show()
     }
 
     private fun startSingleActivity(clazz: Class<*>, extras: Bundle?, uri: Uri? = null) {
@@ -168,10 +176,6 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
         extras?.let { intent.putExtras(extras) }
         startActivity(intent)
     }
-
-    override val presenter: LauncherPresenter by inject()
-    override val view: LauncherView
-        get() = this
 
     companion object {
         const val INTENT_AUTOMATION_TEST = "IS_AUTOMATION_TESTING"
