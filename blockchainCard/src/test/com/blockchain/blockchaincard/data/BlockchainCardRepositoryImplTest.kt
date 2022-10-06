@@ -17,6 +17,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardType
+import com.blockchain.blockchaincard.googlewallet.manager.GoogleWalletManager
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
@@ -51,12 +52,15 @@ class BlockchainCardRepositoryImplTest {
 
     private val userIdentity = mockk<UserIdentity>()
 
+    private val googleWalletManager = mockk<GoogleWalletManager>()
+
     private val blockchainCardRepository = BlockchainCardRepositoryImpl(
         blockchainCardService = blockchainCardService,
         eligibilityApiService = eligibilityApiService,
         coincore = coincore,
         assetCatalogue = assetCatalogue,
-        userIdentity = userIdentity
+        userIdentity = userIdentity,
+        googleWalletManager = googleWalletManager
     )
 
     private val widgetToken = "widgetToken"

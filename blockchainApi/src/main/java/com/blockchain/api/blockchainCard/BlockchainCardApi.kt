@@ -1,6 +1,8 @@
 package com.blockchain.api.blockchainCard
 
 import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocsFormDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionRequestDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardAccountDto
@@ -95,4 +97,10 @@ internal interface BlockchainCardApi {
     suspend fun acceptLegalDocuments(
         @Body acceptedDocumentsForm: BlockchainCardAcceptedDocsFormDto
     ): Outcome<Exception, List<BlockchainCardLegalDocumentDto>>
+
+    @POST("card-issuing/cards/{cardId}/digital-wallets/google-wallet")
+    suspend fun provisionGoogleWalletCard(
+        @Path("cardId") cardId: String,
+        @Body provisionRequest: BlockchainCardGoogleWalletProvisionRequestDto
+    ): Outcome<Exception, BlockchainCardGoogleWalletProvisionResponseDto>
 }

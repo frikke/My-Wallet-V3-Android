@@ -27,7 +27,7 @@ import piuk.blockchain.android.databinding.ActivitySettingsBinding
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
-import piuk.blockchain.android.ui.blockchaincard.BlockchainCardFragment
+import piuk.blockchain.android.ui.blockchaincard.BlockchainCardActivity
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
@@ -188,11 +188,11 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
     }
 
     override fun goToOrderBlockchainCard(cardProduct: BlockchainCardProduct) {
-        replaceCurrentFragment(BlockchainCardFragment.newInstance(cardProduct))
+        startActivity(BlockchainCardActivity.newIntent(this, cardProduct))
     }
 
     override fun goToManageBlockchainCard(blockchainCard: BlockchainCard) {
-        replaceCurrentFragment(BlockchainCardFragment.newInstance(blockchainCard))
+        startActivity(BlockchainCardActivity.newIntent(this, blockchainCard))
     }
 
     override fun goToReferralCode(referral: ReferralInfo.Data) {

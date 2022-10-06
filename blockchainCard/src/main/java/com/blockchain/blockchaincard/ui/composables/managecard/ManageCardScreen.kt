@@ -9,15 +9,19 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -25,8 +29,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
@@ -38,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -57,6 +64,7 @@ import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
+import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
@@ -73,9 +81,11 @@ import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.DropdownMenuSearch
 import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.divider.VerticalDivider
 import com.blockchain.componentlib.lazylist.PaginatedLazyColumn
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.system.Webview
 import com.blockchain.componentlib.tablerow.BalanceTableRow
@@ -83,6 +93,8 @@ import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tablerow.ToggleTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
+import com.blockchain.componentlib.theme.GOOGLE_PAY_BUTTON_BORDER
+import com.blockchain.componentlib.theme.GOOGLE_PAY_BUTTON_DIVIDER
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.UltraLight
@@ -107,6 +119,7 @@ fun ManageCard(
     isBalanceLoading: Boolean,
     isTransactionListRefreshing: Boolean,
     transactionList: List<BlockchainCardTransaction>?,
+    googleWalletState: BlockchainCardGoogleWalletStatus,
     onManageCardDetails: () -> Unit,
     onFundingAccountClicked: () -> Unit,
     onRefreshBalance: () -> Unit,
@@ -114,7 +127,8 @@ fun ManageCard(
     onSeeTransactionDetails: (BlockchainCardTransaction) -> Unit,
     onRefreshTransactions: () -> Unit,
     onRefreshCardWidgetUrl: () -> Unit,
-    onAddFunds: () -> Unit
+    onAddFunds: () -> Unit,
+    onAddToGoogleWallet: () -> Unit
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -274,6 +288,21 @@ fun ManageCard(
             }
         }
 
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+        when (googleWalletState) {
+            BlockchainCardGoogleWalletStatus.NOT_ADDED -> GooglePayButton(
+                onClick = onAddToGoogleWallet,
+                modifier = Modifier.requiredWidth(153.dp)
+            )
+            BlockchainCardGoogleWalletStatus.ADDED -> {}
+            BlockchainCardGoogleWalletStatus.ADD_IN_PROGRESS -> CircularProgressBar()
+            BlockchainCardGoogleWalletStatus.ADD_SUCCESS -> GooglePayButtonAddSuccess()
+            BlockchainCardGoogleWalletStatus.ADD_FAILED -> GooglePayButtonAddFailed()
+        }
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -393,6 +422,7 @@ private fun PreviewManageCard() {
         isBalanceLoading = false,
         isTransactionListRefreshing = false,
         transactionList = null,
+        googleWalletState = BlockchainCardGoogleWalletStatus.NOT_ADDED,
         onManageCardDetails = {},
         onFundingAccountClicked = {},
         onRefreshBalance = {},
@@ -400,8 +430,106 @@ private fun PreviewManageCard() {
         onSeeTransactionDetails = {},
         onRefreshTransactions = {},
         onRefreshCardWidgetUrl = {},
-        onAddFunds = {}
+        onAddFunds = {},
+        onAddToGoogleWallet = {}
     )
+}
+
+@Composable
+fun GooglePayButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    OutlinedButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(AppTheme.dimensions.borderSmall, GOOGLE_PAY_BUTTON_BORDER),
+        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Black),
+        modifier = modifier
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.add_to_googlepay_button_content),
+            contentDescription = stringResource(R.string.add_to_google_pay),
+            modifier = Modifier.wrapContentSize()
+        )
+    }
+}
+
+@Composable
+fun GooglePayButtonAddSuccess(modifier: Modifier = Modifier) {
+    OutlinedButton(
+        onClick = {},
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(AppTheme.dimensions.borderSmall, GOOGLE_PAY_BUTTON_BORDER),
+        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Black),
+        modifier = modifier.height(IntrinsicSize.Min)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.googlepay_button_content),
+            contentDescription = stringResource(R.string.add_to_google_pay),
+            modifier = Modifier.wrapContentSize()
+        )
+
+        Spacer(modifier = Modifier.width(AppTheme.dimensions.tinySpacing))
+        VerticalDivider(
+            dividerColor = GOOGLE_PAY_BUTTON_DIVIDER,
+            modifier = Modifier.fillMaxHeight()
+        )
+        Spacer(modifier = Modifier.width(AppTheme.dimensions.tinySpacing))
+
+        SimpleText(
+            text = stringResource(R.string.card_added_to_google_pay),
+            style = ComposeTypographies.Body1,
+            color = ComposeColors.Light,
+            gravity = ComposeGravities.Centre
+        )
+    }
+}
+
+@Composable
+fun GooglePayButtonAddFailed(modifier: Modifier = Modifier) {
+    OutlinedButton(
+        onClick = {},
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(AppTheme.dimensions.borderSmall, GOOGLE_PAY_BUTTON_BORDER),
+        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Black),
+        modifier = modifier.height(IntrinsicSize.Min)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.googlepay_button_content),
+            contentDescription = stringResource(R.string.add_to_google_pay),
+            modifier = Modifier.wrapContentSize()
+        )
+
+        Spacer(modifier = Modifier.width(AppTheme.dimensions.tinySpacing))
+        VerticalDivider(
+            dividerColor = GOOGLE_PAY_BUTTON_DIVIDER,
+            modifier = Modifier.fillMaxHeight()
+        )
+        Spacer(modifier = Modifier.width(AppTheme.dimensions.tinySpacing))
+
+        SimpleText(
+            text = stringResource(R.string.failed_to_add_card_to_google_pay),
+            style = ComposeTypographies.Body1,
+            color = ComposeColors.Error,
+            gravity = ComposeGravities.Centre
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewGooglePayButtonAddFailed() {
+    GooglePayButtonAddFailed()
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewGooglePayButtonAddSuccess() {
+    GooglePayButtonAddSuccess()
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewGooglePayButton() {
+    GooglePayButton(onClick = { /*TODO*/ })
 }
 
 @Composable

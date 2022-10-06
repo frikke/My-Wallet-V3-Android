@@ -3018,7 +3018,7 @@
     <string name="defi_onboarding_complete_description">Your DeFi Wallet was successfully created. You DeFi wallet supports Bitcoin, Bitcoin Cash, Ethereum, |etc| and 1500 tokens.</string>
     <!-- Blockchain Card -->
     <string name="order_my_card">Order My Card</string>
-    <string name="order_card_intro">Spend your crypto or cash without fees.¹ Earn 0.5%% back in crypto.²</string>
+    <string name="order_card_intro">Spend your crypto or cash without fees.¹ Earn 0.5\u0025 back in crypto.²</string>
     <string name="link_card_here">Already Have A Card? Link It Here"</string>
     <string name="virtual">Virtual</string>
     <string name="virtual_card_product_description">Our digital only card, use instantly for online payments.</string>
@@ -3065,7 +3065,7 @@
     <string name="feature_not_available">Feature is not available.</string>
     <string name="terms_and_conditions_label">I agree to Blockchain.com’s Terms of Service</string>
     <string name="crypto_back_title">Crypto Back</string>
-    <string name="crypto_back_description">Earn 0.5%% back in crypto rewards on all your purchases.²</string>
+    <string name="crypto_back_description">Earn 0.5\u0025 back in crypto rewards on all your purchases.²</string>
     <string name="legal_info_title">The Legal Stuff</string>
     <string name="continue_to_card_dashboard">Continue to view your card dashboard.</string>
     <string name="go_to_dashboard">Go To Dashboard</string>
@@ -3269,8 +3269,8 @@
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
-
-    <!-- multi app home-->
+    <string name="add_to_google_pay">Add to Google Pay</string>
+    <string name="card_added_to_google_pay">Card Added to Google Pay</string>
+    <string name="failed_to_add_card_to_google_pay">Failed to Add Card to Google Pay</string>
     <string name="ma_home_assets_title">Assets</string>
-
 </resources>

@@ -244,6 +244,7 @@ fun BlockchainCardNavHost(
                             isBalanceLoading = state.isLinkedAccountBalanceLoading,
                             isTransactionListRefreshing = state.isTransactionListRefreshing,
                             transactionList = state.shortTransactionList,
+                            googleWalletState = state.googleWalletStatus,
                             onManageCardDetails = {
                                 viewModel.onIntent(BlockchainCardIntent.ManageCardDetails)
                             },
@@ -267,6 +268,9 @@ fun BlockchainCardNavHost(
                             },
                             onAddFunds = {
                                 viewModel.onIntent(BlockchainCardIntent.AddFunds)
+                            },
+                            onAddToGoogleWallet = {
+                                viewModel.onIntent(BlockchainCardIntent.LoadGoogleWalletPushTokenizeData)
                             }
                         )
                     }

@@ -35,6 +35,12 @@ dependencies {
     implementation Libraries.okHttp
     implementation Libraries.kotlinJson
     implementation Libraries.accompanistSwipeRefresh
+    implementation Libraries.googlePlayServicesBase
+    implementation Libraries.googlePlayServicesBasement
+    implementation Libraries.googlePlayServicesTasks
+    implementation Libraries.googlePlayServicesCoroutines
+    implementation Libraries.googlePlayServicesTapAndPay
+    implementation Libraries.rxjava3Coroutines
 
     implementation "androidx.fragment:fragment-ktx:1.5.2"
 
