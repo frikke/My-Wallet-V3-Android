@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import com.blockchain.componentlib.R
@@ -47,7 +46,7 @@ fun ButtonContent(
             when (icon) {
                 is ImageResource.Local -> {
                     Image(
-                        imageResource = icon.withColorFilter(ColorFilter.tint(textColor)),
+                        imageResource = icon,
                         modifier = Modifier.size(icon.size ?: dimensionResource(R.dimen.medium_spacing)),
                     )
                     Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))

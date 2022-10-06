@@ -382,8 +382,6 @@ dependencies {
     implementation project(':defiwalletbackup:domain')
     implementation project(':defiwalletbackup:data')
 
-    implementation project(':nfts:presentation')
-
     implementation project(':appRating:data')
     implementation project(':appRating:domain')
     implementation project(':appRating:presentaion')
@@ -394,6 +392,9 @@ dependencies {
     implementation project(':fraud:data')
     implementation project(':fraud:domain')
 
+    implementation project(':nfts:data')
+    implementation project(':nfts:domain')
+    implementation project(':nfts:presentation')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring

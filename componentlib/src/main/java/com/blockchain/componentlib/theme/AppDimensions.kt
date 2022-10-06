@@ -79,6 +79,10 @@ class AppDimensions {
     val smallElevation: Dp
         @Composable
         get() = dimensionResource(R.dimen.small_elevation)
+
+    val mediumElevation: Dp
+        @Composable
+        get() = dimensionResource(R.dimen.medium_elevation)
 }
 
 internal val LocalDimensions = staticCompositionLocalOf { AppDimensions() }

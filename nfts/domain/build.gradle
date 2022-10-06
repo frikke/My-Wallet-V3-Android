@@ -2,4 +2,7 @@ apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
 
 dependencies {
     implementation project(':common:interface')
+
+    // coroutines
+    implementation Libraries.kotlinCoroutines
 }

@@ -1,25 +1,71 @@
 package com.blockchain.nfts.data.repository
 
-import com.blockchain.api.nfts.data.NftAssetResponse
-import com.blockchain.api.services.NftService
+import com.blockchain.api.nfts.data.NftAssetsDto
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.nfts.data.dataresources.NftCollectionStore
 import com.blockchain.nfts.domain.models.NftAsset
-import com.blockchain.nfts.domain.models.NftData
+import com.blockchain.nfts.domain.models.NftContract
+import com.blockchain.nfts.domain.models.NftCreator
+import com.blockchain.nfts.domain.models.NftTrait
+import com.blockchain.nfts.domain.service.NftService
+import com.blockchain.store.mapData
+import kotlinx.coroutines.flow.Flow
 
-class NftRepository(private val nftService: NftService) : com.blockchain.nfts.domain.service.NftService {
+class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftService {
 
-    override suspend fun getNftForAddress(network: String, address: String): List<NftAsset> =
-        nftService.getNftsForAddress(address = address).mapToDomain()
-
-    private fun NftAssetResponse.mapToDomain(): List<NftAsset> =
-        this.nftBalances.balances.map {
-            NftAsset(
-                it.tokenId,
-                it.metadata.image,
-                NftData(
-                    it.metadata.name,
-                    it.metadata.description,
-                    it.metadata.attributes.map { it.value }
-                )
-            )
+    override suspend fun getNftCollectionForAddress(
+        freshnessStrategy: FreshnessStrategy,
+        address: String
+    ): Flow<DataResource<List<NftAsset>>> {
+        return nftCollectionStore.stream(
+            freshnessStrategy.withKey(NftCollectionStore.Key(address = address))
+        ).mapData {
+            it.mapToDomain()
         }
+    }
+
+    override suspend fun getNftAsset(
+        freshnessStrategy: FreshnessStrategy,
+        address: String,
+        nftId: String
+    ): Flow<DataResource<NftAsset?>> {
+        return getNftCollectionForAddress(
+            freshnessStrategy = freshnessStrategy,
+            address = address
+        ).mapData {
+            it.firstOrNull { it.id == nftId }
+        }
+    }
+
+    private fun NftAssetsDto.mapToDomain(): List<NftAsset> =
+        this.assets.filterNot { it.imageUrl.isNullOrBlank() }
+            .map { nftAsset ->
+                NftAsset(
+                    id = nftAsset.id.orEmpty(),
+                    tokenId = nftAsset.tokenId.orEmpty(),
+                    imageUrl = nftAsset.imageUrl ?: nftAsset.imagePreviewUrl.orEmpty(),
+                    name = nftAsset.name.orEmpty(),
+                    description = nftAsset.description.orEmpty(),
+                    contract = NftContract(nftAsset.contract.address),
+                    creator = NftCreator(
+                        imageUrl = nftAsset.creator.imageUrl,
+                        name = nftAsset.creator.address.let {
+                            if (it.lowercase().startsWith("0x")) {
+                                it.drop(2).substring(0..5)
+                            } else {
+                                it
+                            }
+                        },
+                        isVerified = nftAsset.creator.isVerified
+                    ),
+                    traits = nftAsset.traits.map { nftTrait ->
+                        NftTrait(
+                            name = nftTrait.name,
+                            value = nftTrait.value
+                        )
+                    }
+                )
+            }
 }

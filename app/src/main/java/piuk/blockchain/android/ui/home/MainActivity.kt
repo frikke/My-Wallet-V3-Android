@@ -39,7 +39,10 @@ import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import com.blockchain.nfts.comingsoon.NftComingSoonFragment
+import com.blockchain.nfts.NftHost
+import com.blockchain.nfts.collection.NftCollectionFragment
+import com.blockchain.nfts.detail.NftDetailFragment
+import com.blockchain.nfts.help.NftHelpFragment
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.preferences.DashboardPrefs
@@ -120,6 +123,7 @@ import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
+import piuk.blockchain.android.util.openUrl
 import timber.log.Timber
 
 class MainActivity :
@@ -137,6 +141,7 @@ class MainActivity :
     ScanAndConnectBottomSheet.Host,
     UiTourView.Host,
     KycUpgradeNowSheet.Host,
+    NftHost,
     NavigationRouter<PricesNavigationEvent> {
 
     override val alwaysDisableScreenshots: Boolean
@@ -403,7 +408,7 @@ class MainActivity :
         updateSelectedNavigationItem(NavigationItem.Nfts)
 
         supportFragmentManager.showFragment(
-            fragment = NftComingSoonFragment(),
+            fragment = NftCollectionFragment(),
             reloadFragment = false
         )
     }
@@ -1270,6 +1275,22 @@ class MainActivity :
             .setMessage(message)
             .setPositiveButton(android.R.string.ok, null)
             .show()
+    }
+
+    override fun showReceiveSheet(account: BlockchainAccount) {
+        launchAssetAction(AssetAction.Receive, account)
+    }
+
+    override fun showNftDetail(nftId: String, address: String) {
+        replaceBottomSheet(NftDetailFragment.newInstance(nftId = nftId, address = address))
+    }
+
+    override fun showNftHelp() {
+        replaceBottomSheet(NftHelpFragment.newInstance())
+    }
+
+    override fun openExternalUrl(url: String) {
+        openUrl(url)
     }
 
     companion object {
