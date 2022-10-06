@@ -21,6 +21,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.extensions.enumValueOfOrNull
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -82,6 +83,9 @@ class EnterAmountFragment :
     private var infoActionCallback: () -> Unit = {}
 
     private var initialValueSet: Boolean = false
+    private val assetAction: AssetAction? by lazy {
+        enumValueOfOrNull<AssetAction>(arguments?.getString(ACTION).orEmpty())
+    }
 
     private val errorContainer by lazy {
         binding.errorLayout.errorContainer
@@ -101,6 +105,7 @@ class EnterAmountFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        analyticsHooks.onViewAmountScreen(assetAction)
 
         binding.amountSheetCtaButton.apply {
             buttonState = ButtonState.Disabled
@@ -296,7 +301,6 @@ class EnterAmountFragment :
                 }
             }
         }
-
         state = newState
     }
 
@@ -556,8 +560,14 @@ class EnterAmountFragment :
 
     companion object {
         private const val AMOUNT_DEBOUNCE_TIME_MS = 300L
+        private const val ACTION = "ASSET_ACTION"
 
-        fun newInstance(): EnterAmountFragment = EnterAmountFragment()
+        fun newInstance(assetAction: AssetAction): EnterAmountFragment =
+            EnterAmountFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ACTION, assetAction.name)
+                }
+            }
     }
 
     override fun onActionInfoTriggered() {

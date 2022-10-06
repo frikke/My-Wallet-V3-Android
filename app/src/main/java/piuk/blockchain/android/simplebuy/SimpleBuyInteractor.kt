@@ -705,7 +705,8 @@ class SimpleBuyInteractor(
                 quickFillButtons = listOfAmounts.map { amount ->
                     QuickFillDisplayAndAmount(
                         displayValue = amount.toStringWithSymbol(includeDecimalsWhenWhole = false),
-                        amount = amount
+                        amount = amount,
+                        position = listOfAmounts.indexOf(amount)
                     )
                 }
             )

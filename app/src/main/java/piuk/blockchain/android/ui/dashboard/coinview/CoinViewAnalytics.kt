@@ -183,6 +183,16 @@ sealed class CoinViewAnalytics(
             )
         )
 
+    object CoinViewBuyClickedEvent : AnalyticsEvent {
+        override val event: String = AnalyticsNames.COIN_VIEW_BUY_CLICKED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
+    object CoinViewAccountBuyClickedEvent : AnalyticsEvent {
+        override val event: String = AnalyticsNames.COIN_VIEW_ACCOUNT_BUY_CLICKED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
     class BuySellClicked(
         override val origin: LaunchOrigin,
         currency: String,

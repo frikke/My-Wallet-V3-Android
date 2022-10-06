@@ -145,22 +145,8 @@ fun withdrawEventWithCurrency(analytics: SimpleBuyAnalytics, currency: String, a
         }.toMap()
     }
 
-class QuickFillButtonTapped(
-    amount: String,
-    amountType: AmountType,
-    currency: String
-) : AnalyticsEvent {
-    override val event: String = AnalyticsNames.BUY_QUICK_FILL_BUTTON_TAPPED.eventName
-    override val params: Map<String, String> = mapOf(
-        "action" to "BUY",
-        "amount" to amount,
-        "amount_type" to amountType.name,
-        "currency" to currency
-    )
-}
-
 enum class AmountType {
-    SMALL, MEDIUM, LARGE
+    SMALL, MEDIUM, LARGE, MAX
 }
 
 class BuyFrequencySelected(frequency: String) : AnalyticsEvent {
@@ -200,13 +186,6 @@ fun linkBankEventWithCurrency(analytics: SimpleBuyAnalytics, currency: String): 
         )
     }
 
-class CurrencySelected(fiatCurrency: String) : AnalyticsEvent {
-    override val event: String = "sb_currency_selected"
-    override val params: Map<String, String> = mapOf(
-        "currency" to fiatCurrency
-    )
-}
-
 class BuyMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BUY_METHOD_OPTION_VIEWED.eventName
     override val origin: LaunchOrigin = LaunchOrigin.BUY
@@ -243,22 +222,103 @@ class WithdrawMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsE
     ).withoutNullValues()
 }
 
-class BuyAmountEntered(
-    frequency: String,
+object BuyAssetScreenViewedEvent : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_ASSET_SCREEN_VIEWED.eventName
+    override val params: Map<String, Serializable> = emptyMap()
+}
+
+class BuyAssetSelectedEvent(
+    type: String,
+) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_ASSET_SELECTED.eventName
+    override val params: Map<String, String> = mapOf(
+        "type" to type,
+    )
+}
+
+object BuyAmountScreenViewedEvent : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_AMOUNT_SCREEN_VIEWED.eventName
+    override val params: Map<String, Serializable> = emptyMap()
+}
+
+class BuyQuickFillButtonClicked(
+    amount: String,
+    amountType: AmountType,
+    currency: String
+) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_QUICK_FILL_BUTTON_CLICKED.eventName
+    override val params: Map<String, String> = mapOf(
+        "action" to "BUY",
+        "amount" to amount,
+        "amount_type" to amountType.name,
+        "currency" to currency
+    )
+}
+
+object BuyPaymentAddNewClickedEvent : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_PAYMENT_ADD_NEW_CLICKED.eventName
+    override val params: Map<String, Serializable> = emptyMap()
+}
+
+object BuyChangePaymentMethodClickedEvent : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_CHANGE_PAYMENT_METHOD_CLICKED.eventName
+    override val params: Map<String, Serializable> = emptyMap()
+}
+
+class BuyPaymentMethodChanged(type: String) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_PAYMENT_METHOD_CHANGED.eventName
+    override val params: Map<String, Serializable> = mapOf(
+        "payment_type" to type
+    )
+}
+
+class BuyAmountScreenNextClicked(
     inputAmount: Money,
-    maxCardLimit: Money?,
     outputCurrency: String,
     paymentMethod: PaymentMethodType
 ) : AnalyticsEvent {
-    override val event: String = AnalyticsNames.BUY_AMOUNT_ENTERED.eventName
+    override val event: String = AnalyticsNames.BUY_AMOUNT_SCREEN_NEXT_CLICKED.eventName
     override val params: Map<String, Serializable> = mapOf(
-        "frequency" to frequency,
         "input_amount" to inputAmount.toBigDecimal(),
         "input_currency" to inputAmount.currencyCode,
-        "max_card_limit" to maxCardLimit?.toBigDecimal(),
         "output_currency" to outputCurrency,
         "payment_method" to paymentMethod.name
     ).withoutNullValues()
+}
+
+object BuyCheckoutScreenViewedEvent : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_CHECKOUT_SCREEN_VIEWED.eventName
+    override val params: Map<String, Serializable> = emptyMap()
+}
+
+object BuyPriceTooltipClickedEvent : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_PRICE_TOOLTIP_CLICKED.eventName
+    override val params: Map<String, Serializable> = emptyMap()
+}
+
+object BuyBlockchainComFeeClickedEvent : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_BLOCKCHAIN_COM_FEE_CLICKED.eventName
+    override val params: Map<String, Serializable> = emptyMap()
+}
+
+object BuyCheckoutScreenSubmittedEvent : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_CHECKOUT_SCREEN_SUBMITTED.eventName
+    override val params: Map<String, Serializable> = emptyMap()
+}
+
+object BuyCheckoutScreenBackClickedEvent : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_CHECKOUT_SCREEN_BACK_CLICKED.eventName
+    override val params: Map<String, Serializable> = emptyMap()
+}
+
+object BuyAmountScreenBackClickedEvent : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_AMOUNT_SCREEN_BACK_CLICKED.eventName
+    override val params: Map<String, Serializable> = emptyMap()
+}
+
+object FabBuyClickedEvent : AnalyticsEvent {
+    override val event: String = AnalyticsNames.FAB_BUY_CLICKED.eventName
+    override val params: Map<String, Serializable> = emptyMap()
 }
 
 class BuySellViewedEvent(private val type: BuySellFragment.BuySellViewType? = null) : AnalyticsEvent {
@@ -287,13 +347,6 @@ private fun BuySellFragment.BuySellViewType.toAnalyticsString(): String =
         BuySellFragment.BuySellViewType.TYPE_BUY -> "BUY"
         BuySellFragment.BuySellViewType.TYPE_SELL -> "SELL"
     }
-
-class BuyPaymentMethodSelected(type: String) : AnalyticsEvent {
-    override val event: String = AnalyticsNames.BUY_PAYMENT_METHOD_CHANGED.eventName
-    override val params: Map<String, Serializable> = mapOf(
-        "payment_type" to type
-    )
-}
 
 class BankTransferViewed(fiatCurrency: FiatCurrency) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BANK_TRANSFER_VIEWED.eventName

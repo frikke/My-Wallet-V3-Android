@@ -128,10 +128,21 @@ class TransactionFlowActivity :
                     contentDescription = R.string.accessibility_close
                 ) { finish() }
             ),
-            backAction = { onBackPressedDispatcher.onBackPressed() }
+            backAction = {
+                onBackPressedDispatcher.onBackPressed()
+                onBackPressedAnalytics(state)
+            }
         )
         binding.txProgress.visible()
         startModel()
+    }
+
+    private fun onBackPressedAnalytics(state: TransactionState) {
+        if (state.currentStep == TransactionStep.ENTER_AMOUNT) {
+            analyticsHooks.onAmountScreenBackClicked(state)
+        } else if (state.currentStep == TransactionStep.CONFIRM_DETAIL) {
+            analyticsHooks.onCheckoutScreenBackClicked(state)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -195,7 +206,7 @@ class TransactionFlowActivity :
         }
 
         state.currentStep.takeIf { it != TransactionStep.ZERO }?.let { step ->
-            showFlowStep(step, state.featureBlockedReason)
+            showFlowStep(step, state.featureBlockedReason, state.action)
             customiser.getScreenTitle(state).takeIf { it.isNotEmpty() }?.let {
                 updateToolbarTitle(it)
             } ?: updateToolbar()
@@ -228,6 +239,7 @@ class TransactionFlowActivity :
 
     private fun setupBackPress() {
         onBackPressedDispatcher.addCallback(owner = this) {
+            onBackPressedAnalytics(state)
             navigateOnBackPressed { finish() }
         }
     }
@@ -255,7 +267,7 @@ class TransactionFlowActivity :
         }
     }
 
-    private fun showFlowStep(step: TransactionStep, featureBlockedReason: BlockedReason?) {
+    private fun showFlowStep(step: TransactionStep, featureBlockedReason: BlockedReason?, assetAction: AssetAction) {
         when (step) {
             TransactionStep.ZERO,
             TransactionStep.CLOSED -> null
@@ -269,14 +281,14 @@ class TransactionFlowActivity :
                 )
             }
             TransactionStep.ENTER_PASSWORD -> EnterSecondPasswordFragment.newInstance()
-            TransactionStep.SELECT_SOURCE -> SelectSourceAccountFragment.newInstance()
+            TransactionStep.SELECT_SOURCE -> SelectSourceAccountFragment.newInstance(assetAction)
             TransactionStep.ENTER_ADDRESS -> EnterTargetAddressFragment.newInstance()
             TransactionStep.ENTER_AMOUNT -> {
                 checkRemainingSendAttemptsWithoutBackup()
-                EnterAmountFragment.newInstance()
+                EnterAmountFragment.newInstance(assetAction)
             }
             TransactionStep.SELECT_TARGET_ACCOUNT -> SelectTargetAccountFragment.newInstance()
-            TransactionStep.CONFIRM_DETAIL -> ConfirmTransactionFragment.newInstance()
+            TransactionStep.CONFIRM_DETAIL -> ConfirmTransactionFragment.newInstance(assetAction)
             TransactionStep.IN_PROGRESS -> TransactionProgressFragment.newInstance()
         }?.let {
             binding.txProgress.gone()

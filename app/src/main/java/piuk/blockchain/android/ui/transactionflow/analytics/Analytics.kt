@@ -26,6 +26,7 @@ import com.blockchain.logging.RemoteLogger
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import java.math.BigDecimal
+import piuk.blockchain.android.simplebuy.AmountType
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoActionType
@@ -75,6 +76,54 @@ class TxFlowAnalytics(
                 }
             else -> {
             }
+        }
+    }
+
+    fun onQuickMaxClicked(state: TransactionState, maxAmount: Money) {
+        when (state.action) {
+            AssetAction.Sell -> {
+                analytics.logEvent(
+                    SellQuickFillButtonClicked(
+                        amount = maxAmount.toBigDecimal().toString(),
+                        amountType = AmountType.MAX,
+                        currency = maxAmount.currencyCode
+                    )
+                )
+            }
+            AssetAction.Swap -> {
+                analytics.logEvent(
+                    SwapAnalyticsEvents.SwapQuickFillButtonClicked(
+                        amount = maxAmount.toBigDecimal().toString(),
+                        amountType = AmountType.MAX,
+                        currency = maxAmount.currencyCode
+                    )
+                )
+            }
+            else -> {}
+        }
+    }
+
+    fun onQuickButtonsClicked(state: TransactionState, buttonTapped: Money, position: Int) {
+        when (state.action) {
+            AssetAction.Sell -> {
+                analytics.logEvent(
+                    SellQuickFillButtonClicked(
+                        amount = buttonTapped.toBigDecimal().toString(),
+                        amountType = AmountType.values()[position],
+                        currency = buttonTapped.currencyCode
+                    )
+                )
+            }
+            AssetAction.Swap -> {
+                analytics.logEvent(
+                    SwapAnalyticsEvents.SwapQuickFillButtonClicked(
+                        amount = buttonTapped.toBigDecimal().toString(),
+                        amountType = AmountType.values()[position],
+                        currency = buttonTapped.currencyCode
+                    )
+                )
+            }
+            else -> {}
         }
     }
 
@@ -214,6 +263,17 @@ class TxFlowAnalytics(
         }
     }
 
+    fun onFromSourcesAccountViewed(state: AssetAction?) {
+        when (state) {
+            AssetAction.Swap -> {
+                analytics.logEvent(
+                    SwapAnalyticsEvents.SwapFromWalletPageViewedEvent
+                )
+            }
+            else -> {}
+        }
+    }
+
     fun onSourceAccountSelected(account: BlockchainAccount, state: TransactionState) {
         when (state.action) {
             AssetAction.Swap -> {
@@ -337,6 +397,11 @@ class TxFlowAnalytics(
     }
 
     fun onCryptoToggle(inputType: Currency, state: TransactionState) {
+        when (state.action) {
+            AssetAction.Sell -> analytics.logEvent(SellFiatCryptoSwitcherClickedEvent(inputType))
+            AssetAction.Swap -> analytics.logEvent(SwapAnalyticsEvents.SwapFiatCryptoSwitcherClickedEvent(inputType))
+            else -> {}
+        }
         if (state.action.shouldLogInputSwitch())
             analytics.logEvent(
                 AmountSwitched(
@@ -359,7 +424,7 @@ class TxFlowAnalytics(
                     )
                 )
                 analytics.logEvent(
-                    AmountEntered(
+                    SellAmountScreenNextClicked(
                         sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount),
                         amount = state.amount,
                         outputCurrency = (state.selectedTarget as FiatAccount).currency.networkTicker
@@ -482,14 +547,17 @@ class TxFlowAnalytics(
                         outputCurrency = (state.selectedTarget as FiatAccount).currency.networkTicker
                     )
                 )
+                analytics.logEvent(SellCheckoutScreenSubmittedEvent)
             }
-            AssetAction.Swap ->
+            AssetAction.Swap -> {
                 analytics.logEvent(
                     SwapAnalyticsEvents.SwapConfirmCta(
                         source = state.sendingAsset,
                         target = state.selectedTarget.toCategory()
                     )
                 )
+                analytics.logEvent(SwapAnalyticsEvents.SwapCheckoutScreenSubmittedEvent)
+            }
             AssetAction.FiatWithdraw ->
                 analytics.logEvent(
                     withdrawEvent(
@@ -499,6 +567,53 @@ class TxFlowAnalytics(
                 )
             else -> {
             }
+        }
+    }
+
+    fun onViewAmountScreen(state: AssetAction?) {
+        when (state) {
+            AssetAction.Sell -> analytics.logEvent(SellAmountScreenViewedEvent)
+            else -> {}
+        }
+    }
+
+    fun onViewCheckoutScreen(state: AssetAction?) {
+        when (state) {
+            AssetAction.Sell -> analytics.logEvent(SellCheckoutScreenViewedEvent)
+            AssetAction.Swap -> analytics.logEvent(SwapAnalyticsEvents.SwapCheckoutScreenViewedEvent)
+            else -> {}
+        }
+    }
+
+    fun onPriceTooltipClicked(state: AssetAction?) {
+        when (state) {
+            AssetAction.Sell -> analytics.logEvent(SellPriceTooltipClickedEvent)
+            AssetAction.Swap -> analytics.logEvent(SwapAnalyticsEvents.SwapPriceTooltipClickedEvent)
+            else -> {}
+        }
+    }
+
+    fun onFeesTooltipClicked(state: AssetAction?) {
+        when (state) {
+            AssetAction.Sell -> analytics.logEvent(SellCheckoutNetworkFeesClickedEvent)
+            AssetAction.Swap -> analytics.logEvent(SwapAnalyticsEvents.SwapCheckoutNetworkFeesClickedEvent)
+            else -> {}
+        }
+    }
+
+    fun onAmountScreenBackClicked(state: TransactionState) {
+        when (state.action) {
+            AssetAction.Sell -> analytics.logEvent(SellAmountScreenBackClickedEvent)
+            AssetAction.Swap -> analytics.logEvent(SwapAnalyticsEvents.SwapAmountBackScreenClickedEvent)
+            else -> {}
+        }
+    }
+
+    fun onCheckoutScreenBackClicked(state: TransactionState) {
+        when (state.action) {
+            AssetAction.Sell -> analytics.logEvent(SellCheckoutScreenBackClickedEvent)
+            AssetAction.Swap -> analytics.logEvent(SwapAnalyticsEvents.SwapCheckoutScreenBackClickedEvent)
+            else -> {}
         }
     }
 
@@ -635,10 +750,7 @@ class TxFlowAnalytics(
 
 private fun AssetAction.shouldLogInputSwitch(): Boolean =
     when (this) {
-        AssetAction.Swap,
         AssetAction.Send,
-        AssetAction.Sell,
-        AssetAction.Buy,
         AssetAction.InterestWithdraw,
         AssetAction.InterestDeposit -> true
         else -> false
