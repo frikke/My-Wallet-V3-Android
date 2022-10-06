@@ -18,7 +18,8 @@ class NftCollectionStore(
         fetcher = Fetcher.Keyed.ofSingle(
             mapper = { key ->
                 nftApiService.getNftCollection(
-                    address = key.address
+                    address = key.address,
+                    pageKey = key.pageKey
                 )
             }
         ),
@@ -31,6 +32,7 @@ class NftCollectionStore(
     @Serializable
     data class Key(
         val address: String,
+        val pageKey: String?,
     )
 
     override fun invalidate(param: Key) {

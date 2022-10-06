@@ -1,5 +1,10 @@
 package com.blockchain.nfts.domain.models
 
+data class NftAssetsPage(
+    val assets: List<NftAsset>,
+    val nextPageKey: String?
+)
+
 data class NftAsset(
     val id: String,
     val tokenId: String,

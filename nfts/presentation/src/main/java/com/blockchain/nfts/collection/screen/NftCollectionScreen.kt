@@ -39,6 +39,9 @@ fun NftCollection(
             onRefresh = {
                 viewModel.onIntent(NftCollectionIntent.LoadData(isFromPullToRefresh = true))
             },
+            onGetNextPage = {
+                viewModel.onIntent(NftCollectionIntent.LoadNextPage)
+            },
             onReceiveClick = {
                 viewModel.onIntent(NftCollectionIntent.ShowReceiveAddress)
             },
@@ -56,6 +59,7 @@ fun NftCollectionScreen(
     onItemClick: (NftAsset) -> Unit,
     onExternalShopClick: () -> Unit,
     onRefresh: () -> Unit,
+    onGetNextPage: () -> Unit,
     onReceiveClick: () -> Unit,
     onHelpClick: () -> Unit
 ) {
@@ -81,7 +85,8 @@ fun NftCollectionScreen(
                         isRefreshing = isRefreshing,
                         onItemClick = onItemClick,
                         onExternalShopClick = onExternalShopClick,
-                        onRefresh = onRefresh
+                        onRefresh = onRefresh,
+                        onGetNextPage = onGetNextPage
                     )
                 }
             }
@@ -102,6 +107,7 @@ fun PreviewNftCollectionScreen_Empty() {
         onItemClick = {},
         onExternalShopClick = {},
         onRefresh = {},
+        onGetNextPage = {},
         onReceiveClick = {},
         onHelpClick = {}
     )
@@ -129,6 +135,7 @@ fun PreviewNftCollectionScreen_Data() {
         onItemClick = {},
         onExternalShopClick = {},
         onRefresh = {},
+        onGetNextPage = {},
         onReceiveClick = {},
         onHelpClick = {}
     )
@@ -143,6 +150,7 @@ fun PreviewNftCollectionScreen_Loading() {
         onItemClick = {},
         onExternalShopClick = {},
         onRefresh = {},
+        onGetNextPage = {},
         onReceiveClick = {},
         onHelpClick = {},
     )
@@ -157,6 +165,7 @@ fun PreviewNftCollectionScreen_Error() {
         onItemClick = {},
         onExternalShopClick = {},
         onRefresh = {},
+        onGetNextPage = {},
         onReceiveClick = {},
         onHelpClick = {}
     )

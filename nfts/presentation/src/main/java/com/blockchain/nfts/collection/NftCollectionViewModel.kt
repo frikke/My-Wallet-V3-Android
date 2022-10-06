@@ -46,7 +46,20 @@ class NftCollectionViewModel(
         when (intent) {
             is NftCollectionIntent.LoadData -> {
                 check(modelState.account != null) { "account not initialized" }
-                loadNftCollection(account = modelState.account, isFromPullToRefresh = intent.isFromPullToRefresh)
+                loadNftCollection(
+                    account = modelState.account,
+                    pageKey = null,
+                    isFromPullToRefresh = intent.isFromPullToRefresh
+                )
+            }
+
+            is NftCollectionIntent.LoadNextPage -> {
+                check(modelState.account != null) { "account not initialized" }
+                loadNftCollection(
+                    account = modelState.account,
+                    pageKey = intent.pageKey,
+                    isFromPullToRefresh = false
+                )
             }
 
             NftCollectionIntent.ExternalShop -> {
@@ -84,7 +97,7 @@ class NftCollectionViewModel(
         } ?: error("asset ${CryptoCurrency.ETHER.networkTicker} not found")
     }
 
-    private fun loadNftCollection(account: BlockchainAccount, isFromPullToRefresh: Boolean) {
+    private fun loadNftCollection(account: BlockchainAccount, pageKey: String?, isFromPullToRefresh: Boolean) {
         viewModelScope.launch {
             val address = account.receiveAddress.await().address
             nftService.getNftCollectionForAddress(
@@ -93,7 +106,8 @@ class NftCollectionViewModel(
                 } else {
                     FreshnessStrategy.Cached(forceRefresh = true)
                 },
-                address = address
+                address = address,
+                pageKey = pageKey
             ).collectLatest { dataResource ->
                 updateState {
                     it.copy(
