@@ -55,7 +55,7 @@ class LauncherViewModelTest {
     )
 
     @Test
-    fun onViewAttached_setsBitcoinUri() {
+    fun `GIVEN bitcoin scheme, WHEN viewCreated is called, THEN keySchemeUrl should be bitcoin uri`() {
         // Arrange
         val args = LauncherState(
             action = Intent.ACTION_VIEW,
@@ -75,7 +75,7 @@ class LauncherViewModelTest {
     }
 
     @Test
-    fun onViewAttached_setsMetadataUri() {
+    fun `GIVEN dataString blockchain, WHEN viewCreated is called, THEN metadataUri should be blockchain`() {
         // Arrange
         val args = LauncherState(
             action = Intent.ACTION_VIEW,
@@ -94,7 +94,7 @@ class LauncherViewModelTest {
     }
 
     @Test
-    fun onViewAttached_notValidGuid_callsOnCorruptPayload() = runTest {
+    fun `GIVEN invalid guid, WHEN viewCreated is called, THEN CorruptPayload is called`() = runTest {
         // Arrange
         val args = LauncherState()
 
@@ -115,7 +115,7 @@ class LauncherViewModelTest {
     }
 
     @Test
-    fun onViewAttached_noGuidAndNoPinId_callsOnRequestPin() = runTest {
+    fun `GIVEN valid data, WHEN viewCreated is called, THEN RequestPin is called`() = runTest {
         // Arrange
         val args = LauncherState()
 
@@ -136,7 +136,7 @@ class LauncherViewModelTest {
     }
 
     @Test
-    fun onViewAttached_isLoggedOut_callsOnReenterPassword() = runTest {
+    fun `GIVEN pinId empty, WHEN viewCreated is called, THEN ReenterPassword is called`() = runTest {
         // Arrange
         val args = LauncherState()
 
@@ -157,7 +157,7 @@ class LauncherViewModelTest {
     }
 
     @Test
-    fun onViewAttached_noGuidAndNoBackup_callsOnNoGuid() = runTest {
+    fun `GIVEN pinId and walletGuid empty, WHEN viewCreated is called, THEN NoGuid is called`() = runTest {
         // Arrange
         val args = LauncherState()
 
@@ -178,7 +178,7 @@ class LauncherViewModelTest {
     }
 
     @Test
-    fun onViewAttached_noGuidAndBackup_callsOnRequestPin() = runTest {
+    fun `GIVEN walletGuid empty, hasBackup, WHEN viewCreated is called, THEN RequestPin is called`() = runTest {
         // Arrange
         val args = LauncherState()
 
