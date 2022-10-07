@@ -5,7 +5,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class CoinviewArgs(
-    val networkTicker: String
+    val networkTicker: String,
+    val recurringBuyId: String?
 ) : ModelConfigArgs.ParcelableArgs {
     companion object {
         const val ARGS_KEY: String = "CoinviewArgs"

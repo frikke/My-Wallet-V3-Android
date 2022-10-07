@@ -87,6 +87,10 @@ class CoinviewViewModel(
                 )
             }
         } ?: error("asset ${args.networkTicker} not found")
+
+        args.recurringBuyId?.let {
+            navigate(CoinviewNavigationEvent.ShowRecurringBuySheet(it))
+        }
     }
 
     override fun reduce(state: CoinviewModelState): CoinviewViewState = state.run {

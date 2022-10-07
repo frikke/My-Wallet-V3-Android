@@ -77,12 +77,13 @@ class GlobalEventHandler(
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     subject.flatMapSingle {
                         stakingFF.enabled.map {
-                            // TODO (dserrano) - STAKING - Ask Othman about deeplinks
                             subject.onSuccess(
                                 if (it) {
                                     CoinViewActivityV2.newIntent(
                                         context = application,
                                         asset = assetInfo,
+                                        recurringBuyId = destination.recurringBuyId,
+                                        originScreen = LaunchOrigin.NOTIFICATION.name
                                     )
                                 } else {
                                     CoinViewActivity.newIntent(
