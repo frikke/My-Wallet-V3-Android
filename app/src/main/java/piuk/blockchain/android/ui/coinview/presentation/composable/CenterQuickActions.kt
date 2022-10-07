@@ -20,6 +20,10 @@ fun CenterQuickActions(
     onQuickActionClick: (CoinviewQuickActionState) -> Unit
 ) {
     when (data) {
+        CoinviewCenterQuickActionsState.NotSupported -> {
+            Empty()
+        }
+
         CoinviewCenterQuickActionsState.Loading -> {
             Empty()
         }

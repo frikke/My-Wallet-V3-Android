@@ -28,6 +28,8 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
      */
     object LoadPriceData : CoinviewIntent
 
+    object LoadWatchlistData : CoinviewIntent
+
     /**
      * Load total balance and accounts
      */
@@ -78,6 +80,12 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
     data class NewTimeSpanSelected(val timeSpan: HistoricalTimeSpan) : CoinviewIntent {
         override fun isValidFor(modelState: CoinviewModelState): Boolean {
             return (modelState.assetPriceHistory as? DataResource.Data)?.data?.priceDetail?.timeSpan != timeSpan
+        }
+    }
+
+    object ToggleWatchlist : CoinviewIntent {
+        override fun isValidFor(modelState: CoinviewModelState): Boolean {
+            return modelState.watchlist is DataResource.Data
         }
     }
 
@@ -132,4 +140,6 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
      * It uses [CoinviewModelState.actionableAccount] as a target account
      */
     data class QuickActionSelected(val quickAction: CoinviewQuickAction) : CoinviewIntent
+
+    object ContactSupport : CoinviewIntent
 }

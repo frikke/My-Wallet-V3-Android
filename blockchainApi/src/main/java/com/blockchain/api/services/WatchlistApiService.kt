@@ -1,32 +1,36 @@
 package com.blockchain.api.services
 
 import com.blockchain.api.watchlist.WatchlistApi
-import com.blockchain.api.watchlist.data.WatchlistBody
-import com.blockchain.api.watchlist.data.WatchlistListResponse
+import com.blockchain.api.watchlist.model.WatchlistBody
+import com.blockchain.api.watchlist.model.WatchlistDto
 import com.blockchain.outcome.Outcome
 
-class WatchlistService internal constructor(
+class WatchlistApiService internal constructor(
     private val api: WatchlistApi
 ) {
 
-    suspend fun getWatchlist(): Outcome<Exception, WatchlistListResponse> =
+    suspend fun getWatchlist(): Outcome<Exception, WatchlistDto> =
         api.getWatchlist()
 
-    suspend fun addToWatchlist(assetTicker: String, tags: List<AssetTag>) =
+    suspend fun addToWatchlist(assetTicker: String) =
         api.addToWatchlist(
             body = WatchlistBody(
                 asset = assetTicker,
-                tags = tags.map { it.tagName }
+                tags = listOf(FAVOURITE_TAG)
             )
         )
 
-    suspend fun removeFromWatchlist(assetTicker: String, tags: List<AssetTag>) =
+    suspend fun removeFromWatchlist(assetTicker: String) =
         api.removeFromWatchlist(
             body = WatchlistBody(
                 asset = assetTicker,
-                tags = tags.map { it.tagName }
+                tags = listOf(FAVOURITE_TAG)
             )
         )
+
+    companion object {
+        const val FAVOURITE_TAG = "Favourite"
+    }
 }
 
 enum class AssetTag(val tagName: String = "Favourite") {

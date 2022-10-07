@@ -6,13 +6,16 @@ import com.blockchain.charts.ChartEntry
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.core.price.HistoricalTimeSpan
+import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickAction
 
 data class CoinviewViewState(
-    val assetName: String,
+    val asset: CoinviewAssetState,
     val assetPrice: CoinviewPriceState,
+    val tradeable: CoinviewAssetTradeableState,
+    val watchlist: CoinviewWatchlistState,
     val totalBalance: CoinviewTotalBalanceState,
     val accounts: CoinviewAccountsState,
     val centerQuickAction: CoinviewCenterQuickActionsState,
@@ -21,6 +24,14 @@ data class CoinviewViewState(
     val assetInfo: CoinviewAssetInfoState,
     val snackbarError: CoinviewSnackbarAlertState
 ) : ViewState
+
+// Asset
+sealed interface CoinviewAssetState {
+    object Error : CoinviewAssetState
+    data class Data(
+        val asset: AssetInfo
+    ) : CoinviewAssetState
+}
 
 // Price
 sealed interface CoinviewPriceState {
@@ -44,10 +55,30 @@ sealed interface CoinviewPriceState {
     }
 }
 
+// Tradeable
+sealed interface CoinviewAssetTradeableState {
+    object Tradeable : CoinviewAssetTradeableState
+    data class NonTradeable(
+        val assetName: String,
+        val assetTicker: String
+    ) : CoinviewAssetTradeableState
+}
+
+// Watchlist
+sealed interface CoinviewWatchlistState {
+    object NotSupported : CoinviewWatchlistState
+    object Loading : CoinviewWatchlistState
+    object Error : CoinviewWatchlistState
+    data class Data(
+        val isInWatchlist: Boolean
+    ) : CoinviewWatchlistState
+}
+
 // Total balance
 sealed interface CoinviewTotalBalanceState {
     object NotSupported : CoinviewTotalBalanceState
     object Loading : CoinviewTotalBalanceState
+    object Error : CoinviewTotalBalanceState
     data class Data(
         val assetName: String,
         val totalFiatBalance: String,
@@ -57,7 +88,9 @@ sealed interface CoinviewTotalBalanceState {
 
 // Accounts
 sealed interface CoinviewAccountsState {
+    object NotSupported : CoinviewAccountsState
     object Loading : CoinviewAccountsState
+    object Error : CoinviewAccountsState
     data class Data(
         val style: CoinviewAccountsStyle,
         val header: CoinviewAccountsHeaderState,
@@ -121,6 +154,7 @@ sealed interface CoinviewRecurringBuysState {
 // Quick actions
 // center
 sealed interface CoinviewCenterQuickActionsState {
+    object NotSupported : CoinviewCenterQuickActionsState
     object Loading : CoinviewCenterQuickActionsState
     data class Data(
         val center: CoinviewQuickActionState,
@@ -129,6 +163,7 @@ sealed interface CoinviewCenterQuickActionsState {
 
 // bottom
 sealed interface CoinviewBottomQuickActionsState {
+    object NotSupported : CoinviewBottomQuickActionsState
     object Loading : CoinviewBottomQuickActionsState
     data class Data(
         val start: CoinviewQuickActionState,
@@ -211,8 +246,18 @@ sealed interface CoinviewSnackbarAlertState {
     val message: Int
     val snackbarType: SnackbarType
 
+    object AccountsLoadError : CoinviewSnackbarAlertState {
+        override val message: Int = R.string.coinview_wallet_load_error
+        override val snackbarType: SnackbarType = SnackbarType.Error
+    }
+
     object ActionsLoadError : CoinviewSnackbarAlertState {
         override val message: Int = R.string.coinview_actions_error
+        override val snackbarType: SnackbarType = SnackbarType.Warning
+    }
+
+    object WatchlistToggleError : CoinviewSnackbarAlertState {
+        override val message: Int = R.string.coinview_watchlist_toggle_fail
         override val snackbarType: SnackbarType = SnackbarType.Warning
     }
 
@@ -220,6 +265,12 @@ sealed interface CoinviewSnackbarAlertState {
         override val message: Int get() = error("None error doesn't have message property")
         override val snackbarType: SnackbarType get() = error("None error doesn't have snackbarType property")
     }
+}
+
+// misc
+sealed interface ValueAvailability {
+    data class Available(val value: String) : ValueAvailability
+    object NotAvailable : ValueAvailability
 }
 
 /**

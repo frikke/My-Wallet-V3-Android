@@ -1,5 +1,6 @@
 package piuk.blockchain.androidcore.utils.extensions
 
+import com.blockchain.data.DataResource
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrThrow
 import io.reactivex.rxjava3.core.Completable
@@ -9,6 +10,8 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxCompletable
 import kotlinx.coroutines.rx3.rxMaybe
@@ -58,3 +61,12 @@ suspend fun Completable.awaitOutcome(): Outcome<Exception, Unit> =
         if (ex is CancellationException) throw ex
         Outcome.Failure(ex)
     }
+
+suspend fun <T : Any> Single<T>.toDataResource(): Flow<DataResource<T>> = flow {
+    emit(DataResource.Loading)
+    try {
+        emit(DataResource.Data(await()))
+    } catch (ex: Exception) {
+        emit(DataResource.Error(ex))
+    }
+}

@@ -1,7 +1,7 @@
 package com.blockchain.core.user
 
 import com.blockchain.api.services.AssetTag
-import com.blockchain.api.services.WatchlistService
+import com.blockchain.api.services.WatchlistApiService
 import com.blockchain.outcome.map
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
@@ -10,7 +10,7 @@ import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
-// todo(othman) flow
+@Deprecated("use WatchlistService")
 interface WatchlistDataManager {
     fun getWatchlist(): Single<Watchlist>
     fun addToWatchlist(asset: Currency, tags: List<AssetTag>): Single<WatchlistInfo>
@@ -19,7 +19,7 @@ interface WatchlistDataManager {
 }
 
 class WatchlistDataManagerImpl(
-    private val watchlistService: WatchlistService,
+    private val watchlistService: WatchlistApiService,
     private val assetCatalogue: AssetCatalogue
 ) : WatchlistDataManager {
 
@@ -38,7 +38,7 @@ class WatchlistDataManagerImpl(
             watchlistService.getWatchlist()
                 .map { response ->
                     val assetMap = mutableMapOf<Currency, List<AssetTag>>()
-                    response.assets.forEach { item ->
+                    response.items.forEach { item ->
                         assetCatalogue.fromNetworkTicker(item.asset)?.let { currency ->
                             assetMap[currency] = item.tags.map { tagItem ->
                                 AssetTag.fromString(tagItem.tag)
@@ -51,7 +51,7 @@ class WatchlistDataManagerImpl(
 
     override fun addToWatchlist(asset: Currency, tags: List<AssetTag>): Single<WatchlistInfo> =
         rxSingleOutcome {
-            watchlistService.addToWatchlist(asset.networkTicker, tags)
+            watchlistService.addToWatchlist(asset.networkTicker)
                 .map { response ->
                     WatchlistInfo(
                         asset,
@@ -64,7 +64,7 @@ class WatchlistDataManagerImpl(
 
     override fun removeFromWatchList(asset: Currency, tags: List<AssetTag>): Completable =
         rxCompletableOutcome {
-            watchlistService.removeFromWatchlist(asset.networkTicker, tags)
+            watchlistService.removeFromWatchlist(asset.networkTicker)
         }
 }
 

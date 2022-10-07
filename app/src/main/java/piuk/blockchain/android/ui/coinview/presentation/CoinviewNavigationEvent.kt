@@ -75,4 +75,6 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
     data class ShowRecurringBuySheet(
         val recurringBuyId: String
     ) : CoinviewNavigationEvent
+
+    object NavigateToSupport : CoinviewNavigationEvent
 }

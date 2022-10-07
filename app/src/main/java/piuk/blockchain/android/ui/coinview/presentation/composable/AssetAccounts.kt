@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.coincore.AccountBalance
@@ -20,6 +21,8 @@ import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.StateAwareAction
+import com.blockchain.componentlib.alert.AlertType
+import com.blockchain.componentlib.alert.CardAlert
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
@@ -47,8 +50,16 @@ fun AssetAccounts(
     onLockedAccountClick: () -> Unit
 ) {
     when (data) {
+        CoinviewAccountsState.NotSupported -> {
+            Empty()
+        }
+
         CoinviewAccountsState.Loading -> {
             AssetAccountsLoading()
+        }
+
+        CoinviewAccountsState.Error -> {
+            AssetAccountsError()
         }
 
         is CoinviewAccountsState.Data -> {
@@ -65,6 +76,26 @@ fun AssetAccounts(
 fun AssetAccountsLoading() {
     Column(modifier = Modifier.fillMaxWidth()) {
         ShimmerLoadingTableRow()
+    }
+}
+
+@Composable
+fun AssetAccountsError() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = AppTheme.dimensions.standardSpacing,
+                vertical = AppTheme.dimensions.smallSpacing
+            )
+    ) {
+        CardAlert(
+            title = stringResource(R.string.coinview_account_load_error_title),
+            subtitle = stringResource(R.string.coinview_account_load_error_subtitle),
+            alertType = AlertType.Warning,
+            isBordered = true,
+            isDismissable = false
+        )
     }
 }
 
@@ -189,6 +220,15 @@ private fun Modifier.applyStyle(style: CoinviewAccountsStyle): Modifier {
 fun PreviewAssetAccounts_Loading() {
     AssetAccounts(
         CoinviewAccountsState.Loading,
+        {}, {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewAssetAccounts_Error() {
+    AssetAccounts(
+        CoinviewAccountsState.Error,
         {}, {}
     )
 }

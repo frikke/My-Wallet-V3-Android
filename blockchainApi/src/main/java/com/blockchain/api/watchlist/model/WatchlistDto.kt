@@ -1,4 +1,4 @@
-package com.blockchain.api.watchlist.data
+package com.blockchain.api.watchlist.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -12,13 +12,13 @@ class WatchlistBody(
 )
 
 @Serializable
-class WatchlistListResponse(
+class WatchlistDto(
     @SerialName("assets")
-    val assets: List<WatchlistResponse>
+    val items: List<WatchlistItemDto>
 )
 
 @Serializable
-class WatchlistResponse(
+class WatchlistItemDto(
     @SerialName("asset")
     val asset: String,
     @SerialName("insertedAt")
@@ -26,11 +26,11 @@ class WatchlistResponse(
     @SerialName("updatedAt")
     val updatedAt: String,
     @SerialName("tags")
-    val tags: List<TagResponse>
+    val tags: List<WatchlistTagDto>
 )
 
 @Serializable
-class TagResponse(
+class WatchlistTagDto(
     @SerialName("tag")
     val tag: String,
     @SerialName("insertedAt")

@@ -2833,6 +2833,8 @@
     <string name="coinview_prices_missing">There was an issue getting token data</string>
     <string name="coinview_watchlist_toggle_fail">Failed to update the Watchlist, please try again</string>
     <string name="coinview_actions_error">There was an issue getting your available actions, please try again</string>
+    <string name="coinview_no_asset_blurb_1">Looks like we don’t have any data on this asset. If this continues,</string>
+    <string name="coinview_no_asset_blurb_2">contact support.</string>
     <string name="coinview_no_asset_blurb">Looks like we don’t have any data on this asset. If this continues, <annotation link="contact_support">contact support.</annotation></string>
     <string name="coinview_no_asset_title">Unknown Asset</string>
     <string name="coinview_asset_info_cta">Visit Website →</string>

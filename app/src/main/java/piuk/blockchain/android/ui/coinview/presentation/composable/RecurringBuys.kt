@@ -33,7 +33,7 @@ fun RecurringBuys(
 ) {
     when (data) {
         CoinviewRecurringBuysState.NotSupported -> {
-            // don't show any view
+            Empty()
         }
 
         CoinviewRecurringBuysState.Loading -> {
