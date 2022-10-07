@@ -64,10 +64,10 @@ import com.blockchain.api.services.SessionService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.api.services.WatchlistApiService
 import com.blockchain.api.session.SessionApi
 import com.blockchain.api.staking.StakingApi
 import com.blockchain.api.staking.StakingApiService
-import com.blockchain.api.services.WatchlistApiService
 import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi

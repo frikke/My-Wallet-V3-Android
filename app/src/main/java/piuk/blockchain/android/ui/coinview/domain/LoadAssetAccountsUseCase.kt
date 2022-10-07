@@ -14,7 +14,6 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.staking.domain.StakingService
-import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources

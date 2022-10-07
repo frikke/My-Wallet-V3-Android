@@ -326,14 +326,16 @@ fun SimpleValue.value(): String {
     return when (this) {
         is SimpleValue.IntResValue -> stringResource(
             value,
-            *(args.map {
-                when (it) {
-                    is Int -> {
-                        LocalContext.current.getStringMaybe(it)
+            *(
+                args.map {
+                    when (it) {
+                        is Int -> {
+                            LocalContext.current.getStringMaybe(it)
+                        }
+                        else -> it.toString()
                     }
-                    else -> it.toString()
-                }
-            }.toTypedArray())
+                }.toTypedArray()
+                )
         )
         is SimpleValue.StringValue -> value
     }

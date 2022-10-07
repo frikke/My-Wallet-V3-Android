@@ -95,5 +95,5 @@ fun UnknownAsset(
 @Preview(showBackground = true)
 @Composable
 fun PreviewUnknownAsset() {
-    UnknownAsset{}
+    UnknownAsset {}
 }
