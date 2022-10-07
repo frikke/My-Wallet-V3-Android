@@ -78,3 +78,7 @@ const val URL_RUSSIA_SANCTIONS_EU5 = "https://ec.europa.eu/commission/presscorne
 
 const val URL_CREDIT_CARD_FAILURES = "https://support.blockchain.com/hc/en-us/articles/5154350610716"
 const val URL_CARD_REJECTIONS = "https://support.blockchain.com/hc/en-us/articles/5225673267100"
+
+// TODO(dserrano) - STAKING - update links when available
+const val STAKING_LEARN_MORE = "https://login.blockchain.com"
+const val STAKING_WEB_APP = "https://login.blockchain.com"

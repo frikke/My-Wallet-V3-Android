@@ -280,9 +280,8 @@ class CoinviewViewModel(
             }
 
             assetDetail is DataResource.Data && assetDetail.data is CoinviewAssetDetail.Tradeable -> {
-                check(asset != null) { "asset not initialized" }
+                check(asset != null) { "reduceAccounts - asset not initialized" }
 
-                // TODO (dserrano) - STAKING - this existing code chunk is huge and needs to be broken down
                 with(assetDetail.data as CoinviewAssetDetail.Tradeable) {
                     CoinviewAccountsState.Data(
                         style = when (accounts) {
@@ -333,9 +332,8 @@ class CoinviewViewModel(
                                             makeUnavailableInterestAccount(cvAccount)
                                         is CoinviewAccount.Custodial.Staking ->
                                             makeUnavailableStakingAccount(cvAccount)
-                                        is CoinviewAccount.PrivateKey -> {
+                                        is CoinviewAccount.PrivateKey ->
                                             makeUnavailablePrivateKeyAccount(cvAccount, account)
-                                        }
                                     }
                                 }
                             }
@@ -387,7 +385,7 @@ class CoinviewViewModel(
         asset: CryptoAsset
     ) = Unavailable(
         cvAccount = cvAccount,
-        title = labels.getDefaultCustodialWalletLabel(),
+        title = labels.getDefaultTradingWalletLabel(),
         subtitle = SimpleValue.IntResValue(
             R.string.coinview_c_unavailable_desc,
             listOf(asset.currency.name)
@@ -402,7 +400,7 @@ class CoinviewViewModel(
     ) = Unavailable(
         cvAccount = cvAccount,
         title = when (cvAccount.filter) {
-            AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
+            AssetFilter.Trading -> labels.getDefaultTradingWalletLabel()
             AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
             AssetFilter.Staking -> labels.getDefaultStakingWalletLabel()
             AssetFilter.NonCustodial -> account.label
@@ -501,7 +499,7 @@ class CoinviewViewModel(
         asset: CryptoAsset
     ) = Available(
         cvAccount = cvAccount,
-        title = labels.getDefaultCustodialWalletLabel(),
+        title = labels.getDefaultTradingWalletLabel(),
         subtitle = SimpleValue.IntResValue(R.string.coinview_c_available_desc),
         cryptoBalance = cvAccount.cryptoBalance.toStringWithSymbol(),
         fiatBalance = cvAccount.fiatBalance.toStringWithSymbol(),
@@ -516,7 +514,7 @@ class CoinviewViewModel(
     ) = Available(
         cvAccount = cvAccount,
         title = when (cvAccount.filter) {
-            AssetFilter.Trading -> labels.getDefaultCustodialWalletLabel()
+            AssetFilter.Trading -> labels.getDefaultTradingWalletLabel()
             AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
             AssetFilter.Staking -> labels.getDefaultStakingWalletLabel()
             AssetFilter.NonCustodial -> account.label
@@ -751,7 +749,7 @@ class CoinviewViewModel(
     override suspend fun handleIntent(modelState: CoinviewModelState, intent: CoinviewIntent) {
         when (intent) {
             is CoinviewIntent.LoadAllData -> {
-                check(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "LoadAllData asset not initialized" }
                 onIntent(CoinviewIntent.LoadPriceData)
                 onIntent(CoinviewIntent.LoadAccountsData)
                 onIntent(CoinviewIntent.LoadWatchlistData)
@@ -760,7 +758,7 @@ class CoinviewViewModel(
             }
 
             CoinviewIntent.LoadPriceData -> {
-                check(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "LoadPriceData asset not initialized" }
 
                 loadPriceData(
                     asset = modelState.asset,
@@ -778,7 +776,7 @@ class CoinviewViewModel(
             }
 
             CoinviewIntent.LoadAccountsData -> {
-                check(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "LoadAccountsData asset not initialized" }
 
                 loadAccountsData(
                     asset = modelState.asset,
@@ -786,7 +784,7 @@ class CoinviewViewModel(
             }
 
             CoinviewIntent.LoadRecurringBuysData -> {
-                check(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "LoadRecurringBuysData asset not initialized" }
 
                 loadRecurringBuysData(
                     asset = modelState.asset,
@@ -794,7 +792,7 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntent.LoadQuickActions -> {
-                check(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "LoadQuickActions asset not initialized" }
 
                 loadQuickActionsData(
                     asset = modelState.asset,
@@ -804,7 +802,7 @@ class CoinviewViewModel(
             }
 
             CoinviewIntent.LoadAssetInfo -> {
-                check(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "LoadAssetInfo asset not initialized" }
 
                 loadAssetInformation(
                     asset = modelState.asset,
@@ -812,7 +810,9 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntent.UpdatePriceForChartSelection -> {
-                check(modelState.assetPriceHistory is DataResource.Data) { "price data not initialized" }
+                check(
+                    modelState.assetPriceHistory is DataResource.Data
+                ) { "UpdatePriceForChartSelection price data not initialized" }
 
                 updatePriceForChartSelection(
                     entry = intent.entry,
@@ -825,7 +825,7 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntent.NewTimeSpanSelected -> {
-                check(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "NewTimeSpanSelected asset not initialized" }
 
                 updateState { it.copy(requestedTimeSpan = intent.timeSpan) }
 
@@ -846,7 +846,7 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntent.AccountSelected -> {
-                check(modelState.asset != null) { "asset not initialized" }
+                check(modelState.asset != null) { "AccountSelected asset not initialized" }
 
                 handleAccountSelected(
                     account = intent.account,
@@ -855,21 +855,29 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntent.AccountExplainerAcknowledged -> {
-                check(modelState.accounts != null) { "accounts not initialized" }
+                check(modelState.accounts != null) { "AccountExplainerAcknowledged accounts not initialized" }
 
                 val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
-                navigate(
-                    CoinviewNavigationEvent.ShowAccountActions(
-                        cvAccount = cvAccount,
-                        interestRate = cvAccount.interestRate(),
-                        actions = intent.actions
+                if (cvAccount is CoinviewAccount.Custodial.Staking) {
+                    navigate(
+                        CoinviewNavigationEvent.ShowStakingAccountInterstitial(
+                            assetIconUrl = modelState.asset?.currency?.logo
+                        )
                     )
-                )
+                } else {
+                    navigate(
+                        CoinviewNavigationEvent.ShowAccountActions(
+                            cvAccount = cvAccount,
+                            interestRate = cvAccount.interestRate(),
+                            actions = intent.actions
+                        )
+                    )
+                }
             }
 
             is CoinviewIntent.AccountActionSelected -> {
-                require(modelState.asset != null) { "asset not initialized" }
-                require(modelState.accounts != null) { "accounts not initialized" }
+                require(modelState.asset != null) { "AccountActionSelected asset not initialized" }
+                require(modelState.accounts != null) { "AccountActionSelected accounts not initialized" }
 
                 val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
 
@@ -881,7 +889,7 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntent.NoBalanceUpsell -> {
-                require(modelState.accounts != null) { "accounts not initialized" }
+                require(modelState.accounts != null) { "NoBalanceUpsell accounts not initialized" }
 
                 val cvAccount = modelState.accounts!!.accounts.first { it.account == intent.account }
 
@@ -901,7 +909,7 @@ class CoinviewViewModel(
             }
 
             CoinviewIntent.RecurringBuysUpsell -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                require(modelState.asset != null) { "RecurringBuysUpsell asset not initialized" }
 
                 navigate(
                     CoinviewNavigationEvent.NavigateToRecurringBuyUpsell(modelState.asset)
@@ -917,7 +925,7 @@ class CoinviewViewModel(
             }
 
             is CoinviewIntent.QuickActionSelected -> {
-                require(modelState.asset != null) { "asset not initialized" }
+                require(modelState.asset != null) { "QuickActionSelected asset not initialized" }
 
                 when (intent.quickAction) {
                     is CoinviewQuickAction.Buy -> {
@@ -960,7 +968,7 @@ class CoinviewViewModel(
                         )
                     }
 
-                    CoinviewQuickAction.None -> error("None action doesn't have an action")
+                    CoinviewQuickAction.None -> error("CoinviewQuickAction.None action doesn't have an action")
                 }
             }
 
@@ -1177,18 +1185,27 @@ class CoinviewViewModel(
                                     cvAccount = account,
                                     networkTicker = asset.currency.networkTicker,
                                     interestRate = account.interestRate(),
+                                    stakingRate = account.stakingRate(),
                                     actions = actions
                                 )
                             )
                             markAsSeen()
                         } else {
-                            navigate(
-                                CoinviewNavigationEvent.ShowAccountActions(
-                                    cvAccount = account,
-                                    interestRate = account.interestRate(),
-                                    actions = actions
+                            if (account is CoinviewAccount.Custodial.Staking) {
+                                navigate(
+                                    CoinviewNavigationEvent.ShowStakingAccountInterstitial(
+                                        assetIconUrl = modelState.asset?.currency?.logo
+                                    )
                                 )
-                            )
+                            } else {
+                                navigate(
+                                    CoinviewNavigationEvent.ShowAccountActions(
+                                        cvAccount = account,
+                                        interestRate = account.interestRate(),
+                                        actions = actions
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -1215,6 +1232,25 @@ class CoinviewViewModel(
             }
             else -> {
                 noInterestRate
+            }
+        }
+    }
+
+    private fun CoinviewAccount.stakingRate(): Double {
+        val noStakingRate = 0.0
+        return when (this) {
+            is CoinviewAccount.Universal -> {
+                if (filter == AssetFilter.Staking) {
+                    stakingRate
+                } else {
+                    noStakingRate
+                }
+            }
+            is CoinviewAccount.Custodial.Staking -> {
+                stakingRate
+            }
+            else -> {
+                noStakingRate
             }
         }
     }

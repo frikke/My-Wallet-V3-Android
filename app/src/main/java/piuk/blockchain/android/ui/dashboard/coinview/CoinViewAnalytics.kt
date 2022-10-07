@@ -268,7 +268,7 @@ sealed class CoinViewAnalytics(
         }
 
         enum class AccountType {
-            CUSTODIAL, EXCHANGE_ACCOUNT, REWARDS_ACCOUNT, USERKEY
+            CUSTODIAL, EXCHANGE_ACCOUNT, REWARDS_ACCOUNT, USERKEY, STAKING_ACCOUNT
         }
 
         enum class TransactionType {

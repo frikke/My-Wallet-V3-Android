@@ -11,6 +11,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
+import com.blockchain.coincore.StakingAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.componentlib.basic.ImageResource
@@ -47,14 +48,14 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
     private val selectedAccount by lazy { arguments?.getAccount(SELECTED_ACCOUNT) as CryptoAccount }
     private val networkTicker by lazy { arguments?.getString(NETWORK_TICKER).orEmpty() }
 
-    // TODO get the highest interest rate from all available before opening this sheet
     private val interestRate by lazy { arguments?.getDouble(INTEREST_RATE) as Double }
+    private val stakingRate by lazy { arguments?.getDouble(STAKING_RATE) as Double }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = BottomSheetDialog(requireActivity())
 
         explainerViewedToAnalytics(selectedAccount, networkTicker)
-        val account = getAccountExplainerDetails(selectedAccount, interestRate)
+        val account = getAccountExplainerDetails(selectedAccount, interestRate, stakingRate)
 
         dialog.setContentView(
             ComposeView(requireContext()).apply {
@@ -92,7 +93,8 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
 
     private fun getAccountExplainerDetails(
         selectedAccount: CryptoAccount,
-        interestRate: Double
+        interestRate: Double,
+        stakingRate: Double
     ): AccountExplainerDetails =
         when (selectedAccount) {
             is TradingAccount -> {
@@ -116,6 +118,14 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
                     title = getString(R.string.explainer_rewards_title),
                     description = getString(R.string.explainer_rewards_description, interestRate.toString()),
                     icon = R.drawable.ic_rewards_explainer,
+                    buttonText = getString(R.string.common_i_understand)
+                )
+            }
+            is StakingAccount -> {
+                AccountExplainerDetails(
+                    title = getString(R.string.explainer_staking_title),
+                    description = getString(R.string.explainer_staking_description, stakingRate.toString()),
+                    icon = R.drawable.ic_staking_explainer,
                     buttonText = getString(R.string.common_i_understand)
                 )
             }
@@ -155,6 +165,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
             is NonCustodialAccount -> CoinViewAnalytics.Companion.AccountType.USERKEY
             is TradingAccount -> CoinViewAnalytics.Companion.AccountType.CUSTODIAL
             is InterestAccount -> CoinViewAnalytics.Companion.AccountType.REWARDS_ACCOUNT
+            is StakingAccount -> CoinViewAnalytics.Companion.AccountType.STAKING_ACCOUNT
             else -> CoinViewAnalytics.Companion.AccountType.EXCHANGE_ACCOUNT
         }
 
@@ -169,12 +180,14 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
         private const val SELECTED_ACCOUNT = "selected_account"
         private const val NETWORK_TICKER = "network_ticker"
         private const val INTEREST_RATE = "interest_rate"
+        private const val STAKING_RATE = "staking_rate"
         private const val STATE_AWARE_ACTIONS = "state_aware_actions"
 
         fun newInstance(
             selectedAccount: BlockchainAccount,
             networkTicker: String,
             interestRate: Double,
+            stakingRate: Double,
             stateAwareActions: Array<StateAwareAction>,
         ): AccountExplainerBottomSheet {
             return AccountExplainerBottomSheet().apply {
@@ -182,6 +195,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
                     putAccount(SELECTED_ACCOUNT, selectedAccount)
                     putString(NETWORK_TICKER, networkTicker)
                     putDouble(INTEREST_RATE, interestRate)
+                    putDouble(STAKING_RATE, stakingRate)
                     putSerializable(STATE_AWARE_ACTIONS, stateAwareActions)
                 }
             }

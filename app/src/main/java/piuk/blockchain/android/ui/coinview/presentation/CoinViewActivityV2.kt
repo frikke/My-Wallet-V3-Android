@@ -26,6 +26,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
+import piuk.blockchain.android.ui.coinview.presentation.composable.StakingAccountSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
@@ -39,6 +40,9 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
+import piuk.blockchain.android.urllinks.STAKING_LEARN_MORE
+import piuk.blockchain.android.urllinks.STAKING_WEB_APP
+import piuk.blockchain.android.util.openUrl
 import piuk.blockchain.android.util.putAccount
 
 // TODO (dserrano) - STAKING - rename this when staking FF is removed & old [CoinViewActivity] is obsolete
@@ -51,7 +55,8 @@ class CoinViewActivityV2 :
     AccountActionsBottomSheet.Host,
     InterestSummarySheet.Host,
     RecurringBuyDetailsSheet.Host,
-    KycUpgradeNowSheet.Host {
+    KycUpgradeNowSheet.Host,
+    StakingAccountSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -110,6 +115,7 @@ class CoinViewActivityV2 :
                     cvAccount = navigationEvent.cvAccount,
                     networkTicker = navigationEvent.networkTicker,
                     interestRate = navigationEvent.interestRate,
+                    stakingRate = navigationEvent.stakingRate,
                     actions = navigationEvent.actions
                 )
             }
@@ -208,12 +214,13 @@ class CoinViewActivityV2 :
                     )
                 )
             }
-
+            is CoinviewNavigationEvent.ShowStakingAccountInterstitial -> {
+                showBottomSheet(StakingAccountSheet.newInstance(navigationEvent.assetIconUrl))
+            }
             CoinviewNavigationEvent.NavigateToSupport -> {
                 startActivity(SupportCentreActivity.newIntent(this, SUPPORT_SUBJECT_NO_ASSET))
                 finish()
             }
-
             is CoinviewNavigationEvent.ShowRecurringBuySheet -> {
                 showBottomSheet(RecurringBuyDetailsSheet.newInstance(navigationEvent.recurringBuyId))
             }
@@ -224,6 +231,7 @@ class CoinViewActivityV2 :
         cvAccount: CoinviewAccount,
         networkTicker: String,
         interestRate: Double,
+        stakingRate: Double,
         actions: List<StateAwareAction>
     ) {
         showBottomSheet(
@@ -231,6 +239,7 @@ class CoinViewActivityV2 :
                 selectedAccount = cvAccount.account,
                 networkTicker = networkTicker,
                 interestRate = interestRate,
+                stakingRate = stakingRate,
                 stateAwareActions = actions.toTypedArray()
             )
         )
@@ -325,6 +334,14 @@ class CoinViewActivityV2 :
 
     override fun onRecurringBuyDeleted(asset: AssetInfo) {
         viewModel.onIntent(CoinviewIntent.LoadRecurringBuysData)
+    }
+
+    override fun learnMoreClicked() {
+        openUrl(STAKING_LEARN_MORE)
+    }
+
+    override fun goToWebAppClicked() {
+        openUrl(STAKING_WEB_APP)
     }
 
     override fun onSheetClosed() {}

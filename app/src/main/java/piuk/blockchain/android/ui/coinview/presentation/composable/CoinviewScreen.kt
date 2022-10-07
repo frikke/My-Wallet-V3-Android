@@ -57,12 +57,10 @@ fun Coinview(
     viewState?.let { state ->
         CoinviewScreen(
             backOnClick = backOnClick,
-
             asset = state.asset,
             onContactSupportClick = {
                 viewModel.onIntent(CoinviewIntent.ContactSupport)
             },
-
             price = state.assetPrice,
             onChartEntryHighlighted = { entry ->
                 viewModel.onIntent(CoinviewIntent.UpdatePriceForChartSelection(entry))
@@ -73,7 +71,6 @@ fun Coinview(
             onNewTimeSpanSelected = { timeSpan ->
                 viewModel.onIntent(CoinviewIntent.NewTimeSpanSelected(timeSpan))
             },
-
             tradeable = state.tradeable,
 
             watchlist = state.watchlist,
@@ -82,7 +79,6 @@ fun Coinview(
             },
 
             totalBalance = state.totalBalance,
-
             accounts = state.accounts,
             onAccountClick = { account ->
                 viewModel.onIntent(CoinviewIntent.AccountSelected(account))
@@ -90,9 +86,7 @@ fun Coinview(
             onLockedAccountClick = {
                 viewModel.onIntent(CoinviewIntent.LockedAccountSelected)
             },
-
             quickActionsCenter = state.centerQuickAction,
-
             recurringBuys = state.recurringBuys,
             onRecurringBuyUpsellClick = {
                 viewModel.onIntent(CoinviewIntent.RecurringBuysUpsell)
@@ -100,15 +94,12 @@ fun Coinview(
             onRecurringBuyItemClick = { recurringBuyId ->
                 viewModel.onIntent(CoinviewIntent.ShowRecurringBuyDetail(recurringBuyId))
             },
-
             quickActionsBottom = state.bottomQuickAction,
             onQuickActionClick = { quickAction ->
                 viewModel.onIntent(CoinviewIntent.QuickActionSelected(quickAction.toModelState()))
             },
-
             assetInfo = state.assetInfo,
             onWebsiteClick = { /*todo*/ },
-
             snackbarAlert = state.snackbarError
         )
     }

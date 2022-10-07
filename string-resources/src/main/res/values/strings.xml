@@ -2891,6 +2891,8 @@
     <string name="explainer_non_custodial_description">Your Private Key Wallet means your funds are owned and controlled by you and you alone. Blockchain.com cannot see or manage your balances in this wallet.</string>
     <string name="explainer_rewards_title">Rewards Account</string>
     <string name="explainer_rewards_description">Your Rewards Account allows you to earn rewards on your crypto; up to %s%% APY.</string>
+    <string name="explainer_staking_title">Staking Account</string>
+    <string name="explainer_staking_description">Your Staking Account allows you to earn up to %1$s%% APY rewards on your crypto by securing your favourite blockchain networks.</string>
 
     <!-- Bottom sheet actions -->
     <string name="actions_sheet_percentage_rewards">%s%% APR</string>
@@ -3298,4 +3300,9 @@
     <string name="card_added_to_google_pay">Card Added to Google Pay</string>
     <string name="failed_to_add_card_to_google_pay">Failed to Add Card to Google Pay</string>
     <string name="ma_home_assets_title">Assets</string>
+
+    <!-- STAKING -->
+    <string name="staking_coming_soon_title">Coming soon to mobile</string>
+    <string name="staking_coming_soon_subtitle">In the meantime, you can manage your Staking Account using our web app.</string>
+    <string name="staking_coming_soon_cta">Go to Web App</string>
 </resources>

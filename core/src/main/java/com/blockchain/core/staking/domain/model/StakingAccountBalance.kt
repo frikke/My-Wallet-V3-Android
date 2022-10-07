@@ -4,7 +4,6 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 
 data class StakingAccountBalance(
-    // TODO(dserrano) - STAKING - populate this more as needed for viewing accruals etc
     val totalBalance: Money,
     val lockedBalance: Money,
     val pendingDeposit: Money,

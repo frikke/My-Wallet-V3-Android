@@ -510,7 +510,9 @@ class CoinViewActivity :
                             selectedAccount = account,
                             networkTicker = assetTicker,
                             interestRate = interestRate,
-                            stateAwareActions = state.actions
+                            stateAwareActions = state.actions,
+                            // old coinview does not show staking accounts
+                            stakingRate = 0.0
                         )
                     )
                 }
