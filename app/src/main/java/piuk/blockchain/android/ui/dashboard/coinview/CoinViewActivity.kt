@@ -430,7 +430,7 @@ class CoinViewActivity :
                     binding.root, getString(R.string.coinview_fiat_missing), type = SnackbarType.Warning
                 ).show()
             }
-            CoinViewError.MissingAssetPrices -> { /*ss*/
+            CoinViewError.MissingAssetPrices -> {
                 binding.noAssetError.visible()
                 BlockchainSnackbar.make(
                     binding.root, getString(R.string.coinview_prices_missing), type = SnackbarType.Warning
