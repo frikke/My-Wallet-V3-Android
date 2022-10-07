@@ -11,6 +11,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewBottomQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewCenterQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewQuickActionState
 
@@ -20,6 +21,10 @@ fun CenterQuickActions(
     onQuickActionClick: (CoinviewQuickActionState) -> Unit
 ) {
     when (data) {
+        CoinviewCenterQuickActionsState.NotSupported -> {
+            Empty()
+        }
+
         CoinviewCenterQuickActionsState.Loading -> {
             Empty()
         }

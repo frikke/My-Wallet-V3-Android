@@ -21,6 +21,8 @@ import com.blockchain.data.combineDataResources
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
@@ -105,7 +107,13 @@ class LoadAssetAccountsUseCase(
                     )
                 } else {
                     CoinviewAssetDetail.NonTradeable(
-                        isAddedToWatchlist = isAddedToWatchlistData
+                        isAddedToWatchlist = isAddedToWatchlistData,
+                        totalBalance = CoinviewAssetTotalBalance(
+                            totalCryptoBalance = hashMapOf(
+                                AssetFilter.All to CryptoValue.zero(asset.currency)
+                            ),
+                            totalFiatBalance = FiatValue.zero(currencyPrefs.selectedFiatCurrency)
+                        )
                     )
                 }
             }

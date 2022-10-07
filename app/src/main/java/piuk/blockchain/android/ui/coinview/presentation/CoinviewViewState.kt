@@ -156,6 +156,7 @@ sealed interface CoinviewRecurringBuysState {
 // Quick actions
 // center
 sealed interface CoinviewCenterQuickActionsState {
+    object NotSupported : CoinviewCenterQuickActionsState
     object Loading : CoinviewCenterQuickActionsState
     data class Data(
         val center: CoinviewQuickActionState,
@@ -164,6 +165,7 @@ sealed interface CoinviewCenterQuickActionsState {
 
 // bottom
 sealed interface CoinviewBottomQuickActionsState {
+    object NotSupported : CoinviewBottomQuickActionsState
     object Loading : CoinviewBottomQuickActionsState
     data class Data(
         val start: CoinviewQuickActionState,

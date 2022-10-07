@@ -25,9 +25,6 @@ data class CoinviewModelState(
 
     val asset: CryptoAsset? = null,
 
-    // non tradeable asset
-    val isNonTradeableAsset: Boolean = false,
-
     // price
     val isChartDataLoading: Boolean = false,
     val assetPriceHistory: DataResource<CoinviewAssetPriceHistory> = DataResource.Loading,
@@ -54,6 +51,9 @@ data class CoinviewModelState(
     // errors
     val error: CoinviewError = CoinviewError.None
 ) : ModelState {
+    val isTradeableAsset: Boolean?
+        get() = (assetDetail as? DataResource.Data)?.data?.let { it is CoinviewAssetDetail.Tradeable }
+
     val accounts: CoinviewAccounts?
         get() = ((assetDetail as? DataResource.Data)?.data as? CoinviewAssetDetail.Tradeable)?.accounts
 

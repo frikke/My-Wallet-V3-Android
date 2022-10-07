@@ -280,6 +280,46 @@ fun PreviewCoinviewScreen() {
     )
 }
 
+@Preview(name = "CoinviewScreen unknown", showBackground = true)
+@Composable
+fun PreviewCoinviewScreen_Unknown() {
+    CoinviewScreen(
+        backOnClick = {},
+
+        asset = CoinviewAssetState.Error,
+        onContactSupportClick = {},
+
+        price = CoinviewPriceState.Loading,
+        onChartEntryHighlighted = {},
+        resetPriceInformation = {},
+        onNewTimeSpanSelected = {},
+
+        tradeable = CoinviewAssetTradeableState.Tradeable,
+
+        watchlist = CoinviewWatchlistState.Loading,
+        onWatchlistClick = {},
+
+        totalBalance = CoinviewTotalBalanceState.Loading,
+        accounts = CoinviewAccountsState.Loading,
+        onAccountClick = {},
+        onLockedAccountClick = {},
+
+        quickActionsCenter = CoinviewCenterQuickActionsState.Loading,
+
+        recurringBuys = CoinviewRecurringBuysState.Loading,
+        onRecurringBuyUpsellClick = {},
+        onRecurringBuyItemClick = {},
+
+        quickActionsBottom = CoinviewBottomQuickActionsState.Loading,
+        onQuickActionClick = {},
+
+        assetInfo = CoinviewAssetInfoState.Loading,
+        onWebsiteClick = {},
+
+        snackbarAlert = CoinviewSnackbarAlertState.None
+    )
+}
+
 // todo move
 @Composable
 fun SimpleValue.value(): String {

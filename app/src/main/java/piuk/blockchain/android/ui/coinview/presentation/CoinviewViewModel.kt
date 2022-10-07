@@ -24,11 +24,8 @@ import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import java.text.DecimalFormat
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -128,12 +125,10 @@ class CoinviewViewModel(
         } else {
             CoinviewAssetState.Data(asset.currency)
         }
-
-        CoinviewAssetState.Error
     }
 
     private fun reduceAssetTradeable(state: CoinviewModelState): CoinviewAssetTradeableState = state.run {
-        if (isNonTradeableAsset) {
+        if (isTradeableAsset == false) {
             check(asset != null) { "asset not initialized" }
 
             CoinviewAssetTradeableState.NonTradeable(
@@ -246,10 +241,10 @@ class CoinviewViewModel(
                 CoinviewTotalBalanceState.Error
             }
 
-            assetDetail is DataResource.Data && assetDetail.data is CoinviewAssetDetail.Tradeable -> {
+            assetDetail is DataResource.Data -> {
                 check(asset != null) { "asset not initialized" }
 
-                with(assetDetail.data as CoinviewAssetDetail.Tradeable) {
+                with(assetDetail.data){
                     check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
 
                     CoinviewTotalBalanceState.Data(
@@ -268,7 +263,7 @@ class CoinviewViewModel(
 
     private fun reduceAccounts(state: CoinviewModelState): CoinviewAccountsState = state.run {
         when {
-            isNonTradeableAsset -> {
+            isTradeableAsset == false -> {
                 CoinviewAccountsState.NotSupported
             }
 
@@ -578,7 +573,7 @@ class CoinviewViewModel(
     private fun reduceRecurringBuys(state: CoinviewModelState): CoinviewRecurringBuysState = state.run {
         when {
             // not supported for non custodial
-            isNonTradeableAsset || walletMode == WalletMode.NON_CUSTODIAL_ONLY -> {
+            isTradeableAsset == false || walletMode == WalletMode.NON_CUSTODIAL_ONLY -> {
                 CoinviewRecurringBuysState.NotSupported
             }
 
@@ -644,7 +639,7 @@ class CoinviewViewModel(
 
     private fun reduceCenterQuickActions(state: CoinviewModelState): CoinviewCenterQuickActionsState = state.run {
         when {
-            isNonTradeableAsset -> {
+            isTradeableAsset == false -> {
                 CoinviewCenterQuickActionsState.NotSupported
             }
 
@@ -658,7 +653,7 @@ class CoinviewViewModel(
                 )
             }
 
-            quickActions  is DataResource.Data -> {
+            quickActions is DataResource.Data -> {
                 with(quickActions.data) {
                     CoinviewCenterQuickActionsState.Data(
                         center = center.toViewState()
@@ -673,8 +668,8 @@ class CoinviewViewModel(
     }
 
     private fun reduceBottomQuickActions(state: CoinviewModelState): CoinviewBottomQuickActionsState = state.run {
-        when  {
-            isNonTradeableAsset -> {
+        when {
+            isTradeableAsset == false -> {
                 CoinviewBottomQuickActionsState.NotSupported
             }
 
@@ -682,14 +677,14 @@ class CoinviewViewModel(
                 CoinviewBottomQuickActionsState.Loading
             }
 
-            quickActions   is DataResource.Error -> {
+            quickActions is DataResource.Error -> {
                 CoinviewBottomQuickActionsState.Data(
                     start = CoinviewQuickAction.None.toViewState(),
                     end = CoinviewQuickAction.None.toViewState()
                 )
             }
 
-            quickActions  is DataResource.Data -> {
+            quickActions is DataResource.Data -> {
                 with(quickActions.data) {
                     CoinviewBottomQuickActionsState.Data(
                         start = bottomStart.toViewState(),
@@ -1134,11 +1129,11 @@ class CoinviewViewModel(
         loadAccountsJob = viewModelScope.launch {
             loadAssetAccountsUseCase(asset = asset).collectLatest { dataResource ->
 
-//                // fail quick actions
-//                isQuickActionsLoading = false,
-//                isQuickActionsError = true,
-//
-//
+                //                // fail quick actions
+                //                isQuickActionsLoading = false,
+                //                isQuickActionsError = true,
+                //
+                //
                 updateState {
                     it.copy(
                         assetDetail = if (dataResource is DataResource.Loading && it.assetDetail is DataResource.Data) {
@@ -1147,8 +1142,7 @@ class CoinviewViewModel(
                         } else {
                             dataResource
                         },
-                        //// testttttttt this
-                        error = if (dataResource is DataResource.Error){
+                        error = if (dataResource is DataResource.Error) {
                             CoinviewError.AccountsLoadError
                         } else {
                             it.error
@@ -1156,44 +1150,22 @@ class CoinviewViewModel(
                     )
                 }
 
-                // get quick actions
-                if (dataResource is DataResource.Data && dataResource.data is CoinviewAssetDetail.Tradeable) {
-                    with(dataResource.data as CoinviewAssetDetail.Tradeable) {
-                        onIntent(
-                            CoinviewIntent.LoadQuickActions(
-                                accounts = accounts,
-                                totalBalance = totalBalance
-                            )
-                        )
-                    }
-                }
-
-                if(dataResource is DataResource.Data){
-                    when(dataResource.data){
+                if (dataResource is DataResource.Data) {
+                    when (dataResource.data) {
                         is CoinviewAssetDetail.Tradeable -> {
-                            onIntent(
-                                CoinviewIntent.LoadQuickActions(
-                                    accounts = dataResource.data.accounts,
-                                    totalBalance = dataResource.data.totalBalance
-                                )
-                            )
-                        }
-
-                        is CoinviewAssetDetail.NonTradeable -> {
-                            updateState {
-                                it.copy(
-                                    isNonTradeableAsset = true,
-
-                                    // zero asset balance
-                                    totalBalance = CoinviewAssetTotalBalance(
-                                        totalCryptoBalance = hashMapOf(
-                                            AssetFilter.All to CryptoValue.zero(asset.currency)
-                                        ),
-                                        totalFiatBalance = FiatValue.zero(fiatCurrency),
+                            // now that we got accounts and it's a tradeable asset
+                            // -> get quick actions
+                            with(dataResource.data as CoinviewAssetDetail.Tradeable) {
+                                onIntent(
+                                    CoinviewIntent.LoadQuickActions(
+                                        accounts = accounts,
+                                        totalBalance = totalBalance
                                     )
                                 )
                             }
+                        }
 
+                        is CoinviewAssetDetail.NonTradeable -> {
                             // cancel flows
                             loadAccountsJob?.cancel()
                             loadQuickActionsJob?.cancel()
