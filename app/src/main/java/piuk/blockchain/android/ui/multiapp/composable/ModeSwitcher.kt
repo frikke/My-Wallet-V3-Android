@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.componentlib.chrome.ANIMATION_DURATION
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.walletmode.WalletMode
@@ -42,8 +41,8 @@ fun ModeSwitcher(
 
     val coroutineScopeAnimation = rememberCoroutineScope()
 
-    var currentMode by remember { mutableStateOf(selectedMode) }
-    var previousMode by remember { mutableStateOf(selectedMode) }
+    var currentMode: WalletMode? by remember { mutableStateOf(null) }
+    var previousMode: WalletMode? by remember { mutableStateOf(null) }
 
     val fullIndicatorWidthPx = 16F
 
@@ -95,10 +94,10 @@ fun ModeSwitcher(
                     modifier = Modifier,
                     style = AppTheme.typography.title3,
                     color = AppTheme.colors.background.copy(
-                        alpha = if (currentMode == mode) {
-                            textAlpha.value
-                        } else {
-                            fullTextAlpha - textAlpha.value + minTextAlpha
+                        alpha = when (mode) {
+                            currentMode -> textAlpha.value
+                            previousMode -> fullTextAlpha - textAlpha.value + minTextAlpha
+                            else -> minTextAlpha
                         }
                     ),
                     text = stringResource(mode.titleSuperApp())
@@ -108,26 +107,18 @@ fun ModeSwitcher(
                     modifier = Modifier
                         .height(AppTheme.dimensions.smallestSpacing)
                         .width(
-                            if (mode == currentMode || mode == previousMode) {
-                                if (currentMode == mode) {
-                                    animatableIndicatorWidthPx.value.dp
-                                } else {
-                                    (fullIndicatorWidthPx - animatableIndicatorWidthPx.value).dp
-                                }
-                            } else {
-                                0.dp
+                            when (mode) {
+                                currentMode -> animatableIndicatorWidthPx.value.dp
+                                previousMode -> (fullIndicatorWidthPx - animatableIndicatorWidthPx.value).dp
+                                else -> 0.dp
                             }
                         )
                         .background(
                             color = AppTheme.colors.background.copy(
-                                alpha = if (mode == currentMode || mode == previousMode) {
-                                    if (currentMode == mode) {
-                                        animatableIndicatorWidthPx.value / fullIndicatorWidthPx
-                                    } else {
-                                        1 - (animatableIndicatorWidthPx.value / fullIndicatorWidthPx)
-                                    }
-                                } else {
-                                    0F
+                                alpha = when (mode) {
+                                    currentMode -> animatableIndicatorWidthPx.value / fullIndicatorWidthPx
+                                    previousMode -> 1 - (animatableIndicatorWidthPx.value / fullIndicatorWidthPx)
+                                    else -> 0F
                                 }
                             ),
                             shape = RoundedCornerShape(AppTheme.dimensions.standardSpacing)
