@@ -21,7 +21,10 @@ import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.util.animateColor
 import piuk.blockchain.android.util.getResolvedColor
 
-class CheckoutAdapterDelegate(onToggleChanged: (Boolean) -> Unit) :
+class CheckoutAdapterDelegate(
+    onToggleChanged: (Boolean) -> Unit,
+    onTooltipClicked: (SimpleBuyCheckoutItem.ExpandableType) -> Unit,
+) :
     DelegationAdapter<SimpleBuyCheckoutItem>(AdapterDelegatesManager(), emptyList()) {
 
     override var items: List<SimpleBuyCheckoutItem> = emptyList()
@@ -36,7 +39,7 @@ class CheckoutAdapterDelegate(onToggleChanged: (Boolean) -> Unit) :
         with(delegatesManager) {
             addAdapterDelegate(SimpleCheckoutItemDelegate())
             addAdapterDelegate(ComplexCheckoutItemDelegate())
-            addAdapterDelegate(ExpandableCheckoutItemDelegate())
+            addAdapterDelegate(ExpandableCheckoutItemDelegate(onTooltipClicked))
             addAdapterDelegate(ToggleCheckoutItemDelegate(onToggleChanged))
         }
     }
@@ -72,12 +75,17 @@ sealed class SimpleBuyCheckoutItem {
 
     data class ToggleCheckoutItem(val title: String, val subtitle: String) : SimpleBuyCheckoutItem()
 
+    enum class ExpandableType {
+        PRICE, FEE, UNKNOWN
+    }
+
     data class ExpandableCheckoutItem(
         val label: String,
         val title: String,
         val expandableContent: CharSequence,
         val promoLayout: View? = null,
         val hasChanged: Boolean,
+        val expandableType: ExpandableType
     ) : SimpleBuyCheckoutItem() {
         override fun equals(other: Any?) =
             (other as? ExpandableCheckoutItem)?.let { EssentialData(this) == EssentialData(it) } ?: false
@@ -227,13 +235,15 @@ private class ToggleCheckoutItemItemViewHolder(
     }
 }
 
-class ExpandableCheckoutItemDelegate : AdapterDelegate<SimpleBuyCheckoutItem> {
+class ExpandableCheckoutItemDelegate(
+    private val onTooltipClicked: (SimpleBuyCheckoutItem.ExpandableType) -> Unit,
+) : AdapterDelegate<SimpleBuyCheckoutItem> {
     override fun isForViewType(items: List<SimpleBuyCheckoutItem>, position: Int): Boolean =
         items[position] is SimpleBuyCheckoutItem.ExpandableCheckoutItem
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         ExpandableCheckoutItemViewHolder(
-            ItemCheckoutSimpleExpandableInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ItemCheckoutSimpleExpandableInfoBinding.inflate(LayoutInflater.from(parent.context), parent, false),
         )
 
     override fun onBindViewHolder(
@@ -241,7 +251,8 @@ class ExpandableCheckoutItemDelegate : AdapterDelegate<SimpleBuyCheckoutItem> {
         position: Int,
         holder: RecyclerView.ViewHolder,
     ) = (holder as ExpandableCheckoutItemViewHolder).bind(
-        items[position] as SimpleBuyCheckoutItem.ExpandableCheckoutItem
+        items[position] as SimpleBuyCheckoutItem.ExpandableCheckoutItem,
+        onTooltipClicked
     )
 }
 
@@ -253,23 +264,13 @@ private class ExpandableCheckoutItemViewHolder(
     init {
         with(binding) {
             expandableItemExpansion.movementMethod = LinkMovementMethod.getInstance()
-            expandableItemLabel.setOnClickListener {
-                isExpanded = !isExpanded
-                expandableItemExpansion.visibleIf { isExpanded }
-                if (isExpanded) {
-                    expandableItemLabel.compoundDrawables[DRAWABLE_END_POSITION].setTint(
-                        expandableItemTitle.context.getResolvedColor(R.color.blue_600)
-                    )
-                } else {
-                    expandableItemLabel.compoundDrawables[DRAWABLE_END_POSITION].setTint(
-                        expandableItemTitle.context.getResolvedColor(R.color.grey_300)
-                    )
-                }
-            }
         }
     }
 
-    fun bind(item: SimpleBuyCheckoutItem.ExpandableCheckoutItem) {
+    fun bind(
+        item: SimpleBuyCheckoutItem.ExpandableCheckoutItem,
+        onTooltipClicked: (SimpleBuyCheckoutItem.ExpandableType) -> Unit,
+    ) {
         with(binding) {
             expandableItemLabel.text = item.label
             expandableItemTitle.text = item.title
@@ -287,6 +288,20 @@ private class ExpandableCheckoutItemViewHolder(
                 expandableItemTitle.setTextColor(
                     ContextCompat.getColor(expandableItemTitle.context, R.color.grey_800)
                 )
+            }
+            expandableItemLabel.setOnClickListener {
+                onTooltipClicked(item.expandableType)
+                isExpanded = !isExpanded
+                expandableItemExpansion.visibleIf { isExpanded }
+                if (isExpanded) {
+                    expandableItemLabel.compoundDrawables[DRAWABLE_END_POSITION].setTint(
+                        expandableItemTitle.context.getResolvedColor(R.color.blue_600)
+                    )
+                } else {
+                    expandableItemLabel.compoundDrawables[DRAWABLE_END_POSITION].setTint(
+                        expandableItemTitle.context.getResolvedColor(R.color.grey_300)
+                    )
+                }
             }
         }
     }

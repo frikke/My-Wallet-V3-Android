@@ -33,5 +33,6 @@
     <dimen name="size_tiny"></dimen>
 
     <dimen name="small_elevation"></dimen>
+    <dimen name="medium_elevation">4dp</dimen>
 
 </resources>

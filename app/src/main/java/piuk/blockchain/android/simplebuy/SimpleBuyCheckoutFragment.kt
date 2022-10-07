@@ -93,7 +93,14 @@ class SimpleBuyCheckoutFragment :
 
     private var lastState: SimpleBuyState? = null
     private val checkoutAdapterDelegate = CheckoutAdapterDelegate(
-        onToggleChanged = { updateRecurringBuy = it }
+        onToggleChanged = { updateRecurringBuy = it },
+        onTooltipClicked = { expandableType ->
+            if (expandableType == SimpleBuyCheckoutItem.ExpandableType.PRICE) {
+                analytics.logEvent(BuyPriceTooltipClickedEvent)
+            } else if (expandableType == SimpleBuyCheckoutItem.ExpandableType.FEE) {
+                analytics.logEvent(BuyBlockchainComFeeClickedEvent)
+            }
+        },
     )
 
     private var countDownTimer: CountDownTimer? = null
@@ -143,7 +150,10 @@ class SimpleBuyCheckoutFragment :
             } else {
                 getString(R.string.checkout)
             },
-            backAction = { activity.onBackPressedDispatcher.onBackPressed() }
+            backAction = {
+                analytics.logEvent(BuyCheckoutScreenBackClickedEvent)
+                activity.onBackPressedDispatcher.onBackPressed()
+            }
         )
     }
 
@@ -207,6 +217,7 @@ class SimpleBuyCheckoutFragment :
 
         // Event should be triggered only the first time a state is rendered
         if (lastState == null) {
+            analytics.logEvent(BuyCheckoutScreenViewedEvent)
             analytics.logEvent(
                 eventWithPaymentMethod(
                     SimpleBuyAnalytics.CHECKOUT_SUMMARY_SHOWN,
@@ -451,7 +462,8 @@ class SimpleBuyCheckoutFragment :
                 label = getString(R.string.quote_price, state.selectedCryptoAsset.displayTicker),
                 title = state.exchangeRate?.toStringWithSymbol().orEmpty(),
                 expandableContent = priceExplanation,
-                hasChanged = state.hasQuoteChanged && state.featureFlagSet.buyQuoteRefreshFF
+                hasChanged = state.hasQuoteChanged && state.featureFlagSet.buyQuoteRefreshFF,
+                expandableType = SimpleBuyCheckoutItem.ExpandableType.PRICE
             ),
             buildPaymentMethodItem(state),
             if (state.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
@@ -548,7 +560,8 @@ class SimpleBuyCheckoutFragment :
                 title = feeDetails.fee.toStringWithSymbol(),
                 expandableContent = feeExplanation,
                 promoLayout = viewForPromo(feeDetails),
-                hasChanged = state.hasQuoteChanged && state.featureFlagSet.buyQuoteRefreshFF
+                hasChanged = state.hasQuoteChanged && state.featureFlagSet.buyQuoteRefreshFF,
+                expandableType = SimpleBuyCheckoutItem.ExpandableType.FEE
             )
         }
 
@@ -562,6 +575,7 @@ class SimpleBuyCheckoutFragment :
 
         with(binding) {
             buttonAction.apply {
+                analytics.logEvent(BuyCheckoutScreenSubmittedEvent)
                 if (!isForPendingPayment && !isOrderAwaitingFunds) {
                     text = getString(R.string.buy_asset_now, state.orderValue?.toStringWithSymbol())
                     setOnClickListener {

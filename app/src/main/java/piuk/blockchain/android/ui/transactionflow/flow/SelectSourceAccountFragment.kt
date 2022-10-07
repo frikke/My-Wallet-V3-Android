@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
@@ -16,6 +17,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.extensions.enumValueOfOrNull
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject
@@ -49,8 +51,13 @@ class SelectSourceAccountFragment :
     private var availableSources: List<BlockchainAccount>? = null
     private var linkingBankState: BankLinkingState = BankLinkingState.NotStarted
 
+    private val assetAction: AssetAction? by lazy {
+        enumValueOfOrNull<AssetAction>(arguments?.getString(ACTION).orEmpty())
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        analyticsHooks.onFromSourcesAccountViewed(assetAction)
         with(binding) {
             accountList.apply {
                 onListLoaded = ::doOnListLoaded
@@ -268,6 +275,12 @@ class SelectSourceAccountFragment :
     override fun onSheetClosed() {}
 
     companion object {
-        fun newInstance(): SelectSourceAccountFragment = SelectSourceAccountFragment()
+        private const val ACTION = "ASSET_ACTION"
+        fun newInstance(assetAction: AssetAction): SelectSourceAccountFragment =
+            SelectSourceAccountFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ACTION, assetAction.name)
+                }
+            }
     }
 }

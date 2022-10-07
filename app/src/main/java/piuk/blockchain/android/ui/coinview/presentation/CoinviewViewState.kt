@@ -22,7 +22,6 @@ data class CoinviewViewState(
     val recurringBuys: CoinviewRecurringBuysState,
     val bottomQuickAction: CoinviewBottomQuickActionsState,
     val assetInfo: CoinviewAssetInfoState,
-
     val snackbarError: CoinviewSnackbarAlertState
 ) : ViewState
 

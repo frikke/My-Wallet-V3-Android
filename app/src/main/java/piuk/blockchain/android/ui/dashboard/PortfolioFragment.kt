@@ -340,7 +340,8 @@ class PortfolioFragment :
                     if (state?.isStakingEnabled == true) {
                         CoinViewActivityV2.newIntent(
                             context = requireContext(),
-                            asset = navigationAction.asset
+                            asset = navigationAction.asset,
+                            originScreen = LaunchOrigin.HOME.name,
                         )
                     } else {
                         CoinViewActivity.newIntent(

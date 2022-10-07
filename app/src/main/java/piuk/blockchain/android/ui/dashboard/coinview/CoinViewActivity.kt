@@ -83,6 +83,9 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewAccountSellClickedEvent
+import piuk.blockchain.android.ui.transactionflow.analytics.CoinViewSellClickedEvent
+import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.util.StringUtils
@@ -817,28 +820,6 @@ class CoinViewActivity :
         showBottomSheet(InterestSummarySheet.newInstance(account as CryptoAccount))
     }
 
-    private fun logBuyEvent() {
-        val isBuySell = ctaActions.contains(QuickActionCta.Sell(true))
-        val isBuyReceive = ctaActions.contains(QuickActionCta.Receive(true))
-        if (isBuySell) {
-            analytics.logEvent(
-                CoinViewAnalytics.BuySellClicked(
-                    origin = LaunchOrigin.COIN_VIEW,
-                    currency = assetTicker,
-                    type = CoinViewAnalytics.Companion.Type.BUY
-                )
-            )
-        } else if (isBuyReceive) {
-            analytics.logEvent(
-                CoinViewAnalytics.BuyReceiveClicked(
-                    origin = LaunchOrigin.COIN_VIEW,
-                    currency = assetTicker,
-                    type = CoinViewAnalytics.Companion.Type.BUY
-                )
-            )
-        }
-    }
-
     private fun logReceiveEvent() {
         val isBuyReceive = ctaActions.contains(QuickActionCta.Buy(true))
         val isSendReceive = ctaActions.contains(QuickActionCta.Send(true))
@@ -878,7 +859,7 @@ class CoinViewActivity :
                 ),
                 isEnabled = action.enabled
             ) {
-                logBuyEvent()
+                analytics.logEvent(CoinViewAnalytics.CoinViewBuyClickedEvent)
                 startBuy(asset)
             }
             is QuickActionCta.Sell -> QuickAction(
@@ -899,6 +880,7 @@ class CoinViewActivity :
                         type = CoinViewAnalytics.Companion.Type.SELL
                     )
                 )
+                analytics.logEvent(CoinViewSellClickedEvent)
                 startSell(highestBalanceWallet)
             }
             is QuickActionCta.Send -> QuickAction(
@@ -1135,11 +1117,20 @@ class CoinViewActivity :
         when (action) {
             AssetAction.Send -> startSend(selectedAccount)
             AssetAction.Receive -> startReceive(selectedAccount)
-            AssetAction.Swap -> startSwap(selectedAccount)
-            AssetAction.Sell -> startSell(selectedAccount)
+            AssetAction.Swap -> {
+                analytics.logEvent(SwapAnalyticsEvents.CoinViewSwapClickedEvent)
+                startSwap(selectedAccount)
+            }
+            AssetAction.Sell -> {
+                analytics.logEvent(CoinViewAccountSellClickedEvent)
+                startSell(selectedAccount)
+            }
             AssetAction.ViewStatement -> startViewSummary(selectedAccount)
             AssetAction.ViewActivity -> goToActivityFor(selectedAccount)
-            AssetAction.Buy -> startBuy(assetInfo)
+            AssetAction.Buy -> {
+                analytics.logEvent(CoinViewAnalytics.CoinViewAccountBuyClickedEvent)
+                startBuy(assetInfo)
+            }
             AssetAction.InterestDeposit -> goToInterestDeposit(selectedAccount)
             AssetAction.InterestWithdraw -> goToInterestWithdraw(selectedAccount)
             else -> throw IllegalStateException("Action $action is not supported in this flow")

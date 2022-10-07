@@ -55,8 +55,6 @@ fun ChromeScreen(
     }
 }
 
-const val ANIMATION_DURATION = 400
-
 data class ListStateInfo(
     val firstVisibleItemIndex: Int,
     val firstVisibleItemScrollOffset: Int,

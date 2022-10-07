@@ -15,7 +15,12 @@ dependencies {
     implementation project(':nfts:domain')
     implementation project(':blockchainApi')
     implementation project(':common:interface')
+    implementation project(':store:core')
+    implementation project(':store:caches:persistedjsonsqldelight')
 
-    // RxJava
-    implementation Libraries.rxjava3Coroutines
+    // coroutines
+    implementation Libraries.kotlinCoroutines
+
+    // json
+    implementation Libraries.kotlinJson
 }

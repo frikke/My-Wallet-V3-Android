@@ -25,6 +25,9 @@ import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
+import piuk.blockchain.android.simplebuy.FabBuyClickedEvent
+import piuk.blockchain.android.ui.transactionflow.analytics.FabSellClickedEvent
+import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 
 class ActionsBottomSheet : ComposeModalBottomDialog(), AndroidScopeComponent {
     private val viewModel: ActionsSheetViewModel by inject()
@@ -44,13 +47,22 @@ class ActionsBottomSheet : ComposeModalBottomDialog(), AndroidScopeComponent {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.navigationEventFlow.collect {
                     when (it) {
-                        ActionsSheetNavEvent.Buy -> host.launchBuy()
+                        ActionsSheetNavEvent.Buy -> {
+                            analytics.logEvent(FabBuyClickedEvent)
+                            host.launchBuy()
+                        }
                         ActionsSheetNavEvent.Receive -> host.launchReceive()
                         ActionsSheetNavEvent.Send -> host.launchSend()
                         ActionsSheetNavEvent.TradingBuy -> host.launchBuyForDefi()
-                        ActionsSheetNavEvent.Swap -> host.launchSwapScreen()
+                        ActionsSheetNavEvent.Swap -> {
+                            analytics.logEvent(SwapAnalyticsEvents.FabSwapClickedEvent)
+                            host.launchSwapScreen()
+                        }
                         ActionsSheetNavEvent.Rewards -> host.launchInterestDashboard(LaunchOrigin.NAVIGATION)
-                        ActionsSheetNavEvent.Sell -> host.launchSell()
+                        ActionsSheetNavEvent.Sell -> {
+                            analytics.logEvent(FabSellClickedEvent)
+                            host.launchSell()
+                        }
                         is ActionsSheetNavEvent.TooMayPendingBuys -> host.launchTooManyPendingBuys(
                             it.maxTransactions
                         )

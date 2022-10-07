@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -13,6 +14,7 @@ import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import info.blockchain.balance.AssetInfo
@@ -26,6 +28,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.NoBalanceActionBottomSheet
@@ -56,6 +59,10 @@ class CoinViewActivityV2 :
     override val scope: Scope = payloadScope
     private val viewModel: CoinviewViewModel by viewModel()
 
+    private val originName: LaunchOrigin? by lazy {
+        enumValueOfOrNull<LaunchOrigin>(intent.getStringExtra(ORIGIN_NAME).orEmpty())
+    }
+
     @Suppress("IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION")
     val args: CoinviewArgs by lazy {
         intent.getParcelableExtra<CoinviewArgs>(CoinviewArgs.ARGS_KEY)
@@ -75,6 +82,15 @@ class CoinViewActivityV2 :
             Coinview(
                 viewModel = viewModel,
                 backOnClick = { onBackPressedDispatcher.onBackPressed() }
+            )
+        }
+
+        originName?.let {
+            analytics.logEvent(
+                CoinViewAnalytics.CoinViewOpen(
+                    origin = it,
+                    currency = args.networkTicker,
+                )
             )
         }
     }
@@ -197,6 +213,10 @@ class CoinViewActivityV2 :
                 startActivity(SupportCentreActivity.newIntent(this, SUPPORT_SUBJECT_NO_ASSET))
                 finish()
             }
+
+            is CoinviewNavigationEvent.ShowRecurringBuySheet -> {
+                showBottomSheet(RecurringBuyDetailsSheet.newInstance(navigationEvent.recurringBuyId))
+            }
         }
     }
 
@@ -311,12 +331,23 @@ class CoinViewActivityV2 :
     // host calls/
 
     companion object {
-        fun newIntent(context: Context, asset: AssetInfo): Intent {
+        private const val ORIGIN_NAME = "ORIGIN_NAME"
+
+        fun newIntent(
+            context: Context,
+            asset: AssetInfo,
+            recurringBuyId: String? = null,
+            originScreen: String
+        ): Intent {
             return Intent(context, CoinViewActivityV2::class.java).apply {
                 putExtra(
                     CoinviewArgs.ARGS_KEY,
-                    CoinviewArgs(networkTicker = asset.networkTicker)
+                    CoinviewArgs(
+                        networkTicker = asset.networkTicker,
+                        recurringBuyId = recurringBuyId
+                    )
                 )
+                putExtra(ORIGIN_NAME, originScreen)
             }
         }
 

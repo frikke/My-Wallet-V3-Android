@@ -73,6 +73,10 @@ class QuickFillRowView @JvmOverloads constructor(
                             )
                         )
                     )
+                    analytics.onQuickMaxClicked(
+                        state = state,
+                        maxAmount = maxAmount
+                    )
                 }
             }
         }
@@ -117,7 +121,8 @@ class QuickFillRowView @JvmOverloads constructor(
             quickFillButtons = listOfAmounts.map { amount ->
                 QuickFillDisplayAndAmount(
                     displayValue = amount.toStringWithSymbol(includeDecimalsWhenWhole = false),
-                    amount = amount
+                    amount = amount,
+                    position = listOfAmounts.indexOf(amount)
                 )
             }
         )
@@ -130,6 +135,11 @@ class QuickFillRowView @JvmOverloads constructor(
                         fiatValue = quickFillData.amount
                     )
                 )
+            )
+            analytics.onQuickButtonsClicked(
+                state = state,
+                buttonTapped = quickFillData.amount,
+                position = quickFillData.position
             )
         }
     }
@@ -158,7 +168,8 @@ class QuickFillRowView @JvmOverloads constructor(
                 listOfAmounts.add(
                     QuickFillDisplayAndAmount(
                         displayValue = value.second,
-                        amount = prefillAmount
+                        amount = prefillAmount,
+                        position = multiplierValues.indexOf(value)
                     )
                 )
             }
@@ -177,6 +188,11 @@ class QuickFillRowView @JvmOverloads constructor(
                         fiatValue = state.convertBalanceToFiat(quickFillData.amount, fiatRate)
                     )
                 )
+            )
+            analytics.onQuickButtonsClicked(
+                state = state,
+                buttonTapped = quickFillData.amount,
+                position = quickFillData.position
             )
         }
     }

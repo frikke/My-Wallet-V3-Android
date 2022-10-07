@@ -69,7 +69,11 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
     ) : CoinviewNavigationEvent
 
     data class NavigateToRecurringBuyUpsell(
-        val asset: CryptoAsset,
+        val asset: CryptoAsset
+    ) : CoinviewNavigationEvent
+
+    data class ShowRecurringBuySheet(
+        val recurringBuyId: String
     ) : CoinviewNavigationEvent
 
     object NavigateToSupport : CoinviewNavigationEvent
