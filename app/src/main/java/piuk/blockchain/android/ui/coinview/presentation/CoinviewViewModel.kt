@@ -206,17 +206,17 @@ class CoinviewViewModel(
                 CoinviewWatchlistState.NotSupported
             }
 
-            isWatchlistLoading && watchlist == null -> {
+            watchlist is DataResource.Loading -> {
                 CoinviewWatchlistState.Loading
             }
 
-            isWatchlistError -> {
+            watchlist is DataResource.Error -> {
                 CoinviewWatchlistState.Error
             }
 
-            watchlist != null -> {
+            watchlist is DataResource.Data -> {
                 CoinviewWatchlistState.Data(
-                    isInWatchlist = watchlist,
+                    isInWatchlist = watchlist.data,
                 )
             }
 
@@ -244,7 +244,7 @@ class CoinviewViewModel(
             assetDetail is DataResource.Data -> {
                 check(asset != null) { "asset not initialized" }
 
-                with(assetDetail.data){
+                with(assetDetail.data) {
                     check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
 
                     CoinviewTotalBalanceState.Data(
@@ -833,11 +833,11 @@ class CoinviewViewModel(
 
             CoinviewIntent.ToggleWatchlist -> {
                 check(modelState.asset != null) { "asset not initialized" }
-                check(modelState.watchlist != null) { "watchlist not initialized" }
+                check(modelState.watchlist is DataResource.Data) { "watchlist not initialized" }
 
                 updateWatchlist(
                     asset = modelState.asset,
-                    toggle = if (modelState.watchlist) WatchlistToggle.REMOVE else WatchlistToggle.ADD
+                    toggle = if (modelState.watchlist.data) WatchlistToggle.REMOVE else WatchlistToggle.ADD
                 )
             }
 
@@ -1069,33 +1069,14 @@ class CoinviewViewModel(
         loadWatchlistJob?.cancel()
         loadWatchlistJob = viewModelScope.launch {
             watchlistService.isAssetInWatchlist(asset.currency).collectLatest { dataResource ->
-                when (dataResource) {
-                    DataResource.Loading -> {
-                        updateState {
-                            it.copy(
-                                isWatchlistLoading = true
-                            )
+                updateState {
+                    it.copy(
+                        watchlist = if (dataResource is DataResource.Loading && it.watchlist is DataResource.Data) {
+                            it.watchlist
+                        } else {
+                            dataResource
                         }
-                    }
-
-                    is DataResource.Error -> {
-                        updateState {
-                            it.copy(
-                                isWatchlistLoading = false,
-                                isWatchlistError = true
-                            )
-                        }
-                    }
-
-                    is DataResource.Data -> {
-                        updateState {
-                            it.copy(
-                                isWatchlistLoading = false,
-                                isWatchlistError = false,
-                                watchlist = dataResource.data
-                            )
-                        }
-                    }
+                    )
                 }
             }
         }
@@ -1129,11 +1110,6 @@ class CoinviewViewModel(
         loadAccountsJob = viewModelScope.launch {
             loadAssetAccountsUseCase(asset = asset).collectLatest { dataResource ->
 
-                //                // fail quick actions
-                //                isQuickActionsLoading = false,
-                //                isQuickActionsError = true,
-                //
-                //
                 updateState {
                     it.copy(
                         assetDetail = if (dataResource is DataResource.Loading && it.assetDetail is DataResource.Data) {
@@ -1141,6 +1117,13 @@ class CoinviewViewModel(
                             it.assetDetail
                         } else {
                             dataResource
+                        },
+                        // on failure - fail quick actions too
+                        // on data - load quick actions /see below
+                        quickActions = if (dataResource is DataResource.Error) {
+                            DataResource.Error(dataResource.error)
+                        } else {
+                            it.quickActions
                         },
                         error = if (dataResource is DataResource.Error) {
                             CoinviewError.AccountsLoadError

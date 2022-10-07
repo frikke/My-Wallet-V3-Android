@@ -32,9 +32,7 @@ data class CoinviewModelState(
     val interactiveAssetPrice: CoinviewAssetPrice? = null,
 
     // watchlist
-    val isWatchlistLoading: Boolean = false,
-    val isWatchlistError: Boolean = false,
-    val watchlist: Boolean? = null,
+    val watchlist: DataResource<Boolean> = DataResource.Loading,
 
     // asset detail (accounts/non tradeable)
     val assetDetail: DataResource<CoinviewAssetDetail> = DataResource.Loading,

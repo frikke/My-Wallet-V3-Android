@@ -85,7 +85,7 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
 
     object ToggleWatchlist : CoinviewIntent {
         override fun isValidFor(modelState: CoinviewModelState): Boolean {
-            return modelState.watchlist != null && modelState.isWatchlistLoading.not()
+            return modelState.watchlist is DataResource.Data
         }
     }
 

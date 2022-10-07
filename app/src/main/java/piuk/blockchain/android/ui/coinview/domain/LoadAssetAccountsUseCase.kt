@@ -40,7 +40,6 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalanc
 class LoadAssetAccountsUseCase(
     private val walletModeService: WalletModeService,
     private val interestService: InterestService,
-    private val watchlistDataManager: WatchlistDataManager,
     private val currencyPrefs: CurrencyPrefs,
     private val stakingService: StakingService
 ) {
@@ -56,9 +55,8 @@ class LoadAssetAccountsUseCase(
             accountsFlow,
             asset.getPricesWith24hDelta(),
             interestService.getInterestRateFlow(asset.currency),
-            flowOf(DataResource.Data(watchlistDataManager.isAssetInWatchlist(asset.currency).await())),
             stakingService.getRateForAsset(asset.currency, FreshnessStrategy.Cached(forceRefresh = false))
-        ) { accounts, prices, interestRate, isAddedToWatchlist, stakingRate ->
+        ) { accounts, prices, interestRate, stakingRate ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // available accounts to see if we support custodial or PK balances as a guideline to asset support
 
@@ -66,9 +64,8 @@ class LoadAssetAccountsUseCase(
                 accounts,
                 prices,
                 interestRate,
-                isAddedToWatchlist,
                 stakingRate
-            ) { accountsData, pricesData, interestRateData, isAddedToWatchlistData, stakingRateData ->
+            ) { accountsData, pricesData, interestRateData, stakingRateData ->
                 val isTradeableAsset = accountsData.any {
                     it.account is NonCustodialAccount || it.account is CustodialTradingAccount
                 }
@@ -98,7 +95,6 @@ class LoadAssetAccountsUseCase(
                     totalCryptoBalance[AssetFilter.All] = totalCryptoMoneyAll
 
                     CoinviewAssetDetail.Tradeable(
-                        isAddedToWatchlist = isAddedToWatchlistData,
                         accounts = accountsList,
                         totalBalance = CoinviewAssetTotalBalance(
                             totalCryptoBalance = totalCryptoBalance,
@@ -107,7 +103,6 @@ class LoadAssetAccountsUseCase(
                     )
                 } else {
                     CoinviewAssetDetail.NonTradeable(
-                        isAddedToWatchlist = isAddedToWatchlistData,
                         totalBalance = CoinviewAssetTotalBalance(
                             totalCryptoBalance = hashMapOf(
                                 AssetFilter.All to CryptoValue.zero(asset.currency)
