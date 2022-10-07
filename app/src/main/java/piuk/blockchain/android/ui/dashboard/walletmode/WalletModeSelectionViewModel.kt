@@ -67,7 +67,9 @@ class WalletModeSelectionViewModel(
     private fun totalBalance(portfolioBalance: Money?, defiBalance: Money?): BalanceState {
         val portfBalance = portfolioBalance ?: return BalanceState.Loading
         val defBalance = defiBalance ?: return BalanceState.Loading
-        return BalanceState.Data(portfBalance.plus(defBalance))
+        if (portfBalance.currency.networkTicker == defBalance.currency.networkTicker)
+            return BalanceState.Data(portfBalance.plus(defBalance))
+        return BalanceState.Loading
     }
 
     override suspend fun handleIntent(modelState: WalletModeSelectionModelState, intent: WalletModeSelectionIntent) {
