@@ -60,7 +60,7 @@ val LazyGridState.isFirstItemVisible: Boolean
     get() = firstVisibleItemIndex == 0
 
 fun LazyGridState.isTriggerNextPageItemVisible(offset: Int): Boolean =
-    layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - offset - 1
+    (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) >= layoutInfo.totalItemsCount - offset - 1
 
 @Composable
 fun rememberScrollState(gridState: LazyGridState, offset: Int = 0): ScrollState {

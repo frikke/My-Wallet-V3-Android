@@ -26,6 +26,7 @@ import com.blockchain.componentlib.lazylist.PaginatedLazyVerticalGrid
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.media.UrlType
 import com.blockchain.componentlib.swiperefresh.SwipeRefreshWithoutOverscroll
+import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.nfts.R
@@ -40,6 +41,7 @@ private const val COLUMN_COUNT = 2
 fun NftCollectionDataScreen(
     collection: List<NftAsset>,
     isRefreshing: Boolean,
+    isNextPageLoading: Boolean,
     onItemClick: (NftAsset) -> Unit,
     onExternalShopClick: () -> Unit,
     onRefresh: () -> Unit,
@@ -63,7 +65,7 @@ fun NftCollectionDataScreen(
                 verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
                 horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
                 onGetNextPage = onGetNextPage,
-                loadNextPageItemOffset = 4
+                loadNextPageItemOffset = 6
             ) {
                 items(
                     items = collection,
@@ -79,6 +81,12 @@ fun NftCollectionDataScreen(
                         )
                     }
                 )
+
+                if (isNextPageLoading) {
+                    item(span = { GridItemSpan(COLUMN_COUNT) }) {
+                        CircularProgressBar()
+                    }
+                }
 
                 item(span = { GridItemSpan(COLUMN_COUNT) }) {
                     Spacer(modifier = Modifier.size(AppTheme.dimensions.xHugeSpacing))
@@ -143,6 +151,7 @@ fun PreviewNftCollectionDataScreen() {
             )
         ),
         isRefreshing = false,
+        isNextPageLoading = true,
         onItemClick = {},
         onExternalShopClick = {},
         onRefresh = {},

@@ -39,6 +39,7 @@ class NftCollectionViewModel(
     override fun reduce(state: NftCollectionModelState): NftCollectionViewState = state.run {
         NftCollectionViewState(
             isPullToRefreshLoading = isPullToRefreshLoading,
+            showNextPageLoading = isNextPageLoading,
             collection = collection.map { it.distinct() }
         )
     }
@@ -115,6 +116,7 @@ class NftCollectionViewModel(
                         updateState {
                             it.copy(
                                 isPullToRefreshLoading = isFromPullToRefresh,
+                                isNextPageLoading = it.nextPageKey != null,
                                 collection = if (it.collection is DataResource.Data) {
                                     // if data is present already - don't show loading
                                     it.collection
@@ -129,7 +131,8 @@ class NftCollectionViewModel(
                         updateState {
                             it.copy(
                                 isPullToRefreshLoading = false,
-                                collection = dataResource
+                                isNextPageLoading = false,
+                                collection = dataResource // error or old data if available
                             )
                         }
                     }
@@ -140,6 +143,7 @@ class NftCollectionViewModel(
 
                             it.copy(
                                 isPullToRefreshLoading = false,
+                                isNextPageLoading = false,
                                 nextPageKey = dataResource.data.nextPageKey,
                                 allPreviousPagesData = allPreviousPagesData + dataResource.data.assets,
                                 // combine current page and new page items

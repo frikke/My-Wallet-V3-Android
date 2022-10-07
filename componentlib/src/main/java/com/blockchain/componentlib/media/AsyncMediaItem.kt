@@ -25,7 +25,6 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.airbnb.lottie.compose.rememberLottieRetrySignal
 import com.blockchain.componentlib.R
-import com.blockchain.componentlib.basic.ImageResource.None.contentDescription
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -99,7 +98,12 @@ fun AsyncMediaItem(
                     }
                     .build()
 
-                val imageRequest = ImageRequest.Builder(context).data(data = url).build()
+                val imageRequest = ImageRequest.Builder(context)
+                    .data(data = url)
+                    .placeholder(onLoadingPlaceholder)
+                    .error(onErrorDrawable)
+                    .crossfade(true)
+                    .build()
                 context.imageLoader.enqueue(imageRequest)
 
                 AsyncImage(
