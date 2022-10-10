@@ -213,25 +213,30 @@ class FiatDepositTxEngine(
         }
 
     private fun checkSettlementBeforeDeposit(it: ReceiveAddress, pendingTx: PendingTx) =
-        bankService.checkSettlement(it.address, pendingTx.amount).flatMap { settlement ->
-            if (settlement.settlementType == SettlementType.UNAVAILABLE) {
-                when (settlement.settlementReason) {
-                    SettlementReason.GENERIC,
-                    SettlementReason.UNKNOWN ->
-                        Single.error(TransactionError.SettlementGenericError)
-                    SettlementReason.INSUFFICIENT_BALANCE ->
-                        Single.error(TransactionError.SettlementInsufficientBalance)
-                    SettlementReason.STALE_BALANCE ->
-                        Single.error(TransactionError.SettlementStaleBalance)
-                    SettlementReason.REQUIRES_UPDATE ->
-                        Single.error(TransactionError.SettlementRefreshRequired(it.address))
-                    SettlementReason.NONE ->
-                        startBankTransfer(it, pendingTx)
+        bankService.checkSettlement(it.address, pendingTx.amount)
+            .zipWith(bankService.getLinkedBank(it.address))
+            .flatMap { (settlement, linkedBank) ->
+                val isYodleeUpgradeRequired = linkedBank.partner == BankPartner.YODLEE &&
+                    settlement.settlementReason == SettlementReason.REQUIRES_UPDATE
+
+                if (settlement.settlementType == SettlementType.UNAVAILABLE || isYodleeUpgradeRequired) {
+                    when (settlement.settlementReason) {
+                        SettlementReason.GENERIC,
+                        SettlementReason.UNKNOWN ->
+                            Single.error(TransactionError.SettlementGenericError)
+                        SettlementReason.INSUFFICIENT_BALANCE ->
+                            Single.error(TransactionError.SettlementInsufficientBalance)
+                        SettlementReason.STALE_BALANCE ->
+                            Single.error(TransactionError.SettlementStaleBalance)
+                        SettlementReason.REQUIRES_UPDATE ->
+                            Single.error(TransactionError.SettlementRefreshRequired(it.address))
+                        SettlementReason.NONE ->
+                            startBankTransfer(it, pendingTx)
+                    }
+                } else {
+                    startBankTransfer(it, pendingTx)
                 }
-            } else {
-                startBankTransfer(it, pendingTx)
             }
-        }
 
     private fun startBankTransfer(receiveAddress: ReceiveAddress, pendingTx: PendingTx) =
         bankService.startBankTransfer(
