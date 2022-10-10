@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -23,9 +22,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.lazylist.PaginatedLazyVerticalGrid
 import com.blockchain.componentlib.media.AsyncMediaItem
 import com.blockchain.componentlib.media.UrlType
 import com.blockchain.componentlib.swiperefresh.SwipeRefreshWithoutOverscroll
+import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.nfts.R
@@ -40,9 +41,11 @@ private const val COLUMN_COUNT = 2
 fun NftCollectionDataScreen(
     collection: List<NftAsset>,
     isRefreshing: Boolean,
+    isNextPageLoading: Boolean,
     onItemClick: (NftAsset) -> Unit,
     onExternalShopClick: () -> Unit,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onGetNextPage: () -> Unit
 ) {
     SwipeRefreshWithoutOverscroll(
         state = rememberSwipeRefreshState(isRefreshing),
@@ -51,7 +54,7 @@ fun NftCollectionDataScreen(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            LazyVerticalGrid(
+            PaginatedLazyVerticalGrid(
                 modifier = Modifier
                     .fillMaxWidth(),
                 contentPadding = PaddingValues(
@@ -60,7 +63,9 @@ fun NftCollectionDataScreen(
                 ),
                 columns = GridCells.Fixed(count = COLUMN_COUNT),
                 verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
-                horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing)
+                horizontalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
+                onGetNextPage = onGetNextPage,
+                loadNextPageItemOffset = 6
             ) {
                 items(
                     items = collection,
@@ -76,6 +81,12 @@ fun NftCollectionDataScreen(
                         )
                     }
                 )
+
+                if (isNextPageLoading) {
+                    item(span = { GridItemSpan(COLUMN_COUNT) }) {
+                        CircularProgressBar()
+                    }
+                }
 
                 item(span = { GridItemSpan(COLUMN_COUNT) }) {
                     Spacer(modifier = Modifier.size(AppTheme.dimensions.xHugeSpacing))
@@ -110,6 +121,7 @@ fun PreviewNftCollectionDataScreen() {
         collection = listOf(
             NftAsset(
                 id = "",
+                pageKey = "",
                 tokenId = "",
                 imageUrl = "",
                 name = "",
@@ -120,6 +132,7 @@ fun PreviewNftCollectionDataScreen() {
             ),
             NftAsset(
                 id = "",
+                pageKey = "",
                 tokenId = "",
                 imageUrl = "",
                 name = "",
@@ -130,6 +143,7 @@ fun PreviewNftCollectionDataScreen() {
             ),
             NftAsset(
                 id = "",
+                pageKey = "",
                 tokenId = "",
                 imageUrl = "",
                 name = "",
@@ -140,8 +154,10 @@ fun PreviewNftCollectionDataScreen() {
             )
         ),
         isRefreshing = false,
+        isNextPageLoading = true,
         onItemClick = {},
         onExternalShopClick = {},
-        onRefresh = {}
+        onRefresh = {},
+        onGetNextPage = {}
     )
 }

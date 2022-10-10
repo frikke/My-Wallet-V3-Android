@@ -30,14 +30,20 @@ fun NftCollection(
         NftCollectionScreen(
             nftCollection = state.collection,
             isRefreshing = state.isPullToRefreshLoading,
+            isNextPageLoading = state.showNextPageLoading,
             onItemClick = { nftAsset ->
-                viewModel.onIntent(NftCollectionIntent.ShowDetail(nftId = nftAsset.id))
+                viewModel.onIntent(
+                    NftCollectionIntent.ShowDetail(nftId = nftAsset.id, pageKey = nftAsset.pageKey)
+                )
             },
             onExternalShopClick = {
                 viewModel.onIntent(NftCollectionIntent.ExternalShop)
             },
             onRefresh = {
                 viewModel.onIntent(NftCollectionIntent.LoadData(isFromPullToRefresh = true))
+            },
+            onGetNextPage = {
+                viewModel.onIntent(NftCollectionIntent.LoadNextPage)
             },
             onReceiveClick = {
                 viewModel.onIntent(NftCollectionIntent.ShowReceiveAddress)
@@ -53,9 +59,11 @@ fun NftCollection(
 fun NftCollectionScreen(
     nftCollection: DataResource<List<NftAsset>>,
     isRefreshing: Boolean,
+    isNextPageLoading: Boolean,
     onItemClick: (NftAsset) -> Unit,
     onExternalShopClick: () -> Unit,
     onRefresh: () -> Unit,
+    onGetNextPage: () -> Unit,
     onReceiveClick: () -> Unit,
     onHelpClick: () -> Unit
 ) {
@@ -79,9 +87,11 @@ fun NftCollectionScreen(
                     NftCollectionDataScreen(
                         collection = this,
                         isRefreshing = isRefreshing,
+                        isNextPageLoading = isNextPageLoading,
                         onItemClick = onItemClick,
                         onExternalShopClick = onExternalShopClick,
-                        onRefresh = onRefresh
+                        onRefresh = onRefresh,
+                        onGetNextPage = onGetNextPage
                     )
                 }
             }
@@ -99,9 +109,11 @@ fun PreviewNftCollectionScreen_Empty() {
     NftCollectionScreen(
         nftCollection = DataResource.Data(emptyList()),
         isRefreshing = false,
+        isNextPageLoading = true,
         onItemClick = {},
         onExternalShopClick = {},
         onRefresh = {},
+        onGetNextPage = {},
         onReceiveClick = {},
         onHelpClick = {}
     )
@@ -115,6 +127,7 @@ fun PreviewNftCollectionScreen_Data() {
             listOf(
                 NftAsset(
                     id = "",
+                    pageKey = "",
                     tokenId = "",
                     imageUrl = "",
                     name = "",
@@ -126,9 +139,11 @@ fun PreviewNftCollectionScreen_Data() {
             )
         ),
         isRefreshing = false,
+        isNextPageLoading = true,
         onItemClick = {},
         onExternalShopClick = {},
         onRefresh = {},
+        onGetNextPage = {},
         onReceiveClick = {},
         onHelpClick = {}
     )
@@ -140,9 +155,11 @@ fun PreviewNftCollectionScreen_Loading() {
     NftCollectionScreen(
         nftCollection = DataResource.Loading,
         isRefreshing = false,
+        isNextPageLoading = true,
         onItemClick = {},
         onExternalShopClick = {},
         onRefresh = {},
+        onGetNextPage = {},
         onReceiveClick = {},
         onHelpClick = {},
     )
@@ -154,9 +171,11 @@ fun PreviewNftCollectionScreen_Error() {
     NftCollectionScreen(
         nftCollection = DataResource.Error(Exception()),
         isRefreshing = false,
+        isNextPageLoading = true,
         onItemClick = {},
         onExternalShopClick = {},
         onRefresh = {},
+        onGetNextPage = {},
         onReceiveClick = {},
         onHelpClick = {}
     )

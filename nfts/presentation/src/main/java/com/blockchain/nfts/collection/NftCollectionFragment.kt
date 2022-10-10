@@ -24,7 +24,7 @@ class NftCollectionFragment :
 
     interface Host {
         fun showReceiveSheet(account: BlockchainAccount)
-        fun showNftDetail(nftId: String, address: String)
+        fun showNftDetail(nftId: String, pageKey: String?, address: String)
         fun showNftHelp()
         fun openExternalUrl(url: String)
     }
@@ -72,7 +72,11 @@ class NftCollectionFragment :
             }
 
             is NftCollectionNavigationEvent.ShowDetail -> {
-                host.showNftDetail(nftId = navigationEvent.nftId, address = navigationEvent.address)
+                host.showNftDetail(
+                    nftId = navigationEvent.nftId,
+                    pageKey = navigationEvent.pageKey,
+                    address = navigationEvent.address
+                )
             }
         }
     }

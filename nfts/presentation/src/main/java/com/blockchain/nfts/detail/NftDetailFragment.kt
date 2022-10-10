@@ -84,12 +84,13 @@ class NftDetailFragment :
     companion object {
         fun newInstance(
             nftId: String,
+            pageKey: String?,
             address: String
         ): NftDetailFragment {
             val bundle = Bundle()
             bundle.putParcelable(
                 NftDetailNavArgs.ARGS_KEY,
-                NftDetailNavArgs(nftId = nftId, address = address)
+                NftDetailNavArgs(nftId = nftId, pageKey = pageKey, address = address)
             )
             return NftDetailFragment().apply {
                 arguments = bundle

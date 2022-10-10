@@ -9,6 +9,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
+import com.blockchain.data.map
 import com.blockchain.nfts.OPENSEA_URL
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.domain.service.NftService
@@ -38,7 +39,8 @@ class NftCollectionViewModel(
     override fun reduce(state: NftCollectionModelState): NftCollectionViewState = state.run {
         NftCollectionViewState(
             isPullToRefreshLoading = isPullToRefreshLoading,
-            collection = collection
+            showNextPageLoading = isNextPageLoading,
+            collection = collection.map { it.distinct() }
         )
     }
 
@@ -46,7 +48,20 @@ class NftCollectionViewModel(
         when (intent) {
             is NftCollectionIntent.LoadData -> {
                 check(modelState.account != null) { "account not initialized" }
-                loadNftCollection(account = modelState.account, isFromPullToRefresh = intent.isFromPullToRefresh)
+                loadNftCollection(
+                    account = modelState.account,
+                    pageKey = null,
+                    isFromPullToRefresh = intent.isFromPullToRefresh
+                )
+            }
+
+            is NftCollectionIntent.LoadNextPage -> {
+                check(modelState.account != null) { "account not initialized" }
+                loadNftCollection(
+                    account = modelState.account,
+                    pageKey = modelState.nextPageKey,
+                    isFromPullToRefresh = false
+                )
             }
 
             NftCollectionIntent.ExternalShop -> {
@@ -67,7 +82,13 @@ class NftCollectionViewModel(
 
                 viewModelScope.launch {
                     val address = modelState.account.receiveAddress.await().address
-                    navigate(NftCollectionNavigationEvent.ShowDetail(nftId = intent.nftId, address = address))
+                    navigate(
+                        NftCollectionNavigationEvent.ShowDetail(
+                            nftId = intent.nftId,
+                            pageKey = intent.pageKey,
+                            address = address
+                        )
+                    )
                 }
             }
         }
@@ -84,7 +105,7 @@ class NftCollectionViewModel(
         } ?: error("asset ${CryptoCurrency.ETHER.networkTicker} not found")
     }
 
-    private fun loadNftCollection(account: BlockchainAccount, isFromPullToRefresh: Boolean) {
+    private fun loadNftCollection(account: BlockchainAccount, pageKey: String?, isFromPullToRefresh: Boolean) {
         viewModelScope.launch {
             val address = account.receiveAddress.await().address
             nftService.getNftCollectionForAddress(
@@ -93,18 +114,49 @@ class NftCollectionViewModel(
                 } else {
                     FreshnessStrategy.Cached(forceRefresh = true)
                 },
-                address = address
+                address = address,
+                pageKey = pageKey
             ).collectLatest { dataResource ->
-                updateState {
-                    it.copy(
-                        isPullToRefreshLoading = isFromPullToRefresh && dataResource is DataResource.Loading,
-                        collection = if (dataResource is DataResource.Loading && it.collection is DataResource.Data) {
-                            // if data is present already - don't show loading
-                            it.collection
-                        } else {
-                            dataResource
+                when (dataResource) {
+                    is DataResource.Loading -> {
+                        updateState {
+                            it.copy(
+                                isPullToRefreshLoading = isFromPullToRefresh,
+                                isNextPageLoading = it.nextPageKey != null,
+                                collection = if (it.collection is DataResource.Data) {
+                                    // if data is present already - don't show loading
+                                    it.collection
+                                } else {
+                                    dataResource
+                                }
+                            )
                         }
-                    )
+                    }
+
+                    is DataResource.Error -> {
+                        updateState {
+                            it.copy(
+                                isPullToRefreshLoading = false,
+                                isNextPageLoading = false,
+                                collection = dataResource // error or old data if available
+                            )
+                        }
+                    }
+
+                    is DataResource.Data -> {
+                        updateState {
+                            val allPreviousPagesData = if (isFromPullToRefresh) emptyList() else it.allPreviousPagesData
+
+                            it.copy(
+                                isPullToRefreshLoading = false,
+                                isNextPageLoading = false,
+                                nextPageKey = dataResource.data.nextPageKey,
+                                allPreviousPagesData = allPreviousPagesData + dataResource.data.assets,
+                                // combine current page and new page items
+                                collection = dataResource.map { data -> allPreviousPagesData + data.assets }
+                            )
+                        }
+                    }
                 }
             }
         }
