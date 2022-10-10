@@ -5,6 +5,7 @@ import app.cash.turbine.test
 import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.core.asset.domain.AssetService
 import com.blockchain.core.price.HistoricalRate
@@ -35,6 +36,7 @@ import piuk.blockchain.android.ui.coinview.domain.GetAssetPriceUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetAccountsUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadAssetRecurringBuysUseCase
 import piuk.blockchain.android.ui.coinview.domain.LoadQuickActionsUseCase
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccounts
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetDetail
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
@@ -70,6 +72,7 @@ class CoinviewViewModelTest {
     private val cryptoAsset: CryptoAsset = mockk()
     private val currency: AssetInfo = mockk()
     private val logo = "logo"
+    private val color = "color"
 
     private val fiatCurrency: FiatCurrency = mockk()
     private val fiatCurrencySymbol: String = "fiatCurrencySymbol"
@@ -82,9 +85,13 @@ class CoinviewViewModelTest {
     private val totalCryptoBalance: Map<AssetFilter, Money> = mapOf(AssetFilter.All to money)
     private val totalFiatBalance: Money = money
 
-    private val coinviewCustodialAccounts: CoinviewAccounts.Custodial = mockk()
+    private val coinviewAccount: CoinviewAccount.Custodial.Trading = mockk()
+    private val blockchainAccount: CryptoAccount = mockk()
+    private val coinviewCustodialAccounts = CoinviewAccounts.Custodial(listOf(coinviewAccount))
 
     private val coinviewAssetPrice: CoinviewAssetPrice = mockk()
+
+    private val tradingWalletLabel = "TradingWalletLabel"
 
     @Before
     fun setUp() {
@@ -107,6 +114,7 @@ class CoinviewViewModelTest {
         every { cryptoAsset.currency } returns currency
         every { cryptoAsset.currency.name } returns networkTicker
         every { cryptoAsset.currency.logo } returns logo
+        every { cryptoAsset.currency.colour } returns color
         every { cryptoAsset.currency.networkTicker } returns networkTicker
         every { coincore[coinviewArgs.networkTicker] } returns cryptoAsset
 
@@ -114,7 +122,10 @@ class CoinviewViewModelTest {
         every { totalBalance.totalFiatBalance } returns totalFiatBalance
         every { money.toStringWithSymbol() } returns balanceFormatted
 
-        every { coinviewCustodialAccounts.accounts } returns emptyList()
+        every { coinviewAccount.account } returns blockchainAccount
+        every { coinviewAccount.isEnabled } returns true
+        every { coinviewAccount.fiatBalance } returns money
+        every { coinviewAccount.cryptoBalance } returns money
 
         every { fiatCurrency.symbol } returns fiatCurrencySymbol
         every { currencyPrefs.selectedFiatCurrency } returns fiatCurrency
@@ -123,6 +134,8 @@ class CoinviewViewModelTest {
         every { coinviewAssetPrice.changeDifference } returns money
         every { coinviewAssetPrice.percentChange } returns percentChange
         every { coinviewAssetPrice.timeSpan } returns HistoricalTimeSpan.DAY
+
+        every { labels.getDefaultTradingWalletLabel() } returns tradingWalletLabel
     }
 
     // asset
@@ -292,6 +305,45 @@ class CoinviewViewModelTest {
                         ),
                         totalBalance
                     )
+                }
+            }
+        }
+
+    // accounts
+    @Test
+    fun `GIVEN valid accossunts, WHEN LoadAccountsData is called, THEN totalBalance state should be Data`() =
+        runTest {
+            val dataResource = MutableSharedFlow<DataResource<CoinviewAssetDetail>>()
+            coEvery { loadAssetAccountsUseCase(cryptoAsset) } returns dataResource
+
+            viewModel.viewState.test {
+                viewModel.viewCreated(coinviewArgs)
+                expectMostRecentItem()
+
+                viewModel.onIntent(CoinviewIntent.LoadAccountsData)
+                dataResource.emit(
+                    DataResource.Data(CoinviewAssetDetail.Tradeable(coinviewCustodialAccounts, totalBalance))
+                )
+                awaitItem().run {
+                    val expected = CoinviewAccountsState.Data(
+                        style = CoinviewAccountsStyle.Simple,
+                        header = CoinviewAccountsState.Data.CoinviewAccountsHeaderState.ShowHeader(
+                            SimpleValue.IntResValue(R.string.coinview_accounts_label)
+                        ),
+                        accounts = listOf(
+                            CoinviewAccountsState.Data.CoinviewAccountState.Available(
+                                cvAccount = coinviewAccount,
+                                title = tradingWalletLabel,
+                                subtitle = SimpleValue.IntResValue(R.string.coinview_c_available_desc),
+                                cryptoBalance = balanceFormatted,
+                                fiatBalance = balanceFormatted,
+                                logo = LogoSource.Resource(R.drawable.ic_custodial_account_indicator),
+                                assetColor = color
+                            )
+                        )
+                    )
+
+                    assertEquals(expected, accounts)
                 }
             }
         }
