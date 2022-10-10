@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.settings.security.pin
 
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.AuthPrefs
-import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -34,7 +34,7 @@ class PinInteractorTest {
     private val apiStatus = mock<ApiStatus>()
     private val authPrefs = mock<AuthPrefs>()
     private val sessionPrefs = mock<SessionPrefs>()
-    private val walletStatusPrefs = mock<WalletStatusPrefs>()
+    private val remoteLogger = mock<RemoteLogger>()
     private val walletOptionsDataManager = mock<WalletOptionsDataManager>()
     private val credentialsWiper = mock<CredentialsWiper>()
     private val payloadDataManager = mock<PayloadDataManager>()
@@ -60,7 +60,7 @@ class PinInteractorTest {
                 apiStatus = apiStatus,
                 authPrefs = authPrefs,
                 sessionPrefs = sessionPrefs,
-                walletStatusPrefs = walletStatusPrefs,
+                remoteLogger = remoteLogger,
                 defaultLabels = defaultLabels,
                 isIntercomEnabledFlag = isIntercomEnabledFlag
             )

@@ -2,15 +2,17 @@ package piuk.blockchain.android.ui.settings.v2.security.pin
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.AuthPrefs
-import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.tasks.Task
 import info.blockchain.wallet.api.data.UpdateType
 import io.intercom.android.sdk.Intercom
+import io.intercom.android.sdk.IntercomError
+import io.intercom.android.sdk.IntercomStatusCallback
 import io.intercom.android.sdk.identity.Registration
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -39,8 +41,8 @@ class PinInteractor internal constructor(
     private val walletOptionsDataManager: WalletOptionsDataManager,
     private val authPrefs: AuthPrefs,
     private val defaultLabels: DefaultLabels,
-    private val walletStatusPrefs: WalletStatusPrefs,
-    private val isIntercomEnabledFlag: FeatureFlag
+    private val remoteLogger: RemoteLogger,
+    private val isIntercomEnabledFlag: FeatureFlag,
 ) {
 
     fun shouldShowFingerprintLogin(): Boolean {
@@ -119,7 +121,18 @@ class PinInteractor internal constructor(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun registerIntercomUser() {
         val registration = Registration.create().withUserId(authPrefs.walletGuid)
-        Intercom.client().registerIdentifiedUser(registration)
+        Intercom.client().loginIdentifiedUser(
+            registration,
+            object : IntercomStatusCallback {
+                override fun onFailure(intercomError: IntercomError) {
+                    remoteLogger.logEvent("registerIntercomUser on PinInteractor " + intercomError.errorMessage)
+                }
+
+                override fun onSuccess() {
+                    // Do nothing
+                }
+            }
+        )
     }
 
     private fun verifyCloudBackup(): Completable =
