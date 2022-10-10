@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
+    <string name="buy_now">Купить сейчас</string>
+    <string name="deposit_enter_amount_limit_title">Лимит</string>
+    <string name="chrome_navigation_trade">Сделка</string>
+    <string name="no_fees_title">Без комиссий</string>
+    <string name="create_wallet_email_hint">your@email.com</string>
     <string name="activity_details_title_bought">Куплено</string>
     <string name="fund_recovery_failed_title">Не удалось восстановить средства</string>
     <string name="rewards_summary_accrued">Начисленные вознаграждения в этом месяце</string>
@@ -16,6 +21,7 @@
     <string name="feature_limits_header_bronze_description">Blockchain.com предлагает два типа ограничений аккаунта для наилучшего соответствия вашим целям и потребностям в отношении криптовалюты.</string>
     <string name="kyc_limits_upgrade_now_gold_description">Покупайте и продавайте. Зарабатывайте Rewards.</string>
     <string name="common_i_understand">Я понимаю, продолжить</string>
+    <string name="common_network">Сеть</string>
     <string name="dashboard_onboarding_step_upgrade_to_gold_time">3 минуты</string>
     <string name="dashboard_onboarding_step_link_payment_method_time">2 минуты</string>
     <string name="dashboard_onboarding_step_link_buy_time">10 секунд</string>
@@ -41,6 +47,10 @@
     <string name="feature_limits_earn_rewards_description">Зарабатывайте Rewards за свою криптовалюту</string>
     <string name="title_cardCreateBankDeclined">Не удалось добавить карту</string>
     <string name="fund_your_card_purchases">Финансируйте покупки по карте</string>
+    <string name="recent_transactions">Недавние транзакции</string>
+    <string name="use_your_card_or_cash">Используйте наличные деньги или карту</string>
+    <string name="bc_card_transaction_created">Создано</string>
+    <string name="bc_card_kyc_ssn_secured_with_encryption">Информация защищена 256-битным шифрованием</string>
     <string name="common_send">Отправить</string>
     <string name="common_receive">Получить</string>
     <string name="common_rewards">Вознаграждения</string>
@@ -98,11 +108,10 @@
     <string name="common_close">Закрыть</string>
     <string name="common_next">Далее</string>
     <string name="common_learn_more">Узнать больше</string>
-    <string name="common_no_results_found">результатов не найдено</string>
+    <string name="common_no_results_found">Результаты не найдены</string>
     <string name="exit">Выйти</string>
     <string name="screen_overlay_warning">Обнаружено накладываемое изображение!</string>
-    <string name="screen_overlay_note">Приложения, использующие накладываемые изображения/окна экрана, могут обманным путем заставить вас нажать на невидимое окно с целью хищения средств. Обратите внимание, что это предупреждение также может быть вызвано работой приложений для затемнения экрана. Если вы уверены, что на вашем устройстве отсутствуют угрозы безопасности данных, вы можете продолжить.
-    </string>
+    <string name="screen_overlay_note">Приложения, использующие накладываемые изображения/окна экрана, могут обманным путем заставить вас нажать на невидимое окно с целью хищения средств. Обратите внимание, что это предупреждение также может быть вызвано работой приложений для затемнения экрана. Если вы уверены, что на вашем устройстве отсутствуют угрозы безопасности данных, вы можете продолжить.\n    </string>
     <string name="unexpected_error">Произошла непредвиденная ошибка. Пожалуйста, попробуйте еще раз.</string>
     <string name="app_version">Версия приложения: %1$s (%2$s)</string>
     <string name="dialog_continue">Продолжить</string>
@@ -130,7 +139,7 @@
     <string name="invalid_email">Недействительный адрес электронной почты</string>
     <string name="invalid_mobile">Недействительный номер мобильного телефона</string>
     <string name="invalid_password">Неверный пароль</string>
-    <string name="try_again">Повторите попытку позже</string>
+    <string name="try_again">Попробуйте еще раз позже</string>
     <string name="invalid_password_too_short">Введите более 3 символов</string>
     <string name="country_not_selected">Выберите свою страну проживания</string>
     <string name="state_not_selected">Выберите свой штат</string>
@@ -140,8 +149,7 @@
     <string name="change_password_new_matches_current">Нельзя использовать текущий пароль в качестве нового пароля</string>
     <string name="no_private_key">Невозможно сгенерировать личный ключ.</string>
     <string name="pin_max_strikes">%1$d неудачных попытки PIN-кода. Пожалуйста, введите пароль.</string>
-    <string name="pin_4_strikes_password_accepted">Пароль принят. Установите новый PIN-код.
-    </string>
+    <string name="pin_4_strikes_password_accepted">Пароль принят. Установите новый PIN-код.\n    </string>
     <string name="bip38_password_entry">Введите пароль личного ключа</string>
     <string name="pin_entry">Введите PIN-код</string>
     <string name="password_entry">Введите пароль</string>
@@ -151,17 +159,12 @@
     <string name="create_pin">Создайте PIN-код</string>
     <string name="confirm_pin">Подтвердите PIN-код</string>
     <string name="create_pin_failed">Не удалось создать PIN-код. Подключите устройство еще раз.</string>
-    <string name="change_pin_new_matches_current">Вы не можете использовать текущий PIN-код в качестве нового PIN-кода
-    </string>
+    <string name="change_pin_new_matches_current">Вы не можете использовать текущий PIN-код в качестве нового PIN-кода\n    </string>
     <string name="pairing_failed">Не удалось подключить устройство. Попробуйте еще раз.</string>
     <string name="account_locked_title">Учетная запись заблокирована</string>
-    <string name="account_locked_message">Ваша учетная запись временно заблокирована в качестве меры предосторожности.
-         Пожалуйста, проверьте свою электронную почту для получения дополнительной информации и повторите попытку позже.
-    </string>
+    <string name="account_locked_message">Ваша учетная запись временно заблокирована в качестве меры предосторожности.\n         Пожалуйста, проверьте свою электронную почту для получения дополнительной информации и повторите попытку позже.\n    </string>
     <string name="keyboard_input_delete">Удалить ввод с помощью клавиатуры</string>
-    <string name="check_connectivity_exit">Blockchain Wallet не может установить интернет-подключение.
-         Пожалуйста, проверьте подключение на вашем устройстве и попробуйте еще раз.
-    </string>
+    <string name="check_connectivity_exit">Blockchain Wallet не может установить интернет-подключение.\n         Пожалуйста, проверьте подключение на вашем устройстве и попробуйте еще раз.\n    </string>
     <string name="server_unreachable_exit">Невозможно подключиться к серверу. Пожалуйста, повторите попытку позже.</string>
     <string name="double_encryption_password_error">Ошибка двойного шифрования пароля. Пожалуйста, попробуйте еще раз.</string>
     <string name="btn_scan_pairing_code">Отсканируйте код сопряжения</string>
@@ -182,13 +185,11 @@
     <string name="landing_value_prop_three">Управляйте своей криптовалютой с помощью закрытых ключей.</string>
     <string name="landing_value_prop_four">Никогда не упускайте лучший крипто-момент.</string>
     <string name="landing_live_prices">Актуальные цены</string>
-    <string name="pair_wallet_step_3">Нажмите кнопку «Показать код сопряжения», чтобы открыть QR-код, черно-белый квадрат со штрих-кодом. Отсканируйте код своей камерой.
-    </string>
+    <string name="pair_wallet_step_3">Нажмите кнопку «Показать код сопряжения», чтобы открыть QR-код, черно-белый квадрат со штрих-кодом. Отсканируйте код своей камерой.\n    </string>
     <string name="wallet_id">Wallet ID</string>
     <string name="recover_funds">Восстановить средства</string>
     <string name="recover_funds_warning_message_1">Если у вас есть доступ к ID кошелька и паролю, вы должны всегда выполнять сопряжение или входить в систему. В рамках процесса восстановления ваших средств будет создан новый ID кошелька. Вы хотите продолжить?</string>
-    <string name="recover_funds_instructions">Введите контрольную фразу из 12 слов с пробелами для восстановления ваших средств и транзакций
-    </string>
+    <string name="recover_funds_instructions">Введите контрольную фразу из 12 слов с пробелами для восстановления ваших средств и транзакций\n    </string>
     <string name="recovery_passphrase_1">Секретная фраза для восстановления закрытого ключа</string>
     <string name="invalid_recovery_phrase_1">Фраза для восстановления секретного закрытого ключа недействительна. Попробуйте еще раз</string>
     <string name="creating_wallet">Создание кошелька</string>
@@ -199,7 +200,7 @@
     <string name="you_agree_terms_of_service">Создавая учетную запись, вы соглашаетесь с <annotation link="terms">Условиями обслуживания</annotation> и <annotation link="privacy">Политикой конфиденциальности</annotation> Blockchain.</string>
     <string name="sign_up_email">Электронная почта</string>
     <string name="new_account_title">Создать аккаунт</string>
-    <string name="password_disclaimer">Я согласен с <annotation link="terms"> Условиями использования </annotation> и <annotation link="privacy"> Политикой конфиденциальности </annotation> Blockchain.com.</string>
+    <string name="password_disclaimer">Я принимаю <annotation link="terms">Условия использования</annotation> и <annotation link="privacy">Политику конфиденциальности</annotation> Blockchain.com.</string>
     <string name="new_account_cta_text">Далее</string>
     <string name="new_account_title_1">Новый аккаунт</string>
     <string name="new_account_referral_code_label">Есть реферальный код?</string>
@@ -208,12 +209,11 @@
     <string name="create_wallet_state">Штат</string>
     <string name="create_wallet_country">Страна проживания</string>
     <string name="create_wallet_create_account">Создать аккаунт</string>
-    <string name="create_wallet_step_1_header">Давайте начнем.</string>
+    <string name="create_wallet_step_1_header">Приступим</string>
     <string name="create_wallet_step_1_subheader">В какой стране вы живете?</string>
     <string name="create_wallet_step_2_header">Создать аккаунт.</string>
     <string name="create_wallet_step_2_subheader">Введите свой адрес электронной почты и создайте пароль</string>
-    <string name="create_wallet_email_hint">your@email.com</string>
-    <string name="create_wallet_password_hint">Минимум 8 символов</string>
+    <string name="create_wallet_password_hint">Не менее 8 символов</string>
     <string name="strength_weak">Ненадежный</string>
     <string name="strength_medium">Обычный</string>
     <string name="strength_normal">Хороший</string>
@@ -227,16 +227,14 @@
     <string name="bitpay_invoice_expired">Срок действия счета BitPay истек</string>
     <string name="bitpay_announcement_body">С BitPay теперь вы можете использовать свой блокчейн Wallet для покупок у поддерживающих его розничных продавцов.</string>
     <string name="transaction_failed">Сбой транзакции</string>
-    <string name="error_scan_unrecognized">QR-код не распознается. Поддерживаемые QR-коды включают Bitpay, Crypto Addresses и WalletConnect. Пожалуйста, попробуйте еще раз.</string>
+    <string name="error_scan_unrecognized">QR-код не распознан. Поддерживаемые QR-коды включают Bitpay, Crypto Addresses и WalletConnect. Попробуйте еще раз.</string>
     <string name="error_scan_failed_general">Ошибка сканирования. Пожалуйста, попробуйте еще раз.</string>
     <string name="error_scan_failed_bitpay">Невозможно восстановить счет BitPay. Срок его действия истек?</string>
     <string name="enter_double_encryption_pw">Пожалуйста, введите пароль двойного шифрования</string>
     <string name="support">Служба поддержки</string>
     <string name="rate_us">Оцените нас</string>
     <string name="licenses">Лицензии</string>
-    <string name="about">Blockchain.com Wallet %1$s
-©%2$s Blockchain.com Luxembourg S.A.
-Все права защищены.</string>
+    <string name="about">Blockchain.com Wallet %1$s\n©%2$s Blockchain.com Luxembourg S.A.\nВсе права защищены.</string>
     <string name="merchant_download">Бесплатное приложение для торговли</string>
     <string name="password_or_wipe">Выполните вход, введя свой пароль или нажав «Забыть кошелек»</string>
     <string name="use_password">При помощи пароля</string>
@@ -246,8 +244,7 @@
     <string name="fee">Комиссия</string>
     <string name="purchase">Купить</string>
     <string name="exit_confirm">Для выхода нажмите кнопку «Назад» еще раз</string>
-    <string name="label_address">Ваш адрес был успешно импортирован. Вы можете указать короткое имя для отображения этого адреса.
-    </string>
+    <string name="label_address">Ваш адрес был успешно импортирован. Вы можете указать короткое имя для отображения этого адреса.\n    </string>
     <string name="bip38_error">Недействительный пароль личного ключа</string>
     <string name="privkey_error">Неподдерживаемый формат личного ключа</string>
     <string name="hd_error">Ошибка HD-кошелька</string>
@@ -257,17 +254,12 @@
     <string name="change_pin_code">Изменить PIN-код</string>
     <string name="drawer_addresses">Адреса</string>
     <string name="save_name">Сохранить название</string>
-    <string name="receive_address_to_clipboard">Скопировать этот адрес получения в буфер обмена? В этом случае имейте в виду, что другие приложения могут иметь доступ к этой информации.
-    </string>
-    <string name="receive_address_to_share">Поделиться этим адресом получения для отправки? В этом случае имейте в виду, что другие приложения могут иметь доступ к этой информации.
-    </string>
+    <string name="receive_address_to_clipboard">Скопировать этот адрес получения в буфер обмена? В этом случае имейте в виду, что другие приложения могут иметь доступ к этой информации.\n    </string>
+    <string name="receive_address_to_share">Поделиться этим адресом получения для отправки? В этом случае имейте в виду, что другие приложения могут иметь доступ к этой информации.\n    </string>
     <string name="receive_rotating_address_title">Знаете ли вы?</string>
     <string name="receive_rotating_address_desc">Для дополнительной безопасности мы создаем новый %1$s адрес для каждого вашего запроса. Каждый уникальный адрес связан с вашим %2$s.</string>
-    <string name="guid_to_clipboard">Скопировать ваш ID-номер кошелька в буфер обмена? В этом случае имейте в виду, что другие приложения могут иметь доступ к этой информации.
-    </string>
-    <string name="ssl_pinning_invalid">Не удалось установить безопасное соединение с хостом. Это может указывать на
-         вредоносную деятельность. Пожалуйста, проверьте ваше сетевое соединение и устройство, прежде чем продолжить.
-    </string>
+    <string name="guid_to_clipboard">Скопировать ваш ID-номер кошелька в буфер обмена? В этом случае имейте в виду, что другие приложения могут иметь доступ к этой информации.\n    </string>
+    <string name="ssl_pinning_invalid">Не удалось установить безопасное соединение с хостом. Это может указывать на\n         вредоносную деятельность. Пожалуйста, проверьте ваше сетевое соединение и устройство, прежде чем продолжить.\n    </string>
     <string name="description">Описание</string>
     <string name="name">Имя</string>
     <string name="received_ethereum">Получено %1$s</string>
@@ -289,32 +281,18 @@
     <string name="archived_label">архивации</string>
     <string name="UPGRADE_YOUR_WALLET">Отлично, вперед!</string>
     <string name="upgrade_page_1">Упрощенный процесс резервного копирования и восстановления.</string>
-    <string name="upgrade_page_2">Повышенный уровень конфиденциальности за счет иерархических детерминированных адресов.
-    </string>
-    <string name="upgrade_page_3">Настройте способ организации Bitcoin в своем Blockchain
-        Wallet.
-    </string>
-    <string name="confirm_upgrade_header">Мы добавили несколько новых функций в ваш
-Blockchain Wallet:
-    </string>
+    <string name="upgrade_page_2">Повышенный уровень конфиденциальности за счет иерархических детерминированных адресов.\n    </string>
+    <string name="upgrade_page_3">Настройте способ организации Bitcoin в своем Blockchain\n        Wallet.\n    </string>
+    <string name="confirm_upgrade_header">Мы добавили несколько новых функций в ваш\nBlockchain Wallet:\n    </string>
     <string name="upgrading">Обновление...</string>
-    <string name="upgrading_started_info">Ваш кошелек обновляется, подождите, это может занять
-         некоторое время в зависимости от размера и истории вашего кошелька.
-    </string>
+    <string name="upgrading_started_info">Ваш кошелек обновляется, подождите, это может занять\n         некоторое время в зависимости от размера и истории вашего кошелька.\n    </string>
     <string name="upgrade_success_heading">Ваш кошелек обновлен!</string>
-    <string name="upgrade_success_info">Теперь вы используете самый безопасный и конфиденциальный Blockchain
-          Wallet. Сейчас вы можете войти в свой кошелек.
-    </string>
+    <string name="upgrade_success_info">Теперь вы используете самый безопасный и конфиденциальный Blockchain\n          Wallet. Сейчас вы можете войти в свой кошелек.\n    </string>
     <string name="CLOSE">Закрыть</string>
     <string name="upgrade_fail_heading">Не удалось обновить кошелек!</string>
-    <string name="upgrade_fail_info">При обновлении вашего кошелька возникла ошибка. Повторите попытку
-позже.
-    </string>
-    <string name="not_sane_error">Не удалось завершить установку Blockchain Wallet. Выполните повторное подключение кошелька или создайте новый.
-    </string>
-    <string name="camera_unavailable">Камера в настоящее время открыта в другом приложении.
-Закройте приложения, которые могут ее использовать и попробуйте еще раз.
-    </string>
+    <string name="upgrade_fail_info">При обновлении вашего кошелька возникла ошибка. Повторите попытку\nпозже.\n    </string>
+    <string name="not_sane_error">Не удалось завершить установку Blockchain Wallet. Выполните повторное подключение кошелька или создайте новый.\n    </string>
+    <string name="camera_unavailable">Камера в настоящее время открыта в другом приложении.\nЗакройте приложения, которые могут ее использовать и попробуйте еще раз.\n    </string>
     <string name="camera_setup_failed">Не удалось открыть камеру. Пожалуйста, проверьте свои разрешения</string>
     <string name="validating_password">Проверка пароля…</string>
     <string name="validating_pin">Проверка PIN-кода…</string>
@@ -322,44 +300,29 @@ Blockchain Wallet:
     <string name="decrypting_wallet">Расшифровка кошелька...</string>
     <string name="password_unchanged">Пароль не изменен</string>
     <string name="password_changed">Пароль изменен</string>
-    <string name="password_changed_explanation">Ваш пароль был изменен, пожалуйста, повторно подключите свой
-         кошелек
-    </string>
-    <string name="verify_email2">Подтвержденный вами адрес электронной почты используется с целью отправки кодов входа в случае, если была обнаружена подозрительная или необычная активность. Это также необходимо, чтобы напомнить вам ID-номер входа в кошелек и отправлять уведомления о платежах в биткойнах при получении средств.
-    </string>
+    <string name="password_changed_explanation">Ваш пароль был изменен, пожалуйста, повторно подключите свой\n         кошелек\n    </string>
+    <string name="verify_email2">Подтвержденный вами адрес электронной почты используется с целью отправки кодов входа в случае, если была обнаружена подозрительная или необычная активность. Это также необходимо, чтобы напомнить вам ID-номер входа в кошелек и отправлять уведомления о платежах в биткойнах при получении средств.\n    </string>
     <string name="two_fa_new_request">Запрос нового кода...</string>
     <string name="disable_root_warning">Отключить предупреждение о рутированном устройстве</string>
     <string name="auth_failed">Ошибка авторизации. Пожалуйста, попробуйте еще раз.</string>
     <string name="send_failed">Ошибка отправки. Пожалуйста, попробуйте еще раз.</string>
     <string name="wallet_updated">Получено обновление кошелька</string>
-    <string name="device_rooted">Кажется, ваше устройство было рутировано. Учтите, что хранение средств на
-         рутированном устройстве небезопасно и, кроме того, может вызвать проблемы со стабильностью ПО. Если вы продолжите использовать наш кошелек Bitcoin на этом устройстве, мы рекомендуем вам использовать в своем аккаунте Blockchain двойное шифрование.
-    </string>
+    <string name="device_rooted">Кажется, ваше устройство было рутировано. Учтите, что хранение средств на\n         рутированном устройстве небезопасно и, кроме того, может вызвать проблемы со стабильностью ПО. Если вы продолжите использовать наш кошелек Bitcoin на этом устройстве, мы рекомендуем вам использовать в своем аккаунте Blockchain двойное шифрование.\n    </string>
     <string name="saving_address">Сохранение адреса...</string>
     <string name="edit">редактировать</string>
     <string name="label_cant_be_empty">Ярлык не может быть пустым.</string>
     <string name="label_name_match">Это название уже занято</string>
     <string name="warning">Внимание</string>
-    <string name="ssl_no_connection">Мы не можем подключиться к хосту, чтобы установить безопасное
-         подключение. Пожалуйста, проверьте ваше сетевое соединение и устройство, прежде чем продолжить.
-    </string>
+    <string name="ssl_no_connection">Мы не можем подключиться к хосту, чтобы установить безопасное\n         подключение. Пожалуйста, проверьте ваше сетевое соединение и устройство, прежде чем продолжить.\n    </string>
     <string name="retry">Повторить</string>
-    <string name="archived_description">Этот элемент был помещен в архив и недоступен для использования с помощью мобильного приложения. Несмотря на то, что вы не можете отправить средства с этого элемента, все средства будут находиться в безопасности. Просто разархивируйте этот элемент, чтобы снова использовать его.
-    </string>
-    <string name="not_archived_description">Этот элемент не помещен в архив. Заархивируйте его, если вы больше НЕ хотите его использовать. Ваши средства будут в безопасности и вы сможете разархивировать его в любое время.
-    </string>
-    <string name="default_account_description">Этот элемент установлен по умолчанию и не может быть
-         заархивирован.
-    </string>
+    <string name="archived_description">Этот элемент был помещен в архив и недоступен для использования с помощью мобильного приложения. Несмотря на то, что вы не можете отправить средства с этого элемента, все средства будут находиться в безопасности. Просто разархивируйте этот элемент, чтобы снова использовать его.\n    </string>
+    <string name="not_archived_description">Этот элемент не помещен в архив. Заархивируйте его, если вы больше НЕ хотите его использовать. Ваши средства будут в безопасности и вы сможете разархивировать его в любое время.\n    </string>
+    <string name="default_account_description">Этот элемент установлен по умолчанию и не может быть\n         заархивирован.\n    </string>
     <string name="extended_public_key">Расширенный открытый ключ</string>
     <string name="address">Адрес</string>
     <string name="copy_xpub">Скопировать xPub</string>
-    <string name="scan_this_code">Ваш xPub — это расширенная функция, которая содержит все ваши общедоступные
-         адреса.
-    </string>
-    <string name="xpub_sharing_warning">Отправка вашего xPub позволяет другим отслеживать вашу
-         историю транзакций. Поскольку уполномоченные лица могут помешать вам получить доступ к вашему кошельку, делитесь своим xPub только с теми, кому доверяете.
-    </string>
+    <string name="scan_this_code">Ваш xPub — это расширенная функция, которая содержит все ваши общедоступные\n         адреса.\n    </string>
+    <string name="xpub_sharing_warning">Отправка вашего xPub позволяет другим отслеживать вашу\n         историю транзакций. Поскольку уполномоченные лица могут помешать вам получить доступ к вашему кошельку, делитесь своим xPub только с теми, кому доверяете.\n    </string>
     <string name="edit_wallet_name">Редактировать имя</string>
     <string name="edit_wallet_name_helper_text">Дайте этому новому кошельку название.</string>
     <string name="create_a_new_wallet">Создать новый кошелек</string>
@@ -371,20 +334,11 @@ Blockchain Wallet:
     <string name="archive_are_you_sure">Вы действительно хотите заархивировать этот элемент?</string>
     <string name="unarchive_are_you_sure">Вы действительно хотите разархивировать этот элемент?</string>
     <string name="make_default">Использовать по умолчанию</string>
-    <string name="watch_only_not_supported">Импорт нерасходуемого адреса (адрес или скрипт с открытым ключом
- без соответствующего закрытого ключа) не поддерживается. Пожалуйста, попробуйте еще раз с
- адресом и закрытым ключом.
-    </string>
+    <string name="watch_only_not_supported">Импорт нерасходуемого адреса (адрес или скрипт с открытым ключом \n без соответствующего закрытого ключа) не поддерживается. Пожалуйста, попробуйте еще раз с \n адресом и закрытым ключом.\n    </string>
     <string name="private_key_successfully_imported">Личный ключ успешно импортирован.</string>
     <string name="watch_only">Non-расходуемого</string>
-    <string name="extended_public_key_description">Если вы являетесь продавцом, показывайте свой xPub и используйте приложение Blockchain Merchant для надежного и конфиденциального получения средств.
-
-Соблюдайте конфиденциальность своего xPub.
-Любое лицо, у которого есть доступ к вашему xPub, может просматривать все ваши средства и историю транзакций.
-    </string>
-    <string name="extended_public_key_description_bch_only">Соблюдайте конфиденциальность своего xPub.
-Любое лицо, у которого есть доступ к вашему xPub, может просматривать все ваши средства и историю транзакций.
-    </string>
+    <string name="extended_public_key_description">Если вы являетесь продавцом, показывайте свой xPub и используйте приложение Blockchain Merchant для надежного и конфиденциального получения средств.\n\nСоблюдайте конфиденциальность своего xPub.\nЛюбое лицо, у которого есть доступ к вашему xPub, может просматривать все ваши средства и историю транзакций.\n    </string>
+    <string name="extended_public_key_description_bch_only">Соблюдайте конфиденциальность своего xPub.\nЛюбое лицо, у которого есть доступ к вашему xPub, может просматривать все ваши средства и историю транзакций.\n    </string>
     <string name="success">успех</string>
     <string name="default_label">По умолчанию</string>
     <string name="transfer">Перевод</string>
@@ -428,7 +382,7 @@ Blockchain Wallet:
     <string name="setting_limits_title">Trading Accounts</string>
     <string name="setting_limits_description">Лимиты и возможности</string>
     <string name="setting_limits_load_error_title">Ошибка загрузки</string>
-    <string name="setting_limits_load_error_description">В настоящее время мы не можем загрузить ваши лимиты. Вы можете проверить лимиты своего аккаунта, перейдя в Настройки</string>
+    <string name="setting_limits_load_error_description">В настоящее время мы не можем загрузить ваши лимиты. Вы можете проверить лимиты своего аккаунта, перейдя в «Настройки»</string>
     <string name="settings_pair_wallet">Соединить мой кошелек</string>
     <string name="web_login">Вход в систему</string>
     <string name="disable_2fa_first">Сначала отключите двухфакторную аутентификацию по SMS в настройках безопасности.</string>
@@ -440,11 +394,9 @@ Blockchain Wallet:
     <string name="verify_mobile">Подтвердить номер мобильного телефона</string>
     <string name="select_country">Выбрать страну</string>
     <string name="search_country">Поиск страны</string>
-    <string name="verify_sms_summary">Мы отправили СМС-сообщение с кодом подтверждения на ваш номер телефона. Введите полученный код ниже, чтобы подтвердить свой номер.
-    </string>
+    <string name="verify_sms_summary">Мы отправили SMS-сообщение с кодом подтверждения на ваш номер телефона. Введите полученный код ниже, чтобы подтвердить свой номер.\n    </string>
     <string name="verify_sms_failed">Неверный код, попробуйте еще раз</string>
-    <string name="mobile_description">Ваш мобильный телефон можно использовать для включения двухфакторной аутентификации, помогающей защитить ваш кошелек от несанкционированного доступа.
-    </string>
+    <string name="mobile_description">Ваш мобильный телефон можно использовать для включения двухфакторной аутентификации, помогающей защитить ваш кошелек от несанкционированного доступа.\n    </string>
     <string name="enable_fingerprint">Разблокировка с помощью биометрических данных</string>
     <string name="notification_2fa_summary">Уведомления 2FA</string>
     <string name="notification_2fa_description">Уведомления, связанные с двухфакторной аутентификацией</string>
@@ -452,21 +404,14 @@ Blockchain Wallet:
     <string name="notification_payments_description">Уведомления, связанные с платежами</string>
     <string name="two_fa">Двухэтапная проверка</string>
     <string name="tor_requests">Блокировать запросы Tor</string>
-    <string name="tor_summary">Заблокируйте IP-адреса, которые являются частью анонимной сети Tor. Сеть Tor часто используют хакеры, которые пытаются получить доступ к кошелькам пользователей Blockchain.
-    </string>
+    <string name="tor_summary">Заблокируйте IP-адреса, которые являются частью анонимной сети Tor. Сеть Tor часто используют хакеры, которые пытаются получить доступ к кошелькам пользователей Blockchain.\n    </string>
     <string name="enable_cloud_backup">Включить облачное резервное копирование</string>
-    <string name="enable_cloud_backup_summary">Сохраните зашифрованную резервную копию в своем аккаунте на Google Диске,
-         если он доступен. Это позволит восстановить кошелек, если вы потеряете это устройство.
-    </string>
+    <string name="enable_cloud_backup_summary">Сохраните зашифрованную резервную копию в своем аккаунте на Google Диске, \n         если он доступен. Это позволит восстановить кошелек, если вы потеряете это устройство.\n    </string>
     <string name="enable_screenshots">Включить функцию снимка экрана</string>
-    <string name="enable_screenshots_summary">На некоторых снимках в приложении могут отображаться
-         конфиденциальные данные. Другие приложения смогут получить доступ к этим снимкам экрана.</string>
+    <string name="enable_screenshots_summary">На некоторых снимках в приложении могут отображаться\n         конфиденциальные данные. Другие приложения смогут получить доступ к этим снимкам экрана.</string>
     <string name="change_password">Изменить пароль</string>
-    <string name="change_password_summary">Ваш пароль никогда не хранится на наших серверах, что
-         означает, что мы не сможем сбросить ваш пароль, если вы его забудете. Убедитесь, что вы сделали резервную копию своих средств из бокового меню, что поможет восстановить доступ к вашему кошельку в случае утери пароля.
-    </string>
-    <string name="verify_email_notice">Мы отправили вам электронное письмо со ссылкой для подтверждения. Перейдите по ссылке, чтобы подтвердить свой адрес электронной почты.
-    </string>
+    <string name="change_password_summary">Ваш пароль никогда не хранится на наших серверах, что\n         означает, что мы не сможем сбросить ваш пароль, если вы его забудете. Убедитесь, что вы сделали резервную копию своих средств из бокового меню, что поможет восстановить доступ к вашему кошельку в случае утери пароля.\n    </string>
+    <string name="verify_email_notice">Мы отправили вам электронное письмо со ссылкой для подтверждения. Перейдите по ссылке, чтобы подтвердить свой адрес электронной почты.\n    </string>
     <string name="email_notifications">Уведомления по электронной почте</string>
     <string name="email_notifications_summary">Получайте уведомления при получении криптовалюты.</string>
     <string name="current_password">Текущий пароль</string>
@@ -475,15 +420,9 @@ Blockchain Wallet:
     <string name="preferences">предпочтения</string>
     <string name="linked_cards">Подключённые Карты</string>
     <string name="linked_banks">Связанные банки</string>
-    <string name="two_fa_summary">Защитите свой кошелек от несанкционированного доступа, включив двухэтапную проверку.
-    </string>
-    <string name="two_fa_description">Защитите свой кошелек от несанкционированного доступа, включив двухэтапную проверку. Вы можете использовать свой номер мобильного телефона для защиты своего кошелька.
-         Этот код будет запрошен, когда вы попытаетесь получить доступ к своему кошельку через веб-браузер.
-
-Чтобы применить другие методы аутентификации, войдите в наш веб-кошелек по адресу %1$s
-    </string>
-    <string name="rate_message">Вам нравится Blockchain Wallet? Уделите пару минут и оставьте отзыв в Google Play, чтобы об этом узнали другие пользователи.
-    </string>
+    <string name="two_fa_summary">Защитите свой кошелек от несанкционированного доступа, включив двухэтапную проверку.\n    </string>
+    <string name="two_fa_description">Защитите свой кошелек от несанкционированного доступа, включив двухэтапную проверку. Вы можете использовать свой номер мобильного телефона для защиты своего кошелька.\n         Этот код будет запрошен, когда вы попытаетесь получить доступ к своему кошельку через веб-браузер.\n\nЧтобы применить другие методы аутентификации, войдите в наш веб-кошелек по адресу %1$s\n    </string>
+    <string name="rate_message">Вам нравится Blockchain Wallet? Уделите пару минут и оставьте отзыв в Google Play, чтобы об этом узнали другие пользователи.\n    </string>
     <string name="rate_yes">Да, оценить Blockchain Wallet</string>
     <string name="rate_no">Нет, спасибо</string>
     <string name="rate_later">Напомнить позже</string>
@@ -498,30 +437,22 @@ Blockchain Wallet:
     <string name="email_request_body_bch">Отправьте BCH на адрес Bitcoin Cash %1$s.</string>
     <string name="email_request_body_xlm">Отправьте XLM на адрес Stellar %1$s.</string>
     <string name="email_request_body_fallback">прикреплено</string>
-    <string name="share_instructions">Нажмите, чтобы скопировать этот адрес. Поделитесь им с отправителем по электронной почте
-         или текстовым сообщением.
-    </string>
+    <string name="share_instructions">Нажмите, чтобы скопировать этот адрес. Поделитесь им с отправителем по электронной почте\n         или текстовым сообщением.\n    </string>
     <string name="common_pin_dialog_title">Внимание</string>
     <string name="share_failed">Невозможно поделиться с %1$s</string>
-    <string name="common_pin_dialog_message">Выбранный вами PIN-код содержит простую комбинацию символов и может
-         быть легко подобран человеком, имеющим доступ к вашему телефону, с помощью 3 попыток. Хотите использовать этот PIN-код все равно?
-    </string>
+    <string name="common_pin_dialog_message">Выбранный вами PIN-код содержит простую комбинацию символов и может\n         быть легко подобран человеком, имеющим доступ к вашему телефону, с помощью 3 попыток. Хотите использовать этот PIN-код все равно?\n    </string>
     <string name="common_pin_dialog_try_again">Попробовать еще раз</string>
     <string name="common_pin_dialog_continue">Продолжить</string>
     <string name="logged_out_enter_password">Не ваша учетная запись? Если вы хотите войти в другую учетную запись, нажмите «Забыть кошелек» ниже.</string>
     <string name="logged_out_forget_wallet">Если вы сотрете данные об этой учетной записи кошелька, вся информация кошелька на этом устройстве будет удалена. Перед этим убедитесь, что ваш пароль и фраза для восстановления секретного закрытого ключа хранятся в надежном месте.</string>
     <string name="forget_wallet">Забыть кошелек</string>
-    <string name="forget_wallet_warning">Это приведет к удалению всех данных кошелька на этом устройстве. Подтвердите, что информация о вашем кошельке сохранена в другом месте, в противном случае все содержащиеся в кошельке средства в биткойнах будут недоступны!!
-    </string>
+    <string name="forget_wallet_warning">Это приведет к удалению всех данных кошелька на этом устройстве. Подтвердите, что информация о вашем кошельке сохранена в другом месте, в противном случае все содержащиеся в кошельке средства в биткойнах будут недоступны!!\n    </string>
     <string name="api_fail">Невозможно подключиться к серверу. Пожалуйста, повторите попытку позже.</string>
-    <string name="large_tx_warning">Это масштабная биткойн-транзакция. Ваш кошелек должен
-         объединить множество мелких платежей, полученных вами ранее. Этот процесс предусматривает
-        повышенную ставку комиссии для ускорения подтверждения.</string>
+    <string name="large_tx_warning">Это масштабная биткойн-транзакция. Ваш кошелек должен\n         объединить множество мелких платежей, полученных вами ранее. Этот процесс предусматривает\n        повышенную ставку комиссии для ускорения подтверждения.</string>
     <string name="password_required">Требуется пароль</string>
     <string name="password_input_hint">Введите пароль</string>
     <string name="push_notifications">Всплывающие уведомления</string>
-    <string name="push_notifications_summary">Включите функцию получения всплывающих уведомлений о каждой входящей транзакции в биткойнах.
-    </string>
+    <string name="push_notifications_summary">Включите функцию получения всплывающих уведомлений о каждой входящей транзакции в биткойнах.\n    </string>
     <string name="tx_title_send">Отправить %s</string>
     <string name="tx_title_sent">Отправлено %s</string>
     <string name="tx_title_receive">Получить %s</string>
@@ -538,7 +469,7 @@ Blockchain Wallet:
     <string name="tx_title_swapped">Выполнен своп %1$s → %2$s</string>
     <string name="tx_title_transferred">Переведено %s</string>
     <string name="tx_title_fee">Комиссия %s</string>
-    <string name="tx_title_rewards">Получено %s вознаграждений</string>
+    <string name="tx_title_rewards">Получено %s Rewards</string>
     <string name="tx_title_add_with_ticker">Добавить %s</string>
     <string name="tx_title_added">Добавлено %s</string>
     <string name="transaction_detail_coinbase">Нет затрат (недавно сгенерированная криптовалюта)</string>
@@ -552,8 +483,7 @@ Blockchain Wallet:
     <string name="backup_instructions_warn">Предупреждение: если у кого-то есть ваша резервная фраза, он получит доступ к вашему Кошельку с закрытым ключом и сможет снимать средства.</string>
     <string name="backup_instructions_alert">Blockchain.com никогда не попросит просмотреть или прислать вашу фразу для восстановления.</string>
     <string name="backup_button_begin">Просмотр фразы для восстановления</string>
-    <string name="backup_write_down_words">Перепишите фразу на бумагу в точно том же виде и последовательности, в которых она отображена ниже.
-    </string>
+    <string name="backup_write_down_words">Перепишите фразу на бумагу в точно том же виде и последовательности, в которых она отображена ниже.\n    </string>
     <string name="backup_header_complete">Резервное копирование завершено</string>
     <string name="backup_complete_message_1">Вы можете использовать свою фразу для восстановления секретного закрытого ключа, чтобы возобновить доступ к вашим средствам, если Вы потеряете свой пароль. Любой, у кого есть доступ к вашей фразе для восстановления секретного закрытого ключа, может получить доступ к вашим средствам, поэтому помните, что держать ее нужно в безопасном месте и не в электронном виде. </string>
     <string name="backup_again">Повторить копирование</string>
@@ -570,29 +500,18 @@ Blockchain Wallet:
     <string name="fingerprint_hint">Прикоснитесь к сенсорному датчику</string>
     <string name="fingerprint_login_title">Биометрический вход</string>
     <string name="fingerprint_login_description">Используйте свои биометрические данные для входа в Кошелек.</string>
-    <string name="fingerprint_register_description">Используйте свои биометрические данные для более быстрого и легкого доступа к кошельку.
-
-Чтобы продолжить, подтвердите отпечаток пальца</string>
+    <string name="fingerprint_register_description">Используйте свои биометрические данные для более быстрого и легкого доступа к кошельку.\n\nЧтобы продолжить, подтвердите отпечаток пальца</string>
     <string name="fingerprint_use_pin">Войдите с помощью PIN-кода</string>
     <string name="biometric_disable_message">Вы уверены, что хотите отключить вход с помощью биометрических данных?</string>
     <string name="fingerprint_no_fingerprints_added">На этом устройстве еще не зарегистрированы отпечатки пальцев. Хотите зарегистрировать отпечаток пальца сейчас?</string>
     <string name="biometrics_key_invalidated_title">Биометрические данные изменены</string>
-    <string name="biometrics_key_invalidated_description">Биометрические данные, хранящиеся на этом устройстве, изменились, либо отключена блокировка клавиатуры. Вместо этого введите свой PIN-код.
-
-Затем вы можете снова настроить вход в систему с помощью биометрических данных в меню \"Настройки\".</string>
-    <string name="biometrics_key_invalidated_settings_description">Биометрические данные, хранящиеся на этом устройстве, изменились, либо отключена блокировка клавиатуры.
-
-Введите биометрические данные повторно и попробуйте еще раз.</string>
+    <string name="biometrics_key_invalidated_description">Биометрические данные, хранящиеся на этом устройстве, изменились, либо отключена блокировка клавиатуры. Вместо этого введите свой PIN-код.\n\nЗатем вы можете снова настроить вход в систему с помощью биометрических данных в меню \"Настройки\".</string>
+    <string name="biometrics_key_invalidated_settings_description">Биометрические данные, хранящиеся на этом устройстве, изменились, либо отключена блокировка клавиатуры.\n\nВведите биометрические данные повторно и попробуйте еще раз.</string>
     <string name="fingerprint_fatal_error_brief">Непредвиденная ошибка</string>
-    <string name="fingerprint_fatal_error_desc">Что-то пошло не так при попытке использовать биометрические данные, вместо этого воспользуйтесь своим PIN-кодом.
-
-Затем вы можете снова настроить вход в систему с помощью биометрических данных в меню \"Настройки\".
-Ошибка:%1$s</string>
+    <string name="fingerprint_fatal_error_desc">Что-то пошло не так при попытке использовать биометрические данные, вместо этого воспользуйтесь своим PIN-кодом.\n\nЗатем вы можете снова настроить вход в систему с помощью биометрических данных в меню \"Настройки\".\nОшибка:%1$s</string>
     <string name="biometrics_disabled_lockout_title">Ошибка при аутентификации</string>
     <string name="biometrics_disabled_lockout_desc">Вы предприняли слишком много неудачных попыток при аутентификации. Подождите 30 секунд и попробуйте еще раз.</string>
-    <string name="biometrics_disabled_lockout_perm_desc">Ваши биометрические датчики отключены, заблокируйте устройство и разблокируйте его, используя PIN-код, графический ключ или пароль для повторного их включения.
-
-После этого попробуйте еще раз.</string>
+    <string name="biometrics_disabled_lockout_perm_desc">Ваши биометрические датчики отключены, заблокируйте устройство и разблокируйте его, используя PIN-код, графический ключ или пароль для повторного их включения.\n\nПосле этого попробуйте еще раз.</string>
     <string name="biometrics_action_settings">Перейти в Настройки</string>
     <string name="biometrics_enrollment_title">Активировать доступ с помощью биометрических данных</string>
     <string name="biometrics_enrollment_desc">Быстро войдите в свой кошелек вместо того, чтобы использовать PIN-код.</string>
@@ -600,29 +519,19 @@ Blockchain Wallet:
     <string name="shortcut_receive_copy_long">Скопировать адрес получения в другое приложение</string>
     <string name="shortcut_receive_qr_short">Показать QR-код получения</string>
     <string name="shortcut_receive_qr_long">Просмотреть QR-код для адреса получения</string>
-    <string name="shortcut_receive_qr_error">Возникла ошибка при генерировании QR-кода
-    </string>
-    <string name="shortcut_settings_summary">Активируйте отображение адреса получения при долгом нажатии на ярлык приложения
-         на панели запуска, чтобы ускорить получение биткойнов.
-    </string>
+    <string name="shortcut_receive_qr_error">Возникла ошибка при генерировании QR-кода\n    </string>
+    <string name="shortcut_settings_summary">Активируйте отображение адреса получения при долгом нажатии на ярлык приложения\n         на панели запуска, чтобы ускорить получение биткойнов.\n    </string>
     <string name="shortcut_settings_enable">Ярлыки панели запуска</string>
     <string name="onboarding_fingerprint_title_1">Биометрический вход</string>
-    <string name="onboarding_fingerprint_summary_1">Используйте биометрический вход вместо PIN-кода для
- аутентификации и получения доступа к вашему кошельку.
-</string>
+    <string name="onboarding_fingerprint_summary_1">Используйте биометрический вход вместо PIN-кода для\n аутентификации и получения доступа к вашему кошельку.\n</string>
     <string name="onboarding_fingerprint_enable_1">Включить биометрию</string>
     <string name="onboarding_check_inbox_title">Проверь свои входящие</string>
-    <string name="onboarding_check_inbox_summary">Найдите входящее письмо от Blockchain, откройте его и перейдите по ссылке подтверждения, чтобы завершить настройку кошелька.
-    </string>
+    <string name="onboarding_check_inbox_summary">Найдите входящее письмо от Blockchain, откройте его и перейдите по ссылке подтверждения, чтобы завершить настройку кошелька.\n    </string>
     <string name="onboarding_verify_email">Подтвердите адрес электронной почты</string>
     <string name="onboarding_qr_codes">QR-коды</string>
     <string name="two_factor_dialog_title">Введите код двухфакторной аутентификации</string>
-    <string name="two_factor_dialog_message_authenticator">Пожалуйста, введите действительный код двухфакторной аутентификации со своего
-         приложения для проверки подлинности, чтобы продолжить.
-    </string>
-    <string name="two_factor_dialog_message_sms">Вам только что было отправлено SMS-сообщение, содержащее код двухфакторной аутентификации.
-      Введите его здесь, чтобы продолжить.
-    </string>
+    <string name="two_factor_dialog_message_authenticator">Пожалуйста, введите действительный код двухфакторной аутентификации со своего\n         приложения для проверки подлинности, чтобы продолжить.\n    </string>
+    <string name="two_factor_dialog_message_sms">Вам только что было отправлено SMS-сообщение, содержащее код двухфакторной аутентификации.\n      Введите его здесь, чтобы продолжить.\n    </string>
     <string name="two_factor_dialog_hint">Код двухфакторной аутентификации</string>
     <string name="two_factor_null_error">Поле с кодом двухфакторной аутентификации не может быть пустым</string>
     <string name="two_factor_incorrect_error">Код двухфакторной аутентификации неверный</string>
@@ -644,9 +553,7 @@ Blockchain Wallet:
     <string name="fee_options_sat_byte_min_error">Требуется минимум 1 сат/байт</string>
     <string name="fee_options_invalid_amount">Недействительная комиссия</string>
     <string name="second_password_dlg_title">Введите пароль</string>
-    <string name="eth_second_password_prompt">Чтобы воспользоваться этой услугой, вам необходимо ввести
-         второй пароль.
-    </string>
+    <string name="eth_second_password_prompt">Чтобы воспользоваться этой услугой, вам необходимо ввести\n         второй пароль.\n    </string>
     <string name="dashboard_title">Приборная доска</string>
     <string name="dashboard_time_span_last_day">Прошедший день</string>
     <string name="dashboard_time_span_last_month">Прошлый месяц</string>
@@ -667,19 +574,18 @@ Blockchain Wallet:
     <string name="dashboard_asset_actions_swap_dsc">Обменять %1$s на другую криптовалюту</string>
     <string name="dashboard_asset_actions_add_dsc">Добавьте %1$s на свой счет вознаграждений</string>
     <string name="dashboard_asset_actions_add_title">Добавить</string>
-    <string name="dashboard_asset_actions_withdraw_dsc_1">Выведите %1$s со своего счета вознаграждений</string>
+    <string name="dashboard_asset_actions_withdraw_dsc_1">Выведите %1$s со своего счета Rewards</string>
     <string name="dashboard_asset_actions_buy_dsc">Добавьте %1$s на свой процентный счет</string>
     <string name="dashboard_asset_actions_summary_title_1">Сводка вознаграждений</string>
-    <string name="dashboard_asset_actions_summary_dsc_1">Просмотреть накопленные вознаграждения %1$s</string>
-    <string name="dashboard_asset_actions_rewards_dsc_failed">Не удалось загрузить данные о вознаграждениях</string>
+    <string name="dashboard_asset_actions_summary_dsc_1">Просмотреть накопленные %1$s Rewards</string>
+    <string name="dashboard_asset_actions_rewards_dsc_failed">Не удалось загрузить данные о Rewards</string>
     <string name="asset_details_chart_load_failed_toast">Не удалось загрузить данные диаграммы, пожалуйста, попробуйте еще раз</string>
     <string name="asset_details_load_failed_toast">Не удалось загрузить данные кошелька, попробуйте еще раз</string>
     <string name="asset_details_exchange_load_failed_toast">Не удалось получить информацию о курсе, пожалуйста, попробуйте еще раз.</string>
     <string name="asset_details_exchange_load_failed_toast_1">Не удалось загрузить информацию о курсе, пожалуйста, попробуйте еще раз.</string>
     <string name="asset_details_delta_load_failed_toast">Не удалось загрузить информацию о ценах, попробуйте еще раз</string>
     <string name="dashboard_asset_actions_tx_in_progress">В данный момент уже выполняется транзакция. Пожалуйста, подождите, пока она завершится</string>
-    <string name="force_upgrade_message">Версия приложения, которую вы используете, больше не
-         поддерживается. Обновите приложение и попробуйте еще раз.</string>
+    <string name="force_upgrade_message">Версия приложения, которую вы используете, больше не\n         поддерживается. Обновите приложение и попробуйте еще раз.</string>
     <string name="activities_title">Активность</string>
     <string name="tx_decode_error">Невозможно расшифровать адрес</string>
     <string name="bch_address_warning">Вы уверены, что это адрес Bitcoin Cash?</string>
@@ -730,7 +636,7 @@ Blockchain Wallet:
     <string name="sell_announcement_description">Продавайте прямо со своих торговых кошельков на кошелек наличных.</string>
     <string name="sell_announcement_action">Продать сейчас</string>
     <string name="rewards_announcement_title">Зарабатывайте вознаграждения за криптовалюту уже сегодня!</string>
-    <string name="rewards_announcement_description">Переведите криптовалюту и начните зарабатывать вознаграждения в BTC, ETH и многом другом.</string>
+    <string name="rewards_announcement_description">Переведите криптовалюту и начните зарабатывать вознаграждения Rewards в BTC, ETH и многом другом.</string>
     <string name="rewards_announcement_action">Узнать больше</string>
     <string name="domain_announcement_title">Представляем отправку в домены</string>
     <string name="domain_announcement_description">Вы можете отправлять деньги напрямую на зарегистрированные домены Unstoppable и ENS. Отправляйте криптовалюту в расширения .crypto, .eth, .xyz и многие другие!</string>
@@ -741,13 +647,13 @@ Blockchain Wallet:
     <string name="re_verify_identity_card_title">Требуется проверка</string>
     <string name="re_verify_identity_card_body">Пожалуйста, подтвердите свою личность, чтобы получить доступ к нашим полным продуктам и услугам</string>
     <string name="re_verify_identity_card_cta">Подтвердить аккаунт</string>
-    <string name="rename_asset_card_title">%s имеет новое имя</string>
+    <string name="rename_asset_card_title">У %s новое название</string>
     <string name="rename_asset_card_body">Внимание! %1$s переименован в %2$s. Ни один из балансов не затронут.</string>
-    <string name="rename_asset_card_cta">Торговать %s</string>
+    <string name="rename_asset_card_cta">Торговля %s</string>
     <string name="wallet_connect_announcement_card_title">WalletConnect теперь доступен!</string>
     <string name="wallet_connect_announcement_card_subtitle">Надежно подключите свой Wallet к любому приложению Web 3.0.</string>
     <string name="wallet_connect_announcement_action">Подробнее</string>
-    <string name="nft_announcement_title">Просмотр NFT в вашем Wallet</string>
+    <string name="nft_announcement_title">Просмотр NFT в вашем кошельке Wallet</string>
     <string name="nft_announcement_description">Вскоре вы сможете просматривать свои NFT прямо из кошелька.</string>
     <string name="nft_announcement_action">Присоединиться к списку ожидания</string>
     <string name="gpay_announcement_title">Новинка: Google Pay</string>
@@ -765,16 +671,14 @@ Blockchain Wallet:
     <string name="custody_intro_title_1">Ваш торговый счет</string>
     <string name="custody_intro_body">Когда вы покупаете криптовалюту, мы надежно храним ваши средства от вашего имени на криптовалютном торговом счете. Вы можете сохранить их у нас или перенести на свой кошелек с закрытым ключом (или не попечительский), чтобы собственноручно распоряжаться и контролировать свои доходы.</string>
     <string name="backup_before_send_title">Сделайте резервную копию вашего кошелька</string>
-    <string name="backup_before_send_body_1">Ваша фраза для восстановления секретного закрытого ключа позволит вам восстановить доступ к своим криптовалютам, если вы потеряете доступ к своему кошельку.
-
-Запишите эти 12 слов по порядку и храните их в безопасном месте. Никогда не делись ими ни с кем. Ваша фраза для восстановления секретного закрытого ключа необходима для восстановления доступа к вашим криптовалютам, если вы когда-либо утратите его.</string>
+    <string name="backup_before_send_body_1">Ваша фраза для восстановления секретного закрытого ключа позволит вам восстановить доступ к своим криптовалютам, если вы потеряете доступ к своему кошельку. \n\nЗапишите эти 12 слов по порядку и храните их в безопасном месте. Никогда не делись ими ни с кем. Ваша фраза для восстановления секретного закрытого ключа необходима для восстановления доступа к вашим криптовалютам, если вы когда-либо утратите его.</string>
     <string name="backup_before_send_cta">Резервное копирование сейчас</string>
     <string name="backup_before_send_later_cta">Продолжить без резервного копирования</string>
     <plurals name="backup_before_send_later_label">
-        <item quantity="one">Вы отправили %1$d без резервного копирования</item>
-        <item quantity="few"></item>
-        <item quantity="many"></item>
-        <item quantity="other">Вы отправили %1$d без резервного копирования.</item>
+        <item quantity="one">Вы совершили %1$d операцию отправки без резервного копирования</item>
+        <item quantity="few">Вы совершили %1$d операции отправки без резервного копирования</item>
+        <item quantity="many">Вы совершили %1$d операций отправки без резервного копирования</item>
+        <item quantity="other">Вы совершили %1$d операций отправки без резервного копирования.</item>
     </plurals>
     <string name="backup_before_send_now_label">Перед отправкой необходимо сделать резервную копию</string>
     <string name="airdrop_status_date_active">Дата раздач %1s</string>
@@ -1058,17 +962,13 @@ Blockchain Wallet:
     <string name="kyc_manual_review_required">Требуется ручной просмотр</string>
     <string name="kyc_pending_review">Ожидает оценки</string>
     <string name="kyc_veriff_but_not_eligible_review">Заявка подана</string>
-    <string name="kyc_veriff_but_not_eligible_review_info">Ваша личность успешно подтверждена. Теперь у вас Полный доступ, и вы можете осуществлять торговую деятельность на сумму до 25 000 долл. США в день.
-
-В вашем регионе функция покупки пока недоступна. Мы сообщим вам, когда это изменится.</string>
+    <string name="kyc_veriff_but_not_eligible_review_info">Ваша личность успешно подтверждена. Теперь у вас Полный доступ, и вы можете осуществлять торговую деятельность на сумму до 25 000 долл. США в день.\n\nВ вашем регионе функция покупки пока недоступна. Мы сообщим вам, когда это изменится.</string>
     <string name="simple_buy_securely_transfer">Безопасно переводите %1$s со своего банковского счета в Blockchain. В зависимости от способа перевода и наличия средств это может занять до 1 рабочего дня.</string>
     <string name="simple_buy_bank_account_sheet_instructions">Переведите %1$s со своего банковского счета на Blockchain.com. Как только мы получим средства, мы создадим ордер на покупку %2$s.</string>
     <string name="simple_buy_amount_to_send">Сумма к отправке</string>
     <string name="simple_buy_pending_buy_sheet_title">Покупка %1s в обработке</string>
     <string name="recipient_name_must_match_eur">Для успешного выполнения перевода средств, имя получателя должно совпадать с именем владельца банковского счета. Если имена не совпадают, ваш перевод может быть отклонен.</string>
-    <string name="recipient_name_must_match_gbp">Для успешного выполнения перевода средств, имя получателя должно совпадать с именем владельца банковского счета. Если имена не совпадают, ваш перевод может быть отклонен.
-
-Внося средства на этот счет, вы соглашаетесь с <annotation link="modular_terms_and_conditions">Условиями и Положениями Modulr</annotation> — нашего банка-партнера.</string>
+    <string name="recipient_name_must_match_gbp">Для успешного выполнения перевода средств, имя получателя должно совпадать с именем владельца банковского счета. Если имена не совпадают, ваш перевод может быть отклонен.\n\nВнося средства на этот счет, вы соглашаетесь с <annotation link="modular_terms_and_conditions">Условиями и Положениями Modulr</annotation> — нашего банка-партнера.</string>
     <string name="by_depositing_funds_terms_and_conds">Внося средства на этот счет, вы соглашаетесь с <annotation link="modular_terms_and_conditions">Условиями и положениями Modulr</annotation> – нашего банковского партнера.</string>
     <string name="add_bank_with_currency">Добавить банк %1s</string>
     <string name="deposit_currency">Внести на счет %1s</string>
@@ -1098,12 +998,9 @@ Blockchain Wallet:
     <string name="account_holder">Владелец счета</string>
     <string name="estonia">Эстония</string>
     <string name="lets_setup_wallet">Давайте настроим ваш кошелек. Вы можете быстро купить криптовалюту прямо сейчас или сделать это позже.</string>
-    <string name="buy_now">Купить сейчас</string>
     <string name="buy_asset_now">Купить %1s сейчас</string>
     <string name="preview_buy">Предварительный просмотр покупки</string>
-    <string name="simple_buy_transfer_details_error">Что-то пошло не так при загрузке данных перевода.
-
-Пожалуйста, попробуйте позже.</string>
+    <string name="simple_buy_transfer_details_error">Что-то пошло не так при загрузке данных перевода. \n\nПожалуйста, попробуйте позже.</string>
     <string name="payment_methods_bank_transfer">Если вы предпочитаете сначала внести средства прямо со своего банковского счета, следуйте инструкциям на следующей странице. Как только ваш депозит поступит на ваш счет Blockchain.com, вы можете вернуться сюда, чтобы купить криптовалюту.</string>
     <string name="payment_methods_make_deposit">Внести средства -&gt;</string>
     <string name="alias_tooltip">Банковский псевдоним позволяет вам идентифицировать свой банковский счет намного проще, чем с 22 цифрами CBU.</string>
@@ -1146,7 +1043,7 @@ Blockchain Wallet:
     <string name="linking_card_subtitle">Это может занять до 1 минуты.</string>
     <string name="linking_card_error_title">Ой! Что-то пошло не так.</string>
     <string name="linking_card_success_title">Ваша карта успешно привязана!</string>
-    <string name="linking_card_success_subtitle">Теперь вы можете его использовать для простой и безопасной покупки криптовалюты.</string>
+    <string name="linking_card_success_subtitle">Теперь вы можете ее использовать для простой и безопасной покупки криптовалюты.</string>
     <string name="order_error_subtitle">Не беспокойтесь. Ваши деньги в безопасности. Попробуйте еще раз или обратитесь за помощью в нашу службу поддержки.</string>
     <string name="order_error_subtitle_rb">Не беспокойтесь. Ваши деньги в безопасности. Не удалось сохранить вашу %1$s повторяющуюся покупку %2$s. Пожалуйста, попробуйте еще раз или обратитесь за помощью в нашу службу поддержки.</string>
     <string name="card_expiry_date">Срок действия: %1s</string>
@@ -1218,15 +1115,14 @@ Blockchain Wallet:
     <string name="activity_details_label_confirming">Подтверждение</string>
     <string name="activity_details_label_cancelled">Отменена</string>
     <string name="activity_details_label_waiting_on_funds">Ожидание средств</string>
-    <string name="activity_details_label_confirmations">%1$d из %2$d
-подтверждений</string>
+    <string name="activity_details_label_confirmations">%1$d из %2$d\nподтверждений</string>
     <string name="activity_details_title_fee">Комиссия Gas</string>
     <string name="activity_details_transaction_fee">Gas за</string>
     <string name="activity_details_exchange_rate">Обменный курс</string>
     <string name="activity_details_exchange_rate_value">%1$s / %2$s</string>
     <string name="activity_details_label_pending_execution">Ожидание выполнения</string>
     <string name="activity_details_buy_tx_id">Номер(ID) Транзакции</string>
-    <string name="activity_details_buy_deposited_to">Депонировано в</string>
+    <string name="activity_details_buy_deposited_to">Внесено в</string>
     <string name="activity_details_buy_purchase_amount_1">Всего</string>
     <string name="activity_details_buy_fee">Комиссия</string>
     <string name="activity_details_buy_payment_method">Способ оплаты</string>
@@ -1342,9 +1238,9 @@ Blockchain Wallet:
     <string name="tx_enter_amount_transactions_limit_info_action_title">Разблокируйте больше после подтверждения</string>
     <string name="tx_tier_suggested_upgrade_info_action_description">Обновите свой Wallet</string>
     <string name="tx_tier_suggested_upgrade_info_action_cta_button">ПЕРЕЙТИ</string>
-    <string name="tx_periodic_limit_daily">день</string>
-    <string name="tx_periodic_limit_monthly">месяц</string>
-    <string name="tx_periodic_limit_yearly">год</string>
+    <string name="tx_periodic_limit_daily">в день</string>
+    <string name="tx_periodic_limit_monthly">в месяц</string>
+    <string name="tx_periodic_limit_yearly">в год</string>
     <string name="send_enter_amount_network_fees">Сетевые комиссии</string>
     <string name="send_enter_amount_total">Всего</string>
     <string name="send_enter_amount_max_fee">Максимальная сетевая комиссия</string>
@@ -1365,16 +1261,13 @@ Blockchain Wallet:
     <string name="swap_confirmation_cta_button">Обменять сейчас</string>
     <string name="deposit_source_select_title">Связанные банки</string>
     <string name="deposit_confirmation_cta_button">Внести депозит сейчас</string>
-    <string name="deposit_enter_amount_limit_title">Лимит</string>
     <string name="deposit_enter_amount_limit_label">Доступно %1$s</string>
     <string name="enter_amount_not_enough_balance">Недостаточно средств для комиссии</string>
     <string name="deposit_confirmation_progress_title">Депозит %1$s</string>
     <string name="deposit_confirmation_progress_message">Сейчас мы завершаем ваш депозит.</string>
-    <string name="sign_confirmation_progress_message">Мы подписываем вашу транзакцию прямо сейчас.</string>
+    <string name="sign_confirmation_progress_message">В настоящий момент мы подписываем вашу транзакцию.</string>
     <string name="deposit_confirmation_success_title">%1$s внесено!</string>
-    <string name="deposit_confirmation_success_message">Пока мы ждем перечисления денежных средств вашим банком, предоставляем вам ранний доступ к %1$s на вашем наличном счете %2$s, чтобы вы могли сразу приступить к покупке криптовалюты.
-
-Средства будут доступны для вывода после завершения банковского перевода %3$s.</string>
+    <string name="deposit_confirmation_success_message">Пока мы ждем перечисления денежных средств вашим банком, предоставляем вам ранний доступ к %1$s на вашем наличном счете %2$s, чтобы вы могли сразу приступить к покупке криптовалюты. \n\nСредства будут доступны для вывода после завершения банковского перевода %3$s.</string>
     <string name="deposit_confirmation_pending_title">Мы ожидаем ваш банк</string>
     <string name="deposit_confirmation_pending_subtitle">Подождите, пока мы подтвердим транзакцию. Вы можете безопасно закрыть это и проверить прогресс на вкладке «Активность».</string>
     <string name="deposit_confirmation_timeout_title">К сожалению, подтверждение транзакции заняло слишком много времени!</string>
@@ -1411,9 +1304,9 @@ Blockchain Wallet:
     <string name="send_progress_sending_subtitle">Сейчас мы осуществляем вашу трансакцию.</string>
     <string name="send_progress_complete_title">%1$s отправлены</string>
     <string name="sell_progress_awaiting_complete_title">Продажа в процессе выполнения</string>
-    <string name="send_progress_awaiting_complete_title">Идет отправка</string>
+    <string name="send_progress_awaiting_complete_title">Выполняется отправка</string>
     <string name="sell_progress_complete_title">Продано %1$s</string>
-    <string name="swap_progress_awaiting_complete_title">Идет обмен</string>
+    <string name="swap_progress_awaiting_complete_title">Выполняется обмен</string>
     <string name="swap_progress_complete_title">Своп завершен</string>
     <string name="rewards_enter_amount_error_insufficient_funds_for_fees">В вашем кошельке недостаточно %1$s для перевода с текущими сетевыми комиссиями.</string>
     <string name="send_progress_complete_subtitle">Ваши %1$s успешно отправлены.</string>
@@ -1435,8 +1328,7 @@ Blockchain Wallet:
     <string name="send_enter_unexpected_error">Произошла непредвиденная ошибка. Попробуйте еще раз.</string>
     <string name="send_enter_insufficient_gas">У вас недостаточно ETH для обработки этой транзакции.</string>
     <string name="send_select_a_wallet_title">или выберите Кошелек</string>
-    <string name="send_select_a_wallet_warning">Отправляйте %1$s только на кошельки в сети (%2$s).
-<annotation link="send_network_options">Подробнее</annotation></string>
+    <string name="send_select_a_wallet_warning">Отправляйте %1$s только на кошельки в сети (%2$s).\n<annotation link="send_network_options">Подробнее</annotation></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s) – это токен, который может быть доступен в нескольких сетях. Перед отправкой убедитесь, что вы знаете сеть адреса кошелька, на который отправляете.</string>
     <string name="send_transfer_accounts_title">Перевод между вашими счетами</string>
     <string name="send_domain_alert_title">Отправить на крипто-домен</string>
@@ -1466,8 +1358,8 @@ Blockchain Wallet:
     <string name="tx_enter_amount_swap_cta">Предварительный просмотр обмена</string>
     <string name="tx_enter_amount_sell_cta">Предварительный просмотр продажи</string>
     <string name="tx_enter_amount_transfer_cta">Предварительный просмотр перевода</string>
-    <string name="tx_enter_amount_deposit_cta">Предварительный депозит</string>
-    <string name="tx_enter_amount_withdraw_cta">Предварительный вывод</string>
+    <string name="tx_enter_amount_deposit_cta">Предварительный просмотр депозита</string>
+    <string name="tx_enter_amount_withdraw_cta">Предварительный просмотр вывода</string>
     <string name="tx_enter_amount_orders_limit_info">%1$d транзакция разрешена, подтвердите сейчас - &gt;</string>
     <string name="tx_confirmation_countdown">Новое предложение через %1$s</string>
     <string name="not_enough_funds">Недостаточно %1$s</string>
@@ -1475,11 +1367,11 @@ Blockchain Wallet:
     <string name="not_enough_funds_send">Максимальная сумма, которую вы можете отправить из этого кошелька, составляет %1$s. Купите %2$s сейчас, чтобы отправить эту сумму.</string>
     <string name="common_actions_not_enough_funds">Максимальная сумма %1$s, которую вы можете %2$s из этого аккаунта, составляет %3$s.</string>
     <string name="minimum_withdraw_error_message">Чтобы компенсировать комиссии, минимальная сумма вывода составляет %1$s.</string>
-    <string name="over_your_limit">Превышение вашего лимита</string>
+    <string name="over_your_limit">Сверх вашего лимита</string>
     <string name="minimum_swap_error_message">Чтобы избежать ненужных комиссий и проскальзывания сети, минимальная сумма для этой пары составляет %1$s.</string>
     <string name="minimum_buy_error_message">Чтобы компенсировать комиссии и волатильность рынка, минимальная сумма для любой покупки составляет %1$s.</string>
     <string name="minimum_sell_error_message">Минимальная сумма, которую вы можете продать, составляет %1$s.</string>
-    <string name="minimum_deposit_error_message">Минимальная сумма, которую вы можете внести, составляет %1$s .</string>
+    <string name="minimum_deposit_error_message">Минимальная сумма, которую вы можете внести, составляет %1$s.</string>
     <string name="earn_rewards">Зарабатывайте Rewards</string>
     <string name="rewards_summary_total">Всего заработанных Rewards</string>
     <string name="rewards_summary_next_payment">Следующая выплата вознаграждений</string>
@@ -1492,7 +1384,7 @@ Blockchain Wallet:
     <string name="rewards_dashboard_item_action_earn">Зарабатывайте Rewards</string>
     <string name="rewards_dashboard_item_action_view">Посмотреть</string>
     <string name="rewards_item_issue_region">Недоступно в вашем регионе</string>
-    <string name="rewards_item_issue_kyc">Чтобы начать зарабатывать Rewards, необходимо иметь Полный доступ</string>
+    <string name="rewards_item_issue_kyc">Чтобы начать зарабатывать вознаграждения Rewards, необходимо иметь полный доступ</string>
     <string name="rewards_dashboard_item_rate_1">Зарабатывайте до </string>
     <string name="rewards_dashboard_item_rate_2"> ежегодно на своих %1$s</string>
     <string name="rewards_dashboard_verify_title">Зарабатывайте Rewards за криптовалюту</string>
@@ -1502,11 +1394,10 @@ Blockchain Wallet:
     <string name="rewards_dashboard_verify_point_two_title">Купить криптовалюту</string>
     <string name="rewards_dashboard_verify_point_two_label">Используйте Банковский перевод, Дебит или Кредит карту для оплаты любой покупки криптовалют.</string>
     <string name="rewards_dashboard_verify_point_three_title">Зарабатывайте Rewards</string>
-    <string name="rewards_dashboard_verify_point_three_label">Переводите средства на свой счет вознаграждений и получайте ежемесячные вознаграждения.</string>
+    <string name="rewards_dashboard_verify_point_three_label">Переводите средства на свой счет Rewards и получайте ежемесячные платежи Rewards.</string>
     <string name="rewards_summary_disclaimer_label">Используйте веб-кошелек для вывода средств</string>
     <string name="rewards_error_title">Не удается загрузить данные о вознаграждениях</string>
-    <string name="rewards_error_desc">При загрузке данных о счете вознаграждений произошла ошибка.
-Проверьте подключение к интернету и повторите попытку, или обратитесь в службу поддержки, если проблема сохранится.</string>
+    <string name="rewards_error_desc">При загрузке данных о счете вознаграждений произошла ошибка.\nПроверьте подключение к интернету и повторите попытку, или обратитесь в службу поддержки, если проблема сохранится.</string>
     <string name="buy_and_sell">Покупка и продажа</string>
     <string name="buy_with_cash">Покупайте за наличные или с помощью карты</string>
     <string name="select_crypto_you_want">Выберите криптовалюту, которую хотите купить.</string>
@@ -1530,12 +1421,12 @@ Blockchain Wallet:
     <string name="sell_info_action">Отправить сейчас →</string>
     <string name="sell_intro_empty_title">Нет кошельков для продаж</string>
     <string name="sell_intro_empty_label">Похоже, у вас нет кошельков со средствами, которые вы можете продать, попробуйте сначала пополнить кошельки.</string>
-    <string name="buy_large_amounts">Покупайте большие суммы</string>
-    <string name="buy_small_amounts">Покупайте небольшие суммы</string>
+    <string name="buy_large_amounts">Покупка больших сумм</string>
+    <string name="buy_small_amounts">Покупка небольших сумм</string>
     <string name="scan_mismatch_transaction_target">Отсканированный код не является QR-кодом %1$s.</string>
     <string name="scan_failed">QR-код не распознан, попробуйте еще раз.</string>
     <string name="scan_no_available_account">Нет доступных источников финансирования для отправки %1$s</string>
-    <string name="scan_no_account_selected">Аккаунт для отправки %1$s не выбран. Чтобы продолжить, отсканируйте счет еще раз</string>
+    <string name="scan_no_account_selected">Аккаунт для отправки %1$s не выбран. Чтобы продолжить, отсканируйте счет-фактуру еще раз</string>
     <string name="could_not_save_card">Нам не удалось сохранить вашу карту. Пожалуйста, обратитесь в службу поддержки.</string>
     <string name="could_not_activate_card">Нам не удалось активировать вашу карту. Пожалуйста, обратитесь в службу поддержки.</string>
     <string name="card_still_pending">Мы подождали две минуты и не получили обновления от нашей платежной системы. Ваша карта может быть утверждена позже. Пожалуйста, свяжитесь со службой поддержки если у вас есть какие-либо вопросы.</string>
@@ -1552,8 +1443,7 @@ Blockchain Wallet:
     <string name="blocked_by_local_laws">Заблокировано местными законами</string>
     <string name="error_contact_support">Если вы считаете, что это была ошибка, или вы хотите вручную проверить свой аккаунт, пожалуйста, обратитесь в службу поддержки.</string>
     <string name="sell_is_coming_soon">Скоро будет доступна покупка и продажа</string>
-    <string name="sell_is_coming_soon_description">В настоящее время мы не поддерживаем продажу или покупку криптовалюты в вашем регионе. Мы уведомим вас, когда ситуация изменится.
-Однако вы можете использовать кошелек для управления своей криптовалютой.</string>
+    <string name="sell_is_coming_soon_description">В настоящее время мы не поддерживаем продажу или покупку криптовалюты в вашем регионе. Мы уведомим вас, когда ситуация изменится.\nОднако вы можете использовать кошелек для управления своей криптовалютой.</string>
     <string name="swap_header_title">Обменяйте свою криптовалюту</string>
     <string name="swap_header_label">Мгновенно обменивайте свою криптовалюту на любую валюту, которую мы предлагаем для вашего кошелька.</string>
     <string name="swap_kyc_title">Подтвердите свой идентификатор. Обменивайте сегодня.</string>
@@ -1579,8 +1469,7 @@ Blockchain Wallet:
     <string name="swap_kyc_upsell_2_desc">Это необходимо для того, чтобы удостовериться, что вы – человек. Роботы запрещены.</string>
     <string name="swap_kyc_upsell_3_title">Обменивайте до $25,000 в день</string>
     <string name="swap_kyc_upsell_3_desc">После подтверждения вернитесь в раздел «Обмен» и обменяйте свою криптовалюту.</string>
-    <string name="swap_trading_sheet_title">Быстрее. Дешевле. Эффективнее
-Обмен криптовалюты на свой торговый кошелек.</string>
+    <string name="swap_trading_sheet_title">Быстрее. Дешевле. Эффективнее\nОбмен криптовалюты на свой торговый кошелек.</string>
     <string name="swap_trading_sheet_subtitle">Получите более низкие комиссии и удвоите скорость обработки транзакций, когда вы обмениваете криптовалюту с любого торгового кошелька.</string>
     <string name="swap_trading_fees_title">Тот же Swap, но с более низкой комиссией</string>
     <string name="swap_trading_fees_subtitle">Вы платите нулевую плату за сеть, обменивая криптовалюту вне сети</string>
@@ -1612,16 +1501,11 @@ Blockchain Wallet:
     <string name="qr_activity_hint_import_wallet">Сканирование закрытого ключа кошелька</string>
     <string name="qr_activity_hint_pairing_code">Отсканируйте QR-код для веб-сопряжения</string>
     <string name="qr_activity_hint_new_web_login">Авторизуйтесь в сети</string>
-    <string name="security_locked_card_funds_explanation_1">В целях вашей безопасности при первой покупке картой действует %1$s-дневный период удержания, прежде чем вы сможете отправить или вывести купленную криптовалюту. Мы сообщим вам, когда период удержания закончится.
-
- А пока вы можете продавать за наличные, обменивать и торговать на Blockchain.com.</string>
-    <string name="security_locked_funds_bank_transfer_explanation">Ваша окончательная сумма может измениться из-за активности на рынке. К вашим средствам будет применен первоначальный период удержания длительностью %s дней. Вы можете покупать и обменивать средства в течение этого периода.</string>
+    <string name="security_locked_card_funds_explanation_1">В целях вашей безопасности при первой покупке картой действует %1$s-дневный период удержания, прежде чем вы сможете отправить или вывести купленную криптовалюту. Мы сообщим вам, когда период удержания закончится. \n\n А пока вы можете продавать за наличные, обменивать и торговать на Blockchain.com.</string>
+    <string name="security_locked_funds_bank_transfer_explanation">Окончательная сумма может измениться из-за активности на рынке. К вашим средствам будет применен первоначальный период удержания длительностью %s дней. Вы можете покупать и обменивать средства в течение этого периода.</string>
     <string name="security_locked_funds_bank_transfer_explanation_1">Ваша окончательная сумма может измениться из-за активности на рынке. К вашим средствам будет применен первоначальный период удержания длительностью %s дней. В течение этого периода вы можете продавать и обменивать средства. Мы сообщим вам, как только средства станут доступны для вывода.</string>
     <string name="security_no_lock_bank_transfer_explanation">Ваша окончательная сумма может измениться из-за активности на рынке. Ваши средства будут доступны для продажи, обмена или снятия мгновенно.</string>
-    <string name="security_locked_funds_bank_transfer_payment_screen_explanation">Эти средства теперь доступны для продажи и обмена.
-
-Примечание: вы не сможете отправлять или выводить эти средства со своего кошелька в течение следующих %1$s дней.
-</string>
+    <string name="security_locked_funds_bank_transfer_payment_screen_explanation">Эти средства теперь доступны для продажи и обмена.\n\nПримечание: вы не сможете отправлять или выводить эти средства со своего кошелька в течение следующих %1$s дней.\n</string>
     <string name="content_desc_enter_amount">Введите сумму</string>
     <string name="content_desc_edit_account_label">Изменить ярлык учетной записи</string>
     <string name="pin_box_0">Поле ввода Pin-кода 0</string>
@@ -1654,8 +1538,7 @@ Blockchain Wallet:
     <string name="add_new_bank_account">+ Добавить новый банковский счет</string>
     <string name="yodlee_splash_title_partner">Blockchain.com использует Yodlee для проверки ваших банковских реквизитов и надежной привязки ваших счетов.</string>
     <string name="yodlee_splash_title">Безопасное соединение</string>
-    <string name="yodlee_splash_blurb">Yodlee надежно хранит ваши учетные данные, соблюдая ведущие отраслевые методы обеспечения безопасности данных, нормативные требования и конфиденциальность.
- <annotation link="yodlee_learn_more">Подробнее</annotation></string>
+    <string name="yodlee_splash_blurb">Yodlee надежно хранит ваши учетные данные, соблюдая ведущие отраслевые методы обеспечения безопасности данных, нормативные требования и конфиденциальность.\n <annotation link="yodlee_learn_more">Подробнее</annotation></string>
     <string name="yodlee_connection_title">Переходим к Yodlee…</string>
     <string name="yodlee_connection_subtitle">Это может занять до 30 секунд.</string>
     <string name="yodlee_linking_title">Возвращаемся к вашему кошельку…</string>
@@ -1673,10 +1556,10 @@ Blockchain Wallet:
     <string name="add_a_deposit_method">Выберите метод депозита</string>
     <string name="link_a_bank_wire_transfer">Соедините банк с вашим Кошельком, отправив любую сумму с помощью электронного банковского перевода. Примечание: Это происходит гораздо медленнее, и с вас могут взиматься высокие банковские сборы.</string>
     <string name="link_a_bank_bank_transfer">Установите безопасное соединение с банком, чтобы покупать криптовалюту, вносить деньги на депозит и выводить их обратно на свою банковскую карту в любое время</string>
-    <string name="bank_transfer_blurb_pounds">Переводы осуществляются через британскую систему быстрых платежей и обычно поступают за считанные секунды.</string>
-    <string name="bank_transfer_blurb_dollars">Для перевода больших сумм. Могут взиматься банковские комиссии.</string>
+    <string name="bank_transfer_blurb_pounds">Переводы осуществляются через британскую систему Faster Payments и обычно поступают за считанные секунды.</string>
+    <string name="bank_transfer_blurb_dollars">Для перевода больших сумм (могут взиматься банковские комиссии).</string>
     <string name="bank_transfer_blurb_euros">Могут взиматься банковские комиссии.</string>
-    <string name="bank_transfer_blurb_ars">Переводите средства прямо со своего банковского счета. Могут взиматься банковские комиссии.</string>
+    <string name="bank_transfer_blurb_ars">Переводите средства прямо со своего банковского счета (могут взиматься банковские комиссии).</string>
     <string name="bank_transfer_blurb_default">Обратитесь непосредственно в свой банк для получения информации о времени расчетов и банковских комиссиях.</string>
     <string name="easy_bank_transfer_blurb">Быстро и надежно, без введения данных аккаунта.</string>
     <string name="trading_order_limit">У вас слишком много трансакций %1$s в ожидании. Когда они будут завершены, вы сможете создать новую.</string>
@@ -1698,10 +1581,9 @@ Blockchain Wallet:
     <string name="trading_direction_disabled">Ой! Эта услуга в настоящий момент недоступна, пожалуйста, попробуйте еще раз позже.</string>
     <string name="trading_quote_invalid_or_expired">Ой! Сумма, которую мы указали, больше недействительна, пожалуйста, попробуйте еще раз.</string>
     <string name="executing_transaction_error">Ой! При выполнении ончейн-транзакции %1$s что-то пошло не так.</string>
-    <string name="executing_connection_error">Похоже, проблема с подключением к Интернету. Проверьте и попробуйте снова.</string>
-    <string name="common_http_error_with_message">Ой! Что-то пошло не так %1$s .</string>
-    <string name="common_http_error_with_new_line_message">Ой! Что-то пошло не так.
-%1$s</string>
+    <string name="executing_connection_error">Похоже, возникла проблема с подключением к Интернету. Проверьте подключение и попробуйте еще раз.</string>
+    <string name="common_http_error_with_message">Ой! Что-то пошло не так %1$s.</string>
+    <string name="common_http_error_with_new_line_message">Ой! Что-то пошло не так.\n%1$s</string>
     <string name="invalid_domain_address">Неверный адрес домена</string>
     <string name="trading_ineligible_for_swap">Ой! Эта услуга в настоящее время недоступна. Пожалуйста, обратитесь в службу поддержки.</string>
     <string name="trading_invalid_destination_amount">Ой! Похоже, что это неверная сумма, попробуйте еще раз.</string>
@@ -1745,7 +1627,7 @@ Blockchain Wallet:
     <string name="cash_accounts_description">Храните USD, GBP или EUR в своем кошельке. Для покупки криптовалюты используйте остаток на счете. Продавайте криптовалюту за наличные в любое время.</string>
     <string name="link_a_bank_description">Храните USD, GBP или EUR в своем кошельке. Для покупки криптовалюты используйте остаток на счете. Продавайте криптовалюту за наличные в любое время.</string>
     <string name="earn_rewards_description" formatted="false">Заставьте свою криптовалюту работать. Зарабатывайте до 10% в месяц, ничего не делая. Мгновенно вносите средства на счет и начинайте зарабатывать.</string>
-    <string name="sb_checkout_daily_limit_title">Превышен дневной лимит</string>
+    <string name="sb_checkout_daily_limit_title">Превышен лимит</string>
     <string name="sb_checkout_daily_limit_blurb">Похоже, вы исчерпали дневной лимит транзакций для покупок и депозитов. Попробуйте еще раз завтра.</string>
     <string name="sb_checkout_weekly_limit_title">Превышен еженедельный лимит</string>
     <string name="sb_checkout_weekly_limit_blurb">Похоже, вы исчерпали недельный лимит транзакций для покупок и депозитов. Попробуйте еще раз завтра.</string>
@@ -1778,16 +1660,8 @@ Blockchain Wallet:
     <string name="yapily_agreement_title_4">О доступе</string>
     <string name="yapily_agreement_blurb_4_1">%1$s будет использовать эти данные с Blockchain исключительно для целей покупки криптовалют. Этот доступ действителен до %2$s, вы можете отменить согласие в любое время в настройках блокчейна или через свой банк. Этот запрос не является одноразовым, вы будете продолжать получать запросы на согласие по мере истечения срока действия более старых версий.</string>
     <string name="yapily_agreement_blurb_4_2">%1$s Условия и положения доступны по следующей ссылке <a>https://yapi.ly/GDNT</a></string>
-    <string name="yapily_agreement_blurb_5">Чтобы поделиться своими данными %1$s с Blockchain, вы будете безопасно перенаправлены в свой банк, чтобы подтвердить свое согласие на чтение YapilyConnect следующей информации:
-
- • Идентификационные данные
-
- • Информация аккаунта(-ов)</string>
-    <string name="yapily_agreement_blurb_5_1">Чтобы поделиться своими данными %1$s с Blockchain.com, вы будете безопасно перенаправлены в свой банк, чтобы подтвердить свое согласие на чтение YapilyConnect следующей информации:
-
- • Идентификационные данные
-
- • Информация аккаунта(-ов)</string>
+    <string name="yapily_agreement_blurb_5">Чтобы поделиться своими данными %1$s с Blockchain, вы будете безопасно перенаправлены в свой банк, чтобы подтвердить свое согласие на чтение YapilyConnect следующей информации: \n\n • Идентификационные данные \n\n • Информация аккаунта(-ов)</string>
+    <string name="yapily_agreement_blurb_5_1">Чтобы поделиться своими данными %1$s с Blockchain.com, вы будете безопасно перенаправлены в свой банк, чтобы подтвердить свое согласие на чтение YapilyConnect следующей информации: \n\n • Идентификационные данные \n\n • Информация аккаунта(-ов)</string>
     <string name="yapily_linking_pending_title">Переходим к %1$s</string>
     <string name="yapily_linking_pending_subtitle">Это может занять до 30 секунд. Не переходите на предыдущую страницу и не закрывайте приложение.</string>
     <string name="yapily_linking_in_progress_title">Ожидание ответа от %1$s</string>
@@ -1810,28 +1684,19 @@ Blockchain Wallet:
     <string name="yapily_approval_subtitle_2_eu">IBAN</string>
     <string name="yapily_approval_subtitle_3_uk">Номер счета</string>
     <string name="yapily_approval_subtitle_3_eu">SWIFT/BIC</string>
-    <string name="yapily_approval_blurb">Чтобы легко настроить платежи из вашего банка в Blockchain, мы собираемся безопасно перенаправить вас в ваш банк, где вам будет предложено подтвердить платеж через YapilyConnect – регулируемого FCA поставщика инициирования платежей для Blockchain.
-
-YapilyConnect поделится этими данными с вашим банком, где вам будет предложено подтвердить следующую настройку платежа.</string>
+    <string name="yapily_approval_blurb">Чтобы легко настроить платежи из вашего банка в Blockchain, мы собираемся безопасно перенаправить вас в ваш банк, где вам будет предложено подтвердить платеж через YapilyConnect – регулируемого FCA поставщика инициирования платежей для Blockchain. \n\nYapilyConnect поделится этими данными с вашим банком, где вам будет предложено подтвердить следующую настройку платежа.</string>
     <string name="yapily_payment_to_fiat_wallet_title">Сумма отмененной покупки добавлена в Кошелек %1$s</string>
     <string name="yapily_payment_to_fiat_wallet_subtitle">Недавно вы подтвердили в своем банке покупку %1$s и отменили заказ здесь. Поскольку вы подтвердили в своем банке, мы зачислили сумму вашей покупки в ваш %2$s Кошелек.</string>
     <string name="yapily_payment_to_fiat_wallet_default">криптовалюта</string>
-    <string name="yapily_fiat_deposit_success_subtitle">Пока мы ждем перечисления денежных средств вашим банком, предоставляем вам ранний доступ к %1$s на вашем наличном счете %2$s, чтобы вы могли сразу приступить к покупке криптовалюты.
-
-Средства будут доступны для вывода после завершения банковского перевода %3$s.</string>
-    <string name="bank_alias_info">Пожалуйста, введите название/CBU/CVU вашего банка, чтобы привязать новый банковский счет на ваше имя.
-
- Если вы вводите название:
-- Оно должно быть от 6 до 20 символов (буквы, цифры, тире и точка)
-- Не включайте букву «ñ», ударения, пробелы и другие специальные символы.</string>
-    <string name="bank_alias_search_account">Поиск аккаунта</string>
+    <string name="yapily_fiat_deposit_success_subtitle">Пока мы ждем перечисления денежных средств вашим банком, предоставляем вам ранний доступ к %1$s на вашем наличном счете %2$s, чтобы вы могли сразу приступить к покупке криптовалюты. \n\nСредства будут доступны для вывода после завершения банковского перевода %3$s.</string>
+    <string name="bank_alias_info">Пожалуйста, введите название/CBU/CVU вашего банка, чтобы привязать новый банковский счет на ваше имя. \n\n Если вы вводите название:\n- Оно должно быть от 6 до 20 символов (буквы, цифры, тире и точка)\n- Не включайте букву «ñ», ударения, пробелы и другие специальные символы.</string>
+    <string name="bank_alias_search_account">Поиск счета</string>
     <string name="bank_linking_generic_error_title">Ой! Что-то пошло не так</string>
     <string name="bank_linking_generic_error_subtitle">Попробуйте снова установить связь со своим банком. Если это повторяется, обратитесь в службу поддержки.</string>
     <string name="bank_linking_mismatched_title">Это ваш банковский счет?</string>
-    <string name="bank_linking_mismatched_subtitle">Мы заметили, что <b>имена не совпадают</b>. В банке, который вы связываете, должно быть такое же официальное имя и фамилия, что и в вашем аккаунте Blockchain.com.
-<annotation link="learn_more">Подробнее →</annotation></string>
+    <string name="bank_linking_mismatched_subtitle">Мы заметили, что <b>имена не совпадают</b>. В банке, который вы связываете, должно быть такое же официальное имя и фамилия, что и в вашем аккаунте Blockchain.com. \n<annotation link="learn_more">Подробнее →</annotation></string>
     <string name="bank_linking_timeout_error_title">Ой! Это занимает слишком много времени</string>
-    <string name="card_3ds">Ой! Проверка 3DS не удалась</string>
+    <string name="card_3ds">Ой! Проверка 3DS не пройдена</string>
     <string name="bank_linking_timeout_error_subtitle">Установление связи с вашим банком занимает больше времени, чем ожидалось. Пожалуйста, закройте этот экран и проверьте статус в настройках.</string>
     <string name="bank_linking_already_linked_error_title">Этот счет уже привязан.</string>
     <string name="bank_linking_already_linked_error_subtitle">Мы заметили, что этот счет уже связан с вашим аккаунтом Blockchain.</string>
@@ -1839,7 +1704,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="bank_linking_account_ob_error_subtitle">Ваш банк может взимать дополнительную комиссию, если вы покупаете криптовалюту без текущего счета.</string>
     <string name="bank_linking_account_ach_error_title">Пожалуйста, привяжите текущий счет.</string>
     <string name="bank_linking_account_ach_error_subtitle">Ваш банк может взимать дополнительную комиссию, если вы покупаете криптовалюту без текущего счета.</string>
-    <string name="bank_linking_invalid_error_subtitle">Ваш банк может взимать дополнительную комиссию, если вы покупаете криптовалюту без %s счета.</string>
+    <string name="bank_linking_invalid_error_subtitle">Ваш банк может взимать дополнительную комиссию, если вы покупаете криптовалюту без счета %s .</string>
     <string name="bank_linking_expired_title">Срок действия доступа к аккаунту истек</string>
     <string name="bank_linking_try_again">Попробовать еще раз</string>
     <string name="bank_linking_try_another_method">Попробуйте другой способ</string>
@@ -1864,23 +1729,22 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="bank_linking_max_attempts_title">Достигнут лимит попыток</string>
     <string name="bank_linking_max_attempts_subtitle">Вы достигли лимита количества попыток привязки вашего банка. Лимиты сбрасываются ежедневно, попробуйте еще раз завтра.</string>
     <string name="bank_linking_max_accounts_title">Достигнут лимит банков</string>
-    <string name="bank_linking_max_accounts_subtitle">Вы достигли лимита количества банков, которые можно привязать к своему аккаунту. Удалите один из связанных банков, чтобы добавить новый.</string>
+    <string name="bank_linking_max_accounts_subtitle">Вы достигли максимального количества банков, которые можно привязать к своему аккаунту. Удалите один из связанных банков, чтобы добавить новый.</string>
     <string name="bank_transfer_payment_invalid_title">Недействительный аккаунт</string>
-    <string name="bank_transfer_payment_invalid_subtitle">Выбранная вами учетная запись неактивна. Попробуйте использовать другой аккаунт или способ оплаты. Если это не так, обратитесь в <annotation link="contact_support">службу поддержки.</annotation></string>
+    <string name="bank_transfer_payment_invalid_subtitle">Выбранный вами аккаунт неактивен. Попробуйте использовать другой аккаунт или способ оплаты. Если это не так, обратитесь в <annotation link="contact_support">службу поддержки.</annotation></string>
     <string name="bank_transfer_payment_failed_title">Платеж не прошел</string>
     <string name="payment_failed_title_with_reason">Платеж не прошел</string>
-    <string name="bank_transfer_payment_failed_subtitle">Возникла проблема с вашим банком. Попробуйте еще раз или используйте другой способ оплаты. Если проблема не исчезла, обратитесь в <annotation link="contact_support">службу поддержки.</annotation></string>
+    <string name="bank_transfer_payment_failed_subtitle">Возникла проблема с вашим банком. Попробуйте еще раз или используйте другой способ оплаты. Если проблема не исчезнет, обратитесь в <annotation link="contact_support">службу поддержки.</annotation></string>
     <string name="bank_transfer_payment_declined_title">Платеж отклонен</string>
-    <string name="bank_transfer_payment_declined_subtitle">Мы полагаем, что ваш банк отклонил этот платеж. Обратитесь в свой банк для получения консультации.
-Если вы уже обращались в банк, свяжитесь со <annotation link="contact_support">службой поддержки.</annotation></string>
+    <string name="bank_transfer_payment_declined_subtitle">Мы полагаем, что ваш банк отклонил этот платеж. Обратитесь в свой банк для получения консультации.\nЕсли вы уже обращались в банк, свяжитесь со <annotation link="contact_support">службой поддержки.</annotation></string>
     <string name="bank_transfer_payment_rejected_title">Платеж отклонен</string>
     <string name="bank_transfer_payment_rejected_subtitle">Мы полагаем, что вы отклонили платеж со своего банковского счета. Если это не так, обратитесь в <annotation link="contact_support">службу поддержки.</annotation></string>
     <string name="bank_transfer_payment_expired_title">Запрос на оплату истек</string>
-    <string name="bank_transfer_payment_expired_subtitle">Ваш банк не осуществил платеж. Срок действия запроса истек. Попробуйте отправить заявку еще раз. Если проблема не исчезла, обратитесь в <annotation link="contact_support">службу поддержки.</annotation></string>
+    <string name="bank_transfer_payment_expired_subtitle">Ваш банк не осуществил платеж. Срок действия запроса истек. Попробуйте отправить заявку еще раз. Если проблема не исчезнет, обратитесь в <annotation link="contact_support">службу поддержки.</annotation></string>
     <string name="bank_transfer_payment_limited_exceeded_title">Незавершенные платежи</string>
     <string name="bank_transfer_payment_limited_exceeded_subtitle">В рамках этого способа оплаты существуют незавершенные платежи. Чтобы снова использовать этот способ оплаты, обратитесь в <annotation link="contact_support">службу поддержки.</annotation></string>
     <string name="bank_transfer_payment_insufficient_funds_title">Недостаточно средств</string>
-    <string name="bank_transfer_payment_insufficient_funds_subtitle">Платеж не выполнен, так как на вашем счете недостаточно средств. Попробуйте другой способ оплаты. Если проблема не исчезла, обратитесь в <annotation link="contact_support">службу поддержки.</annotation></string>
+    <string name="bank_transfer_payment_insufficient_funds_subtitle">Платеж не выполнен, так как на вашем счете недостаточно средств. Попробуйте другой способ оплаты. Если проблема не исчезнет, обратитесь в <annotation link="contact_support">службу поддержки.</annotation></string>
     <string name="bank_transfer_transfer_go_back">Отменить и вернуться</string>
     <string name="wallet_outage_message">У нас произошел сбой. Будьте уверены, ваши средства в полной безопасности. <annotation link="learn_more">Подробнее</annotation></string>
     <string name="wallet_issue_message">На нашей странице статуса есть уведомление. Полная функциональность кошелька может быть недоступна. Будьте уверены, ваши средства в безопасности. <annotation link="learn_more">Подробнее →</annotation></string>
@@ -1916,10 +1780,8 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="checkout_item_network_fee_estimate">~ %1$s</string>
     <string name="checkout_item_price_note">Blockchain.com предоставляет лучшую рыночную цену, которую мы получаем, и применяет спред.</string>
     <string name="checkout_item_network_fee_note">Платит за %1$s майнеров для подтверждения вашей транзакции в сети блокчейн.</string>
-    <string name="swap_confirmation_disclaimer_1">Окончательная сумма может меняться в зависимости от активности рынка. Утверждая этот обмен, вы соглашаетесь с
-<annotation link="refund_policy">Политикой возврата</annotation> Blockchain.com</string>
-    <string name="sell_confirmation_disclaimer">Окончательная сумма может измениться в связи с активностью рынка. Утверждая данную продажу, вы соглашаетесь с
-<annotation link="refund_policy">Политикой возврата</annotation> Blockchain.com</string>
+    <string name="swap_confirmation_disclaimer_1">Окончательная сумма может меняться в зависимости от активности рынка. Утверждая этот обмен, вы соглашаетесь с \n<annotation link="refund_policy">Политикой возврата</annotation> Blockchain.com</string>
+    <string name="sell_confirmation_disclaimer">Окончательная сумма может измениться в связи с активностью рынка. Утверждая данную продажу, вы соглашаетесь с\n<annotation link="refund_policy">Политикой возврата</annotation> Blockchain.com</string>
     <string name="checkout_swap_exchange_note">Обменный курс – это лучшая цена, доступная для %1$s выраженная в 1 %2$s</string>
     <string name="upsell_message">Получите более низкие комиссии и удвойте скорость транзакций при обмене Swap криптовалюты на любой торговый счет. Просто ищите эти значки, чтобы снизить комиссию до 50%.</string>
     <string name="upsell_title">Уменьшите комиссию. Сделайте обмен Swap на торговый счет.</string>
@@ -1933,9 +1795,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="learn_more_annotated"><annotation link="learn_more_link">Подробнее.</annotation></string>
     <string name="checkout_fee_free">При использовании торговых счетов нет сетевых комиссий.</string>
     <string name="private_key_wallet_explanation">%s кошельки с закрытым ключом, отправка и получение в настоящее время не поддерживаются.</string>
-    <string name="checkout_rewards_confirmation_disclaimer">После подтверждения этого вывода вы больше не будете получать вознаграждения на снятую сумму.
-
- Ваш %1$s будет доступен в вашей учетной записи \" %2$s \" в течение 2 дней.</string>
+    <string name="checkout_rewards_confirmation_disclaimer">После подтверждения этого вывода вы больше не будете получать вознаграждения на снятую сумму. \n\nВаш %1$s будет доступен в вашем аккаунте \" %2$s \" в течение 2 дней.</string>
     <string name="checkout_rb_weekly_title">Инвестировать еженедельно?</string>
     <string name="checkout_rb_biweekly_title">Инвестировать раз в две недели?</string>
     <string name="checkout_rb_monthly_title">Инвестировать ежемесячно?</string>
@@ -1978,17 +1838,17 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="login_polling_timeout">Срок сеанса проверки устройства истек</string>
     <string name="login_polling_denied">Сеанс проверки устройства отклонен на другом устройстве</string>
     <string name="login_approval_dialog_title">Запрос на вход</string>
-    <string name="login_approval_dialog_message">Мы заметили попытку входа с нового устройства. Если это были вы, одобрите устройство ниже.</string>
-    <string name="login_approved_toast">Вход одобрен! Вернитесь к другому устройству, чтобы продолжить вход</string>
+    <string name="login_approval_dialog_message">Мы заметили попытку входа с нового устройства. Если это были вы, то утвердите устройство ниже.</string>
+    <string name="login_approved_toast">Вход разрешен! Вернитесь к другому устройству, чтобы продолжить вход</string>
     <string name="login_denied_toast">Вход отклонен! Если пытались войти не вы, пожалуйста, обратитесь в службу поддержки</string>
     <string name="account_recover_title">Верифицируйте свою учетную запись</string>
-    <string name="enter_recovery_phrase_desc">Введите фразу для восстановления секретного закрытого ключа из двенадцати слов, чтобы завершить вход. Каждое слово разделяйте пробелом.</string>
+    <string name="enter_recovery_phrase_desc">Введите фразу для восстановления секретного закрытого ключа из двенадцати слов, чтобы завершить вход. Каждое слово отделяйте пробелом.</string>
     <string name="enter_recovery_phrase_hint">Введите свою контрольную фразу для восстановления</string>
     <string name="recovery_phrase_word_count_error">Контрольная фраза должна содержать 12 слов</string>
     <string name="reset_account_notice">Потеряли свою контрольную фразу? <annotation link="reset_account">Выполните сброс учетной записи</annotation></string>
     <string name="reset_kyc_failed">Не удалось восстановить учетную запись. Попробуйте еще раз.</string>
     <string name="reset_account_title">Выполнить сброс счета?</string>
-    <string name="reset_account_description_1">Сброс восстановит ваши учетные записи Trading, Rewards и Exchange.</string>
+    <string name="reset_account_description_1">Сброс восстановит ваши аккаунты Trading, Rewards и Exchange.</string>
     <string name="reset_account_cta">Сбросить аккаунт</string>
     <string name="retry_recovery_phrase_cta">Введите фразу восстановления повторно</string>
     <string name="reset_account_warning_title">Сброс счета может привести к потере средств</string>
@@ -2009,23 +1869,16 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="recurring_buy_toolbar">Повторяющиеся покупки</string>
     <string name="recurring_buy_cta_1">Начать</string>
     <string name="recurring_buy_title_1_1">Вместо того, чтобы рассчитывать наиболее выгодное время для сделок, многие умные инвесторы используют</string>
-    <string name="recurring_buy_title_1_2">
-Усреднение долларовой стоимости.</string>
+    <string name="recurring_buy_title_1_2">\nУсреднение долларовой стоимости.</string>
     <string name="recurring_buy_title_2_1">Стратегия очень проста</string>
-    <string name="recurring_buy_title_2_2">
-Вкладывайте одинаковую сумму каждую неделю.</string>
+    <string name="recurring_buy_title_2_2">\nВкладывайте одинаковую сумму каждую неделю.</string>
     <string name="recurring_buy_title_3_1">Когда цена снижается,</string>
-    <string name="recurring_buy_title_3_2">
-Вы купите больше криптовалюты.</string>
+    <string name="recurring_buy_title_3_2">\nВы купите больше криптовалюты.</string>
     <string name="recurring_buy_title_4_1">Когда цена повышается.</string>
-    <string name="recurring_buy_title_4_2">
-Вы купите меньше криптовалюты.</string>
-    <string name="recurring_buy_title_5_1">Работает ли это?
-За последние 5 лет покупка Bitcoin каждую неделю приносила больше результатов, чем расчет выгодного времени для сделок.</string>
-    <string name="recurring_buy_title_5_2">
-86% времени.</string>
-    <string name="recurring_buy_note">Расчет основан на одной покупке на 30 долларов в неделю в случайный день. «Выбор времени для совершения сделки» определяется как покупка Bitcoin при каждом падении на 6%.
-<annotation link="learn_more">Дополнительно →</annotation></string>
+    <string name="recurring_buy_title_4_2">\nВы купите меньше криптовалюты.</string>
+    <string name="recurring_buy_title_5_1">Работает ли это?\nЗа последние 5 лет покупка Bitcoin каждую неделю приносила больше результатов, чем расчет выгодного времени для сделок.</string>
+    <string name="recurring_buy_title_5_2">\n86% времени.</string>
+    <string name="recurring_buy_note">Расчет основан на одной покупке на 30 долларов в неделю в случайный день. «Выбор времени для совершения сделки» определяется как покупка Bitcoin при каждом падении на 6%.\n<annotation link="learn_more">Дополнительно →</annotation></string>
     <string name="recurring_buy_one_time_cta">Один раз</string>
     <string name="recurring_buy_one_time_selector">Один раз</string>
     <string name="recurring_buy_daily_1">Каждый день</string>
@@ -2100,13 +1953,12 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="empty_portfolio_description">Все ваши криптовалютные балансы будут отображаться здесь сразу после покупки или получения.</string>
     <string name="search_coins_hint">Искать монеты</string>
     <string name="prices_error_title">Не удалось загрузить цены активов</string>
-    <string name="prices_error_desc">При загрузке цен активов произошла ошибка.
-Проверьте подключение к Интернету и повторите попытку или обратитесь в службу поддержки, если проблема не будет устранена.</string>
-    <string name="search_wallets_hint">Поиск кошельков и криптовалют</string>
+    <string name="prices_error_desc">При загрузке цен активов произошла ошибка.\nПроверьте подключение к Интернету и повторите попытку или обратитесь в службу поддержки, если проблема не будет устранена.</string>
+    <string name="search_wallets_hint">Поиск кошельков Wallet и криптовалют</string>
     <string name="search_results">%s результатов</string>
     <string name="receive_details_address_label">Адрес Кошелька</string>
     <string name="receive_network_alert_title">%1$s в сети %2$s</string>
-    <string name="receive_network_alert_subtitle">Получайте %1$s в сети %2$s только на этот адрес. Мы не можем вернуть потерянные средства.</string>
+    <string name="receive_network_alert_subtitle">Получайте %1$s в сети %2$s только на этот адрес. Мы не можем вернуть утраченные средства.</string>
     <string name="funds_locked_warning_title">На удержании</string>
     <string name="funds_locked_summary_cta">Я понимаю</string>
     <string name="funds_locked_summary_available_send">Доступно для отправки</string>
@@ -2114,7 +1966,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="funds_locked_summary_details">Просмотреть подробности</string>
     <string name="funds_locked_summary_text">Для вновь добавленных средств действует период удержания. Во время удержания вы можете переводить средства между своими торговыми счетами, счетами вознаграждений и Exchange. <annotation link="learn_more">Подробнее →</annotation></string>
     <string name="funds_locked_details_text">Для вновь добавленных средств действует период удержания. Во время удержания вы можете переводить средства между своими торговыми счетами, счетами вознаграждений и Exchange.</string>
-    <string name="funds_locked_details_contact_support">Заметили неверную информацию? <annotation link="contact_support">Свяжитесь со службой поддержки</annotation></string>
+    <string name="funds_locked_details_contact_support">Что-то не так? <annotation link="contact_support">Свяжитесь со службой поддержки</annotation></string>
     <string name="funds_locked__details_title_date">УДЕРЖИВАЕТСЯ ДО</string>
     <string name="funds_locked_details_title_amount">СУММА</string>
     <string name="funds_locked_details_total">Всего</string>
@@ -2144,7 +1996,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="landing_cta_title">Мы позаботимся о вашей первой покупке.</string>
     <string name="landing_cta_subtitle">Подтвердите свою личность и мы возместим комиссию за вашу первую сделку. Это наш подарок новым пользователям Blockchain.com!</string>
     <string name="landing_cta_login">Войти</string>
-    <string name="pending_buys_description">В настоящий момент мы разрешаем только %d ожидающих покупок за раз.</string>
+    <string name="pending_buys_description">В настоящий момент разрешено не более %d покупок в ожидании одновременно.</string>
     <string name="pending_transaction_limit">Слишком много ожидающих покупок</string>
     <string name="view_activity">Просмотр активности</string>
     <string name="feature_limits_send_crypto">Отправить криптовалюту</string>
@@ -2171,11 +2023,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="feature_limits_header_silver_description">Подтвердите свой идентификатор и свяжите свой банк с функцией «Покупка и продажа криптовалют» прямо из своего кошелька.</string>
     <string name="feature_limits_header_silver_cta">Подать заявку сейчас</string>
     <string name="feature_limits_header_denied_description">В настоящее время у вас самый высокий уровень ограничений аккаунта и доступных возможностей.</string>
-    <string name="feature_limits_footer">Ограничения на транзакции могут применяться к определенным банкам и эмитентам карт.
-
-Ограничения покупок или депозита определяются многими факторами, включая завершение проверки вашего аккаунта, историю покупок, тип оплаты и многое другое.
-
-Узнайте больше о торговых счетах, ограничениях и возможностях, посетив наш <annotation link="support_center_link">Центр поддержки</annotation>.</string>
+    <string name="feature_limits_footer">Ограничения на транзакции могут применяться к определенным банкам и эмитентам карт. \n\nОграничения покупок или депозита определяются многими факторами, включая завершение проверки вашего аккаунта, историю покупок, тип оплаты и многое другое. \n\nУзнайте больше о торговых счетах, ограничениях и возможностях, посетив наш <annotation link="support_center_link">Центр поддержки</annotation>.</string>
     <string name="feature_limits_silver_limits">Лимиты ограниченного доступа</string>
     <string name="feature_limits_gold_limits">Лимиты полного доступа</string>
     <string name="feature_limits_gold_limits_description">Включает функции ограниченного доступа</string>
@@ -2190,8 +2038,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="kyc_limits_upgrade_now_silver_info">Разблокируйте «Обмен» - нашу функцию обмена в приложении. </string>
     <string name="kyc_limits_upgrade_now_tier_state_under_review">На рассмотрении вручную</string>
     <string name="dashboard_onboarding_title3">Завершите настройку учетной записи Blockchain.com и начните покупать криптовалюту уже сегодня.</string>
-    <string name="dashboard_onboarding_title2">Заполните свой профиль.
- Купите криптовалюту уже сегодня.</string>
+    <string name="dashboard_onboarding_title2">Заполните свой профиль.\n Купите криптовалюту уже сегодня.</string>
     <string name="dashboard_onboarding_title1">Ваши шаги к обладанию будущем.</string>
     <string name="dashboard_onboarding_step_upgrade_to_gold">Подтвердите свою личность</string>
     <string name="dashboard_onboarding_step_link_payment_method">Привязать банк или карту</string>
@@ -2200,9 +2047,9 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="dashboard_onboarding_step_complete">Завершить</string>
     <string name="dashboard_onboarding_steps_counter">%1$d/%2$d</string>
     <string name="dashboard_onboarding_error_title">Ошибка загрузки</string>
-    <string name="dashboard_onboarding_error_description">При загрузке экрана подтверждения возникла проблема. Вернитесь к предыдущему экрану и повторите попытку.</string>
+    <string name="dashboard_onboarding_error_description">При загрузке экрана подтверждения возникла проблема. Вернитесь к предыдущему экрану и попробуйте еще раз.</string>
     <string name="blockchain_fee">Комиссия Blockchain.com</string>
-    <string name="new_user_fee_waiver">Отказ от платы за нового пользователя</string>
+    <string name="new_user_fee_waiver">Отказ от взимания комиссии за нового пользователя</string>
     <string name="swap_empty_state_sheet_title">Сначала вам понадобится немного криптовалюты!</string>
     <string name="swap_empty_state_sheet_subtitle">Привяжите банк или карту и купите криптовалюту сейчас или получите ее от друга. Как только она появится на вашем балансе, вы можете в любой момент обменять ее.</string>
     <string name="settings_see_profile">Редактировать профиль</string>
@@ -2221,15 +2068,15 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="settings_sign_out">Выйти</string>
     <string name="settings_initials">%1$s%2$s</string>
     <string name="settings_add_payment_method">Добавить способ оплаты</string>
-    <string name="settings_bank_transfer_blurb">Отправляйте средства прямо со своего банковского счета на свой кошелек Blockchain. Как только мы получим банковский перевод, мы завершим вашу покупку.</string>
-    <string name="settings_logout_error">Возникла проблема при выходе из системы, попробуйте еще раз!</string>
+    <string name="settings_bank_transfer_blurb">Отправляйте средства со своего банковского счета прямо на свой Blockchain Wallet. Мы завершим вашу покупку сразу после получения банковского перевода.</string>
+    <string name="settings_logout_error">При выходе из системы возникла проблема, попробуйте еще раз!</string>
     <string name="settings_contact_support_error">При загрузке вашей информации произошла ошибка</string>
     <string name="settings_signout_wallet">Выйти</string>
     <string name="settings_ask_you_sure_signout">Вы уверены, что хотите выйти из этого кошелька?</string>
     <string name="settings_btn_signout">Выйти</string>
     <string name="settings_notification_preferences_subtitle">Выберите, как вы хотите получать информацию.</string>
     <string name="settings_notification_error">Не удалось загрузить настройки уведомлений</string>
-    <string name="settings_notification_error_details">При загрузке настроек уведомлений возникла проблема. Перезагрузите страницу или повторите попытку позже.</string>
+    <string name="settings_notification_error_details">При получении настроек уведомлений возникла проблема. Перезагрузите страницу или попробуйте еще раз позже.</string>
     <string name="settings_notification_error_back">Вернуться</string>
     <string name="settings_notification_required">%s (обязательно)</string>
     <string name="settings_chart_vibration">График цен на активы</string>
@@ -2238,8 +2085,8 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="account_limits_title">Лимиты и возможности</string>
     <string name="account_limits_subtitle">Trading Accounts</string>
     <string name="account_wallet_id_title">Wallet ID</string>
-    <string name="account_wallet_id_subtitle">Предупреждение: публиковать только конфиденциально</string>
-    <string name="account_currency_title">Показать валюту</string>
+    <string name="account_wallet_id_subtitle">Предупреждение: не публиковать в открытом доступе</string>
+    <string name="account_currency_title">Отображаемая валюта</string>
     <string name="account_trading_currency_title">Валюта торговли</string>
     <string name="account_exchange_title">Blockchain Exchange</string>
     <string name="account_wallet_connect">WalletConnect</string>
@@ -2247,13 +2094,13 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="account_airdrops_title">Airdrops</string>
     <string name="account_addresses_title">Адреса</string>
     <string name="account_refer_a_friend">Приведи друга</string>
-    <string name="account_wallet_id_copy_error">При копировании идентификатора Wallet произошла ошибка. Повторите попытку.</string>
+    <string name="account_wallet_id_copy_error">При копировании идентификатора Wallet произошла ошибка. Попробуйте еще раз.</string>
     <string name="account_exchange_connected_title">Доступ к Blockchain.com Exchange</string>
     <string name="account_exchange_connected_cta">Запустить Exchange</string>
-    <string name="account_load_info_error">При загрузке ваших данных произошла ошибка. Повторите попытку</string>
-    <string name="account_load_fiat_error">При загрузке сведений о валюте произошла ошибка. Повторите попытку</string>
-    <string name="account_fiat_update_error">При обновлении данных о валюте произошла ошибка. Повторите попытку</string>
-    <string name="account_load_bc_card_error">При загрузке дебетовой карты блокчейна произошла ошибка. Повторите попытку.</string>
+    <string name="account_load_info_error">При загрузке ваших данных произошла ошибка. Попробуйте еще раз</string>
+    <string name="account_load_fiat_error">При загрузке сведений о валюте произошла ошибка. Попробуйте еще раз</string>
+    <string name="account_fiat_update_error">При обновлении данных о валюте произошла ошибка. Попробуйте еще раз</string>
+    <string name="account_load_bc_card_error">При загрузке дебетовой карты блокчейна произошла ошибка. Попробуйте еще раз</string>
     <string name="account_not_eligible">Не соответствует требованиям</string>
     <string name="order_card">Карта ордера</string>
     <string name="profile_toolbar">Профиль</string>
@@ -2266,15 +2113,15 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="profile_mobile_empty">Добавьте свой номер телефона</string>
     <string name="profile_update_error_email">Не удалось сохранить электронную почту</string>
     <string name="profile_update_error_resend_email">Не удалось повторно отправить электронное сообщение</string>
-    <string name="profile_update_error_resend_sms">Повторная отправка СМС не удалась</string>
+    <string name="profile_update_error_resend_sms">Не удалось отправить SMS повторно</string>
     <string name="profile_update_email">Электронная почта сохранена</string>
     <string name="profile_update_error_phone">Не удалось сохранить номер телефона</string>
-    <string name="profile_update_error_phone_invalid">Неверный номер телефона</string>
+    <string name="profile_update_error_phone_invalid">Недействительный номер телефона</string>
     <string name="profile_update_phone">Номер телефона сохранен</string>
-    <string name="profile_update_success">Изменения сохранены.</string>
-    <string name="profile_label_support">Нужно изменить имя? <annotation link="contact_support">Обратитесь в службу поддержки </annotation></string>
+    <string name="profile_update_success">Обновления сохранены.</string>
+    <string name="profile_label_support">Нужно обновить имя? <annotation link="contact_support">Обратитесь в службу поддержки </annotation></string>
     <string name="profile_verify_email_msg">Ваш подтвержденный адрес электронной почты используется для отправки уведомлений об оплате, напоминаний об идентификаторе и кодов входа.</string>
-    <string name="profile_verify_phone_msg">Ваш мобильный телефон может быть использован для активации 2-факторной аутентификации или для получения предупреждений.</string>
+    <string name="profile_verify_phone_msg">Ваш мобильный телефон может быть использован для активации двухфакторной аутентификации или для получения предупреждений.</string>
     <string name="profile_disable_2fa_first">Сначала отключите двухфакторную аутентификацию по SMS в настройках безопасности.</string>
     <string name="profile_verify_email">Верифицировать эл. почту</string>
     <string name="profile_verify_phone">Подтвердить номер телефона</string>
@@ -2284,7 +2131,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="profile_verify_code">Подтвердить код</string>
     <string name="profile_enter_code">Введите код подтверждения</string>
     <string name="profile_verification_code_error">Ошибка кода подтверждения</string>
-    <string name="profile_resend_sms_error">Повторная отправка СМС не удалась</string>
+    <string name="profile_resend_sms_error">Не удалось отправить SMS повторно</string>
     <string name="profile_label_dial_code">Телефонный код</string>
     <string name="code_verification_resent_sms">Отправлен новый код</string>
     <string name="code_verification_enter">Введите код подтверждения</string>
@@ -2295,42 +2142,41 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="notifications_toolbar">Уведомления</string>
     <string name="email_notifications_title">Уведомления по электронной почте</string>
     <string name="push_notifications_title">Всплывающие уведомления</string>
-    <string name="notifications_email_update_error">Не удалось обновить настройки предпочитаемой электронной почты. Повторите попытку.</string>
-    <string name="notifications_push_update_error">Ошибка обновления настроек предпочитаемых push-уведомлений. Повторите попытку.</string>
-    <string name="notifications_info_load_error">Не удалось получить настройки предпочитаемых уведомлений. Повторите попытку.</string>
+    <string name="notifications_email_update_error">Ошибка обновления настроек электронной почты. Попробуйте еще раз.</string>
+    <string name="notifications_push_update_error">Ошибка обновления настроек push-уведомлений. Попробуйте еще раз.</string>
+    <string name="notifications_info_load_error">Ошибка получения настроек уведомлений. Попробуйте еще раз.</string>
     <string name="notifications_email_unverified_error">Подтвердите свой адрес электронной почты перед включением уведомлений по электронной почте</string>
     <string name="security_toolbar">Безопасность</string>
     <string name="security_two_fa_title">2-шаговая проверка</string>
     <string name="security_password_title">Изменить пароль</string>
     <string name="security_password_subtitle">Создать новый пароль</string>
     <string name="security_pin_title">Изменить PIN-код</string>
-    <string name="security_pin_subtitle">Создайте новый 4-значный PIN-код</string>
+    <string name="security_pin_subtitle">Создать новый 4-значный PIN-код</string>
     <string name="security_backup_phrase_title">Фраза резервного копирования</string>
     <string name="security_backup_phrase_subtitle">Ваш секретный ключ из 12 слов</string>
-    <string name="security_backup_phrase_pill_not_backed_up">Резервная копия отсутствует</string>
-    <string name="security_backup_phrase_pill_backed_up">Резервная копия сделана</string>
+    <string name="security_backup_phrase_pill_not_backed_up">Резервное копирование не выполнено</string>
+    <string name="security_backup_phrase_pill_backed_up">Резервное копирование выполнено</string>
     <string name="security_biometrics_title">Включить разблокировку с помощью биометрии</string>
     <string name="security_screenshots_title">Включить функцию снимка экрана</string>
     <string name="security_tor_title">Блокировать запросы Tor</string>
-    <string name="security_tor_subtitle">Блокировать IP-адреса, которые являются частью анонимной сети Tor.
- (Отключение этого параметра будет постоянным)</string>
+    <string name="security_tor_subtitle">Блокировать IP-адреса, которые являются частью анонимной сети Tor.\n(Отключение этого параметра будет постоянным)</string>
     <string name="security_two_fa_sheet_title">Активировать 2ФА</string>
     <string name="security_two_fa_sheet_blurb">Защитите свой кошелек от несанкционированного доступа, включив двухэтапную аутентификацию. Нажмите «Включить», чтобы использовать свой номер телефона для защиты кошелька. Чтобы использовать другие методы аутентификации, войдите в свой веб-кошелек и выполните настройку в нем.</string>
     <string name="security_two_fa_sheet_cta_enable">Включить двухфакторную аутентификацию по SMS</string>
     <string name="security_two_fa_sheet_cta_other">Включить другой метод двухфакторной идентификации</string>
-    <string name="security_two_fa_disable_on_web_cta">Открыть веб-вход</string>
+    <string name="security_two_fa_disable_on_web_cta">Открыть веб-вход в систему</string>
     <string name="security_two_fa_disable_on_web_blurb">Этот тип двухфакторной аутентификации можно отключить только через веб-кошелек. Войдите в кошелек, чтобы продолжить.</string>
-    <string name="security_biometrics_disable_title">Отключить биометрию?</string>
+    <string name="security_biometrics_disable_title">Отключить биометрические данные?</string>
     <string name="security_biometrics_add_title">Биометрические данные не добавлены</string>
     <string name="security_biometrics_cta_disable">Отключить биометрические данные</string>
     <string name="security_biometrics_cta_add">Добавить биометрические данные</string>
-    <string name="security_biometrics_add_blurb">На этом устройстве еще не зарегистрированы биометрические данные. Вы хотите зарегистрировать свои биометрические данные сейчас?</string>
-    <string name="security_error_initial_info_load">При загрузке информации о безопасности произошла ошибка. Повторите попытку.</string>
-    <string name="security_error_pin_missing">Произошла ошибка вашего PIN-кода. Повторите попытку.</string>
-    <string name="security_error_biometrics_disable">При отключении биометрии произошла ошибка. Повторите попытку.</string>
-    <string name="security_error_two_fa">При обновлении двухфакторной аутентификации произошла ошибка. Повторите попытку.</string>
-    <string name="security_error_screenshots">При обновлении скриншотов произошла ошибка. Повторите попытку.</string>
-    <string name="security_backup_sheet_title">Фраза для восстановления не создана</string>
+    <string name="security_biometrics_add_blurb">На этом устройстве еще не зарегистрированы биометрические данные. Хотите зарегистрировать свои биометрические данные сейчас?</string>
+    <string name="security_error_initial_info_load">При загрузке информации о безопасности произошла ошибка. Попробуйте еще раз.</string>
+    <string name="security_error_pin_missing">Произошла ошибка вашего PIN-кода. Попробуйте еще раз.</string>
+    <string name="security_error_biometrics_disable">При отключении биометрии произошла ошибка. Попробуйте еще раз.</string>
+    <string name="security_error_two_fa">При обновлении двухфакторной аутентификации произошла ошибка. Попробуйте еще раз.</string>
+    <string name="security_error_screenshots">При обновлении снимков экрана произошла ошибка. Попробуйте еще раз.</string>
+    <string name="security_backup_sheet_title">Резервная копия фразы для восстановления не создана</string>
     <string name="security_backup_sheet_blurb">Перед сменой пароля создайте резервную копию секретного ключа из 12 слов. Он позволит восстановить учетную запись, если вы забудете пароль.</string>
     <string name="security_backup_sheet_cta">Выполнить резервное копирование</string>
     <string name="security_missing_phone_number">Отсутствует номер телефона</string>
@@ -2344,7 +2190,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="change_password_error_new_dont_match">Новые пароли не совпадают</string>
     <string name="change_password_error_new_length">Ваши новые пароли слишком короткие или слишком длинные (4–255)</string>
     <string name="change_password_error_new_too_weak">Ваш новый пароль слишком простой, используйте более надежный пароль</string>
-    <string name="change_password_error_general">При обновлении пароля возникла проблема. Повторите попытку.</string>
+    <string name="change_password_error_general">При обновлении пароля возникла проблема. Попробуйте еще раз.</string>
     <string name="change_password_success">Пароль успешно обновлен!</string>
     <string name="about_app_toolbar">О приложении</string>
     <string name="about_app_contact_support">Связаться со службой поддержки</string>
@@ -2353,11 +2199,11 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="about_app_terms_service">Условия обслуживания</string>
     <string name="about_app_privacy_policy">Политика конфиденциальности</string>
     <string name="dapp_wants_to_connect">%1s хочет подключиться</string>
-    <string name="dapp_is_now_approved">%1s теперь подключен к вашему кошельку</string>
-    <string name="dapp_is_now_rejected">Соединение с %1s отклонено</string>
+    <string name="dapp_is_now_approved">%1s теперь подключен к вашему Wallet</string>
+    <string name="dapp_is_now_rejected">Подключение к %1s отклонено</string>
     <string name="go_back_to_your_browser">Вернитесь в свой браузер и попробуйте еще раз.</string>
     <string name="dapp_confirmation_warning">Это децентрализованное приложение запрашивает действие, которое может списать средства из вашего кошелька. Убедитесь в безопасности этого сайта.</string>
-    <string name="common_chain">Цепь</string>
+    <string name="common_chain">Чейн</string>
     <string name="message_from_dapp">Сообщение от %1s</string>
     <string name="signing_confirmation_progress_title">Подписание…</string>
     <string name="signed">Подписано</string>
@@ -2366,14 +2212,14 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="password_new_hint">Введите новый пароль</string>
     <string name="password_confirm_hint">Введите новый пароль еще раз</string>
     <string name="signature_request">Запрос на подпись</string>
-    <string name="no_dapps_connected">Нет подключенных приложений</string>
+    <string name="no_dapps_connected">Нет подключенных децентрализованных приложений</string>
     <string name="connect_with_wallet_connect">Подключитесь к децентрализованному приложению с помощью WalletConnect.</string>
     <string name="are_you_sure">Вы уверены?</string>
     <string name="you_are_about_disconnect">Вы собираетесь отключить %1$s.</string>
     <plurals name="wallet_connect_connected_apps">
         <item quantity="one">%d подключенное приложение</item>
-        <item quantity="few"></item>
-        <item quantity="many"></item>
+        <item quantity="few">%d подключенных приложения</item>
+        <item quantity="many">%d подключенных приложений</item>
         <item quantity="other">%d подключенных приложений</item>
     </plurals>
     <string name="ui_tour_buy_and_sell_title">Покупка и продажа</string>
@@ -2383,36 +2229,36 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="ui_tour_prices_subtitle">Отслеживайте текущую цену более 1200 монет и находите новые для добавления в свой кошелек.</string>
     <string name="ui_tour_middle_button_subtitle">Если вы хотите быстро обменять средства или отправить их другу — мы всегда готовы помочь!</string>
     <string name="ui_tour_activity_subtitle">Всегда будьте в курсе того, что и когда вы купили, продали или обменяли, а также по какой цене.</string>
-    <string name="pin_title_create">Выберите PIN-код Wallet.</string>
-    <string name="pin_subtitle">Это будет использоваться для резервного копирования биометрической разблокировки.</string>
+    <string name="pin_title_create">Выберите PIN-код для Wallet.</string>
+    <string name="pin_subtitle">Он будет использоваться для резервного копирования данных биометрической разблокировки.</string>
     <string name="pin_title_confirm">Подтвердите свой PIN-код.</string>
-    <string name="pin_mismatch_error_msg">PIN-коды не совпадают. Пожалуйста, попробуйте еще раз.</string>
+    <string name="pin_mismatch_error_msg">PIN-коды не совпадают. Попробуйте еще раз.</string>
     <string name="pin_num_digits">PIN-код должен содержать 4 цифры.</string>
     <string name="pin_toolbar_change">Изменить PIN-код</string>
     <string name="scan_connect">Сканировать и подключить</string>
     <string name="scan_friends_qr">Отсканировать QR-код друга</string>
     <string name="scan_friends_qr_description">Наведите телефон на QR-код друга, и мы вставим адрес.</string>
     <string name="web_access_description">Входите в blockchain.com? Чтобы войти, отсканируйте код с помощью телефона.</string>
-    <string name="connect_to_dapps_description">Надежно подключите свой кошелек к любому приложению Web 3.0.</string>
-    <string name="coinview_interest_with_balance">Заработок %1$s %%</string>
+    <string name="connect_to_dapps_description">Безопасно подключайте свой кошелек к любому приложению Web 3.0.</string>
+    <string name="coinview_interest_with_balance">Заработок: %1$s %%</string>
     <string name="coinview_interest_no_balance">Заработать %1$s %% APY</string>
     <string name="coinview_nc_desc">Не кастодиальные</string>
-    <string name="coinview_multi_nc_desc">%s Сеть</string>
+    <string name="coinview_multi_nc_desc">Сеть %s</string>
     <string name="coinview_c_unavailable_desc">Купля-продажа %1$s</string>
-    <string name="coinview_about_asset">О %1$s</string>
+    <string name="coinview_about_asset">Сведения о %1$s</string>
     <string name="coinview_chart_tab_day">1 день</string>
     <string name="coinview_chart_tab_week">1 неделя</string>
     <string name="coinview_chart_tab_month">1 месяц</string>
     <string name="coinview_chart_tab_year">1 год</string>
     <string name="coinview_chart_tab_all">Все</string>
-    <string name="coinview_price_day">Последние 24 часа</string>
+    <string name="coinview_price_day">Последние 24 часа</string>
     <string name="coinview_price_week">Прошлая неделя</string>
     <string name="coinview_price_month">Прошлый месяц</string>
     <string name="coinview_price_year">Прошлый год</string>
     <string name="coinview_price_all">Все время</string>
     <string name="coinview_price_label">Текущая цена %1$s</string>
     <string name="coinview_balance_label">Всего %1$s</string>
-    <string name="coinview_rb_card_title">Не знаете, когда купить?</string>
+    <string name="coinview_rb_card_title">Не знаете, когда покупать?</string>
     <string name="coinview_rb_card_blurb">Вычислить наиболее выгодное время для сделок довольно трудно, поэтому многие инвесторы используют усреднение долларовой стоимости.</string>
     <string name="coinview_not_tradeable_title">%1$s ( %2$s ) нельзя обменять.</string>
     <string name="coinview_not_tradeable_subtitle">Добавьте в свой список отслеживания, чтобы получить уведомление, когда %1$s станет доступным для обмена.</string>
@@ -2423,7 +2269,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="coinview_chart_load_error_title">Не удалось загрузить график цен</string>
     <string name="coinview_chart_load_error_subtitle">Перезагрузите или выйдите и вернитесь на страницу для просмотра графика цен.</string>
     <string name="coinview_wallet_load_error">Не удалось загрузить кошельки и аккаунты</string>
-    <string name="coinview_chart_load_error">Не удалось загрузить информацию о диаграмме</string>
+    <string name="coinview_chart_load_error">Не удалось загрузить информацию о графике</string>
     <string name="coinview_recurring_buy_load_error">Не удалось загрузить повторяющиеся покупки</string>
     <string name="coinview_recuring_buy_load_error_title">Не удалось загрузить повторяющиеся покупки</string>
     <string name="coinview_recuring_buy_load_error_subtitle">Перезагрузите или выйдите и вернитесь на страницу, чтобы просмотреть повторяющиеся покупки.</string>
@@ -2431,11 +2277,11 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="coinview_account_load_error_subtitle">Не удалось загрузить ваши Wallet и аккаунты. Не волнуйтесь, ваши средства в безопасности. Перезагрузите или выйдите и вернитесь на страницу.</string>
     <string name="coinview_fiat_missing">Выбрана неверная фиатная валюта</string>
     <string name="coinview_prices_missing">Возникла проблема с получением данных токена</string>
-    <string name="coinview_watchlist_toggle_fail">Не удалось обновить список наблюдения. Повторите попытку.</string>
-    <string name="coinview_actions_error">При получении доступных действий возникла проблема. Повторите попытку.</string>
+    <string name="coinview_watchlist_toggle_fail">Не удалось обновить список наблюдения. Попробуйте еще раз.</string>
+    <string name="coinview_actions_error">При получении доступных действий возникла проблема. Попробуйте еще раз.</string>
     <string name="coinview_no_asset_blurb">Похоже, что у нас нет данных об этом активе. Если это повторится, <annotation link="contact_support">обратитесь в службу поддержки.</annotation></string>
     <string name="coinview_no_asset_title">Неизвестный актив</string>
-    <string name="coinview_asset_info_cta">Посетите веб-сайт →</string>
+    <string name="coinview_asset_info_cta">Посетить сайт →</string>
     <string name="coinview_no_asset_description">Похоже, у нас еще нет описания для этого токена. Проверьте их веб-сайт, нажав кнопку ниже, чтобы узнать больше.</string>
     <string name="coinview_no_balance_sheet_title">Добавить %1$s к %2$s</string>
     <string name="coinview_no_balance_sheet_subtitle">Вам нужно %1$s в %2$s до %3$s.</string>
@@ -2470,8 +2316,8 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="kyc_upgrade_now_sheet_title">Подтвердите, чтобы получить полный доступ</string>
     <string name="kyc_upgrade_now_sheet_subtitle">Разблокируйте доступ к покупке, продаже, обмену и другому, подтвердив свою личность.</string>
     <string name="kyc_additional_info_toolbar">Использование информации об аккаунте</string>
-    <string name="kyc_additional_info_invalid_node_error">Форма содержит ошибки или неполные поля</string>
-    <string name="questionnaire_error_invalid_format">Неверный формат</string>
+    <string name="kyc_additional_info_invalid_node_error">Форма содержит ошибки или незаполненные поля</string>
+    <string name="questionnaire_error_invalid_format">Недопустимый формат</string>
     <string name="tax_center_announcement_description">В партнерстве с CoinTracker запущен наш новый Налоговый центр. Подключитесь к своему аккаунту в <annotation font="bold">интернете</annotation> и перейдите в <annotation font="bold">Аккаунт - &gt; Налоговый центр</annotation> .</string>
     <string name="tax_center_announcement_title">Налоговый центр теперь доступен!</string>
     <string name="transaction_denied">Транзакция отклонена</string>
@@ -2487,13 +2333,13 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="customer_support_contact_us">Связаться с нами</string>
     <string name="customer_support_faq">Просмотреть часто задаваемые вопросы</string>
     <string name="customer_support_error_title">При запуске чата произошла ошибка</string>
-    <string name="customer_support_error_description">Похоже, в нашем чате возникли проблемы. Попробуйте закрыть и снова открыть приложение, и, если проблема не исчезнет, отправьте запрос в службу поддержки.</string>
+    <string name="customer_support_error_description">Похоже, в нашем чате возникли проблемы. Попробуйте закрыть и снова открыть приложение, и если проблема не исчезнет, отправьте запрос в службу поддержки.</string>
     <string name="customer_support_error_cta">Отправить запрос</string>
     <string name="app_maintenance_os_not_supported_title">Ваша ОС не поддерживается</string>
     <string name="app_maintenance_os_not_supported_description">Похоже, у вас не последняя версия операционной системы. Обновите ее, чтобы продолжить использовать наше мобильное приложение.</string>
-    <string name="app_maintenance_update_title">Пришло время обновлений!</string>
+    <string name="app_maintenance_update_title">Пора установить обновление!</string>
     <string name="app_maintenance_update_description">Мы добавили потрясающие новые функции, обновления безопасности и многое другое.</string>
-    <string name="app_maintenance_down_title">Закрыто на техническое обслуживание</string>
+    <string name="app_maintenance_down_title">Временно недоступно — ведется техническое обслуживание</string>
     <string name="app_maintenance_site_wide_description">Наши системы в настоящее время недоступны. Не волнуйтесь, ваши средства в безопасности.</string>
     <string name="app_maintenance_redirect_website_description">В настоящее время приложение находится на обслуживании. Ваши средства в безопасности, и вы всегда можете получить доступ к своему кошельку через веб-версию.</string>
     <string name="app_maintenance_cta_update_now">Обновить приложение</string>
@@ -2519,37 +2365,35 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="msg_cardPaymentFailed">Этот платеж не прошел. Попробуйте еще раз или выберите другой способ оплаты.</string>
     <string name="title_cardCreateAbandoned">Вы авторизовали оплату картой?</string>
     <string name="msg_cardCreateAbandoned">Авторизация платежей с карты – отличный способ повысить безопасность своих транзакций. Если вы регулярно видите это сообщение, попробуйте выбрать другой способ оплаты.</string>
-    <string name="title_cardCreateExpired">Вы забыли авторизовать оплату картой?</string>
+    <string name="title_cardCreateExpired">Забыли авторизовать оплату картой?</string>
     <string name="msg_cardCreateExpired">Авторизация платежей с карты – отличный способ повысить безопасность своих транзакций. Если вы регулярно видите это сообщение, попробуйте выбрать другой способ оплаты.</string>
-    <string name="msg_cardCreateBankDeclined">Blockchain.com разрешает для этой карты только дебетовые платежи. Пожалуйста, выберите другой способ оплаты.</string>
+    <string name="msg_cardCreateBankDeclined">Blockchain.com разрешает для этой карты только дебетовые платежи. Выберите другой способ оплаты.</string>
     <string name="title_cardCreateDebitOnly">Недействительная карта</string>
-    <string name="msg_cardCreateDebitOnly">Blockchain.com разрешает для этой карты только дебетовые платежи. Пожалуйста, выберите другой способ оплаты.</string>
+    <string name="msg_cardCreateDebitOnly">Blockchain.com разрешает для этой карты только дебетовые платежи. Выберите другой способ оплаты.</string>
     <string name="title_cardPaymentDebitOnly">Платеж не прошел</string>
     <string name="msg_cardPaymentDebitOnly">Этот способ оплаты не прошел. Попробуйте другой способ оплаты.</string>
     <string name="title_cardCreateNoToken">Карта не поддерживается</string>
-    <string name="msg_cardCreateNoToken">Нам не удалось добавить вашу карту. Попробуйте еще раз или выберите другой способ оплаты.</string>
+    <string name="msg_cardCreateNoToken">Не удалось добавить вашу карту. Попробуйте еще раз или выберите другой способ оплаты.</string>
     <string name="card_limit_reached_title">Слишком много карт</string>
     <string name="card_limit_reached_desc">Вы достигли максимального количества разрешенных карт. Удалите одну из них, прежде чем добавлять другие, или выберите другой способ оплаты.</string>
     <string name="referral_code_title">Ваш реферальный код</string>
     <string name="referral_criteria_title">Чтобы соответствовать требованиям, ваши друзья должны:</string>
     <string name="referral_program">Реферальная программа</string>
     <string name="referral_invite_now">Пригласить сейчас</string>
-    <string name="referral_share_template">Присоединяйтесь, регистрируйте Blockchain.com Wallet с реферальным кодом %1$s и получайте бонус в криптовалюте!
-
-Приложение находится здесь: https://blockchainwallet.page.link/join</string>
+    <string name="referral_share_template">Присоединяйтесь, регистрируйте Blockchain.com Wallet с реферальным кодом %1$s и получайте бонус в криптовалюте! \n\nПриложение находится здесь: https://blockchainwallet.page.link/join</string>
     <string name="referral_share_template_subject">Присоединяйтесь ко мне на Blockchain.com</string>
     <string name="app_rating_title">Вам нравится наше приложение?</string>
     <string name="app_rating_description">Помогите нам улучшить приложение, оценив свой опыт использования.</string>
     <string name="app_rating_feedback_title">Расскажите подробнее.</string>
-    <string name="app_rating_feedback_description">Дайте нам знать, как мы можем улучшить приложение.</string>
+    <string name="app_rating_feedback_description">Сообщите нам, как мы можем улучшить приложение.</string>
     <string name="app_rating_feedback_hint">Расскажите подробнее</string>
     <string name="backup_phrase_title_secure_wallet">Защитите свой Wallet</string>
     <string name="backup_phrase_title_steps">Шаг %1$d из %2$d</string>
     <string name="backup_phrase_intro_title">Давайте сделаем резервную копию вашего Wallet</string>
-    <string name="back_up_status_negative">Резервная копия отсутствует</string>
-    <string name="back_up_status_positive">Резервная копия сделана</string>
+    <string name="back_up_status_negative">Резервное копирование не выполнено</string>
+    <string name="back_up_status_positive">Резервное копирование выполнено</string>
     <string name="backup_phrase_intro_description">На следующих нескольких экранах вы получите 12 слов для восстановления своих кошельков, если они когда-либо понадобятся в будущем.</string>
-    <string name="backup_phrase_intro_ack_1">Если я потеряю свою секретную фразу, мои средства будут потеряны навсегда.</string>
+    <string name="backup_phrase_intro_ack_1">Если я потеряю свою секретную фразу, мои средства будут утрачены навсегда.</string>
     <string name="backup_phrase_intro_ack_2">Если я раскрою или поделюсь своей секретной фразой с кем-либо, мои средства могут быть украдены.</string>
     <string name="backup_phrase_intro_ack_3">Я несу полную ответственность за сохранность своей секретной фразы.</string>
     <string name="back_up_now">Выполнить резервное копирование</string>
@@ -2559,7 +2403,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="skip_backup_cta_backup">Резервное копирование (рекомендуется)</string>
     <string name="recovery_phrase_title">Ваша фраза восстановления</string>
     <string name="recovery_phrase_description">Эти 12 слов дают вам доступ к вашим Private Key Wallet. Сохраните их резервную копию в облаке или запишите вручную.</string>
-    <string name="recovery_phrase_backup_again">Выполнить резервное копирование еще раз</string>
+    <string name="recovery_phrase_backup_again">Повторное резервное копирование</string>
     <string name="recovery_phrase_backup_manual">Резервное копирование вручную</string>
     <string name="recovery_phrase_backup_cloud">Резервное копирование в облако</string>
     <string name="manual_backup_title">Резервное копирование вручную</string>
@@ -2567,9 +2411,8 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="manual_backup_copy_description">Скопируйте слова в менеджер паролей или запишите их на бумаге. Держите их под рукой, следующим шагом будет проверка вашей фразы.</string>
     <string name="manual_backup_copied">Скопировано на 2 минуты</string>
     <string name="verify_phrase_title">Подтвердите свою фразу</string>
-    <string name="verify_phrase_description">Касаясь слов, расположите их в правильном порядке.
-</string>
-    <string name="verify_phrase_incorrect_message">Неверный ордер. Сбросьте или коснитесь отдельных слов, чтобы удалить их.</string>
+    <string name="verify_phrase_description">Касаясь слов, расположите их в правильном порядке.\n</string>
+    <string name="verify_phrase_incorrect_message">Неверный порядок. Выполните сброс или коснитесь отдельных слов, чтобы их удалить.</string>
     <string name="verify_phrase_incorrect_button">Сбросить слова</string>
     <string name="backup_success_title">Резервное копирование успешно выполнено!</string>
     <string name="backup_success_description">Храните фразу восстановления в безопасном месте и никому ее не сообщайте.</string>
@@ -2580,7 +2423,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="defi_onboarding_intro_description">Исследуйте все Web3 и DeFi в одном месте</string>
     <string name="defi_onboarding_intro_property1_title">Самостоятельное хранение ваших активов</string>
     <string name="defi_onboarding_intro_property1_subtitle">Кошельки DeFi находятся в сети</string>
-    <string name="defi_onboarding_intro_property2_title">Поддержка нескольких цепочек</string>
+    <string name="defi_onboarding_intro_property2_title">Поддержка нескольких сетей</string>
     <string name="defi_onboarding_intro_property2_subtitle">Управляйте своим портфелем в 7 сетях</string>
     <string name="defi_onboarding_intro_property3_title">Подключиться к децентрализованным финансам</string>
     <string name="defi_onboarding_intro_property3_subtitle">Войдите в DApps и подпишите транзакции</string>
@@ -2588,7 +2431,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="defi_onboarding_complete_title">Добро пожаловать в %1$s</string>
     <string name="defi_onboarding_complete_description">Ваш DeFi Wallet успешно создан. Ваш DeFi Wallet поддерживает Bitcoin, Bitcoin Cash, Ethereum |и пр.|, а также 1500 токенов.</string>
     <string name="order_my_card">Заказать карту</string>
-    <string name="order_card_intro">Цифровая карта, которую вы можете мгновенно использовать для онлайн-платежей.</string>
+    <string name="order_card_intro">Тратьте криптовалюту или наличные без комиссии.¹ Возвращайте 0.5%% в криптовалюте.²</string>
     <string name="link_card_here">У вас уже есть карта? Привяжите ее здесь</string>
     <string name="virtual">Виртуально</string>
     <string name="virtual_card_product_description">Наша только цифровая карта, мгновенно используйте для онлайн-платежей.</string>
@@ -2601,10 +2444,10 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="terms_and_conditions">Условия и положения</string>
     <string name="card_created">Карта успешно создана</string>
     <string name="card_creation_failed">Не удалось успешно создать карту</string>
-    <string name="card_creation_failed_description">Иногда это может произойти, когда системы зависли. Вы можете повторить попытку, нажав «Попробовать еще раз» ниже</string>
+    <string name="card_creation_failed_description">Иногда такое случается, когда зависают системы. Вы можете повторить попытку, нажав «Повторить попытку» ниже</string>
     <string name="your_card_is_now_linked">Теперь ваша карта привязана к вашему Blockchain.com Wallet.</string>
     <string name="gpay_save_to_phone">Google Pay Сохранить на телефон</string>
-    <string name="do_it_later">Сделать позже</string>
+    <string name="do_it_later">Позже</string>
     <string name="delete_card">Удалить карту</string>
     <string name="manage">Управлять</string>
     <string name="add_funds">Добавить средства</string>
@@ -2619,7 +2462,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="virtual_card">Виртуальная карта</string>
     <string name="ready_to_use">Готова к использованию</string>
     <string name="card_details">Реквизиты карты</string>
-    <string name="no_fees_description">Без платы за регистрацию. Без ежегодных сборов. Без комиссий за транзакции.</string>
+    <string name="no_fees_description">Без платы за регистрацию. Без ежегодных комиссий. Без комиссий за транзакции.¹</string>
     <string name="processing">Идет обработка</string>
     <string name="spend_from">Тратить с</string>
     <string name="account_restricted">Аккаунт ограничен</string>
@@ -2630,10 +2473,9 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="go_to_dashboard">Перейти к панели управления</string>
     <string name="change_source">Изменить источник</string>
     <string name="manage_card">Управление картой</string>
-    <string name="my_card">Моя карточка</string>
-    <string name="recent_transactions">Недавние транзакции</string>
+    <string name="my_card">Моя карта</string>
     <string name="see_all">Смотреть все</string>
-    <string name="personal_details">Личные данные</string>
+    <string name="personal_details">Персональные данные</string>
     <string name="view_account_information">Смотреть информацию об аккаунте</string>
     <string name="transaction_controls">Управление транзакциями</string>
     <string name="settings_features_for_card_transactions">Настройки и функции для карточных транзакций</string>
@@ -2646,25 +2488,25 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="contactless_payments">Бесконтактные платежи</string>
     <string name="contactless_payments_description">Платежи на основе NFC</string>
     <string name="transaction_amount_limit">Лимит суммы транзакции</string>
-    <string name="transaction_amount_limit_description">Установить пользовательский лимит на исходящую транзакцию</string>
+    <string name="transaction_amount_limit_description">Установить пользовательский лимит расходов на транзакцию</string>
     <string name="billing_address">Адрес для выставления счета</string>
     <string name="address_placeholder_1">1242 Johnnyappleseed Ln.</string>
     <string name="address_placeholder_2">1234 Road Street</string>
-    <string name="address_city_placeholder">Уолнат-Крик</string>
-    <string name="address_state_placeholder">Калифорния</string>
+    <string name="address_city_placeholder">Walnut Creek</string>
+    <string name="address_state_placeholder">CA</string>
     <string name="address_state">Штат</string>
     <string name="address_zip_placeholder">94592</string>
     <string name="save">Сохранить</string>
     <string name="support_title">Поддержка карт Visa на Blockchain.com</string>
     <string name="card_lost">Моя карта была утеряна/украдена</string>
     <string name="card_lost_description">Сообщить об утерянной или украденной карте</string>
-    <string name="visit_faq">Посмотрите часто задаваемые вопросы</string>
-    <string name="visit_faq_description">Посмотрите наши самые популярные вопросы</string>
+    <string name="visit_faq">Просмотрите часто задаваемые вопросы</string>
+    <string name="visit_faq_description">Просмотрите наши самые популярные вопросы</string>
     <string name="contact_support_description">Свяжитесь с нами, если у вас есть другие вопросы</string>
     <string name="terminate_card">Прекратить действие карты</string>
     <string name="terminate_card_number">Прекратить действие карты %1s?</string>
     <string name="terminate_card_warning">После подтверждения это действие нельзя будет отменить.</string>
-    <string name="terminate_card_confirm_description">Введите «ЗАВЕРШИТЬ», чтобы прекратить действие карты навсегда</string>
+    <string name="terminate_card_confirm_description">Введите «ЗАВЕРШИТЬ», чтобы навсегда прекратить действие карты</string>
     <string name="no_accounts_eligible_for_linking">Нет аккаунтов, подходящих для связывания</string>
     <string name="terminate_card_confirmation_text">ЗАВЕРШИТЬ</string>
     <string name="address_updated">Платежный адрес обновлен</string>
@@ -2673,7 +2515,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="address_update_failed">Не удалось обновить адрес</string>
     <string name="address_update_failed_description">Не удалось обновить ваш платежный адрес. Попробуйте еще раз.</string>
     <string name="residential_address">Адрес проживания</string>
-    <string name="card_intro_title">Получите карту Visa Blockchain.com</string>
+    <string name="card_intro_title">Представляем карту Visa Blockchain.com</string>
     <string name="merchant">Торговец</string>
     <string name="type">Тип</string>
     <string name="state">Штат</string>
@@ -2684,7 +2526,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="bc_card_transaction_completed">Завершено</string>
     <string name="verify_your_identity">Подтвердите свою личность</string>
     <string name="verify_your_identity_description">Пожалуйста, подтвердите свой SSN или ИНН ниже, чтобы предотвратить создание мошеннических аккаунтов от вашего имени другими лицами.</string>
-    <string name="ssn_title">Номер социального страхования (SSN) или индивидуальный номер налогоплательщика (ИИН)</string>
+    <string name="ssn_title">Номер социального страхования (SSN) или индивидуальный номер налогоплательщика (ИНН)</string>
     <string name="ssn_hint">ХХХХХХХХ</string>
     <string name="bc_card_locked">Заблокирована</string>
     <string name="bc_card_transactions_title">Недавняя активность</string>
@@ -2707,7 +2549,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="bc_card_transaction_fee">Комиссия Blockchain.com</string>
     <string name="bc_card_transaction_original_amount">Всего %1$s</string>
     <string name="bc_card_dashboard_legal_disclaimer">Эта карта Visa® Blockchain.com выпущена Pathward, NA, членом FDIC, в соответствии с лицензией Visa USA Inc. Карта Visa Blockchain.com может использоваться везде, где принимаются дебетовые карты Visa.</string>
-    <string name="bc_card_transaction_refund_title">Возврат %1$s</string>
+    <string name="bc_card_transaction_refund_title">Возвращено %1$s</string>
     <string name="russia_sanctions_eu5_sheet_subtitle">В настоящее время торговля для баланса более 10 000 евро не разрешена из-за санкций регулирующих органов. Тем не менее, вы все еще можете удерживать или снимать средства.</string>
     <string name="accessibility_action_menu">Меню действий</string>
     <string name="accessibility_back">Назад</string>
@@ -2717,7 +2559,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="accessibility_support">Служба поддержки</string>
     <string name="accessibility_asset_name">Название актива</string>
     <string name="accessibility_current_market_price">Текущая рыночная цена</string>
-    <string name="accessibility_24h_change">24-часовая смена</string>
+    <string name="accessibility_24h_change">Изменение за 24 часа</string>
     <string name="accessibility_referral">Показать реферальный код</string>
     <string name="accessibility_price_not_available">Цена недоступна</string>
     <string name="accessibility_balance">Остаток</string>
@@ -2731,15 +2573,15 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="default_label_all_non_custodial_wallets">Все</string>
     <string name="default_label_all_custodial_wallets">Все</string>
     <string name="purchase_title_error">Ошибка покупки</string>
-    <string name="purchase_description_error">При покупке возникла проблема. Пожалуйста, попробуйте еще раз.</string>
+    <string name="purchase_description_error">При покупке возникла проблема. Попробуйте еще раз.</string>
     <string name="educational_wallet_mode_intro_title">Ваш Wallet стал лучше</string>
-    <string name="educational_wallet_mode_intro_description">Мы внесли несколько значительных улучшений в приложение Blockchain.com.</string>
+    <string name="educational_wallet_mode_intro_description">Мы внесли в приложение Blockchain.com несколько значительных улучшений.</string>
     <string name="educational_wallet_mode_menu_title">Новый способ навигации</string>
     <string name="educational_wallet_mode_menu_description">Легко переключайтесь между Trading Account и DeFi Wallet.</string>
-    <string name="educational_wallet_mode_defi_title">Ваш новый дом для DeFi</string>
-    <string name="educational_wallet_mode_defi_description">Получите доступ к своим кошелькам с закрытым ключом и взаимодействуйте с web3 и децентрализованными финансами.</string>
+    <string name="educational_wallet_mode_defi_title">Ваш новый дом для Private Key Wallet</string>
+    <string name="educational_wallet_mode_defi_description">Получите доступ к своим кошелькам Private Key Wallet и работайте с web3 и децентрализованными финансами.</string>
     <string name="educational_wallet_mode_defi_secure_tag">Защищено вами</string>
-    <string name="educational_wallet_mode_trading_title">Ваш торговый счет</string>
+    <string name="educational_wallet_mode_trading_title">Ваши аккаунты</string>
     <string name="educational_wallet_mode_trading_description">Получите доступ к своим счетам Trading и Rewards и покупайте и продавайте криптовалюту.</string>
     <string name="educational_wallet_mode_trading_secure_tag">Защищено Blockchain.com</string>
     <string name="educational_wallet_mode_cta">Начать</string>
@@ -2754,11 +2596,10 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="buy_crypto">Купить криптовалюту</string>
     <string name="defi_buy_not_supported">В настоящее время мы не поддерживаем покупку криптовалюты в ваш Private Key Wallet. Вы можете купить криптовалюту со своего Trading Account и отправить на свой Private Key Wallet.</string>
     <string name="go_to_trading">Перейти к Trading Account</string>
-    <string name="use_your_card_or_cash">Используйте наличные деньги или карту</string>
     <string name="fiat_to_cash">Конвертируйте свою криптовалюту в наличные</string>
-    <string name="address_verification_my_address_is_not_here">моего адреса здесь нет</string>
+    <string name="address_verification_my_address_is_not_here">Моего адреса здесь нет</string>
     <string name="address_verification_home_address">Домашний адрес</string>
-    <string name="address_verification_apt_suite">Квартира, люкс и т. Д.</string>
+    <string name="address_verification_apt_suite">Квартира и т.п.</string>
     <string name="address_verification_city">Город</string>
     <string name="address_verification_state">Штат</string>
     <string name="address_verification_zip">Почтовый индекс</string>
@@ -2766,10 +2607,10 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="address_verification_country">Страна</string>
     <string name="address_verification_postcode_error">Почтовый индекс недействителен</string>
     <string name="address_verification_addresses_count">%1$d адресов</string>
-    <string name="address_verification_invalid_state_title">Вы не можете изменить свое состояние</string>
-    <string name="address_verification_invalid_state_message">Если вам нужно изменить свое состояние, обратитесь в нашу службу поддержки.</string>
+    <string name="address_verification_invalid_state_title">Вы не можете изменить свой штат</string>
+    <string name="address_verification_invalid_state_message">Если вам нужно изменить свой штат, обратитесь в нашу службу поддержки.</string>
     <string name="kyc_enter_address">Введите свой текущий домашний адрес.</string>
-    <string name="kyc_enter_address_manually">Ввести вручную - &gt;</string>
+    <string name="kyc_enter_address_manually">Ввести вручную -&gt;</string>
     <string name="kyc_postcode_error">Почтовый индекс недействителен</string>
     <string name="kyc_autocomplete_addresses_error">Не удалось получить адреса</string>
     <string name="kyc_autocomplete_selected_address_error">Не удалось получить адрес</string>
@@ -2778,34 +2619,31 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="bc_card_out_of_funds_top_up">На вашей карте закончились средства, пополните ее</string>
     <string name="bc_card_kyc_address_input_title">Домашний адрес</string>
     <string name="bc_card_kyc_commercial_address_not_accepted">Почтовый ящик или коммерческий адрес не принимаются</string>
-    <string name="bc_card_kyc_ssn_secured_with_encryption">Информация защищена 256-битным шифрованием</string>
     <string name="enter_amount_balance_row_sell_label">Доступно для продажи</string>
-    <string name="enter_amount_balance_row_swap_label">Доступен для обмена</string>
+    <string name="enter_amount_balance_row_swap_label">Доступно для обмена</string>
     <string name="enter_amount_quickfill_25">25%</string>
     <string name="enter_amount_quickfill_50">50%</string>
     <string name="enter_amount_quickfill_75">75%</string>
     <string name="tx_enter_amount_swap_fees_title">Доступно для обмена</string>
     <string name="tx_enter_amount_sell_fees_title">Доступно для продажи</string>
-    <string name="tx_enter_amount_fee_sheet_description">Ваш доступный баланс — это общая доступная сумма за вычетом расчетных сетевых сборов.</string>
+    <string name="tx_enter_amount_fee_sheet_description">Ваш доступный баланс — это общая доступная сумма за вычетом примерных сетевых комиссий.</string>
     <string name="tx_enter_amount_fee_sheet_total_label">Всего %1$s</string>
-    <string name="tx_enter_amount_fee_sheet_fee_label">Стандартное восточное время. Сетевые сборы</string>
+    <string name="tx_enter_amount_fee_sheet_fee_label">Прим. сетевые комиссии</string>
     <string name="tx_enter_amount_fee_sheet_swap_available_label">Доступно для обмена</string>
     <string name="tx_enter_amount_fee_sheet_sell_available_label">Доступно для продажи</string>
     <string name="chrome_navigation_home">Главная</string>
-    <string name="chrome_navigation_trade">Сделка</string>
     <string name="chrome_navigation_card">Карта</string>
     <string name="chrome_navigation_nft">NFT</string>
     <string name="show_trading_accounts">Показать торговые счета</string>
     <string name="secured_by_bchain">Защищено Blockchain.com</string>
     <string name="see_card_benefits">Посмотреть преимущества карты</string>
-    <string name="no_fees_title">Без комиссий</string>
-    <string name="crypto_back_title">Криптовалюта Назад</string>
-    <string name="crypto_back_description">Получайте 0,5 %% в виде крипто-вознаграждений за все свои покупки.²</string>
-    <string name="bc_card_order_intro_legal_disclaimer">Эта карта Visa® Blockchain.com выпущена Pathward, NA, членом FDIC, в соответствии с лицензией Visa USA Inc. Карта Visa Blockchain.com может использоваться везде, где принимаются дебетовые карты Visa. ¹Без комиссии Blockchain.com, но при продаже криптовалют применяется спред. ²Это дополнительное предложение не является продуктом или услугой Pathward, и Pathward не поддерживает это предложение.</string>
+    <string name="crypto_back_title">Криптовозврат</string>
+    <string name="crypto_back_description">Возвращайте 0,5 %% в виде крипто-вознаграждений за все свои покупки.²</string>
+    <string name="bc_card_order_intro_legal_disclaimer">Эта карта Visa® Blockchain.com выпущена Pathward, NA, членом FDIC, в соответствии с лицензией Visa USA Inc. Карта Visa Blockchain.com может использоваться везде, где принимаются дебетовые карты Visa. ¹Комиссия Blockchain.com не применяется, но при продаже криптовалют применяется спред. ²Это дополнительное предложение не является продуктом или услугой Pathward, и Pathward не поддерживает это предложение.</string>
     <string name="bc_card_spend_limits">Лимиты расходов</string>
     <string name="bc_card_atm_limits_disclaimer">Разовый доступ к банкомату в течение 24 часов</string>
     <string name="bc_card_atm_limits">Лимиты банкоматов</string>
-    <string name="bc_card_benefits_disclaimer">¹Без комиссии Blockchain.com, но при продаже криптовалют применяется спред. ²Это дополнительное предложение не является продуктом или услугой Pathward, и Pathward не поддерживает это предложение.</string>
+    <string name="bc_card_benefits_disclaimer">¹Комиссия Blockchain.com не применяется, но при продаже криптовалют применяется спред. ²Это дополнительное предложение не является продуктом или услугой Pathward, и Pathward не поддерживает это предложение</string>
     <string name="common_daily">Ежедневно</string>
     <string name="common_monthly">Ежемесячно</string>
     <string name="common_per_transaction">За транзакцию</string>
@@ -2813,19 +2651,23 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="common_withdrawal">Вывод</string>
     <string name="common_get_started">Начать</string>
     <string name="bc_card_how_to_order_title">Как заказать карту</string>
-    <string name="bc_card_how_to_order_secondary_title">Прежде чем продолжить, прочтите приведенные ниже шаги, чтобы заказать карту.</string>
+    <string name="bc_card_how_to_order_secondary_title">Прежде чем продолжить, ознакомьтесь с описанными ниже шагами заказа карты.</string>
     <string name="bc_card_instructions_title">Как это работает:</string>
-    <string name="bc_card_order_time_estimation">Стандартное восточное время. время: 2 мин.</string>
+    <string name="bc_card_order_time_estimation">Прим. время: 2 мин.</string>
     <string name="bc_card_verify_address_identity">Подтвердить адрес и личность</string>
-    <string name="bc_card_verify_address_identity_description">По закону мы обязаны собирать небольшое количество личной информации.</string>
+    <string name="bc_card_verify_address_identity_description">По закону мы обязаны собирать некоторую персональную информацию.</string>
     <string name="bc_choose_order_card">Выберите и закажите карту</string>
-    <string name="bc_card_choose_order_description">Выберите карту, которая лучше всего подходит вам, просмотрите свой заказ, и все готово.</string>
+    <string name="bc_card_choose_order_description">Выберите карту, которая вам больше всего подходит, проверьте заказ — и готово.</string>
     <string name="bc_card_personal_data_privacy_title">Персональные данные и вопросы конфиденциальности</string>
-    <string name="bc_card_personal_data_privacy_description">Ваша личная информация никогда не будет продана, отслежена или сохранена Blockchain.com.</string>
-    <string name="bc_card_review_and_submit_description">Пожалуйста, ознакомьтесь с приведенной ниже информацией, если она верна, примите условия, чтобы завершить оформление вашего заказа.</string>
+    <string name="bc_card_personal_data_privacy_description">Ваша персональная информация никогда не будет продаваться, отслеживаться или храниться Blockchain.com.</string>
+    <string name="bc_card_review_and_submit_description">Ознакомьтесь с приведенной ниже информацией. Если она верна, примите условия, чтобы завершить оформление заказа</string>
     <string name="bc_card_want_to_update_name">Хотите обновить свое имя? Свяжитесь с нами</string>
-    <string name="bc_card_review_and_submit_title">Просмотрите и отправьте</string>
-    <string name="common_network">Сеть</string>
+    <string name="bc_card_review_and_submit_title">Просмотреть и отправить</string>
     <string name="common_balance">Остаток</string>
     <string name="select_account_sheet_title_defi">Выберите Wallet</string>
+    <string name="default_label_custodial_wallets">Учетные записи</string>
+    <string name="ma_home_assets_title">Активы</string>
+    <string name="nft_creator">Создатель</string>
+    <string name="nft_description">Описание</string>
+    <string name="nft_help_instructions">Инструкции</string>
 </resources>
