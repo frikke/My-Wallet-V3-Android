@@ -17,6 +17,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SimpleBuyPaymentMethodChooserBinding
 import piuk.blockchain.android.simplebuy.BankTransferViewed
 import piuk.blockchain.android.simplebuy.BuyMethodOptionsViewed
+import piuk.blockchain.android.simplebuy.BuyPaymentAddNewClickedEvent
 import piuk.blockchain.android.simplebuy.paymentMethodsShown
 import piuk.blockchain.android.simplebuy.toAnalyticsString
 import piuk.blockchain.android.simplebuy.toPaymentTypeAnalyticsString
@@ -84,6 +85,7 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
             if (isShowingPaymentMethods) getString(R.string.pay_with_my_dotted) else getString(R.string.payment_methods)
         binding.addPaymentMethod.setOnClickListener {
             (host as? Host)?.showAvailableToAddPaymentMethods()
+            analytics.logEvent(BuyPaymentAddNewClickedEvent)
             dismiss()
         }
 

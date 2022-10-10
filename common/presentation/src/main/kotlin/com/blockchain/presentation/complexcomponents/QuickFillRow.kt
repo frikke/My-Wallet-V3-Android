@@ -98,5 +98,6 @@ data class QuickFillButtonData(
 
 data class QuickFillDisplayAndAmount(
     val displayValue: String,
-    val amount: Money
+    val amount: Money,
+    val position: Int
 )

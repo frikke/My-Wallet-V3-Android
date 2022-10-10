@@ -66,7 +66,7 @@ private fun buildCustodialGroup(
     val grpAccounts = accountList.filterIsInstance<CustodialTradingAccount>()
     return if (grpAccounts.isNotEmpty()) {
         CryptoAccountTradingGroup(
-            labels.getDefaultCustodialWalletLabel(), grpAccounts
+            labels.getDefaultTradingWalletLabel(), grpAccounts
         )
     } else {
         null
@@ -95,7 +95,7 @@ private fun buildNonCustodialGroup(
     val grpAccounts = accountList.filterIsInstance<CryptoNonCustodialAccount>()
     return if (grpAccounts.isNotEmpty()) {
         CryptoAccountNonCustodialGroup(
-            asset, labels.getDefaultCustodialWalletLabel(), grpAccounts
+            asset, labels.getDefaultTradingWalletLabel(), grpAccounts
         )
     } else {
         null

@@ -768,11 +768,12 @@ class MainActivity :
             is Destination.AssetViewDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     activityResultsContract.launch(
-                        // TODO(dserrano) - STAKING - Ask Othman about recurring buy deeplinks
                         if (isStakingAccountEnabled) {
                             CoinViewActivityV2.newIntent(
                                 context = this,
-                                asset = assetInfo
+                                asset = assetInfo,
+                                recurringBuyId = destination.recurringBuyId,
+                                originScreen = LaunchOrigin.DEEPLINK.name
                             )
                         } else {
                             CoinViewActivity.newIntent(

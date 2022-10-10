@@ -22,9 +22,12 @@ import com.blockchain.componentlib.alert.SnackbarAlert
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.github.mikephil.charting.data.Entry
+import info.blockchain.balance.CryptoCurrency
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAccountsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetInfoState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewAssetTradeableState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewBottomQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewCenterQuickActionsState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewIntent
@@ -35,6 +38,7 @@ import piuk.blockchain.android.ui.coinview.presentation.CoinviewSnackbarAlertSta
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewTotalBalanceState
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewModel
 import piuk.blockchain.android.ui.coinview.presentation.CoinviewViewState
+import piuk.blockchain.android.ui.coinview.presentation.CoinviewWatchlistState
 import piuk.blockchain.android.ui.coinview.presentation.SimpleValue
 import piuk.blockchain.android.ui.coinview.presentation.toModelState
 import piuk.blockchain.android.util.getStringMaybe
@@ -53,8 +57,10 @@ fun Coinview(
     viewState?.let { state ->
         CoinviewScreen(
             backOnClick = backOnClick,
-            networkTicker = state.assetName,
-
+            asset = state.asset,
+            onContactSupportClick = {
+                viewModel.onIntent(CoinviewIntent.ContactSupport)
+            },
             price = state.assetPrice,
             onChartEntryHighlighted = { entry ->
                 viewModel.onIntent(CoinviewIntent.UpdatePriceForChartSelection(entry))
@@ -65,9 +71,14 @@ fun Coinview(
             onNewTimeSpanSelected = { timeSpan ->
                 viewModel.onIntent(CoinviewIntent.NewTimeSpanSelected(timeSpan))
             },
+            tradeable = state.tradeable,
+
+            watchlist = state.watchlist,
+            onWatchlistClick = {
+                viewModel.onIntent(CoinviewIntent.ToggleWatchlist)
+            },
 
             totalBalance = state.totalBalance,
-
             accounts = state.accounts,
             onAccountClick = { account ->
                 viewModel.onIntent(CoinviewIntent.AccountSelected(account))
@@ -75,9 +86,7 @@ fun Coinview(
             onLockedAccountClick = {
                 viewModel.onIntent(CoinviewIntent.LockedAccountSelected)
             },
-
             quickActionsCenter = state.centerQuickAction,
-
             recurringBuys = state.recurringBuys,
             onRecurringBuyUpsellClick = {
                 viewModel.onIntent(CoinviewIntent.RecurringBuysUpsell)
@@ -85,15 +94,12 @@ fun Coinview(
             onRecurringBuyItemClick = { recurringBuyId ->
                 viewModel.onIntent(CoinviewIntent.ShowRecurringBuyDetail(recurringBuyId))
             },
-
             quickActionsBottom = state.bottomQuickAction,
             onQuickActionClick = { quickAction ->
                 viewModel.onIntent(CoinviewIntent.QuickActionSelected(quickAction.toModelState()))
             },
-
             assetInfo = state.assetInfo,
             onWebsiteClick = { /*todo*/ },
-
             snackbarAlert = state.snackbarError
         )
     }
@@ -102,12 +108,19 @@ fun Coinview(
 @Composable
 fun CoinviewScreen(
     backOnClick: () -> Unit,
-    networkTicker: String,
+
+    asset: CoinviewAssetState,
+    onContactSupportClick: () -> Unit,
 
     price: CoinviewPriceState,
     onChartEntryHighlighted: (Entry) -> Unit,
     resetPriceInformation: () -> Unit,
     onNewTimeSpanSelected: (HistoricalTimeSpan) -> Unit,
+
+    tradeable: CoinviewAssetTradeableState,
+
+    watchlist: CoinviewWatchlistState,
+    onWatchlistClick: () -> Unit,
 
     totalBalance: CoinviewTotalBalanceState,
 
@@ -132,56 +145,70 @@ fun CoinviewScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             NavigationBar(
-                title = networkTicker,
+                title = (asset as? CoinviewAssetState.Data)?.asset?.networkTicker ?: "",
                 onBackButtonClick = backOnClick
             )
 
-            Column(modifier = Modifier.fillMaxSize()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1F)
-                        .verticalScroll(rememberScrollState()),
-                ) {
-                    AssetPrice(
-                        data = price,
-                        onChartEntryHighlighted = onChartEntryHighlighted,
-                        resetPriceInformation = resetPriceInformation,
-                        onNewTimeSpanSelected = onNewTimeSpanSelected
-                    )
-
-                    TotalBalance(
-                        data = totalBalance
-                    )
-
-                    AssetAccounts(
-                        data = accounts,
-                        onAccountClick = onAccountClick,
-                        onLockedAccountClick = onLockedAccountClick
-                    )
-
-                    CenterQuickActions(
-                        data = quickActionsCenter,
-                        onQuickActionClick = onQuickActionClick
-                    )
-
-                    RecurringBuys(
-                        data = recurringBuys,
-                        onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
-                        onRecurringBuyItemClick = onRecurringBuyItemClick
-                    )
-
-                    AssetInfo(
-                        data = assetInfo,
-                        onWebsiteClick = onWebsiteClick
-                    )
+            when (asset) {
+                CoinviewAssetState.Error -> {
+                    UnknownAsset(onContactSupportClick = onContactSupportClick)
                 }
 
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    BottomQuickActions(
-                        data = quickActionsBottom,
-                        onQuickActionClick = onQuickActionClick
-                    )
+                is CoinviewAssetState.Data -> {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1F)
+                                .verticalScroll(rememberScrollState()),
+                        ) {
+                            AssetPrice(
+                                data = price,
+                                onChartEntryHighlighted = onChartEntryHighlighted,
+                                resetPriceInformation = resetPriceInformation,
+                                onNewTimeSpanSelected = onNewTimeSpanSelected
+                            )
+
+                            TotalBalance(
+                                totalBalanceData = totalBalance,
+                                watchlistData = watchlist,
+                                onWatchlistClick = onWatchlistClick
+                            )
+
+                            NonTradeableAsset(
+                                data = tradeable
+                            )
+
+                            AssetAccounts(
+                                data = accounts,
+                                onAccountClick = onAccountClick,
+                                onLockedAccountClick = onLockedAccountClick
+                            )
+
+                            CenterQuickActions(
+                                data = quickActionsCenter,
+                                onQuickActionClick = onQuickActionClick
+                            )
+
+                            RecurringBuys(
+                                data = recurringBuys,
+                                onRecurringBuyUpsellClick = onRecurringBuyUpsellClick,
+                                onRecurringBuyItemClick = onRecurringBuyItemClick
+                            )
+
+                            AssetInfo(
+                                data = assetInfo,
+                                onWebsiteClick = onWebsiteClick
+                            )
+                        }
+
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            BottomQuickActions(
+                                data = quickActionsBottom,
+                                onQuickActionClick = onQuickActionClick
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -209,13 +236,61 @@ fun Empty() {
 fun PreviewCoinviewScreen() {
     CoinviewScreen(
         backOnClick = {},
-        networkTicker = "ETH",
+
+        asset = CoinviewAssetState.Data(CryptoCurrency.ETHER),
+        onContactSupportClick = {},
+
         price = CoinviewPriceState.Loading,
         onChartEntryHighlighted = {},
         resetPriceInformation = {},
         onNewTimeSpanSelected = {},
-        totalBalance = CoinviewTotalBalanceState.Loading,
 
+        tradeable = CoinviewAssetTradeableState.Tradeable,
+
+        watchlist = CoinviewWatchlistState.Loading,
+        onWatchlistClick = {},
+
+        totalBalance = CoinviewTotalBalanceState.Loading,
+        accounts = CoinviewAccountsState.Loading,
+        onAccountClick = {},
+        onLockedAccountClick = {},
+
+        quickActionsCenter = CoinviewCenterQuickActionsState.Loading,
+
+        recurringBuys = CoinviewRecurringBuysState.Loading,
+        onRecurringBuyUpsellClick = {},
+        onRecurringBuyItemClick = {},
+
+        quickActionsBottom = CoinviewBottomQuickActionsState.Loading,
+        onQuickActionClick = {},
+
+        assetInfo = CoinviewAssetInfoState.Loading,
+        onWebsiteClick = {},
+
+        snackbarAlert = CoinviewSnackbarAlertState.None
+    )
+}
+
+@Preview(name = "CoinviewScreen unknown", showBackground = true)
+@Composable
+fun PreviewCoinviewScreen_Unknown() {
+    CoinviewScreen(
+        backOnClick = {},
+
+        asset = CoinviewAssetState.Error,
+        onContactSupportClick = {},
+
+        price = CoinviewPriceState.Loading,
+        onChartEntryHighlighted = {},
+        resetPriceInformation = {},
+        onNewTimeSpanSelected = {},
+
+        tradeable = CoinviewAssetTradeableState.Tradeable,
+
+        watchlist = CoinviewWatchlistState.Loading,
+        onWatchlistClick = {},
+
+        totalBalance = CoinviewTotalBalanceState.Loading,
         accounts = CoinviewAccountsState.Loading,
         onAccountClick = {},
         onLockedAccountClick = {},

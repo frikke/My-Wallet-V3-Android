@@ -3,7 +3,6 @@ package com.blockchain.api.staking.data
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// TODO(dserrano) - STAKING - unused at the moment
 @Serializable
 data class StakingBalanceDto(
     @SerialName("balance")

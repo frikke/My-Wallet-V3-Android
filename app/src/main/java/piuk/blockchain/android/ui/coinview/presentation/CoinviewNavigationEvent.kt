@@ -11,6 +11,7 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
         val cvAccount: CoinviewAccount,
         val networkTicker: String,
         val interestRate: Double,
+        val stakingRate: Double,
         val actions: List<StateAwareAction>
     ) : CoinviewNavigationEvent
 
@@ -69,6 +70,16 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
     ) : CoinviewNavigationEvent
 
     data class NavigateToRecurringBuyUpsell(
-        val asset: CryptoAsset,
+        val asset: CryptoAsset
     ) : CoinviewNavigationEvent
+
+    data class ShowRecurringBuySheet(
+        val recurringBuyId: String
+    ) : CoinviewNavigationEvent
+
+    data class ShowStakingAccountInterstitial(
+        val assetIconUrl: String?
+    ) : CoinviewNavigationEvent
+
+    object NavigateToSupport : CoinviewNavigationEvent
 }

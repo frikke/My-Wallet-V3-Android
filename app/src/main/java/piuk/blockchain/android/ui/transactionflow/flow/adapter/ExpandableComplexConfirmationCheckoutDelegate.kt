@@ -18,7 +18,10 @@ import piuk.blockchain.android.ui.transactionflow.flow.ConfirmationPropertyKey
 import piuk.blockchain.android.ui.transactionflow.flow.TxConfirmReadOnlyMapperCheckout
 import piuk.blockchain.android.util.getResolvedColor
 
-class ExpandableComplexConfirmationCheckout(private val mapper: TxConfirmReadOnlyMapperCheckout) :
+class ExpandableComplexConfirmationCheckout(
+    private val mapper: TxConfirmReadOnlyMapperCheckout,
+    private val onTooltipClicked: (TxConfirmationValue) -> Unit,
+) :
     AdapterDelegate<TxConfirmationValue> {
     override fun isForViewType(items: List<TxConfirmationValue>, position: Int): Boolean {
         return items[position].confirmation == TxConfirmation.EXPANDABLE_COMPLEX_READ_ONLY
@@ -35,7 +38,8 @@ class ExpandableComplexConfirmationCheckout(private val mapper: TxConfirmReadOnl
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as ExpandableComplexConfirmationCheckoutItemViewHolder).bind(
-        items[position]
+        items[position],
+        onTooltipClicked
     )
 }
 
@@ -48,15 +52,13 @@ private class ExpandableComplexConfirmationCheckoutItemViewHolder(
     init {
         with(binding) {
             expandableComplexItemExpansion.movementMethod = LinkMovementMethod.getInstance()
-            expandableComplexItemLabel.setOnClickListener {
-                isExpanded = !isExpanded
-                expandableComplexItemExpansion.visibleIf { isExpanded }
-                updateIcon()
-            }
         }
     }
 
-    fun bind(item: TxConfirmationValue) {
+    fun bind(
+        item: TxConfirmationValue,
+        onTooltipClicked: (TxConfirmationValue) -> Unit,
+    ) {
         with(binding) {
             mapper.map(item).run {
                 expandableComplexItemLabel.text = this[ConfirmationPropertyKey.LABEL] as String
@@ -65,6 +67,12 @@ private class ExpandableComplexConfirmationCheckoutItemViewHolder(
                 expandableComplexItemExpansion.setText(
                     this[ConfirmationPropertyKey.LINKED_NOTE] as SpannableStringBuilder, TextView.BufferType.SPANNABLE
                 )
+                expandableComplexItemLabel.setOnClickListener {
+                    isExpanded = !isExpanded
+                    expandableComplexItemExpansion.visibleIf { isExpanded }
+                    updateIcon()
+                    onTooltipClicked(item)
+                }
             }
         }
         updateIcon()

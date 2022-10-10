@@ -167,8 +167,12 @@ class SimpleBuyCryptoFragment :
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         activity.updateToolbar(
             toolbarTitle = getString(R.string.tx_title_buy, asset.displayTicker),
-            backAction = { activity.onBackPressedDispatcher.onBackPressed() }
+            backAction = {
+                analytics.logEvent(BuyAmountScreenBackClickedEvent)
+                activity.onBackPressedDispatcher.onBackPressed()
+            }
         )
+        analytics.logEvent(BuyAmountScreenViewedEvent)
         model.process(SimpleBuyIntent.InitializeFeatureFlags)
         model.process(SimpleBuyIntent.InitialiseSelectedCryptoAndFiat(asset, fiatCurrency))
         model.process(
@@ -200,7 +204,10 @@ class SimpleBuyCryptoFragment :
                 }
             }
 
-        binding.btnContinue.setOnClickListener { startBuy() }
+        binding.btnContinue.setOnClickListener {
+            startBuy()
+            // analytics.logEvent(BUY)
+        }
 
         compositeDisposable += binding.inputAmount.onImeAction.subscribe {
             if (it == PrefixedOrSuffixedEditText.ImeOptions.NEXT)
@@ -333,16 +340,10 @@ class SimpleBuyCryptoFragment :
             check(paymentMethodDetails != null)
 
             analytics.logEvent(
-                BuyAmountEntered(
-                    frequency = state.recurringBuyFrequency.name,
+                BuyAmountScreenNextClicked(
                     inputAmount = state.amount,
-                    maxCardLimit = if (paymentMethodDetails is PaymentMethod.Card) {
-                        paymentMethodDetails.limits.max
-                        state.amount
-                    } else null,
                     outputCurrency = state.selectedCryptoAsset?.networkTicker ?: return,
-                    paymentMethod = state.selectedPaymentMethod?.paymentMethodType
-                        ?: return
+                    paymentMethod = state.selectedPaymentMethod?.paymentMethodType ?: return
                 )
             )
         }
@@ -376,7 +377,7 @@ class SimpleBuyCryptoFragment :
 
     private fun sendAnalyticsQuickFillButtonTapped(buttonTapped: Money, position: Int) {
         analytics.logEvent(
-            QuickFillButtonTapped(
+            BuyQuickFillButtonClicked(
                 amount = buttonTapped.toBigDecimal().toString(),
                 amountType = AmountType.values()[position],
                 currency = buttonTapped.currencyCode
@@ -401,6 +402,13 @@ class SimpleBuyCryptoFragment :
                             )
                         },
                         onMaxItemClick = { maxAmount ->
+                            analytics.logEvent(
+                                BuyQuickFillButtonClicked(
+                                    amount = maxAmount.toBigDecimal().toString(),
+                                    amountType = AmountType.MAX,
+                                    currency = maxAmount.currencyCode
+                                )
+                            )
                             model.process(
                                 SimpleBuyIntent.PrefillEnterAmount(maxAmount as FiatValue)
                             )
@@ -702,6 +710,7 @@ class SimpleBuyCryptoFragment :
             paymentMethodDetailsRoot.apply {
                 visible()
                 onClick = {
+                    analytics.logEvent(BuyChangePaymentMethodClickedEvent)
                     showPaymentMethodsBottomSheet(
                         state = state.paymentOptions.availablePaymentMethods.toPaymentMethodChooserState(),
                         paymentOptions = state.paymentOptions,
@@ -1229,7 +1238,7 @@ class SimpleBuyCryptoFragment :
 
         if (paymentMethod.canBeUsedForPaying()) {
             analytics.logEvent(
-                BuyPaymentMethodSelected(
+                BuyPaymentMethodChanged(
                     paymentMethod.toNabuAnalyticsString()
                 )
             )

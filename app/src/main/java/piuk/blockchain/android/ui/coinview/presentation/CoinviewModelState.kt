@@ -31,6 +31,9 @@ data class CoinviewModelState(
     val requestedTimeSpan: HistoricalTimeSpan? = null,
     val interactiveAssetPrice: CoinviewAssetPrice? = null,
 
+    // watchlist
+    val watchlist: DataResource<Boolean> = DataResource.Loading,
+
     // asset detail (accounts/non tradeable)
     val assetDetail: DataResource<CoinviewAssetDetail> = DataResource.Loading,
 
@@ -44,8 +47,14 @@ data class CoinviewModelState(
     val assetInfo: DataResource<DetailedAssetInformation> = DataResource.Loading,
 
     // errors
-    val error: CoinviewError = CoinviewError.None
+    val error: CoinviewError = CoinviewError.None,
+
+    // deeplinks
+    val recurringBuyId: String? = null,
 ) : ModelState {
+    val isTradeableAsset: Boolean?
+        get() = (assetDetail as? DataResource.Data)?.data?.let { it is CoinviewAssetDetail.Tradeable }
+
     val accounts: CoinviewAccounts?
         get() = ((assetDetail as? DataResource.Data)?.data as? CoinviewAssetDetail.Tradeable)?.accounts
 
@@ -91,10 +100,20 @@ data class CoinviewModelState(
 
 sealed interface CoinviewError {
     /**
+     * Error that could occur when loading accounts fails
+     */
+    object AccountsLoadError : CoinviewError
+
+    /**
      * Error that could occur when loading the account actions fails
      * @see GetAccountActionsUseCase
      */
     object ActionsLoadError : CoinviewError
+
+    /**
+     * Error that could occur when toggling watchlist fails
+     */
+    object WatchlistToggleError : CoinviewError
 
     object None : CoinviewError
 }

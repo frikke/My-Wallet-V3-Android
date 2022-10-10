@@ -156,6 +156,7 @@ class SimpleBuyActivity :
             toolbarTitle = getString(R.string.common_buy),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
+        analytics.logEvent(BuyAssetScreenViewedEvent)
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
                 bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()?.let {
@@ -278,6 +279,7 @@ class SimpleBuyActivity :
         launchLinkCard: Boolean,
         launchPaymentMethodSelection: Boolean,
     ) {
+        analytics.logEvent(BuyAssetSelectedEvent(type = preselectedAsset.networkTicker))
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(

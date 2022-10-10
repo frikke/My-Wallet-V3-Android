@@ -14,13 +14,14 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.staking.domain.StakingService
-import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.combineDataResources
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
@@ -38,7 +39,6 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalanc
 class LoadAssetAccountsUseCase(
     private val walletModeService: WalletModeService,
     private val interestService: InterestService,
-    private val watchlistDataManager: WatchlistDataManager,
     private val currencyPrefs: CurrencyPrefs,
     private val stakingService: StakingService
 ) {
@@ -54,9 +54,8 @@ class LoadAssetAccountsUseCase(
             accountsFlow,
             asset.getPricesWith24hDelta(),
             interestService.getInterestRateFlow(asset.currency),
-            flowOf(DataResource.Data(watchlistDataManager.isAssetInWatchlist(asset.currency).await())),
             stakingService.getRateForAsset(asset.currency, FreshnessStrategy.Cached(forceRefresh = false))
-        ) { accounts, prices, interestRate, isAddedToWatchlist, stakingRate ->
+        ) { accounts, prices, interestRate, stakingRate ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // available accounts to see if we support custodial or PK balances as a guideline to asset support
 
@@ -64,9 +63,8 @@ class LoadAssetAccountsUseCase(
                 accounts,
                 prices,
                 interestRate,
-                isAddedToWatchlist,
                 stakingRate
-            ) { accountsData, pricesData, interestRateData, isAddedToWatchlistData, stakingRateData ->
+            ) { accountsData, pricesData, interestRateData, stakingRateData ->
                 val isTradeableAsset = accountsData.any {
                     it.account is NonCustodialAccount || it.account is CustodialTradingAccount
                 }
@@ -96,7 +94,6 @@ class LoadAssetAccountsUseCase(
                     totalCryptoBalance[AssetFilter.All] = totalCryptoMoneyAll
 
                     CoinviewAssetDetail.Tradeable(
-                        isAddedToWatchlist = isAddedToWatchlistData,
                         accounts = accountsList,
                         totalBalance = CoinviewAssetTotalBalance(
                             totalCryptoBalance = totalCryptoBalance,
@@ -105,7 +102,12 @@ class LoadAssetAccountsUseCase(
                     )
                 } else {
                     CoinviewAssetDetail.NonTradeable(
-                        isAddedToWatchlist = isAddedToWatchlistData
+                        totalBalance = CoinviewAssetTotalBalance(
+                            totalCryptoBalance = hashMapOf(
+                                AssetFilter.All to CryptoValue.zero(asset.currency)
+                            ),
+                            totalFiatBalance = FiatValue.zero(currencyPrefs.selectedFiatCurrency)
+                        )
                     )
                 }
             }

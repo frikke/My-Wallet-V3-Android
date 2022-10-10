@@ -23,6 +23,10 @@ fun BottomQuickActions(
     onQuickActionClick: (CoinviewQuickActionState) -> Unit
 ) {
     when (data) {
+        CoinviewBottomQuickActionsState.NotSupported -> {
+            Empty()
+        }
+
         CoinviewBottomQuickActionsState.Loading -> {
             BottomQuickActionLoading()
         }

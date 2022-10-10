@@ -136,7 +136,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                 listOf(
                     CustodialTradingAccount(
                         currency = currency,
-                        label = labels.getDefaultCustodialWalletLabel(),
+                        label = labels.getDefaultTradingWalletLabel(),
                         exchangeRates = exchangeRates,
                         custodialWalletManager = custodialManager,
                         tradingService = tradingService,
@@ -165,7 +165,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                             exchangeRates = exchangeRates,
                             identity = identity,
                             kycService = kycService,
-                            internalAccountLabel = labels.getDefaultCustodialWalletLabel()
+                            internalAccountLabel = labels.getDefaultTradingWalletLabel()
                         )
                     )
                 } else {
@@ -189,7 +189,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                             exchangeRates = exchangeRates,
                             identity = identity,
                             kycService = kycService,
-                            internalAccountLabel = labels.getDefaultCustodialWalletLabel()
+                            internalAccountLabel = labels.getDefaultTradingWalletLabel()
                         )
                     )
                 } else {

@@ -29,6 +29,7 @@ import com.blockchain.core.custodial.models.Promo
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.DIFFERENT_PAYMENT_URL
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.common.model.ServerSideUxErrorInfo
+import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.GooglePayAddress
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
@@ -93,7 +94,14 @@ class SimpleBuyCheckoutFragment :
 
     private var lastState: SimpleBuyState? = null
     private val checkoutAdapterDelegate = CheckoutAdapterDelegate(
-        onToggleChanged = { updateRecurringBuy = it }
+        onToggleChanged = { updateRecurringBuy = it },
+        onTooltipClicked = { expandableType ->
+            if (expandableType == SimpleBuyCheckoutItem.ExpandableType.PRICE) {
+                analytics.logEvent(BuyPriceTooltipClickedEvent)
+            } else if (expandableType == SimpleBuyCheckoutItem.ExpandableType.FEE) {
+                analytics.logEvent(BuyBlockchainComFeeClickedEvent)
+            }
+        },
     )
 
     private var countDownTimer: CountDownTimer? = null
@@ -143,7 +151,10 @@ class SimpleBuyCheckoutFragment :
             } else {
                 getString(R.string.checkout)
             },
-            backAction = { activity.onBackPressedDispatcher.onBackPressed() }
+            backAction = {
+                analytics.logEvent(BuyCheckoutScreenBackClickedEvent)
+                activity.onBackPressedDispatcher.onBackPressed()
+            }
         )
     }
 
@@ -207,6 +218,7 @@ class SimpleBuyCheckoutFragment :
 
         // Event should be triggered only the first time a state is rendered
         if (lastState == null) {
+            analytics.logEvent(BuyCheckoutScreenViewedEvent)
             analytics.logEvent(
                 eventWithPaymentMethod(
                     SimpleBuyAnalytics.CHECKOUT_SUMMARY_SHOWN,
@@ -349,14 +361,17 @@ class SimpleBuyCheckoutFragment :
     private fun getSettlementReason(
         plaidFFEnabled: Boolean,
         quote: BuyQuote?,
-        selectedPaymentMethod: SelectedPaymentMethod?
+        selectedPaymentMethod: SelectedPaymentMethod?,
+        partner: BankPartner?
     ): SettlementReason {
-        if (plaidFFEnabled &&
-            selectedPaymentMethod?.paymentMethodType == PaymentMethodType.BANK_TRANSFER &&
-            selectedPaymentMethod.id.isNotEmpty() &&
-            quote?.availability == Availability.UNAVAILABLE &&
-            quote.settlementReason != null
-        ) {
+        val isValidBankTransfer = selectedPaymentMethod?.paymentMethodType == PaymentMethodType.BANK_TRANSFER &&
+            selectedPaymentMethod.id.isNotEmpty()
+        val isYodleeUpgradeRequired =
+            partner == BankPartner.YODLEE && quote?.settlementReason == SettlementReason.REQUIRES_UPDATE
+        val shouldProcessReason = (quote?.availability == Availability.UNAVAILABLE && quote.settlementReason != null) ||
+            isYodleeUpgradeRequired
+
+        if (plaidFFEnabled && quote?.settlementReason != null && isValidBankTransfer && shouldProcessReason) {
             return quote.settlementReason
         }
         return SettlementReason.NONE
@@ -451,7 +466,8 @@ class SimpleBuyCheckoutFragment :
                 label = getString(R.string.quote_price, state.selectedCryptoAsset.displayTicker),
                 title = state.exchangeRate?.toStringWithSymbol().orEmpty(),
                 expandableContent = priceExplanation,
-                hasChanged = state.hasQuoteChanged && state.featureFlagSet.buyQuoteRefreshFF
+                hasChanged = state.hasQuoteChanged && state.featureFlagSet.buyQuoteRefreshFF,
+                expandableType = SimpleBuyCheckoutItem.ExpandableType.PRICE
             ),
             buildPaymentMethodItem(state),
             if (state.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
@@ -548,7 +564,8 @@ class SimpleBuyCheckoutFragment :
                 title = feeDetails.fee.toStringWithSymbol(),
                 expandableContent = feeExplanation,
                 promoLayout = viewForPromo(feeDetails),
-                hasChanged = state.hasQuoteChanged && state.featureFlagSet.buyQuoteRefreshFF
+                hasChanged = state.hasQuoteChanged && state.featureFlagSet.buyQuoteRefreshFF,
+                expandableType = SimpleBuyCheckoutItem.ExpandableType.FEE
             )
         }
 
@@ -562,12 +579,16 @@ class SimpleBuyCheckoutFragment :
 
         with(binding) {
             buttonAction.apply {
+                analytics.logEvent(BuyCheckoutScreenSubmittedEvent)
                 if (!isForPendingPayment && !isOrderAwaitingFunds) {
                     text = getString(R.string.buy_asset_now, state.orderValue?.toStringWithSymbol())
                     setOnClickListener {
                         when (
                             getSettlementReason(
-                                state.featureFlagSet.plaidFF, state.quote, state.selectedPaymentMethod
+                                plaidFFEnabled = state.featureFlagSet.plaidFF,
+                                quote = state.quote,
+                                selectedPaymentMethod = state.selectedPaymentMethod,
+                                partner = state.linkedBank?.partner
                             )
                         ) {
                             SettlementReason.INSUFFICIENT_BALANCE ->

@@ -56,6 +56,8 @@ import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.home.HomeNavigator
+import piuk.blockchain.android.ui.transactionflow.analytics.SellAssetScreenViewedEvent
+import piuk.blockchain.android.ui.transactionflow.analytics.SellAssetSelectedEvent
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
@@ -105,6 +107,7 @@ class SellIntroFragment : ViewPagerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        analytics.logEvent(SellAssetScreenViewedEvent)
         checkEligibilityAndLoadSellDetails()
     }
 
@@ -351,6 +354,7 @@ class SellIntroFragment : ViewPagerFragment() {
                     renderSellInfo()
 
                     accountsList.onAccountSelected = { account ->
+                        analytics.logEvent(SellAssetSelectedEvent(type = account.label))
                         (account as? CryptoAccount)?.let {
                             startSellFlow(it)
                         }

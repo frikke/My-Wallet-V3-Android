@@ -47,7 +47,7 @@ class FiatAsset(
             AssetFilter.Custodial,
             AssetFilter.Trading -> Maybe.just(
                 FiatAccountGroup(
-                    label = labels.getDefaultCustodialWalletLabel(),
+                    label = labels.getDefaultTradingWalletLabel(),
                     accounts = listOf(custodialAccount)
                 )
             )

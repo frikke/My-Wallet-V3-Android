@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -13,6 +14,7 @@ import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.MVIActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.BlockedReason
 import info.blockchain.balance.AssetInfo
@@ -21,10 +23,13 @@ import org.koin.core.component.KoinScopeComponent
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAccount
 import piuk.blockchain.android.ui.coinview.presentation.composable.Coinview
+import piuk.blockchain.android.ui.coinview.presentation.composable.StakingAccountSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.NoBalanceActionBottomSheet
@@ -35,6 +40,9 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
+import piuk.blockchain.android.urllinks.STAKING_LEARN_MORE
+import piuk.blockchain.android.urllinks.STAKING_WEB_APP
+import piuk.blockchain.android.util.openUrl
 import piuk.blockchain.android.util.putAccount
 
 // TODO (dserrano) - STAKING - rename this when staking FF is removed & old [CoinViewActivity] is obsolete
@@ -47,13 +55,18 @@ class CoinViewActivityV2 :
     AccountActionsBottomSheet.Host,
     InterestSummarySheet.Host,
     RecurringBuyDetailsSheet.Host,
-    KycUpgradeNowSheet.Host {
+    KycUpgradeNowSheet.Host,
+    StakingAccountSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
     override val scope: Scope = payloadScope
     private val viewModel: CoinviewViewModel by viewModel()
+
+    private val originName: LaunchOrigin? by lazy {
+        enumValueOfOrNull<LaunchOrigin>(intent.getStringExtra(ORIGIN_NAME).orEmpty())
+    }
 
     @Suppress("IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION")
     val args: CoinviewArgs by lazy {
@@ -76,6 +89,15 @@ class CoinViewActivityV2 :
                 backOnClick = { onBackPressedDispatcher.onBackPressed() }
             )
         }
+
+        originName?.let {
+            analytics.logEvent(
+                CoinViewAnalytics.CoinViewOpen(
+                    origin = it,
+                    currency = args.networkTicker,
+                )
+            )
+        }
     }
 
     override fun onResume() {
@@ -93,6 +115,7 @@ class CoinViewActivityV2 :
                     cvAccount = navigationEvent.cvAccount,
                     networkTicker = navigationEvent.networkTicker,
                     interestRate = navigationEvent.interestRate,
+                    stakingRate = navigationEvent.stakingRate,
                     actions = navigationEvent.actions
                 )
             }
@@ -191,6 +214,16 @@ class CoinViewActivityV2 :
                     )
                 )
             }
+            is CoinviewNavigationEvent.ShowStakingAccountInterstitial -> {
+                showBottomSheet(StakingAccountSheet.newInstance(navigationEvent.assetIconUrl))
+            }
+            CoinviewNavigationEvent.NavigateToSupport -> {
+                startActivity(SupportCentreActivity.newIntent(this, SUPPORT_SUBJECT_NO_ASSET))
+                finish()
+            }
+            is CoinviewNavigationEvent.ShowRecurringBuySheet -> {
+                showBottomSheet(RecurringBuyDetailsSheet.newInstance(navigationEvent.recurringBuyId))
+            }
         }
     }
 
@@ -198,6 +231,7 @@ class CoinViewActivityV2 :
         cvAccount: CoinviewAccount,
         networkTicker: String,
         interestRate: Double,
+        stakingRate: Double,
         actions: List<StateAwareAction>
     ) {
         showBottomSheet(
@@ -205,6 +239,7 @@ class CoinViewActivityV2 :
                 selectedAccount = cvAccount.account,
                 networkTicker = networkTicker,
                 interestRate = interestRate,
+                stakingRate = stakingRate,
                 stateAwareActions = actions.toTypedArray()
             )
         )
@@ -301,17 +336,38 @@ class CoinViewActivityV2 :
         viewModel.onIntent(CoinviewIntent.LoadRecurringBuysData)
     }
 
+    override fun learnMoreClicked() {
+        openUrl(STAKING_LEARN_MORE)
+    }
+
+    override fun goToWebAppClicked() {
+        openUrl(STAKING_WEB_APP)
+    }
+
     override fun onSheetClosed() {}
     // host calls/
 
     companion object {
-        fun newIntent(context: Context, asset: AssetInfo): Intent {
+        private const val ORIGIN_NAME = "ORIGIN_NAME"
+
+        fun newIntent(
+            context: Context,
+            asset: AssetInfo,
+            recurringBuyId: String? = null,
+            originScreen: String
+        ): Intent {
             return Intent(context, CoinViewActivityV2::class.java).apply {
                 putExtra(
                     CoinviewArgs.ARGS_KEY,
-                    CoinviewArgs(networkTicker = asset.networkTicker)
+                    CoinviewArgs(
+                        networkTicker = asset.networkTicker,
+                        recurringBuyId = recurringBuyId
+                    )
                 )
+                putExtra(ORIGIN_NAME, originScreen)
             }
         }
+
+        private const val SUPPORT_SUBJECT_NO_ASSET = "UNKNOWN ASSET"
     }
 }

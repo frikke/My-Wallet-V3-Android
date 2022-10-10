@@ -56,7 +56,7 @@ class CryptoAssetBaseTest : KoinTest {
                 factory {
                     mock<DefaultLabels> {
                         on { getAssetMasterWalletLabel(TEST_ASSET) }.thenReturn("TEST_ASSET")
-                        on { getDefaultCustodialWalletLabel() }.thenReturn("Custodial label ")
+                        on { getDefaultTradingWalletLabel() }.thenReturn("Custodial label ")
                         on { getDefaultInterestWalletLabel() }.thenReturn("Interest label ")
                     }
                 }

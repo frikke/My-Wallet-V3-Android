@@ -6,10 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
+import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import org.koin.android.ext.android.inject
@@ -31,19 +34,29 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
     private val customiser: TransactionConfirmationCustomisations by inject()
 
     private var headerSlot: TxFlowWidget? = null
+    private val assetAction: AssetAction? by lazy {
+        enumValueOfOrNull<AssetAction>(arguments?.getString(ACTION).orEmpty())
+    }
 
     private val listAdapter: ConfirmTransactionDelegateAdapter by lazy {
         ConfirmTransactionDelegateAdapter(
             model = model,
             mapper = mapper,
             selectedCurrency = prefs.selectedFiatCurrency,
-            exchangeRates = exchangeRates
+            exchangeRates = exchangeRates,
+            onTooltipClicked = { expandableType ->
+                if (expandableType is TxConfirmationValue.NetworkFee) {
+                    analyticsHooks.onFeesTooltipClicked(assetAction)
+                } else if (expandableType is TxConfirmationValue.ExchangePriceConfirmation) {
+                    analyticsHooks.onPriceTooltipClicked(assetAction)
+                }
+            },
         )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        analyticsHooks.onViewCheckoutScreen(assetAction)
         with(binding.confirmDetailsList) {
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
 
@@ -120,6 +133,12 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
     }
 
     companion object {
-        fun newInstance(): ConfirmTransactionFragment = ConfirmTransactionFragment()
+        private const val ACTION = "ASSET_ACTION"
+        fun newInstance(assetAction: AssetAction): ConfirmTransactionFragment =
+            ConfirmTransactionFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ACTION, assetAction.name)
+                }
+            }
     }
 }
