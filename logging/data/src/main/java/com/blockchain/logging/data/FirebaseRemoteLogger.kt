@@ -3,11 +3,17 @@ package com.blockchain.logging.data
 import android.content.Context
 import com.blockchain.logging.RemoteLogger
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import timber.log.Timber
 
 class FirebaseRemoteLogger : RemoteLogger {
 
     private val firebaseInstance
-        get() = FirebaseCrashlytics.getInstance()
+        get() = try {
+            FirebaseCrashlytics.getInstance()
+        } catch (e: NullPointerException) {
+            Timber.e("FirebaseCrashlytics not set up " + e.message)
+            null
+        }
 
     override val isDebugBuild: Boolean
         get() = BuildConfig.DEBUG
@@ -15,9 +21,9 @@ class FirebaseRemoteLogger : RemoteLogger {
     override fun init(context: Any) {
         if (context is Context) {
             if (BuildConfig.USE_CRASHLYTICS) {
-                firebaseInstance.setCrashlyticsCollectionEnabled(true)
+                firebaseInstance?.setCrashlyticsCollectionEnabled(true)
             } else {
-                firebaseInstance.setCrashlyticsCollectionEnabled(false)
+                firebaseInstance?.setCrashlyticsCollectionEnabled(false)
             }
         } else {
             throw IllegalStateException("Unable to init Crashlytics. No context provided")
@@ -26,25 +32,25 @@ class FirebaseRemoteLogger : RemoteLogger {
 
     override fun logEvent(message: String) {
         if (BuildConfig.USE_CRASHLYTICS) {
-            firebaseInstance.log(message)
+            firebaseInstance?.log(message)
         }
     }
 
     override fun logState(name: String, data: String) {
         if (BuildConfig.USE_CRASHLYTICS) {
-            firebaseInstance.setCustomKey(name, data)
+            firebaseInstance?.setCustomKey(name, data)
         }
     }
 
     override fun onlineState(isOnline: Boolean) {
         if (BuildConfig.USE_CRASHLYTICS) {
-            firebaseInstance.setCustomKey(KEY_ONLINE_STATE, isOnline)
+            firebaseInstance?.setCustomKey(KEY_ONLINE_STATE, isOnline)
         }
     }
 
     override fun userLanguageLocale(locale: String) {
         if (BuildConfig.USE_CRASHLYTICS) {
-            firebaseInstance.setCustomKey(KEY_LOCALE_LANGUAGE, locale)
+            firebaseInstance?.setCustomKey(KEY_LOCALE_LANGUAGE, locale)
         }
     }
 
@@ -52,7 +58,7 @@ class FirebaseRemoteLogger : RemoteLogger {
 
     override fun logException(throwable: Throwable, logMessage: String) {
         if (BuildConfig.USE_CRASHLYTICS) {
-            firebaseInstance.recordException(throwable)
+            firebaseInstance?.recordException(throwable)
         }
     }
 

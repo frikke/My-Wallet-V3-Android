@@ -54,7 +54,7 @@ object Versions {
     const val googleServicesBasement = "18.1.0"
     const val googleServicesTasks = "18.0.2"
     const val googlePlayCore = "1.8.2"
-    const val firebaseBom = "29.2.1"
+    const val firebaseBom = "30.5.0"
     const val supportTesting = "1.0.2"
     const val biometrics = "1.1.0-rc01"
     const val adsIdentifier = "17.0.0"
@@ -154,7 +154,7 @@ object Versions {
     // Logging
     const val timber = "4.7.1"
     const val slf4j = "1.7.20"
-    const val firebaseCrashlyticsPlugin = "2.8.1"
+    const val firebaseCrashlyticsPlugin = "2.9.2"
     const val embraceIO = "5.0.4"
 
     // Debugging
