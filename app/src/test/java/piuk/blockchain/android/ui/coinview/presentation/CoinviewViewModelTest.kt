@@ -75,7 +75,7 @@ class CoinviewViewModelTest {
     private val fiatCurrencySymbol: String = "fiatCurrencySymbol"
 
     private val money: Money = mockk()
-    private val priceFormatted = "priceFormatted"
+    private val balanceFormatted = "balanceFormatted"
     private val percentChange = 1.1
     private val timeSpan = HistoricalTimeSpan.DAY
     private val totalBalance: CoinviewAssetTotalBalance = mockk()
@@ -112,7 +112,7 @@ class CoinviewViewModelTest {
 
         every { totalBalance.totalCryptoBalance } returns totalCryptoBalance
         every { totalBalance.totalFiatBalance } returns totalFiatBalance
-        every { money.toStringWithSymbol() } returns priceFormatted
+        every { money.toStringWithSymbol() } returns balanceFormatted
 
         every { coinviewCustodialAccounts.accounts } returns emptyList()
 
@@ -195,14 +195,16 @@ class CoinviewViewModelTest {
             expectMostRecentItem()
 
             viewModel.onIntent(CoinviewIntent.LoadPriceData)
-            dataResource.emit(DataResource.Data(CoinviewAssetPriceHistory(listOf(HistoricalRate(1L, 1.1)), coinviewAssetPrice)))
+            dataResource.emit(
+                DataResource.Data(CoinviewAssetPriceHistory(listOf(HistoricalRate(1L, 1.1)), coinviewAssetPrice))
+            )
             awaitItem().run {
                 val expected = CoinviewPriceState.Data(
                     assetName = networkTicker,
                     assetLogo = logo,
                     fiatSymbol = fiatCurrencySymbol,
-                    price = priceFormatted,
-                    priceChange = priceFormatted,
+                    price = balanceFormatted,
+                    priceChange = balanceFormatted,
                     percentChange = percentChange,
                     intervalName = R.string.coinview_price_day,
                     chartData = CoinviewPriceState.Data.CoinviewChartState.Data(listOf(ChartEntry(1.0F, 1.1F))),
@@ -249,19 +251,48 @@ class CoinviewViewModelTest {
     }
 
     @Test
-    fun `GIVEN asset not in watchlist, WHEN LoadWatchlistData is called, sTHEN } state should be Data false`() = runTest {
-        val dataResource = MutableSharedFlow<DataResource<Boolean>>()
-        every { watchlistService.isAssetInWatchlist(cryptoAsset.currency) } returns dataResource
+    fun `GIVEN asset not in watchlist, WHEN LoadWatchlistData is called, sTHEN } state should be Data false`() =
+        runTest {
+            val dataResource = MutableSharedFlow<DataResource<Boolean>>()
+            every { watchlistService.isAssetInWatchlist(cryptoAsset.currency) } returns dataResource
 
-        viewModel.viewState.test {
-            viewModel.viewCreated(coinviewArgs)
-            expectMostRecentItem()
+            viewModel.viewState.test {
+                viewModel.viewCreated(coinviewArgs)
+                expectMostRecentItem()
 
-            viewModel.onIntent(CoinviewIntent.LoadWatchlistData)
-            dataResource.emit(DataResource.Data(false))
-            awaitItem().run {
-                assertEquals(CoinviewWatchlistState.Data(false), watchlist)
+                viewModel.onIntent(CoinviewIntent.LoadWatchlistData)
+                dataResource.emit(DataResource.Data(false))
+                awaitItem().run {
+                    assertEquals(CoinviewWatchlistState.Data(false), watchlist)
+                }
             }
         }
-    }
+
+    // total balance
+    @Test
+    fun `GIVEN valid accounts, WHEN LoadAccountsData is called, THEN totalBalance state should be Data`() =
+        runTest {
+            val dataResource = MutableSharedFlow<DataResource<CoinviewAssetDetail>>()
+            coEvery { loadAssetAccountsUseCase(cryptoAsset) } returns dataResource
+
+            viewModel.viewState.test {
+                viewModel.viewCreated(coinviewArgs)
+                expectMostRecentItem()
+
+                viewModel.onIntent(CoinviewIntent.LoadAccountsData)
+                dataResource.emit(
+                    DataResource.Data(CoinviewAssetDetail.Tradeable(coinviewCustodialAccounts, totalBalance))
+                )
+                awaitItem().run {
+                    assertEquals(
+                        CoinviewTotalBalanceState.Data(
+                            assetName = networkTicker,
+                            totalFiatBalance = balanceFormatted,
+                            totalCryptoBalance = balanceFormatted
+                        ),
+                        totalBalance
+                    )
+                }
+            }
+        }
 }
