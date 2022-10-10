@@ -229,4 +229,39 @@ class CoinviewViewModelTest {
             }
         }
     }
+
+    // watchlist
+    @Test
+    fun `GIVEN asset in watchlist, WHEN LoadWatchlistData is called, sTHEN } state should be Data true`() = runTest {
+        val dataResource = MutableSharedFlow<DataResource<Boolean>>()
+        every { watchlistService.isAssetInWatchlist(cryptoAsset.currency) } returns dataResource
+
+        viewModel.viewState.test {
+            viewModel.viewCreated(coinviewArgs)
+            expectMostRecentItem()
+
+            viewModel.onIntent(CoinviewIntent.LoadWatchlistData)
+            dataResource.emit(DataResource.Data(true))
+            awaitItem().run {
+                assertEquals(CoinviewWatchlistState.Data(true), watchlist)
+            }
+        }
+    }
+
+    @Test
+    fun `GIVEN asset not in watchlist, WHEN LoadWatchlistData is called, sTHEN } state should be Data false`() = runTest {
+        val dataResource = MutableSharedFlow<DataResource<Boolean>>()
+        every { watchlistService.isAssetInWatchlist(cryptoAsset.currency) } returns dataResource
+
+        viewModel.viewState.test {
+            viewModel.viewCreated(coinviewArgs)
+            expectMostRecentItem()
+
+            viewModel.onIntent(CoinviewIntent.LoadWatchlistData)
+            dataResource.emit(DataResource.Data(false))
+            awaitItem().run {
+                assertEquals(CoinviewWatchlistState.Data(false), watchlist)
+            }
+        }
+    }
 }
