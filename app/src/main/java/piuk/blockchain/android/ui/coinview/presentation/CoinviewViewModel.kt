@@ -975,6 +975,11 @@ class CoinviewViewModel(
             CoinviewIntent.ContactSupport -> {
                 navigate(CoinviewNavigationEvent.NavigateToSupport)
             }
+
+            CoinviewIntent.VisitAssetWebsite -> {
+                check(modelState.assetInfo is DataResource.Data) { "assetInfo not initialized" }
+                navigate(CoinviewNavigationEvent.OpenAssetWebsite(modelState.assetInfo.data.website))
+            }
         }
     }
 
@@ -985,7 +990,6 @@ class CoinviewViewModel(
         requestedTimeSpan: HistoricalTimeSpan
     ) {
         loadPriceDataJob?.cancel()
-
         loadPriceDataJob = viewModelScope.launch {
             getAssetPriceUseCase(
                 asset = asset, timeSpan = requestedTimeSpan, fiatCurrency = fiatCurrency

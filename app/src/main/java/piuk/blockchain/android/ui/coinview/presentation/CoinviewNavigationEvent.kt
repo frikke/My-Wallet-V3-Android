@@ -82,4 +82,6 @@ sealed interface CoinviewNavigationEvent : NavigationEvent {
     ) : CoinviewNavigationEvent
 
     object NavigateToSupport : CoinviewNavigationEvent
+
+    data class OpenAssetWebsite(val website: String) : CoinviewNavigationEvent
 }
