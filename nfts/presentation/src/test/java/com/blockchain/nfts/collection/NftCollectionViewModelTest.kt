@@ -9,9 +9,11 @@ import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.data.DataResource
+import com.blockchain.data.map
 import com.blockchain.nfts.OPENSEA_URL
 import com.blockchain.nfts.collection.navigation.NftCollectionNavigationEvent
 import com.blockchain.nfts.domain.models.NftAsset
+import com.blockchain.nfts.domain.models.NftAssetsPage
 import com.blockchain.nfts.domain.service.NftService
 import com.blockchain.testutils.CoroutineTestRule
 import io.mockk.coEvery
@@ -48,6 +50,8 @@ class NftCollectionViewModelTest {
     private val address = "address"
 
     private val nftAsset = mockk<NftAsset>()
+    private val nextPageKey = "nextPageKey"
+    private val nftAssetsPage = mockk<NftAssetsPage>()
 
     @Before
     fun setUp() {
@@ -58,13 +62,15 @@ class NftCollectionViewModelTest {
         every { accountGroup.accounts } returns listOf(singleAccount)
         every { singleAccount.receiveAddress } returns Single.just(receiveAddress)
         every { receiveAddress.address } returns address
+        every { nftAssetsPage.assets } returns listOf(nftAsset)
+        every { nftAssetsPage.nextPageKey } returns nextPageKey
     }
 
     @Test
     fun `GIVEN success, WHEN viewCreated is called, THEN collection should be returned`() = runTest {
-        val dataResource = MutableSharedFlow<DataResource<List<NftAsset>>>()
+        val dataResource = MutableSharedFlow<DataResource<NftAssetsPage>>()
 
-        coEvery { nftService.getNftCollectionForAddress(any(), any()) } returns dataResource
+        coEvery { nftService.getNftCollectionForAddress(any(), any(), any()) } returns dataResource
 
         viewModel.viewState.test {
             viewModel.viewCreated(ModelConfigArgs.NoArgs)
@@ -76,15 +82,17 @@ class NftCollectionViewModelTest {
             }
 
             // data - should be data
-            dataResource.emit(DataResource.Data(listOf(nftAsset)))
+            dataResource.emit(DataResource.Data(nftAssetsPage))
             awaitItem().run {
-                assertEquals(DataResource.Data(listOf(nftAsset)), collection)
+                assertEquals(DataResource.Data(nftAssetsPage).map { it.assets }, collection)
             }
 
             // following loading - should be data
             dataResource.emit(DataResource.Loading)
             // trying to emit viewState with same data will not emit anything since the new object equals the old
-            expectNoEvents()
+            awaitItem().run {
+                assertEquals(DataResource.Data(nftAssetsPage).map { it.assets }, collection)
+            }
         }
     }
 
@@ -126,9 +134,9 @@ class NftCollectionViewModelTest {
         viewModel.navigationEventFlow.test {
             viewModel.viewCreated(ModelConfigArgs.NoArgs)
 
-            viewModel.onIntent(NftCollectionIntent.ShowDetail(nftId))
+            viewModel.onIntent(NftCollectionIntent.ShowDetail(nftId, nextPageKey))
             awaitItem().run {
-                assertEquals(NftCollectionNavigationEvent.ShowDetail(nftId, address), this)
+                assertEquals(NftCollectionNavigationEvent.ShowDetail(nftId, nextPageKey, address), this)
             }
         }
     }

@@ -82,7 +82,13 @@ class NftCollectionViewModel(
 
                 viewModelScope.launch {
                     val address = modelState.account.receiveAddress.await().address
-                    navigate(NftCollectionNavigationEvent.ShowDetail(nftId = intent.nftId, address = address))
+                    navigate(
+                        NftCollectionNavigationEvent.ShowDetail(
+                            nftId = intent.nftId,
+                            pageKey = intent.pageKey,
+                            address = address
+                        )
+                    )
                 }
             }
         }

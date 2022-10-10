@@ -13,5 +13,9 @@ sealed interface NftCollectionNavigationEvent : NavigationEvent {
 
     object ShowHelp : NftCollectionNavigationEvent
 
-    data class ShowDetail(val nftId: String, val address: String) : NftCollectionNavigationEvent
+    data class ShowDetail(
+        val nftId: String,
+        val pageKey: String?,
+        val address: String
+    ) : NftCollectionNavigationEvent
 }

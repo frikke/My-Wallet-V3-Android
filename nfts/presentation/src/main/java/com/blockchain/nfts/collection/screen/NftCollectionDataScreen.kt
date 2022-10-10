@@ -121,6 +121,7 @@ fun PreviewNftCollectionDataScreen() {
         collection = listOf(
             NftAsset(
                 id = "",
+                pageKey = "",
                 tokenId = "",
                 imageUrl = "",
                 name = "",
@@ -131,6 +132,7 @@ fun PreviewNftCollectionDataScreen() {
             ),
             NftAsset(
                 id = "",
+                pageKey = "",
                 tokenId = "",
                 imageUrl = "",
                 name = "",
@@ -141,6 +143,7 @@ fun PreviewNftCollectionDataScreen() {
             ),
             NftAsset(
                 id = "",
+                pageKey = "",
                 tokenId = "",
                 imageUrl = "",
                 name = "",

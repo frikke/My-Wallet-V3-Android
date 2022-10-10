@@ -26,7 +26,7 @@ class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftSer
                 NftCollectionStore.Key(address = address, pageKey = pageKey)
             )
         ).mapData {
-            it.mapToDomain()
+            it.mapToDomain(pageKey)
         }
     }
 
@@ -45,12 +45,13 @@ class NftRepository(private val nftCollectionStore: NftCollectionStore) : NftSer
         }
     }
 
-    private fun NftAssetsDto.mapToDomain(): NftAssetsPage = run {
+    private fun NftAssetsDto.mapToDomain(pageKey: String?): NftAssetsPage = run {
         NftAssetsPage(
             assets = this.assets.filterNot { it.imageUrl.isNullOrBlank() }
                 .map { nftAsset ->
                     NftAsset(
                         id = nftAsset.id.orEmpty(),
+                        pageKey = pageKey,
                         tokenId = nftAsset.tokenId.orEmpty(),
                         imageUrl = nftAsset.imageUrl ?: nftAsset.imagePreviewUrl.orEmpty(),
                         name = nftAsset.name.orEmpty(),

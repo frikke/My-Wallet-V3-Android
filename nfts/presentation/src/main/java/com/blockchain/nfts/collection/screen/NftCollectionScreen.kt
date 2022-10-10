@@ -32,7 +32,9 @@ fun NftCollection(
             isRefreshing = state.isPullToRefreshLoading,
             isNextPageLoading = state.showNextPageLoading,
             onItemClick = { nftAsset ->
-                viewModel.onIntent(NftCollectionIntent.ShowDetail(nftId = nftAsset.id))
+                viewModel.onIntent(
+                    NftCollectionIntent.ShowDetail(nftId = nftAsset.id, pageKey = nftAsset.pageKey)
+                )
             },
             onExternalShopClick = {
                 viewModel.onIntent(NftCollectionIntent.ExternalShop)
@@ -125,6 +127,7 @@ fun PreviewNftCollectionScreen_Data() {
             listOf(
                 NftAsset(
                     id = "",
+                    pageKey = "",
                     tokenId = "",
                     imageUrl = "",
                     name = "",

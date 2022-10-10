@@ -21,7 +21,7 @@ class NftDetailViewModel(
     initialState = NftDetailModelState()
 ) {
     override fun viewCreated(args: NftDetailNavArgs) {
-        loadNftAsset(nftId = args.nftId, args.address)
+        loadNftAsset(nftId = args.nftId, pageKey = args.pageKey, address = args.address)
     }
 
     override fun reduce(state: NftDetailModelState): NftDetailViewState = state.run {
@@ -42,12 +42,12 @@ class NftDetailViewModel(
         }
     }
 
-    private fun loadNftAsset(nftId: String, address: String) {
+    private fun loadNftAsset(nftId: String, pageKey: String?, address: String) {
         viewModelScope.launch {
             nftService.getNftAsset(
                 address = address,
                 nftId = nftId,
-                pageKey = null
+                pageKey = pageKey
             ).collectLatest { dataResource ->
                 updateState {
                     it.copy(

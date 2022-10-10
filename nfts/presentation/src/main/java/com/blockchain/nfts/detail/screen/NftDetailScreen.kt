@@ -167,7 +167,9 @@ fun NftBasicInfo(
                     .clip(RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)),
                 url = nftAsset.imageUrl,
                 fallbackUrlType = UrlType.GIF,
-                contentScale = ContentScale.FillWidth
+                contentScale = ContentScale.FillWidth,
+                onLoadingPlaceholder = 0,
+                onErrorDrawable = 0
             )
         }
 
@@ -308,6 +310,7 @@ fun PreviewNftCollectionScreen_Data() {
         nftAsset = DataResource.Data(
             NftAsset(
                 id = "",
+                pageKey = "",
                 tokenId = "",
                 imageUrl = "",
                 name = "Kyotoangels #8260",

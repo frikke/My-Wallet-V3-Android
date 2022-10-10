@@ -1282,8 +1282,8 @@ class MainActivity :
         launchAssetAction(AssetAction.Receive, account)
     }
 
-    override fun showNftDetail(nftId: String, address: String) {
-        replaceBottomSheet(NftDetailFragment.newInstance(nftId = nftId, address = address))
+    override fun showNftDetail(nftId: String, pageKey: String?, address: String) {
+        replaceBottomSheet(NftDetailFragment.newInstance(nftId = nftId, pageKey = pageKey, address = address))
     }
 
     override fun showNftHelp() {

@@ -18,7 +18,7 @@ class NftCollectionStore(
         fetcher = Fetcher.Keyed.ofSingle(
             mapper = { key ->
                 nftApiService.getNftCollection(
-                    address = "0xe74e48007CB5D0464640b5D760d26f7b4DE6d790",
+                    address = key.address,
                     pageKey = key.pageKey
                 )
             }

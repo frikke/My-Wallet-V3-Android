@@ -13,5 +13,5 @@ sealed interface NftCollectionIntent : Intent<NftCollectionModelState> {
     object ExternalShop : NftCollectionIntent
     object ShowReceiveAddress : NftCollectionIntent
     object ShowHelp : NftCollectionIntent
-    data class ShowDetail(val nftId: String) : NftCollectionIntent
+    data class ShowDetail(val nftId: String, val pageKey: String?) : NftCollectionIntent
 }

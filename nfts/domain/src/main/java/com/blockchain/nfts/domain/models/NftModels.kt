@@ -7,6 +7,7 @@ data class NftAssetsPage(
 
 data class NftAsset(
     val id: String,
+    val pageKey: String?,
     val tokenId: String,
     val imageUrl: String,
     val name: String,

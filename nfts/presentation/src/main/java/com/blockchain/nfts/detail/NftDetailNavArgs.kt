@@ -6,6 +6,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class NftDetailNavArgs(
     val nftId: String,
+    val pageKey: String?,
     val address: String
 ) : ModelConfigArgs.ParcelableArgs {
     companion object {

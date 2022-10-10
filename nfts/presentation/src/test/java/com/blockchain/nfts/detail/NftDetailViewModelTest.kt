@@ -40,6 +40,7 @@ class NftDetailViewModelTest {
 
     private val nftDetailNavArgs = NftDetailNavArgs(
         nftId = "nftId",
+        pageKey = "pageKey",
         address = "address"
     )
 
@@ -56,7 +57,7 @@ class NftDetailViewModelTest {
     fun `GIVEN success, WHEN viewCreated is called, THEN nftAsset should be returned`() = runTest {
         val dataResource = MutableSharedFlow<DataResource<NftAsset>>()
 
-        coEvery { nftService.getNftAsset(any(), any(), any()) } returns dataResource
+        coEvery { nftService.getNftAsset(any(), any(), any(), any()) } returns dataResource
 
         viewModel.viewState.test {
             viewModel.viewCreated(nftDetailNavArgs)
