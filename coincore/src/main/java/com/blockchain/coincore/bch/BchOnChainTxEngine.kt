@@ -211,7 +211,7 @@ class BchOnChainTxEngine(
 
     private fun buildConfirmations(pendingTx: PendingTx, fiatRate: ExchangeRate): PendingTx =
         pendingTx.copy(
-            confirmations = listOfNotNull(
+            txConfirmations = listOfNotNull(
                 TxConfirmationValue.From(sourceAccount, sourceAsset),
                 TxConfirmationValue.To(
                     txTarget, AssetAction.Send, sourceAccount

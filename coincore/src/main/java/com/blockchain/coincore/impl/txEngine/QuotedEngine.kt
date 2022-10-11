@@ -105,7 +105,7 @@ abstract class QuotedEngine(
         map {
             it.quoteSub?.dispose()
             it.copy(
-                confirmations = emptyList(),
+                txConfirmations = emptyList(),
                 engineState = it.engineState.toMutableMap().apply { remove(QUOTE_SUB) }.toMap()
             )
         }

@@ -175,7 +175,7 @@ class TradingToOnChainTxEngineTest : CoincoreTestBase() {
                     it.feeForFullAvailable == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
                     it.feeAmount == CryptoValue.fromMinor(txTarget.asset, feesAndLimits.fee) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.withMinAndUnlimitedMax(
                     CryptoValue.fromMinor(ASSET, feesAndLimits.minLimit)
                 ) &&

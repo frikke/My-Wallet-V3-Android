@@ -182,7 +182,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
                     it.feeForFullAvailable == zeroFiat &&
                     it.feeAmount == zeroFiat &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.fromAmounts(min = limits.min, max = limits.max) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.containsKey(WITHDRAW_LOCKS) &&

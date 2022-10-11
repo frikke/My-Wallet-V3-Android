@@ -153,7 +153,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == CryptoValue.zero(ASSET) &&
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits ==
                     TxLimits.fromAmounts(CryptoValue.fromMinor(ASSET, fees.minLimit), MAX_WITHDRAW_AMOUNT_CRYPTO) &&
                     it.validationState == ValidationState.UNINITIALISED &&
@@ -266,10 +266,10 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
         subject.doBuildConfirmations(mockPendingTx)
             .test()
             .assertValue { pTx ->
-                pTx.confirmations.find { it is TxConfirmationValue.From } != null &&
-                    pTx.confirmations.find { it is TxConfirmationValue.To } != null &&
-                    pTx.confirmations.find { it is TxConfirmationValue.Total } != null
-                pTx.confirmations.find { it is TxConfirmationValue.NetworkFee } != null
+                pTx.txConfirmations.find { it is TxConfirmationValue.From } != null &&
+                    pTx.txConfirmations.find { it is TxConfirmationValue.To } != null &&
+                    pTx.txConfirmations.find { it is TxConfirmationValue.Total } != null
+                pTx.txConfirmations.find { it is TxConfirmationValue.NetworkFee } != null
             }
             .assertNoErrors()
             .assertComplete()

@@ -72,7 +72,7 @@ class WalletConnectTransactionEngine(
                 availableBalance = balance.withdrawable - fees,
                 feeForFullAvailable = fees,
                 feeAmount = fees,
-                confirmations = listOfNotNull(
+                txConfirmations = listOfNotNull(
                     TxConfirmationValue.WalletConnectHeader(
                         dAppLogo = ethSignMessageTarget.dAppLogoURL,
                         dAppUrl = ethSignMessageTarget.dAppAddress,

@@ -106,7 +106,7 @@ abstract class SwapTxEngineBase(
 
     private fun buildConfirmations(pendingTx: PendingTx, pricedQuote: PricedQuote): PendingTx {
         return pendingTx.copy(
-            confirmations = listOfNotNull(
+            txConfirmations = listOfNotNull(
                 TxConfirmationValue.QuoteCountDown(
                     pricedQuote = pricedQuote
                 ),

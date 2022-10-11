@@ -78,7 +78,7 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
         Timber.d("!TRANSACTION!> Rendering! ConfirmTransactionFragment")
         // We _should_ always have a pending Tx when we get here
         newState.pendingTx?.let {
-            listAdapter.items = newState.pendingTx.confirmations.toList()
+            listAdapter.items = newState.pendingTx.txConfirmations.toList()
         }
 
         if (newState.executionStatus == TxExecutionStatus.Cancelled) {

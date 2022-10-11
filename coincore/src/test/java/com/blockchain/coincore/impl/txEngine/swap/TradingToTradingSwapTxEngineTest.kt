@@ -254,7 +254,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == totalBalance &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.fromAmounts(min = expectedMinLimit, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED
             }
@@ -307,7 +307,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
                     it.feeForFullAvailable == CryptoValue.zero(SRC_ASSET) &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == null &&
                     it.validationState == ValidationState.PENDING_ORDERS_LIMIT_REACHED &&
                     it.engineState.isEmpty()

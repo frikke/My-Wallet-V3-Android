@@ -436,11 +436,14 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         confirmations: Int,
         totalConfirmations: Int?
     ) {
-        if (totalConfirmations != null && totalConfirmations > 0 && confirmations != totalConfirmations) {
+        if (totalConfirmations != null && totalConfirmations > 0 &&
+            confirmations != totalConfirmations
+        ) {
             binding.apply {
                 confirmationLabel.text =
                     getString(
-                        R.string.activity_details_label_confirmations, confirmations,
+                        R.string.activity_details_label_confirmations,
+                        confirmations.coerceAtLeast(0),
                         totalConfirmations
                     )
                 confirmationProgress.setProgress(

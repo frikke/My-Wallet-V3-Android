@@ -88,7 +88,7 @@ class FiatWithdrawalTxEngine(
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> {
         return Single.just(
             pendingTx.copy(
-                confirmations = listOfNotNull(
+                txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount),
                     TxConfirmationValue.PaymentMethod(
                         txTarget.label,

@@ -105,7 +105,7 @@ abstract class SellTxEngineBase(
         pricedQuote: PricedQuote
     ): PendingTx =
         pendingTx.copy(
-            confirmations = listOfNotNull(
+            txConfirmations = listOfNotNull(
                 TxConfirmationValue.QuoteCountDown(
                     pricedQuote
                 ),

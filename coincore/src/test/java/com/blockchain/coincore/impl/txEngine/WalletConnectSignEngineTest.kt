@@ -162,7 +162,7 @@ class WalletConnectSignEngineTest : CoincoreTestBase() {
             )
         ).test()
             .assertValue {
-                it.confirmations == listOf(
+                it.txConfirmations == listOf(
                     TxConfirmationValue.WalletConnectHeader(
                         dAppName = "dAppName",
                         dAppLogo = "dAppLogoUrl",

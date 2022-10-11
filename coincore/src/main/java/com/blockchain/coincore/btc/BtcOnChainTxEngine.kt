@@ -278,7 +278,7 @@ class BtcOnChainTxEngine(
         pendingTx: PendingTx
     ): Single<PendingTx> = isLargeTransaction(pendingTx).map { isLargeTransaction ->
         pendingTx.copy(
-            confirmations = listOfNotNull(
+            txConfirmations = listOfNotNull(
                 TxConfirmationValue.From(sourceAccount, sourceAsset),
                 TxConfirmationValue.To(txTarget, AssetAction.Send, sourceAccount),
                 TxConfirmationValue.CompoundNetworkFee(

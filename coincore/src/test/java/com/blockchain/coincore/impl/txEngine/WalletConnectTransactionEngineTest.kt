@@ -172,28 +172,28 @@ class WalletConnectTransactionEngineTest : CoincoreTestBase() {
                 it.availableBalance == Money.fromMinor(CryptoCurrency.ETHER, 9654784600766885.toBigInteger()) &&
                     it.feeForFullAvailable == Money.fromMinor(CryptoCurrency.ETHER, 273234660.toBigInteger()) &&
                     it.feeAmount == Money.fromMinor(CryptoCurrency.ETHER, 273234660.toBigInteger()) &&
-                    it.confirmations.size == 6 &&
-                    it.confirmations[0] == TxConfirmationValue.WalletConnectHeader(
+                    it.txConfirmations.size == 6 &&
+                    it.txConfirmations[0] == TxConfirmationValue.WalletConnectHeader(
                     dAppLogo = "dAppLogoUrl",
                     dAppUrl = "address",
                     dAppName = "Dapp!"
-                ) && it.confirmations[1] == TxConfirmationValue.From(
+                ) && it.txConfirmations[1] == TxConfirmationValue.From(
                     sourceAccount = sourceAccount,
                     sourceAsset = CryptoCurrency.ETHER
-                ) && it.confirmations[2] == TxConfirmationValue.ToWithNameAndAddress(
+                ) && it.txConfirmations[2] == TxConfirmationValue.ToWithNameAndAddress(
                     label = "Dapp!",
                     address = "0x61b0a"
-                ) && it.confirmations[3] == TxConfirmationValue.Amount(
+                ) && it.txConfirmations[3] == TxConfirmationValue.Amount(
                     amount = Money.fromMinor(CryptoCurrency.ETHER, 873957385.toBigInteger()),
                     isImportant = false
-                ) && it.confirmations[4] == TxConfirmationValue.CompoundNetworkFee(
+                ) && it.txConfirmations[4] == TxConfirmationValue.CompoundNetworkFee(
                     sendingFeeInfo = FeeInfo(
                         asset = CryptoCurrency.ETHER,
                         fiatAmount = Money.zero(TEST_USER_FIAT),
                         feeAmount = Money.fromMinor(CryptoCurrency.ETHER, 273234660.toBigInteger())
                     ),
                     feeLevel = FeeLevel.Regular
-                ) && it.confirmations[5] == TxConfirmationValue.Total(
+                ) && it.txConfirmations[5] == TxConfirmationValue.Total(
                     totalWithFee = Money.fromMinor(CryptoCurrency.ETHER, 1147192045.toBigInteger()),
                     exchange = Money.zero(TEST_USER_FIAT)
                 )
