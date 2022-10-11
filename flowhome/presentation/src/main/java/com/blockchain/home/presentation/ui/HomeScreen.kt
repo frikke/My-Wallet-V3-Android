@@ -1,7 +1,9 @@
 package com.blockchain.home.presentation.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +18,8 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.data.map
 import com.blockchain.home.presentation.HomeViewState
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
@@ -48,9 +52,15 @@ fun HomeScreen(
         ) {
             item {
                 HomeAssets(
-                    cryptoAssets = state.cryptoAssets,
+                    cryptoAssets = state.cryptoAssets.map { it.first },
+                    showSeeAllCryptoAssets = state.cryptoAssets.map { it.second },
+                    onSeeAllCryptoAssetsClick = {},
                     fiatAssets = state.fiatAssets
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.borderRadiiLarge))
             }
         }
     }

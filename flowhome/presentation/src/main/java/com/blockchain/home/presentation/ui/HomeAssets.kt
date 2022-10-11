@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
@@ -21,6 +24,7 @@ import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey700
+import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.presentation.HomeCryptoAsset
@@ -31,6 +35,8 @@ import info.blockchain.balance.Money
 @Composable
 fun HomeAssets(
     cryptoAssets: DataResource<List<HomeCryptoAsset>>,
+    showSeeAllCryptoAssets: DataResource<Boolean>,
+    onSeeAllCryptoAssetsClick: () -> Unit,
     fiatAssets: DataResource<List<HomeFiatAsset>>
 ) {
     Column(
@@ -47,11 +53,14 @@ fun HomeAssets(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Text(
-                text = stringResource(R.string.see_all),
-                style = AppTheme.typography.paragraph2,
-                color = AppTheme.colors.primary
-            )
+            if ((showSeeAllCryptoAssets as? DataResource.Data)?.data == true) {
+                Text(
+                    modifier = Modifier.clickableNoEffect(onSeeAllCryptoAssetsClick),
+                    text = stringResource(R.string.see_all),
+                    style = AppTheme.typography.paragraph2,
+                    color = AppTheme.colors.primary
+                )
+            }
         }
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
@@ -66,27 +75,26 @@ fun HomeAssets(
             }
             is DataResource.Data -> {
                 if (cryptoAssets.data.isNotEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .background(
-                                color = AppTheme.colors.background,
-                                shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing)
-                            )
-                            .padding(AppTheme.dimensions.mediumSpacing)
+                    Card(
+                        backgroundColor = AppTheme.colors.background,
+                        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
+                        elevation = 0.dp
                     ) {
-                        cryptoAssets.data.forEachIndexed { index, cryptoAsset ->
-                            BalanceChangeTableRow(
-                                name = cryptoAsset.name,
-                                value = cryptoAsset.fiatBalance.map {
-                                    it.toStringWithSymbol()
-                                },
-                                valueChange = cryptoAsset.change,
-                                icon = ImageResource.Remote(cryptoAsset.icon),
-                                onClick = {
+                        Column {
+                            cryptoAssets.data.forEachIndexed { index, cryptoAsset ->
+                                BalanceChangeTableRow(
+                                    name = cryptoAsset.name,
+                                    value = cryptoAsset.fiatBalance.map {
+                                        it.toStringWithSymbol()
+                                    },
+                                    valueChange = cryptoAsset.change,
+                                    icon = ImageResource.Remote(cryptoAsset.icon),
+                                    onClick = {
+                                    }
+                                )
+                                if (index < cryptoAssets.data.lastIndex) {
+                                    Divider(color = Color(0XFFF1F2F7))
                                 }
-                            )
-                            if (index < cryptoAssets.data.lastIndex) {
-                                Divider()
                             }
                         }
                     }
@@ -177,6 +185,8 @@ fun PreviewHomeAccounts() {
                 )
             )
         ),
+        showSeeAllCryptoAssets = DataResource.Data(true),
+        onSeeAllCryptoAssetsClick = {}
     )
 }
 
@@ -186,6 +196,8 @@ fun PreviewHomeAccounts_Loading() {
     HomeAssets(
         cryptoAssets = DataResource.Loading,
         fiatAssets = DataResource.Loading,
+        showSeeAllCryptoAssets = DataResource.Data(false),
+        onSeeAllCryptoAssetsClick = {}
     )
 }
 
@@ -219,5 +231,7 @@ fun PreviewHomeAccounts_LoadingFiat() {
             )
         ),
         fiatAssets = DataResource.Loading,
+        showSeeAllCryptoAssets = DataResource.Data(true),
+        onSeeAllCryptoAssetsClick = {}
     )
 }

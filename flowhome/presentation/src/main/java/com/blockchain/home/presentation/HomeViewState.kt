@@ -6,9 +6,12 @@ import com.blockchain.data.DataResource
 import com.blockchain.home.presentation.ui.HomeActivity
 import info.blockchain.balance.Money
 
+/**
+ * @property cryptoAssets <assets/isFullList>
+ */
 data class HomeViewState(
     val balance: DataResource<Money>,
-    val cryptoAssets: DataResource<List<HomeCryptoAsset>>,
+    val cryptoAssets: DataResource<Pair<List<HomeCryptoAsset> /*display list*/, Boolean /*is full list*/>>,
     val fiatAssets: DataResource<List<HomeFiatAsset>>,
     val activity: DataResource<List<HomeActivity>>
 ) : ViewState

@@ -37,6 +37,10 @@ class HomeViewModel(
 ) : MviViewModel<HomeIntent, HomeViewState, HomeModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
     HomeModelState(accounts = DataResource.Data(emptyList()))
 ) {
+    companion object {
+        private const val SECTION_MAX_ITEMS = 8
+    }
+
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         updateState { state ->
             state.copy(accounts = DataResource.Data(emptyList()))
@@ -48,7 +52,12 @@ class HomeViewModel(
             HomeViewState(
                 balance = accounts.totalBalance(),
                 cryptoAssets = state.accounts.map {
-                    it.filter { modelAccount -> modelAccount.singleAccount is CryptoAccount }.toHomeCryptoAssets()
+                    it.filter { modelAccount -> modelAccount.singleAccount is CryptoAccount }
+                        .toHomeCryptoAssets()
+                        .let { accounts ->
+                            // <display list / isFullList>
+                            accounts.take(SECTION_MAX_ITEMS) to (accounts.size > SECTION_MAX_ITEMS)
+                        }
                 },
                 fiatAssets = DataResource.Data(emptyList()),
                 activity = DataResource.Data(emptyList())
@@ -69,7 +78,7 @@ class HomeViewModel(
                 }
             )
 
-        val allAssets = grouped.values.map {
+        return grouped.values.map {
             HomeCryptoAsset(
                 icon = it.first().singleAccount.currency.logo,
                 name = it.first().singleAccount.currency.name,
@@ -88,7 +97,6 @@ class HomeViewModel(
                 }
             }
         )
-        return allAssets.take(allAssets.size.coerceAtMost(8))
     }
 
     override suspend fun handleIntent(modelState: HomeModelState, intent: HomeIntent) {
@@ -136,8 +144,7 @@ class HomeViewModel(
                 }.merge().onEach { (account, balance) ->
                     updateState { state ->
                         state.copy(
-                            accounts =
-                            state.accounts.withBalancedAccount(account, balance)
+                            accounts = state.accounts.withBalancedAccount(account, balance)
                         )
                     }
                 }
