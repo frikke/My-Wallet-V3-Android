@@ -8,15 +8,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
@@ -27,6 +24,11 @@ import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
+import com.blockchain.home.presentation.allassets.composable.CryptoAssets
+import com.blockchain.home.presentation.allassets.composable.CryptoAssetsData
+import com.blockchain.home.presentation.allassets.composable.CryptoAssetsList
+import com.blockchain.home.presentation.allassets.composable.CryptoAssetsLoading
+import com.blockchain.home.presentation.allassets.composable.CryptoAssetsScreen
 import com.blockchain.home.presentation.dashboard.HomeCryptoAsset
 import com.blockchain.home.presentation.dashboard.HomeFiatAsset
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
@@ -37,7 +39,7 @@ fun HomeAssets(
     cryptoAssets: DataResource<List<HomeCryptoAsset>>,
     showSeeAllCryptoAssets: DataResource<Boolean>,
     onSeeAllCryptoAssetsClick: () -> Unit,
-    fiatAssets: DataResource<List<HomeFiatAsset>>
+    fiatAssets: DataResource<List<HomeFiatAsset>>,
 ) {
     Column(
         modifier = Modifier
@@ -58,7 +60,7 @@ fun HomeAssets(
                     modifier = Modifier.clickableNoEffect(onSeeAllCryptoAssetsClick),
                     text = stringResource(R.string.see_all),
                     style = AppTheme.typography.paragraph2,
-                    color = AppTheme.colors.primary
+                    color = AppTheme.colors.primary,
                 )
             }
         }
@@ -67,37 +69,14 @@ fun HomeAssets(
 
         when (cryptoAssets) {
             DataResource.Loading -> {
-                ShimmerLoadingTableRow()
-                ShimmerLoadingTableRow()
+                CryptoAssetsLoading()
             }
             is DataResource.Error -> {
                 // todo
             }
             is DataResource.Data -> {
                 if (cryptoAssets.data.isNotEmpty()) {
-                    Card(
-                        backgroundColor = AppTheme.colors.background,
-                        shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
-                        elevation = 0.dp
-                    ) {
-                        Column {
-                            cryptoAssets.data.forEachIndexed { index, cryptoAsset ->
-                                BalanceChangeTableRow(
-                                    name = cryptoAsset.name,
-                                    value = cryptoAsset.fiatBalance.map {
-                                        it.toStringWithSymbol()
-                                    },
-                                    valueChange = cryptoAsset.change,
-                                    icon = ImageResource.Remote(cryptoAsset.icon),
-                                    onClick = {
-                                    }
-                                )
-                                if (index < cryptoAssets.data.lastIndex) {
-                                    Divider(color = Color(0XFFF1F2F7))
-                                }
-                            }
-                        }
-                    }
+                    CryptoAssetsList(cryptoAssets = cryptoAssets.data)
                 }
             }
         }
@@ -186,7 +165,7 @@ fun PreviewHomeAccounts() {
             )
         ),
         showSeeAllCryptoAssets = DataResource.Data(true),
-        onSeeAllCryptoAssetsClick = {}
+        onSeeAllCryptoAssetsClick = {},
     )
 }
 
@@ -197,7 +176,7 @@ fun PreviewHomeAccounts_Loading() {
         cryptoAssets = DataResource.Loading,
         fiatAssets = DataResource.Loading,
         showSeeAllCryptoAssets = DataResource.Data(false),
-        onSeeAllCryptoAssetsClick = {}
+        onSeeAllCryptoAssetsClick = {},
     )
 }
 
@@ -232,6 +211,6 @@ fun PreviewHomeAccounts_LoadingFiat() {
         ),
         fiatAssets = DataResource.Loading,
         showSeeAllCryptoAssets = DataResource.Data(true),
-        onSeeAllCryptoAssetsClick = {}
+        onSeeAllCryptoAssetsClick = {},
     )
 }

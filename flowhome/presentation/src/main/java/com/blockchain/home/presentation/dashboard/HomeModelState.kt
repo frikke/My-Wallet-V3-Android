@@ -1,17 +1,15 @@
 package com.blockchain.home.presentation.dashboard
 
-import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
-import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.data.DataResource
-import com.blockchain.data.map
-import com.blockchain.data.updateDataWith
-import com.blockchain.extensions.replace
+import com.blockchain.home.presentation.allassets.SectionSize
 import info.blockchain.balance.Money
 
 data class HomeModelState(
-    val accounts: DataResource<List<ModelAccount>>
+    val accounts: DataResource<List<ModelAccount>> = DataResource.Loading,
+    val sectionSize: SectionSize = SectionSize.All,
+    val filterTerm: String = ""
 ) : ModelState
 
 data class ModelAccount(

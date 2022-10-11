@@ -30,12 +30,8 @@ class HomeViewModel(
     private val currencyPrefs: CurrencyPrefs,
     private val exchangeRates: ExchangeRatesDataManager,
 ) : MviViewModel<HomeIntent, HomeViewState, HomeModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
-    HomeModelState(accounts = DataResource.Data(emptyList()))
+    HomeModelState()
 ) {
-    companion object {
-        private const val SECTION_MAX_ITEMS = 8
-    }
-
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         updateState { state ->
             state.copy(accounts = DataResource.Data(emptyList()))
@@ -46,12 +42,26 @@ class HomeViewModel(
         return with(state) {
             HomeViewState(
                 balance = accounts.totalBalance(),
-                cryptoAssets = state.accounts.map {
-                    it.filter { modelAccount -> modelAccount.singleAccount is CryptoAccount }
+                cryptoAssets = state.accounts.map { modelAccounts ->
+                    modelAccounts
+                        .filter { modelAccount ->
+                            // create search term filter predicate
+                            val searchTermPredicate = if (state.filterTerm.isEmpty()) {
+                                true
+                            } else {
+                                with(modelAccount.singleAccount.currency) {
+                                    displayTicker.contains(state.filterTerm, ignoreCase = true) ||
+                                        name.contains(state.filterTerm, ignoreCase = true)
+                                }
+                            }
+
+                            // filter accounts matching CryptoAccount and the search predicate
+                            (modelAccount.singleAccount is CryptoAccount) && searchTermPredicate
+                        }
                         .toHomeCryptoAssets()
                         .let { accounts ->
                             // <display list / isFullList>
-                            accounts.take(SECTION_MAX_ITEMS) to (accounts.size > SECTION_MAX_ITEMS)
+                            accounts.take(state.sectionSize.size) to (accounts.size > state.sectionSize.size)
                         }
                 },
                 fiatAssets = DataResource.Data(emptyList()),
@@ -96,7 +106,16 @@ class HomeViewModel(
 
     override suspend fun handleIntent(modelState: HomeModelState, intent: HomeIntent) {
         when (intent) {
-            HomeIntent.LoadHomeAccounts -> loadAccounts()
+            is HomeIntent.LoadHomeAccounts -> {
+                updateState { it.copy(sectionSize = intent.sectionSize) }
+                loadAccounts()
+            }
+
+            is HomeIntent.FilterSearch -> {
+                updateState {
+                    it.copy(filterTerm = intent.term)
+                }
+            }
         }
     }
 

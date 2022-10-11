@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 fun ChromeScreen(
     modifier: Modifier,
     updateScrollInfo: (ListStateInfo) -> Unit,
+    isPullToRefreshEnabled: Boolean,
     listState: LazyListState,
     content: @Composable () -> Unit,
     refreshStarted: () -> Unit,
@@ -38,7 +39,7 @@ fun ChromeScreen(
     )
     SwipeRefreshWithoutOverscroll(
         state = swipeRefreshState,
-        swipeEnabled = true,
+        swipeEnabled = isPullToRefreshEnabled,
         onRefresh = {
             isRefreshing = true
             scope.launch {

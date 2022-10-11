@@ -20,6 +20,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.map
+import com.blockchain.home.presentation.allassets.SectionSize
 import com.blockchain.home.presentation.dashboard.HomeIntent
 import com.blockchain.home.presentation.dashboard.HomeViewModel
 import com.blockchain.home.presentation.dashboard.HomeViewState
@@ -30,6 +31,8 @@ import org.koin.androidx.compose.getViewModel
 fun HomeScreen(
     viewModel: HomeViewModel = getViewModel(scope = payloadScope),
     listState: LazyListState,
+    // todo not like this
+    openAllAssets: () -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -38,7 +41,7 @@ fun HomeScreen(
     val viewState: HomeViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(HomeIntent.LoadHomeAccounts)
+        viewModel.onIntent(HomeIntent.LoadHomeAccounts(SectionSize.Limited()))
         onDispose { }
     }
 
@@ -56,8 +59,8 @@ fun HomeScreen(
                 HomeAssets(
                     cryptoAssets = state.cryptoAssets.map { it.first },
                     showSeeAllCryptoAssets = state.cryptoAssets.map { it.second },
-                    onSeeAllCryptoAssetsClick = {},
-                    fiatAssets = state.fiatAssets
+                    onSeeAllCryptoAssetsClick = openAllAssets,
+                    fiatAssets = state.fiatAssets,
                 )
             }
 
@@ -67,3 +70,4 @@ fun HomeScreen(
         }
     }
 }
+
