@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.ui
+package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +20,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.map
-import com.blockchain.home.presentation.HomeViewState
+import com.blockchain.home.presentation.dashboard.HomeIntent
+import com.blockchain.home.presentation.dashboard.HomeViewModel
+import com.blockchain.home.presentation.dashboard.HomeViewState
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
 

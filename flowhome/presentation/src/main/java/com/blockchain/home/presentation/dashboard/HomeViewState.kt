@@ -1,9 +1,8 @@
-package com.blockchain.home.presentation
+package com.blockchain.home.presentation.dashboard
 
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.data.DataResource
-import com.blockchain.home.presentation.ui.HomeActivity
 import info.blockchain.balance.Money
 
 /**

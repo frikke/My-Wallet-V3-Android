@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.blockchain.componentlib.chrome.ChromeScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
-import com.blockchain.home.presentation.ui.HomeScreen
+import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
 
 @Composable

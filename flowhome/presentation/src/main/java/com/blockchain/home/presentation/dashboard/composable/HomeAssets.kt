@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.ui
+package com.blockchain.home.presentation.dashboard.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -27,8 +27,8 @@ import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
-import com.blockchain.home.presentation.HomeCryptoAsset
-import com.blockchain.home.presentation.HomeFiatAsset
+import com.blockchain.home.presentation.dashboard.HomeCryptoAsset
+import com.blockchain.home.presentation.dashboard.HomeFiatAsset
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.Money
 
