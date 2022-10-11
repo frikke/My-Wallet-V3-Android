@@ -20,7 +20,8 @@ sealed class QuestionnaireNode(
         override val id: NodeId,
         override val text: String,
         override val children: List<QuestionnaireNode>,
-        val instructions: String
+        val instructions: String,
+        val isDropdown: Boolean
     ) : QuestionnaireNode(id, text, children)
 
     data class OpenEnded(

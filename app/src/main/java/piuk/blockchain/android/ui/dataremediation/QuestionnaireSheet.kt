@@ -21,7 +21,10 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
 
-class QuestionnaireSheet() : MVIBottomSheet<QuestionnaireState>(), AndroidScopeComponent {
+class QuestionnaireSheet() :
+    MVIBottomSheet<QuestionnaireState>(),
+    AndroidScopeComponent,
+    QuestionnaireDropdownPickerSheet.Host {
 
     interface Host : MVIBottomSheet.Host {
         fun questionnaireSubmittedSuccessfully()
@@ -41,6 +44,18 @@ class QuestionnaireSheet() : MVIBottomSheet<QuestionnaireState>(), AndroidScopeC
     private val navigator: NavigationRouter<Navigation> = object : NavigationRouter<Navigation> {
         override fun route(navigationEvent: Navigation) {
             when (navigationEvent) {
+                is Navigation.OpenDropdownPickerForSingleSelection -> {
+                    if (!childFragmentManager.isDestroyed) {
+                        QuestionnaireDropdownPickerSheet.newInstance(navigationEvent.original, navigationEvent.node)
+                            .show(childFragmentManager, "BOTTOM_DIALOG")
+                    }
+                }
+                is Navigation.OpenDropdownPickerForMultipleSelection -> {
+                    if (!childFragmentManager.isDestroyed) {
+                        QuestionnaireDropdownPickerSheet.newInstance(navigationEvent.original, navigationEvent.node)
+                            .show(childFragmentManager, "BOTTOM_DIALOG")
+                    }
+                }
                 Navigation.FinishSuccessfully -> {
                     host.questionnaireSubmittedSuccessfully()
                     if (showsDialog) dismiss()
@@ -71,8 +86,8 @@ class QuestionnaireSheet() : MVIBottomSheet<QuestionnaireState>(), AndroidScopeC
                     isSkipVisible = !questionnaire.isMandatory,
                     header = questionnaire.header,
                     state = state,
-                    onDropdownChoiceChanged = { node, newChoice ->
-                        model.onIntent(QuestionnaireIntent.DropdownChoiceChanged(node, newChoice))
+                    onDropdownOpenPickerClicked = { node ->
+                        model.onIntent(QuestionnaireIntent.DropdownOpenPickerClicked(node))
                     },
                     onSelectionClicked = { node ->
                         model.onIntent(QuestionnaireIntent.SelectionClicked(node))
@@ -109,6 +124,13 @@ class QuestionnaireSheet() : MVIBottomSheet<QuestionnaireState>(), AndroidScopeC
             ).show()
             model.onIntent(QuestionnaireIntent.ErrorHandled)
         }
+    }
+
+    override fun selectionChanged(node: FlatNode.Dropdown, newSelectedChoices: List<FlatNode.Selection>) {
+        model.onIntent(QuestionnaireIntent.DropdownChoicesChanged(node, newSelectedChoices))
+    }
+
+    override fun onSheetClosed() {
     }
 
     companion object {
