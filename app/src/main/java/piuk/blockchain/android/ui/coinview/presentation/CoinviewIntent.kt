@@ -142,4 +142,10 @@ sealed interface CoinviewIntent : Intent<CoinviewModelState> {
     data class QuickActionSelected(val quickAction: CoinviewQuickAction) : CoinviewIntent
 
     object ContactSupport : CoinviewIntent
+
+    object VisitAssetWebsite : CoinviewIntent {
+        override fun isValidFor(modelState: CoinviewModelState): Boolean {
+            return modelState.assetInfo is DataResource.Data
+        }
+    }
 }
