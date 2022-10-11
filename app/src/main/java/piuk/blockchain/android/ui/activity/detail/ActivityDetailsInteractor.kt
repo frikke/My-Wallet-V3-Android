@@ -4,6 +4,7 @@ import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
@@ -168,6 +169,43 @@ class ActivityDetailsInteractor(
 
     fun loadCustodialInterestItems(
         summaryItem: CustodialInterestActivitySummaryItem
+    ): Single<List<ActivityDetailsType>> {
+        val list = mutableListOf(
+            TransactionId(summaryItem.txId),
+            Created(Date(summaryItem.timeStampMs))
+        )
+        when (summaryItem.type) {
+            TransactionSummary.TransactionType.DEPOSIT -> {
+                list.add(
+                    getToField(
+                        summaryItem.account.label, summaryItem.account.label, summaryItem.asset
+                    )
+                )
+            }
+            TransactionSummary.TransactionType.WITHDRAW -> {
+                list.add(From(stringUtils.getString(R.string.common_company_name)))
+            }
+            TransactionSummary.TransactionType.INTEREST_EARNED -> {
+                list.add(From(stringUtils.getString(R.string.common_company_name)))
+                list.add(
+                    getToField(
+                        summaryItem.account.label, summaryItem.account.label, summaryItem.asset
+                    )
+                )
+            }
+            else -> {
+                // do nothing
+            }
+        }
+        return if (summaryItem.type == TransactionSummary.TransactionType.WITHDRAW) {
+            Single.just(list + getToField(summaryItem.accountRef, summaryItem.accountRef, summaryItem.asset))
+        } else {
+            Single.just(list.toList())
+        }
+    }
+
+    fun loadCustodialStakingItems(
+        summaryItem: CustodialStakingActivitySummaryItem
     ): Single<List<ActivityDetailsType>> {
         val list = mutableListOf(
             TransactionId(summaryItem.txId),
@@ -411,6 +449,15 @@ class ActivityDetailsInteractor(
             asset,
             txHash
         ) as? CustodialInterestActivitySummaryItem
+
+    fun getCustodialStakingActivityDetails(
+        asset: AssetInfo,
+        txHash: String
+    ): CustodialStakingActivitySummaryItem? =
+        assetActivityRepository.findCachedItem(
+            asset,
+            txHash
+        ) as? CustodialStakingActivitySummaryItem
 
     fun getCustodialTransferActivityDetails(
         asset: AssetInfo,

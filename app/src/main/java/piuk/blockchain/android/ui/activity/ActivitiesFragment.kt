@@ -278,6 +278,15 @@ class ActivitiesFragment :
         navigator().launchFiatDeposit(currency)
     }
 
+    override fun showDetailsLoadingError() {
+        BlockchainSnackbar.make(
+            view = binding.root,
+            message = getString(R.string.activity_details_loading_error),
+            duration = Snackbar.LENGTH_SHORT,
+            type = SnackbarType.Error
+        ).show()
+    }
+
     // SlidingModalBottomDialog.Host
     override fun onSheetClosed() {
         model.process(ClearBottomSheetIntent)

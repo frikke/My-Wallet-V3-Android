@@ -20,6 +20,7 @@ import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.nabu.common.extensions.toTransactionType
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.blockchain.preferences.CurrencyPrefs
@@ -33,7 +34,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
-import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -348,12 +348,4 @@ private fun String.toInterestState(): InterestState =
         TransactionResponse.CLEARED -> InterestState.CLEARED
         TransactionResponse.REFUNDED -> InterestState.REFUNDED
         else -> InterestState.UNKNOWN
-    }
-
-fun String.toTransactionType() =
-    when (this) {
-        TransactionResponse.DEPOSIT -> TransactionSummary.TransactionType.DEPOSIT
-        TransactionResponse.WITHDRAWAL -> TransactionSummary.TransactionType.WITHDRAW
-        TransactionResponse.INTEREST_OUTGOING -> TransactionSummary.TransactionType.INTEREST_EARNED
-        else -> TransactionSummary.TransactionType.UNKNOWN
     }

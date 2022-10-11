@@ -2,6 +2,7 @@ package com.blockchain.coincore
 
 import com.blockchain.core.interest.domain.model.InterestState
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.staking.domain.StakingState
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
@@ -135,6 +136,28 @@ data class CustodialInterestActivitySummaryItem(
 
     override val stateIsFinalised: Boolean
         get() = status > InterestState.MANUAL_REVIEW
+}
+
+data class CustodialStakingActivitySummaryItem(
+    override val exchangeRates: ExchangeRatesDataManager,
+    override val asset: AssetInfo,
+    override val txId: String,
+    override val timeStampMs: Long,
+    override val value: Money,
+    override val account: CryptoAccount,
+    val status: StakingState,
+    val type: TransactionSummary.TransactionType,
+    val confirmations: Int,
+    val accountRef: String,
+    val recipientAddress: String,
+) : CryptoActivitySummaryItem() {
+    fun isPending(): Boolean =
+        status == StakingState.PENDING ||
+            status == StakingState.PROCESSING ||
+            status == StakingState.MANUAL_REVIEW
+
+    override val stateIsFinalised: Boolean
+        get() = status > StakingState.MANUAL_REVIEW
 }
 
 data class CustodialTradingActivitySummaryItem(

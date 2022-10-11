@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.activity.detail
 
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
@@ -128,6 +129,22 @@ class LoadCustodialInterestHeaderDataIntent(
         return oldState.copy(
             transactionType = summaryItem.type,
             interestState = summaryItem.status,
+            amount = summaryItem.value,
+            isPending = summaryItem.isPending(),
+            isFeeTransaction = false,
+            confirmations = summaryItem.confirmations,
+            totalConfirmations = summaryItem.account.currency.requiredConfirmations
+        )
+    }
+}
+
+class LoadCustodialStakingHeaderDataIntent(
+    private val summaryItem: CustodialStakingActivitySummaryItem
+) : ActivityDetailsIntents() {
+    override fun reduce(oldState: ActivityDetailState): ActivityDetailState {
+        return oldState.copy(
+            transactionType = summaryItem.type,
+            stakingState = summaryItem.status,
             amount = summaryItem.value,
             isPending = summaryItem.isPending(),
             isFeeTransaction = false,

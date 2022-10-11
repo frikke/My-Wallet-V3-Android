@@ -643,7 +643,8 @@ val coreModule = module {
                 stakingEligibilityStore = get(),
                 stakingBalanceStore = get(),
                 assetCatalogue = get(),
-                stakingFeatureFlag = get(stakingAccountFeatureFlag)
+                stakingFeatureFlag = get(stakingAccountFeatureFlag),
+                paymentTransactionHistoryStore = get()
             )
         }
     }

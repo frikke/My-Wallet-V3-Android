@@ -662,6 +662,9 @@
     <string name="tx_title_rewards">%s Rewards Earned</string>
     <string name="tx_title_add_with_ticker">Add %s</string>
     <string name="tx_title_added">Added %s</string>
+    <string name="tx_title_stake_earned">%s Earned</string>
+    <string name="tx_title_stake_withdrawn">%s Unstaked</string>
+    <string name="tx_title_staked">Staked %s</string>
 
     <!-- TRANSACTION DETAILS -->
     <string name="transaction_detail_coinbase">No Inputs (Newly Generated Coins)</string>
@@ -1473,6 +1476,7 @@
     <string name="activity_custodial_pending_value">Bank Transfer</string>
     <string name="checkout_bank_transfer_label">Bank Transfer</string>
     <string name="activity_loading_error">Failed to load activity, please try again later</string>
+    <string name="activity_details_loading_error">There was an issue loading the details of this transaction. Please try again later</string>
     <string name="apple_pay" translatable="false">Apple Pay</string>
     <string name="card_issuer_always_rejects_title">Buying crypto not supported</string>
     <string name="card_issuer_always_rejects_desc">This card doesn’t allow crypto transactions. Try another card instead.</string>

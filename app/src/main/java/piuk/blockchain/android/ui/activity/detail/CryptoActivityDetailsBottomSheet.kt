@@ -24,6 +24,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.interest.domain.model.InterestState
+import com.blockchain.core.staking.domain.StakingState
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
@@ -58,6 +59,7 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
 
     interface Host : HostedBottomSheet.Host {
         fun onAddCash(currency: String)
+        fun showDetailsLoadingError()
     }
 
     override val host: Host by lazy {
@@ -142,7 +144,8 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         }
 
         if (newState.isError) {
-            showFailedPill()
+            host.showDetailsLoadingError()
+            dismiss()
         }
 
         if (listAdapter.items != newState.listOfItems) {
@@ -155,24 +158,43 @@ class CryptoActivityDetailsBottomSheet : MviBottomSheet<ActivityDetailsModel,
         newState: ActivityDetailState
     ) {
         if (newState.isPending) {
-            binding.status.text = getString(
-                when (newState.interestState) {
-                    InterestState.PENDING -> R.string.activity_details_label_pending
-                    InterestState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
-                    InterestState.PROCESSING -> R.string.activity_details_label_processing
-                    else -> R.string.empty
-                }
-            )
+            showStatusLabel(newState)
             showPendingPill()
 
             if (newState.transactionType == TransactionSummary.TransactionType.DEPOSIT) {
                 showConfirmationUi(newState.confirmations, newState.totalConfirmations)
             }
-        } else if (newState.interestState == InterestState.FAILED) {
+        } else if (newState.interestState == InterestState.FAILED || newState.stakingState == StakingState.FAILED) {
             showFailedPill()
         } else {
             showCompletePill()
         }
+    }
+
+    private fun showStatusLabel(newState: ActivityDetailState) {
+        binding.status.text = getString(
+            when {
+                newState.interestState != null -> {
+                    when (newState.interestState) {
+                        InterestState.PENDING -> R.string.activity_details_label_pending
+                        InterestState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
+                        InterestState.PROCESSING -> R.string.activity_details_label_processing
+                        else -> R.string.empty
+                    }
+                }
+                newState.stakingState != null -> {
+                    when (newState.stakingState) {
+                        StakingState.PENDING -> R.string.activity_details_label_pending
+                        StakingState.MANUAL_REVIEW -> R.string.activity_details_label_manual_review
+                        StakingState.PROCESSING -> R.string.activity_details_label_processing
+                        else -> R.string.empty
+                    }
+                }
+                else -> {
+                    R.string.empty
+                }
+            }
+        )
     }
 
     private fun showTransactionTypeUi(state: ActivityDetailState) {

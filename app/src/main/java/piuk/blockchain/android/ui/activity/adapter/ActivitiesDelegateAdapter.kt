@@ -41,6 +41,7 @@ class ActivitiesDelegateAdapter(
             addAdapterDelegate(SellActivityItemDelegate(onItemClicked))
             addAdapterDelegate(CustodialFiatActivityItemDelegate(prefs, onItemClicked))
             addAdapterDelegate(CustodialInterestActivityItemDelegate(prefs, historicRateFetcher, onItemClicked))
+            addAdapterDelegate(CustodialStakingActivityItemDelegate(prefs, historicRateFetcher, onItemClicked))
             addAdapterDelegate(CustodialRecurringBuyActivityItemDelegate(onItemClicked))
             addAdapterDelegate(CustodialSendActivityItemDelegate(onItemClicked))
         }

@@ -24,13 +24,18 @@ interface StakingService {
         refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<StakingAccountBalance>>
 
-    suspend fun getRateForAsset(
+    fun getRateForAsset(
         currency: Currency,
         refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<Double>>
 
-    suspend fun getEligibilityForAsset(
+    fun getEligibilityForAsset(
         currency: Currency,
         refreshStrategy: FreshnessStrategy
     ): Flow<DataResource<StakingEligibility>>
+
+    fun getActivity(
+        currency: Currency,
+        refreshStrategy: FreshnessStrategy
+    ): Flow<DataResource<List<StakingActivity>>>
 }

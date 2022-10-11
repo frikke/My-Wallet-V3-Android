@@ -6,6 +6,7 @@ import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
+import com.blockchain.coincore.CustodialStakingActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
@@ -14,6 +15,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.coincore.impl.CustodialInterestAccount
+import com.blockchain.coincore.impl.CustodialStakingAccount
 import com.blockchain.core.common.caching.ExpiringRepository
 import com.blockchain.nabu.datamanagers.TransactionType
 import info.blockchain.balance.AssetInfo
@@ -43,6 +45,9 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
                     }
                     is CustodialInterestAccount -> {
                         account.currency == (item as? CustodialInterestActivitySummaryItem)?.asset
+                    }
+                    is CustodialStakingAccount -> {
+                        account.currency == (item as? CustodialStakingActivitySummaryItem)?.asset
                     }
                     else -> {
                         account == item.account

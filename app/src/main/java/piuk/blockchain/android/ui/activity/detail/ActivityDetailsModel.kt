@@ -5,6 +5,7 @@ import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.interest.domain.model.InterestState
+import com.blockchain.core.staking.domain.StakingState
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
@@ -86,6 +87,7 @@ enum class DescriptionState {
 
 data class ActivityDetailState(
     val interestState: InterestState? = null,
+    val stakingState: StakingState? = null,
     val transactionType: TransactionSummary.TransactionType? = null,
     val amount: Money? = null,
     val isPending: Boolean = false,
@@ -124,6 +126,7 @@ class ActivityDetailsModel(
                     ActivityType.NON_CUSTODIAL -> loadNonCustodialActivityDetails(intent)
                     ActivityType.CUSTODIAL_TRADING -> loadCustodialTradingActivityDetails(intent)
                     ActivityType.CUSTODIAL_INTEREST -> loadCustodialInterestActivityDetails(intent)
+                    ActivityType.CUSTODIAL_STAKING -> loadCustodialStakingActivityDetails(intent)
                     ActivityType.CUSTODIAL_TRANSFER -> loadCustodialTransferActivityDetails(intent)
                     ActivityType.SWAP -> loadSwapActivityDetails(intent)
                     ActivityType.SELL -> loadSellActivityDetails(intent)
@@ -161,6 +164,7 @@ class ActivityDetailsModel(
                 } ?: process(CreationDateLoadFailedIntent)
                 null
             }
+            is DeleteRecurringBuy -> deleteRecurringBuy(previousState.recurringBuyId.orEmpty())
             is DescriptionUpdatedIntent,
             is DescriptionUpdateFailedIntent,
             is ListItemsFailedToLoadIntent,
@@ -170,6 +174,7 @@ class ActivityDetailsModel(
             is ActivityDetailsLoadFailedIntent,
             is LoadCustodialTradingHeaderDataIntent,
             is LoadCustodialInterestHeaderDataIntent,
+            is LoadCustodialStakingHeaderDataIntent,
             is LoadSwapHeaderDataIntent,
             is LoadSellHeaderDataIntent,
             is LoadRecurringBuyDetailsHeaderDataIntent,
@@ -177,7 +182,6 @@ class ActivityDetailsModel(
             is RecurringBuyDeletedSuccessfully,
             is LoadNonCustodialHeaderDataIntent,
             is LoadCustodialSendHeaderDataIntent -> null
-            is DeleteRecurringBuy -> deleteRecurringBuy(previousState.recurringBuyId.orEmpty())
         }
     }
 
@@ -287,6 +291,22 @@ class ActivityDetailsModel(
         )?.let {
             process(LoadCustodialInterestHeaderDataIntent(it))
             interactor.loadCustodialInterestItems(it).subscribeBy(
+                onSuccess = { activityList ->
+                    process(ListItemsLoadedIntent(activityList))
+                },
+                onError = {
+                    process(ListItemsFailedToLoadIntent)
+                }
+            )
+        } ?: process(ActivityDetailsLoadFailedIntent)
+
+    private fun loadCustodialStakingActivityDetails(intent: LoadActivityDetailsIntent) =
+        interactor.getCustodialStakingActivityDetails(
+            asset = intent.asset,
+            txHash = intent.txHash
+        )?.let {
+            process(LoadCustodialStakingHeaderDataIntent(it))
+            interactor.loadCustodialStakingItems(it).subscribeBy(
                 onSuccess = { activityList ->
                     process(ListItemsLoadedIntent(activityList))
                 },
