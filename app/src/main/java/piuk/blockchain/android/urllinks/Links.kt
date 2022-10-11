@@ -64,9 +64,6 @@ const val CONTACT_SUPPORT_FUNDS_RECOVERY =
     "https://support.blockchain.com/hc/en-us/requests/new?ticket_form_id=360003112491"
 const val FUNDS_RECOVERY_INFO = "https://support.blockchain.com/hc/en-us/articles/4404679303700"
 
-const val URL_BLOCKCHAIN_CEUR_LEARN_MORE =
-    "https://www.blockchain.com/getceur"
-
 const val LIMITS_SUPPORT_CENTER = "https://support.blockchain.com/hc/en-us/articles/4410561005844"
 
 const val URL_CONTACT_SUBMIT_REQUEST = "https://support.blockchain.com/hc/en-us/requests/new"
@@ -77,8 +74,6 @@ const val URL_OPEN_BANKING_PRIVACY_POLICY = "https://www.yapily.com/legal/privac
 const val URL_RUSSIA_SANCTIONS_EU5 = "https://ec.europa.eu/commission/presscorner/detail/en/ip_22_2332"
 
 const val URL_CREDIT_CARD_FAILURES = "https://support.blockchain.com/hc/en-us/articles/5154350610716"
-const val URL_CARD_REJECTIONS = "https://support.blockchain.com/hc/en-us/articles/5225673267100"
 
-// TODO(dserrano) - STAKING - update links when available
-const val STAKING_LEARN_MORE = "https://login.blockchain.com"
-const val STAKING_WEB_APP = "https://login.blockchain.com"
+const val STAKING_LEARN_MORE = "https://support.blockchain.com/hc/en-us/sections/5954708914460-Staking"
+const val STAKING_WEB_APP = "https://login.blockchain.com/en/#/open/earn"
