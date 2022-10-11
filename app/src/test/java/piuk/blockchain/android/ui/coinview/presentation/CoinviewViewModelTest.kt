@@ -42,6 +42,7 @@ import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetDetail
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPrice
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetPriceHistory
 import piuk.blockchain.android.ui.coinview.domain.model.CoinviewAssetTotalBalance
+import piuk.blockchain.android.ui.coinview.domain.model.CoinviewQuickActions
 
 class CoinviewViewModelTest {
     @get:Rule
@@ -184,6 +185,8 @@ class CoinviewViewModelTest {
     fun `GIVEN asset tradeable, THEN tradeable state should be Tradeable`() = runTest {
         val dataResource = MutableSharedFlow<DataResource<CoinviewAssetDetail>>()
         coEvery { loadAssetAccountsUseCase(cryptoAsset) } returns dataResource
+        val dataResourceQuickActionUnused = MutableSharedFlow<DataResource<CoinviewQuickActions>>()
+        coEvery { loadQuickActionsUseCase(any(), any(), any()) } returns dataResourceQuickActionUnused
 
         viewModel.viewState.test {
             viewModel.viewCreated(coinviewArgs)
@@ -287,6 +290,8 @@ class CoinviewViewModelTest {
         runTest {
             val dataResource = MutableSharedFlow<DataResource<CoinviewAssetDetail>>()
             coEvery { loadAssetAccountsUseCase(cryptoAsset) } returns dataResource
+            val dataResourceQuickActionUnused = MutableSharedFlow<DataResource<CoinviewQuickActions>>()
+            coEvery { loadQuickActionsUseCase(any(), any(), any()) } returns dataResourceQuickActionUnused
 
             viewModel.viewState.test {
                 viewModel.viewCreated(coinviewArgs)
@@ -315,6 +320,8 @@ class CoinviewViewModelTest {
         runTest {
             val dataResource = MutableSharedFlow<DataResource<CoinviewAssetDetail>>()
             coEvery { loadAssetAccountsUseCase(cryptoAsset) } returns dataResource
+            val dataResourceQuickActionUnused = MutableSharedFlow<DataResource<CoinviewQuickActions>>()
+            coEvery { loadQuickActionsUseCase(any(), any(), any()) } returns dataResourceQuickActionUnused
 
             viewModel.viewState.test {
                 viewModel.viewCreated(coinviewArgs)
