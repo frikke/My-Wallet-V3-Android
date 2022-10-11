@@ -1,7 +1,9 @@
 package piuk.blockchain.androidcore.data.settings
 
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.firstOutcome
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
@@ -9,13 +11,16 @@ import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.await
-import piuk.blockchain.androidcore.data.settings.datastore.SettingsDataStore
+import piuk.blockchain.androidcore.data.settings.datastore.SettingsStore
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class SettingsDataManager(
     private val settingsService: SettingsService,
-    private val settingsDataStore: SettingsDataStore,
+    private val settingsStore: SettingsStore,
     private val currencyPrefs: CurrencyPrefs,
     private val walletSettingsService: WalletSettingsService,
     private val assetCatalogue: AssetCatalogue
@@ -27,9 +32,11 @@ class SettingsDataManager(
      * @return An [Observable] object wrapping a [Settings] object
      */
     fun getSettings(): Observable<Settings> =
-        attemptFetchSettingsFromMemory()
+        rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+            settingsStore.stream(FreshnessStrategy.Cached(false)).firstOutcome()
+        }.toObservable()
 
-    fun clearSettingsCache() = clearSettingsFromMemory()
+    fun clearSettingsCache() = settingsStore.markAsStale()
 
     /**
      * Updates the settings object by syncing it with the server. Must be called to set up the
@@ -47,10 +54,13 @@ class SettingsDataManager(
     /**
      * Fetches the latest user [Settings] object from the server
      *
-     * @return An [Observable] object wrapping a [Settings] object
+     * @return An [Single] object wrapping a [Settings] object
      */
     fun fetchSettings(): Observable<Settings> =
-        fetchSettingsFromWeb().applySchedulers()
+        rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+            settingsStore.stream(FreshnessStrategy.Fresh).firstOutcome()
+        }.toObservable()
+            .applySchedulers()
 
     /**
      * Update the user's email and fetches an updated [Settings] object.
@@ -215,14 +225,6 @@ class SettingsDataManager(
         settingsService.updateNotifications(notificationType)
             .flatMap { fetchSettings() }
             .applySchedulers()
-
-    private fun fetchSettingsFromWeb(): Observable<Settings> =
-        Observable.defer { settingsDataStore.fetchSettings() }
-
-    private fun clearSettingsFromMemory() = settingsDataStore.invalidateCacheSettings()
-
-    private fun attemptFetchSettingsFromMemory(): Observable<Settings> =
-        Observable.defer { settingsDataStore.getSettings() }
 
     /**
      * Update the user's fiat unit preference and fetches an updated [Settings] object.

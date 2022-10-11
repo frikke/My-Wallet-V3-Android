@@ -6,6 +6,7 @@ import com.blockchain.api.ethereum.evm.EvmBalanceResponse
 import com.blockchain.core.chains.erc20.data.Erc20L2StoreRepository
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.data.DataResource
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
@@ -22,7 +23,6 @@ import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 class Erc20L2StoreRepositoryTest {
     private val assetCatalogue = mockk<AssetCatalogue>()

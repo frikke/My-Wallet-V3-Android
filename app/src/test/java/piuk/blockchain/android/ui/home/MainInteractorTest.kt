@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.home
 
 import android.content.Intent
-import com.blockchain.core.Database
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.paymentmethods.BankService
@@ -20,7 +20,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import exchange.ExchangeLinking
-import exchangerate.HistoricRateQueries
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
@@ -49,7 +48,6 @@ import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 class MainInteractorTest {
 
@@ -64,7 +62,6 @@ class MainInteractorTest {
     private val simpleBuySync: SimpleBuySyncFactory = mock()
     private val userIdentity: UserIdentity = mock()
     private val upsellManager: KycUpgradePromptManager = mock()
-    private val database: Database = mock()
     private val credentialsWiper: CredentialsWiper = mock()
     private val qrScanResultProcessor: QrScanResultProcessor = mock()
     private val secureChannelService: SecureChannelService = mock()
@@ -107,7 +104,6 @@ class MainInteractorTest {
             simpleBuySync = simpleBuySync,
             userIdentity = userIdentity,
             upsellManager = upsellManager,
-            database = database,
             credentialsWiper = credentialsWiper,
             qrScanResultProcessor = qrScanResultProcessor,
             secureChannelService = secureChannelService,
@@ -238,17 +234,12 @@ class MainInteractorTest {
 
     @Test
     fun unpairWallet() {
-        val mockQueries: HistoricRateQueries = mock()
-
         doNothing().whenever(credentialsWiper).wipe()
-        whenever(database.historicRateQueries).thenReturn(mockQueries)
-        doNothing().whenever(mockQueries).clear()
 
         val observer = interactor.unpairWallet().test()
         observer.assertComplete()
 
         verify(credentialsWiper).wipe()
-        verify(database.historicRateQueries).clear()
     }
 
     @Test

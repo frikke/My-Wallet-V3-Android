@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.settings
 
-import com.blockchain.core.Database
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.BankService
@@ -19,7 +18,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import exchangerate.HistoricRateQueries
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -34,7 +32,6 @@ class SettingsInteractorTest {
     private lateinit var interactor: SettingsInteractor
     private val userIdentity: UserIdentity = mock()
     private val kycService: KycService = mock()
-    private val database: Database = mock()
     private val credentialsWiper: CredentialsWiper = mock()
     private val bankService: BankService = mock()
     private val cardService: CardService = mock()
@@ -49,7 +46,6 @@ class SettingsInteractorTest {
         interactor = SettingsInteractor(
             userIdentity = userIdentity,
             kycService = kycService,
-            database = database,
             credentialsWiper = credentialsWiper,
             bankService = bankService,
             cardService = cardService,
@@ -82,17 +78,12 @@ class SettingsInteractorTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `Sign out then unpair wallet and call experiments`() {
-        val mockQueries: HistoricRateQueries = mock()
-
         doNothing().whenever(credentialsWiper).wipe()
-        whenever(database.historicRateQueries).thenReturn(mockQueries)
-        doNothing().whenever(mockQueries).clear()
 
         val observer = interactor.unpairWallet().test()
         observer.assertComplete()
 
         verify(credentialsWiper).wipe()
-        verify(database.historicRateQueries).clear()
     }
 
     @Test

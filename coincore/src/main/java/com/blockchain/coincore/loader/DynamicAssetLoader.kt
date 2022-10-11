@@ -18,6 +18,7 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.domain.TradingService
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.featureflag.FeatureFlag
@@ -47,7 +48,6 @@ import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.filterList
 import piuk.blockchain.androidcore.utils.extensions.filterListItemIsInstance

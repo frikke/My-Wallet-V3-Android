@@ -2,6 +2,7 @@ package com.blockchain.core.chains.bitcoincash
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
@@ -29,7 +30,6 @@ import org.bitcoinj.core.LegacyAddress
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import piuk.blockchain.androidcore.utils.extensions.then
-import timber.log.Timber
 
 class BchDataManager(
     private val payloadDataManager: PayloadDataManager,
@@ -291,7 +291,7 @@ class BchDataManager(
             it[xpubs.default.address]?.finalBalance ?: throw IllegalStateException("Balance call error")
         }.doOnSuccess { balance ->
             updateBalanceForAddress(xpubs.default.address, balance)
-        }.doOnError(Timber::e)
+        }.doOnError(Logger::e)
 
     fun getAddressTransactions(
         address: String,

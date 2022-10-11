@@ -36,7 +36,10 @@ import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectSignEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectTransactionEngine
 import com.blockchain.core.SwapTransactionsCache
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.chains.ethereum.EthMessageSigner
 import com.blockchain.core.custodial.data.store.TradingStore
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.limits.LimitsDataManager
@@ -48,9 +51,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.preferences.WalletStatusPrefs
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.ethereum.EthMessageSigner
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 class TxProcessorFactory(
     private val bitPayManager: BitPayDataManager,

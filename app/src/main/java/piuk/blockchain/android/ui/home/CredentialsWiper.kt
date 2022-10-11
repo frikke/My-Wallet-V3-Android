@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.home
 
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.walletoptions.WalletOptionsState
 import com.blockchain.metadata.MetadataService
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.notifications.NotificationTokenManager
@@ -12,8 +14,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.rx3.rxCompletable
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsState
 import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 

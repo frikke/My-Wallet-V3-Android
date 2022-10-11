@@ -1,6 +1,8 @@
 package piuk.blockchain.androidcore.data.settings
 
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.data.DataResource
+import com.blockchain.data.FreshnessStrategy
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -10,6 +12,7 @@ import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import java.util.Arrays
+import kotlinx.coroutines.flow.flowOf
 import okhttp3.ResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -18,13 +21,13 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import piuk.blockchain.android.testutils.RxTest
-import piuk.blockchain.androidcore.data.settings.datastore.SettingsDataStore
+import piuk.blockchain.androidcore.data.settings.datastore.SettingsStore
 
 class SettingsDataManagerTest : RxTest() {
 
     private lateinit var subject: SettingsDataManager
     private val settingsService: SettingsService = mock()
-    private val settingsDataStore: SettingsDataStore = mock()
+    private val settingsStore: SettingsStore = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val walletSettingsService: WalletSettingsService = mock()
     private val assetCatalogue: AssetCatalogue = mock()
@@ -32,7 +35,7 @@ class SettingsDataManagerTest : RxTest() {
     @Before
     fun setUp() {
         subject = SettingsDataManager(
-            settingsService, settingsDataStore, currencyPrefs,
+            settingsService, settingsStore, currencyPrefs,
             walletSettingsService, assetCatalogue
         )
     }
@@ -43,14 +46,14 @@ class SettingsDataManagerTest : RxTest() {
         val mockSettings = mock(Settings::class.java)
         val guid = "GUID"
         val sharedKey = "SHARED_KEY"
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.initSettings(guid, sharedKey).test()
         // Assert
         verify(settingsService).initSettings(guid, sharedKey)
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -59,12 +62,12 @@ class SettingsDataManagerTest : RxTest() {
     @Test
     fun getSettings() {
         val mockSettings = mock(Settings::class.java)
-        whenever(settingsDataStore.getSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Cached(false))).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.getSettings().test()
         // Assert
-        verify(settingsDataStore).getSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Cached(false))
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -77,14 +80,14 @@ class SettingsDataManagerTest : RxTest() {
         val mockResponse = mock(ResponseBody::class.java)
         val mockSettings = mock(Settings::class.java)
         whenever(settingsService.updateEmail(email)).thenReturn(Observable.just(mockResponse))
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.updateEmail(email).test()
         // Assert
         verify(settingsService).updateEmail(email)
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -97,14 +100,14 @@ class SettingsDataManagerTest : RxTest() {
         val mockResponse = mock(ResponseBody::class.java)
         val mockSettings = mock(Settings::class.java)
         whenever(settingsService.updateSms(phoneNumber)).thenReturn(Observable.just(mockResponse))
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.updateSms(phoneNumber).test()
         // Assert
         verify(settingsService).updateSms(phoneNumber)
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -118,14 +121,14 @@ class SettingsDataManagerTest : RxTest() {
         val mockSettings = mock(Settings::class.java)
         whenever(settingsService.verifySms(verificationCode))
             .thenReturn(Observable.just(mockResponse))
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.verifySms(verificationCode).test()
         // Assert
         verify(settingsService).verifySms(verificationCode)
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -137,14 +140,14 @@ class SettingsDataManagerTest : RxTest() {
         val mockResponse = mock(ResponseBody::class.java)
         val mockSettings = mock(Settings::class.java)
         whenever(settingsService.updateTor(true)).thenReturn(Observable.just(mockResponse))
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.updateTor(true).test()
         // Assert
         verify(settingsService).updateTor(true)
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -158,14 +161,14 @@ class SettingsDataManagerTest : RxTest() {
         val authType = 1337
         whenever(settingsService.updateTwoFactor(authType))
             .thenReturn(Observable.just(mockResponse))
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.updateTwoFactor(authType).test()
         // Assert
         verify(settingsService).updateTwoFactor(authType)
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -182,15 +185,15 @@ class SettingsDataManagerTest : RxTest() {
             .thenReturn(Observable.just(mockResponse))
         whenever(settingsService.updateNotifications(notificationType))
             .thenReturn(Observable.just(mockResponse))
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.enableNotification(notificationType, notifications).test()
         // Assert
         verify(settingsService).enableNotifications(true)
         verify(settingsService).updateNotifications(notificationType)
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -207,15 +210,15 @@ class SettingsDataManagerTest : RxTest() {
             .thenReturn(Observable.just(mockResponse))
         whenever(settingsService.updateNotifications(SettingsManager.NOTIFICATION_TYPE_ALL))
             .thenReturn(Observable.just(mockResponse))
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.enableNotification(notificationType, notifications).test()
         // Assert
         verify(settingsService).enableNotifications(true)
         verify(settingsService).updateNotifications(SettingsManager.NOTIFICATION_TYPE_ALL)
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -232,15 +235,15 @@ class SettingsDataManagerTest : RxTest() {
             .thenReturn(Observable.just(mockResponse))
         whenever(settingsService.updateNotifications(SettingsManager.NOTIFICATION_TYPE_ALL))
             .thenReturn(Observable.just(mockResponse))
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.enableNotification(notificationType, notifications).test()
         // Assert
         verify(settingsService).enableNotifications(true)
         verify(settingsService).updateNotifications(SettingsManager.NOTIFICATION_TYPE_ALL)
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -257,15 +260,15 @@ class SettingsDataManagerTest : RxTest() {
             .thenReturn(Observable.just(mockResponse))
         whenever(settingsService.updateNotifications(SettingsManager.NOTIFICATION_TYPE_EMAIL))
             .thenReturn(Observable.just(mockResponse))
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.enableNotification(notificationType, notifications).test()
         // Assert
         verify(settingsService).enableNotifications(true)
-        verify(settingsDataStore).fetchSettings()
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
         verify(settingsService).updateNotifications(SettingsManager.NOTIFICATION_TYPE_EMAIL)
         verifyNoMoreInteractions(settingsService)
-        verifyNoMoreInteractions(settingsDataStore)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -277,13 +280,13 @@ class SettingsDataManagerTest : RxTest() {
         val notifications = emptyList<Int>()
         val notificationType = SettingsManager.NOTIFICATION_TYPE_SMS
         val mockSettings = mock(Settings::class.java)
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.disableNotification(notificationType, notifications).test()
         // Assert
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -298,14 +301,14 @@ class SettingsDataManagerTest : RxTest() {
         val mockSettings = mock(Settings::class.java)
         whenever(settingsService.updateNotifications(SettingsManager.NOTIFICATION_TYPE_SMS))
             .thenReturn(Observable.just(mockResponse))
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.disableNotification(notificationType, notifications).test()
         // Assert
         verify(settingsService).updateNotifications(SettingsManager.NOTIFICATION_TYPE_SMS)
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -323,14 +326,14 @@ class SettingsDataManagerTest : RxTest() {
         val mockSettings = mock(Settings::class.java)
         whenever(settingsService.updateNotifications(SettingsManager.NOTIFICATION_TYPE_SMS))
             .thenReturn(Observable.just(mockResponse))
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.disableNotification(notificationType, notifications).test()
         // Assert
         verify(settingsService).updateNotifications(SettingsManager.NOTIFICATION_TYPE_SMS)
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -347,15 +350,15 @@ class SettingsDataManagerTest : RxTest() {
             .thenReturn(Observable.just(mockResponse))
         whenever(settingsService.updateNotifications(SettingsManager.NOTIFICATION_TYPE_NONE))
             .thenReturn(Observable.just(mockResponse))
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.disableNotification(notificationType, notifications).test()
         // Assert
         verify(settingsService).enableNotifications(false)
         verify(settingsService).updateNotifications(SettingsManager.NOTIFICATION_TYPE_NONE)
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -367,13 +370,13 @@ class SettingsDataManagerTest : RxTest() {
         val notifications = listOf(SettingsManager.NOTIFICATION_TYPE_SMS)
         val notificationType = SettingsManager.NOTIFICATION_TYPE_EMAIL
         val mockSettings = mock(Settings::class.java)
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.disableNotification(notificationType, notifications).test()
         // Assert
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])
@@ -385,13 +388,13 @@ class SettingsDataManagerTest : RxTest() {
         val notifications = Arrays.asList(1337, 1338)
         val notificationType = SettingsManager.NOTIFICATION_TYPE_EMAIL
         val mockSettings = mock(Settings::class.java)
-        whenever(settingsDataStore.fetchSettings()).thenReturn(Observable.just(mockSettings))
+        whenever(settingsStore.stream(FreshnessStrategy.Fresh)).thenReturn(flowOf(DataResource.Data(mockSettings)))
         // Act
         val testObserver = subject.disableNotification(notificationType, notifications).test()
         // Assert
         verifyNoMoreInteractions(settingsService)
-        verify(settingsDataStore).fetchSettings()
-        verifyNoMoreInteractions(settingsDataStore)
+        verify(settingsStore).stream(FreshnessStrategy.Fresh)
+        verifyNoMoreInteractions(settingsStore)
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         assertEquals(mockSettings, testObserver.values()[0])

@@ -1,5 +1,6 @@
 package com.blockchain.nabu.metadata
 
+import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
@@ -10,7 +11,6 @@ import com.blockchain.nabu.models.responses.tokenresponse.mapToBlockchainCredent
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import piuk.blockchain.androidcore.utils.extensions.thenMaybe
-import timber.log.Timber
 
 class AccountCredentialsMetadata(
     private val metadataRepository: MetadataRepository,
@@ -21,7 +21,7 @@ class AccountCredentialsMetadata(
     @Synchronized
     fun load(): Maybe<CredentialMetadata> {
         loadMetadataMaybe?.let {
-            Timber.d("Metadata loading already")
+            Logger.d("Metadata loading already")
             return it
         } ?: kotlin.run {
             return loadCached().doFinally {

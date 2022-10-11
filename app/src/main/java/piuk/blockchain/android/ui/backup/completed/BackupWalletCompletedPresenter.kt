@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.backup.completed
 
+import com.blockchain.core.auth.AuthDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.base.View
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import timber.log.Timber
 
 interface BackupWalletCompletedView : View {

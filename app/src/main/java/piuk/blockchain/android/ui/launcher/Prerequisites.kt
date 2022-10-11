@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.launcher
 
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
@@ -12,9 +13,7 @@ import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 
@@ -28,7 +27,6 @@ class Prerequisites(
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     private val globalEventHandler: GlobalEventHandler,
     private val walletCredentialsUpdater: WalletCredentialsMetadataUpdater,
-    private val rxBus: RxBus
 ) {
 
     fun initMetadataAndRelatedPrerequisites(): Completable =

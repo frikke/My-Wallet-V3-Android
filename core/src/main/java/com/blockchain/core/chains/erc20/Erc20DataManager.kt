@@ -9,11 +9,13 @@ import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryList
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.Logger
 import com.blockchain.store.asObservable
 import com.blockchain.store.asSingle
 import com.blockchain.store.getDataOrThrow
@@ -41,8 +43,6 @@ import kotlinx.coroutines.rx3.await
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.RawTransaction
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import timber.log.Timber
 
 interface Erc20DataManager {
     val accountHash: String
@@ -227,7 +227,7 @@ internal class Erc20DataManagerImpl(
             // coins on an L2 chain. Deal with it as part of the L2 + ETH -> EVM refactoring.
             ethDataManager.getErc20TokenData(asset) != null
         } catch (ex: Exception) {
-            Timber.e(ex)
+            Logger.e(ex)
             return false
         }
     }

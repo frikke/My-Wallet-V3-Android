@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.login
 
 import android.content.Intent
 import android.net.Uri
+import com.blockchain.core.auth.AuthDataManager
 import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -9,7 +10,6 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class LoginInteractorTest {

@@ -62,7 +62,6 @@ val redesignSettingsModule = module {
             SettingsInteractor(
                 userIdentity = get(),
                 kycService = get(),
-                database = get(),
                 credentialsWiper = get(),
                 bankService = get(),
                 cardService = get(),

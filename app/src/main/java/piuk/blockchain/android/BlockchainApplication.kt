@@ -37,7 +37,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
-import piuk.blockchain.android.data.connectivity.ConnectivityManager
 import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.ui.ssl.SSLVerifyActivity
@@ -46,8 +45,7 @@ import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.lifecycle.AppLifecycleListener
 import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.SSLPinningObservable
+import piuk.blockchain.androidcore.data.connectivity.SSLPinningObservable
 import timber.log.Timber
 
 open class BlockchainApplication : Application() {
@@ -55,7 +53,6 @@ open class BlockchainApplication : Application() {
     private val environmentSettings: EnvironmentConfig by inject()
     private val lifeCycleInterestedComponent: LifecycleInterestedComponent by inject()
     private val appInfoPrefs: AppInfoPrefs by inject()
-    private val rxBus: RxBus by inject()
     private val sslPinningObservable: SSLPinningObservable by inject()
     private val currentContextAccess: CurrentContextAccess by inject()
     private val appUtils: AppUtil by inject()
@@ -108,8 +105,6 @@ open class BlockchainApplication : Application() {
         RxJavaPlugins.setErrorHandler { _throwable ->
             Timber.tag(RX_ERROR_TAG).e(_throwable)
         }
-
-        ConnectivityManager.getInstance().registerNetworkListener(this, rxBus)
 
         checkSecurityProviderAndPatchIfNeeded()
 

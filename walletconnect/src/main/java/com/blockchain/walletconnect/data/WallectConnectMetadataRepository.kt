@@ -1,5 +1,6 @@
 package com.blockchain.walletconnect.data
 
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.walletconnect.domain.ClientMeta
@@ -12,7 +13,6 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 class WalletConnectMetadataRepository(
     private val metadataRepository: MetadataRepository

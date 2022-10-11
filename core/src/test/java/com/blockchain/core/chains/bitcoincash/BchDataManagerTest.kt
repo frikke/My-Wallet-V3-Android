@@ -6,6 +6,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataRepository
+import com.blockchain.utils.MockLoggerKoinTestRule
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -41,6 +42,9 @@ class BchDataManagerTest {
     val rxSchedulers = rxInit {
         ioTrampoline()
     }
+
+    @get:Rule
+    val mockLoggerKoinTestRule = MockLoggerKoinTestRule()
 
     private lateinit var subject: BchDataManager
 

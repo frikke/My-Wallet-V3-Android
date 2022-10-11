@@ -2,12 +2,13 @@ package com.blockchain.koin
 
 import android.content.Context
 import android.preference.PreferenceManager
-import com.blockchain.core.Database
 import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.asset.data.AssetRepository
 import com.blockchain.core.asset.data.dataresources.AssetInformationStore
 import com.blockchain.core.asset.domain.AssetService
+import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.auth.WalletAuthService
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.buy.data.SimpleBuyRepository
@@ -33,6 +34,9 @@ import com.blockchain.core.chains.erc20.data.store.Erc20Store
 import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.chains.ethereum.EthMessageSigner
+import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.common.caching.StoreWiperImpl
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.data.TradingRepository
@@ -43,6 +47,7 @@ import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import com.blockchain.core.eligibility.EligibilityRepository
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.fiatcurrencies.FiatCurrenciesRepository
 import com.blockchain.core.history.data.datasources.PaymentTransactionHistoryStore
 import com.blockchain.core.interest.data.InterestRepository
@@ -74,6 +79,8 @@ import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistDataManagerImpl
+import com.blockchain.core.walletoptions.WalletOptionsDataManager
+import com.blockchain.core.walletoptions.WalletOptionsState
 import com.blockchain.core.watchlist.data.WatchlistRepository
 import com.blockchain.core.watchlist.data.datasources.WatchlistStore
 import com.blockchain.core.watchlist.domain.WatchlistService
@@ -122,32 +129,22 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.access.PinRepositoryImpl
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
-import piuk.blockchain.androidcore.data.auth.WalletAuthService
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.ethereum.EthMessageSigner
-import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
+import piuk.blockchain.androidcore.data.connectivity.SSLPinningEmitter
+import piuk.blockchain.androidcore.data.connectivity.SSLPinningObservable
+import piuk.blockchain.androidcore.data.connectivity.SSLPinningSubject
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManagerSeedAccessAdapter
 import piuk.blockchain.androidcore.data.payload.PayloadService
 import piuk.blockchain.androidcore.data.payload.PromptingSeedAccessAdapter
 import piuk.blockchain.androidcore.data.payments.PaymentService
 import piuk.blockchain.androidcore.data.payments.SendDataManager
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.data.rxjava.SSLPinningEmitter
-import piuk.blockchain.androidcore.data.rxjava.SSLPinningObservable
-import piuk.blockchain.androidcore.data.rxjava.SSLPinningSubject
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
 import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsEmailAndSyncUpdater
 import piuk.blockchain.androidcore.data.settings.SettingsPhoneNumberUpdater
 import piuk.blockchain.androidcore.data.settings.SettingsService
-import piuk.blockchain.androidcore.data.settings.datastore.SettingsDataStore
-import piuk.blockchain.androidcore.data.settings.datastore.SettingsMemoryStore
-import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
-import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsState
+import piuk.blockchain.androidcore.data.settings.datastore.SettingsStore
 import piuk.blockchain.androidcore.utils.AESUtilWrapper
 import piuk.blockchain.androidcore.utils.CloudBackupAgent
 import piuk.blockchain.androidcore.utils.DeviceIdGenerator
@@ -158,8 +155,6 @@ import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.UUIDGenerator
 
 val coreModule = module {
-
-    single { RxBus() }
 
     single { SSLPinningSubject() }.apply {
         bind(SSLPinningObservable::class)
@@ -466,7 +461,7 @@ val coreModule = module {
         scoped {
             SettingsDataManager(
                 settingsService = get(),
-                settingsDataStore = get(),
+                settingsStore = get(),
                 currencyPrefs = get(),
                 walletSettingsService = get(),
                 assetCatalogue = get()
@@ -476,7 +471,9 @@ val coreModule = module {
         scoped { SettingsService(get()) }
 
         scoped {
-            SettingsDataStore(SettingsMemoryStore(), get<SettingsService>().getSettingsObservable())
+            SettingsStore(
+                settingsService = get()
+            )
         }
 
         factory {
@@ -746,10 +743,6 @@ val coreModule = module {
     }.bind(PinRepository::class)
 
     factory { AESUtilWrapper() }
-
-    single {
-        Database(driver = get())
-    }
 
     single<StoreWiper> {
         StoreWiperImpl(

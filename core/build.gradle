@@ -1,5 +1,4 @@
 apply plugin: 'kotlinx-serialization'
-apply plugin: 'com.squareup.sqldelight'
 apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
 
 final buildProperties = new BuildProperties(
@@ -57,10 +56,6 @@ dependencies {
     implementation Libraries.rxKotlin
     implementation Libraries.rxAndroid
 
-    // Database
-    implementation Libraries.sqlDelight
-    implementation Libraries.rxSqlDelight
-
     // Firebase
     implementation platform(Libraries.firebaseBom)
     implementation(Libraries.firebaseConfig) {
@@ -73,6 +68,7 @@ dependencies {
     implementation Libraries.rxjava3Coroutines
 
     // Unit Test dependencies
+    testImplementation Libraries.koinTest
     testImplementation Libraries.koinTestJunit
     testImplementation project(':testutils-android')
 }

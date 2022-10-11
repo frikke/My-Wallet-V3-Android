@@ -12,6 +12,7 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.walletoptions.WalletOptionsDataManager
 import com.blockchain.fees.FeeType
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.XlmDataManager
@@ -31,7 +32,6 @@ import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import timber.log.Timber
 
 class XlmOnChainTxEngineTest : CoincoreTestBase() {

@@ -108,8 +108,6 @@ import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.launchUrlInBrowser
-import piuk.blockchain.androidcore.data.events.ActionEvent
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
@@ -155,11 +153,6 @@ class PortfolioFragment :
     }
 
     private val compositeDisposable = CompositeDisposable()
-    private val rxBus: RxBus by inject()
-
-    private val actionEvent by unsafeLazy {
-        rxBus.register(ActionEvent::class.java)
-    }
 
     private val flowToLaunch: AssetAction? by unsafeLazy {
         arguments?.getSerializable(FLOW_TO_LAUNCH) as? AssetAction
@@ -669,7 +662,6 @@ class PortfolioFragment :
         saveAssetOrderingLegacy()
 
         compositeDisposable.clear()
-        rxBus.unregister(ActionEvent::class.java, actionEvent)
         super.onPause()
     }
 

@@ -1,9 +1,9 @@
 package piuk.blockchain.androidcore.utils
 
+import com.blockchain.api.ConnectionApi
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.net.ssl.SSLPeerUnverifiedException
-import piuk.blockchain.androidcore.data.api.ConnectionApi
 import timber.log.Timber
 
 /**

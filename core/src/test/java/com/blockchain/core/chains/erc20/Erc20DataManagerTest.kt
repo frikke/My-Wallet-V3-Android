@@ -10,6 +10,7 @@ import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.data.DataResource
 import com.nhaarman.mockitokotlin2.any
@@ -39,7 +40,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.web3j.crypto.RawTransaction
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 class Erc20DataManagerTest {
 

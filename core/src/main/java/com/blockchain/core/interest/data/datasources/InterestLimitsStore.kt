@@ -2,6 +2,7 @@ package com.blockchain.core.interest.data.datasources
 
 import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.interest.data.InterestTickerLimitsDto
+import com.blockchain.logging.Logger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
@@ -10,7 +11,6 @@ import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.storedatasource.FlushableDataSource
 import kotlinx.serialization.builtins.serializer
-import timber.log.Timber
 
 class InterestLimitsStore(
     private val interestApiService: InterestApiService,
@@ -22,7 +22,7 @@ class InterestLimitsStore(
             mapper = {
                 interestApiService.getTickersLimits(
                     fiatCurrencyTicker = currencyPrefs.selectedFiatCurrency.networkTicker
-                ).doOnError { Timber.e("Limits call failed $it") }
+                ).doOnError { Logger.e("Limits call failed $it") }
             }
         ),
         dataSerializer = InterestTickerLimitsDto.serializer(),

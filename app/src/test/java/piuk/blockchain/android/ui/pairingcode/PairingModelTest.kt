@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.pairingcode
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.auth.AuthDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -14,7 +15,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.scan.domain.QrCodeDataService
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class PairingModelTest {

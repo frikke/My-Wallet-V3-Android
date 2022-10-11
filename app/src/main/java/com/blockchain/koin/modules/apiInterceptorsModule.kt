@@ -1,6 +1,14 @@
 package com.blockchain.koin.modules
 
 import android.os.Build
+import com.blockchain.api.interceptors.ApiLoggingInterceptor
+import com.blockchain.api.interceptors.AuthInterceptor
+import com.blockchain.api.interceptors.DeviceIdInterceptor
+import com.blockchain.api.interceptors.RequestIdInterceptor
+import com.blockchain.api.interceptors.SSLPinningInterceptor
+import com.blockchain.api.interceptors.SessionId
+import com.blockchain.api.interceptors.SessionIdInterceptor
+import com.blockchain.api.interceptors.UserAgentInterceptor
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.network.modules.OkHttpAuthInterceptor
 import com.blockchain.network.modules.OkHttpInterceptors
@@ -12,14 +20,6 @@ import okhttp3.Interceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.androidcore.data.api.interceptors.ApiLoggingInterceptor
-import piuk.blockchain.androidcore.data.api.interceptors.AuthInterceptor
-import piuk.blockchain.androidcore.data.api.interceptors.DeviceIdInterceptor
-import piuk.blockchain.androidcore.data.api.interceptors.RequestIdInterceptor
-import piuk.blockchain.androidcore.data.api.interceptors.SSLPinningInterceptor
-import piuk.blockchain.androidcore.data.api.interceptors.SessionId
-import piuk.blockchain.androidcore.data.api.interceptors.SessionIdInterceptor
-import piuk.blockchain.androidcore.data.api.interceptors.UserAgentInterceptor
 import piuk.blockchain.androidcore.utils.SessionPrefs
 
 val apiInterceptorsModule = module {

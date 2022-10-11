@@ -6,6 +6,7 @@ import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.testutils.rxInit
+import com.blockchain.utils.MockLoggerKoinTestRule
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -21,6 +22,9 @@ class NabuUserSyncUpdateUserWalletInfoWithJWTTest {
     val initSchedulers = rxInit {
         ioTrampoline()
     }
+
+    @get:Rule
+    val mockLoggerKoinTestRule = MockLoggerKoinTestRule()
 
     private val jwt = "JWT"
     private val nabuDataManager: NabuDataManager = mockk()

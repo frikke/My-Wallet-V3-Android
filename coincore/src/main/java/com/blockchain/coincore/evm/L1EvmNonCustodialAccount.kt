@@ -13,6 +13,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
@@ -28,7 +29,6 @@ import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.catch
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 class L1EvmNonCustodialAccount(
     asset: AssetInfo,

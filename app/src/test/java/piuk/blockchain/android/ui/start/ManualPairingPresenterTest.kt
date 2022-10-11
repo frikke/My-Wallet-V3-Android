@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.start
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.auth.AuthDataManager
 import com.blockchain.logging.RemoteLogger
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -13,7 +14,6 @@ import org.junit.Test
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PrefsUtil
 

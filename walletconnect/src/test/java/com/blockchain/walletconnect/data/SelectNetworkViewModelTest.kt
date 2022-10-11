@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.blockchain.coincore.Asset
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.chains.EvmNetwork
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.walletconnect.ui.networks.NetworkInfo
 import com.blockchain.walletconnect.ui.networks.SelectNetworkIntents
@@ -18,7 +19,6 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 class SelectNetworkViewModelTest {
 

@@ -7,6 +7,7 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.StandardL1Asset
+import com.blockchain.core.walletoptions.WalletOptionsDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.StellarPayment
 import com.blockchain.sunriver.XlmDataManager
@@ -23,7 +24,6 @@ import io.reactivex.rxjava3.core.Single
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 
 internal class XlmAsset(
     private val payloadManager: PayloadDataManager,

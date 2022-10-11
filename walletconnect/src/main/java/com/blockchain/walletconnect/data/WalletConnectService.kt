@@ -3,6 +3,7 @@ package com.blockchain.walletconnect.data
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.eth.EthereumSendTransactionTarget
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
@@ -33,7 +34,6 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.UUID
 import okhttp3.OkHttpClient
 import okhttp3.WebSocketListener
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber

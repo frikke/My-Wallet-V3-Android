@@ -52,7 +52,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
-import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityPinBinding
 import piuk.blockchain.android.ui.auth.BiometricsEnrollmentBottomSheet
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
@@ -318,7 +317,6 @@ class PinActivity :
     private fun init() {
         loadComposableData()
 
-        showConnectionDialogIfNeeded()
         showDebugEnv()
         setVersionNameAndCode()
         setupCommitHashView()
@@ -515,19 +513,6 @@ class PinActivity :
 
     private fun setVersionNameAndCode() {
         binding.textViewVersionCode.text = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
-    }
-
-    private fun showConnectionDialogIfNeeded() {
-        if (!ConnectivityStatus.hasConnectivity(this)) {
-            AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                .setMessage(getString(R.string.check_connectivity_exit))
-                .setCancelable(false)
-                .setPositiveButton(
-                    R.string.dialog_continue
-                ) { dialog, _ -> dialog.dismiss() }
-                .create()
-                .show()
-        }
     }
 
     private fun setupCommitHashView() {

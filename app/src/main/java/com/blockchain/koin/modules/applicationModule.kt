@@ -2,6 +2,7 @@ package com.blockchain.koin.modules
 
 import android.content.Context
 import androidx.biometric.BiometricManager
+import com.blockchain.api.ConnectionApi
 import com.blockchain.appinfo.AppInfo
 import com.blockchain.auth.LogoutTimer
 import com.blockchain.banking.BankPartnerCallbackProvider
@@ -11,7 +12,7 @@ import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.componentlib.theme.AppThemeProvider
-import com.blockchain.core.Database
+import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
@@ -49,8 +50,6 @@ import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
-import com.squareup.sqldelight.android.AndroidSqliteDriver
-import com.squareup.sqldelight.db.SqlDriver
 import exchange.ExchangeLinking
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -163,8 +162,6 @@ import piuk.blockchain.android.util.wiper.DataWiper
 import piuk.blockchain.android.util.wiper.DataWiperImpl
 import piuk.blockchain.android.walletmode.WalletModeThemeProvider
 import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.api.ConnectionApi
-import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 
 val applicationModule = module {
@@ -656,7 +653,6 @@ val applicationModule = module {
                 exchangeRates = get(),
                 remoteLogger = get(),
                 globalEventHandler = get(),
-                rxBus = get(),
                 walletConnectServiceAPI = get(),
                 walletCredentialsUpdater = get(),
                 payloadDataManager = get()
@@ -828,14 +824,6 @@ val applicationModule = module {
     }
 
     factory { FormatChecker() }
-
-    single<SqlDriver> {
-        AndroidSqliteDriver(
-            schema = Database.Schema,
-            context = get(),
-            name = "cache.db"
-        )
-    }
 
     viewModel {
         LauncherViewModel(

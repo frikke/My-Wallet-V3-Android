@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.recover
 
+import com.blockchain.core.auth.metadata.WalletRecoveryMetadata
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.preferences.AuthPrefs
 import info.blockchain.wallet.metadata.Metadata
@@ -8,7 +9,6 @@ import info.blockchain.wallet.metadata.MetadataInteractor
 import io.reactivex.rxjava3.core.Completable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import piuk.blockchain.androidcore.data.auth.metadata.WalletRecoveryMetadata
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 

@@ -23,7 +23,6 @@ import java.util.Timer
 import java.util.TimerTask
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
@@ -55,11 +54,7 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         )
 
         with(binding) {
-            if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {
-                showConnectivityWarning()
-            } else {
-                presenter.checkForRooted()
-            }
+            presenter.checkForRooted()
 
             btnCreate.setOnClickListener { launchCreateWalletActivity() }
 
@@ -151,20 +146,6 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         analytics.logEvent(LoginAnalytics.LoginClicked())
         startActivity(Intent(this, piuk.blockchain.android.ui.login.LoginActivity::class.java))
     }
-
-    private fun showConnectivityWarning() =
-        showAlert(
-            AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                .setMessage(getString(R.string.check_connectivity_exit))
-                .setCancelable(false)
-                .setNegativeButton(R.string.exit) { _, _ -> finishAffinity() }
-                .setPositiveButton(R.string.retry) { _, _ ->
-                    val intent = Intent(this, LandingActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(intent)
-                }
-                .create()
-        )
 
     override fun showLandingCta() {
         Handler(Looper.getMainLooper()).postDelayed({

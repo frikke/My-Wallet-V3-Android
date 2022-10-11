@@ -5,7 +5,7 @@ import android.net.Uri
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.core.Database
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.processor.DeepLinkResult
@@ -45,7 +45,6 @@ import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 class MainInteractor internal constructor(
     private val deepLinkProcessor: DeepLinkProcessor,
@@ -58,7 +57,6 @@ class MainInteractor internal constructor(
     private val simpleBuySync: SimpleBuySyncFactory,
     private val userIdentity: UserIdentity,
     private val upsellManager: KycUpgradePromptManager,
-    private val database: Database,
     private val credentialsWiper: CredentialsWiper,
     private val qrScanResultProcessor: QrScanResultProcessor,
     private val secureChannelService: SecureChannelService,
@@ -133,7 +131,6 @@ class MainInteractor internal constructor(
     fun unpairWallet(): Completable =
         Completable.fromAction {
             credentialsWiper.wipe()
-            database.historicRateQueries.clear()
         }
 
     fun processQrScanResult(decodedData: String): Single<out ScanResult> =

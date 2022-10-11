@@ -1,11 +1,11 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.logging.Logger
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.service.NabuService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import timber.log.Timber
 
 internal class NabuUserSyncUpdateUserWalletInfoWithJWT(
     private val nabuDataManager: NabuDataManager,
@@ -22,7 +22,7 @@ internal class NabuUserSyncUpdateUserWalletInfoWithJWT(
                         .doOnSuccess {
                             getUserStore.invalidate()
 
-                            Timber.d(
+                            Logger.d(
                                 "Syncing nabu user complete, email/phone verified: %s, %s",
                                 it.emailVerified, it.mobileVerified
                             )

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.reset.password
 
+import com.blockchain.core.auth.AuthDataManager
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.metadata.MetadataService
@@ -10,7 +11,6 @@ import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import io.reactivex.rxjava3.core.Completable
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 

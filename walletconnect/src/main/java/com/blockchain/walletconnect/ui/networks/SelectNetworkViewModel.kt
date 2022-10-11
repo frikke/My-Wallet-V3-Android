@@ -5,11 +5,11 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.core.chains.EvmNetwork
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import info.blockchain.balance.CryptoCurrency
 import kotlinx.coroutines.launch
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 import timber.log.Timber
 

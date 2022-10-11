@@ -1,5 +1,6 @@
 package piuk.blockchain.android.fraud.data.repository
 
+import com.blockchain.api.interceptors.SessionId
 import com.blockchain.api.services.SessionService
 import com.blockchain.api.session.data.GenerateSessionResponse
 import com.blockchain.featureflag.FeatureFlag
@@ -14,7 +15,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.fraud.domain.service.FraudService
-import piuk.blockchain.androidcore.data.api.interceptors.SessionId
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FraudRepositoryTest {

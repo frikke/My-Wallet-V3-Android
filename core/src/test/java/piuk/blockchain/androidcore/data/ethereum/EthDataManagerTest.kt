@@ -3,6 +3,8 @@ package piuk.blockchain.androidcore.data.ethereum
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.EvmNetworksService
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.outcome.Outcome
@@ -42,7 +44,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito
 import org.web3j.crypto.RawTransaction
-import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class EthDataManagerTest {

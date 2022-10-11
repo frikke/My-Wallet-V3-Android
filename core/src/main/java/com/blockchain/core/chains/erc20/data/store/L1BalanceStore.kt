@@ -1,5 +1,7 @@
 package com.blockchain.core.chains.erc20.data.store
 
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.outcome.Outcome
 import com.blockchain.serializers.BigIntSerializer
@@ -11,8 +13,6 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.KeyedFlushableDataSource
 import java.math.BigInteger
 import kotlinx.serialization.Serializable
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import timber.log.Timber
 
 /**
  * todo(othman) related stores and (ERC20) managers should be refactored
@@ -31,7 +31,7 @@ class L1BalanceStore(
                     // Sometimes this gets called before the Ethereum Wallet is initialised which leads to a fatal crash
                     // Returning an Outcome error means the relevant error messages will be shown on the Dashboard
                     remoteLogger.logException(ex)
-                    Timber.e(ex)
+                    Logger.e(ex)
                     Outcome.Failure(ex)
                 }
             }

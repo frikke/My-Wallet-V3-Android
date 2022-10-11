@@ -3,6 +3,7 @@ package com.blockchain.coincore.xlm
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.core.walletoptions.WalletOptionsDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.BalanceAndMin
@@ -19,7 +20,6 @@ import junit.framework.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 
 class XlmAccountBalanceTest : CoincoreTestBase() {
 

@@ -5,6 +5,7 @@ import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2Store
 import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.KeyedFreshnessStrategy
@@ -18,7 +19,6 @@ import java.math.BigInteger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asObservable
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 internal class Erc20L2StoreRepository(
     private val assetCatalogue: AssetCatalogue,

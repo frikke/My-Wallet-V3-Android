@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.settings.v2
 
-import com.blockchain.core.Database
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
@@ -31,7 +30,6 @@ import piuk.blockchain.android.ui.home.CredentialsWiper
 class SettingsInteractor internal constructor(
     private val userIdentity: UserIdentity,
     private val kycService: KycService,
-    private val database: Database,
     private val credentialsWiper: CredentialsWiper,
     private val bankService: BankService,
     private val cardService: CardService,
@@ -64,7 +62,6 @@ class SettingsInteractor internal constructor(
 
     fun unpairWallet(): Completable = Completable.fromAction {
         credentialsWiper.wipe()
-        database.historicRateQueries.clear()
     }
 
     fun getExistingPaymentMethods(): Single<PaymentMethods> {

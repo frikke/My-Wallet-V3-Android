@@ -7,6 +7,7 @@ import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryList
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.extensions.filterIf
 import com.blockchain.outcome.map
 import info.blockchain.balance.AssetCatalogue
@@ -15,7 +16,6 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 // This doesn't cache anything at this time, since it makes a call for a single

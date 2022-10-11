@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.security
 
+import com.blockchain.core.auth.AuthDataManager
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
@@ -13,7 +14,6 @@ import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeIn
 import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeInteractor
 import piuk.blockchain.android.ui.settings.v2.security.password.PasswordViewState
 import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class PasswordChangeInteractorTest {

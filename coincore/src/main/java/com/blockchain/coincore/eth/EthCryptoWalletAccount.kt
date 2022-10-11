@@ -3,7 +3,6 @@ package com.blockchain.coincore.eth
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.NullFiatAccount.currency
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
@@ -11,12 +10,13 @@ import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.store.asObservable
 import com.blockchain.store.mapData
@@ -33,8 +33,6 @@ import java.math.BigInteger
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOf
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
 
 /*internal*/ class EthCryptoWalletAccount internal constructor(
     private var jsonAccount: EthereumAccount,

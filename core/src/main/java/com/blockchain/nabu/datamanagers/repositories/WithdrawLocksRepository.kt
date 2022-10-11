@@ -2,11 +2,11 @@ package com.blockchain.nabu.datamanagers.repositories
 
 import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.logging.Logger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
-import timber.log.Timber
 
 class WithdrawLocksRepository(custodialWalletManager: CustodialWalletManager) {
 
@@ -16,7 +16,7 @@ class WithdrawLocksRepository(custodialWalletManager: CustodialWalletManager) {
             custodialWalletManager.fetchWithdrawLocksTime(
                 data.paymentMethodType, data.fiatCurrency
             )
-                .doOnSuccess { it1 -> Timber.d("Withdrawal lock: $it1") }
+                .doOnSuccess { it1 -> Logger.d("Withdrawal lock: $it1") }
         }
     )
 

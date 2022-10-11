@@ -13,6 +13,7 @@ import com.blockchain.coincore.eth.EthOnChainTxEngine
 import com.blockchain.coincore.eth.EthSignMessage
 import com.blockchain.coincore.eth.EthereumSignMessageTarget
 import com.blockchain.coincore.eth.WalletConnectTarget
+import com.blockchain.core.chains.ethereum.EthMessageSigner
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.CryptoCurrency
@@ -20,7 +21,6 @@ import info.blockchain.balance.Money
 import info.blockchain.wallet.ethereum.util.EthUtils
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.ethereum.EthMessageSigner
 
 class WalletConnectSignEngine(
     private val assetEngine: EthOnChainTxEngine,

@@ -44,9 +44,6 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.putAccount
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
-import piuk.blockchain.androidcore.data.events.ActionEvent
-import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class ActivitiesFragment :
     HomeScreenMviFragment<ActivitiesModel, ActivitiesIntent, ActivitiesState, FragmentActivitiesBinding>(),
@@ -66,14 +63,9 @@ class ActivitiesFragment :
     }
 
     private val disposables = CompositeDisposable()
-    private val rxBus: RxBus by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val assetResources: AssetResources by inject()
     private val historicRateFetcher: HistoricRateFetcher by scopedInject()
-
-    private val actionEvent by unsafeLazy {
-        rxBus.register(ActionEvent::class.java)
-    }
 
     private var state: ActivitiesState? = null
     private var selectedFiatCurrency: FiatCurrency? = null
@@ -251,7 +243,6 @@ class ActivitiesFragment :
 
     override fun onPause() {
         disposables.clear()
-        rxBus.unregister(ActionEvent::class.java, actionEvent)
         super.onPause()
     }
 

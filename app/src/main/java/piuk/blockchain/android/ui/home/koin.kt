@@ -50,7 +50,6 @@ val mainModule = module {
                 simpleBuySync = get(),
                 userIdentity = get(),
                 upsellManager = get(),
-                database = get(),
                 credentialsWiper = get(),
                 qrScanResultProcessor = get(),
                 secureChannelService = get(),

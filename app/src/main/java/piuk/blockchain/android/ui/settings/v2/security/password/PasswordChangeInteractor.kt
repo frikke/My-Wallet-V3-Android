@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.settings.v2.security.password
 
+import com.blockchain.core.auth.AuthDataManager
 import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.core.Single
 import kotlin.math.roundToInt
 import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 import piuk.blockchain.androidcore.utils.extensions.thenSingle

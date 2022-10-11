@@ -88,6 +88,7 @@ import com.blockchain.testutils.GBP
 import com.blockchain.testutils.MockKRule
 import com.blockchain.testutils.USD
 import com.blockchain.testutils.usd
+import com.blockchain.utils.MockLoggerKoinTestRule
 import com.blockchain.utils.toZonedDateTime
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
@@ -119,6 +120,9 @@ class PaymentsRepositoryTest {
         computationTrampoline()
         ioTrampoline()
     }
+
+    @get:Rule
+    val mockLoggerKoinTestRule = MockLoggerKoinTestRule()
 
     @get:Rule
     val mockKRule = MockKRule()

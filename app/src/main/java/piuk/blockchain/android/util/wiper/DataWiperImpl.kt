@@ -1,14 +1,14 @@
 package piuk.blockchain.android.util.wiper
 
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.walletoptions.WalletOptionsState
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import info.blockchain.wallet.payload.PayloadScopeWiper
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsState
 
 class DataWiperImpl constructor(
     private val ethDataManager: EthDataManager,

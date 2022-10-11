@@ -1,8 +1,8 @@
 package com.blockchain.walletconnect.ui.networks
 
+import com.blockchain.core.chains.ethereum.EthDataManager
 import info.blockchain.balance.CryptoCurrency
 import java.io.Serializable
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 data class NetworkInfo(
     val networkTicker: String,

@@ -2,6 +2,7 @@ package com.blockchain.coincore.btc
 
 import com.blockchain.coincore.impl.AccountRefreshTrigger
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
@@ -19,7 +20,6 @@ import io.reactivex.rxjava3.core.Single
 import junit.framework.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
 

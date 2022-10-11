@@ -4,6 +4,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.PairingEvent
 import com.blockchain.analytics.events.PairingMethod
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.core.auth.AuthDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
@@ -11,7 +12,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import okhttp3.ResponseBody
 import piuk.blockchain.android.scan.domain.QrCodeDataService
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class PairingModel(

@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.settings.v2.security.pin
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.walletoptions.WalletOptionsDataManager
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.ApiStatus
@@ -23,9 +25,7 @@ import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.extensions.then
 

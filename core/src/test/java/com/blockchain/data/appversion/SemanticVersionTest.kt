@@ -1,8 +1,8 @@
 package com.blockchain.data.appversion
 
+import com.blockchain.core.walletoptions.SemanticVersion
 import org.junit.Assert
 import org.junit.Test
-import piuk.blockchain.androidcore.data.appversion.SemanticVersion
 
 class SemanticVersionTest {
     @Test
