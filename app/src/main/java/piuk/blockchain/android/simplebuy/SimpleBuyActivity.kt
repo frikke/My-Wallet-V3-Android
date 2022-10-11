@@ -375,7 +375,9 @@ class SimpleBuyActivity :
             .replace(
                 R.id.content_frame,
                 SimpleBuyPaymentFragment.newInstance(
-                    isPaymentAuthorised, showRecurringBuySuggestion, recurringBuyFrequencyRemote
+                    isFromDeepLink = isPaymentAuthorised,
+                    showRecurringBuySuggestion = showRecurringBuySuggestion,
+                    recurringBuyFrequency = recurringBuyFrequencyRemote
                 ),
                 SimpleBuyPaymentFragment::class.simpleName
             )
