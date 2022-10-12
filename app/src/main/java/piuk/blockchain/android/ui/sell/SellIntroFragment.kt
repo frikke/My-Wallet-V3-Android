@@ -354,8 +354,8 @@ class SellIntroFragment : ViewPagerFragment() {
                     renderSellInfo()
 
                     accountsList.onAccountSelected = { account ->
-                        analytics.logEvent(SellAssetSelectedEvent(type = account.label))
                         (account as? CryptoAccount)?.let {
+                            analytics.logEvent(SellAssetSelectedEvent(type = it.currency.networkTicker))
                             startSellFlow(it)
                         }
                     }
