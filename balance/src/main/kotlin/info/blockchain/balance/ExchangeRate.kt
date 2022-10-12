@@ -1,9 +1,5 @@
-package com.blockchain.core.price
+package info.blockchain.balance
 
-import info.blockchain.balance.Currency
-import info.blockchain.balance.Money
-import info.blockchain.balance.UnknownValue
-import info.blockchain.balance.ValueTypeMismatchException
 import java.math.BigDecimal
 import java.math.RoundingMode
 

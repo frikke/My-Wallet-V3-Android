@@ -56,14 +56,14 @@ class XlmDataManagerTest {
     @Test
     fun `getBalance with reference - there should be no interactions before subscribe`() {
         verifyNoInteractionsBeforeSubscribe {
-            getBalance(XlmAccountReference("", "ANY"))
+            getBalance(XlmAccountReference("", "ANY", ""))
         }
     }
 
     @Test
     fun `balanceOf with reference - there should be no interactions before subscribe`() {
         verifyNoInteractionsBeforeSubscribe {
-            getBalance(XlmAccountReference("", "ANY"))
+            getBalance(XlmAccountReference("", "ANY", ""))
         }
     }
 
@@ -72,7 +72,7 @@ class XlmDataManagerTest {
         givenXlmDataManager(
             givenBalances("ANY" to 123.lumens())
         )
-            .getBalance(XlmAccountReference("", "ANY"))
+            .getBalance(XlmAccountReference("", "ANY", ""))
             .testSingle() `should be equal to` 123.lumens()
     }
 
@@ -81,7 +81,7 @@ class XlmDataManagerTest {
         givenXlmDataManager(
             givenBalances("ANY" to 456.lumens())
         )
-            .getBalance(XlmAccountReference("", "ANY"))
+            .getBalance(XlmAccountReference("", "ANY", ""))
             .testSingle() `should be equal to` 456.lumens()
     }
 
@@ -96,7 +96,7 @@ class XlmDataManagerTest {
                         XlmAccount(
                             publicKey = "GABC1234",
                             label = "",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -123,7 +123,7 @@ class XlmDataManagerTest {
                         XlmAccount(
                             publicKey = "GABC1234",
                             label = "",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -151,7 +151,7 @@ class XlmDataManagerTest {
                         XlmAccount(
                             publicKey = "GABC1234",
                             label = "",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -185,12 +185,12 @@ class XlmDataManagerTest {
                         XlmAccount(
                             publicKey = "ADDRESS1",
                             label = "Account #1",
-                            archived = false
+                            _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
                             label = "Account #2",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -215,12 +215,12 @@ class XlmDataManagerTest {
                         XlmAccount(
                             publicKey = "ADDRESS1",
                             label = "Account #1",
-                            archived = false
+                            _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
                             label = "Account #2",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -246,12 +246,12 @@ class XlmDataManagerTest {
                         XlmAccount(
                             publicKey = "ADDRESS1",
                             label = "Account #1",
-                            archived = false
+                            _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
                             label = "Account #2",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -276,12 +276,12 @@ class XlmDataManagerTest {
                         XlmAccount(
                             publicKey = "ADDRESS1",
                             label = "Account #1",
-                            archived = false
+                            _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
                             label = "Account #2",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -303,12 +303,12 @@ class XlmDataManagerTest {
                         XlmAccount(
                             publicKey = "ADDRESS1",
                             label = "Account #1",
-                            archived = false
+                            _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
                             label = "Account #2",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -338,12 +338,12 @@ class XlmDataManagerTest {
                         XlmAccount(
                             publicKey = "ADDRESS1",
                             label = "Account #1",
-                            archived = false
+                            _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
                             label = "Account #2",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -368,12 +368,12 @@ class XlmDataManagerTest {
                         XlmAccount(
                             publicKey = "ADDRESS1",
                             label = "Account #1",
-                            archived = false
+                            _archived = false
                         ),
                         XlmAccount(
                             publicKey = "ADDRESS2",
                             label = "Account #2",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -381,10 +381,10 @@ class XlmDataManagerTest {
             )
         )
         xlmDataManager
-            .getBalance(XlmAccountReference("", "ADDRESS1"))
+            .getBalance(XlmAccountReference("", "ADDRESS1", ""))
             .testSingle() `should be equal to` 10.lumens()
         xlmDataManager
-            .getBalance(XlmAccountReference("", "ADDRESS2"))
+            .getBalance(XlmAccountReference("", "ADDRESS2", ""))
             .testSingle() `should be equal to` 20.lumens()
     }
 }
@@ -406,7 +406,7 @@ class XlmDataManagerTransactionListTest {
     @Test
     fun `getTransactionList with reference - there should be no interactions before subscribe`() {
         verifyNoInteractionsBeforeSubscribe {
-            getTransactionList(XlmAccountReference("", "ANY"))
+            getTransactionList(XlmAccountReference("", "ANY", ""))
         }
     }
 
@@ -424,7 +424,7 @@ class XlmDataManagerTransactionListTest {
                         XlmAccount(
                             publicKey = "GC24LNYWXIYYB6OGCMAZZ5RX6WPI2F74ZV7HNBV4ADALLXJRT7ZTLHP2",
                             label = "",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -444,7 +444,7 @@ class XlmDataManagerTransactionListTest {
             )
         )
             .getTransactionList(
-                XlmAccountReference("", "GC24LNYWXIYYB6OGCMAZZ5RX6WPI2F74ZV7HNBV4ADALLXJRT7ZTLHP2")
+                XlmAccountReference("", "GC24LNYWXIYYB6OGCMAZZ5RX6WPI2F74ZV7HNBV4ADALLXJRT7ZTLHP2", "")
             )
             .testSingle() `should be equal to` getXlmList()
     }
@@ -512,7 +512,7 @@ class XlmDataManagerSendTransactionTest {
         verifyNoInteractionsBeforeSubscribe {
             dryRunSendFunds(
                 SendDetails(
-                    XlmAccountReference("", "ANY"),
+                    XlmAccountReference("", "ANY", ""),
                     100.lumens(),
                     "ANY",
                     1.stroops()
@@ -526,7 +526,7 @@ class XlmDataManagerSendTransactionTest {
         verifyNoInteractionsBeforeSubscribe {
             sendFunds(
                 SendDetails(
-                    XlmAccountReference("", "ANY"),
+                    XlmAccountReference("", "ANY", ""),
                     100.lumens(),
                     "ANY",
                     1.stroops()
@@ -574,7 +574,7 @@ class XlmDataManagerSendTransactionTest {
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
                             label = "",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -589,7 +589,7 @@ class XlmDataManagerSendTransactionTest {
             lastTxUpdater = lastTxUpdater
         ).sendFunds(
             SendDetails(
-                XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR"),
+                XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR", ""),
                 199.456.lumens(),
                 "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3",
                 256.stroops()
@@ -621,7 +621,7 @@ class XlmDataManagerSendTransactionTest {
             )
         }
         val sendDetails = SendDetails(
-            XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR"),
+            XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR", ""),
             199.456.lumens(),
             "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3",
             1.stroops()
@@ -635,7 +635,7 @@ class XlmDataManagerSendTransactionTest {
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
                             label = "",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -702,7 +702,7 @@ class XlmDataManagerSendTransactionTest {
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
                             label = "",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -717,7 +717,7 @@ class XlmDataManagerSendTransactionTest {
             lastTxUpdater = lastTxUpdater
         ).sendFunds(
             SendDetails(
-                XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR"),
+                XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR", ""),
                 199.456.lumens(),
                 "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3",
                 256.stroops(),
@@ -775,7 +775,7 @@ class XlmDataManagerSendTransactionTest {
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
                             label = "",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -789,7 +789,7 @@ class XlmDataManagerSendTransactionTest {
             lastTxUpdater = lastTxUpdater
         ).sendFunds(
             SendDetails(
-                XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR"),
+                XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR", ""),
                 199.456.lumens(),
                 "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3",
                 256.stroops(),
@@ -818,7 +818,7 @@ class XlmDataManagerSendTransactionTest {
             )
         }
         val sendDetails = SendDetails(
-            XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR"),
+            XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR", ""),
             199.456.lumens(),
             "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3",
             1.stroops()
@@ -832,7 +832,7 @@ class XlmDataManagerSendTransactionTest {
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
                             label = "",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -870,7 +870,7 @@ class XlmDataManagerSendTransactionTest {
             )
         }
         val sendDetails = SendDetails(
-            XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR"),
+            XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR", ""),
             199.456.lumens(),
             "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED4",
             1.stroops()
@@ -884,7 +884,7 @@ class XlmDataManagerSendTransactionTest {
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
                             label = "",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -938,7 +938,7 @@ class XlmDataManagerSendTransactionTest {
             )
         }
         val sendDetails = SendDetails(
-            XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR"),
+            XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR", ""),
             1.23.lumens(),
             "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3",
             256.stroops()
@@ -952,12 +952,12 @@ class XlmDataManagerSendTransactionTest {
                         XlmAccount(
                             publicKey = "GBVO27UV2OXJFLFNXHMXOR5WRPKETM64XAQHUEKQ67W5LQDPZCDSTUTF",
                             label = "",
-                            archived = false
+                            _archived = false
                         ),
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
                             label = "",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -1018,7 +1018,7 @@ class XlmDataManagerSendTransactionTest {
             )
         }
         val sendDetails = SendDetails(
-            XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR"),
+            XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR", ""),
             1.23.lumens(),
             "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3",
             500.stroops()
@@ -1032,12 +1032,12 @@ class XlmDataManagerSendTransactionTest {
                         XlmAccount(
                             publicKey = "GBVO27UV2OXJFLFNXHMXOR5WRPKETM64XAQHUEKQ67W5LQDPZCDSTUTF",
                             label = "",
-                            archived = false
+                            _archived = false
                         ),
                         XlmAccount(
                             publicKey = "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR",
                             label = "",
-                            archived = false
+                            _archived = false
                         )
                     ),
                     transactionNotes = emptyMap()
@@ -1083,7 +1083,7 @@ class XlmDataManagerSendTransactionTest {
             )
         ).sendFunds(
             SendDetails(
-                XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR"),
+                XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR", ""),
                 1.23.lumens(),
                 "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED4",
                 1.stroops()
@@ -1144,7 +1144,7 @@ class XlmDataManagerSendWithMemoTest {
 
         dataManager.sendFunds(
             SendDetails(
-                XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR"),
+                XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR", ""),
                 1.23.lumens(),
                 "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3",
                 1.stroops(),
@@ -1192,7 +1192,7 @@ class XlmDataManagerSendWithMemoTest {
             memoMapper
         ).dryRunSendFunds(
             SendDetails(
-                XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR"),
+                XlmAccountReference("", "GB5INYM5XFJHAIQYXUQMGMQEM5KWBM4OYVLTWQI5JSQBRQKFYH3M3XWR", ""),
                 1.23.lumens(),
                 "GDKDDBJNREDV4ITL65Z3PNKAGWYJQL7FZJSV4P2UWGLRXI6AWT36UED3",
                 1.stroops(),

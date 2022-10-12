@@ -22,6 +22,8 @@ import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.unifiedBalancesFlag
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import org.koin.dsl.bind
@@ -70,7 +72,6 @@ val coincoreModule = module {
         scoped {
             EthAsset(
                 ethDataManager = get(),
-                l1BalanceStore = get(),
                 feeDataManager = get(),
                 walletPrefs = get(),
                 labels = get(),
@@ -96,6 +97,11 @@ val coincoreModule = module {
 
             )
         }
+        scoped {
+            NetworkAccountsRepository(
+                coincore = get()
+            )
+        }.bind(NetworkAccountsService::class)
 
         scoped {
             val ncAssets: List<CryptoAsset> = payloadScope.getAll()
@@ -107,11 +113,12 @@ val coincoreModule = module {
                 experimentalL1EvmAssets = experimentalL1EvmAssetList(), // Only Matic ATM
                 assetCatalogue = get(),
                 payloadManager = get(),
-                l1BalanceStore = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
+                unifiedBalancesService = lazy { get() },
                 tradingService = get(),
                 interestService = get(),
+                ethDataManager = get(),
                 remoteLogger = get(),
                 labels = get(),
                 walletPreferences = get(),
@@ -121,7 +128,8 @@ val coincoreModule = module {
                 ethHotWalletAddressResolver = get(),
                 custodialWalletManager = get(),
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
-                stakingService = get()
+                stakingService = get(),
+                unifiedBalancesFeatureFlag = get(unifiedBalancesFlag)
             )
         }.bind(AssetLoader::class)
 

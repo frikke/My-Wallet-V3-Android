@@ -25,4 +25,5 @@ dependencies {
     // koin
     implementation Libraries.koin
     implementation Libraries.kotlinJson
+    implementation Libraries.androidCoroutines
 }

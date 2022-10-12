@@ -32,8 +32,8 @@ dependencies {
     implementation Libraries.rxKotlin
     implementation Libraries.kotlinJson
     implementation Libraries.sunriver
-
+    implementation Libraries.spongyCastle
     // Derivation
     testImplementation files('libs/BIP39-2019.01.27.jar')
-    testImplementation Libraries.spongyCastle
+
 }

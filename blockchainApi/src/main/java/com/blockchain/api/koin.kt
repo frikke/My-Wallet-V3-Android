@@ -77,6 +77,7 @@ import com.blockchain.api.watchlist.WatchlistApi
 import com.blockchain.koin.authOkHttpClient
 import com.blockchain.koin.kotlinJsonConverterFactory
 import com.blockchain.koin.kotlinXApiRetrofit
+import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.serializers.IsoDateSerializer
@@ -217,13 +218,6 @@ val blockchainApiModule = module {
         NonCustodialEvmService(
             api,
             getProperty("api-code")
-        )
-    }
-
-    factory {
-        val api = get<Retrofit>(walletPubkeyApi).create(SelfCustodyApi::class.java)
-        DynamicSelfCustodyService(
-            api
         )
     }
 
@@ -429,6 +423,16 @@ val blockchainApiModule = module {
         StakingApiService(
             stakingApi = api
         )
+    }
+
+    scope(payloadScopeQualifier) {
+        scoped {
+            val api = get<Retrofit>(walletPubkeyApi).create(SelfCustodyApi::class.java)
+            DynamicSelfCustodyService(
+                selfCustodyApi = api,
+                credentials = get()
+            )
+        }
     }
 }
 

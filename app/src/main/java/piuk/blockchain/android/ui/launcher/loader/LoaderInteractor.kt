@@ -57,7 +57,7 @@ class LoaderInteractor(
 ) {
 
     private val wallet: Wallet
-        get() = payloadDataManager.wallet!!
+        get() = payloadDataManager.wallet
 
     private val metadata
         get() = Completable.defer { prerequisites.initMetadataAndRelatedPrerequisites() }

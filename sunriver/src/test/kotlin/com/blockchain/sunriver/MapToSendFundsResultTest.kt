@@ -10,7 +10,7 @@ class MapToSendFundsResultTest {
 
     @Test
     fun `successful send mapping`() {
-        val from = XlmAccountReference("", "")
+        val from = XlmAccountReference("", "", "")
         val sendDetails = SendDetails(from = from, toAddress = "GABC", value = 200.lumens(), fee = 1.lumens())
         HorizonProxy.SendResult(
             success = true,
@@ -55,7 +55,7 @@ class MapToSendFundsResultTest {
         failureReason: HorizonProxy.FailureReason,
         expectedErrorCode: Int
     ) {
-        val fromAccount = XlmAccountReference("AC", "GEFD")
+        val fromAccount = XlmAccountReference("AC", "GEFD", "")
         val sendDetails = SendDetails(from = fromAccount, toAddress = "GABD", value = 50.lumens(), fee = 1.lumens())
         HorizonProxy.SendResult(
             success = false,

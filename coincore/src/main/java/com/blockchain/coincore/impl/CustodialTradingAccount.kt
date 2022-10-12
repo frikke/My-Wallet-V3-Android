@@ -111,7 +111,12 @@ class CustodialTradingAccount(
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             setHasTransactions(balance.hasTransactions)
-            AccountBalance.from(balance, rate)
+            AccountBalance(
+                total = balance.total,
+                withdrawable = balance.withdrawable,
+                pending = balance.pending,
+                exchangeRate = rate
+            )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override val activity: Single<ActivitySummaryList>

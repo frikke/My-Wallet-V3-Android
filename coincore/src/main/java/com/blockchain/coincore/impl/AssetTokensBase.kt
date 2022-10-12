@@ -16,7 +16,6 @@ import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestEligibility
 import com.blockchain.core.kyc.domain.KycService
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -37,6 +36,7 @@ import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletModeService
 import exchange.ExchangeLinking
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.isCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe

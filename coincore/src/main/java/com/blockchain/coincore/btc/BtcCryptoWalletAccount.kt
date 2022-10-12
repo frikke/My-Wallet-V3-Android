@@ -17,6 +17,8 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.serialization.JsonSerializableAccount
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount.Companion.MULTIPLE_ADDRESSES_DESCRIPTOR
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import info.blockchain.wallet.keys.SigningKey
@@ -27,7 +29,6 @@ import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
 import piuk.blockchain.androidcore.utils.extensions.mapList
@@ -48,8 +49,8 @@ import piuk.blockchain.androidcore.utils.extensions.then
     override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(
     CryptoCurrency.BTC
-) {
-    private val hasFunds = AtomicBoolean(false)
+),
+    NetworkNonCustodialAccount {
 
     override val label: String
         get() = internalAccount.label
@@ -59,20 +60,6 @@ import piuk.blockchain.androidcore.utils.extensions.then
 
     override val isDefault: Boolean
         get() = isHDAccount && payloadDataManager.defaultAccountIndex == hdAccountIndex
-
-    override val isFunded: Boolean
-        get() = hasFunds.get()
-
-    override fun getOnChainBalance(): Observable<Money> =
-        getAccountBalance(false)
-            .toObservable()
-
-    private fun getAccountBalance(forceRefresh: Boolean): Single<Money> =
-        payloadDataManager.getAddressBalanceRefresh(xpubs, forceRefresh)
-            .doOnSuccess {
-                hasFunds.set(it.isPositive)
-            }
-            .map { it }
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = when (internalAccount) {
@@ -86,6 +73,27 @@ import piuk.blockchain.androidcore.utils.extensions.then
             }
             else -> Single.error(IllegalStateException("Cannot receive to Imported Account"))
         }
+
+    override fun getOnChainBalance(): Observable<Money> =
+        getAccountBalance()
+            .toObservable()
+
+    private fun getAccountBalance(): Single<Money> =
+        payloadDataManager.getAddressBalanceRefresh(xpubs, false)
+            .map { it }
+
+    override suspend fun publicKey(): String {
+        return xpubs.default.address
+    }
+
+    override val index: Int
+        get() = hdAccountIndex
+
+    override val descriptor: Int
+        get() = MULTIPLE_ADDRESSES_DESCRIPTOR
+
+    override val style: String
+        get() = NetworkNonCustodialAccount.EXTENDED_PUB_KEY_STYLE
 
     override val activity: Single<ActivitySummaryList>
         get() = payloadDataManager.getAccountTransactions(
@@ -152,7 +160,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
 
         return updateArchivedState(!isArchived)
             .then { payloadDataManager.updateAllTransactions() }
-            .then { getAccountBalance(true).ignoreElement() }
+            .then { balanceRx.ignoreElements() }
             .doOnComplete { forceRefresh() }
     }
 

@@ -16,11 +16,11 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.fees.FeeDataManager
-import com.blockchain.core.price.ExchangeRate
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single

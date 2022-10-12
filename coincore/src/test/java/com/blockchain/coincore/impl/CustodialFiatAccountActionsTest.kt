@@ -6,11 +6,11 @@ import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Observable

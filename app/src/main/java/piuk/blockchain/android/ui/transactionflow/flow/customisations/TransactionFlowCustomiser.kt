@@ -21,7 +21,6 @@ import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.txEngine.WITHDRAW_LOCKS
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.core.limits.TxLimit
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.datamanagers.TransactionError
@@ -30,6 +29,7 @@ import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import java.math.RoundingMode

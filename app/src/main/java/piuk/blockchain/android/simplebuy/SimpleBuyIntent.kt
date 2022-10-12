@@ -4,7 +4,6 @@ import com.blockchain.coincore.ExchangePriceWithDelta
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.GooglePayAddress
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
@@ -22,6 +21,7 @@ import com.blockchain.payments.googlepay.manager.request.BillingAddressParameter
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money

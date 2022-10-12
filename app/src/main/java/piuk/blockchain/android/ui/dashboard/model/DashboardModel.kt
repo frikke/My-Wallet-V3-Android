@@ -1,11 +1,13 @@
 package piuk.blockchain.android.ui.dashboard.model
 
+import com.blockchain.api.selfcustody.BalancesResponse
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.store.Store
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -18,6 +20,7 @@ class DashboardModel(
     initialState: DashboardState,
     mainScheduler: Scheduler,
     private val interactor: DashboardActionInteractor,
+    private val balancesCache: Store<BalancesResponse>,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
     private val appRatingService: AppRatingService,
@@ -84,6 +87,7 @@ class DashboardModel(
                 interactor.dismissReferralSuccess()
             }
             is DashboardIntent.OnSwipeToRefresh -> {
+                balancesCache.markAsStale()
                 process(DashboardIntent.GetActiveAssets(true))
                 null
             }

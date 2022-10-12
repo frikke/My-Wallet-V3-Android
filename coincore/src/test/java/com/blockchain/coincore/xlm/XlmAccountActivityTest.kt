@@ -40,7 +40,8 @@ class XlmAccountActivityTest : CoincoreTestBase() {
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val xlmAccountReference = XlmAccountReference(
         label = "Test Xlm Account",
-        accountId = "Test XLM Address"
+        accountId = "Test XLM Address",
+        pubKey = "pubkey",
     )
 
     private val subject =

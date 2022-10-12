@@ -2,6 +2,7 @@ package piuk.blockchain.androidcore.data.payload
 
 import com.blockchain.annotations.MoveCandidate
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.api.services.SelfCustodyServiceAuthCredentials
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.serialization.JsonSerializableAccount
 import info.blockchain.balance.CryptoValue
@@ -40,8 +41,10 @@ import org.bitcoinj.core.AddressFormatException
 import org.bitcoinj.core.LegacyAddress
 import org.bitcoinj.core.NetworkParameters
 import org.bitcoinj.core.SegwitAddress
+import org.bitcoinj.core.Sha256Hash
 import org.bitcoinj.params.MainNetParams
 import org.bitcoinj.script.Script
+import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.utils.RefreshUpdater
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import piuk.blockchain.androidcore.utils.extensions.then
@@ -61,7 +64,7 @@ class PayloadDataManager internal constructor(
     private val privateKeyFactory: PrivateKeyFactory,
     private val payloadManager: PayloadManager,
     private val remoteLogger: RemoteLogger
-) : WalletPayloadService {
+) : WalletPayloadService, SelfCustodyServiceAuthCredentials {
 
     override val password: String
         get() = tempPassword
@@ -103,10 +106,10 @@ class PayloadDataManager internal constructor(
     override val isDoubleEncrypted: Boolean
         get() = wallet.isDoubleEncryption
 
-    val initialised: Boolean
+    override val initialised: Boolean
         get() = payloadManager.initialised()
 
-    val isBackedUp: Boolean
+    override val isBackedUp: Boolean
         get() = payloadManager.isWalletBackedUp
 
     val mnemonic: List<String>
@@ -114,6 +117,12 @@ class PayloadDataManager internal constructor(
 
     override val guid: String
         get() = wallet.guid
+
+    override val hashedSharedKey: String
+        get() = String(Hex.encode(Sha256Hash.hash(sharedKey.toByteArray())))
+
+    override val hashedGuid: String
+        get() = String(Hex.encode(Sha256Hash.hash(guid.toByteArray())))
 
     override val sharedKey: String
         get() = wallet.sharedKey
@@ -652,7 +661,7 @@ class PayloadDataManager internal constructor(
         }
 
     fun getDynamicHdAccount(coinConfiguration: CoinConfiguration) =
-        wallet?.walletBody?.getDynamicHdAccount(coinConfiguration)
+        wallet.walletBody?.getDynamicHdAccount(coinConfiguration)
 
     /**
      * Returns the transaction notes for a given transaction hash. May return null if not found.
@@ -691,7 +700,7 @@ class PayloadDataManager internal constructor(
         payloadManager.validateSecondPassword(secondPassword)
 
     fun decryptHDWallet(secondPassword: String?) {
-        payloadManager.payload!!.decryptHDWallet(secondPassword)
+        payloadManager.payload.decryptHDWallet(secondPassword)
     }
 
     fun getXpubFormatOutputType(format: XPub.Format): OutputType {
@@ -751,7 +760,7 @@ class PayloadDataManager internal constructor(
         }.applySchedulers()
     }
 
-    fun updateMnemonicVerified(mnemonicVerified: Boolean): Completable {
+    override fun updateMnemonicVerified(mnemonicVerified: Boolean): Completable {
         return Completable.fromCallable {
             payloadManager.updateMnemonicVerified(mnemonicVerified)
         }.applySchedulers()

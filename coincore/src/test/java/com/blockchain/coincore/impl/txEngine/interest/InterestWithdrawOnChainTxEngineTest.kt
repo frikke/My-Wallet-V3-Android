@@ -16,7 +16,6 @@ import com.blockchain.core.interest.data.datasources.InterestBalancesStore
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestLimits
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -27,6 +26,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable

@@ -266,8 +266,9 @@ class XlmOnChainTxEngine(
         sourceAccount.receiveAddress.map { receiveAddress ->
             SendDetails(
                 from = XlmAccountReference(
-                    sourceAccount.label,
-                    (receiveAddress as XlmAddress).address
+                    label = sourceAccount.label,
+                    accountId = (receiveAddress as XlmAddress).address,
+                    pubKey = null
                 ),
                 value = pendingTx.amount as CryptoValue,
                 toAddress = targetXlmAddress.address,

@@ -6,6 +6,7 @@ import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.common.model.Seconds
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable

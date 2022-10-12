@@ -7,10 +7,10 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.core.price.ExchangeRate
-import com.blockchain.core.price.canConvert
 import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
+import info.blockchain.balance.canConvert
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewTxFullscreenFeeAndBalanceBinding
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics

@@ -397,6 +397,8 @@ dependencies {
 
     implementation project(':fraud:data')
     implementation project(':fraud:domain')
+    implementation project(':unifiedcryptowallet:data')
+    implementation project(':unifiedcryptowallet:domain')
 
     implementation project(':nfts:data')
     implementation project(':nfts:domain')

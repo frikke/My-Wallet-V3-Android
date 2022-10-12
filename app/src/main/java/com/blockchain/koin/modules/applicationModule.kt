@@ -656,7 +656,9 @@ val applicationModule = module {
                 globalEventHandler = get(),
                 walletConnectServiceAPI = get(),
                 walletCredentialsUpdater = get(),
-                payloadDataManager = get()
+                payloadDataManager = get(),
+                xlmDataManager = get(),
+                ethDataManager = get(),
             )
         }
 

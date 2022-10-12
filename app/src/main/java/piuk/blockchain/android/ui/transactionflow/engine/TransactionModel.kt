@@ -24,8 +24,6 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
-import com.blockchain.core.price.canConvert
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
@@ -42,9 +40,11 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import info.blockchain.balance.canConvert
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable

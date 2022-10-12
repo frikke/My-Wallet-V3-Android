@@ -11,18 +11,19 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.fees.FeeDataManager
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.bitcoinCash
 import com.blockchain.testutils.satoshiCash
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.atMost
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.wallet.api.data.FeeOptions
 import info.blockchain.wallet.payload.data.XPub
@@ -213,8 +214,6 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
 
         val sourceAccount = fundedSourceAccount(totalBalance, availableBalance)
 
-        whenever(bchDataManager.getAddressBalance(SOURCE_XPUB)).thenReturn(totalBalance)
-
         val unspentOutputs = listOf<Utxo>(
             mock(), mock()
         )
@@ -289,8 +288,7 @@ class BchOnChainTxEngineTest : CoincoreTestBase() {
         verify(txTarget, atMost(2)).address
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).xpubAddress
-        verify(sourceAccount).balanceRx
-        verify(bchDataManager).getAddressBalance(SOURCE_XPUB)
+        verify(sourceAccount, times(2)).balanceRx
         verify(feeManager).bchFeeOptions
         verify(bchFeeOptions).regularFee
         verify(sendDataManager).getUnspentBchOutputs(SOURCE_XPUB)

@@ -16,10 +16,13 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.store.asObservable
 import com.blockchain.store.mapData
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount.Companion.MULTIPLE_ADDRESSES_DESCRIPTOR
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -28,16 +31,15 @@ import info.blockchain.wallet.ethereum.EthereumAccount
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.lang.IllegalStateException
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOf
 
 /*internal*/ class EthCryptoWalletAccount internal constructor(
     private var jsonAccount: EthereumAccount,
     private val ethDataManager: EthDataManager,
-    private val l1BalanceStore: L1BalanceStore,
     private val fees: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
     override val exchangeRates: ExchangeRatesDataManager,
@@ -45,16 +47,25 @@ import kotlinx.coroutines.flow.flowOf
     private val assetCatalogue: AssetCatalogue,
     override val addressResolver: AddressResolver,
     override val l1Network: EvmNetwork
-) : MultiChainAccount, CryptoNonCustodialAccount(
-    CryptoCurrency.ETHER
-) {
+) : MultiChainAccount,
+    CryptoNonCustodialAccount(
+        CryptoCurrency.ETHER
+    ),
+    NetworkNonCustodialAccount {
     internal val address: String
         get() = jsonAccount.address
 
     override val label: String
         get() = jsonAccount.label
 
-    private val hasFunds = AtomicBoolean(false)
+    override val receiveAddress: Single<ReceiveAddress>
+        get() = Single.just(
+            EthAddress(
+                address = address,
+                label = label
+            )
+        )
+    private val l1BalanceStore: L1BalanceStore by scopedInject()
 
     override fun getOnChainBalance(): Observable<Money> =
         // Only get the balance for ETH from the node if we are on the Ethereum network
@@ -71,18 +82,15 @@ import kotlinx.coroutines.flow.flowOf
             // TODO get the L2 balance of Eth from the backend
             flowOf(DataResource.Data(Money.fromMajor(currency, BigDecimal.ZERO)))
         }.asObservable()
-            .doOnNext { hasFunds.set(it.isPositive) }
 
-    override val isFunded: Boolean
-        get() = hasFunds.get()
+    override suspend fun publicKey(): String =
+        jsonAccount.publicKey ?: throw IllegalStateException("Public key for Eth account hasn't been derived")
 
-    override val receiveAddress: Single<ReceiveAddress>
-        get() = Single.just(
-            EthAddress(
-                address = address,
-                label = label
-            )
-        )
+    override val index: Int
+        get() = NetworkNonCustodialAccount.DEFAULT_SINGLE_ACCOUNT_INDEX
+
+    override val descriptor: Int
+        get() = MULTIPLE_ADDRESSES_DESCRIPTOR
 
     override fun updateLabel(newLabel: String): Completable {
         require(newLabel.isNotEmpty())

@@ -6,12 +6,12 @@ import com.blockchain.api.txlimits.data.FeatureName
 import com.blockchain.api.txlimits.data.Limit
 import com.blockchain.api.txlimits.data.LimitPeriod
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single

@@ -6,7 +6,6 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.price.model.AssetPriceRecord
@@ -23,6 +22,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable

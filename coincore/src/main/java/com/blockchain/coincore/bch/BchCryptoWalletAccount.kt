@@ -17,6 +17,7 @@ import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import info.blockchain.wallet.bch.BchMainNetParams
@@ -25,7 +26,6 @@ import info.blockchain.wallet.coin.GenericMetadataAccount
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.atomic.AtomicBoolean
 import org.bitcoinj.core.LegacyAddress
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
@@ -47,28 +47,17 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
     override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(
     CryptoCurrency.BCH
-) {
-
-    private val hasFunds = AtomicBoolean(false)
+),
+    NetworkNonCustodialAccount {
 
     override val label: String
         get() = internalAccount.label
-
-    override fun getOnChainBalance(): Observable<Money> =
-        Single.fromCallable { internalAccount.xpubs() }
-            .flatMap { xpub -> bchManager.getBalance(xpub) }
-            .map { Money.fromMinor(currency, it) }
-            .doOnSuccess { hasFunds.set(it.isPositive) }
-            .toObservable()
 
     override val isArchived: Boolean
         get() = internalAccount.isArchived
 
     override val isDefault: Boolean
         get() = addressIndex == bchManager.getDefaultAccountPosition()
-
-    override val isFunded: Boolean
-        get() = hasFunds.get()
 
     override val receiveAddress: Single<ReceiveAddress>
         get() = bchManager.getNextReceiveAddress(
@@ -81,6 +70,22 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
             .map {
                 BchAddress(address_ = it, label = label)
             }
+
+    override suspend fun publicKey(): String {
+        return internalAccount.xpubs().default.address
+    }
+
+    override fun getOnChainBalance(): Observable<Money> =
+        Single.fromCallable { internalAccount.xpubs() }
+            .flatMap { xpub -> bchManager.getBalance(xpub) }
+            .map { Money.fromMinor(currency, it) }
+            .toObservable()
+
+    override val index: Int
+        get() = addressIndex
+
+    override val style: String
+        get() = NetworkNonCustodialAccount.EXTENDED_PUB_KEY_STYLE
 
     override val activity: Single<ActivitySummaryList>
         get() = bchManager.getAddressTransactions(

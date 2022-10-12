@@ -11,7 +11,6 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.walletoptions.WalletOptionsDataManager
 import com.blockchain.fees.FeeType
 import com.blockchain.preferences.WalletStatusPrefs
@@ -26,6 +25,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single

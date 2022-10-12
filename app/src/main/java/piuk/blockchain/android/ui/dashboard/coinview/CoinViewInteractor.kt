@@ -20,7 +20,6 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.user.WatchlistDataManager
@@ -42,6 +41,7 @@ import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable

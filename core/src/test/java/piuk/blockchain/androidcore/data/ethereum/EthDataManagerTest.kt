@@ -69,6 +69,9 @@ class EthDataManagerTest {
         ethAccountApi = ethAccountApi,
         ethDataStore = ethDataStore,
         metadataRepository = metadataRepository,
+        defaultLabels = mock {
+            on { getDefaultNonCustodialWalletLabel() }.thenReturn("")
+        },
         lastTxUpdater = lastTxUpdater,
         evmNetworksService = evmNetworksService,
         nonCustodialEvmService = nonCustodialEvmService

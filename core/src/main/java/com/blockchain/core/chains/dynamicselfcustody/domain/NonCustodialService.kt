@@ -15,18 +15,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.JsonObject
 
 interface NonCustodialService {
+    fun getSubscriptions(
+        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
+    ): Flow<Outcome<Exception, List<String>>>
 
     suspend fun getCoinConfigurationFor(currency: Currency): CoinConfiguration?
-
-    suspend fun authenticate(): Outcome<Exception, Boolean>
 
     suspend fun subscribe(currency: String, label: String, addresses: List<String>): Outcome<Exception, Boolean>
 
     suspend fun unsubscribe(currency: String): Outcome<Exception, Boolean>
-
-    fun getSubscriptions(
-        refreshStrategy: FreshnessStrategy = FreshnessStrategy.Cached(forceRefresh = true)
-    ): Flow<Outcome<Exception, List<String>>>
 
     suspend fun getBalances(currencies: List<String>): Outcome<Exception, List<NonCustodialAccountBalance>>
 

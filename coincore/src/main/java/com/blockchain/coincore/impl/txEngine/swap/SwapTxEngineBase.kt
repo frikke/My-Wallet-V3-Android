@@ -19,12 +19,12 @@ import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable

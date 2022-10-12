@@ -1,5 +1,4 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
-
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount

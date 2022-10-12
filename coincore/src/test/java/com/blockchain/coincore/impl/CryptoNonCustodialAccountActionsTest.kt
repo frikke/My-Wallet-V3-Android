@@ -320,7 +320,9 @@ class CryptoNonCustodialAccountActionsTest : KoinTest {
         whenever(userIdentity.userAccessForFeature(Feature.DepositCrypto)).thenReturn(
             Single.just(userAccessForCryptoDeposit)
         )
-        whenever(custodialManager.isAssetSupportedForSwapLegacy(TEST_ASSET)).thenReturn(Single.just(isAssetSupportedForSwap))
+        whenever(custodialManager.isAssetSupportedForSwapLegacy(TEST_ASSET)).thenReturn(
+            Single.just(isAssetSupportedForSwap)
+        )
     }
 }
 
@@ -334,8 +336,12 @@ private class NonCustodialTestAccount(
     override val isFunded: Boolean,
     currency: AssetInfo,
 ) : CryptoNonCustodialAccount(currency) {
+
     override fun getOnChainBalance(): Observable<Money> =
         Observable.just(Money.zero(currency))
+
+    override val index: Int
+        get() = 1
 
     override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine = mock()
 }

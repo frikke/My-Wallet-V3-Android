@@ -4,12 +4,12 @@ import android.content.Context
 import android.util.AttributeSet
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
 import com.blockchain.presentation.complexcomponents.QuickFillRowView
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import java.math.BigDecimal
 import kotlin.math.floor

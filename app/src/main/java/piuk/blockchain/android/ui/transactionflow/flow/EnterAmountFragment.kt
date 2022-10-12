@@ -18,7 +18,6 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.extensions.enumValueOfOrNull
@@ -27,6 +26,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers

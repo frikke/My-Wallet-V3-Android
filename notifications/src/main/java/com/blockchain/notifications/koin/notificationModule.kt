@@ -21,7 +21,7 @@ val notificationModule = module {
         scoped {
             NotificationTokenManager(
                 notificationService = get(),
-                payloadDataManager = get(),
+                walletPayloadService = get(),
                 prefs = get(),
                 remoteLogger = get(),
                 authPrefs = get(),

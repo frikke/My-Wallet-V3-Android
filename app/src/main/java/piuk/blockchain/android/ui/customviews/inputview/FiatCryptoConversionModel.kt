@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.customviews.inputview
 
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single

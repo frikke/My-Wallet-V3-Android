@@ -22,6 +22,7 @@ dependencies {
     implementation project(':common:domain')
     implementation project(':core')
     implementation project(':store:core')
+    implementation project(':unifiedcryptowallet:domain')
     implementation project(':blockchainApi')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')

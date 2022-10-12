@@ -2,10 +2,12 @@ package piuk.blockchain.android.ui.launcher
 
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
 import com.blockchain.metadata.MetadataService
+import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.HDWalletException
@@ -19,6 +21,8 @@ import piuk.blockchain.androidcore.utils.extensions.then
 
 class Prerequisites(
     private val metadataService: MetadataService,
+    private val xlmDataManager: XlmDataManager,
+    private val ethDataManager: EthDataManager,
     private val settingsDataManager: SettingsDataManager,
     private val coincore: Coincore,
     private val payloadDataManager: PayloadDataManager,
@@ -26,11 +30,15 @@ class Prerequisites(
     private val remoteLogger: RemoteLogger,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     private val globalEventHandler: GlobalEventHandler,
-    private val walletCredentialsUpdater: WalletCredentialsMetadataUpdater,
+    private val walletCredentialsUpdater: WalletCredentialsMetadataUpdater
 ) {
 
     fun initMetadataAndRelatedPrerequisites(): Completable =
-        metadataService.attemptMetadataSetup()
+        metadataService.attemptMetadataSetup().then {
+            if (payloadDataManager.isDoubleEncrypted) {
+                checkIfCoinsMissingPubKeyDerivation()
+            } else Completable.complete()
+        }
             .logOnError(METADATA_ERROR_MESSAGE)
             .onErrorResumeNext {
                 if (it is InvalidCredentialsException || it is HDWalletException) {
@@ -51,6 +59,23 @@ class Prerequisites(
                 globalEventHandler.init()
             }
             .subscribeOn(Schedulers.io())
+
+    /**
+     * At this step we need to ensure that 2nd password wallets have already derived the pubkeys.
+     * If not we need to ask for 2nd pass and derive them from the master key.
+     */
+    private fun checkIfCoinsMissingPubKeyDerivation(): Completable {
+        val eth = ethDataManager.initEthereumWallet()
+        val xlm = xlmDataManager.maybeDefaultAccount().switchIfEmpty(
+            Single.error(HDWalletException("Second password is required for XLM metadata"))
+        ).flatMapCompletable {
+            Completable.complete()
+        }
+
+        return eth.then {
+            xlm
+        }
+    }
 
     private fun Completable.logOnError(tag: String): Completable =
         this.doOnError {
