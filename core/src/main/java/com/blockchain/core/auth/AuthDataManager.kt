@@ -67,16 +67,27 @@ class AuthDataManager(
         sessionId: String,
         resend2FASms: Boolean
     ): Observable<Response<ResponseBody>> =
-        walletAuthService.getEncryptedPayload(guid, sessionId, resend2FASms)
+        walletAuthService.getEncryptedPayload(
+            guid.trimAndTruncateGuid(),
+            sessionId,
+            resend2FASms
+        )
             .applySchedulers()
 
     fun getEncryptedPayloadObject(guid: String, sessionId: String, resend2FASms: Boolean): Single<JsonObject> =
-        walletAuthService.getEncryptedPayload(guid, sessionId, resend2FASms)
+        walletAuthService.getEncryptedPayload(
+            guid.trimAndTruncateGuid(),
+            sessionId,
+            resend2FASms
+        )
             .applySchedulers()
             .firstOrError()
             .flatMap {
                 it.handleResponse()
             }
+
+    private fun String.trimAndTruncateGuid() =
+        trim().take(DESIRED_GUID_LENGTH)
 
     /**
      * Gets an ephemeral session ID from the server.
@@ -357,5 +368,6 @@ class AuthDataManager(
         @VisibleForTesting
         internal const val AUTHORIZATION_REQUIRED = "authorization_required"
         private const val DEVICE_TYPE_ANDROID = 2
+        private const val DESIRED_GUID_LENGTH = 36
     }
 }
