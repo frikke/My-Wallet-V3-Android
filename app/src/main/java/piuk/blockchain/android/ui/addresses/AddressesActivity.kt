@@ -69,6 +69,7 @@ class AddressesActivity :
             toolbarTitle = getString(R.string.drawer_addresses),
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
+        onBackPressCloseHeaderCallback.isEnabled = binding.currencyHeader.isOpen()
         with(binding.currencyHeader) {
             setCurrentlySelectedCurrency(CryptoCurrency.BTC)
             setSelectionListener { presenter.refresh(it) }
