@@ -1270,8 +1270,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestDeposit,
             AssetAction.FiatWithdraw,
             AssetAction.FiatDeposit,
-            AssetAction.Sell,
-            -> {
+            AssetAction.Sell -> {
                 {
                     DefaultCellDecorator()
                 }
@@ -1290,6 +1289,12 @@ class TransactionFlowCustomiserImpl(
             else -> {
                 throw IllegalStateException("Attempting to link from an unsupported action")
             }
+        }
+
+    override fun selectSourceShouldHaveSearch(action: AssetAction): Boolean =
+        when (action) {
+            AssetAction.Swap -> true
+            else -> false
         }
 
     override fun getBackNavigationAction(state: TransactionState): BackNavigationState =

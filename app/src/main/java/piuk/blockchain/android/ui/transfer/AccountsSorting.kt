@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.transfer
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountsSorter
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
@@ -7,6 +8,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.user.Watchlist
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.MomentEvent
@@ -39,12 +41,14 @@ class SwapSourceAccountsSorting(
             if (enabled) {
                 momentLogger.startEvent(MomentEvent.SWAP_SOURCE_LIST_FF_ON)
                 val sortedList = sellAccountsSorting.sorter().invoke(list)
+                    .onErrorReturn { list }
                 return@flatMap sortedList.doFinally {
                     momentLogger.endEvent(MomentEvent.SWAP_SOURCE_LIST_FF_ON)
                 }
             } else {
                 momentLogger.startEvent(MomentEvent.SWAP_SOURCE_LIST_FF_OFF)
                 val sortedList = dashboardAccountsSorter.sorter().invoke(list)
+                    .onErrorReturn { list }
                 return@flatMap sortedList.doFinally {
                     momentLogger.endEvent(MomentEvent.SWAP_SOURCE_LIST_FF_OFF)
                 }
@@ -108,7 +112,7 @@ class SwapTargetAccountsSorting(
                     return@zip sortedFinalAccounts.map {
                         it.account
                     }
-                }
+                }.onErrorReturn { list }
 
                 return@flatMap sortedList.doFinally {
                     momentLogger.endEvent(MomentEvent.SWAP_TARGET_LIST_FF_ON)
@@ -116,6 +120,7 @@ class SwapTargetAccountsSorting(
             } else {
                 momentLogger.startEvent(MomentEvent.SWAP_TARGET_LIST_FF_OFF)
                 val sortedList = dashboardAccountsSorter.sorter().invoke(list)
+                    .onErrorReturn { list }
 
                 return@flatMap sortedList.doFinally {
                     momentLogger.endEvent(MomentEvent.SWAP_TARGET_LIST_FF_OFF)
@@ -158,13 +163,14 @@ class SellAccountsSorting(
                         }
 
                         Single.just(sortedGroups)
-                    }
+                    }.onErrorReturn { accountList }
                 return@flatMap sortedList.doFinally {
                     momentLogger.endEvent(MomentEvent.SELL_LIST_FF_ON)
                 }
             } else {
                 momentLogger.startEvent(MomentEvent.SELL_LIST_FF_OFF)
                 val sortedList = dashboardAccountsSorter.sorter().invoke(accountList)
+                    .onErrorReturn { accountList }
                 return@flatMap sortedList.doFinally {
                     momentLogger.endEvent(MomentEvent.SELL_LIST_FF_OFF)
                 }
@@ -276,7 +282,7 @@ class BuyListAccountSorting(
                 Maybe.zip(
                     coincore[asset].accountGroup(AssetFilter.All).flatMap {
                         it.balanceRx.firstOrError().toMaybe()
-                    },
+                    }.onErrorReturn { AccountBalance.zero(asset) },
                     asset.getAssetPriceInformation(),
                     // trading volumes are only returned in USD, so request them in that fiat here
                     exchangeRatesDataManager.getCurrentAssetPrice(asset, FiatCurrency.Dollars)
@@ -290,7 +296,7 @@ class BuyListAccountSorting(
                     )
                 }
             }.toList(),
-            watchlistDataManager.getWatchlist(),
+            watchlistDataManager.getWatchlist().onErrorReturn { Watchlist(emptyMap()) },
         ) { items, watchlist ->
 
             val sortedAccountsInWatchlist = watchlist.assetMap.keys

@@ -208,10 +208,6 @@ class AccountInfoCrypto @JvmOverloads constructor(
     override fun setVisible(isVisible: Boolean) {
         binding.root.visibleIf { isVisible }
     }
-
-    companion object {
-        private const val ACCOUNT_INFO_CRYPTO_VIEW_ID = "AccountInfoCrypto_"
-    }
 }
 
 private fun <T> Single<T>.startWithValueIfCondition(

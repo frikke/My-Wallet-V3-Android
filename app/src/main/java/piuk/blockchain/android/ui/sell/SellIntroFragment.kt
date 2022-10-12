@@ -1,10 +1,6 @@
 package piuk.blockchain.android.ui.sell
 
-import android.graphics.Typeface
 import android.os.Bundle
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +13,8 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.base.trackProgress
+import com.blockchain.componentlib.basic.ComposeGravities
+import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.kyc.domain.KycService
@@ -51,7 +49,6 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OOPS_ERR
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.ButtonOptions
-import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
@@ -95,6 +92,8 @@ class SellIntroFragment : ViewPagerFragment() {
     private val accountsSorting: AccountsSorting by scopedInject(sellOrder)
     private val userIdentity: UserIdentity by scopedInject()
     private val compositeDisposable = CompositeDisposable()
+    private var supportedSellCryptos: List<AssetInfo> = emptyList()
+    private var hasEnteredSearchTerm: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -109,6 +108,12 @@ class SellIntroFragment : ViewPagerFragment() {
         super.onViewCreated(view, savedInstanceState)
         analytics.logEvent(SellAssetScreenViewedEvent)
         checkEligibilityAndLoadSellDetails()
+
+        with(binding.sellSearchEmpty) {
+            text = getString(R.string.search_empty)
+            gravity = ComposeGravities.Centre
+            style = ComposeTypographies.Body1
+        }
     }
 
     private fun checkEligibilityAndLoadSellDetails(showLoader: Boolean = true) {
@@ -179,22 +184,23 @@ class SellIntroFragment : ViewPagerFragment() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .trackProgress(binding.accountsList.activityIndicator)
-            .subscribeBy(onSuccess = { (kyc, eligible) ->
-                when {
-                    kyc.isApprovedFor(KycTier.GOLD) && eligible -> {
-                        renderKycedUserUi()
+            .subscribeBy(
+                onSuccess = { (kyc, eligible) ->
+                    when {
+                        kyc.isApprovedFor(KycTier.GOLD) && eligible -> {
+                            renderKycedUserUi()
+                        }
+                        kyc.isRejectedFor(KycTier.GOLD) -> {
+                            renderRejectedKycedUserUi()
+                        }
+                        kyc.isApprovedFor(KycTier.GOLD) && !eligible -> {
+                            renderRejectedKycedUserUi()
+                        }
+                        else -> {
+                            renderNonKycedUserUi()
+                        }
                     }
-                    kyc.isRejectedFor(KycTier.GOLD) -> {
-                        renderRejectedKycedUserUi()
-                    }
-                    kyc.isApprovedFor(KycTier.GOLD) && !eligible -> {
-                        renderRejectedKycedUserUi()
-                    }
-                    else -> {
-                        renderNonKycedUserUi()
-                    }
-                }
-            }, onError = {
+                }, onError = {
                 renderSellError()
                 logErrorAnalytics(
                     nabuApiException = (it as? HttpException)?.let {
@@ -212,12 +218,13 @@ class SellIntroFragment : ViewPagerFragment() {
                     title = OOPS_ERROR,
                     action = ClientErrorAnalytics.ACTION_SELL
                 )
-            })
+            }
+            )
     }
 
     private fun renderSellError() {
         with(binding) {
-            accountsList.gone()
+            sellAccountsContainer.gone()
             sellEmpty.setDetails {
                 checkEligibilityAndLoadSellDetails()
             }
@@ -227,7 +234,8 @@ class SellIntroFragment : ViewPagerFragment() {
 
     private fun renderSellEmpty() {
         with(binding) {
-            accountsList.gone()
+            sellAccountsContainer.gone()
+
             sellEmpty.setDetails(
                 R.string.sell_intro_empty_title,
                 R.string.sell_intro_empty_label,
@@ -241,7 +249,8 @@ class SellIntroFragment : ViewPagerFragment() {
 
     private fun renderBlockedDueToSanctions(reason: BlockedReason.Sanctions) {
         with(binding) {
-            accountsList.gone()
+            sellAccountsContainer.gone()
+
             customEmptyState.apply {
                 title = R.string.account_restricted
                 descriptionText = when (reason) {
@@ -259,7 +268,7 @@ class SellIntroFragment : ViewPagerFragment() {
     private fun renderRejectedKycedUserUi() {
         with(binding) {
             kycBenefits.visible()
-            accountsList.gone()
+            sellAccountsContainer.gone()
 
             kycBenefits.initWithBenefits(
                 benefits = listOf(
@@ -292,7 +301,7 @@ class SellIntroFragment : ViewPagerFragment() {
     private fun renderNonKycedUserUi() {
         with(binding) {
             kycBenefits.visible()
-            accountsList.gone()
+            sellAccountsContainer.gone()
 
             kycBenefits.initWithBenefits(
                 benefits = listOf(
@@ -324,47 +333,50 @@ class SellIntroFragment : ViewPagerFragment() {
     private fun renderKycedUserUi() {
         with(binding) {
             kycBenefits.gone()
-            accountsList.visible()
+            sellAccountsContainer.visible()
+
+            sellIntroSearch.apply {
+                label = getString(R.string.search_coins_hint)
+                onValueChange = { searchedText ->
+                    this@with.onSearchTermUpdated(searchedText)
+                }
+            }
 
             compositeDisposable += supportedCryptoCurrencies()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .trackProgress(binding.accountsList.activityIndicator)
-                .subscribeBy(onSuccess = { supportedCryptos ->
-                    val introHeaderView = IntroHeaderView(requireContext())
-                    introHeaderView.setDetails(
-                        icon = R.drawable.ic_sell_minus,
-                        label = R.string.select_wallet_to_sell,
-                        title = R.string.sell_for_cash
-                    )
+                .trackProgress(accountsList.activityIndicator)
+                .subscribeBy(
+                    onSuccess = { supportedCryptos ->
+                        supportedSellCryptos = supportedCryptos
 
-                    accountsList.initialise(
-                        coincore.walletsWithActions(
-                            actions = setOf(AssetAction.Sell),
-                            sorter = accountsSorting.sorter()
-                        ).map {
-                            it.filterIsInstance<CryptoAccount>().filter { account ->
-                                supportedCryptos.contains(account.currency)
-                            }.map(AccountListViewItem.Companion::create)
-                        },
-                        status = ::statusDecorator,
-                        introView = introHeaderView
-                    )
+                        with(accountsList) {
+                            initialise(
+                                filteredAccountList(supportedSellCryptos),
+                                status = ::statusDecorator,
+                            )
 
-                    renderSellInfo()
+                            onAccountSelected = { account ->
+                                analytics.logEvent(SellAssetSelectedEvent(type = account.label))
+                                (account as? CryptoAccount)?.let {
+                                    startSellFlow(it)
+                                }
+                            }
 
-                    accountsList.onAccountSelected = { account ->
-                        (account as? CryptoAccount)?.let {
-                            analytics.logEvent(SellAssetSelectedEvent(type = it.currency.networkTicker))
-                            startSellFlow(it)
+                            onListLoaded = { isEmpty ->
+                                if (isEmpty) {
+                                    if (hasEnteredSearchTerm) {
+                                        sellSearchEmpty.visible()
+                                        accountsList.gone()
+                                    } else {
+                                        renderSellEmpty()
+                                    }
+                                }
+                            }
                         }
-                    }
-
-                    accountsList.onListLoaded = {
-                        if (it) renderSellEmpty()
-                    }
-                }, onError = {
+                    }, onError = {
                     renderSellError()
+
                     logErrorAnalytics(
                         nabuApiException = (it as? HttpException)?.let {
                             NabuApiExceptionFactory.fromResponseBody(it)
@@ -381,24 +393,46 @@ class SellIntroFragment : ViewPagerFragment() {
                         title = OOPS_ERROR,
                         action = ClientErrorAnalytics.ACTION_SELL
                     )
-                })
+                }
+                )
         }
     }
 
-    private fun renderSellInfo() {
-        val sellInfoIntro = getString(R.string.sell_info_blurb_1)
-        val sellInfoBold = getString(R.string.sell_info_blurb_2)
-        val sellInfoEnd = getString(R.string.sell_info_blurb_3)
+    private fun SellIntroFragmentBinding.onSearchTermUpdated(searchTerm: String) {
+        with(accountsList) {
+            visible()
+            loadItems(
+                filteredAccountList(
+                    supportedSellCryptos = supportedSellCryptos,
+                    searchTerm = searchTerm
+                ),
+                accountsLocksSource = Single.just(emptyList())
+            )
+        }
 
-        val sb = SpannableStringBuilder()
-            .append(sellInfoIntro)
-            .append(sellInfoBold)
-            .append(sellInfoEnd)
-        sb.setSpan(
-            StyleSpan(Typeface.BOLD), sellInfoIntro.length, sellInfoIntro.length + sellInfoBold.length,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
+        hasEnteredSearchTerm = searchTerm.isNotEmpty()
+        sellSearchEmpty.gone()
+        sellIntroSearch.visible()
     }
+
+    private fun filteredAccountList(supportedSellCryptos: List<AssetInfo>, searchTerm: String = "") =
+        coincore.walletsWithActions(
+            actions = setOf(AssetAction.Sell),
+            sorter = accountsSorting.sorter()
+        ).trackProgress(binding.accountsList.activityIndicator)
+            .map {
+                it.filterIsInstance<CryptoAccount>().filter { account ->
+                    if (searchTerm.isNotEmpty()) {
+                        supportedSellCryptos.contains(account.currency) &&
+                            (
+                                account.currency.name.contains(searchTerm, true) ||
+                                    account.currency.networkTicker.contains(searchTerm, true)
+                                )
+                    } else {
+                        true
+                    }
+                }.map(AccountListViewItem.Companion::create)
+            }
 
     private fun statusDecorator(account: BlockchainAccount): CellDecorator = SellCellDecorator(account)
 
