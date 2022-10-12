@@ -149,7 +149,7 @@ private fun ColumnScope.SearchStep(
                 )
             }
 
-            if (suggestions.isEmpty()) {
+            if (suggestions.isEmpty() && state.searchInput.text.isNotEmpty() && !state.isSearchLoading) {
                 SimpleText(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.common_no_results_found),
