@@ -3,12 +3,14 @@ package com.blockchain.home.presentation.allassets.composable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -17,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -127,7 +130,7 @@ fun CryptoAssetsData(
     onSearchTermEntered: (String) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxSize()
     ) {
         Search(
             onValueChange = onSearchTermEntered
@@ -148,24 +151,41 @@ fun CryptoAssetsList(
         shape = RoundedCornerShape(AppTheme.dimensions.mediumSpacing),
         elevation = 0.dp
     ) {
-        Column {
-            cryptoAssets.forEachIndexed { index, cryptoAsset ->
-                BalanceChangeTableRow(
-                    name = cryptoAsset.name,
-                    value = cryptoAsset.fiatBalance.map {
-                        it.toStringWithSymbol()
-                    },
-                    valueChange = cryptoAsset.change,
-                    icon = ImageResource.Remote(cryptoAsset.icon),
-                    onClick = {
+        if (cryptoAssets.isNotEmpty()) {
+            Column {
+                cryptoAssets.forEachIndexed { index, cryptoAsset ->
+                    BalanceChangeTableRow(
+                        name = cryptoAsset.name,
+                        value = cryptoAsset.fiatBalance.map {
+                            it.toStringWithSymbol()
+                        },
+                        valueChange = cryptoAsset.change,
+                        icon = ImageResource.Remote(cryptoAsset.icon),
+                        onClick = {
+                        }
+                    )
+                    if (index < cryptoAssets.lastIndex) {
+                        Divider(color = Color(0XFFF1F2F7))
                     }
-                )
-                if (index < cryptoAssets.lastIndex) {
-                    Divider(color = Color(0XFFF1F2F7))
                 }
             }
+        } else {
+            CryptoAssetsNoResults()
         }
     }
+}
+
+@Composable
+fun CryptoAssetsNoResults() {
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppTheme.dimensions.smallSpacing),
+        text = "\uD83D\uDE1E No results",
+        style = AppTheme.typography.body2,
+        color = AppTheme.colors.title,
+        textAlign = TextAlign.Center
+    )
 }
 
 @Preview(backgroundColor = 0xFF272727)
@@ -196,6 +216,17 @@ fun PreviewCryptoAssetsScreen() {
                     fiatBalance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, 306.28.toBigDecimal()))
                 )
             )
+        ),
+        onSearchTermEntered = {}
+    )
+}
+
+@Preview(backgroundColor = 0xFF272727)
+@Composable
+fun PreviewCryptoAssetsScreen_Empty() {
+    CryptoAssetsScreen(
+        cryptoAssets = DataResource.Data(
+            listOf()
         ),
         onSearchTermEntered = {}
     )
