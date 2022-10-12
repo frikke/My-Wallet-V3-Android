@@ -1326,7 +1326,7 @@
     <string name="send_enter_unexpected_error">Beklenmedik bir hata oluştu. Lütfen tekrar deneyin.</string>
     <string name="send_enter_insufficient_gas">Bu işlemi gerçekleştirmek için yeterli ETH\'niz bulunmuyor.</string>
     <string name="send_select_a_wallet_title">veya Bir Cüzdan Seçin</string>
-    <string name="send_select_a_wallet_warning">Yalnızca (%2$s) ağındaki cüzdanlara %1$s gönderin.\n<annotation link="send_network_options">Daha fazla bilgi edinin</annotation></string>
+    <string name="send_select_a_wallet_warning"><![CDATA[Yalnızca (%2$s) ağındaki cüzdanlara %1$s gönderin.\n<annotation link=\"send_network_options\">Daha fazla bilgi edinin</annotation>]]></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s), birden çok ağda bulunabilecek bir tokendir. Göndermeden önce, gönderdiğiniz cüzdan adresinin ağını bildiğinizden emin olun.</string>
     <string name="send_transfer_accounts_title">Hesaplarınız arasında transfer yapın</string>
     <string name="send_domain_alert_title">Bir Kripto Alanına Gönder</string>
@@ -1657,7 +1657,7 @@
     <string name="yapily_agreement_blurb_3_1">%1$s, Hesap Bilgileri ve Ödeme Başlatma hizmetlerinin verilmesi için Litvanya Merkez Bankası tarafından Ödemeler Kanunu (LB002045) kapsamında yetkilendirilip düzenlenmektedir.</string>
     <string name="yapily_agreement_title_4">Erişim hakkında</string>
     <string name="yapily_agreement_blurb_4_1">%1$s daha sonra bu bilgileri Blockchain ile yalnızca kripto para satın almak amacıyla kullanacaktır. Bu erişim %2$s tarihine kadar geçerlidir. İzni dilediğiniz zaman Blockchain ayarları veya bankanız aracılığıyla iptal edebilirsiniz. Bu talep tek seferlik değildir, eski sürümlerin süresi doldukça izin talepleri almaya devam edeceksiniz.</string>
-    <string name="yapily_agreement_blurb_4_2">%1$s Hüküm ve Koşullara <a> https://yapi.ly/GDNT </a> bağlantısı kullanılarak erişilebilir</string>
+    <string name="yapily_agreement_blurb_4_2"><![CDATA[%1$s Hüküm ve Koşullara <a> https://yapi.ly/GDNT </a> bağlantısı kullanılarak erişilebilir]]></string>
     <string name="yapily_agreement_blurb_5">%1$s verilerinizi Blockchain ile paylaşmak amacıyla YapilyConnect\'in şu bilgileri okumasına onay vermek için şimdi güvenli bir şekilde bankanıza yönlendirileceksiniz:\n\n• Kimlik bilgileri\n\n• Hesap bilgileri</string>
     <string name="yapily_agreement_blurb_5_1">%1$s verilerinizi Blockchain.com ile paylaşmak amacıyla YapilyConnect\'in aşağıdaki bilgileri okumasına izin verdiğinizi onaylamak için şimdi güvenli bir şekilde bankanıza yönlendirileceksiniz:\n\n• Kimlik bilgileri\n\n• Hesap bilgileri</string>
     <string name="yapily_linking_pending_title">%1$s sayfasına yönlendiriliyorsunuz</string>
@@ -2661,9 +2661,43 @@
     <string name="bc_card_review_and_submit_title">İncele ve Gönder</string>
     <string name="common_balance">Bakiye</string>
     <string name="select_account_sheet_title_defi">Wallet Seçin</string>
+    <string name="select_account_sheet_title_brokerage">Bir Hesap Seçin</string>
+    <string name="bc_card_transaction_payment_with_cashback">Para İadesi ile Ödeme</string>
+    <string name="bc_card_transaction_funding">Finansman</string>
+    <string name="bc_card_transaction_chargeback">Ters İbraz</string>
+    <string name="wallet_connect_switch_network">Ağ Değiştir</string>
+    <string name="default_label_staking_wallet">Staking Hesabı</string>
     <string name="default_label_custodial_wallets">Hesaplar</string>
     <string name="ma_home_assets_title">Varlıklar</string>
+    <string name="add_to_google_pay">Google Pay\'e Ekle</string>
+    <string name="card_added_to_google_pay">Kart Google Pay\'e Eklendi</string>
+    <string name="failed_to_add_card_to_google_pay">Kart Google Pay\'e Eklenemedi</string>
+    <string name="nft_empty_title">Hiç NFT\'niz Yok</string>
+    <string name="nft_empty_description">Herhangi bir cüzdandan gönderin veya bir pazaryerinden satın alın!</string>
+    <string name="nft_cta_buy">NFT satın al</string>
+    <string name="nft_help">Nasıl çalışıyor?</string>
+    <string name="nft_cta_shop">Opensea\'de alışveriş yap</string>
+    <string name="nft_cta_view">Opensea\'de görüntüle</string>
     <string name="nft_creator">Yaratıcısı</string>
     <string name="nft_description">Açıklama</string>
+    <string name="nft_help_title">Nasıl çalışıyor?</string>
+    <string name="nft_help_buy_title">NFT Satın Alma</string>
+    <string name="nft_help_buy_description">Blockchain.com uygulamanızı ve Opensea veya Rarible üzerinde Walletconnect\'i kullanarak NFT satın alın.</string>
+    <string name="nft_help_buy_cta_opensea">Opensea\'de Satın Alma</string>
     <string name="nft_help_instructions">Talimatlar</string>
+    <string name="nft_help_instructions_1_title">Opensea.io\'ya gidin</string>
+    <string name="nft_help_instructions_2_title">Blockchain.com uygulamanızı açın</string>
+    <string name="nft_help_instructions_3_title">Kare kod okuyucusunu açın</string>
+    <string name="nft_help_instructions_3_description">Uygulamanın sağ üst köşesindeki kare simgesine dokunun.</string>
+    <string name="nft_help_instructions_4_title">Opensea\'ye WalletConnect ile giriş yapın</string>
+    <string name="nft_help_instructions_4_description">Giriş Yap veya Cüzdana Bağlan\'ı seçtikten sonra seçenek olarak görünecektir.</string>
+    <string name="nft_help_instructions_5_title">Satın alındığında NFT\'ler burada görünür</string>
+    <string name="nft_help_instructions_5_description">NFT\'lerinize Blockchain Wallet\'ınızdan erişin</string>
+    <string name="coinview_no_asset_blurb_1">Görünüşe göre bu varlıkla ilgili herhangi bir veriye sahip değiliz. Bu durum devam ederse</string>
+    <string name="coinview_no_asset_blurb_2">destek ekibiyle iletişime geçin.</string>
+    <string name="explainer_staking_title">Staking Hesabı</string>
+    <string name="explainer_staking_description">Staking Hesabınız, sevdiğiniz blok zinciri ağlarınızı güvence altına alarak kripto paranızdan yıllık %%%1$s faiz getirisine kadar ödül kazanmanızı sağlar.</string>
+    <string name="staking_coming_soon_title">Çok yakında mobil cihazlarda</string>
+    <string name="staking_coming_soon_subtitle">Bu arada, web uygulamamızı kullanarak Staking Hesabınızı yönetebilirsiniz.</string>
+    <string name="staking_coming_soon_cta">Web Uygulamasına Git</string>
 </resources>
