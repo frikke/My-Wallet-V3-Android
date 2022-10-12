@@ -39,6 +39,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAmountBinding
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoInputView
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
@@ -73,6 +74,8 @@ class EnterAmountFragment :
 
     private val customiser: EnterAmountCustomisations by inject()
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
+    private val fraudService: FraudService by inject()
+
     private val compositeDisposable = CompositeDisposable()
     private var state: TransactionState = TransactionState()
 
@@ -171,6 +174,7 @@ class EnterAmountFragment :
     @SuppressLint("SetTextI18n")
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! EnterAmountFragment")
+        customiser.getFraudFlowForTransaction(state)?.let { fraudService.startFlow(it) }
 
         if (newState.action.requiresDisplayLocks()) {
             model.process(TransactionIntent.LoadFundsLocked)

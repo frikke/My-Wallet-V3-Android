@@ -28,6 +28,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.login.LoginAnalytics
@@ -61,6 +63,7 @@ class LoginAuthActivity :
 
     private val remoteLogger: RemoteLogger by inject()
     private val walletPrefs: WalletStatusPrefs by inject()
+    private val fraudService: FraudService by inject()
 
     private lateinit var currentState: LoginAuthState
 
@@ -269,6 +272,7 @@ class LoginAuthActivity :
                     .setCancelable(false)
                     .setPositiveButton(R.string.common_go_back) { _, _ ->
                         clearKeyboardAndFinish()
+                        fraudService.endFlow(FraudFlow.LOGIN)
                     }
                     .create()
                     .show()

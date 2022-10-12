@@ -144,6 +144,8 @@ android {
 
             buildConfigField "String", "CHECKMARKET_URL", "\"${buildProperties.secrets['checkMarketProduction']}\""
 
+            buildConfigField "String", "SARDINE_CLIENT_ID", "\"${buildProperties.secrets['sardineProduction']}\""
+
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
                 versionCode = ciVersionCode.toInteger()
@@ -193,6 +195,8 @@ android {
             buildConfigField "String", "WALLET_HELPER_URL", "\"${buildProperties.secrets['walletHelperProdURL']}\""
 
             buildConfigField "String", "CHECKMARKET_URL", "\"${buildProperties.secrets['checkMarketProduction']}\""
+
+            buildConfigField "String", "SARDINE_CLIENT_ID", "\"${buildProperties.secrets['sardineProduction']}\""
 
             applicationId "com.blockchain.wallet.internal"
 
@@ -246,6 +250,8 @@ android {
             buildConfigField "String", "WALLET_HELPER_URL", "\"${buildProperties.secrets['walletHelperStagingURL']}\""
 
             buildConfigField "String", "CHECKMARKET_URL", "\"${buildProperties.secrets['checkMarketStaging']}\""
+
+            buildConfigField "String", "SARDINE_CLIENT_ID", "\"${buildProperties.secrets['sardineStaging']}\""
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"

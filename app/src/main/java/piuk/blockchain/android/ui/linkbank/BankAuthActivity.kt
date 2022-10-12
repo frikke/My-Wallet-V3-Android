@@ -26,7 +26,10 @@ import com.plaid.link.linkTokenConfiguration
 import com.plaid.link.result.LinkExit
 import com.plaid.link.result.LinkSuccess
 import info.blockchain.balance.FiatCurrency
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity.Companion.REFRESH_BANK_ACCOUNT_ID
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity.Companion.newBankRefreshInstance
@@ -75,6 +78,7 @@ class BankAuthActivity :
     }
 
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
+    private val fraudService: FraudService by inject()
 
     private val binding: FragmentActivityBinding by lazy {
         FragmentActivityBinding.inflate(layoutInflater)
@@ -148,6 +152,7 @@ class BankAuthActivity :
         get() = false
 
     override fun launchYapilyBankSelection(attributes: YapilyAttributes) {
+        fraudService.startFlow(FraudFlow.OB_LINK)
         supportFragmentManager.beginTransaction()
             .replace(R.id.content_frame, YapilyBankSelectionFragment.newInstance(attributes, authSource))
             .commitAllowingStateLoss()
@@ -158,7 +163,6 @@ class BankAuthActivity :
     }
 
     override fun yapilyInstitutionSelected(institution: YapilyInstitution, entity: String) {
-
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.content_frame,
@@ -175,6 +179,7 @@ class BankAuthActivity :
     }
 
     override fun launchPlaidLink(attributes: PlaidAttributes, id: String) {
+        fraudService.startFlow(FraudFlow.ACH_LINK)
         plaidResultLauncher.launch(
             linkTokenConfiguration {
                 token = attributes.linkToken
@@ -329,6 +334,11 @@ class BankAuthActivity :
 
     override fun onSheetClosed() {
         // do nothing
+    }
+
+    override fun onDestroy() {
+        fraudService.endFlows(FraudFlow.ACH_LINK, FraudFlow.OB_LINK)
+        super.onDestroy()
     }
 
     companion object {

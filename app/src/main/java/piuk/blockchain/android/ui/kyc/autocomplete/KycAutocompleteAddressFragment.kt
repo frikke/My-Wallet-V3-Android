@@ -18,8 +18,11 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycAutocompleteBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.address.models.OldAddressDetailsModel
 import piuk.blockchain.android.ui.kyc.address.models.OldProfileModel
@@ -32,6 +35,7 @@ class KycAutocompleteAddressFragment :
         FragmentKycAutocompleteBinding>() {
 
     override val model: KycAutocompleteAddressModel by scopedInject()
+    private val fraudService: FraudService by inject()
 
     val profileModel: OldProfileModel by unsafeLazy {
         KycAutocompleteAddressFragmentArgs.fromBundle(arguments ?: Bundle()).profileModel
@@ -48,6 +52,8 @@ class KycAutocompleteAddressFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        fraudService.startFlow(FraudFlow.ONBOARDING)
+
         progressListener.setupHostToolbar(R.string.kyc_address_title)
         setupRecyclerView()
 

@@ -1,5 +1,6 @@
 package com.blockchain.koin
 
+import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.api.nabuApi
 import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.core.kyc.data.KycRepository
@@ -87,6 +88,7 @@ val nabuModule = module {
                 userReporter = get(uniqueUserAnalytics),
                 trust = get(),
                 walletReporter = get(uniqueId),
+                sessionInfo = SessionInfo,
                 payloadDataManager = get()
             )
         }

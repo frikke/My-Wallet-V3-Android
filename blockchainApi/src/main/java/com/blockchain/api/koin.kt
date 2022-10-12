@@ -26,6 +26,7 @@ import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.ethereum.evm.EvmApi
 import com.blockchain.api.experiments.ExperimentsApi
 import com.blockchain.api.fiatcurrencies.FiatCurrenciesApi
+import com.blockchain.api.fraud.FraudApi
 import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.interest.InterestApiService
 import com.blockchain.api.kyc.KycApiInterface
@@ -51,6 +52,7 @@ import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.api.services.ExperimentsApiService
 import com.blockchain.api.services.FiatCurrenciesApiService
+import com.blockchain.api.services.FraudRemoteService
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.api.services.NftApiService
 import com.blockchain.api.services.NftWaitlistApiService
@@ -379,9 +381,12 @@ val blockchainApiModule = module {
 
     factory {
         val api = get<Retrofit>(nabuApi).create(SessionApi::class.java)
-        SessionService(
-            api
-        )
+        SessionService(api)
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(FraudApi::class.java)
+        FraudRemoteService(api)
     }
 
     factory {

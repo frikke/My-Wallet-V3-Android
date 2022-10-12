@@ -39,6 +39,8 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycVeriffSplashBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
@@ -64,16 +66,17 @@ class VeriffSplashFragment :
 
     private val presenter: VeriffSplashPresenter by scopedInject()
     private val stringUtils: StringUtils by inject()
+    private val analytics: Analytics by inject()
+    private val fraudService: FraudService by inject()
 
     private val progressListener: KycProgressListener by ParentActivityDelegate(
         this
     )
 
-    private val analytics: Analytics by inject()
-
     private val veriffResultHandler = VeriffResultHandler(
         onSuccess = {
             presenter.submitVerification()
+            fraudService.endFlow(FraudFlow.KYC)
         },
         onError = {
             analytics.logEvent(
@@ -82,6 +85,7 @@ class VeriffSplashFragment :
                     failureReason = it
                 )
             )
+            fraudService.endFlow(FraudFlow.KYC)
         }
     )
 
@@ -112,6 +116,7 @@ class VeriffSplashFragment :
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycVerifyIdentity)
         analytics.logEvent(KYCAnalyticsEvents.MoreInfoViewed)
+        fraudService.startFlow(FraudFlow.KYC)
 
         checkCameraPermissions()
         setupTextLinks()
@@ -202,6 +207,7 @@ class VeriffSplashFragment :
             } ?: run {
                 if (resultCode == RESULT_OK) {
                     presenter.submitVerification()
+                    fraudService.endFlow(FraudFlow.KYC)
                 }
             }
         } else {
@@ -217,6 +223,8 @@ class VeriffSplashFragment :
         ).show()
 
     override fun continueToCompletion() {
+        fraudService.endFlow(FraudFlow.KYC)
+
         val navOptions = NavOptions.Builder()
             .setPopUpTo(R.id.kyc_nav_xml, true)
             .build()

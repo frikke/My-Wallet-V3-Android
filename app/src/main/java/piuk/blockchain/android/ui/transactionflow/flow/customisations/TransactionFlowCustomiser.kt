@@ -37,6 +37,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import piuk.blockchain.android.R
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.ui.customviews.account.AccountInfoBank
 import piuk.blockchain.android.ui.customviews.account.AccountInfoCrypto
 import piuk.blockchain.android.ui.customviews.account.AccountInfoFiat
@@ -357,6 +358,22 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Sell -> resources.getString(R.string.tx_enter_amount_fee_sheet_sell_available_label)
             else -> throw IllegalStateException("${state.action} is not supported for fee sheet label")
         }
+
+    override fun getFraudFlowForTransaction(state: TransactionState): FraudFlow? {
+        val action = state.action
+        val sendingAccount = state.sendingAccount
+
+        if (action == AssetAction.FiatDeposit && sendingAccount is LinkedBankAccount) {
+            return if (sendingAccount.isOpenBankingCurrency()) {
+                FraudFlow.OB_DEPOSIT
+            } else {
+                FraudFlow.ACH_DEPOSIT
+            }
+        } else if (action == AssetAction.FiatWithdraw) {
+            return FraudFlow.WITHDRAWAL
+        }
+        return null
+    }
 
     override fun confirmTitle(state: TransactionState): String =
         when (state.action) {

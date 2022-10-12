@@ -14,6 +14,8 @@ import com.blockchain.preferences.SimpleBuyPrefs
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityCardDetailsBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 
 class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsPersistence {
@@ -22,6 +24,7 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
 
     private var cardData: CardData? = null
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
+    private val fraudService: FraudService by inject()
 
     private val binding: ActivityCardDetailsBinding by lazy {
         ActivityCardDetailsBinding.inflate(layoutInflater)
@@ -97,6 +100,11 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
     }
 
     override fun getCardData(): CardData? = cardData
+
+    override fun onDestroy() {
+        fraudService.endFlow(FraudFlow.CARD_LINK)
+        super.onDestroy()
+    }
 
     companion object {
         const val CARD_KEY = "card_key"

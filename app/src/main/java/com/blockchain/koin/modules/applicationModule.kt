@@ -3,6 +3,7 @@ package com.blockchain.koin.modules
 import android.content.Context
 import androidx.biometric.BiometricManager
 import com.blockchain.api.ConnectionApi
+import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.appinfo.AppInfo
 import com.blockchain.auth.LogoutTimer
 import com.blockchain.banking.BankPartnerCallbackProvider
@@ -769,6 +770,7 @@ val applicationModule = module {
                 assetActivityRepository = get(),
                 walletPrefs = get(),
                 payloadScopeWiper = get(),
+                sessionInfo = SessionInfo,
                 remoteLogger = get()
             )
         }.bind(DataWiper::class)

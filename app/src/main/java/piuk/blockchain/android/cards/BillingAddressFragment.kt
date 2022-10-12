@@ -20,8 +20,11 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Locale
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBillingAddressBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
@@ -33,6 +36,7 @@ class BillingAddressFragment :
 
     private var usSelected = false
     private val userService: UserService by scopedInject()
+    private val fraudService: FraudService by inject()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -107,6 +111,7 @@ class BillingAddressFragment :
                 model.process(CardIntent.ReadyToAddNewCard)
 
                 analytics.logEvent(SimpleBuyAnalytics.CARD_BILLING_ADDRESS_SET)
+                fraudService.endFlow(FraudFlow.CARD_LINK)
             }
         }
         activity.updateToolbarTitle(getString(R.string.add_card_address_title))

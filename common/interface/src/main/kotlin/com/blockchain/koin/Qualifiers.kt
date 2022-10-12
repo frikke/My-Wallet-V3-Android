@@ -28,6 +28,7 @@ val quickFillSellSwapFeatureFlag = StringQualifier("ff_sell_swap_quickfill_frequ
 val rbExperimentFeatureFlag = StringQualifier("ff_rb_experiment")
 val superappRedesignFeatureFlag = StringQualifier("android_ff_superapp_redesign")
 val sessionIdFeatureFlag = StringQualifier("ff_x_session_id")
+val sardineFeatureFlag = StringQualifier("ff_sardine")
 val stakingAccountFeatureFlag = StringQualifier("ff_staking_account")
 val nabu = StringQualifier("nabu")
 val status = StringQualifier("status")

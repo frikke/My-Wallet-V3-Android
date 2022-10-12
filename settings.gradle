@@ -33,5 +33,5 @@ include ':app',
         ':nfts:data', ':nfts:domain',
         ':nfts:presentation', ':string-resources',
         ':flowhome:presentation', ':flowhome:domain', ':flowhome:data',
-        ':fraud:data', ':fraud:domain'
+        ':fraud:data', ':fraud:domain', ':fraud:sardine'
 

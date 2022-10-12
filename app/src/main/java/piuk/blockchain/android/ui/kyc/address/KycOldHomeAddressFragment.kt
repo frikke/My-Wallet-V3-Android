@@ -36,6 +36,8 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycHomeAddressBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.base.BaseMvpFragment
 import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
@@ -64,6 +66,7 @@ class KycOldHomeAddressFragment :
 
     private val presenter: KycOldHomeAddressPresenter by scopedInject()
     private val analytics: Analytics by inject()
+    private val fraudService: FraudService by inject()
     private val progressListener: KycProgressListener by ParentActivityDelegate(
         this
     )
@@ -100,6 +103,8 @@ class KycOldHomeAddressFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycAddress)
+        fraudService.startFlow(FraudFlow.ONBOARDING)
+
         progressListener.setupHostToolbar(R.string.kyc_address_title)
         binding.editTextKycAddressZipCode.addTextChangedListener(textWatcher)
 
@@ -126,11 +131,15 @@ class KycOldHomeAddressFragment :
 
     @Suppress("ConstantConditionIf")
     override fun continueToVeriffSplash(countryCode: String) {
+        fraudService.endFlow(FraudFlow.ONBOARDING)
+
         closeKeyboard()
         navigate(KycNavXmlDirections.actionStartVeriff(countryCode))
     }
 
     override fun continueToQuestionnaire(questionnaire: Questionnaire, countryCode: String) {
+        fraudService.endFlow(FraudFlow.ONBOARDING)
+
         closeKeyboard()
         navigate(
             KycOldHomeAddressFragmentDirections.actionKycHomeAddressFragmentToKycQuestionnaireFragment(
@@ -152,6 +161,8 @@ class KycOldHomeAddressFragment :
     }
 
     override fun continueToTier2MoreInfoNeeded(countryCode: String) {
+        fraudService.endFlow(FraudFlow.ONBOARDING)
+
         closeKeyboard()
         navigate(KycNavXmlDirections.actionStartTier2NeedMoreInfo(countryCode))
     }

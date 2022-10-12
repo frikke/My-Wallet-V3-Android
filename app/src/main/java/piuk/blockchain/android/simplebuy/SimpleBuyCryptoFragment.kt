@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.fiat.isOpenBankingCurrency
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ImageResource
@@ -67,6 +68,8 @@ import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.cards.CardDetailsActivity.Companion.ADD_CARD_REQUEST_CODE
 import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.databinding.FragmentSimpleBuyBuyCryptoBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INSUFFICIENT_FUNDS
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INTERNET_CONNECTION_ERROR
@@ -117,6 +120,8 @@ class SimpleBuyCryptoFragment :
     private val assetCatalogue: AssetCatalogue by inject()
     private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
+    private val fraudService: FraudService by inject()
+
     private var infoActionCallback: () -> Unit = {}
 
     private val fiatCurrency: FiatCurrency
@@ -814,6 +819,11 @@ class SimpleBuyCryptoFragment :
                 ImageResource.Local((R.drawable.ic_bank_icon))
             }
         }
+        fraudService.endFlow {
+            fraudService.startFlow(
+                if (fiatCurrency.isOpenBankingCurrency()) FraudFlow.OB_DEPOSIT else FraudFlow.ACH_DEPOSIT
+            )
+        }
     }
 
     private fun renderUndefinedCardPayment(selectedPaymentMethod: PaymentMethod.UndefinedCard) {
@@ -898,6 +908,9 @@ class SimpleBuyCryptoFragment :
                 }
             }
         }
+        fraudService.endFlow {
+            fraudService.startFlow(FraudFlow.CARD_DEPOSIT)
+        }
     }
 
     private fun DefaultTableRowView.showErrorColours() {
@@ -920,6 +933,7 @@ class SimpleBuyCryptoFragment :
             )
         }
         disableRecurringBuyCta(false)
+        fraudService.endFlow { fraudService.startFlow(FraudFlow.MOBILE_WALLET_DEPOSIT) }
     }
 
     private fun PaymentMethod?.isCardAndAlwaysRejected(): Boolean =
