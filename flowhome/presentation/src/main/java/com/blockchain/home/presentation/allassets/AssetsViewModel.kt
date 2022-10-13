@@ -64,7 +64,7 @@ class AssetsViewModel(
                                 when (assetFilter.filter) {
                                     AssetFilter.ShowSmallBalances -> {
                                         if (assetFilter.isEnabled) {
-                                            // let all assets pass
+                                            // auto pass check
                                             true
                                         } else {
                                             // filter out small balances
