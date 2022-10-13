@@ -52,7 +52,6 @@ import info.blockchain.balance.Money
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CryptoAssets(
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope)
@@ -64,7 +63,7 @@ fun CryptoAssets(
     val viewState: AssetsViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(AssetsIntent.LoadHomeAccounts(SectionSize.All))
+        viewModel.onIntent(AssetsIntent.LoadData(SectionSize.All))
         onDispose { }
     }
 

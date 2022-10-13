@@ -19,6 +19,7 @@ import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.Money
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
@@ -36,6 +37,10 @@ class AssetsViewModel(
 ) : MviViewModel<AssetsIntent, AssetsViewState, AssetsModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
     AssetsModelState()
 ) {
+
+    private var filtersJob: Job? = null
+    private var accountsJob: Job? = null
+
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         updateState { state ->
             state.copy(accounts = DataResource.Data(emptyList()))
@@ -48,6 +53,7 @@ class AssetsViewModel(
                 balance = accounts.totalBalance(),
                 cryptoAssets = state.accounts.map { modelAccounts ->
                     modelAccounts
+                        .filter { modelAccount -> modelAccount.singleAccount is CryptoAccount }
                         .filter { modelAccount ->
                             // create search term filter predicate
                             val searchTermPredicate = if (state.filterTerm.isEmpty()) {
@@ -79,8 +85,8 @@ class AssetsViewModel(
 
                             }.all { it /*if all filters are true*/ }
 
-                            // filter accounts matching CryptoAccount and the search predicate
-                            (modelAccount.singleAccount is CryptoAccount) && searchTermPredicate && filtersPredicate
+                            // filter accounts matching the search and custom filters predicate
+                            searchTermPredicate && filtersPredicate
                         }
                         .toHomeCryptoAssets()
                         .let { accounts ->
@@ -130,7 +136,7 @@ class AssetsViewModel(
 
     override suspend fun handleIntent(modelState: AssetsModelState, intent: AssetsIntent) {
         when (intent) {
-            is AssetsIntent.LoadHomeAccounts -> {
+            is AssetsIntent.LoadData -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
                 loadAccounts()
                 loadFilters()
@@ -149,7 +155,8 @@ class AssetsViewModel(
     }
 
     private fun loadFilters() {
-        viewModelScope.launch {
+        filtersJob?.cancel()
+        filtersJob = viewModelScope.launch {
             homeAccountsService.filters()
                 .onEach { assetFilters ->
                     updateState {
@@ -162,7 +169,8 @@ class AssetsViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun loadAccounts() {
-        viewModelScope.launch {
+        accountsJob?.cancel()
+        accountsJob = viewModelScope.launch {
             homeAccountsService.accounts()
                 .onStart {
                     updateState { state ->
