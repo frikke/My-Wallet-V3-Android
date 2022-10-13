@@ -4,6 +4,10 @@ enum class AssetFilter {
     ShowSmallBalances;
 
     companion object {
+        /**
+         * This will represent 1USD/1EUR..
+         * depending on the current fiat selected
+         */
         val MinimumBalance = 1.toBigDecimal()
     }
 }

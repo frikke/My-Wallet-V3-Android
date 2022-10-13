@@ -72,7 +72,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
-            <intent-filter android:autoVerify="true">
+            <intent-filter android:autoVerify="true" >
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -125,7 +125,8 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.multiapp.MultiAppActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"></activity>
+            android:configChanges="keyboardHidden|orientation|screenSize" >
+        </activity>
         <activity
             android:name=".ui.scan.QrScanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />

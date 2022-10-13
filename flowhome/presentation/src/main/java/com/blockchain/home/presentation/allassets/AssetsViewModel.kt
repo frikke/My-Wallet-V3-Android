@@ -74,13 +74,15 @@ class AssetsViewModel(
                                             true
                                         } else {
                                             // filter out small balances
-                                            (
-                                                modelAccount.fiatBalance.map {
-                                                    it >= Money.fromMajor(it.currency, AssetFilter.MinimumBalance)
-                                                } as? DataResource.Data
-                                                )?.data.let { isHighBalance ->
-                                                isHighBalance != false
+                                            fun Money.isHighBalance(): Boolean {
+                                                return this >= Money.fromMajor(currency, AssetFilter.MinimumBalance)
                                             }
+
+                                            (modelAccount.fiatBalance.map { it.isHighBalance() } as? DataResource.Data)
+                                                ?.data.let { isHighBalance ->
+                                                    // i.e. if null (loading) or true -> pass
+                                                    isHighBalance != false
+                                                }
                                         }
                                     }
                                 }

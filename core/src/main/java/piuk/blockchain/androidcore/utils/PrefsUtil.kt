@@ -78,7 +78,7 @@ class PrefsUtil(
     LocalSettingsPrefs,
     SuperAppMvpPrefs,
     CowboysPrefs,
-    BlockchainCardPrefs {
+    BlockchainCardPrefs,
     MultiAppAssetsPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!

@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.home.presentation.allassets.composable.CryptoAssets
 
+// todo(othman) probably want compose single activity / need to figure out navigation
 class AllAssetsActivity : BlockchainActivity() {
 
     override val alwaysDisableScreenshots: Boolean = true
