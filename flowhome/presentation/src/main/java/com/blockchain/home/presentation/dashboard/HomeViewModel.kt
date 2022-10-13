@@ -14,6 +14,7 @@ import com.blockchain.data.map
 import com.blockchain.data.updateDataWith
 import com.blockchain.extensions.replace
 import com.blockchain.home.domain.HomeAccountsService
+import com.blockchain.home.model.AssetFilter
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.Money
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -60,14 +61,14 @@ class HomeViewModel(
                             // create predicate for all filters
                             val filtersPredicate = filters.map { assetFilter ->
                                 when (assetFilter.filter) {
-                                    CryptoAssetFilter.ShowSmallBalances -> {
+                                    AssetFilter.ShowSmallBalances -> {
                                         if (assetFilter.isEnabled) {
                                             // let all assets pass
                                             true
                                         } else {
                                             // filter out small balances
                                             (modelAccount.fiatBalance.map {
-                                                it >= Money.fromMajor(it.currency, CryptoAssetFilter.MinimumBalance)
+                                                it >= Money.fromMajor(it.currency, AssetFilter.MinimumBalance)
                                             } as? DataResource.Data)?.data.let { isHighBalance ->
                                                 isHighBalance != false
                                             }
@@ -141,7 +142,7 @@ class HomeViewModel(
             }
 
             is HomeIntent.UpdateFilters -> {
-                homeAccountsService.updateFilters(intent.filters.first().isEnabled)
+                homeAccountsService.updateFilters(intent.filters)
             }
         }
     }
@@ -151,14 +152,7 @@ class HomeViewModel(
             homeAccountsService.filters()
                 .onEach { assetFilters ->
                     updateState {
-                        it.copy(
-                            filters = listOf(
-                                CryptoAssetFilterStatus(
-                                    CryptoAssetFilter.ShowSmallBalances,
-                                    assetFilters.shouldShowSmallBalances
-                                )
-                            )
-                        )
+                        it.copy(filters = assetFilters)
                     }
                 }
                 .collect()

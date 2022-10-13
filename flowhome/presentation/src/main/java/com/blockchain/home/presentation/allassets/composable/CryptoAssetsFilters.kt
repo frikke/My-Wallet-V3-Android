@@ -25,15 +25,15 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.sheets.SheetNub
 import com.blockchain.componentlib.tablerow.FlexibleToggleTableRow
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.home.model.AssetFilter
+import com.blockchain.home.model.AssetFilterStatus
 import com.blockchain.home.presentation.R
-import com.blockchain.home.presentation.dashboard.CryptoAssetFilter
-import com.blockchain.home.presentation.dashboard.CryptoAssetFilterStatus
 import com.blockchain.utils.replaceInList
 
 @Composable
 fun CryptoAssetsFilters(
-    filters: List<CryptoAssetFilterStatus>,
-    onConfirmClick: (List<CryptoAssetFilterStatus>) -> Unit
+    filters: List<AssetFilterStatus>,
+    onConfirmClick: (List<AssetFilterStatus>) -> Unit
 ) {
     val editableFilters = remember { filters.toMutableStateList() }
 
@@ -111,7 +111,7 @@ fun CryptoAssetsFiltersScreen(
 ) {
     CryptoAssetsFilters(
         filters = listOf(
-            CryptoAssetFilterStatus(filter = CryptoAssetFilter.ShowSmallBalances, isEnabled = true)
+            AssetFilterStatus(filter = AssetFilter.ShowSmallBalances, isEnabled = true)
         ),
         onConfirmClick = {}
     )

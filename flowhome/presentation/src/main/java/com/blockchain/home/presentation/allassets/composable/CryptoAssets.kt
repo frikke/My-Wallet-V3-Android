@@ -40,8 +40,8 @@ import com.blockchain.componentlib.tablerow.ValueChange
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
+import com.blockchain.home.model.AssetFilterStatus
 import com.blockchain.home.presentation.allassets.SectionSize
-import com.blockchain.home.presentation.dashboard.CryptoAssetFilterStatus
 import com.blockchain.home.presentation.dashboard.HomeCryptoAsset
 import com.blockchain.home.presentation.dashboard.HomeIntent
 import com.blockchain.home.presentation.dashboard.HomeViewModel
@@ -87,8 +87,8 @@ fun CryptoAssets(
 fun CryptoAssetsScreen(
     cryptoAssets: DataResource<List<HomeCryptoAsset>>,
     onSearchTermEntered: (String) -> Unit,
-    filters: List<CryptoAssetFilterStatus>,
-    onFiltersConfirmed: (List<CryptoAssetFilterStatus>) -> Unit
+    filters: List<AssetFilterStatus>,
+    onFiltersConfirmed: (List<AssetFilterStatus>) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -177,7 +177,8 @@ fun CryptoAssetsData(
         modifier = Modifier.fillMaxSize()
     ) {
         Search(
-            onValueChange = onSearchTermEntered
+            onValueChange = onSearchTermEntered,
+            placeholder = "120210210210"
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))

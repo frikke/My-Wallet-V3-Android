@@ -4,7 +4,8 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.data.DataResource
 import com.blockchain.home.domain.HomeAccountsService
-import com.blockchain.home.model.AssetFilters
+import com.blockchain.home.model.AssetFilter
+import com.blockchain.home.model.AssetFilterStatus
 import com.blockchain.preferences.MultiAppAssetsPrefs
 import com.blockchain.walletmode.WalletModeService
 import kotlinx.coroutines.flow.Flow
@@ -36,16 +37,35 @@ class HomeAccountsRepository(
         }
     }
 
-    private var filtersFlow: MutableStateFlow<AssetFilters> = MutableStateFlow(
-        AssetFilters(shouldShowSmallBalances = multiAppAssetsPrefs.shouldShowSmallBalances)
+    private var filtersFlow: MutableStateFlow<List<AssetFilterStatus>> = MutableStateFlow(
+        multiAppAssetsPrefs.toFilterStatus()
     )
 
-    override fun filters(): Flow<AssetFilters> {
+    override fun filters(): Flow<List<AssetFilterStatus>> {
         return filtersFlow
     }
 
-    override fun updateFilters(filters: Boolean) {
-        multiAppAssetsPrefs.shouldShowSmallBalances = filters
-        filtersFlow.value = AssetFilters(shouldShowSmallBalances = multiAppAssetsPrefs.shouldShowSmallBalances)
+    override fun updateFilters(filters: List<AssetFilterStatus>) {
+        multiAppAssetsPrefs.fromFilterStatus(filters)
+        filtersFlow.value = multiAppAssetsPrefs.toFilterStatus()
+    }
+
+    private fun MultiAppAssetsPrefs.toFilterStatus(): List<AssetFilterStatus> {
+        return AssetFilter.values().map { filter ->
+            AssetFilterStatus(
+                filter = filter,
+                isEnabled = when (filter) {
+                    AssetFilter.ShowSmallBalances -> shouldShowSmallBalances
+                }
+            )
+        }
+    }
+
+    private fun MultiAppAssetsPrefs.fromFilterStatus(filters: List<AssetFilterStatus>) {
+        filters.forEach { assetFilter ->
+            when (assetFilter.filter) {
+                AssetFilter.ShowSmallBalances -> shouldShowSmallBalances = assetFilter.isEnabled
+            }
+        }
     }
 }
