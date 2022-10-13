@@ -7,17 +7,17 @@ import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.mapError
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.BackupWallet
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import info.blockchain.wallet.payload.WalletPayloadService
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 import timber.log.Timber
 
 class BackupPhraseRepository(
-    private val payloadManager: PayloadDataManager,
+    private val walletPayloadService: WalletPayloadService,
     private val backupWallet: BackupWallet,
     private val walletStatusPrefs: WalletStatusPrefs
 ) : BackupPhraseService {
 
-    override fun isBackedUp() = payloadManager.isBackedUp
+    override fun isBackedUp() = walletPayloadService.isBackedUp
 
     override fun getMnemonic(secondPassword: String?): Outcome<BackupPhraseError, List<String>> {
         return backupWallet.getMnemonic(secondPassword)?.let {
@@ -28,7 +28,7 @@ class BackupPhraseRepository(
     }
 
     override suspend fun confirmRecoveryPhraseBackedUp(): Outcome<BackupPhraseError, Unit> {
-        return payloadManager.updateMnemonicVerified(true).awaitOutcome()
+        return walletPayloadService.updateMnemonicVerified(true).awaitOutcome()
             .doOnSuccess {
                 walletStatusPrefs.lastBackupTime = System.currentTimeMillis() / 1000
             }

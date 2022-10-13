@@ -11,7 +11,7 @@ import com.blockchain.coincore.impl.StandardL1Asset
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.WalletStatusPrefs
@@ -25,11 +25,11 @@ import io.reactivex.rxjava3.core.Single
 
 internal class L1EvmAsset(
     override val currency: AssetInfo,
-    private val l1BalanceStore: L1BalanceStore,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
-    private val walletPreferences: WalletStatusPrefs,
+    private val ethDataManager: EthDataManager,
     private val labels: DefaultLabels,
+    private val walletPreferences: WalletStatusPrefs,
     private val formatUtils: FormatUtilities,
     private val addressResolver: EthHotWalletAddressResolver,
     private val layerTwoFeatureFlag: FeatureFlag,
@@ -63,12 +63,12 @@ internal class L1EvmAsset(
     private fun getNonCustodialAccount(evmNetwork: EvmNetwork): L1EvmNonCustodialAccount =
         L1EvmNonCustodialAccount(
             asset = currency,
-            l1BalanceStore = l1BalanceStore,
             erc20DataManager = erc20DataManager,
             address = erc20address,
             fees = feeDataManager,
             label = labels.getDefaultNonCustodialWalletLabel(),
             exchangeRates = exchangeRates,
+            ethDataManager = ethDataManager,
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialManager,
             addressResolver = addressResolver,

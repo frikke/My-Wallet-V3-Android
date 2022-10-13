@@ -142,7 +142,7 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
                     it.feeForFullAvailable == zeroFiat &&
                     it.feeAmount == expectedMinAmountAndFee.fee &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.withMinAndUnlimitedMax(min = expectedMinAmountAndFee.minLimit) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()

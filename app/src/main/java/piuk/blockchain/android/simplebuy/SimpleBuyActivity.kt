@@ -46,6 +46,8 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SETTLEMENT_REFRESH_REQUIRED
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
@@ -94,6 +96,7 @@ class SimpleBuyActivity :
     private val googlePayResponseInterceptor: GooglePayResponseInterceptor by inject()
     private val dataRemediationService: DataRemediationService by scopedInject()
     private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
+    private val fraudService: FraudService by inject()
 
     private var primaryErrorCtaAction = {}
     private var secondaryErrorCtaAction = {}
@@ -249,6 +252,9 @@ class SimpleBuyActivity :
 
     override fun onDestroy() {
         super.onDestroy()
+        fraudService.endFlows(
+            FraudFlow.ACH_DEPOSIT, FraudFlow.OB_DEPOSIT, FraudFlow.CARD_DEPOSIT, FraudFlow.MOBILE_WALLET_DEPOSIT
+        )
         compositeDisposable.clear()
         googlePayResponseInterceptor.clear()
         payloadScope.get<CreateBuyOrderUseCase>().stopQuoteFetching(true)
@@ -375,7 +381,9 @@ class SimpleBuyActivity :
             .replace(
                 R.id.content_frame,
                 SimpleBuyPaymentFragment.newInstance(
-                    isPaymentAuthorised, showRecurringBuySuggestion, recurringBuyFrequencyRemote
+                    isFromDeepLink = isPaymentAuthorised,
+                    showRecurringBuySuggestion = showRecurringBuySuggestion,
+                    recurringBuyFrequency = recurringBuyFrequencyRemote
                 ),
                 SimpleBuyPaymentFragment::class.simpleName
             )

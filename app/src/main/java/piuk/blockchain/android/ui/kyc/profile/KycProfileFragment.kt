@@ -31,6 +31,8 @@ import java.util.concurrent.TimeUnit
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycProfileBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.cowboys.CowboysAnalytics
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
@@ -53,6 +55,7 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
 
     private val presenter: KycProfilePresenter by scopedInject()
     private val analytics: Analytics by inject()
+    private val fraudService: FraudService by inject()
 
     private val progressListener: KycProgressListener by ParentActivityDelegate(
         this
@@ -93,6 +96,7 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycProfile)
+        fraudService.startFlow(FraudFlow.ONBOARDING)
 
         progressListener.setupHostToolbar(R.string.kyc_profile_title)
 

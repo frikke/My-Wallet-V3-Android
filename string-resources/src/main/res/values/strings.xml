@@ -1414,6 +1414,7 @@
     <string name="select_interest_deposit_source_title">Add from</string>
     <string name="select_withdraw_target_title">Withdraw to</string>
     <string name="select_send_source_title">Send from</string>
+    <string name="select_target_source_no_search_results">No Wallets or Cryptos Match Your Search</string>
     <string name="activity_state_initialised">Initialised</string>
     <string name="activity_state_uninitialised">Uninitialised</string>
     <string name="activity_state_pending">Pending</string>
@@ -1835,8 +1836,6 @@
 
     <!-- Buy & Sell -->
     <string name="buy_and_sell">Buy &amp; Sell</string>
-    <string name="buy_with_cash">Buy with a bank, card, or cash.</string>
-    <string name="select_crypto_you_want">Select the crypto you want to buy.</string>
     <string name="sell_intro_kyc_title_1">Verify Your Identity</string>
     <string name="sell_intro_kyc_subtitle_1">To prevent identity theft or fraud, we’ll need a make sure it’s really you by uploading an ID.</string>
     <string name="sell_intro_kyc_title_2">Buy Crypto</string>
@@ -1845,20 +1844,17 @@
     <string name="sell_intro_kyc_subtitle_3">Instantly sell your crypto for cash. Keep the cash in your wallet or withdraw to a linked bank.</string>
     <string name="sell_crypto">Sell Crypto</string>
     <string name="sell_crypto_subtitle">Verify your identity to sell crypto for cash.</string>
-    <string name="sell_for_cash">Sell Crypto for Cash</string>
-    <string name="select_wallet_to_sell">Select a wallet to sell from.</string>
     <string name="quote_price">%1$s Price</string>
     <string name="purchase_funds_note">Your final amount may change due to market activity.</string>
     <string name="convert_your_crypto_to_cash">Convert Your Crypto to Cash</string>
     <string name="sell_info_title">Want to sell from your other Wallets?</string>
-    <string name="sell_info_blurb_1">Send crypto from your Wallets to your</string>
-    <string name="sell_info_blurb_2">&#160;Trading Wallets.&#160;</string>
-    <string name="sell_info_blurb_3">Once that send completes, sell that crypto for cash.</string>
     <string name="sell_info_action">Send Now →</string>
     <string name="sell_intro_empty_title">No Wallets to Sell from</string>
     <string name="sell_intro_empty_label">Looks like you have no Wallets with a balance you can Sell, try funding some Wallets first.</string>
     <string name="buy_large_amounts">Buy Large Amounts</string>
     <string name="buy_small_amounts">Buy Small Amounts</string>
+    <string name="buy_search">Search Cryptos</string>
+    <string name="search_empty">No Cryptos Match Your Search</string>
 
 
     <string name="scan_mismatch_transaction_target">The scanned code is not a %1$s QR code.</string>
@@ -3029,6 +3025,7 @@
     <string name="order_card_intro">Spend your crypto or cash without fees.¹ Earn 0.5\u0025 back in crypto.²</string>
     <string name="link_card_here">Already Have A Card? Link It Here"</string>
     <string name="virtual">Virtual</string>
+    <string name="physical">Physical</string>
     <string name="virtual_card_product_description">Our digital only card, use instantly for online payments.</string>
     <string name="see_card_benefits">See Card Benefits</string>
     <string name="create_card">Accept &amp; Order Card</string>
@@ -3147,6 +3144,7 @@
     <string name="bc_card_transaction_payment_with_cashback">Payment with Cashback</string>
     <string name="bc_card_transaction_funding">Funding</string>
     <string name="bc_card_transaction_chargeback">Chargeback</string>
+    <string name="bc_card_transaction_atm_withdrawal">ATM Withdrawal</string>
     <string name="bc_card_change_asset_title">Change Asset</string>
     <string name="bc_card_change_asset_description">Change the asset that will fund the card</string>
     <string name="bc_card_add_funds_title">Add Funds</string>
@@ -3298,6 +3296,11 @@
     <string name="bc_card_review_and_submit_description">Please review the information below, if correct accept the terms to finalize your order</string>
     <string name="bc_card_want_to_update_name">Want to update your name? Contact Us</string>
     <string name="bc_card_review_and_submit_title">Review and Submit</string>
+    <string name="bc_card_status_initiated">Initiated</string>
+    <string name="bc_card_status_unactivated">Unactivated</string>
+    <string name="bc_card_status_active">Active</string>
+    <string name="bc_card_status_locked">Locked</string>
+    <string name="bc_card_status_terminated">Terminated</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
@@ -3305,6 +3308,7 @@
     <string name="card_added_to_google_pay">Card Added to Google Pay</string>
     <string name="failed_to_add_card_to_google_pay">Failed to Add Card to Google Pay</string>
     <string name="ma_home_assets_title">Assets</string>
+    <string name="view">View</string>
 
     <string name="assets_filter_title">Filter assets</string>
     <string name="assets_filter_small_balances">Show small balances</string>
@@ -3314,4 +3318,6 @@
     <string name="staking_coming_soon_title">Coming soon to mobile</string>
     <string name="staking_coming_soon_subtitle">In the meantime, you can manage your Staking Account using our web app.</string>
     <string name="staking_coming_soon_cta">Go to Web App</string>
+    <string name="my_cards">My Cards</string>
+    <string name="bc_card_make_default">Make This My Default Card</string>
 </resources>

@@ -21,17 +21,19 @@ import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.toActionState
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.koin.unifiedBalancesFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
+import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.balance.asFiatCurrencyOrThrow
@@ -39,6 +41,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
 import org.koin.core.component.KoinComponent
@@ -178,14 +181,19 @@ abstract class CryptoAccountBase : CryptoAccount {
 }
 
 abstract class CryptoNonCustodialAccount(
-    override val currency: AssetInfo,
+    override val currency: AssetInfo
 ) : CryptoAccountBase(), NonCustodialAccount, KoinComponent {
 
-    override val isFunded: Boolean = true
+    override val isFunded: Boolean
+        get() = hasFunds.get()
+
+    private val hasFunds = AtomicBoolean(false)
 
     // TODO: Build an interface on PayloadDataManager/PayloadManager for 'global' crypto calls; second password etc?
     private val payloadDataManager: PayloadDataManager by scopedInject()
+    private val unifiedBalancesService: UnifiedBalancesService by scopedInject()
     private val walletModeService: WalletModeService by inject()
+    private val unifiedBalancesFeatureFlag: FeatureFlag by inject(unifiedBalancesFlag)
     private val identity: UserIdentity by scopedInject()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
 
@@ -197,21 +205,45 @@ abstract class CryptoNonCustodialAccount(
         }
 
     override val balanceRx: Observable<AccountBalance>
-        get() = Observable.combineLatest(
-            getOnChainBalance(),
-            exchangeRates.exchangeRateToUserFiat(currency)
-        ) { balance, rate ->
-            AccountBalance(
-                total = balance,
-                withdrawable = balance,
-                pending = CryptoValue.zero(currency),
-                exchangeRate = rate
-            )
-        }
+        get() = unifiedBalancesFeatureFlag.enabled.flatMapObservable {
+            if (it) {
+                rxSingle {
+                    unifiedBalancesService.balanceForAccount(
+                        name = label,
+                        index = index,
+                        currency = currency
+                    )
+                }.map {
+                    AccountBalance(
+                        total = it.balance,
+                        pending = it.unconfirmedBalance,
+                        exchangeRate = it.exchangeRate,
+                        withdrawable = it.balance,
+                    )
+                }.toObservable()
+            } else {
+                Observable.combineLatest(
+                    getOnChainBalance(),
+                    exchangeRates.exchangeRateToUserFiat(currency)
+                ) { balance, rate ->
+                    AccountBalance(
+                        total = balance,
+                        withdrawable = balance,
+                        pending = Money.zero(currency),
+                        exchangeRate = rate
+                    )
+                }
+            }
+        }.doOnNext { hasFunds.set(it.total.isPositive) }
+
+    /**
+     * Remove after unified balances are fully integrated and stable
+     */
+    protected abstract fun getOnChainBalance(): Observable<out Money>
 
     protected abstract val addressResolver: AddressResolver
 
-    protected abstract fun getOnChainBalance(): Observable<out Money>
+    protected abstract val index: Int
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = baseActions.map {

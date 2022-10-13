@@ -33,6 +33,7 @@ dependencies {
     implementation project(':common:network')
     implementation project(':common:interface')
     implementation project(':metadata')
+    implementation project(':unifiedcryptowallet:domain')
     api project(':common:domain')
     implementation project(':common-mp:utils:domain')
     implementation project(':logging:domain')

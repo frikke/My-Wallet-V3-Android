@@ -19,7 +19,6 @@ import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
@@ -38,6 +37,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -217,7 +217,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
                     it.availableBalance == totalBalance &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_API_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.fromAmounts(min = MIN_GOLD_LIMIT_ASSET, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
@@ -269,7 +269,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
                     it.feeForFullAvailable == CryptoValue.zero(SRC_ASSET) &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_API_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == null &&
                     it.validationState == ValidationState.PENDING_ORDERS_LIMIT_REACHED &&
                     it.engineState.isEmpty()

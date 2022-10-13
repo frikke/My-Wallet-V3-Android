@@ -1326,7 +1326,7 @@
     <string name="send_enter_unexpected_error">Ocorreu um erro inesperado. Tente novamente.</string>
     <string name="send_enter_insufficient_gas">Não tem ETH suficiente para processar esta transação.</string>
     <string name="send_select_a_wallet_title">ou selecione uma carteira</string>
-    <string name="send_select_a_wallet_warning">Envie apenas %1$s para carteiras na rede ( %2$s ).\n <annotation link="send_network_options"> Saiba mais </annotation></string>
+    <string name="send_select_a_wallet_warning"><![CDATA[Envie apenas %1$s para carteiras na rede ( %2$s ).\n <annotation link=\"send_network_options\"> Saiba mais </annotation>]]></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s ( %2$s ) é um token que pode estar disponível em várias redes. Certifique-se de que conhece a rede do endereço da carteira para a qual está a enviar antes de efetuar o envio.</string>
     <string name="send_transfer_accounts_title">Transferência entre as suas contas</string>
     <string name="send_domain_alert_title">Enviar para um domínio de criptomoeda</string>
@@ -1657,7 +1657,7 @@
     <string name="yapily_agreement_blurb_3_1">%1$s é autorizada e regulamentada pelo Banco da Lituânia ao abrigo da Lei de Pagamentos (LB002045) para o fornecimento de informações sobre contas e serviços de iniciação de pagamentos.</string>
     <string name="yapily_agreement_title_4">Sobre o acesso</string>
     <string name="yapily_agreement_blurb_4_1">%1$s então utilizará esses detalhes na Blockchain.com apenas para fins de compra de criptomoedas. Este acesso é válido até %2$s, pode cancelar o consentimento a qualquer momento por meio das definições do Blockchain.com ou através do seu banco. Esta solicitação não é única, continuará a receber solicitações de consentimento à medida que as versões anteriores expirarem.</string>
-    <string name="yapily_agreement_blurb_4_2">%1$s Os Termos e Condições podem ser acedidos através do seguinte link <a>https://yapi.ly/GDNT</a></string>
+    <string name="yapily_agreement_blurb_4_2"><![CDATA[%1$s Os Termos e Condições podem ser acedidos através do seguinte link <a>https://yapi.ly/GDNT</a>]]></string>
     <string name="yapily_agreement_blurb_5">Para partilhar os seus dados %1$s com a Blockchain, vai ser redirecionado em segurança para o seu banco para confirmar o seu consentimento para que o YapilyConnect leia as seguintes informações:\n\n• Detalhes de identificação\n\n• Detalhes da(s) conta(s)</string>
     <string name="yapily_agreement_blurb_5_1">Para partilhar os seus dados %1$s com a Blockchain.com, vai ser redirecionado em segurança para o seu banco para confirmar o seu consentimento para que a YapilyConnect leia as seguintes informações:\n\n• Detalhes de identificação\n\n• Detalhes da(s) conta(s)</string>
     <string name="yapily_linking_pending_title">A direcionar para %1$s</string>
@@ -2661,9 +2661,43 @@
     <string name="bc_card_review_and_submit_title">Rever e enviar</string>
     <string name="common_balance">Saldo</string>
     <string name="select_account_sheet_title_defi">Selecione uma Wallet</string>
+    <string name="select_account_sheet_title_brokerage">Selecione uma conta</string>
+    <string name="bc_card_transaction_payment_with_cashback">Pagamento com Cashback</string>
+    <string name="bc_card_transaction_funding">Financiamento</string>
+    <string name="bc_card_transaction_chargeback">Estorno</string>
+    <string name="wallet_connect_switch_network">Trocar de rede</string>
+    <string name="default_label_staking_wallet">Conta de Apostas</string>
     <string name="default_label_custodial_wallets">Contas</string>
     <string name="ma_home_assets_title">Ativos</string>
+    <string name="add_to_google_pay">Adicionar ao Google Pay</string>
+    <string name="card_added_to_google_pay">Cartão adicionado ao Google Pay</string>
+    <string name="failed_to_add_card_to_google_pay">Falha ao adicionar cartão ao Google Play</string>
+    <string name="nft_empty_title">Não tem nenhum NFT</string>
+    <string name="nft_empty_description">Envie a partir de qualquer carteira, ou compre a partir de um marketplace!</string>
+    <string name="nft_cta_buy">Comprar NFTs</string>
+    <string name="nft_help">Como funciona?</string>
+    <string name="nft_cta_shop">Comprar no Opensea</string>
+    <string name="nft_cta_view">Ver no Opensea</string>
     <string name="nft_creator">Criador</string>
     <string name="nft_description">Descrição</string>
+    <string name="nft_help_title">Como funciona?</string>
+    <string name="nft_help_buy_title">Comprar NFTs</string>
+    <string name="nft_help_buy_description">Compre um NFT usando a sua aplicação Blockchain.com e WalletConnect no Opensea ou Rarible.</string>
+    <string name="nft_help_buy_cta_opensea">Comprar no Opensea</string>
     <string name="nft_help_instructions">Instruções</string>
+    <string name="nft_help_instructions_1_title">Ir para Opensea.io</string>
+    <string name="nft_help_instructions_2_title">Abra a sua aplicação Blockchain.com</string>
+    <string name="nft_help_instructions_3_title">Abra o leitor de códigos QR</string>
+    <string name="nft_help_instructions_3_description">Toque no ícone quadrado no canto superior direito da aplicação.</string>
+    <string name="nft_help_instructions_4_title">Iniciar sessão em Opensea com WalletConnect</string>
+    <string name="nft_help_instructions_4_description">Isto será uma opção após selecionar Início de sessão ou Ligação Wallet</string>
+    <string name="nft_help_instructions_5_title">Uma vez adquiridos, os NFTs irão aparecer aqui</string>
+    <string name="nft_help_instructions_5_description">Aceda aos seus NFTs a partir da sua Blockchain Wallet</string>
+    <string name="coinview_no_asset_blurb_1">Parece que não temos dados sobre este ativo. Se isso continuar,</string>
+    <string name="coinview_no_asset_blurb_2">contacte o suporte.</string>
+    <string name="explainer_staking_title">Conta de Apostas</string>
+    <string name="explainer_staking_description">A sua Conta de Apostas permite-lhe ganhar até %1$s%% recompensas APY sobre os seus criptoativos ao garantir as suas redes blockchain favoritas.</string>
+    <string name="staking_coming_soon_title">Brevemente em versão móvel</string>
+    <string name="staking_coming_soon_subtitle">Entretanto, pode gerir a sua Conta de Apostas usando a nossa aplicação web.</string>
+    <string name="staking_coming_soon_cta">Ir para a Aplicação Web</string>
 </resources>

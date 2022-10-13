@@ -18,7 +18,6 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.extensions.enumValueOfOrNull
@@ -27,6 +26,7 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -39,6 +39,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAmountBinding
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoInputView
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
@@ -73,6 +74,8 @@ class EnterAmountFragment :
 
     private val customiser: EnterAmountCustomisations by inject()
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
+    private val fraudService: FraudService by inject()
+
     private val compositeDisposable = CompositeDisposable()
     private var state: TransactionState = TransactionState()
 
@@ -171,6 +174,7 @@ class EnterAmountFragment :
     @SuppressLint("SetTextI18n")
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! EnterAmountFragment")
+        customiser.getFraudFlowForTransaction(state)?.let { fraudService.startFlow(it) }
 
         if (newState.action.requiresDisplayLocks()) {
             model.process(TransactionIntent.LoadFundsLocked)

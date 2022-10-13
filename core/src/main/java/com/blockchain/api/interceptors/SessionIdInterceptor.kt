@@ -7,7 +7,7 @@ import okhttp3.Response
 
 class SessionIdInterceptor(
     private val environmentUrls: EnvironmentUrls,
-    private val sessionId: SessionId
+    private val sessionId: SessionInfo
 ) : Interceptor {
 
     companion object {
@@ -32,8 +32,9 @@ class SessionIdInterceptor(
     }
 }
 
-object SessionId {
+object SessionInfo {
     private val sessionIdValue = AtomicReference<String?>(null)
+    private val userIdValue = AtomicReference<String?>(null)
 
     fun getSessionId() = sessionIdValue.get()
 
@@ -43,5 +44,15 @@ object SessionId {
 
     fun clearSessionId() {
         sessionIdValue.set(null)
+    }
+
+    fun getUserId() = userIdValue.get()
+
+    fun setUserId(userId: String) {
+        userIdValue.set(userId)
+    }
+
+    fun clearUserId() {
+        userIdValue.set(null)
     }
 }

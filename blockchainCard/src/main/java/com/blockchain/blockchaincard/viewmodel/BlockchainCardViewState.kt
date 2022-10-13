@@ -12,7 +12,9 @@ import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.domain.eligibility.model.Region
 
 data class BlockchainCardViewState(
-    val card: BlockchainCard? = null,
+    val currentCard: BlockchainCard? = null,
+    val defaultCardId: String = "",
+    val cardList: List<BlockchainCard>? = emptyList(),
     val selectedCardProduct: BlockchainCardProduct? = null,
     val cardWidgetUrl: String? = null,
     val isLinkedAccountBalanceLoading: Boolean = false,

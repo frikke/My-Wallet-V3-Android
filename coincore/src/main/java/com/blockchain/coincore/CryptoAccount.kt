@@ -1,19 +1,16 @@
 package com.blockchain.coincore
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.domain.model.TradingAccountBalance
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.staking.domain.model.StakingAccountBalance
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.math.BigDecimal
-import java.math.BigInteger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.rx3.asFlow
 
@@ -72,17 +69,6 @@ data class AccountBalance internal constructor(
                 withdrawable = Money.zero(assetInfo),
                 pending = Money.zero(assetInfo),
                 exchangeRate = ExchangeRate.zeroRateExchangeRate(assetInfo)
-            )
-
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        fun testBalance(assetInfo: Currency, balance: Long) =
-            AccountBalance(
-                total = Money.fromMinor(assetInfo, BigInteger.valueOf(balance)),
-                withdrawable = Money.fromMinor(assetInfo, BigInteger.valueOf(balance)),
-                pending = Money.fromMinor(assetInfo, BigInteger.valueOf(balance)),
-                exchangeRate = ExchangeRate(
-                    BigDecimal.ONE, assetInfo, FiatCurrency.Dollars
-                )
             )
     }
 }

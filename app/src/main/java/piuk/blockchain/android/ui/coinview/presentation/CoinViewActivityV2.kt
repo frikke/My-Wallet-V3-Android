@@ -217,12 +217,18 @@ class CoinViewActivityV2 :
             is CoinviewNavigationEvent.ShowStakingAccountInterstitial -> {
                 showBottomSheet(StakingAccountSheet.newInstance(navigationEvent.assetIconUrl))
             }
+
             CoinviewNavigationEvent.NavigateToSupport -> {
                 startActivity(SupportCentreActivity.newIntent(this, SUPPORT_SUBJECT_NO_ASSET))
                 finish()
             }
+
             is CoinviewNavigationEvent.ShowRecurringBuySheet -> {
                 showBottomSheet(RecurringBuyDetailsSheet.newInstance(navigationEvent.recurringBuyId))
+            }
+
+            is CoinviewNavigationEvent.OpenAssetWebsite -> {
+                openUrl(navigationEvent.website)
             }
         }
     }

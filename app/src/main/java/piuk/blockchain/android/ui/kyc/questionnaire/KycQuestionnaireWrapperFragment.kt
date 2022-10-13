@@ -8,9 +8,12 @@ import androidx.fragment.app.Fragment
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.domain.dataremediation.model.Questionnaire
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewFragmentContainerBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
@@ -20,6 +23,8 @@ import piuk.blockchain.android.ui.kyc.navigate
  * This wrapper is used to facilitate Questionnaire usage in Kyc due to using jetpack Navigation and needing to pass countryCode along to Veriff
  */
 class KycQuestionnaireWrapperFragment : Fragment(), QuestionnaireSheet.Host {
+
+    private val fraudService: FraudService by inject()
 
     private val questionnaire: Questionnaire by lazy {
         KycQuestionnaireWrapperFragmentArgs.fromBundle(arguments ?: Bundle()).questionnaire
@@ -42,6 +47,8 @@ class KycQuestionnaireWrapperFragment : Fragment(), QuestionnaireSheet.Host {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        fraudService.startFlow(FraudFlow.KYC)
 
         val hostNavBarButtons = if (!questionnaire.isMandatory) {
             listOf(

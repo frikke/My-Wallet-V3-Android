@@ -19,7 +19,6 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.eth.WalletConnectTarget
 import com.blockchain.commonarch.presentation.mvi.MviIntent
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.nabu.BlockedReason
@@ -27,6 +26,7 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.datamanagers.TransactionError
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import java.util.Stack
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData

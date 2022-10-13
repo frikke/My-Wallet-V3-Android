@@ -9,7 +9,7 @@ val backupPhraseDataModule = module {
     scope(payloadScopeQualifier) {
         factory<BackupPhraseService> {
             BackupPhraseRepository(
-                payloadManager = get(),
+                walletPayloadService = get(),
                 backupWallet = get(),
                 walletStatusPrefs = get()
             )

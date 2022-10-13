@@ -31,6 +31,14 @@ sealed class LoginAnalytics(
         event = AnalyticsNames.LOGIN_ID_ENTERED.eventName
     )
 
+    object LoginCaptchaTokenIncorrect : LoginAnalytics(
+        event = AnalyticsNames.LOGIN_ID_FAILED.eventName,
+        params = mapOf(
+            ERROR_CODE to 500,
+            ERROR_MESSAGE to LOGIN_EMPTY_CAPTCHA_ERROR
+        )
+    )
+
     class LoginLearnMoreClicked(authInfo: LoginAuthInfo?) : LoginAnalytics(
         event = AnalyticsNames.LOGIN_LEARN_MORE_CLICKED.eventName,
         params = authInfo.constructDataMap()
@@ -119,6 +127,7 @@ sealed class LoginAnalytics(
         private const val RECOVERY_ELIGIBLE = "recovery_eligible"
         private const val LOGIN_METHOD = "method"
         private const val LOGIN_ERROR = "error"
+        private const val LOGIN_EMPTY_CAPTCHA_ERROR = "LOGIN_EMPTY_CAPTCHA_ERROR"
         private const val CANT_VALIDATE_IP = "CANT_VALIDATE_IP"
         private const val ERROR_CODE = "error_code"
         private const val ERROR_MESSAGE = "error_message"

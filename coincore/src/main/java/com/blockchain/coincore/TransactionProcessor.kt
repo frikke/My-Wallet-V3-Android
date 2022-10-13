@@ -4,7 +4,6 @@ import androidx.annotation.CallSuper
 import androidx.annotation.VisibleForTesting
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.extensions.replace
@@ -15,6 +14,7 @@ import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -83,34 +83,34 @@ data class PendingTx(
     val feeAmount: Money,
     val feeSelection: FeeSelection,
     val selectedFiat: FiatCurrency,
-    val confirmations: List<TxConfirmationValue> = emptyList(),
+    val txConfirmations: List<TxConfirmationValue> = emptyList(),
     val limits: TxLimits? = null,
     val transactionsLimit: TransactionsLimit? = null,
     val validationState: ValidationState = ValidationState.UNINITIALISED,
     val engineState: Map<String, Any> = emptyMap(),
 ) {
     fun hasOption(confirmation: TxConfirmation): Boolean =
-        confirmations.find { it.confirmation == confirmation } != null
+        txConfirmations.find { it.confirmation == confirmation } != null
 
     inline fun <reified T : TxConfirmationValue> getOption(confirmation: TxConfirmation): T? =
-        confirmations.find { it.confirmation == confirmation } as? T
+        txConfirmations.find { it.confirmation == confirmation } as? T
 
     // Internal, coincore only helper methods for managing option lists. If you're using these in
     // UI or client code, you're doing something wrong!
     internal fun removeOption(confirmation: TxConfirmation): PendingTx =
         this.copy(
-            confirmations = confirmations.filter { it.confirmation != confirmation }
+            txConfirmations = txConfirmations.filter { it.confirmation != confirmation }
         )
 
     internal fun addOrReplaceOption(newConfirmation: TxConfirmationValue, prepend: Boolean = false): PendingTx =
         this.copy(
-            confirmations = if (hasOption(newConfirmation.confirmation)) {
-                val old = confirmations.find {
+            txConfirmations = if (hasOption(newConfirmation.confirmation)) {
+                val old = txConfirmations.find {
                     it.confirmation == newConfirmation.confirmation && it::class == newConfirmation::class
                 }
-                confirmations.replace(old, newConfirmation).filterNotNull()
+                txConfirmations.replace(old, newConfirmation).filterNotNull()
             } else {
-                val opts = confirmations.toMutableList()
+                val opts = txConfirmations.toMutableList()
                 if (prepend) {
                     opts.add(0, newConfirmation)
                 } else {
@@ -489,7 +489,7 @@ class TransactionProcessor(
     override fun refreshConfirmations(revalidate: Boolean): Completable {
         val pendingTx = getPendingTx()
         // Don't refresh if confirmations are not created yet:
-        return if (pendingTx.confirmations.isNotEmpty()) {
+        return if (pendingTx.txConfirmations.isNotEmpty()) {
             engine.doRefreshConfirmations(pendingTx)
                 .flatMap {
                     if (revalidate) {
@@ -528,7 +528,7 @@ fun Single<PendingTx>.updateTxValidity(pendingTx: PendingTx): Single<PendingTx> 
             Single.error(it)
         }
     }.map { pTx ->
-        if (pTx.confirmations.isNotEmpty())
+        if (pTx.txConfirmations.isNotEmpty())
             updateOptionsWithValidityWarning(pTx)
         else
             pTx

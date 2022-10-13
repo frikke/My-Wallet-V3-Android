@@ -102,16 +102,6 @@ class SimpleBuyPaymentFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity.updateToolbarTitle(getString(R.string.common_payment))
-
-        recurringBuyFrequencyRemote?.let {
-            if (recurringBuyFrequencyRemote != RecurringBuyFrequency.ONE_TIME) {
-                binding.transactionProgressView.showToggleUI(
-                    showToggle = showRecurringBuyToggle,
-                    recurringBuyFrequency = it
-                )
-            }
-        }
-
         binding.checkoutCardForm.initCheckoutPaymentForm()
     }
 
@@ -139,6 +129,17 @@ class SimpleBuyPaymentFragment :
                 )
             )
             return
+        }
+
+        if (newState.sideEventsChecked) {
+            recurringBuyFrequencyRemote?.let {
+                if (recurringBuyFrequencyRemote != RecurringBuyFrequency.ONE_TIME) {
+                    binding.transactionProgressView.showToggleUI(
+                        showToggle = showRecurringBuyToggle,
+                        recurringBuyFrequency = it
+                    )
+                }
+            }
         }
 
         newState.selectedCryptoAsset.let {
@@ -184,7 +185,9 @@ class SimpleBuyPaymentFragment :
                 }
                 !newState.paymentPending -> {
                     if (showRecurringBuyToggle && binding.transactionProgressView.isRecurringBuyEnabled()) {
-                        model.process(SimpleBuyIntent.CreateRecurringBuy(RecurringBuyFrequency.WEEKLY))
+                        recurringBuyFrequencyRemote?.let {
+                            model.process(SimpleBuyIntent.CreateRecurringBuy(it))
+                        }
                     } else {
                         navigator().exitSimpleBuyFlow()
                     }

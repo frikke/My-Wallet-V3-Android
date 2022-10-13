@@ -38,6 +38,7 @@ import com.blockchain.presentation.koin.backupPhrasePresentationModule
 import com.blockchain.serializers.jsonSerializers
 import com.blockchain.store_caches_inmemory.storeCachesInMemoryModule
 import com.blockchain.store_persisters_persistedjsonsqldelight.storePersistersJsonSqlDelightModule
+import com.blockchain.unifiedcryptowallet.data.koin.unifiedCryptoWalletModule
 import com.blockchain.walletconnect.koin.walletConnectModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -106,6 +107,7 @@ object KoinStarter {
                     apiModule,
                     blockchainApiModule,
                     homePresentationModule,
+                    unifiedCryptoWalletModule,
                     homeDataModule,
                     applicationModule,
                     jsonSerializers,

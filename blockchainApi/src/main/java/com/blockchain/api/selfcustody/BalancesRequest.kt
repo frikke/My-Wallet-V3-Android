@@ -8,7 +8,7 @@ data class BalancesRequest(
     @SerialName("auth")
     val auth: AuthInfo,
     @SerialName("currencies")
-    val currencies: List<CurrencyInfo>,
+    val currencies: List<CurrencyInfo>?,
     @SerialName("fiatCurrency")
     val fiatCurrency: String
 )

@@ -7,6 +7,7 @@ import com.blockchain.api.selfcustody.AuthInfo
 import com.blockchain.api.selfcustody.AuthRequest
 import com.blockchain.api.selfcustody.BalancesRequest
 import com.blockchain.api.selfcustody.BuildTxRequest
+import com.blockchain.api.selfcustody.CommonResponse
 import com.blockchain.api.selfcustody.CurrencyAddressInfo
 import com.blockchain.api.selfcustody.CurrencyInfo
 import com.blockchain.api.selfcustody.ExtraData
@@ -20,86 +21,97 @@ import com.blockchain.api.selfcustody.Signature
 import com.blockchain.api.selfcustody.SubscriptionInfo
 import com.blockchain.api.selfcustody.TransactionHistoryRequest
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.flatMap
 import kotlinx.serialization.json.JsonObject
 
 class DynamicSelfCustodyService(
-    private val selfCustodyApi: SelfCustodyApi
+    private val selfCustodyApi: SelfCustodyApi,
+    private val credentials: SelfCustodyServiceAuthCredentials
 ) {
-    suspend fun authenticate(guid: String, sharedKey: String) = selfCustodyApi.authenticate(
+    private suspend fun authenticate() = selfCustodyApi.authenticate(
         request = AuthRequest(
-            guid = guid,
-            sharedKey = sharedKey
+            guid = credentials.guid,
+            sharedKey = credentials.hashedSharedKey
         )
     )
 
+    private val authInfo: AuthInfo
+        get() = AuthInfo(
+            guidHash = credentials.hashedGuid,
+            sharedKeyHash = credentials.hashedSharedKey,
+        )
+
     suspend fun subscribe(
-        guidHash: String,
-        sharedKeyHash: String,
         currency: String,
         accountName: String,
         addresses: List<String>
-    ) = selfCustodyApi.subscribe(
-        request = AddSubscriptionRequest(
-            auth = AuthInfo(
-                guidHash = guidHash,
-                sharedKeyHash = sharedKeyHash,
-            ),
-            data = listOf(
-                SubscriptionInfo(
-                    currency = currency,
-                    accountInfo = AccountInfo(
-                        index = 0,
-                        name = accountName
-                    ),
-                    pubKeys = addresses.map { address -> PubKeyInfo(address) }
+    ) = authIfFails {
+        selfCustodyApi.subscribe(
+            request = AddSubscriptionRequest(
+                auth = authInfo,
+                data = listOf(
+                    SubscriptionInfo(
+                        currency = currency,
+                        accountInfo = AccountInfo(
+                            index = 0,
+                            name = accountName
+                        ),
+                        pubKeys = addresses.map { address -> PubKeyInfo(address, "SINGLE") }
+                    )
                 )
             )
         )
-    )
+    }
 
-    suspend fun unsubscribe(guidHash: String, sharedKeyHash: String, currency: String) =
-        selfCustodyApi.unsubscribe(
-            request = RemoveSubscriptionRequest(
-                auth = AuthInfo(
-                    guidHash = guidHash,
-                    sharedKeyHash = sharedKeyHash,
-                ),
-                currency = currency
-            )
-        )
-
-    suspend fun getSubscriptions(
-        guidHash: String,
-        sharedKeyHash: String
-    ): Outcome<Exception, GetSubscriptionsResponse> =
-        selfCustodyApi.getSubscriptions(
-            request = GetSubscriptionsRequest(
-                auth = AuthInfo(
-                    guidHash = guidHash,
-                    sharedKeyHash = sharedKeyHash,
+    suspend fun subscribe(
+        data: List<SubscriptionInfo>
+    ): Outcome<Exception, CommonResponse> {
+        return authIfFails {
+            selfCustodyApi.subscribe(
+                request = AddSubscriptionRequest(
+                    auth = authInfo,
+                    data = data
                 )
             )
-        )
+        }
+    }
 
-    suspend fun getBalances(guidHash: String, sharedKeyHash: String, currencies: List<String>, fiatCurrency: String) =
+    suspend fun unsubscribe(currency: String) =
+        authIfFails {
+            selfCustodyApi.unsubscribe(
+                request = RemoveSubscriptionRequest(
+                    auth = authInfo,
+                    currency = currency
+                )
+            )
+        }
+
+    suspend fun getSubscriptions(): Outcome<Exception, GetSubscriptionsResponse> =
+        authIfFails {
+            selfCustodyApi.getSubscriptions(
+                request = GetSubscriptionsRequest(
+                    auth = authInfo
+                )
+            )
+        }
+
+    suspend fun getBalances(
+        currencies: List<String> = emptyList(),
+        fiatCurrency: String
+    ) = authIfFails {
         selfCustodyApi.getBalances(
             request = BalancesRequest(
-                auth = AuthInfo(
-                    guidHash = guidHash,
-                    sharedKeyHash = sharedKeyHash
-                ),
-                currencies = currencies.map { ticker -> CurrencyInfo(ticker) },
+                auth = authInfo,
+                currencies = currencies.map { ticker -> CurrencyInfo(ticker) }.takeIf { it.isNotEmpty() },
                 fiatCurrency = fiatCurrency
             )
         )
+    }
 
-    suspend fun getAddresses(guidHash: String, sharedKeyHash: String, currencies: List<String>) =
+    suspend fun getAddresses(currencies: List<String>) =
         selfCustodyApi.getAddresses(
             request = AddressesRequest(
-                auth = AuthInfo(
-                    guidHash = guidHash,
-                    sharedKeyHash = sharedKeyHash
-                ),
+                auth = authInfo,
                 currencies = currencies.map {
                     CurrencyAddressInfo(
                         ticker = it
@@ -109,24 +121,17 @@ class DynamicSelfCustodyService(
         )
 
     suspend fun getTransactionHistory(
-        guidHash: String,
-        sharedKeyHash: String,
         currency: String,
         contractAddress: String?
     ) = selfCustodyApi.getTransactionHistory(
         request = TransactionHistoryRequest(
-            auth = AuthInfo(
-                guidHash = guidHash,
-                sharedKeyHash = sharedKeyHash
-            ),
+            auth = authInfo,
             currency = currency,
             contractAddress = contractAddress
         )
     )
 
     suspend fun buildTransaction(
-        guidHash: String,
-        sharedKeyHash: String,
         currency: String,
         accountIndex: Int = 0,
         type: String,
@@ -137,10 +142,7 @@ class DynamicSelfCustodyService(
         feeCurrency: String = currency
     ) = selfCustodyApi.buildTransaction(
         request = BuildTxRequest(
-            auth = AuthInfo(
-                guidHash = guidHash,
-                sharedKeyHash = sharedKeyHash
-            ),
+            auth = authInfo,
             currency = currency,
             accountIndex = accountIndex,
             type = type,
@@ -156,21 +158,34 @@ class DynamicSelfCustodyService(
     )
 
     suspend fun pushTransaction(
-        guidHash: String,
-        sharedKeyHash: String,
         currency: String,
         rawTx: JsonObject,
         signatures: List<Signature>
     ) =
         selfCustodyApi.pushTransaction(
             request = PushTxRequest(
-                auth = AuthInfo(
-                    guidHash = guidHash,
-                    sharedKeyHash = sharedKeyHash
-                ),
+                auth = authInfo,
                 currency = currency,
                 rawTx = rawTx,
                 signatures = signatures
             )
         )
+
+    private suspend fun <T> authIfFails(
+        f: suspend () -> Outcome<Exception, T>,
+
+    ): Outcome<Exception, T> {
+        return when (val result = f()) {
+            is Outcome.Success -> result
+            else -> authenticate().flatMap {
+                f()
+            }
+        }
+    }
+}
+
+interface SelfCustodyServiceAuthCredentials {
+    val guid: String
+    val hashedSharedKey: String
+    val hashedGuid: String
 }

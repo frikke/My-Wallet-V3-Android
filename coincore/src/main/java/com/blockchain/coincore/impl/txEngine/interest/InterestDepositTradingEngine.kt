@@ -103,7 +103,7 @@ class InterestDepositTradingEngine(
 
     private fun buildConfirmations(pendingTx: PendingTx): PendingTx =
         pendingTx.copy(
-            confirmations = listOfNotNull(
+            txConfirmations = listOfNotNull(
                 TxConfirmationValue.From(sourceAccount, sourceAsset),
                 TxConfirmationValue.To(
                     txTarget, AssetAction.InterestDeposit, sourceAccount

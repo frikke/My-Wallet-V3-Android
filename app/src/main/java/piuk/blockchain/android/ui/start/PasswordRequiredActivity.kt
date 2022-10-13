@@ -19,6 +19,8 @@ import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPasswordRequiredBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.getTwoFactorDialog
 import piuk.blockchain.android.ui.launcher.LauncherActivity
@@ -39,6 +41,7 @@ class PasswordRequiredActivity :
     private val walletPrefs: WalletStatusPrefs by inject()
 
     private val momentLogger: MomentLogger by inject()
+    private val fraudService: FraudService by inject()
 
     private var isTwoFATimerRunning = false
     private val twoFATimer by lazy {
@@ -64,6 +67,7 @@ class PasswordRequiredActivity :
             event = MomentEvent.SPLASH_TO_FIRST_SCREEN,
             params = mapOf(MomentParam.SCREEN_NAME to javaClass.simpleName)
         )
+        fraudService.startFlow(FraudFlow.LOGIN)
 
         with(binding) {
             walletIdentifier.apply {
@@ -79,6 +83,7 @@ class PasswordRequiredActivity :
             buttonForget.apply {
                 onClick = {
                     presenter.onForgetWalletClicked()
+                    fraudService.endFlow(FraudFlow.LOGIN)
                 }
                 text = getString(R.string.wipe_wallet)
             }

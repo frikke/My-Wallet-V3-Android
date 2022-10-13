@@ -21,7 +21,6 @@ import com.blockchain.coincore.impl.CustodialInterestAccount
 import com.blockchain.coincore.impl.txEngine.WITHDRAW_LOCKS
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.core.limits.TxLimit
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.datamanagers.TransactionError
@@ -30,6 +29,7 @@ import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import java.math.RoundingMode
@@ -37,6 +37,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import piuk.blockchain.android.R
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.ui.customviews.account.AccountInfoBank
 import piuk.blockchain.android.ui.customviews.account.AccountInfoCrypto
 import piuk.blockchain.android.ui.customviews.account.AccountInfoFiat
@@ -357,6 +358,22 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Sell -> resources.getString(R.string.tx_enter_amount_fee_sheet_sell_available_label)
             else -> throw IllegalStateException("${state.action} is not supported for fee sheet label")
         }
+
+    override fun getFraudFlowForTransaction(state: TransactionState): FraudFlow? {
+        val action = state.action
+        val sendingAccount = state.sendingAccount
+
+        if (action == AssetAction.FiatDeposit && sendingAccount is LinkedBankAccount) {
+            return if (sendingAccount.isOpenBankingCurrency()) {
+                FraudFlow.OB_DEPOSIT
+            } else {
+                FraudFlow.ACH_DEPOSIT
+            }
+        } else if (action == AssetAction.FiatWithdraw) {
+            return FraudFlow.WITHDRAWAL
+        }
+        return null
+    }
 
     override fun confirmTitle(state: TransactionState): String =
         when (state.action) {
@@ -1270,8 +1287,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestDeposit,
             AssetAction.FiatWithdraw,
             AssetAction.FiatDeposit,
-            AssetAction.Sell,
-            -> {
+            AssetAction.Sell -> {
                 {
                     DefaultCellDecorator()
                 }
@@ -1290,6 +1306,12 @@ class TransactionFlowCustomiserImpl(
             else -> {
                 throw IllegalStateException("Attempting to link from an unsupported action")
             }
+        }
+
+    override fun selectSourceShouldHaveSearch(action: AssetAction): Boolean =
+        when (action) {
+            AssetAction.Swap -> true
+            else -> false
         }
 
     override fun getBackNavigationAction(state: TransactionState): BackNavigationState =

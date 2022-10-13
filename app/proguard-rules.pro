@@ -252,3 +252,9 @@
 -keep public class com.blockchain.preferences.** { *; }
 -keep public class piuk.blockchain.android.ui.auth.newlogin.** { *; }
 -keep public class piuk.blockchain.android.ui.login.auth.** { *; }
+
+
+# Sardine
+-keep public class com.google.android.gms.** { *; }
+-keep public class com.google.android.gms.tasks.** { *; }
+-keep public class com.google.android.gms.ads.identifier.AdvertisingIdClient { *; }

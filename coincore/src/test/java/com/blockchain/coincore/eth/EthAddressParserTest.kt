@@ -32,7 +32,6 @@ class EthAddressParserTest : CoincoreTestBase() {
 
     private val subject = EthAsset(
         ethDataManager = ethDataManager,
-        l1BalanceStore = l1BalanceStore,
         feeDataManager = feeDataManager,
         assetCatalogue = assetCatalogue,
         walletPrefs = walletPrefs,

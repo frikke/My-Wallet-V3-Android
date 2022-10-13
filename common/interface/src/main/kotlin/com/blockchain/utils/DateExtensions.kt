@@ -140,3 +140,18 @@ fun Date.getMonthName(locale: Locale = Locale.getDefault()): String {
     val dateTimeFormat = SimpleDateFormat("MMMM", locale)
     return dateTimeFormat.format(this)
 }
+
+/**
+ * Takes an expiration date in "MMyy" format and formats it to UI-ready "MM/yy" format
+ *
+ * @param locale The current [Locale].
+ * @return the formatted expiration date.
+ */
+fun String.toFormattedExpirationDate(locale: Locale = Locale.getDefault()): String {
+    val expDateOriginalFormat = SimpleDateFormat("MMyy", locale)
+    val expDateFinalFormat = SimpleDateFormat("MM/yy", locale)
+
+    val expDateOriginal = expDateOriginalFormat.parse(this)
+
+    return expDateFinalFormat.format(expDateOriginal)
+}

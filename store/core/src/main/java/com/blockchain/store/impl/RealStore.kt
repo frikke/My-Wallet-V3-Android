@@ -34,7 +34,8 @@ class RealStore<K : Any, T : Any>(
             is KeyedFreshnessStrategy.Fresh -> buildFreshFlow(request)
         }.distinctUntilChanged()
 
-    private fun buildCachedFlow(request: KeyedFreshnessStrategy.Cached<K>) = channelFlow<DataResource<T>> {
+    private fun buildCachedFlow(request: KeyedFreshnessStrategy.Cached<K>) = channelFlow {
+
         val networkLock = CompletableDeferred<Unit>()
         scope.launch {
             networkLock.await()

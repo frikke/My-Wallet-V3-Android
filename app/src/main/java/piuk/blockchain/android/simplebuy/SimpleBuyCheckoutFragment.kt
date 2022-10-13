@@ -296,7 +296,8 @@ class SimpleBuyCheckoutFragment :
             OrderState.AWAITING_FUNDS -> {
                 if (newState.confirmationActionRequested) {
                     navigator().goToPaymentScreen(
-                        showRecurringBuySuggestion = newState.recurringBuySuggestionHasNotBeenEnabled(),
+                        showRecurringBuySuggestion = newState.suggestEnablingRecurringBuyFrequency() &&
+                            !updateRecurringBuy && newState.recurringBuyState == RecurringBuyState.UNINITIALISED,
                         recurringBuyFrequencyRemote = newState.recurringBuyForExperiment
                     )
                 }
@@ -517,9 +518,6 @@ class SimpleBuyCheckoutFragment :
             this.isSelectedPaymentMethodRecurringBuyEligible() &&
             this.recurringBuyForExperiment != RecurringBuyFrequency.ONE_TIME
 
-    private fun SimpleBuyState.recurringBuySuggestionHasNotBeenEnabled(): Boolean =
-        featureFlagSet.rbFrequencySuggestionFF && this.recurringBuyState == RecurringBuyState.UNINITIALISED
-
     private fun buildPaymentMethodItem(state: SimpleBuyState): SimpleBuyCheckoutItem? =
         state.selectedPaymentMethod?.let {
             val paymentMethodType = if (state.selectedPaymentMethodDetails?.id == GOOGLE_PAY_PAYMENT_ID)
@@ -636,7 +634,7 @@ class SimpleBuyCheckoutFragment :
                         } else {
                             navigator().goToPaymentScreen(
                                 showRecurringBuySuggestion = state.suggestEnablingRecurringBuyFrequency() &&
-                                    !updateRecurringBuy,
+                                    !updateRecurringBuy && state.recurringBuyState == RecurringBuyState.UNINITIALISED,
                                 recurringBuyFrequencyRemote = state.recurringBuyForExperiment
                             )
                         }

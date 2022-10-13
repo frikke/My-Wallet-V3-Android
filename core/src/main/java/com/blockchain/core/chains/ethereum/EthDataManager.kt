@@ -12,6 +12,7 @@ import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
+import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.api.data.FeeLimits
@@ -45,6 +46,7 @@ import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 class EthDataManager(
     private val payloadDataManager: PayloadDataManager,
     private val ethAccountApi: EthAccountApi,
+    private val defaultLabels: DefaultLabels,
     private val ethDataStore: EthDataStore,
     private val metadataRepository: MetadataRepository,
     private val lastTxUpdater: LastTxUpdater,
@@ -216,7 +218,7 @@ class EthDataManager(
      * @return An [Completable]
      */
     fun initEthereumWallet(
-        label: String
+        label: String = defaultLabels.getDefaultNonCustodialWalletLabel()
     ): Completable =
         fetchOrCreateEthereumWallet(label)
             .flatMapCompletable { (wallet, needsSave) ->
@@ -373,7 +375,9 @@ class EthDataManager(
                 var ethWallet = EthereumWallet.load(walletJson)
                 var needsSave = false
 
-                if (ethWallet?.account == null || !ethWallet.account.ethAccountDto.isCorrect) {
+                if (ethWallet?.account == null || !ethWallet.account.ethAccountDto.isCorrect ||
+                    ethWallet.account.ethAccountDto.publicKey == null
+                ) {
                     try {
                         val masterKey = payloadDataManager.masterKey
                         ethWallet = EthereumWallet(masterKey, label)

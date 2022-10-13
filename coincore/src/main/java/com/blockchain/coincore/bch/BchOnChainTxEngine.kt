@@ -19,11 +19,11 @@ import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.wallet.api.dust.data.DustInput
 import info.blockchain.wallet.bch.BchMainNetParams
@@ -114,21 +114,24 @@ class BchOnChainTxEngine(
         }
     }
 
-    private fun getUnspentApiResponse(address: String): Single<List<Utxo>> =
-        if (bchDataManager.getAddressBalance(address) > Money.zero(sourceAsset)) {
-            sendDataManager.getUnspentBchOutputs(address)
-                // If we get here, we should have balance and valid UTXOs. IF we don't, then, um... we'd best fail hard
-                .map { utxo ->
-                    if (utxo.isEmpty()) {
-                        Timber.e("No BTC UTXOs found for non-zero balance!")
-                        throw IllegalStateException("No BTC UTXOs found for non-zero balance")
-                    } else {
-                        utxo
+    private fun getUnspentApiResponse(address: String): Single<List<Utxo>> {
+        return sourceAccount.balanceRx.firstOrError().flatMap {
+            if (it.total.isPositive) {
+                sendDataManager.getUnspentBchOutputs(address)
+                    // If we get here, we should have balance and valid UTXOs. IF we don't, then, um... we'd best fail hard
+                    .map { utxo ->
+                        if (utxo.isEmpty()) {
+                            Timber.e("No BTC UTXOs found for non-zero balance!")
+                            throw IllegalStateException("No BTC UTXOs found for non-zero balance")
+                        } else {
+                            utxo
+                        }
                     }
-                }
-        } else {
-            Single.error(Throwable("No BCH funds"))
+            } else {
+                Single.error(Throwable("No BCH funds"))
+            }
         }
+    }
 
     private fun updatePendingTx(
         amount: CryptoValue,
@@ -211,7 +214,7 @@ class BchOnChainTxEngine(
 
     private fun buildConfirmations(pendingTx: PendingTx, fiatRate: ExchangeRate): PendingTx =
         pendingTx.copy(
-            confirmations = listOfNotNull(
+            txConfirmations = listOfNotNull(
                 TxConfirmationValue.From(sourceAccount, sourceAsset),
                 TxConfirmationValue.To(
                     txTarget, AssetAction.Send, sourceAccount

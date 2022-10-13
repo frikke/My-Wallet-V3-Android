@@ -42,6 +42,7 @@ val dashboardModule = module {
                 initialState = DashboardState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
+                balancesCache = get(),
                 environmentConfig = get(),
                 remoteLogger = get(),
                 appRatingService = get()

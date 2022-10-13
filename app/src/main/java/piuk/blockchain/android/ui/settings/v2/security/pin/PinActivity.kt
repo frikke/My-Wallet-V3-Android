@@ -53,6 +53,8 @@ import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.databinding.ActivityPinBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.auth.BiometricsEnrollmentBottomSheet
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
@@ -78,6 +80,7 @@ class PinActivity :
     TextWatcher {
 
     override val model: PinModel by scopedInject()
+    private val fraudService: FraudService by inject()
 
     override fun initBinding(): ActivityPinBinding =
         ActivityPinBinding.inflate(layoutInflater)
@@ -132,6 +135,7 @@ class PinActivity :
 
         appUpdateManager = AppUpdateManagerFactory.create(this)
 
+        trackFraud()
         setToolbar()
         init()
 
@@ -146,6 +150,7 @@ class PinActivity :
             }
             customerSupport.setOnClickListener {
                 analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
+                fraudService.endFlow(FraudFlow.LOGIN)
                 showCustomerSupportSheet()
             }
             customerSupport.visible()
@@ -289,6 +294,22 @@ class PinActivity :
                         startActivity(FeatureFlagsHandlingActivity.newIntent(this@PinActivity))
                     }
                 }
+            }
+        }
+    }
+
+    private fun trackFraud() {
+        when (originScreen) {
+            OriginScreenToPin.CREATE_WALLET -> fraudService.startFlow(FraudFlow.SIGNUP)
+            OriginScreenToPin.LAUNCHER_SCREEN,
+            OriginScreenToPin.LOADER_SCREEN,
+            OriginScreenToPin.LOGIN_SCREEN,
+            OriginScreenToPin.PIN_SCREEN,
+            OriginScreenToPin.MANUAL_PAIRING_SCREEN,
+            OriginScreenToPin.LOGIN_AUTH_SCREEN,
+            OriginScreenToPin.PASSWORD_REQUIRED_SCREEN -> fraudService.startFlow(FraudFlow.LOGIN)
+            else -> {
+                /*NO-OP*/
             }
         }
     }
@@ -767,6 +788,7 @@ class PinActivity :
     }
 
     private fun finishWithResultOk(pin: String) {
+        fraudService.endFlow(FraudFlow.LOGIN)
         val bundle = Bundle()
         bundle.putString(KEY_VALIDATED_PIN, pin)
         val intent = Intent()
@@ -776,6 +798,7 @@ class PinActivity :
     }
 
     private fun finishWithResultCanceled() {
+        fraudService.endFlow(FraudFlow.LOGIN)
         val intent = Intent()
         setResult(RESULT_CANCELED, intent)
         finish()
@@ -788,9 +811,11 @@ class PinActivity :
                     finishWithResultCanceled()
                 }
                 originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> {
+                    fraudService.endFlow(FraudFlow.LOGIN)
                     finish()
                 }
                 else -> {
+                    fraudService.endFlow(FraudFlow.LOGIN)
                     appUtil.logout()
                 }
             }
@@ -887,6 +912,7 @@ class PinActivity :
             .setOnClickListener {
                 util.logout()
             }
+        fraudService.endFlow(FraudFlow.LOGIN)
     }
 
     private fun shouldBeUnregistered(installStatus: Int): Boolean {
@@ -1037,6 +1063,11 @@ class PinActivity :
                 }
             }
         )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        fraudService.endFlows(FraudFlow.LOGIN, FraudFlow.SIGNUP)
     }
 
     private fun hideBiometricsUi() {

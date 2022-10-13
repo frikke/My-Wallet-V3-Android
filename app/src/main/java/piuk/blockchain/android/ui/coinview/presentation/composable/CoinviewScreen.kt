@@ -99,7 +99,9 @@ fun Coinview(
                 viewModel.onIntent(CoinviewIntent.QuickActionSelected(quickAction.toModelState()))
             },
             assetInfo = state.assetInfo,
-            onWebsiteClick = { /*todo*/ },
+            onWebsiteClick = {
+                viewModel.onIntent(CoinviewIntent.VisitAssetWebsite)
+            },
             snackbarAlert = state.snackbarError
         )
     }

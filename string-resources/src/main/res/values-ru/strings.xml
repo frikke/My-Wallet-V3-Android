@@ -1328,7 +1328,7 @@
     <string name="send_enter_unexpected_error">Произошла непредвиденная ошибка. Попробуйте еще раз.</string>
     <string name="send_enter_insufficient_gas">У вас недостаточно ETH для обработки этой транзакции.</string>
     <string name="send_select_a_wallet_title">или выберите Кошелек</string>
-    <string name="send_select_a_wallet_warning">Отправляйте %1$s только на кошельки в сети (%2$s).\n<annotation link="send_network_options">Подробнее</annotation></string>
+    <string name="send_select_a_wallet_warning"><![CDATA[Отправляйте %1$s только на кошельки в сети (%2$s).\n<annotation link=\"send_network_options\">Подробнее</annotation>]]></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s) – это токен, который может быть доступен в нескольких сетях. Перед отправкой убедитесь, что вы знаете сеть адреса кошелька, на который отправляете.</string>
     <string name="send_transfer_accounts_title">Перевод между вашими счетами</string>
     <string name="send_domain_alert_title">Отправить на крипто-домен</string>
@@ -1659,7 +1659,7 @@
     <string name="yapily_agreement_blurb_3_1">%1$s уполномочен и регулируется Банком Литвы в соответствии с Законом о платежах (LB002045) для предоставления информации о счете и услуг инициирования платежей.</string>
     <string name="yapily_agreement_title_4">О доступе</string>
     <string name="yapily_agreement_blurb_4_1">%1$s будет использовать эти данные с Blockchain исключительно для целей покупки криптовалют. Этот доступ действителен до %2$s, вы можете отменить согласие в любое время в настройках блокчейна или через свой банк. Этот запрос не является одноразовым, вы будете продолжать получать запросы на согласие по мере истечения срока действия более старых версий.</string>
-    <string name="yapily_agreement_blurb_4_2">%1$s Условия и положения доступны по следующей ссылке <a>https://yapi.ly/GDNT</a></string>
+    <string name="yapily_agreement_blurb_4_2"><![CDATA[%1$s Условия и положения доступны по следующей ссылке <a>https://yapi.ly/GDNT</a>]]></string>
     <string name="yapily_agreement_blurb_5">Чтобы поделиться своими данными %1$s с Blockchain, вы будете безопасно перенаправлены в свой банк, чтобы подтвердить свое согласие на чтение YapilyConnect следующей информации: \n\n • Идентификационные данные \n\n • Информация аккаунта(-ов)</string>
     <string name="yapily_agreement_blurb_5_1">Чтобы поделиться своими данными %1$s с Blockchain.com, вы будете безопасно перенаправлены в свой банк, чтобы подтвердить свое согласие на чтение YapilyConnect следующей информации: \n\n • Идентификационные данные \n\n • Информация аккаунта(-ов)</string>
     <string name="yapily_linking_pending_title">Переходим к %1$s</string>
@@ -2665,9 +2665,43 @@
     <string name="bc_card_review_and_submit_title">Просмотреть и отправить</string>
     <string name="common_balance">Остаток</string>
     <string name="select_account_sheet_title_defi">Выберите Wallet</string>
+    <string name="select_account_sheet_title_brokerage">Выберите аккаунт</string>
+    <string name="bc_card_transaction_payment_with_cashback">Оплата с кэшбэком</string>
+    <string name="bc_card_transaction_funding">Пополнение</string>
+    <string name="bc_card_transaction_chargeback">Возврат платежа</string>
+    <string name="wallet_connect_switch_network">Переключить сеть</string>
+    <string name="default_label_staking_wallet">Стейкинг-аккаунт</string>
     <string name="default_label_custodial_wallets">Учетные записи</string>
     <string name="ma_home_assets_title">Активы</string>
+    <string name="add_to_google_pay">Добавить в Google Pay</string>
+    <string name="card_added_to_google_pay">Карта добавлена в Google Pay</string>
+    <string name="failed_to_add_card_to_google_pay">Не удалось добавить карту в Google Pay</string>
+    <string name="nft_empty_title">У вас нет NFT</string>
+    <string name="nft_empty_description">Отправляйте из любого кошелька или покупайте на любом рынке!</string>
+    <string name="nft_cta_buy">Купить NFT</string>
+    <string name="nft_help">Как это работает?</string>
+    <string name="nft_cta_shop">Покупка на Opensea</string>
+    <string name="nft_cta_view">Покупка на Opensea</string>
     <string name="nft_creator">Создатель</string>
     <string name="nft_description">Описание</string>
+    <string name="nft_help_title">Как это работает?</string>
+    <string name="nft_help_buy_title">Покупка NFT</string>
+    <string name="nft_help_buy_description">Купить NFT с помощью приложения Blockchain.com и Walletconnect на Opensea или Rarible.</string>
+    <string name="nft_help_buy_cta_opensea">Купить на Opensea</string>
     <string name="nft_help_instructions">Инструкции</string>
+    <string name="nft_help_instructions_1_title">Перейти на Opensea.io</string>
+    <string name="nft_help_instructions_2_title">Откройте приложение Blockchain.com</string>
+    <string name="nft_help_instructions_3_title">Откройте сканер QR-кода</string>
+    <string name="nft_help_instructions_3_description">Нажмите на квадратный значок в правом верхнем углу приложения.</string>
+    <string name="nft_help_instructions_4_title">Войдите в Opensea с помощью WalletConnect</string>
+    <string name="nft_help_instructions_4_description">Этот вариант появится после выбора «Войти» или «Подключить Wallet»</string>
+    <string name="nft_help_instructions_5_title">После покупки NFT появятся здесь</string>
+    <string name="nft_help_instructions_5_description">Получите доступ к своим NFT из своего блокчейн Wallet</string>
+    <string name="coinview_no_asset_blurb_1">Похоже, у нас нет данных об этом активе. Если это продолжится,</string>
+    <string name="coinview_no_asset_blurb_2">свяжитесь со службой поддержки.</string>
+    <string name="explainer_staking_title">Стейкинг-аккаунт</string>
+    <string name="explainer_staking_description">Cтейкинг-аккаунт позволяет вам зарабатывать на криптовалюте до %1$s%% годовых, защищая свои избранные сети блокчейна.</string>
+    <string name="staking_coming_soon_title">Скоро появится в смартфоне</string>
+    <string name="staking_coming_soon_subtitle">А пока вы можете управлять своим аккаунтом Staking Account с помощью веб-приложения.</string>
+    <string name="staking_coming_soon_cta">Перейти в веб-приложение</string>
 </resources>

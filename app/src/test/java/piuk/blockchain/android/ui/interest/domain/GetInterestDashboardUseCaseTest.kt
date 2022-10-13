@@ -4,13 +4,13 @@ import app.cash.turbine.test
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.interest.domain.model.InterestAccountBalance
 import com.blockchain.core.interest.domain.model.InterestEligibility
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.testutils.USD
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency.BTC
 import info.blockchain.balance.CryptoCurrency.ETHER
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import io.mockk.every
 import io.mockk.mockk

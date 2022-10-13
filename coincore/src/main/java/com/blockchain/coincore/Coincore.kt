@@ -15,6 +15,8 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -28,6 +30,7 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.asObservable
+import kotlinx.coroutines.rx3.await
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
@@ -311,4 +314,11 @@ class Coincore internal constructor(
         if (this is InterestAccount && other is InterestAccount) return true
         return false
     }
+}
+
+internal class NetworkAccountsRepository(private val coincore: Coincore) : NetworkAccountsService {
+    override suspend fun allWallets(): List<NetworkNonCustodialAccount> =
+        coincore.allWallets().map { it.accounts }.map { accounts ->
+            accounts.filterIsInstance<NetworkNonCustodialAccount>()
+        }.await()
 }

@@ -45,6 +45,7 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
+import com.blockchain.preferences.BlockchainCardPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -53,13 +54,16 @@ import java.math.BigDecimal
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
+private const val DEFAULT_CARD_ID = "DEFAULT_CARD_ID"
+
 internal class BlockchainCardRepositoryImpl(
     private val blockchainCardService: BlockchainCardService,
     private val eligibilityApiService: EligibilityApiService,
     private val coincore: Coincore,
     private val assetCatalogue: AssetCatalogue,
     private val userIdentity: UserIdentity,
-    private val googleWalletManager: GoogleWalletManager
+    private val googleWalletManager: GoogleWalletManager,
+    private val blockchainCardPrefs: BlockchainCardPrefs
 ) : BlockchainCardRepository {
 
     override suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainCardProduct>> =
@@ -275,6 +279,13 @@ internal class BlockchainCardRepositoryImpl(
         rxSingle {
             googleWalletManager.getTokenizationStatus(last4Digits)
         }.awaitOutcome().wrapBlockchainCardError()
+
+    override fun getDefaultCard(): String =
+        blockchainCardPrefs.defaultCardId
+
+    override fun saveCardAsDefault(cardId: String) {
+        blockchainCardPrefs.defaultCardId = cardId
+    }
 
     //
     // Domain Model Conversion

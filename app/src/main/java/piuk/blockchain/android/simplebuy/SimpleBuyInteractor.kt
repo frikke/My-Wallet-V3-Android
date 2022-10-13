@@ -13,7 +13,6 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.PaymentsRepository
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
@@ -68,6 +67,7 @@ import com.blockchain.remoteconfig.RemoteConfigRepository
 import com.blockchain.serializers.StringMapSerializer
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable

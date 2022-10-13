@@ -20,7 +20,7 @@ class BlockchainCardFragment : BlockchainCardHostFragment() {
         super.onResume()
         updateToolbar(
             toolbarTitle = getString(R.string.blockchain_card),
-            menuItems = emptyList()
+            menuItems = emptyList(),
         )
     }
 
@@ -44,23 +44,21 @@ class BlockchainCardFragment : BlockchainCardHostFragment() {
     }
 
     companion object {
-        fun newInstance(blockchainCard: BlockchainCard): BlockchainCardHostFragment =
-            (BlockchainCardFragment() as BlockchainCardHostFragment).newInstance(blockchainCard)
-        fun newInstance(blockchainCardProduct: BlockchainCardProduct): BlockchainCardHostFragment =
-            (BlockchainCardFragment() as BlockchainCardHostFragment).newInstance(blockchainCardProduct)
+        fun newInstance(blockchainCards: List<BlockchainCard>, preselectedCard: BlockchainCard?):
+            BlockchainCardHostFragment =
+            BlockchainCardFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelableArray(BLOCKCHAIN_CARD_LIST, blockchainCards.toTypedArray())
+                    preselectedCard?.let { putParcelable(PRESELECTED_BLOCKCHAIN_CARD, preselectedCard) }
+                }
+            }
+
+        fun newInstance(blockchainCardProduct: BlockchainCardProduct):
+            BlockchainCardHostFragment =
+            BlockchainCardFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(BLOCKCHAIN_PRODUCT, blockchainCardProduct)
+                }
+            }
     }
-
-    override fun newInstance(blockchainCard: BlockchainCard) =
-        BlockchainCardFragment().apply {
-            arguments = Bundle().apply {
-                putParcelable(BLOCKCHAIN_CARD, blockchainCard)
-            }
-        }
-
-    override fun newInstance(blockchainCardProduct: BlockchainCardProduct) =
-        BlockchainCardFragment().apply {
-            arguments = Bundle().apply {
-                putParcelable(BLOCKCHAIN_PRODUCT, blockchainCardProduct)
-            }
-        }
 }

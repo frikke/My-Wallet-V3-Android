@@ -14,7 +14,6 @@ import com.blockchain.api.txlimits.data.LimitRange
 import com.blockchain.api.txlimits.data.PeriodicLimit
 import com.blockchain.api.txlimits.data.SuggestedUpgrade
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.nabu.USD
@@ -28,6 +27,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money

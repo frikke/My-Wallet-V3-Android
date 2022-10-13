@@ -1,5 +1,6 @@
 package com.blockchain.nabu.api.getuser.data
 
+import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.datamanagers.NabuUserReporter
 import com.blockchain.nabu.datamanagers.WalletReporter
@@ -22,6 +23,7 @@ class GetUserStore(
     private val userReporter: NabuUserReporter,
     private val trust: DigitalTrust,
     private val walletReporter: WalletReporter,
+    private val sessionInfo: SessionInfo,
     private val payloadDataManager: PayloadDataManager
 ) : Store<NabuUser> by PersistedJsonSqlDelightStoreBuilder()
     .build(
@@ -34,6 +36,7 @@ class GetUserStore(
                         userReporter.reportUser(user)
                         trust.setUserId(user.id)
                         walletReporter.reportWalletGuid(payloadDataManager.guid)
+                        sessionInfo.setUserId(user.id)
                     }
             }
         ),

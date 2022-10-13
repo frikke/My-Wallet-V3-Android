@@ -1327,7 +1327,7 @@
     <string name="send_enter_unexpected_error">Une erreur inattendue s\'est produite. Veuillez réessayer.</string>
     <string name="send_enter_insufficient_gas">Votre solde d\'ETH est insuffisant pour traiter cette transaction.</string>
     <string name="send_select_a_wallet_title">ou sélectionnez un portefeuille</string>
-    <string name="send_select_a_wallet_warning">N\'envoyez %1$s qu\'aux portefeuilles du réseau (%2$s).\n <annotation link="send_network_options">En savoir plus</annotation></string>
+    <string name="send_select_a_wallet_warning"><![CDATA[N\'envoyez %1$s qu\'aux portefeuilles du réseau (%2$s).\n <annotation link=\"send_network_options\">En savoir plus</annotation>]]></string>
     <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s) est un jeton qui peut être disponible sur plusieurs réseaux. Assurez-vous au préalable de connaître le réseau de l\'adresse du portefeuille sur lequel vous effectuez votre envoi.</string>
     <string name="send_transfer_accounts_title">Transfert entre vos comptes</string>
     <string name="send_domain_alert_title">Envoyer à un domaine crypto</string>
@@ -1658,7 +1658,7 @@
     <string name="yapily_agreement_blurb_3_1">%1$s est autorisée et réglementée par la Banque centrale de Lituanie en vertu de la Payments Law (LB002045) pour la fourniture de services d\'informations sur les comptes et d\'initiation de paiement.</string>
     <string name="yapily_agreement_title_4">À propos de l\'accès</string>
     <string name="yapily_agreement_blurb_4_1">%1$s utilisera ensuite ces informations avec Blockchain uniquement dans le but d\'acheter des cryptomonnaies. Cet accès est valable jusqu\'au %2$s, vous pouvez annuler votre consentement quand bon vous semble via les paramètres Blockchain ou via votre banque. Cette demande n\'est pas ponctuelle, vous continuerez à recevoir des demandes de consentement à mesure que les anciennes versions expireront.</string>
-    <string name="yapily_agreement_blurb_4_2">%1$s Les conditions générales peuvent être consultés sous le lien suivant<a>https://yapi.ly/GDNT</a></string>
+    <string name="yapily_agreement_blurb_4_2"><![CDATA[%1$s Les conditions générales peuvent être consultés sous le lien suivant<a>https://yapi.ly/GDNT</a>]]></string>
     <string name="yapily_agreement_blurb_5">Afin de partager vos données %1$s avec Blockchain, vous allez maintenant être redirigé(e) en toute sécurité vers votre banque pour confirmer votre consentement à ce que YapilyConnect lise les informations suivantes :\n\n• Détails d\'identification\n\n• Détails du/des compte(s)</string>
     <string name="yapily_agreement_blurb_5_1">Afin de partager vos données %1$s avec Blockchain.com, vous allez maintenant être redirigé(e) en toute sécurité vers votre banque pour confirmer votre consentement à ce que YapilyConnect lise les informations suivantes :\n\n• Détails d\'identification\n\n• Détails du/des compte(s)</string>
     <string name="yapily_linking_pending_title">Redirection vers %1$s</string>
@@ -2663,8 +2663,43 @@
     <string name="bc_card_review_and_submit_title">Examiner et soumettre</string>
     <string name="common_balance">Solde</string>
     <string name="select_account_sheet_title_defi">Sélectionner un Wallet</string>
+    <string name="select_account_sheet_title_brokerage">Sélectionner un compte</string>
+    <string name="bc_card_transaction_payment_with_cashback">Paiement avec remise d\'argent</string>
+    <string name="bc_card_transaction_funding">Financement</string>
+    <string name="bc_card_transaction_chargeback">Rétrofacturation</string>
+    <string name="wallet_connect_switch_network">Changer de réseau</string>
+    <string name="default_label_staking_wallet">Compte Stacking</string>
     <string name="default_label_custodial_wallets">Comptes</string>
     <string name="ma_home_assets_title">Actifs</string>
+    <string name="add_to_google_pay">Ajouter à Google Pay</string>
+    <string name="card_added_to_google_pay">La carte a été ajoutée à Google Pay</string>
+    <string name="failed_to_add_card_to_google_pay">La carte n\'a pas pu être ajoutée à Google Pay</string>
+    <string name="nft_empty_title">Vous n\'avez pas de NFT</string>
+    <string name="nft_empty_description">Envoyez depuis n\'importe quel portefeuille ou achetez sur un marché !</string>
+    <string name="nft_cta_buy">Acheter des NFT</string>
+    <string name="nft_help">Comment ça marche ?</string>
+    <string name="nft_cta_shop">Acheter sur Opensea</string>
+    <string name="nft_cta_view">Afficher sur Opensea</string>
+    <string name="nft_creator">Créateur</string>
     <string name="nft_description">Description</string>
+    <string name="nft_help_title">Comment ça marche ?</string>
+    <string name="nft_help_buy_title">Acheter des NFT</string>
+    <string name="nft_help_buy_description">Achetez un NFT à l\'aide de votre appli Blockchain.com et WalletConnect sur Opensea ou sur Rarible.</string>
+    <string name="nft_help_buy_cta_opensea">Acheter sur Opensea</string>
     <string name="nft_help_instructions">Instructions</string>
+    <string name="nft_help_instructions_1_title">Aller sur Opensea.io</string>
+    <string name="nft_help_instructions_2_title">Ouvrez votre application Blockchain.com</string>
+    <string name="nft_help_instructions_3_title">Ouvrez le lecteur de code QR</string>
+    <string name="nft_help_instructions_3_description">Appuyez sur l\'icône carrée dans le coin supérieur droit de l\'appli.</string>
+    <string name="nft_help_instructions_4_title">Connectez-vous à Opensea à l\'aide de WalletConnect</string>
+    <string name="nft_help_instructions_4_description">Ce sera une option après avoir sélectionné Se connecter ou Connecter Wallet</string>
+    <string name="nft_help_instructions_5_title">Une fois que vous en aurez achetés, vos NFT apparaîtront ici</string>
+    <string name="nft_help_instructions_5_description">Accédez à vos NFT depuis votre portefeuille blockchain</string>
+    <string name="coinview_no_asset_blurb_1">Il semble que nous n\'ayons aucune donnée sur cet actif. Si cette situation persiste,</string>
+    <string name="coinview_no_asset_blurb_2">contactez l\'assistance.</string>
+    <string name="explainer_staking_title">Compte Stacking</string>
+    <string name="explainer_staking_description">Votre compte Stacking vous permet de gagner jusqu\'à %1$s %% de taux de rendement annuel en récompenses sur votre crypto en sécurisant vos réseaux blockchain favoris.</string>
+    <string name="staking_coming_soon_title">Bientôt disponible sur mobile</string>
+    <string name="staking_coming_soon_subtitle">En attendant, vous pouvez gérer votre compte Stacking à l\'aide de notre application web.</string>
+    <string name="staking_coming_soon_cta">Aller sur l\'application web</string>
 </resources>

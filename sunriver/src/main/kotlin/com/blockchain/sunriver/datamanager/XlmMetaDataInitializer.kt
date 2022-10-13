@@ -7,11 +7,13 @@ import com.blockchain.metadata.load
 import com.blockchain.metadata.save
 import com.blockchain.rx.maybeCache
 import com.blockchain.sunriver.derivation.deriveXlmAccountKeyPair
+import com.blockchain.sunriver.toKeyPair
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.wallet.Seed
 import com.blockchain.wallet.SeedAccess
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
+import org.spongycastle.util.encoders.Hex
 
 internal class XlmMetaDataInitializer(
     private val defaultLabels: DefaultLabels,
@@ -101,7 +103,10 @@ internal class XlmMetaDataInitializer(
                     XlmAccount(
                         publicKey = derived.accountId,
                         label = defaultLabels.getDefaultNonCustodialWalletLabel(),
-                        archived = false
+                        _archived = false,
+                        pubKey = String(
+                            Hex.encode(derived.toKeyPair().publicKey)
+                        )
                     )
                 ),
                 transactionNotes = emptyMap()
@@ -121,4 +126,8 @@ internal class XlmMetaDataInitializer(
 }
 
 private fun Maybe<XlmMetaData>.ignoreBadMetadata(): Maybe<XlmMetaData> =
-    filter { !(it.accounts?.isEmpty() ?: true) }
+    map {
+        it.copy(
+            accounts = it.accounts?.filterNot { acc -> acc.pubKey == null } ?: emptyList()
+        )
+    }.filter { !(it.accounts?.isEmpty() ?: true) }

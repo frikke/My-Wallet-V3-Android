@@ -5,9 +5,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
 import com.blockchain.blockchaincard.ui.BlockchainCardHostActivity
-import com.blockchain.blockchaincard.ui.BlockchainCardHostFragment
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationRouter
@@ -78,22 +76,24 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                 destination = BlockchainCardDestination.CreateCardFailedDestination
             }
 
+            is BlockchainCardNavigationEvent.FinishOrderCardFlow -> {
+                (navController.context as? BlockchainCardHostActivity)?.orderCardFlowComplete(
+                    blockchainCard = navigationEvent.createdCard
+                )
+            }
+
             is BlockchainCardNavigationEvent.ManageCard -> {
-                /*
-                 Since we are navigating into the manage card screen which uses a different view model we must replace
-                 the current fragment with a new instance of BlockchainCardFragment that uses the correct args
-                */
+                destination = BlockchainCardDestination.ManageCardDestination
+            }
 
-                val fragmentManager = (navController.context as? BlockchainActivity)?.supportFragmentManager
-                val fragmentOld = fragmentManager?.fragments?.first { it is BlockchainCardHostFragment }
+            is BlockchainCardNavigationEvent.ViewCardSelector -> {
+                if (navigationEvent.hasDefault)
+                    destination = BlockchainCardDestination.SelectCardDestination
+                else navController.popBackStack()
+            }
 
-                fragmentOld?.let {
-                    replaceCurrentFragment(
-                        containerViewId = fragmentOld.id,
-                        fragment = (fragmentOld as BlockchainCardHostFragment).newInstance(navigationEvent.card),
-                        addToBackStack = false
-                    )
-                }
+            is BlockchainCardNavigationEvent.OrderCard -> {
+                (navController.context as? BlockchainCardHostActivity)?.startOrderCardFlow()
             }
 
             is BlockchainCardNavigationEvent.ManageCardDetails -> {
@@ -231,8 +231,15 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     object FinishLegalDocReview : BlockchainCardNavigationEvent()
 
+    data class FinishOrderCardFlow(val createdCard: BlockchainCard) : BlockchainCardNavigationEvent()
+
     // Manage Card
-    data class ManageCard(val card: BlockchainCard) : BlockchainCardNavigationEvent()
+
+    data class ViewCardSelector(val hasDefault: Boolean) : BlockchainCardNavigationEvent()
+
+    object OrderCard : BlockchainCardNavigationEvent()
+
+    object ManageCard : BlockchainCardNavigationEvent()
 
     object ManageCardDetails : BlockchainCardNavigationEvent()
 
@@ -305,6 +312,8 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
     object SeeProductDetailsDestination : BlockchainCardDestination(route = "product_details")
 
     object SeeProductLegalInfoDestination : BlockchainCardDestination(route = "product_legal_info")
+
+    object SelectCardDestination : BlockchainCardDestination(route = "select_card")
 
     object ManageCardDestination : BlockchainCardDestination(route = "manage_card")
 

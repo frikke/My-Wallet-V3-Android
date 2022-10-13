@@ -13,26 +13,29 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.FreshnessStrategy.Companion.withKey
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.store.asObservable
 import com.blockchain.store.mapData
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.catch
 
 class L1EvmNonCustodialAccount(
     asset: AssetInfo,
-    private val l1BalanceStore: L1BalanceStore,
+    private val ethDataManager: EthDataManager,
     private val erc20DataManager: Erc20DataManager,
     internal val address: String,
     private val fees: FeeDataManager,
@@ -42,12 +45,7 @@ class L1EvmNonCustodialAccount(
     private val custodialWalletManager: CustodialWalletManager,
     override val addressResolver: AddressResolver,
     override val l1Network: EvmNetwork,
-) : MultiChainAccount, CryptoNonCustodialAccount(asset) {
-
-    private val hasFunds = AtomicBoolean(false)
-
-    override val isFunded: Boolean
-        get() = hasFunds.get()
+) : MultiChainAccount, NetworkNonCustodialAccount, CryptoNonCustodialAccount(asset) {
 
     override val isDefault: Boolean = true // Only one account, so always default
 
@@ -59,6 +57,15 @@ class L1EvmNonCustodialAccount(
                 label = label
             )
         )
+    private val l1BalanceStore: L1BalanceStore by scopedInject()
+
+    override val index: Int
+        get() = DEFAULT_SINGLE_ACCOUNT_INDEX
+
+    override suspend fun publicKey(): String =
+        ethDataManager.ehtAccount.publicKey ?: throw IllegalStateException(
+            "Public key for Eth account hasn't been derived"
+        )
 
     override fun getOnChainBalance(): Observable<Money> {
         return l1BalanceStore
@@ -66,7 +73,6 @@ class L1EvmNonCustodialAccount(
             .catch { DataResource.Data(BigInteger.ZERO) }
             .mapData { balance -> Money.fromMinor(currency, balance) }
             .asObservable()
-            .doOnNext { hasFunds.set(it.isPositive) }
     }
 
     override val stateAwareActions: Single<Set<StateAwareAction>>

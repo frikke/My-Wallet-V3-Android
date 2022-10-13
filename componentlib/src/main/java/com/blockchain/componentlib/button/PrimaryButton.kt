@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
@@ -22,7 +23,8 @@ fun PrimaryButton(
     onClick: () -> Unit,
     state: ButtonState = ButtonState.Enabled,
     defaultBackgroundColor: Color? = null,
-    icon: ImageResource = ImageResource.None
+    icon: ImageResource = ImageResource.None,
+    minHeight: Dp = 48.dp,
 ) {
     Button(
         text = text,
@@ -36,7 +38,7 @@ fun PrimaryButton(
         disabledBackgroundLightColor = Blue400,
         disabledBackgroundDarkColor = Grey900,
         pressedBackgroundColor = Blue700,
-        modifier = modifier.requiredHeightIn(min = 48.dp),
+        modifier = modifier.requiredHeightIn(min = minHeight),
         icon = icon,
         buttonContent = { state: ButtonState, text: String, textColor: Color, textAlpha: Float, icon: ImageResource ->
             ButtonContent(

@@ -23,9 +23,12 @@ import com.braintreepayments.cardform.utils.CardType
 import java.util.Calendar
 import java.util.Date
 import kotlinx.serialization.Contextual
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.views.CardNumberEditText
 import piuk.blockchain.android.databinding.FragmentAddNewCardBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
@@ -40,6 +43,8 @@ class AddNewCardFragment :
     ErrorSlidingBottomDialog.Host {
 
     override val model: CardModel by scopedInject()
+
+    private val fraudService: FraudService by inject()
 
     private var availableCards: List<LinkedPaymentMethod.Card> = emptyList()
     private var secondaryCtaLink: String = ""
@@ -111,6 +116,8 @@ class AddNewCardFragment :
         super.onViewCreated(view, savedInstanceState)
         activity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
+        fraudService.startFlow(FraudFlow.CARD_LINK)
+
         model.process(CardIntent.LoadLinkedCards)
 
         with(binding) {
@@ -162,8 +169,8 @@ class AddNewCardFragment :
                         )
                         activity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
-                        navigator.navigateToBillingDetails()
                         analytics.logEvent(SimpleBuyAnalytics.CARD_INFO_SET)
+                        navigator.navigateToBillingDetails()
                     }
                 }
             }

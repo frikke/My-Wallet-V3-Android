@@ -230,6 +230,7 @@ enum class AnalyticsNames(val eventName: String) {
     LOGIN_CTA_CLICKED("Login Clicked"),
     LOGIN_HELP_CLICKED("Login Help Clicked"),
     LOGIN_ID_ENTERED("Login Identifier Entered"),
+    LOGIN_ID_FAILED("Login Identifier Failed"),
     LOGIN_LEARN_MORE_CLICKED("Login Learn More Clicked"),
     LOGIN_METHOD_SELECTED("Login Method Selected"),
     LOGIN_PASSWORD_DENIED("Login Password Denied"),

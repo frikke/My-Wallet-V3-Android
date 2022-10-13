@@ -1,7 +1,5 @@
 package com.blockchain.blockchaincard.ui
 
-import android.content.Context
-import android.content.Intent
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
@@ -26,19 +24,19 @@ abstract class BlockchainCardHostActivity : BlockchainActivity(), AndroidScopeCo
     val manageCardViewModel: ManageCardViewModel by viewModel()
 
     val modelArgs: ModelConfigArgs by lazy {
-        (intent?.getParcelableExtra(BLOCKCHAIN_CARD) as? BlockchainCard)?.let { card ->
-            BlockchainCardArgs.CardArgs(card)
+        (intent?.getSerializableExtra(BLOCKCHAIN_CARD_LIST) as? List<BlockchainCard>)?.let { cards ->
+            BlockchainCardArgs.CardArgs(
+                cards = cards,
+                preselectedCard = (intent?.getParcelableExtra(PRESELECTED_BLOCKCHAIN_CARD) as? BlockchainCard)
+            )
         } ?: (intent?.getParcelableExtra(BLOCKCHAIN_PRODUCT) as? BlockchainCardProduct)?.let { product ->
             BlockchainCardArgs.ProductArgs(product)
         } ?: throw IllegalStateException("Missing card or product data")
     }
 
-    abstract fun newIntent(context: Context, blockchainCard: BlockchainCard): Intent
-
-    abstract fun newIntent(context: Context, blockchainCardProduct: BlockchainCardProduct): Intent
-
     companion object {
-        const val BLOCKCHAIN_CARD = "BLOCKCHAIN_CARD"
+        const val PRESELECTED_BLOCKCHAIN_CARD = "PRESELECTED_BLOCKCHAIN_CARD"
+        const val BLOCKCHAIN_CARD_LIST = "BLOCKCHAIN_CARD_LIST"
         const val BLOCKCHAIN_PRODUCT = "BLOCKCHAIN_PRODUCT"
     }
 
@@ -51,4 +49,10 @@ abstract class BlockchainCardHostActivity : BlockchainActivity(), AndroidScopeCo
     abstract fun updateKycAddress(address: BlockchainCardAddress)
 
     abstract fun startAddCardToGoogleWallet(pushTokenizeData: BlockchainCardGoogleWalletPushTokenizeData)
+
+    abstract fun startOrderCardFlow()
+
+    abstract fun orderCardFlowComplete(blockchainCard: BlockchainCard)
+
+    abstract fun startManageCardFlow(blockchainCards: List<BlockchainCard>, preselectedCard: BlockchainCard?)
 }

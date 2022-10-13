@@ -11,7 +11,10 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.base.trackProgress
-import com.blockchain.core.price.ExchangeRate
+import com.blockchain.componentlib.basic.ComposeGravities
+import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.buyOrder
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
@@ -20,6 +23,7 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -36,8 +40,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
-import piuk.blockchain.android.ui.customviews.IntroHeaderView
-import piuk.blockchain.android.ui.customviews.account.HeaderDecoration
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
@@ -65,6 +67,7 @@ class BuyIntroFragment :
     private val analytics: Analytics by inject()
     private val userIdentity: UserIdentity by scopedInject()
     private val buyOrdering: BuyListAccountSorting by scopedInject(buyOrder)
+    private var purchaseableAssets = listOf<BuyCryptoItem>()
 
     private val buyAdapter = BuyCryptoCurrenciesAdapter(
         assetResources = assetResources,
@@ -82,21 +85,17 @@ class BuyIntroFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val introHeaderView = IntroHeaderView(requireContext())
-        introHeaderView.setDetails(
-            icon = R.drawable.ic_cart,
-            label = R.string.select_crypto_you_want,
-            title = R.string.buy_with_cash
-        )
-        with(binding.rvCryptos) {
-            addItemDecoration(
-                HeaderDecoration.with(requireContext())
-                    .parallax(0.5f)
-                    .setView(introHeaderView)
-                    .build()
-            )
-            layoutManager = LinearLayoutManager(activity)
-            adapter = buyAdapter
+
+        with(binding) {
+            with(buyAssetList) {
+                layoutManager = LinearLayoutManager(activity)
+                adapter = buyAdapter
+            }
+            with(buySearchEmpty) {
+                text = getString(R.string.search_empty)
+                gravity = ComposeGravities.Centre
+                style = ComposeTypographies.Body1
+            }
         }
     }
 
@@ -239,25 +238,62 @@ class BuyIntroFragment :
     private fun renderBuyIntro(
         pricesAssets: List<PricedAsset>
     ) {
-        binding.viewFlipper.displayedChild = ViewFlipperItem.INTRO.ordinal
-        buyAdapter.items =
-            pricesAssets.map { pricedAsset ->
-                BuyCryptoItem(
-                    asset = pricedAsset.asset,
-                    price = pricedAsset.priceHistory
-                        .currentExchangeRate
-                        .price,
-                    percentageDelta = pricedAsset.priceHistory.percentageDelta
-                )
+        with(binding) {
+            viewFlipper.displayedChild = ViewFlipperItem.INTRO.ordinal
+
+            buyIntroSearch.apply {
+                label = getString(R.string.search_coins_hint)
+                onValueChange = { searchedText ->
+                    when {
+                        searchedText.isEmpty() -> updateList(purchaseableAssets)
+                        else -> updateList(
+                            purchaseableAssets.filter {
+                                it.asset.networkTicker.contains(searchedText, true) ||
+                                    it.asset.name.contains(searchedText, true)
+                            }
+                        )
+                    }
+                }
             }
+        }
+
+        purchaseableAssets = pricesAssets.map { pricedAsset ->
+            BuyCryptoItem(
+                asset = pricedAsset.asset,
+                price = pricedAsset.priceHistory
+                    .currentExchangeRate
+                    .price,
+                percentageDelta = pricedAsset.priceHistory.percentageDelta
+            )
+        }
+
+        updateList(purchaseableAssets)
+    }
+
+    private fun updateList(items: List<BuyCryptoItem>) {
+        with(binding) {
+            if (items.isNotEmpty()) {
+                buySearchEmpty.gone()
+                buyAdapter.items = items
+                with(buyAssetList) {
+                    visible()
+                    smoothScrollToPosition(0)
+                }
+            } else {
+                buySearchEmpty.visible()
+                buyAssetList.gone()
+            }
+        }
     }
 
     private fun renderErrorState() {
         with(binding) {
             viewFlipper.displayedChild = ViewFlipperItem.ERROR.ordinal
-            buyEmpty.setDetails {
-                checkEligibilityAndLoadBuyDetails()
-            }
+            buyEmpty.setDetails(
+                action = {
+                    checkEligibilityAndLoadBuyDetails()
+                }
+            )
         }
     }
 

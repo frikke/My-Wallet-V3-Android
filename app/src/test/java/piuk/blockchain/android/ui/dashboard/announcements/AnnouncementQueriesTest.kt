@@ -10,7 +10,6 @@ import com.blockchain.core.kyc.domain.model.KycTierDetail
 import com.blockchain.core.kyc.domain.model.KycTierState
 import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.kyc.domain.model.TiersMap
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.domain.experiments.RemoteConfigService
@@ -27,6 +26,7 @@ import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single

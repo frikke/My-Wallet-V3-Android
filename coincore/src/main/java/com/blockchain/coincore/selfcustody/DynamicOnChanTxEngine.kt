@@ -53,7 +53,7 @@ class DynamicOnChanTxEngine(
             .map { response ->
                 val estimatedFee = Money.fromMinor(sourceAsset, response.summary.absoluteFeeEstimate.toBigInteger())
                 pendingTx.copy(
-                    confirmations = listOfNotNull(
+                    txConfirmations = listOfNotNull(
                         TxConfirmationValue.From(sourceAccount, sourceAsset),
                         TxConfirmationValue.To(txTarget, AssetAction.Send, sourceAccount),
                         TxConfirmationValue.CompoundNetworkFee(

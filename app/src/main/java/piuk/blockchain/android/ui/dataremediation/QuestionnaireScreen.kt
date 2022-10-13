@@ -67,7 +67,7 @@ fun QuestionnaireScreen(
     isSkipVisible: Boolean,
     header: QuestionnaireHeader?,
     state: QuestionnaireState,
-    onDropdownChoiceChanged: (node: FlatNode.Dropdown, newChoice: FlatNode.Selection) -> Unit,
+    onDropdownOpenPickerClicked: (node: FlatNode.Dropdown) -> Unit,
     onSelectionClicked: (node: FlatNode.Selection) -> Unit,
     onOpenEndedInputChanged: (node: FlatNode.OpenEnded, newInput: String) -> Unit,
     onContinueClicked: () -> Unit,
@@ -149,7 +149,7 @@ fun QuestionnaireScreen(
                 NodeRow(
                     node,
                     state.invalidNodesShown.contains(node.id),
-                    onDropdownChoiceChanged,
+                    onDropdownOpenPickerClicked,
                     onSelectionClicked,
                     onOpenEndedInputChanged
                 )
@@ -191,7 +191,7 @@ fun QuestionnaireScreen(
 private fun NodeRow(
     node: FlatNode,
     isInvalid: Boolean,
-    onDropdownChoiceChanged: (node: FlatNode.Dropdown, newChoice: FlatNode.Selection) -> Unit,
+    onDropdownOpenPickerClicked: (node: FlatNode.Dropdown) -> Unit,
     onSelectionClicked: (node: FlatNode.Selection) -> Unit,
     onOpenEndedInputChanged: (node: FlatNode.OpenEnded, newInput: String) -> Unit,
 ) {
@@ -215,7 +215,11 @@ private fun NodeRow(
 
     when (node) {
         is FlatNode.SingleSelection -> SingleSelectionRow(commonModifier, node, isInvalid)
-        is FlatNode.Dropdown -> DropdownRow(commonModifier, node, isInvalid, onDropdownChoiceChanged)
+        is FlatNode.Dropdown -> DropdownRow(
+            commonModifier, node, isInvalid,
+            onSelectionClicked,
+            onDropdownOpenPickerClicked,
+        )
         is FlatNode.MultipleSelection -> MultipleSelectionRow(commonModifier, node, isInvalid)
         is FlatNode.OpenEnded -> OpenEndedRow(commonModifier, node, isInvalid, onOpenEndedInputChanged)
         is FlatNode.Selection -> SelectionRow(commonModifier, node, onSelectionClicked)
@@ -255,8 +259,10 @@ private fun DropdownRow(
     modifier: Modifier,
     node: FlatNode.Dropdown,
     isInvalid: Boolean,
-    onDropdownChoiceChanged: (node: FlatNode.Dropdown, newChoice: FlatNode.Selection) -> Unit,
+    onSelectionClicked: (node: FlatNode.Selection) -> Unit,
+    onDropdownOpenPickerClicked: (node: FlatNode.Dropdown) -> Unit,
 ) {
+    val showChoicesAsMenu = node.choices.size <= 10
     Column(modifier) {
         SimpleText(
             text = node.text,
@@ -281,9 +287,10 @@ private fun DropdownRow(
         var isExpanded by remember { mutableStateOf(false) }
 
         Box {
+            val value = node.selectedChoices.map { it.text }.joinToString()
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = node.selectedChoice?.text.orEmpty(),
+                value = value,
                 onValueChange = {},
                 readOnly = true,
                 singleLine = true,
@@ -305,30 +312,38 @@ private fun DropdownRow(
             Box(
                 Modifier
                     .matchParentSize()
-                    .clickable { isExpanded = true }
+                    .clickable {
+                        if (showChoicesAsMenu) {
+                            isExpanded = true
+                        } else {
+                            onDropdownOpenPickerClicked(node)
+                        }
+                    }
             )
         }
 
-        DropdownMenu(
-            expanded = isExpanded,
-            onDismissRequest = { isExpanded = false }
-        ) {
-            node.choices.forEach { choice ->
-                DropdownMenuItem(onClick = {
-                    isExpanded = false
-                    onDropdownChoiceChanged(node, choice)
-                }) {
-                    Text(choice.text)
+        if (showChoicesAsMenu) {
+            DropdownMenu(
+                expanded = isExpanded,
+                onDismissRequest = { isExpanded = false }
+            ) {
+                node.choices.forEach { choice ->
+                    DropdownMenuItem(onClick = {
+                        if (!node.isMultiSelection) isExpanded = false
+                        onSelectionClicked(choice)
+                    }) {
+                        Text(choice.text)
 
-                    if (choice.id == node.selectedChoice?.id) {
-                        Icon(
-                            painterResource(R.drawable.ic_success_check),
-                            null,
-                            Modifier
-                                .padding(start = dimensionResource(R.dimen.small_spacing))
-                                .size(16.dp),
-                            Blue600
-                        )
+                        if (choice.id == node.selectedChoices.firstOrNull()?.id) {
+                            Icon(
+                                painterResource(R.drawable.ic_success_check),
+                                null,
+                                Modifier
+                                    .padding(start = dimensionResource(R.dimen.small_spacing))
+                                    .size(16.dp),
+                                Blue600
+                            )
+                        }
                     }
                 }
             }
@@ -378,7 +393,9 @@ private fun OpenEndedRow(
     ) {
         if (node.text.isNotEmpty()) {
             SimpleText(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
                 text = node.text,
                 style = ComposeTypographies.Paragraph2,
                 color = ComposeColors.Body,
@@ -410,7 +427,7 @@ private fun OpenEndedRow(
 }
 
 @Composable
-private fun SelectionRow(
+internal fun SelectionRow(
     modifier: Modifier,
     node: FlatNode.Selection,
     onSelectionClicked: (node: FlatNode.Selection) -> Unit,
@@ -461,23 +478,27 @@ private fun Header(header: QuestionnaireHeader) {
                 .align(Alignment.CenterHorizontally)
         )
         SimpleText(
-            modifier = Modifier.fillMaxWidth().padding(
-                top = dimensionResource(R.dimen.standard_spacing),
-                start = dimensionResource(R.dimen.standard_spacing),
-                end = dimensionResource(R.dimen.standard_spacing)
-            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    top = dimensionResource(R.dimen.standard_spacing),
+                    start = dimensionResource(R.dimen.standard_spacing),
+                    end = dimensionResource(R.dimen.standard_spacing)
+                ),
             text = header.title,
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
         )
         SimpleText(
-            modifier = Modifier.fillMaxWidth().padding(
-                top = dimensionResource(R.dimen.tiny_spacing),
-                bottom = dimensionResource(R.dimen.standard_spacing),
-                start = dimensionResource(R.dimen.standard_spacing),
-                end = dimensionResource(R.dimen.standard_spacing)
-            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    top = dimensionResource(R.dimen.tiny_spacing),
+                    bottom = dimensionResource(R.dimen.standard_spacing),
+                    start = dimensionResource(R.dimen.standard_spacing),
+                    end = dimensionResource(R.dimen.standard_spacing)
+                ),
             text = header.description,
             style = ComposeTypographies.Paragraph1,
             color = ComposeColors.Body,
@@ -508,6 +529,7 @@ private val previewNodes = listOf(
     FlatNode.Selection(id = "q1-a5", text = "Business", depth = 2, isChecked = false, isParentSingleSelection = false),
     FlatNode.Dropdown(
         id = "q2", text = "Source of funds", instructions = "(Select only one)", depth = 1,
+        isMultiSelection = false,
         choices = listOf(
             FlatNode.Selection(
                 id = "q2-a1", text = "Salary", depth = 2, isChecked = false, isParentSingleSelection = true
@@ -531,17 +553,18 @@ private val previewNodes = listOf(
                 id = "q2-a7", text = "Other", depth = 2, isChecked = false, isParentSingleSelection = true
             )
         ),
-        selectedChoice = null
+        selectedChoices = emptyList()
     ),
     FlatNode.Dropdown(
         id = "q3", text = "Are you acting on your own behalf?", instructions = "(Select only one)", depth = 1,
+        isMultiSelection = false,
         choices = listOf(
             FlatNode.Selection(
                 id = "q3-a1", text = "Yes", depth = 2, isChecked = false, isParentSingleSelection = true
             ),
             FlatNode.Selection(id = "q3-a2", text = "No", depth = 2, isChecked = false, isParentSingleSelection = true)
         ),
-        selectedChoice = null
+        selectedChoices = emptyList()
     ),
     FlatNode.SingleSelection(
         id = "q4", text = "Are you a Politically Exposed Person (PEP)", instructions = "(Select only one)", depth = 1
@@ -574,7 +597,7 @@ private fun ScreenPreview() {
                 "information before you’re all set up to start trading crypto."
         ),
         state = state,
-        onDropdownChoiceChanged = { _, _ -> },
+        onDropdownOpenPickerClicked = {},
         onSelectionClicked = {},
         onOpenEndedInputChanged = { _, _ -> },
         onContinueClicked = {},

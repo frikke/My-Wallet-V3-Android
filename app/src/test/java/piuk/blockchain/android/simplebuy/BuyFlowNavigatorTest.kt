@@ -3,7 +3,6 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
 import com.blockchain.nabu.BlockedReason
@@ -19,6 +18,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.ExchangeRate
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.runBlocking
 import org.junit.Before

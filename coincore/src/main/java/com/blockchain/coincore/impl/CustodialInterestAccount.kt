@@ -89,7 +89,12 @@ class CustodialInterestAccount(
             interestService.getBalanceFor(currency),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
-            AccountBalance.from(balance, rate)
+            AccountBalance(
+                total = balance.totalBalance,
+                withdrawable = balance.actionableBalance,
+                pending = balance.pendingDeposit,
+                exchangeRate = rate
+            )
         }.doOnNext { hasFunds.set(it.total.isPositive) }
 
     override val activity: Single<ActivitySummaryList>

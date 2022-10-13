@@ -22,6 +22,14 @@ data class QuestionnaireModelState(
 ) : ModelState
 
 sealed class Navigation : NavigationEvent {
+    data class OpenDropdownPickerForSingleSelection(
+        val original: FlatNode.Dropdown,
+        val node: TreeNode.SingleSelection,
+    ) : Navigation()
+    data class OpenDropdownPickerForMultipleSelection(
+        val original: FlatNode.Dropdown,
+        val node: TreeNode.MultipleSelection,
+    ) : Navigation()
     object FinishSuccessfully : Navigation()
 }
 
@@ -72,8 +80,18 @@ class QuestionnaireModel(
         intent: QuestionnaireIntent
     ) {
         when (intent) {
-            is QuestionnaireIntent.DropdownChoiceChanged -> {
-                stateMachine.onDropdownChoiceChanged(intent.node, intent.newChoice)
+            is QuestionnaireIntent.DropdownOpenPickerClicked -> {
+                val treeNode = stateMachine.getTreeNode(intent.node)
+                if (treeNode is TreeNode.SingleSelection) {
+                    navigate(Navigation.OpenDropdownPickerForSingleSelection(intent.node, treeNode))
+                } else if (treeNode is TreeNode.MultipleSelection) {
+                    navigate(Navigation.OpenDropdownPickerForMultipleSelection(intent.node, treeNode))
+                } else {
+                    throw IllegalStateException()
+                }
+            }
+            is QuestionnaireIntent.DropdownChoicesChanged -> {
+                stateMachine.onDropdownChoicesChanged(intent.node, intent.newChoices)
             }
             is QuestionnaireIntent.SelectionClicked -> {
                 stateMachine.onSelectionClicked(intent.node)

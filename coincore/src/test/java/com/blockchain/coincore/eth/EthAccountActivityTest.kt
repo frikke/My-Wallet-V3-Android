@@ -47,7 +47,6 @@ class EthAccountActivityTest : CoincoreTestBase() {
             EthCryptoWalletAccount(
                 jsonAccount = ethAccount,
                 ethDataManager = ethDataManager,
-                l1BalanceStore = l1BalanceStore,
                 fees = feeDataManager,
                 exchangeRates = exchangeRates,
                 walletPreferences = walletPrefs,

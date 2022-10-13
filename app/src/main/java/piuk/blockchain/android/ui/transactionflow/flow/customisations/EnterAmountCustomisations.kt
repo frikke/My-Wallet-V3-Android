@@ -5,6 +5,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.plugin.EnterAmountWidget
@@ -48,4 +49,5 @@ interface EnterAmountCustomisations {
     fun enterAmountCtaText(state: TransactionState): String
     fun getFeeSheetTitle(state: TransactionState): String
     fun getFeeSheetAvailableLabel(state: TransactionState): String
+    fun getFraudFlowForTransaction(state: TransactionState): FraudFlow?
 }

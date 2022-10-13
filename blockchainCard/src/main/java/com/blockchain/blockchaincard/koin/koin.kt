@@ -19,7 +19,8 @@ val blockchainCardModule = module {
                 coincore = get(),
                 assetCatalogue = get(),
                 userIdentity = get(),
-                googleWalletManager = get()
+                googleWalletManager = get(),
+                blockchainCardPrefs = get()
             )
         }.bind(BlockchainCardRepository::class)
 

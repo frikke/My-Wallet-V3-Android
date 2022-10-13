@@ -6,7 +6,6 @@ import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.Asset
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.price.model.AssetPriceRecord
@@ -24,11 +23,14 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
+import java.math.BigInteger
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.transfer.BuyListAccountSorting
@@ -296,8 +298,22 @@ class BuyAssetOrderingTest {
         accountBalance: Long,
         tradingVolume: Double
     ) {
+        val mockBalance = mock<AccountBalance> {
+            on { total }.thenReturn(Money.fromMinor(currency, BigInteger.valueOf(accountBalance)))
+            on { withdrawable }.thenReturn(Money.fromMinor(currency, BigInteger.valueOf(accountBalance)))
+            on { pending }.thenReturn(Money.fromMinor(currency, BigInteger.valueOf(accountBalance)))
+            on { exchangeRate }.thenReturn(
+                ExchangeRate(
+                    BigDecimal.ONE, currency, FiatCurrency.Dollars
+                )
+            )
+        }
         val accountGroup: AccountGroup = mock {
-            on { balanceRx }.thenReturn(Observable.just(AccountBalance.testBalance(currency, accountBalance)))
+            on { balanceRx }.thenReturn(
+                Observable.just(
+                    mockBalance
+                )
+            )
         }
         val prices24HrWithDelta = Prices24HrWithDelta(
             1.0,

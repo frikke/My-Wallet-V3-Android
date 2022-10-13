@@ -98,4 +98,7 @@ interface BlockchainCardRepository {
     suspend fun getGoogleWalletId(): Outcome<BlockchainCardError, String>
     suspend fun getGoogleWalletStableHardwareId(): Outcome<BlockchainCardError, String>
     suspend fun getGoogleWalletTokenizationStatus(last4Digits: String): Outcome<BlockchainCardError, Boolean>
+
+    fun getDefaultCard(): String
+    fun saveCardAsDefault(cardId: String)
 }

@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,6 +26,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -63,12 +67,14 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionType
+import com.blockchain.blockchaincard.domain.models.BlockchainCardType
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -79,7 +85,11 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.DestructivePrimaryButton
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.control.Checkbox
+import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.control.DropdownMenuSearch
+import com.blockchain.componentlib.control.Radio
+import com.blockchain.componentlib.control.RadioButtonState
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.divider.VerticalDivider
 import com.blockchain.componentlib.lazylist.PaginatedLazyColumn
@@ -103,6 +113,7 @@ import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.getMonthName
 import com.blockchain.utils.toFormattedDateTime
+import com.blockchain.utils.toFormattedExpirationDate
 import com.blockchain.utils.toLocalTime
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -120,7 +131,8 @@ fun ManageCard(
     isTransactionListRefreshing: Boolean,
     transactionList: List<BlockchainCardTransaction>?,
     googleWalletState: BlockchainCardGoogleWalletStatus,
-    onManageCardDetails: () -> Unit,
+    onViewCardSelector: () -> Unit,
+    onManageCardDetails: (BlockchainCard) -> Unit,
     onFundingAccountClicked: () -> Unit,
     onRefreshBalance: () -> Unit,
     onSeeAllTransactions: () -> Unit,
@@ -166,19 +178,21 @@ fun ManageCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                SimpleText(
-                    text = stringResource(R.string.my_card),
-                    style = ComposeTypographies.Body2,
-                    color = ComposeColors.Body,
-                    gravity = ComposeGravities.Start,
-                    modifier = Modifier.weight(1f)
-                )
+                card?.let {
+                    SimpleText(
+                        text = stringResource(id = card.type.getStringResource()),
+                        style = ComposeTypographies.Body2,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Start,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 MinimalButton(
-                    text = stringResource(id = R.string.manage_card),
-                    onClick = onManageCardDetails,
+                    text = stringResource(id = R.string.my_cards),
+                    onClick = onViewCardSelector,
                     modifier = Modifier
                         .wrapContentWidth()
                         .weight(1.4f),
@@ -187,52 +201,54 @@ fun ManageCard(
                 )
             }
 
-            when (cardWidgetUrl) {
-                null -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.padding(
-                            horizontal = AppTheme.dimensions.smallSpacing,
-                            vertical = AppTheme.dimensions.xHugeSpacing
-                        )
-                    )
-                }
-
-                "" -> {
-                    SimpleText(
-                        text = stringResource(R.string.bc_card_unable_to_load_card),
-                        style = ComposeTypographies.Body1,
-                        color = ComposeColors.Dark,
-                        gravity = ComposeGravities.Centre,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = AppTheme.dimensions.standardSpacing)
-                    )
-
-                    SimpleText(
-                        text = stringResource(R.string.bc_card_tap_here_to_try_again),
-                        style = ComposeTypographies.Caption1,
-                        color = ComposeColors.Primary,
-                        gravity = ComposeGravities.Centre,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = AppTheme.dimensions.tinySpacing)
-                            .clickable {
-                                onRefreshCardWidgetUrl()
-                            }
-                    )
-                }
-
-                else -> {
-                    Webview(
-                        url = cardWidgetUrl,
-                        disableScrolling = true,
-                        modifier = Modifier
-                            .padding(
-                                top = AppTheme.dimensions.smallSpacing
+            if (card?.status != BlockchainCardStatus.TERMINATED) {
+                when (cardWidgetUrl) {
+                    null -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.padding(
+                                horizontal = AppTheme.dimensions.smallSpacing,
+                                vertical = AppTheme.dimensions.xHugeSpacing
                             )
-                            .requiredHeight(355.dp)
-                            .requiredWidth(200.dp)
-                    )
+                        )
+                    }
+
+                    "" -> {
+                        SimpleText(
+                            text = stringResource(R.string.bc_card_unable_to_load_card),
+                            style = ComposeTypographies.Body1,
+                            color = ComposeColors.Dark,
+                            gravity = ComposeGravities.Centre,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = AppTheme.dimensions.standardSpacing)
+                        )
+
+                        SimpleText(
+                            text = stringResource(R.string.bc_card_tap_here_to_try_again),
+                            style = ComposeTypographies.Caption1,
+                            color = ComposeColors.Primary,
+                            gravity = ComposeGravities.Centre,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = AppTheme.dimensions.tinySpacing)
+                                .clickable {
+                                    onRefreshCardWidgetUrl()
+                                }
+                        )
+                    }
+
+                    else -> {
+                        Webview(
+                            url = cardWidgetUrl,
+                            disableScrolling = true,
+                            modifier = Modifier
+                                .padding(
+                                    top = AppTheme.dimensions.smallSpacing
+                                )
+                                .requiredHeight(355.dp)
+                                .requiredWidth(300.dp)
+                        )
+                    }
                 }
             }
 
@@ -423,6 +439,7 @@ private fun PreviewManageCard() {
         isTransactionListRefreshing = false,
         transactionList = null,
         googleWalletState = BlockchainCardGoogleWalletStatus.NOT_ADDED,
+        onViewCardSelector = {},
         onManageCardDetails = {},
         onFundingAccountClicked = {},
         onRefreshBalance = {},
@@ -530,6 +547,333 @@ private fun PreviewGooglePayButtonAddSuccess() {
 @Composable
 private fun PreviewGooglePayButton() {
     GooglePayButton(onClick = { /*TODO*/ })
+}
+
+@Composable
+fun CardSelector(
+    cards: List<BlockchainCard>,
+    defaultCardId: String,
+    onOrderCard: () -> Unit,
+    onManageCard: (BlockchainCard) -> Unit,
+    onViewCard: (BlockchainCard) -> Unit,
+    onSetCardAsDefault: (String) -> Unit,
+    onRefreshCards: () -> Unit
+) {
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                onRefreshCards()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    var selectedIndex by remember {
+        val indexOfDefaultCard = cards.indexOfFirst { defaultCardId == it.id }
+        if (indexOfDefaultCard > 0) {
+            mutableStateOf(indexOfDefaultCard)
+        } else {
+            mutableStateOf(0)
+        }
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = AppTheme.dimensions.smallSpacing
+            )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SimpleText(
+                text = stringResource(R.string.my_card),
+                style = ComposeTypographies.Body2,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Start,
+            )
+
+            MinimalButton(
+                text = "Add Card",
+                onClick = onOrderCard,
+                modifier = Modifier
+                    .wrapContentWidth(),
+                minHeight = 16.dp,
+                shape = AppTheme.shapes.small
+            )
+        }
+
+        LazyColumn(
+            modifier = Modifier.padding(vertical = AppTheme.dimensions.smallSpacing),
+            verticalArrangement = Arrangement.spacedBy(AppTheme.dimensions.smallSpacing),
+        ) {
+            itemsIndexed(items = cards) { index, card ->
+                CardSelectorItem(
+                    cardType = card.type,
+                    last4digits = card.last4,
+                    cardStatus = card.status,
+                    expDate = card.expiry,
+                    isSelected = selectedIndex == index,
+                    isDefault = defaultCardId == card.id,
+                    onManageCard = {
+                        selectedIndex = index
+                        onManageCard(card)
+                    },
+                    onViewCard = {
+                        selectedIndex = index
+                        onViewCard(card)
+                    },
+                    onSetCardAsDefault = { setAsDefault ->
+                        if (setAsDefault) onSetCardAsDefault(card.id)
+                        else onSetCardAsDefault("")
+                    },
+                    modifier = Modifier.clickable {
+                        selectedIndex = index
+                    }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCardSelector() {
+
+    val cards = listOf(
+        BlockchainCard(
+            id = "1111",
+            type = BlockchainCardType.PHYSICAL,
+            last4 = "1234",
+            expiry = "12/22",
+            brand = BlockchainCardBrand.VISA,
+            status = BlockchainCardStatus.ACTIVE,
+            orderStatus = null,
+            createdAt = "1999-11-11"
+        ),
+        BlockchainCard(
+            id = "1111",
+            type = BlockchainCardType.VIRTUAL,
+            last4 = "1234",
+            expiry = "12/22",
+            brand = BlockchainCardBrand.VISA,
+            status = BlockchainCardStatus.ACTIVE,
+            orderStatus = null,
+            createdAt = "1999-11-11"
+        ),
+        BlockchainCard(
+            id = "1111",
+            type = BlockchainCardType.VIRTUAL,
+            last4 = "1234",
+            expiry = "12/22",
+            brand = BlockchainCardBrand.VISA,
+            status = BlockchainCardStatus.ACTIVE,
+            orderStatus = null,
+            createdAt = "1999-11-11"
+        ),
+        BlockchainCard(
+            id = "1111",
+            type = BlockchainCardType.VIRTUAL,
+            last4 = "1234",
+            expiry = "12/22",
+            brand = BlockchainCardBrand.VISA,
+            status = BlockchainCardStatus.ACTIVE,
+            orderStatus = null,
+            createdAt = "1999-11-11"
+        ),
+    )
+
+    CardSelector(
+        cards = cards,
+        onManageCard = {},
+        onViewCard = {},
+        onOrderCard = {},
+        defaultCardId = "",
+        onSetCardAsDefault = {},
+        onRefreshCards = {}
+    )
+}
+
+@Composable
+fun CardSelectorItem(
+    cardType: BlockchainCardType,
+    cardStatus: BlockchainCardStatus,
+    last4digits: String,
+    expDate: String,
+    isSelected: Boolean,
+    isDefault: Boolean,
+    modifier: Modifier = Modifier,
+    onManageCard: () -> Unit,
+    onViewCard: () -> Unit,
+    onSetCardAsDefault: (Boolean) -> Unit
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+
+        Card(
+            modifier = modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, Grey000),
+            elevation = if (isSelected) 2.dp else 0.dp,
+            shape = AppTheme.shapes.medium
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.standardSpacing)
+                    .heightIn(max = 112.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                when (cardType) {
+                    BlockchainCardType.PHYSICAL -> {
+                        Image(
+                            painter = painterResource(id = R.drawable.card_front_physical),
+                            contentDescription = "Blockchain Card",
+                            contentScale = ContentScale.Inside
+                        )
+                    }
+                    BlockchainCardType.VIRTUAL -> {
+                        Image(
+                            painter = painterResource(id = R.drawable.card_front_virtual),
+                            contentDescription = "Blockchain Card",
+                            contentScale = ContentScale.Inside
+                        )
+                    }
+                }
+
+                Spacer(Modifier.width(AppTheme.dimensions.verySmallSpacing))
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+
+                    Row(modifier = Modifier.fillMaxWidth()) {
+
+                        Column(modifier = Modifier.weight(1f)) {
+
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                SimpleText(
+                                    text = stringResource(id = cardType.getStringResource()),
+                                    style = ComposeTypographies.Paragraph2,
+                                    color = ComposeColors.Title,
+                                    gravity = ComposeGravities.Start
+                                )
+
+                                SimpleText(
+                                    text = last4digits,
+                                    style = ComposeTypographies.Paragraph2,
+                                    color = ComposeColors.Title,
+                                    gravity = ComposeGravities.Start
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallestSpacing))
+
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                SimpleText(
+                                    text = stringResource(id = cardStatus.getStringResource()),
+                                    style = ComposeTypographies.Paragraph1,
+                                    color = ComposeColors.Body,
+                                    gravity = ComposeGravities.Start
+                                )
+
+                                SimpleText(
+                                    text = expDate.toFormattedExpirationDate(),
+                                    style = ComposeTypographies.Paragraph1,
+                                    color = ComposeColors.Body,
+                                    gravity = ComposeGravities.Start
+                                )
+                            }
+                        }
+
+                        Spacer(Modifier.width(AppTheme.dimensions.tinySpacing))
+
+                        Radio(state = if (isSelected) RadioButtonState.Selected else RadioButtonState.Unselected)
+                    }
+
+                    Spacer(Modifier.height(AppTheme.dimensions.smallSpacing))
+
+                    Row(modifier = Modifier.requiredHeightIn(min = 32.dp)) {
+                        // Manage Button
+                        if (cardStatus != BlockchainCardStatus.TERMINATED) {
+                            MinimalButton(
+                                text = stringResource(id = R.string.manage),
+                                onClick = onManageCard,
+                                modifier = Modifier.weight(1f),
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+
+                        Spacer(modifier = Modifier.width(AppTheme.dimensions.tinySpacing))
+
+                        if (isSelected) {
+                            // View Button
+                            PrimaryButton(
+                                text = stringResource(id = R.string.view),
+                                onClick = onViewCard,
+                                modifier = Modifier.weight(1f),
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+        }
+
+        if (isSelected && cardStatus != BlockchainCardStatus.TERMINATED) {
+
+            Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
+                modifier = modifier
+                    .clickable { onSetCardAsDefault(!isDefault) }
+                    .border(1.dp, Grey000, AppTheme.shapes.medium)
+            ) {
+                Checkbox(
+                    modifier = Modifier.padding(dimensionResource(R.dimen.very_small_spacing)),
+                    state = if (isDefault) CheckboxState.Checked else CheckboxState.Unchecked,
+                    onCheckChanged = onSetCardAsDefault
+                )
+
+                SimpleText(
+                    text = stringResource(R.string.bc_card_make_default),
+                    modifier = Modifier
+                        .weight(1f, false)
+                        .padding(AppTheme.dimensions.smallSpacing),
+                    style = ComposeTypographies.Paragraph1,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Start
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewCardSelectorItem() {
+    CardSelectorItem(
+        cardType = BlockchainCardType.PHYSICAL,
+        last4digits = "1234",
+        cardStatus = BlockchainCardStatus.ACTIVE,
+        expDate = "12/22",
+        isSelected = true,
+        isDefault = false,
+        onManageCard = {},
+        onViewCard = {},
+        onSetCardAsDefault = {}
+    )
 }
 
 @Composable

@@ -2,6 +2,7 @@ package com.blockchain.koin
 
 import android.content.Context
 import android.preference.PreferenceManager
+import com.blockchain.api.services.SelfCustodyServiceAuthCredentials
 import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.asset.data.AssetRepository
@@ -100,6 +101,7 @@ import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.preferences.BlockchainCardPrefs
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
@@ -341,6 +343,7 @@ val coreModule = module {
                 ethAccountApi = get(),
                 ethDataStore = get(),
                 metadataRepository = get(),
+                defaultLabels = get(),
                 lastTxUpdater = get(),
                 evmNetworksService = get(),
                 nonCustodialEvmService = get()
@@ -441,7 +444,10 @@ val coreModule = module {
                 payloadManager = get(),
                 remoteLogger = get()
             )
-        }.bind(WalletPayloadService::class)
+        }.apply {
+            bind(WalletPayloadService::class)
+            bind(SelfCustodyServiceAuthCredentials::class)
+        }
 
         factory {
             DataManagerPayloadDecrypt(
@@ -601,19 +607,17 @@ val coreModule = module {
 
         scoped<NonCustodialService> {
             NonCustodialRepository(
-                subscriptionsStore = get(),
                 dynamicSelfCustodyService = get(),
-                payloadDataManager = get(),
                 currencyPrefs = get(),
                 assetCatalogue = get(),
-                remoteConfigService = get()
+                remoteConfigService = get(),
+                subscriptionsStore = get()
             )
         }
 
         scoped {
             NonCustodialSubscriptionsStore(
-                dynamicSelfCustodyService = get(),
-                authPrefs = get()
+                dynamicSelfCustodyService = get()
             )
         }
 
@@ -720,6 +724,7 @@ val coreModule = module {
         bind(LocalSettingsPrefs::class)
         bind(SuperAppMvpPrefs::class)
         bind(CowboysPrefs::class)
+        bind(BlockchainCardPrefs::class)
         bind(MultiAppAssetsPrefs::class)
     }
 

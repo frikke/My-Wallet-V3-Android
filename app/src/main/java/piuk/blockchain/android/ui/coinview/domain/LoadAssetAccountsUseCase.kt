@@ -12,7 +12,6 @@ import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.interest.domain.InterestService
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
@@ -21,6 +20,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single

@@ -1,5 +1,6 @@
 package info.blockchain.wallet.ethereum
 
+import com.blockchain.serialization.JsonSerializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -9,7 +10,7 @@ import kotlinx.serialization.json.Json
 class EthereumWalletDto(
     @SerialName("ethereum")
     val walletData: EthereumWalletData
-) {
+) : JsonSerializable {
     constructor(
         accounts: List<EthAccountDto>
     ) : this(

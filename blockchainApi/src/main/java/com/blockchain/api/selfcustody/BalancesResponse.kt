@@ -19,9 +19,9 @@ data class BalanceEntry(
     @SerialName("account")
     val account: AccountInfo,
     @SerialName("amount")
-    val balance: BalanceInfo,
+    val balance: BalanceInfo?,
     @SerialName("unconfirmed")
-    val pending: BalanceInfo,
+    val pending: BalanceInfo?,
     @SerialName("price")
     val price: @Contextual BigDecimal?
 )

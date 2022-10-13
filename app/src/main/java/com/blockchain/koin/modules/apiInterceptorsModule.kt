@@ -6,8 +6,8 @@ import com.blockchain.api.interceptors.AuthInterceptor
 import com.blockchain.api.interceptors.DeviceIdInterceptor
 import com.blockchain.api.interceptors.RequestIdInterceptor
 import com.blockchain.api.interceptors.SSLPinningInterceptor
-import com.blockchain.api.interceptors.SessionId
 import com.blockchain.api.interceptors.SessionIdInterceptor
+import com.blockchain.api.interceptors.SessionInfo
 import com.blockchain.api.interceptors.UserAgentInterceptor
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.network.modules.OkHttpAuthInterceptor
@@ -32,7 +32,7 @@ val apiInterceptorsModule = module {
                 UserAgentInterceptor(versionName, Build.VERSION.RELEASE),
                 DeviceIdInterceptor(prefs = lazy { get<SessionPrefs>() }, get()),
                 RequestIdInterceptor { UUID.randomUUID().toString() },
-                SessionIdInterceptor(environmentUrls = get(), sessionId = SessionId)
+                SessionIdInterceptor(environmentUrls = get(), sessionId = SessionInfo)
             )
         )
     }

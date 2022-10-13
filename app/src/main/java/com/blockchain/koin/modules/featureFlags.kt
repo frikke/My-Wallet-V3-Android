@@ -21,11 +21,13 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.quickFillSellSwapFeatureFlag
 import com.blockchain.koin.rbExperimentFeatureFlag
 import com.blockchain.koin.rbFrequencyFeatureFlag
+import com.blockchain.koin.sardineFeatureFlag
 import com.blockchain.koin.sessionIdFeatureFlag
 import com.blockchain.koin.stakingAccountFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.superappRedesignFeatureFlag
+import com.blockchain.koin.unifiedBalancesFlag
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -132,6 +134,15 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
+    single(unifiedBalancesFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_unified_balances_ff",
+                "Enable Balances from unified balances endpoint"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
     single(bindFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfigService>().featureFlag(
@@ -227,6 +238,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "ff_x_session_id",
                 "Send X-Session-ID Header"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(sardineFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "ff_sardine",
+                "Enable Sardine"
             )
         )
     }.bind(FeatureFlag::class)

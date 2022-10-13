@@ -191,8 +191,19 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         startActivity(BlockchainCardActivity.newIntent(this, cardProduct))
     }
 
-    override fun goToManageBlockchainCard(blockchainCard: BlockchainCard) {
-        startActivity(BlockchainCardActivity.newIntent(this, blockchainCard))
+    override fun goToManageBlockchainCard(
+        product: BlockchainCardProduct,
+        cards: List<BlockchainCard>,
+        defaultCard: BlockchainCard?
+    ) {
+        startActivity(
+            BlockchainCardActivity.newIntent(
+                context = this,
+                blockchainCardProduct = product,
+                blockchainCards = cards,
+                preselectedCard = defaultCard
+            )
+        )
     }
 
     override fun goToReferralCode(referral: ReferralInfo.Data) {
@@ -253,7 +264,11 @@ interface SettingsNavigator {
     fun goToPasswordChange()
     fun goToPinChange()
     fun goToOrderBlockchainCard(cardProduct: BlockchainCardProduct)
-    fun goToManageBlockchainCard(blockchainCard: BlockchainCard)
+    fun goToManageBlockchainCard(
+        product: BlockchainCardProduct,
+        cards: List<BlockchainCard>,
+        defaultCard: BlockchainCard? = null
+    )
     fun goToNotificationPreferencesDetails(preference: ContactPreference)
     fun goToReferralCode(referral: ReferralInfo.Data)
 }

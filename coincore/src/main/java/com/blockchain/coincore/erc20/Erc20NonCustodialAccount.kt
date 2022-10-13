@@ -1,5 +1,6 @@
 package com.blockchain.coincore.erc20
 
+import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
@@ -15,6 +16,8 @@ import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
+import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalanceNotFoundException
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -51,6 +54,17 @@ class Erc20NonCustodialAccount(
             .doOnNext { hasFunds.set(it.balance.isPositive) }
             .doOnNext { setHasTransactions(it.hasTransactions) }
             .map { it.balance }
+
+    override val balanceRx: Observable<AccountBalance>
+        get() = super.balanceRx.onErrorResumeNext {
+            if (it is UnifiedBalanceNotFoundException)
+                Observable.just(AccountBalance.zero(currency))
+            else Observable.error(it)
+        }.doOnNext {
+            hasFunds.set(it.total.isPositive)
+        }
+    override val index: Int
+        get() = DEFAULT_SINGLE_ACCOUNT_INDEX
 
     override val activity: Single<ActivitySummaryList>
         get() {

@@ -41,6 +41,8 @@ import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.customviews.BlockedDueToNotEligibleSheet
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
@@ -88,6 +90,7 @@ class TransactionFlowActivity :
     private val remoteLogger: RemoteLogger by inject()
     private val dashboardPrefs: DashboardPrefs by inject()
     private val dataRemediationService: DataRemediationService by scopedInject()
+    private val fraudService: FraudService by inject()
 
     private val sourceAccount: SingleAccount by lazy {
         intent.extras?.getAccount(SOURCE) as? SingleAccount ?: kotlin.run {
@@ -320,6 +323,8 @@ class TransactionFlowActivity :
     }
 
     private fun dismissFlow() {
+        fraudService.endFlows(FraudFlow.ACH_DEPOSIT, FraudFlow.OB_DEPOSIT, FraudFlow.WITHDRAWAL)
+
         compositeDisposable.clear()
         model.destroy()
         if (scope.isNotClosed()) {

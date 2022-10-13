@@ -15,8 +15,8 @@ import com.blockchain.coincore.selfcustody.DynamicSelfCustodyAsset
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.chains.erc20.data.store.L1BalanceStore
 import com.blockchain.core.chains.erc20.isErc20
+import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.interest.domain.InterestService
@@ -25,8 +25,8 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.getOrThrow
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
@@ -44,9 +44,9 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.await
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.filterList
@@ -63,20 +63,22 @@ internal class DynamicAssetLoader(
     private val experimentalL1EvmAssets: Set<CryptoCurrency>,
     private val assetCatalogue: AssetCatalogueImpl,
     private val payloadManager: PayloadDataManager,
-    private val l1BalanceStore: L1BalanceStore,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
     private val tradingService: TradingService,
     private val interestService: InterestService,
+    private val ethDataManager: EthDataManager,
     private val labels: DefaultLabels,
     private val custodialWalletManager: CustodialWalletManager,
     private val remoteLogger: RemoteLogger,
     private val formatUtils: FormatUtilities,
+    private val unifiedBalancesService: Lazy<UnifiedBalancesService>,
     private val identityAddressResolver: IdentityAddressResolver,
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
     private val selfCustodyService: NonCustodialService,
     private val layerTwoFeatureFlag: FeatureFlag,
+    private val unifiedBalancesFeatureFlag: FeatureFlag,
     private val stakingService: StakingService
 ) : AssetLoader {
 
@@ -111,14 +113,14 @@ internal class DynamicAssetLoader(
                     }.map { asset ->
                         L1EvmAsset(
                             currency = asset,
-                            l1BalanceStore = l1BalanceStore,
                             erc20DataManager = erc20DataManager,
                             feeDataManager = feeDataManager,
                             walletPreferences = walletPreferences,
                             labels = labels,
                             formatUtils = formatUtils,
                             addressResolver = ethHotWalletAddressResolver,
-                            layerTwoFeatureFlag = layerTwoFeatureFlag
+                            layerTwoFeatureFlag = layerTwoFeatureFlag,
+                            ethDataManager = ethDataManager
                         )
                     }.toSet()
                 } else {
@@ -188,40 +190,6 @@ internal class DynamicAssetLoader(
             }
         }.zipSingles().subscribeOn(Schedulers.io()).ignoreElement()
 
-    @OptIn(FlowPreview::class)
-    private fun loadSelfCustodialAssets(): Flow<List<CryptoAsset>> {
-        return selfCustodyService.getSubscriptions()
-            .flatMapConcat { result ->
-                when (result) {
-                    is Outcome.Success ->
-                        flow {
-                            emit(
-                                result.value.mapNotNull {
-                                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
-                                        loadSelfCustodialAsset(asset)
-                                    }
-                                }
-                            )
-                        }
-                    is Outcome.Failure -> {
-                        // getSubscriptions might fail because the wallet has never called auth before
-                        val isSuccess = selfCustodyService.authenticate().getOrThrow()
-                        if (isSuccess) {
-                            selfCustodyService.getSubscriptions().map { subscriptions ->
-                                subscriptions.getOrThrow().mapNotNull {
-                                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
-                                        loadSelfCustodialAsset(asset)
-                                    }
-                                }
-                            }
-                        } else {
-                            throw IllegalStateException("Could not load subscriptions")
-                        }
-                    }
-                }
-            }
-    }
-
     private fun loadErc20AndCustodialAssets(allAssets: Set<Currency>): List<Asset> =
         allAssets.mapNotNull { currency ->
             when {
@@ -240,6 +208,42 @@ internal class DynamicAssetLoader(
      * */
 
     private fun loadNonCustodialActiveAssets(): Flow<List<Asset>> {
+        return flow {
+            val unifiedBalancesServiceEnabled = unifiedBalancesFeatureFlag.coEnabled()
+            if (unifiedBalancesServiceEnabled)
+                emitAll(loadNonCustodialAssetsUsingUnifiedBalances())
+            else
+                emitAll(loadNonCustodialLegacyAssets())
+        }
+    }
+
+    private fun loadNonCustodialAssetsUsingUnifiedBalances(): Flow<List<Asset>> {
+        val selfCustodialAssetsFlow = flow {
+            emit(
+                unifiedBalancesService.value.balances().map {
+                    get(it.currency)
+                }
+            )
+        }.catch {
+            emit(emptyList())
+        }
+
+        val enabledL1AssetsFlow = flow {
+            val evmAssets = enabledEvmL1Assets.await()
+            emit(nonCustodialAssets.plus(evmAssets.toSet()))
+        }
+
+        return combine(
+            selfCustodialAssetsFlow,
+            enabledL1AssetsFlow
+        ) { dynamicSelfCustodyAssets, standardAssets ->
+            dynamicSelfCustodyAssets.filter {
+                it.currency.networkTicker !in standardAssets.map { asset -> asset.currency.networkTicker }
+            } + standardAssets
+        }
+    }
+
+    private fun loadNonCustodialLegacyAssets(): Flow<List<Asset>> {
         val activePKWErc20sFlow = erc20DataManager.getActiveAssets()
             .filterList { it.isErc20() }
             .mapList { loadErc20Asset(it) }
@@ -263,6 +267,37 @@ internal class DynamicAssetLoader(
         ) { activePKWErc20s, dynamicSelfCustodyAssets, standardAssets ->
             activePKWErc20s + dynamicSelfCustodyAssets + standardAssets
         }
+    }
+
+    /**
+     * Remove this once unified balances ff gets removed
+     */
+    @OptIn(FlowPreview::class)
+    private fun loadSelfCustodialAssets(): Flow<List<CryptoAsset>> {
+        return selfCustodyService.getSubscriptions()
+            .flatMapConcat { result ->
+                when (result) {
+                    is Outcome.Success ->
+                        flow {
+                            emit(
+                                result.value.mapNotNull {
+                                    assetCatalogue.assetInfoFromNetworkTicker(it)?.let { asset ->
+                                        loadSelfCustodialAsset(asset)
+                                    }
+                                }
+                            )
+                        }
+                    is Outcome.Failure -> {
+                        // getSubscriptions might fail because the wallet has never called auth before
+                        flow {
+                            emit(emptyList())
+                        }
+                    }
+                    else -> {
+                        throw IllegalStateException("Could not load subscriptions")
+                    }
+                }
+            }
     }
 
     private fun loadCustodialActiveAssets(): Flow<List<Asset>> {

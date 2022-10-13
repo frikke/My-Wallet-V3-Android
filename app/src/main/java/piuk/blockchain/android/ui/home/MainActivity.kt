@@ -66,6 +66,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityMainBinding
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
@@ -168,6 +169,8 @@ class MainActivity :
 
     private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
 
+    private val fraudService: FraudService by inject()
+
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
             (
@@ -202,6 +205,8 @@ class MainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        fraudService.updateAuthenticatedUserFlows()
 
         launchPortfolio()
 

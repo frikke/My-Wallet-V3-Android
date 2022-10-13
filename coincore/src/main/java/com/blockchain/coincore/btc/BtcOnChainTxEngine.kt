@@ -143,20 +143,19 @@ class BtcOnChainTxEngine(
         )
 
     private fun getUnspentApiResponse(xpubs: XPubs): Single<List<Utxo>> {
-        val balance = btcDataManager.getAddressBalance(xpubs)
-        return if (balance.isPositive) {
-            sendDataManager.getUnspentBtcOutputs(xpubs)
-                // If we get here, we should have balance...
-                // but if we have no UTXOs then we have a problem:
-                .map { utxo ->
-                    if (utxo.isEmpty()) {
-                        throw fatalError(IllegalStateException("No BTC UTXOs found for non-zero balance"))
-                    } else {
-                        utxo
+        return sourceAccount.balanceRx.firstOrError().flatMap {
+            if (it.total.isPositive) {
+                sendDataManager.getUnspentBtcOutputs(xpubs)
+                    // If we get here, we should have balance...
+                    // but if we have no UTXOs then we have a problem:
+                    .map { utxo ->
+                        utxo.ifEmpty {
+                            throw fatalError(IllegalStateException("No BTC UTXOs found for non-zero balance"))
+                        }
                     }
-                }
-        } else {
-            Single.error(Throwable("No BTC funds"))
+            } else {
+                Single.error(IllegalStateException("No BTC funds"))
+            }
         }
     }
 
@@ -278,7 +277,7 @@ class BtcOnChainTxEngine(
         pendingTx: PendingTx
     ): Single<PendingTx> = isLargeTransaction(pendingTx).map { isLargeTransaction ->
         pendingTx.copy(
-            confirmations = listOfNotNull(
+            txConfirmations = listOfNotNull(
                 TxConfirmationValue.From(sourceAccount, sourceAsset),
                 TxConfirmationValue.To(txTarget, AssetAction.Send, sourceAccount),
                 TxConfirmationValue.CompoundNetworkFee(

@@ -16,14 +16,15 @@ import com.blockchain.sunriver.BalanceAndMin
 import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.Money.Companion.max
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.rx3.await
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.mapList
 
@@ -39,7 +40,8 @@ internal class XlmCryptoWalletAccount(
     override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(
     CryptoCurrency.XLM
-) {
+),
+    NetworkNonCustodialAccount {
 
     override val isDefault: Boolean = true // Only one account ever, so always default
 
@@ -49,10 +51,10 @@ internal class XlmCryptoWalletAccount(
     internal val address: String
         get() = xlmAccountReference.accountId
 
-    private val hasFunds = AtomicBoolean(false)
-
-    override val isFunded: Boolean
-        get() = hasFunds.get()
+    override val receiveAddress: Single<ReceiveAddress>
+        get() = Single.just(
+            XlmAddress(_address = address, _label = label)
+        )
 
     override val balanceRx: Observable<AccountBalance>
         get() = Observable.combineLatest(
@@ -65,21 +67,23 @@ internal class XlmCryptoWalletAccount(
                 pending = Money.zero(currency),
                 exchangeRate = rate
             )
-        }.doOnNext { hasFunds.set(it.total.isPositive) }
+        }
 
     override fun getOnChainBalance(): Observable<Money> =
-        getMinBalance()
-            .doOnNext { hasFunds.set(it.balance.isPositive) }
-            .map { it.balance as Money }
+        getMinBalance().map {
+            it.balance
+        }
 
     private fun getMinBalance(): Observable<BalanceAndMin> =
         xlmManager.getBalanceAndMin()
             .toObservable()
 
-    override val receiveAddress: Single<ReceiveAddress>
-        get() = Single.just(
-            XlmAddress(_address = address, _label = label)
-        )
+    override suspend fun publicKey(): String {
+        return xlmManager.publicKey.await()
+    }
+
+    override val index: Int
+        get() = DEFAULT_SINGLE_ACCOUNT_INDEX
 
     override val activity: Single<ActivitySummaryList>
         get() = xlmManager.getTransactionList()
@@ -116,4 +120,4 @@ internal class XlmCryptoWalletAccount(
 }
 
 private val BalanceAndMin.actionable: Money
-    get() = max(balance - minimumBalance, CryptoValue.zero(CryptoCurrency.XLM))
+    get() = max(balance - minimumBalance, Money.zero(CryptoCurrency.XLM))

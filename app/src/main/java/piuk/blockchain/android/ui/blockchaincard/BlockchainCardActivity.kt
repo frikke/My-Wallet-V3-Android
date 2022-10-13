@@ -9,16 +9,15 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.googlewallet.manager.GoogleWalletManager
 import com.blockchain.blockchaincard.ui.BlockchainCardHostActivity
-import com.blockchain.blockchaincard.ui.BlockchainCardHostFragment
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullCryptoAccount
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.AssetInfo
+import java.io.Serializable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityBlockchainCardBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
@@ -41,16 +40,16 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
 
     private val googleWalletManager: GoogleWalletManager by scopedInject()
 
-    private val blockchainCardFragment by lazy {
-        (intent?.getParcelableExtra(BlockchainCardHostFragment.BLOCKCHAIN_CARD) as? BlockchainCard)?.let { card ->
-            BlockchainCardFragment.newInstance(card)
-        } ?: (
-            intent?.getParcelableExtra(
-                BlockchainCardHostFragment.BLOCKCHAIN_PRODUCT
-            ) as? BlockchainCardProduct
-            )?.let { product ->
-            BlockchainCardFragment.newInstance(product)
-        } ?: throw IllegalStateException("Missing card or product data")
+    private val blockchainCardProduct by lazy {
+        intent?.getParcelableExtra(BLOCKCHAIN_PRODUCT) as? BlockchainCardProduct
+    }
+
+    private val blockchainCardList by lazy {
+        intent?.getSerializableExtra(BLOCKCHAIN_CARD_LIST) as? List<BlockchainCard>
+    }
+
+    private val preselectedCard by lazy {
+        intent?.getParcelableExtra(PRESELECTED_BLOCKCHAIN_CARD) as? BlockchainCard
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,28 +61,32 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
             backAction = { onBackPressedDispatcher.onBackPressed() }
         )
 
-        supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
-            .replace(binding.blockchainCardContentFrame.id, blockchainCardFragment)
-            .commitNowAllowingStateLoss()
+        blockchainCardList?.let { cards ->
+            startManageCardFlow(cards, preselectedCard)
+        } ?: blockchainCardProduct?.let { product ->
+            startOrderCardFlow()
+        } ?: throw IllegalStateException("Missing card or product data")
     }
 
     companion object {
-        fun newIntent(context: Context, blockchainCard: BlockchainCard): Intent =
-            (BlockchainCardActivity() as BlockchainCardHostActivity).newIntent(context, blockchainCard)
+        fun newIntent(
+            context: Context,
+            blockchainCardProduct: BlockchainCardProduct,
+            blockchainCards: List<BlockchainCard>,
+            preselectedCard: BlockchainCard? = null
+        ): Intent =
+            Intent(context, BlockchainCardActivity::class.java).apply {
+                putExtra(BLOCKCHAIN_PRODUCT, blockchainCardProduct)
+                putExtra(BLOCKCHAIN_CARD_LIST, blockchainCards as Serializable)
+                preselectedCard?.let {
+                    putExtra(PRESELECTED_BLOCKCHAIN_CARD, preselectedCard)
+                }
+            }
         fun newIntent(context: Context, blockchainCardProduct: BlockchainCardProduct): Intent =
-            (BlockchainCardActivity() as BlockchainCardHostActivity).newIntent(context, blockchainCardProduct)
+            Intent(context, BlockchainCardActivity::class.java).apply {
+                putExtra(BLOCKCHAIN_PRODUCT, blockchainCardProduct)
+            }
     }
-
-    override fun newIntent(context: Context, blockchainCard: BlockchainCard) =
-        Intent(context, BlockchainCardActivity::class.java).apply {
-            putExtra(BLOCKCHAIN_CARD, blockchainCard)
-        }
-
-    override fun newIntent(context: Context, blockchainCardProduct: BlockchainCardProduct) =
-        Intent(context, BlockchainCardActivity::class.java).apply {
-            putExtra(BLOCKCHAIN_PRODUCT, blockchainCardProduct)
-        }
 
     override fun startBuy(asset: AssetInfo) =
         startActivity(
@@ -140,5 +143,32 @@ class BlockchainCardActivity : BlockchainCardHostActivity() {
                 }
             }
         }
+    }
+
+    override fun startOrderCardFlow() {
+        blockchainCardProduct?.let { product ->
+            val fragment = BlockchainCardFragment.newInstance(blockchainCardProduct = product)
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
+                .replace(binding.blockchainCardContentFrame.id, fragment, fragment::class.simpleName)
+                .commitAllowingStateLoss()
+        } ?: Timber.e("No products available for order")
+    }
+
+    override fun orderCardFlowComplete(blockchainCard: BlockchainCard) {
+        val cards = blockchainCardList ?: emptyList()
+        supportFragmentManager.popBackStack()
+        startManageCardFlow(cards, blockchainCard)
+    }
+
+    override fun startManageCardFlow(blockchainCards: List<BlockchainCard>, preselectedCard: BlockchainCard?) {
+        val fragment = BlockchainCardFragment.newInstance(
+            blockchainCards = blockchainCards,
+            preselectedCard = preselectedCard
+        )
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
+            .replace(binding.blockchainCardContentFrame.id, fragment, fragment::class.simpleName)
+            .commitAllowingStateLoss()
     }
 }

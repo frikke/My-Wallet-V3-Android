@@ -27,10 +27,13 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycNavHostBinding
+import piuk.blockchain.android.fraud.domain.service.FraudFlow
+import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragmentDirections
@@ -57,6 +60,7 @@ class KycNavHostActivity :
 
     private val compositeDisposable = CompositeDisposable()
     private val userIdentity: UserIdentity by scopedInject()
+    private val fraudService: FraudService by inject()
 
     override val campaignType by unsafeLazy {
         intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType
@@ -171,6 +175,7 @@ class KycNavHostActivity :
 
     override fun onDestroy() {
         compositeDisposable.clear()
+        fraudService.endFlows(FraudFlow.ONBOARDING, FraudFlow.KYC)
         super.onDestroy()
     }
 

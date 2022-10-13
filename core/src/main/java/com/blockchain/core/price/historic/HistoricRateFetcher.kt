@@ -1,10 +1,10 @@
 package com.blockchain.core.price.historic
 
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.outcome.map
 import com.blockchain.store.firstOutcome
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single

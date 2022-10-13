@@ -62,7 +62,7 @@ open class BlockchainApplication : Application() {
     private val fraudService: FraudService by inject()
 
     private val lifecycleListener: AppLifecycleListener by lazy {
-        AppLifecycleListener(lifeCycleInterestedComponent, remoteLogger)
+        AppLifecycleListener(lifeCycleInterestedComponent, remoteLogger, fraudService)
     }
 
     override fun onCreate() {
@@ -90,7 +90,7 @@ open class BlockchainApplication : Application() {
         KoinStarter.start(this)
         initRemoteLogger()
         initLifecycleListener()
-        fraudService.updateSessionId()
+        initFraudService()
 
         if (environmentSettings.isCompanyInternalBuild() || environmentSettings.isRunningInDebugMode()) {
             Intercom.initialize(this, BuildConfig.INTERCOM_API_KEY, BuildConfig.INTERCOM_APP_ID)
@@ -198,6 +198,14 @@ open class BlockchainApplication : Application() {
     private fun initRemoteLogger() {
         remoteLogger.init(this)
         remoteLogger.userLanguageLocale(resources.configuration.locale.language)
+    }
+
+    private fun initFraudService() {
+        with(fraudService) {
+            initMobileIntelligence(this@BlockchainApplication, BuildConfig.SARDINE_CLIENT_ID)
+            updateSessionId()
+            updateUnauthenticatedUserFlows()
+        }
     }
 
     /**

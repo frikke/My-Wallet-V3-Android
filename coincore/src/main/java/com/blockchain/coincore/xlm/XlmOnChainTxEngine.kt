@@ -152,7 +152,7 @@ class XlmOnChainTxEngine(
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
         Single.just(
             pendingTx.copy(
-                confirmations = listOfNotNull(
+                txConfirmations = listOfNotNull(
                     TxConfirmationValue.From(sourceAccount, sourceAsset),
                     TxConfirmationValue.To(
                         txTarget, AssetAction.Send, sourceAccount
@@ -266,8 +266,9 @@ class XlmOnChainTxEngine(
         sourceAccount.receiveAddress.map { receiveAddress ->
             SendDetails(
                 from = XlmAccountReference(
-                    sourceAccount.label,
-                    (receiveAddress as XlmAddress).address
+                    label = sourceAccount.label,
+                    accountId = (receiveAddress as XlmAddress).address,
+                    pubKey = null
                 ),
                 value = pendingTx.amount as CryptoValue,
                 toAddress = targetXlmAddress.address,

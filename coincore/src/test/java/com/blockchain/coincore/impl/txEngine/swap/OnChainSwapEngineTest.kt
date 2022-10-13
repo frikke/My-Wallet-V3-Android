@@ -22,7 +22,6 @@ import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -43,6 +42,7 @@ import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -293,7 +293,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
                     it.availableBalance == availableBalance &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.fromAmounts(min = expectedMinLimit, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED
             }
@@ -357,7 +357,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
                     it.availableBalance == availableBalance &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == TxLimits.fromAmounts(min = expectedMinLimit, max = MAX_GOLD_LIMIT_ASSET) &&
                     it.validationState == ValidationState.UNINITIALISED
             }
@@ -410,7 +410,7 @@ class OnChainSwapEngineTest : CoincoreTestBase() {
                     it.availableBalance == CryptoValue.zero(SRC_ASSET) &&
                     it.feeAmount == CryptoValue.zero(SRC_ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
-                    it.confirmations.isEmpty() &&
+                    it.txConfirmations.isEmpty() &&
                     it.limits == null &&
                     it.validationState == ValidationState.PENDING_ORDERS_LIMIT_REACHED &&
                     it.engineState.isEmpty()

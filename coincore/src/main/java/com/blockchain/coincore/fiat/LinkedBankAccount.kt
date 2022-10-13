@@ -7,11 +7,11 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TxSourceState
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
