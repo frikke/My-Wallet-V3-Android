@@ -431,13 +431,23 @@ class LoginActivity :
         recaptchaClient.verify(
             verificationType = RecaptchaActionType.LOGIN,
             onSuccess = { response ->
-                analytics.logEvent(LoginAnalytics.LoginIdentifierEntered)
-                model.process(
-                    LoginIntents.ObtainSessionIdForEmail(
-                        selectedEmail = selectedEmail,
-                        captcha = response.tokenResult
+                // If the captcha token is "null" or empty, log it.
+                if (
+                    response.tokenResult.isEmpty() ||
+                    response.tokenResult == NULL_STRING ||
+                    response.tokenResult == NULL_STRING.uppercase()
+                ) {
+                    analytics.logEvent(LoginAnalytics.LoginCaptchaTokenIncorrect)
+                    showSnackbar(SnackbarType.Error, R.string.common_error)
+                } else {
+                    analytics.logEvent(LoginAnalytics.LoginIdentifierEntered)
+                    model.process(
+                        LoginIntents.ObtainSessionIdForEmail(
+                            selectedEmail = selectedEmail,
+                            captcha = response.tokenResult
+                        )
                     )
-                )
+                }
             },
             onError = { showSnackbar(SnackbarType.Error, R.string.common_error) }
         )
@@ -459,5 +469,6 @@ class LoginActivity :
 
     companion object {
         private const val RC_SIGN_IN = 10
+        private const val NULL_STRING = "null"
     }
 }
