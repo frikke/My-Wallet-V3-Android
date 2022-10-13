@@ -27,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.control.Search
+import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceChangeTableRow
 import com.blockchain.componentlib.tablerow.ValueChange
@@ -41,11 +44,12 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.model.AssetFilterStatus
-import com.blockchain.home.presentation.allassets.SectionSize
-import com.blockchain.home.presentation.allassets.CryptoAssetState
+import com.blockchain.home.presentation.R
 import com.blockchain.home.presentation.allassets.AssetsIntent
-import com.blockchain.home.presentation.allassets.AssetsViewState
 import com.blockchain.home.presentation.allassets.AssetsViewModel
+import com.blockchain.home.presentation.allassets.AssetsViewState
+import com.blockchain.home.presentation.allassets.CryptoAssetState
+import com.blockchain.home.presentation.allassets.SectionSize
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -120,6 +124,19 @@ fun CryptoAssetsScreen(
             // todo make this a generic screen with composable {contents}
 
             // todo header stuff
+            NavigationBar(
+                title = stringResource(R.string.ma_home_assets_title),
+                onBackButtonClick = { },
+                navigationBarButtons = listOf(
+                    NavigationBarButton.Icon(
+                        drawable = R.drawable.ic_filter,
+                        color = null,
+                        contentDescription = R.string.accessibility_filter
+                    ) {
+                        coroutineScope.launch { sheetState.show() }
+                    }
+                )
+            )
 
             // content
             Column(
@@ -137,8 +154,7 @@ fun CryptoAssetsScreen(
                     is DataResource.Data -> {
                         CryptoAssetsData(
                             cryptoAssets = cryptoAssets.data,
-                            onSearchTermEntered = onSearchTermEntered,
-                            onAssetClick = { coroutineScope.launch { sheetState.show() } }
+                            onSearchTermEntered = onSearchTermEntered
                         )
                     }
                 }
@@ -169,8 +185,7 @@ fun CryptoAssetsLoading() {
 @Composable
 fun CryptoAssetsData(
     cryptoAssets: List<CryptoAssetState>,
-    onSearchTermEntered: (String) -> Unit,
-    onAssetClick: () -> Unit
+    onSearchTermEntered: (String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -184,8 +199,7 @@ fun CryptoAssetsData(
 
         CryptoAssetsList(
             modifier = Modifier.verticalScroll(rememberScrollState()),
-            cryptoAssets = cryptoAssets,
-            onAssetClick = onAssetClick
+            cryptoAssets = cryptoAssets
         )
     }
 }
@@ -193,8 +207,7 @@ fun CryptoAssetsData(
 @Composable
 fun CryptoAssetsList(
     modifier: Modifier = Modifier,
-    cryptoAssets: List<CryptoAssetState>,
-    onAssetClick: () -> Unit
+    cryptoAssets: List<CryptoAssetState>
 ) {
     Card(
         backgroundColor = AppTheme.colors.background,
@@ -211,7 +224,7 @@ fun CryptoAssetsList(
                         },
                         valueChange = cryptoAsset.change,
                         icon = ImageResource.Remote(cryptoAsset.icon),
-                        onClick = onAssetClick
+                        onClick = { /*todo coinview*/ }
                     )
                     if (index < cryptoAssets.lastIndex) {
                         Divider(color = Color(0XFFF1F2F7))

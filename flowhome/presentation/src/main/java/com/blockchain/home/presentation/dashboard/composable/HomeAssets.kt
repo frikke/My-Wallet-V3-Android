@@ -113,7 +113,7 @@ fun HomeAssetsScreen(
             }
             is DataResource.Data -> {
                 if (cryptoAssets.data.isNotEmpty()) {
-                    CryptoAssetsList(cryptoAssets = cryptoAssets.data, onAssetClick = {})
+                    CryptoAssetsList(cryptoAssets = cryptoAssets.data)
                 }
             }
         }

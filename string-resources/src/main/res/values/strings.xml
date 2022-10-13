@@ -3187,6 +3187,7 @@
     <string name="accessibility_price_not_available">Price not available</string>
     <string name="accessibility_balance">Balance</string>
     <string name="accessibility_total_balance">Total Balance</string>
+    <string name="accessibility_filter">Filter</string>
 
     <!-- Bottom Nav Items -->
     <string name="bottom_nav_home">Home</string>

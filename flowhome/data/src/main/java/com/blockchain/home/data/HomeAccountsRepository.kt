@@ -47,7 +47,7 @@ class HomeAccountsRepository(
 
     override fun updateFilters(filters: List<AssetFilterStatus>) {
         multiAppAssetsPrefs.fromFilterStatus(filters)
-        filtersFlow.value = multiAppAssetsPrefs.toFilterStatus()
+        filtersFlow.value = filters
     }
 
     private fun MultiAppAssetsPrefs.toFilterStatus(): List<AssetFilterStatus> {
