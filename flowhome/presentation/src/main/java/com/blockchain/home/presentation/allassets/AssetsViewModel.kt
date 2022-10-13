@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.dashboard
+package com.blockchain.home.presentation.allassets
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AccountBalance
@@ -15,6 +15,7 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.extensions.replace
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.model.AssetFilter
+import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.Money
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,12 +29,12 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
-class HomeViewModel(
+class AssetsViewModel(
     private val homeAccountsService: HomeAccountsService,
     private val currencyPrefs: CurrencyPrefs,
     private val exchangeRates: ExchangeRatesDataManager,
-) : MviViewModel<HomeIntent, HomeViewState, HomeModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
-    HomeModelState()
+) : MviViewModel<AssetsIntent, AssetsViewState, AssetsModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
+    AssetsModelState()
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         updateState { state ->
@@ -41,9 +42,9 @@ class HomeViewModel(
         }
     }
 
-    override fun reduce(state: HomeModelState): HomeViewState {
+    override fun reduce(state: AssetsModelState): AssetsViewState {
         return with(state) {
-            HomeViewState(
+            AssetsViewState(
                 balance = accounts.totalBalance(),
                 cryptoAssets = state.accounts.map { modelAccounts ->
                     modelAccounts
@@ -93,7 +94,7 @@ class HomeViewModel(
         }
     }
 
-    private fun List<ModelAccount>.toHomeCryptoAssets(): List<HomeCryptoAsset> {
+    private fun List<ModelAccount>.toHomeCryptoAssets(): List<CryptoAssetState> {
         val grouped = sortedWith(
             compareByDescending<ModelAccount> { it.singleAccount.currency.index }
                 .thenBy {
@@ -107,7 +108,7 @@ class HomeViewModel(
             )
 
         return grouped.values.map {
-            HomeCryptoAsset(
+            CryptoAssetState(
                 icon = it.first().singleAccount.currency.logo,
                 name = it.first().singleAccount.currency.name,
                 balance = it.map { acc -> acc.balance }.sumAvailableBalances(),
@@ -117,8 +118,8 @@ class HomeViewModel(
                 }
             )
         }.sortedWith(
-            object : Comparator<HomeCryptoAsset> {
-                override fun compare(p0: HomeCryptoAsset, p1: HomeCryptoAsset): Int {
+            object : Comparator<CryptoAssetState> {
+                override fun compare(p0: CryptoAssetState, p1: CryptoAssetState): Int {
                     val p0Balance = (p0.fiatBalance as? DataResource.Data) ?: return 0
                     val p1Balance = (p1.fiatBalance as? DataResource.Data) ?: return 0
                     return p1Balance.data.compareTo(p0Balance.data)
@@ -127,21 +128,21 @@ class HomeViewModel(
         )
     }
 
-    override suspend fun handleIntent(modelState: HomeModelState, intent: HomeIntent) {
+    override suspend fun handleIntent(modelState: AssetsModelState, intent: AssetsIntent) {
         when (intent) {
-            is HomeIntent.LoadHomeAccounts -> {
+            is AssetsIntent.LoadHomeAccounts -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
                 loadAccounts()
                 loadFilters()
             }
 
-            is HomeIntent.FilterSearch -> {
+            is AssetsIntent.FilterSearch -> {
                 updateState {
                     it.copy(filterTerm = intent.term)
                 }
             }
 
-            is HomeIntent.UpdateFilters -> {
+            is AssetsIntent.UpdateFilters -> {
                 homeAccountsService.updateFilters(intent.filters)
             }
         }

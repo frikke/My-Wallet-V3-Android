@@ -1,6 +1,6 @@
 package com.blockchain.home.presentation.allassets
 
-// todo move to be available for other modules
+// todo move to be available for other modules, activities etc..
 sealed class SectionSize(open val size: Int) {
     companion object {
         const val DEFAULT_SIZE = 8

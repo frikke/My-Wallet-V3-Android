@@ -21,15 +21,15 @@ import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.map
 import com.blockchain.home.presentation.allassets.SectionSize
-import com.blockchain.home.presentation.dashboard.HomeIntent
-import com.blockchain.home.presentation.dashboard.HomeViewModel
-import com.blockchain.home.presentation.dashboard.HomeViewState
+import com.blockchain.home.presentation.allassets.AssetsIntent
+import com.blockchain.home.presentation.allassets.AssetsViewState
+import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = getViewModel(scope = payloadScope),
+    viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
     listState: LazyListState,
     // todo not like this
     openAllAssets: () -> Unit
@@ -38,10 +38,10 @@ fun HomeScreen(
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
-    val viewState: HomeViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: AssetsViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(HomeIntent.LoadHomeAccounts(SectionSize.Limited()))
+        viewModel.onIntent(AssetsIntent.LoadHomeAccounts(SectionSize.Limited()))
         onDispose { }
     }
 

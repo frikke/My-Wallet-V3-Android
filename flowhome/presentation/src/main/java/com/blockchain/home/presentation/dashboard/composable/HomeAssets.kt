@@ -24,22 +24,19 @@ import com.blockchain.componentlib.theme.Grey700
 import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
-import com.blockchain.home.presentation.allassets.composable.CryptoAssets
-import com.blockchain.home.presentation.allassets.composable.CryptoAssetsData
 import com.blockchain.home.presentation.allassets.composable.CryptoAssetsList
 import com.blockchain.home.presentation.allassets.composable.CryptoAssetsLoading
-import com.blockchain.home.presentation.allassets.composable.CryptoAssetsScreen
-import com.blockchain.home.presentation.dashboard.HomeCryptoAsset
-import com.blockchain.home.presentation.dashboard.HomeFiatAsset
+import com.blockchain.home.presentation.allassets.CryptoAssetState
+import com.blockchain.home.presentation.allassets.FiatAssetState
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.Money
 
 @Composable
 fun HomeAssets(
-    cryptoAssets: DataResource<List<HomeCryptoAsset>>,
+    cryptoAssets: DataResource<List<CryptoAssetState>>,
     showSeeAllCryptoAssets: DataResource<Boolean>,
     onSeeAllCryptoAssetsClick: () -> Unit,
-    fiatAssets: DataResource<List<HomeFiatAsset>>,
+    fiatAssets: DataResource<List<FiatAssetState>>,
 ) {
     Column(
         modifier = Modifier
@@ -127,21 +124,21 @@ fun PreviewHomeAccounts() {
     HomeAssets(
         cryptoAssets = DataResource.Data(
             listOf(
-                HomeCryptoAsset(
+                CryptoAssetState(
                     icon = "",
                     name = "Ethereum",
                     balance = DataResource.Data(Money.fromMajor(Dollars, 128.toBigDecimal())),
                     change = DataResource.Data(ValueChange.Up(3.94)),
                     fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 112328.toBigDecimal()))
                 ),
-                HomeCryptoAsset(
+                CryptoAssetState(
                     icon = "",
                     name = "Bitcoin",
                     balance = DataResource.Loading,
                     change = DataResource.Loading,
                     fiatBalance = DataResource.Loading
                 ),
-                HomeCryptoAsset(
+                CryptoAssetState(
                     icon = "",
                     name = "Solana",
                     balance = DataResource.Data(Money.fromMajor(Dollars, 555.28.toBigDecimal())),
@@ -152,12 +149,12 @@ fun PreviewHomeAccounts() {
         ),
         fiatAssets = DataResource.Data(
             listOf(
-                HomeFiatAsset(
+                FiatAssetState(
                     icon = "",
                     name = "US Dollar",
                     balance = DataResource.Data(Money.fromMajor(Dollars, 123.28.toBigDecimal())),
                 ),
-                HomeFiatAsset(
+                FiatAssetState(
                     icon = "",
                     name = "Euro",
                     balance = DataResource.Loading,
@@ -186,21 +183,21 @@ fun PreviewHomeAccounts_LoadingFiat() {
     HomeAssets(
         cryptoAssets = DataResource.Data(
             listOf(
-                HomeCryptoAsset(
+                CryptoAssetState(
                     icon = "",
                     name = "Ethereum",
                     balance = DataResource.Data(Money.fromMajor(Dollars, 306.28.toBigDecimal())),
                     change = DataResource.Data(ValueChange.Up(3.94)),
                     fiatBalance = DataResource.Data(Money.fromMajor(Dollars, 306.28.toBigDecimal()))
                 ),
-                HomeCryptoAsset(
+                CryptoAssetState(
                     icon = "",
                     name = "Bitcoin",
                     balance = DataResource.Loading,
                     change = DataResource.Loading,
                     fiatBalance = DataResource.Loading
                 ),
-                HomeCryptoAsset(
+                CryptoAssetState(
                     icon = "",
                     name = "Solana",
                     balance = DataResource.Data(Money.fromMajor(Dollars, 306.28.toBigDecimal())),

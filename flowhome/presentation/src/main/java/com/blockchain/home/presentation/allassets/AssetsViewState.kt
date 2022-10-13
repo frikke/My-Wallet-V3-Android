@@ -1,4 +1,4 @@
-package com.blockchain.home.presentation.dashboard
+package com.blockchain.home.presentation.allassets
 
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.componentlib.tablerow.ValueChange
@@ -9,10 +9,10 @@ import info.blockchain.balance.Money
 /**
  * @property cryptoAssets <assets/isFullList>
  */
-data class HomeViewState(
+data class AssetsViewState(
     val balance: DataResource<Money>,
-    val cryptoAssets: DataResource<Pair<List<HomeCryptoAsset> /*display list*/, Boolean /*is full list*/>>,
-    val fiatAssets: DataResource<List<HomeFiatAsset>>,
+    val cryptoAssets: DataResource<Pair<List<CryptoAssetState> /*display list*/, Boolean /*is full list*/>>,
+    val fiatAssets: DataResource<List<FiatAssetState>>,
     val filters: List<AssetFilterStatus>
 ) : ViewState
 
@@ -22,7 +22,7 @@ sealed interface HomeAsset {
     val balance: DataResource<Money>
 }
 
-data class HomeCryptoAsset(
+data class CryptoAssetState(
     override val icon: String,
     override val name: String,
     override val balance: DataResource<Money>,
@@ -30,7 +30,7 @@ data class HomeCryptoAsset(
     val change: DataResource<ValueChange>
 ) : HomeAsset
 
-data class HomeFiatAsset(
+data class FiatAssetState(
     override val icon: String,
     override val name: String,
     override val balance: DataResource<Money>

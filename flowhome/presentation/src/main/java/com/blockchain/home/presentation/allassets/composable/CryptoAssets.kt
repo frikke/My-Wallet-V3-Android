@@ -42,10 +42,10 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.model.AssetFilterStatus
 import com.blockchain.home.presentation.allassets.SectionSize
-import com.blockchain.home.presentation.dashboard.HomeCryptoAsset
-import com.blockchain.home.presentation.dashboard.HomeIntent
-import com.blockchain.home.presentation.dashboard.HomeViewModel
-import com.blockchain.home.presentation.dashboard.HomeViewState
+import com.blockchain.home.presentation.allassets.CryptoAssetState
+import com.blockchain.home.presentation.allassets.AssetsIntent
+import com.blockchain.home.presentation.allassets.AssetsViewState
+import com.blockchain.home.presentation.allassets.AssetsViewModel
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -55,16 +55,16 @@ import org.koin.androidx.compose.getViewModel
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CryptoAssets(
-    viewModel: HomeViewModel = getViewModel(scope = payloadScope)
+    viewModel: AssetsViewModel = getViewModel(scope = payloadScope)
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
-    val viewState: HomeViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: AssetsViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(HomeIntent.LoadHomeAccounts(SectionSize.All))
+        viewModel.onIntent(AssetsIntent.LoadHomeAccounts(SectionSize.All))
         onDispose { }
     }
 
@@ -72,11 +72,11 @@ fun CryptoAssets(
         CryptoAssetsScreen(
             cryptoAssets = state.cryptoAssets.map { it.first },
             onSearchTermEntered = { term ->
-                viewModel.onIntent(HomeIntent.FilterSearch(term = term))
+                viewModel.onIntent(AssetsIntent.FilterSearch(term = term))
             },
             filters = state.filters,
             onFiltersConfirmed = { filters ->
-                viewModel.onIntent(HomeIntent.UpdateFilters(filters = filters))
+                viewModel.onIntent(AssetsIntent.UpdateFilters(filters = filters))
             }
         )
     }
@@ -85,7 +85,7 @@ fun CryptoAssets(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CryptoAssetsScreen(
-    cryptoAssets: DataResource<List<HomeCryptoAsset>>,
+    cryptoAssets: DataResource<List<CryptoAssetState>>,
     onSearchTermEntered: (String) -> Unit,
     filters: List<AssetFilterStatus>,
     onFiltersConfirmed: (List<AssetFilterStatus>) -> Unit
@@ -169,7 +169,7 @@ fun CryptoAssetsLoading() {
 
 @Composable
 fun CryptoAssetsData(
-    cryptoAssets: List<HomeCryptoAsset>,
+    cryptoAssets: List<CryptoAssetState>,
     onSearchTermEntered: (String) -> Unit,
     onAssetClick: () -> Unit
 ) {
@@ -194,7 +194,7 @@ fun CryptoAssetsData(
 @Composable
 fun CryptoAssetsList(
     modifier: Modifier = Modifier,
-    cryptoAssets: List<HomeCryptoAsset>,
+    cryptoAssets: List<CryptoAssetState>,
     onAssetClick: () -> Unit
 ) {
     Card(
@@ -244,21 +244,21 @@ fun PreviewCryptoAssetsScreen() {
     CryptoAssetsScreen(
         cryptoAssets = DataResource.Data(
             listOf(
-                HomeCryptoAsset(
+                CryptoAssetState(
                     icon = "",
                     name = "Ethereum",
                     balance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, 306.28.toBigDecimal())),
                     change = DataResource.Data(ValueChange.Up(3.94)),
                     fiatBalance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, 306.28.toBigDecimal()))
                 ),
-                HomeCryptoAsset(
+                CryptoAssetState(
                     icon = "",
                     name = "Bitcoin",
                     balance = DataResource.Loading,
                     change = DataResource.Loading,
                     fiatBalance = DataResource.Loading
                 ),
-                HomeCryptoAsset(
+                CryptoAssetState(
                     icon = "",
                     name = "Solana",
                     balance = DataResource.Data(Money.fromMajor(FiatCurrency.Dollars, 306.28.toBigDecimal())),
