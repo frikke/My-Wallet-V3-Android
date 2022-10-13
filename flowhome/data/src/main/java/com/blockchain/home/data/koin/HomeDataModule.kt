@@ -12,7 +12,8 @@ val homeDataModule = module {
         factory {
             HomeAccountsRepository(
                 coincore = get(),
-                walletModeService = get(superAppModeService)
+                walletModeService = get(superAppModeService),
+                multiAppAssetsPrefs = get()
             )
         }.bind(HomeAccountsService::class)
     }

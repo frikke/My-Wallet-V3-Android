@@ -104,6 +104,7 @@ import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.preferences.MultiAppAssetsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -719,6 +720,7 @@ val coreModule = module {
         bind(LocalSettingsPrefs::class)
         bind(SuperAppMvpPrefs::class)
         bind(CowboysPrefs::class)
+        bind(MultiAppAssetsPrefs::class)
     }
 
     factory {

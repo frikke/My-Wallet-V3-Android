@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.dashboard
 
+import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccount
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val homeAccountsService: HomeAccountsService,
@@ -55,8 +57,28 @@ class HomeViewModel(
                                 }
                             }
 
+                            // create predicate for all filters
+                            val filtersPredicate = filters.map { assetFilter ->
+                                when (assetFilter.filter) {
+                                    CryptoAssetFilter.ShowSmallBalances -> {
+                                        if (assetFilter.isEnabled) {
+                                            // let all assets pass
+                                            true
+                                        } else {
+                                            // filter out small balances
+                                            (modelAccount.fiatBalance.map {
+                                                it >= Money.fromMajor(it.currency, CryptoAssetFilter.MinimumBalance)
+                                            } as? DataResource.Data)?.data.let { isHighBalance ->
+                                                isHighBalance != false
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }.all { it /*if all filters are true*/ }
+
                             // filter accounts matching CryptoAccount and the search predicate
-                            (modelAccount.singleAccount is CryptoAccount) && searchTermPredicate
+                            (modelAccount.singleAccount is CryptoAccount) && searchTermPredicate && filtersPredicate
                         }
                         .toHomeCryptoAssets()
                         .let { accounts ->
@@ -65,7 +87,7 @@ class HomeViewModel(
                         }
                 },
                 fiatAssets = DataResource.Data(emptyList()),
-                activity = DataResource.Data(emptyList())
+                filters = filters
             )
         }
     }
@@ -109,6 +131,7 @@ class HomeViewModel(
             is HomeIntent.LoadHomeAccounts -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
                 loadAccounts()
+                loadFilters()
             }
 
             is HomeIntent.FilterSearch -> {
@@ -116,70 +139,95 @@ class HomeViewModel(
                     it.copy(filterTerm = intent.term)
                 }
             }
+
+            is HomeIntent.UpdateFilters -> {
+                homeAccountsService.updateFilters(intent.filters.first().isEnabled)
+            }
+        }
+    }
+
+    private fun loadFilters() {
+        viewModelScope.launch {
+            homeAccountsService.filters()
+                .onEach { assetFilters ->
+                    updateState {
+                        it.copy(
+                            filters = listOf(
+                                CryptoAssetFilterStatus(
+                                    CryptoAssetFilter.ShowSmallBalances,
+                                    assetFilters.shouldShowSmallBalances
+                                )
+                            )
+                        )
+                    }
+                }
+                .collect()
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun loadAccounts() {
-        homeAccountsService.accounts()
-            .onStart {
-                updateState { state ->
-                    state.copy(
-                        accounts = DataResource.Loading
-                    )
-                }
-            }
-            .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
-            .distinctUntilChanged { old, new ->
-                val oldAssets = old.data.map { it.currency.networkTicker }
-                val newAssets = new.data.map { it.currency.networkTicker }
-                newAssets.isNotEmpty() && oldAssets.size == newAssets.size && oldAssets.containsAll(newAssets)
-            }
-            .onEach { data ->
-                updateState { state ->
-                    state.copy(
-                        accounts = DataResource.Data(
-                            data.data.map { account ->
-                                ModelAccount(
-                                    singleAccount = account,
-                                    balance = DataResource.Loading,
-                                    exchangeRateDayDelta = DataResource.Loading,
-                                    fiatBalance = DataResource.Loading
-                                )
-                            }
-                        )
-                    )
-                }
-            }
-            .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
-            .flatMapLatest { accounts ->
-                val balances = accounts.data.map { account ->
-                    account.balance.distinctUntilChanged().map { balance ->
-                        account to balance
-                    }
-                }.merge().onEach { (account, balance) ->
+    private fun loadAccounts() {
+        viewModelScope.launch {
+            homeAccountsService.accounts()
+                .onStart {
                     updateState { state ->
                         state.copy(
-                            accounts = state.accounts.withBalancedAccount(account, balance)
+                            accounts = DataResource.Loading
                         )
                     }
                 }
+                .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
+                .distinctUntilChanged { old, new ->
+                    val oldAssets = old.data.map { it.currency.networkTicker }
+                    val newAssets = new.data.map { it.currency.networkTicker }
+                    newAssets.isNotEmpty() && oldAssets.size == newAssets.size && oldAssets.containsAll(newAssets)
+                }
+                .onEach { data ->
+                    updateState { state ->
+                        state.copy(
+                            accounts = DataResource.Data(
+                                data.data.map { account ->
+                                    ModelAccount(
+                                        singleAccount = account,
+                                        balance = DataResource.Loading,
+                                        exchangeRateDayDelta = DataResource.Loading,
+                                        fiatBalance = DataResource.Loading
+                                    )
+                                }
+                            )
+                        )
+                    }
+                }
+                .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
+                .flatMapLatest { accounts ->
+                    val balances = accounts.data.map { account ->
+                        account.balance.distinctUntilChanged().map { balance ->
+                            account to balance
+                        }
+                    }.merge().onEach { (account, balance) ->
+                        updateState { state ->
+                            state.copy(
+                                accounts = state.accounts.withBalancedAccount(account, balance)
+                            )
+                        }
+                    }
 
-                val exchangeRates = accounts.data.map { account ->
-                    exchangeRates.getPricesWith24hDelta(
-                        fromAsset = account.currency
-                    ).map {
-                        it to account
+                    val exchangeRates = accounts.data.map { account ->
+                        exchangeRates.getPricesWith24hDelta(
+                            fromAsset = account.currency
+                        ).map {
+                            it to account
+                        }
+                    }.merge().onEach { (price, account) ->
+                        updateState { state ->
+                            state.copy(
+                                accounts = state.accounts.withPricing(account, price)
+                            )
+                        }
                     }
-                }.merge().onEach { (price, account) ->
-                    updateState { state ->
-                        state.copy(
-                            accounts = state.accounts.withPricing(account, price)
-                        )
-                    }
-                }
-                merge(exchangeRates, balances)
-            }.collect()
+                    merge(exchangeRates, balances)
+                }.collect()
+        }
     }
 
     private fun DataResource<List<ModelAccount>>.totalBalance(): DataResource<Money> {

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 
 class AppDimensions {
@@ -11,6 +12,9 @@ class AppDimensions {
     val borderSmall: Dp
         @Composable
         get() = dimensionResource(id = R.dimen.compose_border_small_spacing)
+
+    val noSpacing: Dp
+        get() = 0.dp
 
     val composeSmallestSpacing: Dp
         @Composable

@@ -55,14 +55,14 @@ fun HomeAssets(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            if ((showSeeAllCryptoAssets as? DataResource.Data)?.data == true) {
+//            if ((showSeeAllCryptoAssets as? DataResource.Data)?.data == true) {
                 Text(
                     modifier = Modifier.clickableNoEffect(onSeeAllCryptoAssetsClick),
                     text = stringResource(R.string.see_all),
                     style = AppTheme.typography.paragraph2,
                     color = AppTheme.colors.primary,
                 )
-            }
+//            }
         }
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.tinySpacing))
@@ -76,7 +76,7 @@ fun HomeAssets(
             }
             is DataResource.Data -> {
                 if (cryptoAssets.data.isNotEmpty()) {
-                    CryptoAssetsList(cryptoAssets = cryptoAssets.data)
+                    CryptoAssetsList(cryptoAssets = cryptoAssets.data, onAssetClick= {})
                 }
             }
         }

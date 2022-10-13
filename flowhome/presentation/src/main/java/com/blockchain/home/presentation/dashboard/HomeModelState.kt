@@ -9,7 +9,8 @@ import info.blockchain.balance.Money
 data class HomeModelState(
     val accounts: DataResource<List<ModelAccount>> = DataResource.Loading,
     val sectionSize: SectionSize = SectionSize.All,
-    val filterTerm: String = ""
+    val filterTerm: String = "",
+    val filters: List<CryptoAssetFilterStatus> = listOf()
 ) : ModelState
 
 data class ModelAccount(

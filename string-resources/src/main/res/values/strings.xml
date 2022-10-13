@@ -3305,6 +3305,10 @@
     <string name="failed_to_add_card_to_google_pay">Failed to Add Card to Google Pay</string>
     <string name="ma_home_assets_title">Assets</string>
 
+    <string name="assets_filter_title">Filter assets</string>
+    <string name="assets_filter_small_balances">Show small balances</string>
+    <string name="assets_filter_confirmation">Show</string>
+
     <!-- STAKING -->
     <string name="staking_coming_soon_title">Coming soon to mobile</string>
     <string name="staking_coming_soon_subtitle">In the meantime, you can manage your Staking Account using our web app.</string>

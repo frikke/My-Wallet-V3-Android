@@ -19,6 +19,7 @@ import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.preferences.MultiAppAssetsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -75,7 +76,8 @@ class PrefsUtil(
     ReferralPrefs,
     LocalSettingsPrefs,
     SuperAppMvpPrefs,
-    CowboysPrefs {
+    CowboysPrefs,
+    MultiAppAssetsPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -741,6 +743,10 @@ class PrefsUtil(
         get() = getValue(COWBOYS_REFERRAL_CARD_DISMISSED, false)
         set(value) = setValue(COWBOYS_REFERRAL_CARD_DISMISSED, value)
 
+    override var shouldShowSmallBalances: Boolean
+        get() = getValue(SHOULD_SHOW_SMALL_BALANCES, false)
+        set(value) = setValue(SHOULD_SHOW_SMALL_BALANCES, value)
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -874,6 +880,10 @@ class PrefsUtil(
         // Cowboys promo
         private const val HAS_SEEN_COWBOYS_FLOW = "has_seen_cowboys_flow"
         private const val COWBOYS_REFERRAL_CARD_DISMISSED = "referral_card_dismissed"
+
+        // multiapp assets
+        private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
+
     }
 }
 

@@ -1,5 +1,6 @@
 package com.blockchain.home.presentation.allassets.composable
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -7,15 +8,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -33,6 +41,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.data.map
 import com.blockchain.home.presentation.allassets.SectionSize
+import com.blockchain.home.presentation.dashboard.CryptoAssetFilterStatus
 import com.blockchain.home.presentation.dashboard.HomeCryptoAsset
 import com.blockchain.home.presentation.dashboard.HomeIntent
 import com.blockchain.home.presentation.dashboard.HomeViewModel
@@ -40,8 +49,10 @@ import com.blockchain.home.presentation.dashboard.HomeViewState
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CryptoAssets(
     viewModel: HomeViewModel = getViewModel(scope = payloadScope)
@@ -62,48 +73,80 @@ fun CryptoAssets(
             cryptoAssets = state.cryptoAssets.map { it.first },
             onSearchTermEntered = { term ->
                 viewModel.onIntent(HomeIntent.FilterSearch(term = term))
+            },
+            filters = state.filters,
+            onFiltersConfirmed = { filters ->
+                viewModel.onIntent(HomeIntent.UpdateFilters(filters = filters))
             }
         )
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CryptoAssetsScreen(
     cryptoAssets: DataResource<List<HomeCryptoAsset>>,
-    onSearchTermEntered: (String) -> Unit
+    onSearchTermEntered: (String) -> Unit,
+    filters: List<CryptoAssetFilterStatus>,
+    onFiltersConfirmed: (List<CryptoAssetFilterStatus>) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = Color(0XFFF1F2F7))
+    val sheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
+    )
+    val coroutineScope = rememberCoroutineScope()
+
+    BackHandler(sheetState.isVisible) {
+        coroutineScope.launch { sheetState.hide() }
+    }
+
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetContent = {
+            CryptoAssetsFilters(
+                filters = filters,
+                onConfirmClick = { filters ->
+                    coroutineScope.launch { sheetState.hide() }
+                    onFiltersConfirmed(filters)
+                }
+            )
+        },
+        modifier = Modifier.fillMaxSize()
     ) {
-        // todo make this a generic screen with composable {contents}
-
-        // todo header stuff
-
-        // content
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(AppTheme.dimensions.smallSpacing)
+                .fillMaxSize()
+                .background(color = Color(0XFFF1F2F7))
         ) {
-            when (cryptoAssets) {
-                is DataResource.Loading -> {
-                    CryptoAssetsLoading()
-                }
-                is DataResource.Error -> {
-                    // todo
-                }
-                is DataResource.Data -> {
-                    CryptoAssetsData(
-                        cryptoAssets = cryptoAssets.data,
-                        onSearchTermEntered = onSearchTermEntered
-                    )
+            // todo make this a generic screen with composable {contents}
+
+            // todo header stuff
+
+            // content
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.smallSpacing)
+            ) {
+                when (cryptoAssets) {
+                    is DataResource.Loading -> {
+                        CryptoAssetsLoading()
+                    }
+                    is DataResource.Error -> {
+                        // todo
+                    }
+                    is DataResource.Data -> {
+                        CryptoAssetsData(
+                            cryptoAssets = cryptoAssets.data,
+                            onSearchTermEntered = onSearchTermEntered,
+                            onAssetClick = { coroutineScope.launch { sheetState.show() } }
+                        )
+                    }
                 }
             }
-        }
 
-        // todo footer stuff
+            // todo footer stuff
+        }
     }
 }
 
@@ -127,7 +170,8 @@ fun CryptoAssetsLoading() {
 @Composable
 fun CryptoAssetsData(
     cryptoAssets: List<HomeCryptoAsset>,
-    onSearchTermEntered: (String) -> Unit
+    onSearchTermEntered: (String) -> Unit,
+    onAssetClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -138,13 +182,19 @@ fun CryptoAssetsData(
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
 
-        CryptoAssetsList(cryptoAssets = cryptoAssets)
+        CryptoAssetsList(
+            modifier = Modifier.verticalScroll(rememberScrollState()),
+            cryptoAssets = cryptoAssets,
+            onAssetClick = onAssetClick
+        )
     }
 }
 
 @Composable
 fun CryptoAssetsList(
-    cryptoAssets: List<HomeCryptoAsset>
+    modifier: Modifier = Modifier,
+    cryptoAssets: List<HomeCryptoAsset>,
+    onAssetClick: () -> Unit
 ) {
     Card(
         backgroundColor = AppTheme.colors.background,
@@ -152,7 +202,7 @@ fun CryptoAssetsList(
         elevation = 0.dp
     ) {
         if (cryptoAssets.isNotEmpty()) {
-            Column {
+            Column(modifier = modifier) {
                 cryptoAssets.forEachIndexed { index, cryptoAsset ->
                     BalanceChangeTableRow(
                         name = cryptoAsset.name,
@@ -161,8 +211,7 @@ fun CryptoAssetsList(
                         },
                         valueChange = cryptoAsset.change,
                         icon = ImageResource.Remote(cryptoAsset.icon),
-                        onClick = {
-                        }
+                        onClick = onAssetClick
                     )
                     if (index < cryptoAssets.lastIndex) {
                         Divider(color = Color(0XFFF1F2F7))
@@ -217,7 +266,9 @@ fun PreviewCryptoAssetsScreen() {
                 )
             )
         ),
-        onSearchTermEntered = {}
+        onSearchTermEntered = {},
+        filters = listOf(),
+        {}
     )
 }
 
@@ -228,6 +279,8 @@ fun PreviewCryptoAssetsScreen_Empty() {
         cryptoAssets = DataResource.Data(
             listOf()
         ),
-        onSearchTermEntered = {}
+        onSearchTermEntered = {},
+        filters = listOf(),
+        {}
     )
 }
