@@ -20,6 +20,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.ui.composables.managecard.AccountPicker
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddress
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddressUpdated
+import com.blockchain.blockchaincard.ui.composables.managecard.CardSelector
 import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionDetails
 import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionHistory
 import com.blockchain.blockchaincard.ui.composables.managecard.FundingAccountActionChooser
@@ -65,8 +66,10 @@ fun BlockchainCardNavHost(
     modelArgs: ModelConfigArgs
 ) {
     val startDestination =
-        if (modelArgs is BlockchainCardArgs.CardArgs) BlockchainCardDestination.ManageCardDestination
-        else BlockchainCardDestination.OrderCardDestination
+        if (modelArgs is BlockchainCardArgs.CardArgs) {
+            if (modelArgs.preselectedCard != null) BlockchainCardDestination.ManageCardDestination
+            else BlockchainCardDestination.SelectCardDestination
+        } else BlockchainCardDestination.OrderCardDestination
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -159,7 +162,9 @@ fun BlockchainCardNavHost(
             composable(BlockchainCardDestination.CreateCardSuccessDestination) {
                 CardCreationSuccess(
                     onFinish = {
-                        viewModel.onIntent(BlockchainCardIntent.ManageCard)
+                        state?.currentCard?.let {
+                            viewModel.onIntent(BlockchainCardIntent.OnOrderCardFlowComplete)
+                        }
                     }
                 )
             }
@@ -234,19 +239,48 @@ fun BlockchainCardNavHost(
             }
 
             // Manage Card Screens
+            composable(BlockchainCardDestination.SelectCardDestination) {
+                if (viewModel is ManageCardViewModel) {
+                    state?.let { state ->
+                        state.cardList?.let { cardList ->
+                            CardSelector(
+                                cards = cardList,
+                                defaultCardId = state.defaultCardId,
+                                onOrderCard = {
+                                    viewModel.onIntent(BlockchainCardIntent.OrderCard)
+                                },
+                                onManageCard = { card ->
+                                    viewModel.onIntent(BlockchainCardIntent.ManageCardDetails(card))
+                                },
+                                onViewCard = { card ->
+                                    viewModel.onIntent(BlockchainCardIntent.ManageCard(card))
+                                },
+                                onSetCardAsDefault = { cardId ->
+                                    viewModel.onIntent(BlockchainCardIntent.SaveCardAsDefault(cardId))
+                                },
+                                onRefreshCards = {
+                                    viewModel.onIntent(BlockchainCardIntent.LoadCards)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
             composable(BlockchainCardDestination.ManageCardDestination) {
                 if (viewModel is ManageCardViewModel) { // Once in the manage flow, the VM must be a ManageCardViewModel
                     state?.let { state ->
                         ManageCard(
-                            card = state.card,
+                            card = state.currentCard,
                             cardWidgetUrl = state.cardWidgetUrl,
                             linkedAccountBalance = state.linkedAccountBalance,
                             isBalanceLoading = state.isLinkedAccountBalanceLoading,
                             isTransactionListRefreshing = state.isTransactionListRefreshing,
                             transactionList = state.shortTransactionList,
                             googleWalletState = state.googleWalletStatus,
-                            onManageCardDetails = {
-                                viewModel.onIntent(BlockchainCardIntent.ManageCardDetails)
+                            onViewCardSelector = { viewModel.onIntent(BlockchainCardIntent.SelectCard) },
+                            onManageCardDetails = { card ->
+                                viewModel.onIntent(BlockchainCardIntent.ManageCardDetails(card))
                             },
                             onFundingAccountClicked = {
                                 viewModel.onIntent(BlockchainCardIntent.FundingAccountClicked)
@@ -278,7 +312,7 @@ fun BlockchainCardNavHost(
             }
 
             bottomSheet(BlockchainCardDestination.ManageCardDetailsDestination) {
-                state?.card?.let { card ->
+                state?.currentCard?.let { card ->
                     ManageCardDetails(
                         last4digits = card.last4,
                         onToggleLockCard = { isChecked: Boolean ->
@@ -401,7 +435,7 @@ fun BlockchainCardNavHost(
             }
 
             bottomSheet(BlockchainCardDestination.CloseCardDestination) {
-                state?.card?.last4?.let { last4 ->
+                state?.currentCard?.last4?.let { last4 ->
                     TerminateCard(
                         last4digits = last4,
                         onConfirmCloseCard = {
@@ -437,13 +471,13 @@ fun BlockchainCardNavHost(
 
             bottomSheet(BlockchainCardDestination.TransactionDetailsDestination) {
                 state?.let { state ->
-                    if (state.selectedCardTransaction != null && state.card != null) {
+                    if (state.selectedCardTransaction != null && state.currentCard != null) {
                         CardTransactionDetails(
                             cardTransaction = state.selectedCardTransaction,
                             onCloseBottomSheet = {
                                 viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
                             },
-                            last4digits = state.card.last4
+                            last4digits = state.currentCard.last4
                         )
                     }
                 }

@@ -25,6 +25,7 @@ import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrNull
+import com.blockchain.preferences.BlockchainCardPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
@@ -54,13 +55,16 @@ class BlockchainCardRepositoryImplTest {
 
     private val googleWalletManager = mockk<GoogleWalletManager>()
 
+    private val blockchainCardPrefs = mockk<BlockchainCardPrefs>()
+
     private val blockchainCardRepository = BlockchainCardRepositoryImpl(
         blockchainCardService = blockchainCardService,
         eligibilityApiService = eligibilityApiService,
         coincore = coincore,
         assetCatalogue = assetCatalogue,
         userIdentity = userIdentity,
-        googleWalletManager = googleWalletManager
+        googleWalletManager = googleWalletManager,
+        blockchainCardPrefs = blockchainCardPrefs
     )
 
     private val widgetToken = "widgetToken"

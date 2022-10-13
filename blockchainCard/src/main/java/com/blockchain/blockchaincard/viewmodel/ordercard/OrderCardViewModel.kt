@@ -19,10 +19,6 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
 
     override fun viewCreated(args: ModelConfigArgs) {
         when (args) {
-            is BlockchainCardArgs.CardArgs -> {
-                updateState { it.copy(card = args.card) }
-            }
-
             is BlockchainCardArgs.ProductArgs -> {
                 updateState { it.copy(selectedCardProduct = args.product) }
             }
@@ -35,7 +31,7 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
 
     override fun reduce(state: BlockchainCardModelState): BlockchainCardViewState = BlockchainCardViewState(
         errorState = state.errorState,
-        card = state.card,
+        currentCard = state.currentCard,
         selectedCardProduct = state.selectedCardProduct,
         residentialAddress = state.residentialAddress,
         ssn = state.ssn,
@@ -168,7 +164,7 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                                         navigate(BlockchainCardNavigationEvent.CreateCardFailed)
                                     }
                                     .doOnSuccess { card ->
-                                        updateState { it.copy(card = card) }
+                                        updateState { it.copy(currentCard = card) }
                                         navigate(BlockchainCardNavigationEvent.CreateCardSuccess)
                                     }
                             }.doOnFailure { error ->
@@ -191,12 +187,6 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
 
             is BlockchainCardIntent.SnackbarDismissed -> {
                 updateState { it.copy(errorState = null) }
-            }
-
-            is BlockchainCardIntent.ManageCard -> {
-                modelState.card?.let {
-                    navigate(BlockchainCardNavigationEvent.ManageCard(modelState.card))
-                }
             }
 
             is BlockchainCardIntent.LoadLegalDocuments -> {
@@ -247,6 +237,12 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                         updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                     }
                 )
+            }
+
+            is BlockchainCardIntent.OnOrderCardFlowComplete -> {
+                modelState.currentCard?.let { createdCard ->
+                    navigate(BlockchainCardNavigationEvent.FinishOrderCardFlow(createdCard))
+                }
             }
 
             else -> {

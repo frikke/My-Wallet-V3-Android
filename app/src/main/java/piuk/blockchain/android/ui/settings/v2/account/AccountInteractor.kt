@@ -2,8 +2,6 @@ package piuk.blockchain.android.ui.settings.v2.account
 
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
-import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
-import com.blockchain.blockchaincard.domain.models.BlockchainCardType
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.outcome.Outcome
@@ -84,24 +82,28 @@ class AccountInteractor internal constructor(
         blockchainCardRepository.getCards()
             .mapError { it }
             .flatMap { cards ->
-                val activeCards = cards.filter {
-                    it.status == BlockchainCardStatus.ACTIVE || it.status == BlockchainCardStatus.LOCKED
-                }
-                if (activeCards.isNotEmpty()) {
-                    // TODO(labreu): For now we only allow 1 card, but in the future we must pass the full list here
-                    Outcome.Success(BlockchainCardOrderState.Ordered(activeCards.first()))
-                } else {
-                    blockchainCardRepository.getProducts()
-                        .mapError { it }
-                        .map { products ->
-                            // TODO(labreu): remove this once BE supports physical cards
-                            val productsFinal = products.filter { it.type == BlockchainCardType.VIRTUAL }
-                            if (productsFinal.isNotEmpty())
-                                BlockchainCardOrderState.Eligible(productsFinal)
+                blockchainCardRepository.getProducts()
+                    .mapError { it }
+                    .map { products ->
+                        if (cards.isNotEmpty()) {
+                            val defaultCardId = blockchainCardRepository.getDefaultCard()
+                            cards.find { it.id == defaultCardId }?.let { defaultCard ->
+                                BlockchainCardOrderState.Ordered(
+                                    cardProducts = products,
+                                    cards = cards.reversed(),
+                                    defaultCard = defaultCard
+                                )
+                            } ?: BlockchainCardOrderState.Ordered(
+                                cardProducts = products,
+                                cards = cards.reversed()
+                            )
+                        } else {
+                            if (products.isNotEmpty())
+                                BlockchainCardOrderState.Eligible(products)
                             else
                                 BlockchainCardOrderState.NotEligible
                         }
-                }
+                    }
             }
 
     fun toggleChartVibration(chartVibrationEnabled: Boolean): Single<Boolean> =

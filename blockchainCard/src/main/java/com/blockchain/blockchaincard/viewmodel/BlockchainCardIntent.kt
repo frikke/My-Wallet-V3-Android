@@ -1,5 +1,6 @@
 package com.blockchain.blockchaincard.viewmodel
 
+import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
@@ -25,7 +26,7 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     }
     object OnSeeProductDetails : BlockchainCardIntent()
     object OnSeeProductLegalInfo : BlockchainCardIntent()
-    object ManageCard : BlockchainCardIntent()
+    data class ManageCard(val card: BlockchainCard) : BlockchainCardIntent()
     object OrderCardKYCAddress : BlockchainCardIntent()
     object OrderCardKYCSSN : BlockchainCardIntent()
     data class OnSeeSingleLegalDocument(val legalDocument: BlockchainCardLegalDocument) : BlockchainCardIntent()
@@ -33,11 +34,14 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     data class OnLegalDocSeen(val name: String) : BlockchainCardIntent()
     object OnFinishLegalDocReview : BlockchainCardIntent()
     object OnOrderCardConfirm : BlockchainCardIntent()
+    object OnOrderCardFlowComplete : BlockchainCardIntent()
 
     // ManageCard
+    object SelectCard : BlockchainCardIntent()
+    object OrderCard : BlockchainCardIntent()
     object LockCard : BlockchainCardIntent()
     object UnlockCard : BlockchainCardIntent()
-    object ManageCardDetails : BlockchainCardIntent()
+    data class ManageCardDetails(val card: BlockchainCard) : BlockchainCardIntent()
     object LoadCardWidget : BlockchainCardIntent()
     object FundingAccountClicked : BlockchainCardIntent()
     object ChoosePaymentMethod : BlockchainCardIntent()
@@ -69,4 +73,7 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object LoadGoogleWalletPushTokenizeData : BlockchainCardIntent()
     object GoogleWalletAddCardSuccess : BlockchainCardIntent()
     object GoogleWalletAddCardFailed : BlockchainCardIntent()
+    object LoadDefaultCard : BlockchainCardIntent()
+    data class SaveCardAsDefault(val defaultCardId: String) : BlockchainCardIntent()
+    object LoadCards : BlockchainCardIntent()
 }

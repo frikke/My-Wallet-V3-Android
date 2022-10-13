@@ -10,6 +10,7 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.blockchaincard.domain.models.BlockchainCardType
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -209,7 +210,11 @@ class AccountFragment :
                     secondaryText = null
                     tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
                     onClick = {
-                        navigator().goToOrderBlockchainCard(blockchainCardOrderState.cardProducts.first())
+                        navigator().goToOrderBlockchainCard(
+                            cardProduct = blockchainCardOrderState.cardProducts.first {
+                                it.type == BlockchainCardType.VIRTUAL
+                            }
+                        )
                     }
                 }
                 is BlockchainCardOrderState.Ordered -> {
@@ -217,7 +222,13 @@ class AccountFragment :
                     secondaryText = null
                     tags = null
                     onClick = {
-                        navigator().goToManageBlockchainCard(blockchainCardOrderState.blockchainCard)
+                        navigator().goToManageBlockchainCard(
+                            product = blockchainCardOrderState.cardProducts.first {
+                                it.type == BlockchainCardType.VIRTUAL
+                            },
+                            cards = blockchainCardOrderState.cards,
+                            defaultCard = blockchainCardOrderState.defaultCard
+                        )
                     }
                 }
             }

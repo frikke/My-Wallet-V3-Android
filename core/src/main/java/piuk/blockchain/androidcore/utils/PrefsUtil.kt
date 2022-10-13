@@ -13,6 +13,7 @@ import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.preferences.BlockchainCardPrefs
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
 import com.blockchain.preferences.CowboysPrefs
@@ -75,7 +76,8 @@ class PrefsUtil(
     ReferralPrefs,
     LocalSettingsPrefs,
     SuperAppMvpPrefs,
-    CowboysPrefs {
+    CowboysPrefs,
+    BlockchainCardPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -741,6 +743,10 @@ class PrefsUtil(
         get() = getValue(COWBOYS_REFERRAL_CARD_DISMISSED, false)
         set(value) = setValue(COWBOYS_REFERRAL_CARD_DISMISSED, value)
 
+    override var defaultCardId: String
+        get() = getValue(DEFAULT_BLOCKCHAIN_CARD_ID, "")
+        set(value) = setValue(DEFAULT_BLOCKCHAIN_CARD_ID, value)
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -874,6 +880,9 @@ class PrefsUtil(
         // Cowboys promo
         private const val HAS_SEEN_COWBOYS_FLOW = "has_seen_cowboys_flow"
         private const val COWBOYS_REFERRAL_CARD_DISMISSED = "referral_card_dismissed"
+
+        // Blockchain Card
+        private const val DEFAULT_BLOCKCHAIN_CARD_ID = "default_blockchain_card_id"
     }
 }
 

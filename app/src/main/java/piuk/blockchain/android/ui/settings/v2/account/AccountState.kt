@@ -36,7 +36,11 @@ enum class ExchangeLinkingState {
 sealed class BlockchainCardOrderState {
     object NotEligible : BlockchainCardOrderState()
     data class Eligible(val cardProducts: List<BlockchainCardProduct>) : BlockchainCardOrderState()
-    data class Ordered(val blockchainCard: BlockchainCard) : BlockchainCardOrderState()
+    data class Ordered(
+        val cardProducts: List<BlockchainCardProduct>,
+        val cards: List<BlockchainCard>,
+        val defaultCard: BlockchainCard? = null
+    ) : BlockchainCardOrderState()
 }
 
 data class AccountInformation(

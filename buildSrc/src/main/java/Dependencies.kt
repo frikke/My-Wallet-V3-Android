@@ -19,6 +19,9 @@ object Versions {
     // Coroutines
     const val coroutines = "1.5.2"
 
+    // Kotlin Immutable Collections
+    const val immutableCollections = "0.3.5"
+
     const val googleServicesPlugin = "4.3.3"
     const val ktlint = "0.43.0"
     const val detekt = "1.20.0"
@@ -187,6 +190,8 @@ object Libraries {
     const val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     const val androidCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
     const val rxjava3Coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:${Versions.coroutines}"
+    const val kotlinImmutableCollections =
+        "org.jetbrains.kotlinx:kotlinx-collections-immutable:${Versions.immutableCollections}"
     const val googleServicesPlugin = "com.google.gms:google-services:${Versions.googleServicesPlugin}"
     const val ktlint = "com.pinterest:ktlint:${Versions.ktlint}"
     const val detekt = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Versions.detekt}"

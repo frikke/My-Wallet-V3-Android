@@ -117,8 +117,14 @@ enum class BlockchainCardBrand {
 
 enum class BlockchainCardType {
     VIRTUAL,
-    PHYSICAL,
-    UNKNOWN
+    PHYSICAL;
+
+    fun getStringResource(): Int {
+        return when (this) {
+            VIRTUAL -> R.string.virtual
+            PHYSICAL -> R.string.physical
+        }
+    }
 }
 
 enum class BlockchainCardStatus {
@@ -126,7 +132,17 @@ enum class BlockchainCardStatus {
     UNACTIVATED,
     ACTIVE,
     LOCKED,
-    TERMINATED
+    TERMINATED;
+
+    fun getStringResource(): Int {
+        return when (this) {
+            INITIATED -> R.string.bc_card_status_initiated
+            UNACTIVATED -> R.string.bc_card_status_unactivated
+            ACTIVE -> R.string.bc_card_status_active
+            LOCKED -> R.string.bc_card_status_locked
+            TERMINATED -> R.string.bc_card_status_terminated
+        }
+    }
 }
 
 enum class BlockchainCardTransactionState {

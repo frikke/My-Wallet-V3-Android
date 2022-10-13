@@ -3,6 +3,7 @@ package com.blockchain.blockchaincard.viewmodel.managecard
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletData
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
 import com.blockchain.blockchaincard.util.BlockchainCardTransactionUtils
 import com.blockchain.blockchaincard.util.getCompletedTransactionsGroupedByMonth
@@ -34,16 +35,26 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
     override fun viewCreated(args: ModelConfigArgs) {
         when (args) {
             is BlockchainCardArgs.CardArgs -> {
-                updateState { it.copy(card = args.card) }
-                onIntent(BlockchainCardIntent.LoadUserFirstAndLastName)
-                onIntent(BlockchainCardIntent.LoadCardWidget)
-                onIntent(BlockchainCardIntent.LoadLinkedAccount)
-                onIntent(BlockchainCardIntent.LoadTransactions)
-                onIntent(BlockchainCardIntent.LoadGoogleWalletTokenizationStatus)
-            }
+                if (args.preselectedCard != null) {
+                    updateState {
+                        it.copy(
+                            cardList = args.cards,
+                            currentCard = args.preselectedCard,
+                            defaultCardId = args.preselectedCard.id
+                        )
+                    }
 
-            is BlockchainCardArgs.ProductArgs -> {
-                updateState { it.copy(selectedCardProduct = args.product) }
+                    if (args.preselectedCard.status != BlockchainCardStatus.TERMINATED) {
+                        onIntent(BlockchainCardIntent.LoadCardWidget)
+                        onIntent(BlockchainCardIntent.LoadGoogleWalletTokenizationStatus)
+                    }
+
+                    onIntent(BlockchainCardIntent.LoadUserFirstAndLastName)
+                    onIntent(BlockchainCardIntent.LoadLinkedAccount)
+                    onIntent(BlockchainCardIntent.LoadTransactions)
+                } else {
+                    updateState { it.copy(cardList = args.cards) }
+                }
             }
 
             else -> {
@@ -54,7 +65,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
 
     override fun reduce(state: BlockchainCardModelState): BlockchainCardViewState = BlockchainCardViewState(
         errorState = state.errorState,
-        card = state.card,
+        cardList = state.cardList,
+        currentCard = state.currentCard,
+        defaultCardId = state.defaultCardId,
         selectedCardProduct = state.selectedCardProduct,
         cardWidgetUrl = state.cardWidgetUrl,
         eligibleTradingAccountBalances = state.eligibleTradingAccountBalances,
@@ -76,12 +89,64 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
         intent: BlockchainCardIntent
     ) {
         when (intent) {
+            is BlockchainCardIntent.ManageCard -> {
+                updateState { it.copy(currentCard = intent.card) }
+
+                if (intent.card.status != BlockchainCardStatus.TERMINATED) {
+                    onIntent(BlockchainCardIntent.LoadCardWidget)
+                    onIntent(BlockchainCardIntent.LoadGoogleWalletTokenizationStatus)
+                }
+
+                onIntent(BlockchainCardIntent.LoadUserFirstAndLastName)
+                onIntent(BlockchainCardIntent.LoadLinkedAccount)
+                onIntent(BlockchainCardIntent.LoadTransactions)
+
+                navigate(BlockchainCardNavigationEvent.ManageCard)
+            }
+
+            is BlockchainCardIntent.SelectCard -> {
+                navigate(
+                    BlockchainCardNavigationEvent.ViewCardSelector(
+                        hasDefault = modelState.defaultCardId.isNotEmpty()
+                    )
+                )
+            }
+
+            is BlockchainCardIntent.LoadDefaultCard -> {
+                val defaultCardId = blockchainCardRepository.getDefaultCard()
+                if (defaultCardId.isNotEmpty()) {
+                    updateState { it.copy(defaultCardId = defaultCardId) }
+                }
+            }
+
+            is BlockchainCardIntent.SaveCardAsDefault -> {
+                blockchainCardRepository.saveCardAsDefault(intent.defaultCardId)
+                updateState { it.copy(defaultCardId = intent.defaultCardId) }
+            }
+
+            is BlockchainCardIntent.LoadCards -> {
+                blockchainCardRepository.getCards().fold(
+                    onSuccess = { cards ->
+                        updateState { it.copy(cardList = cards.reversed()) }
+                    },
+                    onFailure = { error ->
+                        Timber.e("Unable to refresh card list")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                    }
+                )
+            }
+
+            is BlockchainCardIntent.OrderCard -> {
+                navigate(BlockchainCardNavigationEvent.OrderCard)
+            }
+
             is BlockchainCardIntent.ManageCardDetails -> {
+                updateState { it.copy(currentCard = intent.card) }
                 navigate(BlockchainCardNavigationEvent.ManageCardDetails)
             }
 
             is BlockchainCardIntent.LockCard -> {
-                modelState.card?.let { card ->
+                modelState.currentCard?.let { card ->
                     blockchainCardRepository.lockCard(card.id).fold(
                         onFailure = { error ->
                             Timber.e("Card lock failed: $error")
@@ -89,14 +154,14 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         },
                         onSuccess = { cardUpdated ->
                             Timber.d("Card locked")
-                            updateState { it.copy(card = cardUpdated) }
+                            updateState { it.copy(currentCard = cardUpdated) }
                         }
                     )
                 }
             }
 
             is BlockchainCardIntent.UnlockCard -> {
-                modelState.card?.let { card ->
+                modelState.currentCard?.let { card ->
                     blockchainCardRepository.unlockCard(card.id).fold(
                         onFailure = { error ->
                             Timber.e("Card unlock failed: $error")
@@ -104,7 +169,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         },
                         onSuccess = { cardUpdated ->
                             Timber.d("Card unlocked")
-                            updateState { it.copy(card = cardUpdated) }
+                            updateState { it.copy(currentCard = cardUpdated) }
                         }
                     )
                 }
@@ -112,11 +177,11 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
 
             is BlockchainCardIntent.LoadCardWidget -> {
                 updateState { it.copy(cardWidgetUrl = null) }
-                if (modelState.card != null) {
+                if (modelState.currentCard != null) {
                     blockchainCardRepository.getUserFirstAndLastName().flatMap { firstAndLastName ->
                         blockchainCardRepository.getCardWidgetUrl(
-                            cardId = modelState.card.id,
-                            last4Digits = modelState.card.last4,
+                            cardId = modelState.currentCard.id,
+                            last4Digits = modelState.currentCard.last4,
                             userFullName = firstAndLastName
                         )
                     }.fold(
@@ -141,7 +206,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             }
 
             is BlockchainCardIntent.ChoosePaymentMethod -> {
-                modelState.card?.let { card ->
+                modelState.currentCard?.let { card ->
                     blockchainCardRepository.getEligibleTradingAccounts(
                         cardId = card.id
                     ).fold(
@@ -191,7 +256,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             }
 
             is BlockchainCardIntent.LinkSelectedAccount -> {
-                modelState.card?.let { card ->
+                modelState.currentCard?.let { card ->
                     blockchainCardRepository.linkCardAccount(
                         cardId = card.id,
                         accountCurrency = intent.accountCurrencyNetworkTicker
@@ -209,7 +274,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             }
 
             is BlockchainCardIntent.LoadLinkedAccount -> {
-                modelState.card?.let { card ->
+                modelState.currentCard?.let { card ->
                     updateState { it.copy(isLinkedAccountBalanceLoading = true) }
                     blockchainCardRepository.getCardLinkedAccount(
                         cardId = card.id
@@ -333,7 +398,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             }
 
             is BlockchainCardIntent.ConfirmCloseCard -> {
-                modelState.card?.let { card ->
+                modelState.currentCard?.let { card ->
                     blockchainCardRepository.deleteCard(card.id).fold(
                         onFailure = { error ->
                             Timber.d("Card delete failed: $error")
@@ -375,7 +440,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
 
                         updateState {
                             it.copy(
-                                shortTransactionList = transactions.take(4), // We only display the first 4
+                                shortTransactionList = transactions
+                                    .filter { txn -> txn.cardId == modelState.currentCard?.id }
+                                    .take(4), // We only display the first 4
                                 pendingTransactions = pendingTransactions,
                                 completedTransactionsGroupedByMonth = completedTransactionsGroupedByMonth,
                                 isTransactionListRefreshing = false,
@@ -475,7 +542,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             }
 
             is BlockchainCardIntent.LoadGoogleWalletTokenizationStatus -> {
-                modelState.card?.let { card ->
+                modelState.currentCard?.let { card ->
                     blockchainCardRepository.getGoogleWalletTokenizationStatus(card.last4)
                         .doOnSuccess { isTokenized ->
                             if (isTokenized) {
@@ -530,7 +597,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             is BlockchainCardIntent.LoadGoogleWalletPushTokenizeData -> {
                 if (!modelState.stableHardwareId.isNullOrEmpty() && !modelState.googleWalletId.isNullOrEmpty()) {
                     updateState { it.copy(googleWalletStatus = BlockchainCardGoogleWalletStatus.ADD_IN_PROGRESS) }
-                    modelState.card?.let { card ->
+                    modelState.currentCard?.let { card ->
                         blockchainCardRepository.provisionGoogleWalletCard(
                             cardId = card.id,
                             provisionRequest = BlockchainCardGoogleWalletData(

@@ -3025,6 +3025,7 @@
     <string name="order_card_intro">Spend your crypto or cash without fees.¹ Earn 0.5\u0025 back in crypto.²</string>
     <string name="link_card_here">Already Have A Card? Link It Here"</string>
     <string name="virtual">Virtual</string>
+    <string name="physical">Physical</string>
     <string name="virtual_card_product_description">Our digital only card, use instantly for online payments.</string>
     <string name="see_card_benefits">See Card Benefits</string>
     <string name="create_card">Accept &amp; Order Card</string>
@@ -3294,6 +3295,11 @@
     <string name="bc_card_review_and_submit_description">Please review the information below, if correct accept the terms to finalize your order</string>
     <string name="bc_card_want_to_update_name">Want to update your name? Contact Us</string>
     <string name="bc_card_review_and_submit_title">Review and Submit</string>
+    <string name="bc_card_status_initiated">Initiated</string>
+    <string name="bc_card_status_unactivated">Unactivated</string>
+    <string name="bc_card_status_active">Active</string>
+    <string name="bc_card_status_locked">Locked</string>
+    <string name="bc_card_status_terminated">Terminated</string>
 
     <string name="show_trading_accounts">Show trading accounts</string>
     <string name="secured_by_bchain">Secured by Blockchain.com</string>
@@ -3301,9 +3307,12 @@
     <string name="card_added_to_google_pay">Card Added to Google Pay</string>
     <string name="failed_to_add_card_to_google_pay">Failed to Add Card to Google Pay</string>
     <string name="ma_home_assets_title">Assets</string>
+    <string name="view">View</string>
 
     <!-- STAKING -->
     <string name="staking_coming_soon_title">Coming soon to mobile</string>
     <string name="staking_coming_soon_subtitle">In the meantime, you can manage your Staking Account using our web app.</string>
     <string name="staking_coming_soon_cta">Go to Web App</string>
+    <string name="my_cards">My Cards</string>
+    <string name="bc_card_make_default">Make This My Default Card</string>
 </resources>
