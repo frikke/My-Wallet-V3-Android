@@ -883,7 +883,6 @@ class PrefsUtil(
 
         // multiapp assets
         private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
-
     }
 }
 

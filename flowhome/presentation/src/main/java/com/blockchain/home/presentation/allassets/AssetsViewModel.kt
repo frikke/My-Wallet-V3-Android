@@ -74,15 +74,16 @@ class AssetsViewModel(
                                             true
                                         } else {
                                             // filter out small balances
-                                            (modelAccount.fiatBalance.map {
-                                                it >= Money.fromMajor(it.currency, AssetFilter.MinimumBalance)
-                                            } as? DataResource.Data)?.data.let { isHighBalance ->
+                                            (
+                                                modelAccount.fiatBalance.map {
+                                                    it >= Money.fromMajor(it.currency, AssetFilter.MinimumBalance)
+                                                } as? DataResource.Data
+                                                )?.data.let { isHighBalance ->
                                                 isHighBalance != false
                                             }
                                         }
                                     }
                                 }
-
                             }.all { it /*if all filters are true*/ }
 
                             // filter accounts matching the search and custom filters predicate
@@ -303,5 +304,3 @@ private fun DataResource<List<ModelAccount>>.withPricing(
         )
     }
 }
-
-

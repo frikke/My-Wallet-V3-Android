@@ -41,7 +41,8 @@ fun CryptoAssetsFilters(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                AppTheme.colors.background, RoundedCornerShape(
+                AppTheme.colors.background,
+                RoundedCornerShape(
                     topStart = AppTheme.dimensions.borderRadiiMedium,
                     topEnd = AppTheme.dimensions.borderRadiiMedium
                 )
@@ -107,8 +108,7 @@ fun CryptoAssetsFilters(
 
 @Preview(backgroundColor = 0xF281DF, showBackground = true)
 @Composable
-fun CryptoAssetsFiltersScreen(
-) {
+fun CryptoAssetsFiltersScreen() {
     CryptoAssetsFilters(
         filters = listOf(
             AssetFilterStatus(filter = AssetFilter.ShowSmallBalances, isEnabled = true)

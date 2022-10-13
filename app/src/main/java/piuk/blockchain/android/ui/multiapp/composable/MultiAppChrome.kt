@@ -75,7 +75,7 @@ private fun rememberToolbarState(): CollapsingToolbarState {
 }
 
 @Composable
-fun MultiAppChrome(viewModel: MultiAppViewModel, openAllAssets : () -> Unit) {
+fun MultiAppChrome(viewModel: MultiAppViewModel, openAllAssets: () -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
@@ -113,7 +113,7 @@ fun MultiAppChromeScreen(
     balance: DataResource<String>,
     bottomNavigationItems: List<ChromeBottomNavigationItem>,
     onModeSelected: (WalletMode) -> Unit,
-    openAllAssets : () -> Unit
+    openAllAssets: () -> Unit
 ) {
     //    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }
     //    var balanceSectionHeight = remember { headerSectionHeightPx }
