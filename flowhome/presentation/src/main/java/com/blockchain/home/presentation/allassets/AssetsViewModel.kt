@@ -136,9 +136,12 @@ class AssetsViewModel(
 
     override suspend fun handleIntent(modelState: AssetsModelState, intent: AssetsIntent) {
         when (intent) {
-            is AssetsIntent.LoadData -> {
+            is AssetsIntent.LoadAccounts -> {
                 updateState { it.copy(sectionSize = intent.sectionSize) }
                 loadAccounts()
+            }
+
+            is AssetsIntent.LoadFilters -> {
                 loadFilters()
             }
 

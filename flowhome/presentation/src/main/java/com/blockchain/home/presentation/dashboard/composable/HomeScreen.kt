@@ -16,7 +16,7 @@ import com.blockchain.componentlib.theme.AppTheme
 @Composable
 fun HomeScreen(
     listState: LazyListState,
-    // todo not like this
+    // todo(othman) navigation - not like this
     openAllAssets: () -> Unit
 ) {
     LazyColumn(

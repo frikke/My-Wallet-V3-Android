@@ -67,7 +67,8 @@ fun CryptoAssets(
     val viewState: AssetsViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(AssetsIntent.LoadData(SectionSize.All))
+        viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.All))
+        viewModel.onIntent(AssetsIntent.LoadFilters)
         onDispose { }
     }
 
@@ -121,9 +122,10 @@ fun CryptoAssetsScreen(
                 .fillMaxSize()
                 .background(color = Color(0XFFF1F2F7))
         ) {
-            // todo make this a generic screen with composable {contents}
+            // todo(othman) make this a generic screen with composable {contents}
+            //  to make it easier for gradient tops and navigation
 
-            // todo header stuff
+            // todo(othman) header stuff - need to create superapp header - checking with Ethan
             NavigationBar(
                 title = stringResource(R.string.ma_home_assets_title),
                 onBackButtonClick = { },
@@ -160,7 +162,7 @@ fun CryptoAssetsScreen(
                 }
             }
 
-            // todo footer stuff
+            // todo(othman) footer stuff
         }
     }
 }
@@ -190,9 +192,9 @@ fun CryptoAssetsData(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        // todo(othman) create superapp search compose
         Search(
             onValueChange = onSearchTermEntered,
-            placeholder = "120210210210"
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))

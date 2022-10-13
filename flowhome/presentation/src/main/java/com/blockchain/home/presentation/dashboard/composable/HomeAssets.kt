@@ -56,7 +56,8 @@ fun HomeAssets(
     val viewState: AssetsViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     DisposableEffect(key1 = viewModel) {
-        viewModel.onIntent(AssetsIntent.LoadData(SectionSize.Limited()))
+        viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited()))
+        viewModel.onIntent(AssetsIntent.LoadFilters)
         onDispose { }
     }
 

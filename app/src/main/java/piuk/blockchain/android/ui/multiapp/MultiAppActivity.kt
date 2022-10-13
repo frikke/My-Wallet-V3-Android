@@ -31,7 +31,11 @@ class MultiAppActivity : BlockchainActivity() {
             val viewModel: MultiAppViewModel = getViewModel(scope = payloadScope)
             viewModel.viewCreated(ModelConfigArgs.NoArgs)
 
-            MultiAppChrome(viewModel, openAllAssets = { startActivity(AllAssetsActivity.newIntent(this))})
+            MultiAppChrome(
+                viewModel = viewModel,
+                // todo(othman) navigation - not like this
+                openAllAssets = { startActivity(AllAssetsActivity.newIntent(this)) }
+            )
         }
     }
 

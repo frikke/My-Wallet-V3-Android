@@ -5,7 +5,9 @@ import com.blockchain.data.DataResource
 import com.blockchain.home.model.AssetFilterStatus
 
 sealed interface AssetsIntent : Intent<AssetsModelState> {
-    data class LoadData(val sectionSize: SectionSize) : AssetsIntent
+    data class LoadAccounts(val sectionSize: SectionSize) : AssetsIntent
+
+    object LoadFilters : AssetsIntent
 
     data class FilterSearch(val term: String) : AssetsIntent {
         override fun isValidFor(modelState: AssetsModelState): Boolean {
