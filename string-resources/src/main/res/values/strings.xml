@@ -3143,6 +3143,7 @@
     <string name="bc_card_transaction_payment_with_cashback">Payment with Cashback</string>
     <string name="bc_card_transaction_funding">Funding</string>
     <string name="bc_card_transaction_chargeback">Chargeback</string>
+    <string name="bc_card_transaction_atm_withdrawal">ATM Withdrawal</string>
     <string name="bc_card_change_asset_title">Change Asset</string>
     <string name="bc_card_change_asset_description">Change the asset that will fund the card</string>
     <string name="bc_card_add_funds_title">Add Funds</string>

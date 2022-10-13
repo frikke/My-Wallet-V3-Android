@@ -158,7 +158,8 @@ enum class BlockchainCardTransactionType {
     PAYMENT_WITH_CASHBACK,
     REFUND,
     FUNDING,
-    CHARGEBACK;
+    CHARGEBACK,
+    ATM_WITHDRAWAL;
 
     fun getStringResource(): Int {
         return when (this) {
@@ -167,6 +168,7 @@ enum class BlockchainCardTransactionType {
             REFUND -> R.string.bc_card_transaction_refund
             FUNDING -> R.string.bc_card_transaction_funding
             CHARGEBACK -> R.string.bc_card_transaction_chargeback
+            ATM_WITHDRAWAL -> R.string.bc_card_transaction_atm_withdrawal
         }
     }
 }
