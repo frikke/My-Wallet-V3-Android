@@ -4,6 +4,7 @@ import javax.net.ssl.SSLPeerUnverifiedException
 import okhttp3.Interceptor
 import okhttp3.Protocol
 import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
 import piuk.blockchain.androidcore.data.connectivity.SSLPinningEmitter
 
 class SSLPinningInterceptor(val sslPinningEmitter: SSLPinningEmitter) : Interceptor {
@@ -24,6 +25,7 @@ class SSLPinningInterceptor(val sslPinningEmitter: SSLPinningEmitter) : Intercep
             .request(request)
             .protocol(Protocol.HTTP_1_1)
             .message("")
+            .body("".toResponseBody())
             .code(403)
             .build()
     }
