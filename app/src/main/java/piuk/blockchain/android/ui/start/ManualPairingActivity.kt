@@ -27,7 +27,7 @@ import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.getTwoFactorDialog
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresenter>(), ManualPairingView {

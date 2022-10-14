@@ -27,15 +27,6 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.LinkAccess
-import piuk.blockchain.android.ui.settings.v2.BankItem
-import piuk.blockchain.android.ui.settings.v2.PaymentMethods
-import piuk.blockchain.android.ui.settings.v2.SettingsError
-import piuk.blockchain.android.ui.settings.v2.SettingsIntent
-import piuk.blockchain.android.ui.settings.v2.SettingsInteractor
-import piuk.blockchain.android.ui.settings.v2.SettingsModel
-import piuk.blockchain.android.ui.settings.v2.SettingsState
-import piuk.blockchain.android.ui.settings.v2.UserDetails
-import piuk.blockchain.android.ui.settings.v2.ViewToLaunch
 
 class SettingsModelTest {
     private lateinit var model: SettingsModel

@@ -25,7 +25,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
-import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
+import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 

@@ -27,7 +27,7 @@ import piuk.blockchain.android.cards.StatePickerItem
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
 import piuk.blockchain.android.fraud.domain.service.FraudService
 import piuk.blockchain.android.ui.login.GoogleReCaptchaClient
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import timber.log.Timber
 
 class CreateWalletActivity :

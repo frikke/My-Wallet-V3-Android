@@ -22,7 +22,6 @@ import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinInteractor
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.SessionPrefs

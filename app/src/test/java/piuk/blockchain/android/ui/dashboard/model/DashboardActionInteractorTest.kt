@@ -51,7 +51,7 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
-import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
+import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class DashboardActionInteractorTest {

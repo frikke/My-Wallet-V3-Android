@@ -117,7 +117,7 @@ import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.ui.settings.v2.SettingsActivity
+import piuk.blockchain.android.ui.settings.SettingsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet

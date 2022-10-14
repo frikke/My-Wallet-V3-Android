@@ -54,7 +54,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Maybes
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Stack
-import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
+import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
 import timber.log.Timber

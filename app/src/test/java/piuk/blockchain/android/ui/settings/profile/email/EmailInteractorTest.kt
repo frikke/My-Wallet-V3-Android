@@ -10,7 +10,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.profile.email.EmailInteractor
 import piuk.blockchain.androidcore.data.settings.Email
 import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager

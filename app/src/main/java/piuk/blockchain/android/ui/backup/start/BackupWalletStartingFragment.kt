@@ -13,7 +13,7 @@ import com.blockchain.ui.password.SecondPasswordHandler
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupStartBinding
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.util.scopedInjectActivity
 
 class BackupWalletStartingFragment :

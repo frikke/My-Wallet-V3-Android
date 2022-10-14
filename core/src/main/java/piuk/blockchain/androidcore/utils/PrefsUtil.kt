@@ -674,6 +674,10 @@ class PrefsUtil(
         get() = getValue(CHART_VIBRATION_ENABLED, true)
         set(value) = setValue(CHART_VIBRATION_ENABLED, value)
 
+    override var areSmallBalancesEnabled: Boolean
+        get() = getValue(SMALL_BALANCES, true)
+        set(value) = setValue(SMALL_BALANCES, value)
+
     // Session prefs
     override var qaRandomiseDeviceId: Boolean
         get() = getValue(KEY_IS_DEVICE_ID_RANDOMISED, false)
@@ -860,6 +864,7 @@ class PrefsUtil(
 
         // Local Settings
         private const val CHART_VIBRATION_ENABLED = "CHART_VIBRATION_ENABLED"
+        private const val SMALL_BALANCES = "SMALL_BALANCES"
 
         // Session
         private const val KEY_EMAIL_VERIFIED = "code_verified"

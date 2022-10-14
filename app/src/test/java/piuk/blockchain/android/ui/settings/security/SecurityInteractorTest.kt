@@ -14,10 +14,6 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.data.biometrics.BiometricsController
-import piuk.blockchain.android.ui.settings.v2.security.SecurityError
-import piuk.blockchain.android.ui.settings.v2.security.SecurityIntent
-import piuk.blockchain.android.ui.settings.v2.security.SecurityInteractor
-import piuk.blockchain.android.ui.settings.v2.security.SecurityViewState
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager

@@ -154,7 +154,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.settings.v2.security.pin.PinActivity"
+            android:name=".ui.settings.security.pin.PinActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true"
             android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
@@ -254,10 +254,10 @@
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity android:name=".ui.home.ActionActivity" />
         <activity
-            android:name=".ui.settings.v2.SettingsActivity"
+            android:name=".ui.settings.SettingsActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.settings.v2.profile.ProfileActivity"
+            android:name=".ui.settings.profile.ProfileActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.dashboard.coinview.CoinViewActivity" />
         <activity android:name=".ui.coinview.presentation.CoinViewActivityV2" />

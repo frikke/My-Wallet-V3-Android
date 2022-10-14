@@ -45,7 +45,7 @@ import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.ManualPairingActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import timber.log.Timber

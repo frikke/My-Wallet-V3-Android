@@ -28,7 +28,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceFragment
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceSharedViewModel
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.LandingActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
 import piuk.blockchain.android.util.wiper.DataWiper

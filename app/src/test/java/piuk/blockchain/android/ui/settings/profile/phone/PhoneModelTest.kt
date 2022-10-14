@@ -12,11 +12,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.profile.phone.PhoneError
-import piuk.blockchain.android.ui.settings.v2.profile.phone.PhoneIntent
-import piuk.blockchain.android.ui.settings.v2.profile.phone.PhoneInteractor
-import piuk.blockchain.android.ui.settings.v2.profile.phone.PhoneModel
-import piuk.blockchain.android.ui.settings.v2.profile.phone.PhoneState
 import piuk.blockchain.androidcore.data.settings.InvalidPhoneNumber
 
 class PhoneModelTest {

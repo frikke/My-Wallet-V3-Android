@@ -80,7 +80,7 @@ import piuk.blockchain.android.ui.multiapp.multiAppModule
 import piuk.blockchain.android.ui.prices.presentation.pricesPresentationModule
 import piuk.blockchain.android.ui.referral.presentation.referralPresentationModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
-import piuk.blockchain.android.ui.settings.v2.redesignSettingsModule
+import piuk.blockchain.android.ui.settings.redesignSettingsModule
 import piuk.blockchain.android.ui.start.startupUiModule
 import piuk.blockchain.android.ui.transactionflow.transactionModule
 import piuk.blockchain.android.ui.transfer.receive.receiveCryptoModule

@@ -15,6 +15,7 @@ import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.evmWithoutL1BalanceFeatureFlag
 import com.blockchain.koin.feynmanFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
+import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.loqateFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
@@ -256,6 +257,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_staking_account",
                 "Enable Staking Account & New Coinview"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(hideDustFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_hide_dust",
+                "Enable Hiding Dust"
             )
         )
     }.bind(FeatureFlag::class)

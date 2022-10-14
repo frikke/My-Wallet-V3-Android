@@ -36,7 +36,7 @@ import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForActio
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
-import piuk.blockchain.android.ui.settings.v2.BankLinkingHost
+import piuk.blockchain.android.ui.settings.BankLinkingHost
 import piuk.blockchain.android.ui.transactionflow.engine.BankLinkingState
 import piuk.blockchain.android.ui.transactionflow.engine.DepositOptionsState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent

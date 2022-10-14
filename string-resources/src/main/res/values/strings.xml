@@ -75,6 +75,7 @@
     <string name="common_next">Next</string>
     <string name="common_learn_more">Learn More</string>
     <string name="common_no_results_found">No results found</string>
+    <string name="common_general">General</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -519,6 +520,7 @@
     <string name="setting_limits_load_error_description">We can’t load your limits now. You can check your account limits by going to Settings</string>
     <string name="settings_pair_wallet">Pair my wallet</string>
     <string name="web_login">Web Log In</string>
+    <string name="settings_general_description">Control how your Wallet behaves</string>
 
     <string name="disable_2fa_first">Please disable 2-step Verification via SMS in the security settings first.</string>
     <string name="disable_online_only">Please login to your wallet in the web browser to disable 2FA.</string>
@@ -2601,8 +2603,10 @@
     <string name="settings_notification_error_details">There was a problem fetching your notifications settings. Please reload or try again later.</string>
     <string name="settings_notification_error_back">Go Back</string>
     <string name="settings_notification_required">%s (required)</string>
-    <string name="settings_chart_vibration">Asset Price Chart</string>
-    <string name="settings_chart_vibration_desc">Toggle chart vibration</string>
+    <string name="settings_chart_vibration">Price Chart Vibration</string>
+    <string name="settings_chart_vibration_desc">Toggle vibration when scrubbing</string>
+    <string name="settings_dust_title">Hide Small Balances</string>
+    <string name="settings_dust_desc">Hide balances less than $0.01</string>
 
     <!-- Account screen -->
     <string name="account_toolbar">Account</string>
@@ -2892,7 +2896,7 @@
     <string name="explainer_rewards_title">Rewards Account</string>
     <string name="explainer_rewards_description">Your Rewards Account allows you to earn rewards on your crypto; up to %s%% APY.</string>
     <string name="explainer_staking_title">Staking Account</string>
-    <string name="explainer_staking_description">Your Staking Account allows you to earn up to %1$s%% APY rewards on your crypto by securing your favourite blockchain networks.</string>
+    <string name="explainer_staking_description">Your Staking Account allows you to earn up to %1$s%% annually on your crypto by securing your favourite blockchain networks.</string>
 
     <!-- Bottom sheet actions -->
     <string name="actions_sheet_percentage_rewards">%s%% APR</string>

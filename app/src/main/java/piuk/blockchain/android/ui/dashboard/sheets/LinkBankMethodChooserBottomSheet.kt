@@ -18,7 +18,7 @@ import piuk.blockchain.android.databinding.LinkBankMethodChooserSheetLayoutBindi
 import piuk.blockchain.android.databinding.LinkBankMethodItemBinding
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
-import piuk.blockchain.android.ui.settings.v2.BankLinkingHost
+import piuk.blockchain.android.ui.settings.BankLinkingHost
 import piuk.blockchain.android.util.StringLocalizationUtil
 
 class LinkBankMethodChooserBottomSheet : SlidingModalBottomDialog<LinkBankMethodChooserSheetLayoutBinding>() {

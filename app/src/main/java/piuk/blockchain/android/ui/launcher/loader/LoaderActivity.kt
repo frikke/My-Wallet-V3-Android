@@ -30,7 +30,7 @@ import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.multiapp.MultiAppActivity
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.AppUtil.Companion.INTENT_EXTRA_VERIFIED
 

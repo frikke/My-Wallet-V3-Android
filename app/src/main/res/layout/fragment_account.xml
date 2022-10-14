@@ -113,11 +113,13 @@
 
         <com.blockchain.componentlib.tablerow.ToggleTableRowView
             android:id="@+id/settings_chart_vibration"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <com.blockchain.componentlib.divider.HorizontalDividerView
             android:layout_width="match_parent"
+            android:id="@+id/settings_chart_div"
             android:layout_height="wrap_content" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>

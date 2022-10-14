@@ -13,13 +13,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.security.SecurityError
-import piuk.blockchain.android.ui.settings.v2.security.SecurityInfo
-import piuk.blockchain.android.ui.settings.v2.security.SecurityIntent
-import piuk.blockchain.android.ui.settings.v2.security.SecurityInteractor
-import piuk.blockchain.android.ui.settings.v2.security.SecurityModel
-import piuk.blockchain.android.ui.settings.v2.security.SecurityState
-import piuk.blockchain.android.ui.settings.v2.security.SecurityViewState
 
 class SecurityModelTest {
 

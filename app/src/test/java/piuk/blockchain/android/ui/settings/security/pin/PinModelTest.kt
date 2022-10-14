@@ -29,22 +29,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.spongycastle.crypto.InvalidCipherTextException
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
-import piuk.blockchain.android.ui.settings.v2.security.pin.AppUpgradeStatus
-import piuk.blockchain.android.ui.settings.v2.security.pin.BiometricStatus
-import piuk.blockchain.android.ui.settings.v2.security.pin.PasswordError
-import piuk.blockchain.android.ui.settings.v2.security.pin.PasswordStatus
-import piuk.blockchain.android.ui.settings.v2.security.pin.PayloadError
-import piuk.blockchain.android.ui.settings.v2.security.pin.PayloadStatus
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinError
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinIntent
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinInteractor
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinModel
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinScreenView
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinState
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinStatus
-import piuk.blockchain.android.ui.settings.v2.security.pin.ProgressDialogStatus
-import piuk.blockchain.android.ui.settings.v2.security.pin.UpgradeAppMethod
-import piuk.blockchain.android.ui.settings.v2.security.pin.UpgradeWalletStatus
 
 class PinModelTest {
 

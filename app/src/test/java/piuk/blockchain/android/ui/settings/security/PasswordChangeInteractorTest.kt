@@ -9,10 +9,10 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeError
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeIntent
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeInteractor
-import piuk.blockchain.android.ui.settings.v2.security.password.PasswordViewState
+import piuk.blockchain.android.ui.settings.security.password.PasswordChangeError
+import piuk.blockchain.android.ui.settings.security.password.PasswordChangeIntent
+import piuk.blockchain.android.ui.settings.security.password.PasswordChangeInteractor
+import piuk.blockchain.android.ui.settings.security.password.PasswordViewState
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 

@@ -20,7 +20,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentPasswordResetBinding
 import piuk.blockchain.android.ui.recover.AccountRecoveryAnalytics
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.urllinks.CONTACT_SUPPORT_FUNDS_RECOVERY
 import piuk.blockchain.android.urllinks.FUNDS_RECOVERY_INFO
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY

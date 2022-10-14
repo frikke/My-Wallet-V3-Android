@@ -39,7 +39,7 @@ import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STE
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.SettingsAnalytics.Companion.TWO_SET_MOBILE_NUMBER_OPTION
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.ManualPairingActivity
 import piuk.blockchain.android.urllinks.RESET_2FA
 import piuk.blockchain.android.urllinks.SECOND_PASSWORD_EXPLANATION

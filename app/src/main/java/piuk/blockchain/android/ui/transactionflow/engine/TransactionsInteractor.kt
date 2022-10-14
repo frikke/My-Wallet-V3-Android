@@ -54,7 +54,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
-import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
+import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transfer.AccountsSorting

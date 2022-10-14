@@ -81,7 +81,7 @@ import piuk.blockchain.android.simplebuy.WithdrawMethodOptionsViewed
 import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
-import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
+import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe

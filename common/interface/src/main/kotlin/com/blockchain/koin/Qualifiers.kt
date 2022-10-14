@@ -31,6 +31,7 @@ val superappRedesignFeatureFlag = StringQualifier("android_ff_superapp_redesign"
 val sessionIdFeatureFlag = StringQualifier("ff_x_session_id")
 val sardineFeatureFlag = StringQualifier("ff_sardine")
 val stakingAccountFeatureFlag = StringQualifier("ff_staking_account")
+val hideDustFeatureFlag = StringQualifier("ff_hide_dust")
 val nabu = StringQualifier("nabu")
 val status = StringQualifier("status")
 val authOkHttpClient = StringQualifier("authOkHttpClient")

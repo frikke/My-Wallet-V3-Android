@@ -14,7 +14,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.v2.profile.phone.PhoneInteractor
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class PhoneInteractorTest {

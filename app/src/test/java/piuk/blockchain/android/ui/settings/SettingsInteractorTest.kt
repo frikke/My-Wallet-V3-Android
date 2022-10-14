@@ -25,7 +25,6 @@ import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.settings.v2.SettingsInteractor
 
 class SettingsInteractorTest {
 
@@ -40,6 +39,7 @@ class SettingsInteractorTest {
     private val referralService: ReferralService = mock()
     private val nabuUserIdentity: NabuUserIdentity = mock()
     private val cardRejectionFF: FeatureFlag = mock()
+    private val dustBalancesFF: FeatureFlag = mock()
 
     @Before
     fun setup() {
@@ -53,7 +53,8 @@ class SettingsInteractorTest {
             currencyPrefs = currencyPrefs,
             referralService = referralService,
             nabuUserIdentity = nabuUserIdentity,
-            cardRejectionFF = cardRejectionFF
+            cardRejectionFF = cardRejectionFF,
+            dustBalancesFF = dustBalancesFF
         )
     }
 

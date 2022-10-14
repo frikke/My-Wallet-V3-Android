@@ -27,7 +27,7 @@ import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
-import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
+import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 
 class PasswordRequiredActivity :
     MvpActivity<PasswordRequiredView, PasswordRequiredPresenter>(),

@@ -102,7 +102,7 @@ import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboarding
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.ui.settings.v2.BankLinkingHost
+import piuk.blockchain.android.ui.settings.BankLinkingHost
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
