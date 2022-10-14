@@ -245,7 +245,7 @@ fun CryptoAssetsNoResults() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(AppTheme.dimensions.smallSpacing),
-        text = "\uD83D\uDE1E No results",
+        text = stringResource(R.string.assets_no_result),
         style = AppTheme.typography.body2,
         color = AppTheme.colors.title,
         textAlign = TextAlign.Center

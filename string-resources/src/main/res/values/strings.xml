@@ -3310,6 +3310,7 @@
     <string name="ma_home_assets_title">Assets</string>
     <string name="view">View</string>
 
+    <string name="assets_no_result">😞 No results</string>
     <string name="assets_filter_title">Filter assets</string>
     <string name="assets_filter_small_balances">Show small balances</string>
     <string name="assets_filter_confirmation">Show</string>
