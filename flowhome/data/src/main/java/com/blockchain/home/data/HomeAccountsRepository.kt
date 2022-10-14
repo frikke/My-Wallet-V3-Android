@@ -51,7 +51,9 @@ class HomeAccountsRepository(
     }
 
     private fun MultiAppAssetsPrefs.toFilterStatus(): List<AssetFilterStatus> {
-        return AssetFilter.values().map { filter ->
+        val allFilters = listOf<AssetFilter>(AssetFilter.ShowSmallBalances)
+
+        return allFilters.map { filter ->
             AssetFilterStatus(
                 filter = filter,
                 isEnabled = when (filter) {

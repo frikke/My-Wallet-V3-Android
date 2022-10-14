@@ -1,9 +1,7 @@
 package com.blockchain.home.model
 
-enum class AssetFilter {
-    ShowSmallBalances;
-
-    companion object {
+sealed interface AssetFilter {
+    object ShowSmallBalances : AssetFilter {
         /**
          * This will represent 1USD/1EUR..
          * depending on the current fiat selected

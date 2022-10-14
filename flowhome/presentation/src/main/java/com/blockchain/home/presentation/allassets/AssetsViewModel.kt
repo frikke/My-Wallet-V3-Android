@@ -75,7 +75,10 @@ class AssetsViewModel(
                                         } else {
                                             // filter out small balances
                                             fun Money.isHighBalance(): Boolean {
-                                                return this >= Money.fromMajor(currency, AssetFilter.MinimumBalance)
+                                                return this >= Money.fromMajor(
+                                                    currency,
+                                                    AssetFilter.ShowSmallBalances.MinimumBalance
+                                                )
                                             }
 
                                             (modelAccount.fiatBalance.map { it.isHighBalance() } as? DataResource.Data)
