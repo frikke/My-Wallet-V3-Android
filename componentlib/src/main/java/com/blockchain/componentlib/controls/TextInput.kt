@@ -29,6 +29,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -44,6 +45,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.ImageResource.None.shape
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -360,6 +362,7 @@ fun TextInput_Preview() {
 @Composable
 fun OutlinedTextInput(
     modifier: Modifier = Modifier,
+    shape: Shape = RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp),
     value: String,
     onValueChange: (String) -> Unit,
     readOnly: Boolean = false,
@@ -394,6 +397,7 @@ fun OutlinedTextInput(
 
     OutlinedTextInput(
         modifier = modifier,
+        shape = shape,
         value = textFieldValue,
         onValueChange = { newTextFieldValueState ->
             textFieldValueState = newTextFieldValueState
@@ -429,6 +433,7 @@ fun OutlinedTextInput(
 @Composable
 fun OutlinedTextInput(
     modifier: Modifier = Modifier,
+    shape: Shape = RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp),
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     readOnly: Boolean = false,
@@ -516,8 +521,8 @@ fun OutlinedTextInput(
         val focusManager = LocalFocusManager.current
         Box(
             modifier = Modifier
-                .border(BorderStroke(1.dp, borderColor), RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp))
-                .background(color = backgroundColor)
+                .border(BorderStroke(1.dp, borderColor), shape)
+                .background(color = backgroundColor, shape = shape)
         ) {
             val newTextFieldValue = if (maxLength != Int.MAX_VALUE) {
                 val newValueString = value.annotatedString.subSequence(
@@ -608,7 +613,7 @@ fun OutlinedTextInput(
                     disabledPlaceholderColor = placeholderColor
                 ),
                 interactionSource = interactionSource,
-                shape = RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp)
+                shape = shape
             )
         }
 

@@ -1,6 +1,7 @@
 package com.blockchain.home.presentation.allassets.composable
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,8 +25,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -34,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.control.Search
+import com.blockchain.componentlib.control.CancelableOutlinedSearch
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
@@ -100,6 +103,8 @@ fun CryptoAssetsScreen(
     )
     val coroutineScope = rememberCoroutineScope()
 
+    val focusManager = LocalFocusManager.current
+
     BackHandler(sheetState.isVisible) {
         coroutineScope.launch { sheetState.hide() }
     }
@@ -135,6 +140,7 @@ fun CryptoAssetsScreen(
                         color = null,
                         contentDescription = R.string.accessibility_filter
                     ) {
+                        focusManager.clearFocus(true)
                         coroutineScope.launch { sheetState.show() }
                     }
                 )
@@ -184,6 +190,7 @@ fun CryptoAssetsLoading() {
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CryptoAssetsData(
     cryptoAssets: List<CryptoAssetState>,
@@ -193,8 +200,9 @@ fun CryptoAssetsData(
         modifier = Modifier.fillMaxSize()
     ) {
         // todo(othman) create superapp search compose
-        Search(
+        CancelableOutlinedSearch(
             onValueChange = onSearchTermEntered,
+            placeholder = stringResource(R.string.search)
         )
 
         Spacer(modifier = Modifier.size(AppTheme.dimensions.standardSpacing))
