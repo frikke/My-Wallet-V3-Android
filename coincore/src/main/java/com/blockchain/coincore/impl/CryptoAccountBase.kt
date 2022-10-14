@@ -30,7 +30,9 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
+import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
@@ -42,7 +44,9 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.rxSingle
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -182,7 +186,10 @@ abstract class CryptoAccountBase : CryptoAccount {
 
 abstract class CryptoNonCustodialAccount(
     override val currency: AssetInfo
-) : CryptoAccountBase(), NonCustodialAccount, KoinComponent {
+) : CryptoAccountBase(),
+    NetworkWallet,
+    NonCustodialAccount,
+    KoinComponent {
 
     override val isFunded: Boolean
         get() = hasFunds.get()
@@ -204,14 +211,25 @@ abstract class CryptoNonCustodialAccount(
             WalletMode.UNIVERSAL -> defaultActions
         }
 
+    /**
+     * We only add this method to make it portable with NetworkWallet.
+     */
+    override val networkBalance: Flow<NetworkBalance>
+        get() = balance.map {
+            NetworkBalance(
+                currency = currency,
+                balance = it.total,
+                unconfirmedBalance = it.pending,
+                exchangeRate = it.exchangeRate
+            )
+        }
+
     override val balanceRx: Observable<AccountBalance>
         get() = unifiedBalancesFeatureFlag.enabled.flatMapObservable {
             if (it) {
                 rxSingle {
-                    unifiedBalancesService.balanceForAccount(
-                        name = label,
-                        index = index,
-                        currency = currency
+                    unifiedBalancesService.balanceForWallet(
+                        this@CryptoNonCustodialAccount
                     )
                 }.map {
                     AccountBalance(
@@ -242,8 +260,6 @@ abstract class CryptoNonCustodialAccount(
     protected abstract fun getOnChainBalance(): Observable<out Money>
 
     protected abstract val addressResolver: AddressResolver
-
-    protected abstract val index: Int
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = baseActions.map {

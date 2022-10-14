@@ -15,7 +15,7 @@ import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.getOrThrow
 import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
@@ -40,7 +40,7 @@ class DynamicNonCustodialAccount(
     override val exchangeRates: ExchangeRatesDataManager,
     override val label: String,
     private val walletPreferences: WalletStatusPrefs
-) : CryptoNonCustodialAccount(assetInfo), NetworkNonCustodialAccount {
+) : CryptoNonCustodialAccount(assetInfo), NetworkWallet {
 
     private val internalAccount: DynamicHDAccount = payloadManager.getDynamicHdAccount(coinConfiguration)
         ?: throw IllegalStateException("Unsupported Coin Configuration!")

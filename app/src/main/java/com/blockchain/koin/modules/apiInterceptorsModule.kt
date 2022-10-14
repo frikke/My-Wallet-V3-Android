@@ -20,7 +20,6 @@ import okhttp3.Interceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import piuk.blockchain.android.BuildConfig
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 val apiInterceptorsModule = module {
 
@@ -30,7 +29,7 @@ val apiInterceptorsModule = module {
             mutableListOf(
                 SSLPinningInterceptor(sslPinningEmitter = get()),
                 UserAgentInterceptor(versionName, Build.VERSION.RELEASE),
-                DeviceIdInterceptor(prefs = lazy { get<SessionPrefs>() }, get()),
+                DeviceIdInterceptor(prefs = lazy { get() }, get()),
                 RequestIdInterceptor { UUID.randomUUID().toString() },
                 SessionIdInterceptor(environmentUrls = get(), sessionId = SessionInfo)
             )

@@ -38,6 +38,7 @@ public abstract class WalletApiMockedResponseTest extends MockedResponseTest {
                 newOkHttpClient()
             ).create(WalletExplorerEndpoints.class),
             api,
+            "",
             ""
         ));
     }

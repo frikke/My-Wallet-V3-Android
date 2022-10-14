@@ -19,6 +19,7 @@ import retrofit2.Response
 class WalletApi(
     private val explorerInstance: WalletExplorerEndpoints,
     private val api: ApiCode,
+    private val byPassCaptchaOrigin: String?,
     private val captchaSiteKey: String
 ) {
     fun updateFirebaseNotificationToken(
@@ -92,19 +93,20 @@ class WalletApi(
         val pipedAddresses = activeAddressList?.joinToString("|")
 
         return explorerInstance.syncWalletCall(
-            "insert",
-            guid,
-            sharedKey,
-            encryptedPayload,
-            encryptedPayload.length,
-            URLEncoder.encode(newChecksum, "utf-8"),
-            pipedAddresses,
-            email,
-            device,
-            null,
-            api.apiCode,
-            recaptchaToken,
-            captchaSiteKey
+            method = "insert",
+            guid = guid,
+            sharedKey = sharedKey,
+            payload = encryptedPayload,
+            length = encryptedPayload.length,
+            checksum = URLEncoder.encode(newChecksum, "utf-8"),
+            active = pipedAddresses,
+            email = email,
+            device = device,
+            origin = byPassCaptchaOrigin,
+            old_checksum = null,
+            apiCode = api.apiCode,
+            recaptchaToken = recaptchaToken,
+            siteKey = captchaSiteKey
         )
     }
 
@@ -129,19 +131,20 @@ class WalletApi(
         val pipedAddresses = activeAddressList?.joinToString("|") ?: ""
 
         return explorerInstance.syncWalletCall(
-            "update",
-            guid,
-            sharedKey,
-            encryptedPayload,
-            encryptedPayload.length,
-            URLEncoder.encode(newChecksum, "utf-8"),
-            pipedAddresses,
-            null,
-            device,
-            oldChecksum,
-            api.apiCode,
-            null,
-            null
+            method = "update",
+            guid = guid,
+            sharedKey = sharedKey,
+            payload = encryptedPayload,
+            length = encryptedPayload.length,
+            checksum = URLEncoder.encode(newChecksum, "utf-8"),
+            email = pipedAddresses,
+            origin = null,
+            device = device,
+            old_checksum = oldChecksum,
+            apiCode = api.apiCode,
+            recaptchaToken = null,
+            siteKey = null,
+            active = null
         )
     }
 

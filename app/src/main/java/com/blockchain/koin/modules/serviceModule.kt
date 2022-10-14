@@ -1,6 +1,7 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.AppVersion
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.apiRetrofit
 import com.blockchain.koin.everypayRetrofit
 import com.blockchain.koin.explorerRetrofit
@@ -18,6 +19,7 @@ import info.blockchain.wallet.payment.Payment
 import info.blockchain.wallet.settings.SettingsManager
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.everypay.service.EveryPayService
 import retrofit2.Retrofit
 
@@ -39,6 +41,11 @@ val serviceModule = module {
         WalletApi(
             explorerInstance = get(),
             api = get(),
+            byPassCaptchaOrigin = if (get<EnvironmentConfig>().isRunningInDebugMode()) {
+                BuildConfig.RECAPTCHA_PASS
+            } else {
+                null
+            },
             captchaSiteKey = getProperty("site-key")
         )
     }

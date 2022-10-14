@@ -24,8 +24,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.store.asObservable
 import com.blockchain.store.mapData
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -45,7 +44,7 @@ class L1EvmNonCustodialAccount(
     private val custodialWalletManager: CustodialWalletManager,
     override val addressResolver: AddressResolver,
     override val l1Network: EvmNetwork,
-) : MultiChainAccount, NetworkNonCustodialAccount, CryptoNonCustodialAccount(asset) {
+) : MultiChainAccount, CryptoNonCustodialAccount(asset) {
 
     override val isDefault: Boolean = true // Only one account, so always default
 

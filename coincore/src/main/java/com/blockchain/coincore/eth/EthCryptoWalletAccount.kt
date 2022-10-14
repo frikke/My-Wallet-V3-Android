@@ -21,8 +21,8 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.store.asObservable
 import com.blockchain.store.mapData
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount.Companion.MULTIPLE_ADDRESSES_DESCRIPTOR
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.MULTIPLE_ADDRESSES_DESCRIPTOR
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -50,8 +50,7 @@ import kotlinx.coroutines.flow.flowOf
 ) : MultiChainAccount,
     CryptoNonCustodialAccount(
         CryptoCurrency.ETHER
-    ),
-    NetworkNonCustodialAccount {
+    ) {
     internal val address: String
         get() = jsonAccount.address
 
@@ -87,7 +86,7 @@ import kotlinx.coroutines.flow.flowOf
         jsonAccount.publicKey ?: throw IllegalStateException("Public key for Eth account hasn't been derived")
 
     override val index: Int
-        get() = NetworkNonCustodialAccount.DEFAULT_SINGLE_ACCOUNT_INDEX
+        get() = NetworkWallet.DEFAULT_SINGLE_ACCOUNT_INDEX
 
     override val descriptor: Int
         get() = MULTIPLE_ADDRESSES_DESCRIPTOR

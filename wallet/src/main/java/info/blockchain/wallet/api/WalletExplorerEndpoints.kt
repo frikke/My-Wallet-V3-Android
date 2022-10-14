@@ -120,6 +120,7 @@ interface WalletExplorerEndpoints {
         @Field("active") active: String?,
         @Field("email") email: String?,
         @Field("device") device: String?,
+        @Header("Origin") origin: String? = null,
         @Field("old_checksum") old_checksum: String?,
         @Field("api_code") apiCode: String,
         @Field("captcha") recaptchaToken: String?,

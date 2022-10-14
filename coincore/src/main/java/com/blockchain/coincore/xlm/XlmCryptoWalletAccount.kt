@@ -16,8 +16,7 @@ import com.blockchain.sunriver.BalanceAndMin
 import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import info.blockchain.balance.Money.Companion.max
@@ -40,8 +39,7 @@ internal class XlmCryptoWalletAccount(
     override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(
     CryptoCurrency.XLM
-),
-    NetworkNonCustodialAccount {
+) {
 
     override val isDefault: Boolean = true // Only one account ever, so always default
 

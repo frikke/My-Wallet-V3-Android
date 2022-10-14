@@ -17,8 +17,8 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.serialization.JsonSerializableAccount
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount.Companion.MULTIPLE_ADDRESSES_DESCRIPTOR
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.MULTIPLE_ADDRESSES_DESCRIPTOR
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import info.blockchain.wallet.keys.SigningKey
@@ -49,8 +49,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
     override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(
     CryptoCurrency.BTC
-),
-    NetworkNonCustodialAccount {
+) {
 
     override val label: String
         get() = internalAccount.label
@@ -93,7 +92,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
         get() = MULTIPLE_ADDRESSES_DESCRIPTOR
 
     override val style: String
-        get() = NetworkNonCustodialAccount.EXTENDED_PUB_KEY_STYLE
+        get() = NetworkWallet.EXTENDED_PUB_KEY_STYLE
 
     override val activity: Single<ActivitySummaryList>
         get() = payloadDataManager.getAccountTransactions(

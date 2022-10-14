@@ -133,6 +133,7 @@ android {
             buildConfigField "String", "ZENDESK_CHAT_KEY", "\"${buildProperties.secrets['zendeskChatChannelKey']}\""
             buildConfigField "boolean",  "INTERNAL", "false"
             buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['prodLoginPortal']}\""
+            buildConfigField "String", "RECAPTCHA_PASS", "\"${buildProperties.secrets['recaptchaPassProduction']}\""
 
             buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreProdDemoEmail']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreProdDemoWalletId']}\""
@@ -195,6 +196,7 @@ android {
             buildConfigField "String", "WALLET_HELPER_URL", "\"${buildProperties.secrets['walletHelperProdURL']}\""
 
             buildConfigField "String", "CHECKMARKET_URL", "\"${buildProperties.secrets['checkMarketProduction']}\""
+            buildConfigField "String", "RECAPTCHA_PASS", "\"${buildProperties.secrets['recaptchaPassProduction']}\""
 
             buildConfigField "String", "SARDINE_CLIENT_ID", "\"${buildProperties.secrets['sardineProduction']}\""
 
@@ -243,6 +245,7 @@ android {
             buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['stagingLoginPortal']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreStagingDemoEmail']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreStagingDemoWalletId']}\""
+            buildConfigField "String", "RECAPTCHA_PASS", "\"${buildProperties.secrets['recaptchaPassStaging']}\""
 
             buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
             buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""

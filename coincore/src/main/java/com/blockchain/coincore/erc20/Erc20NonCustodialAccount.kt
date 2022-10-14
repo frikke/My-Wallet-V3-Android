@@ -16,8 +16,8 @@ import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalanceNotFoundException
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet.Companion.DEFAULT_SINGLE_ACCOUNT_INDEX
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -65,6 +65,10 @@ class Erc20NonCustodialAccount(
         }
     override val index: Int
         get() = DEFAULT_SINGLE_ACCOUNT_INDEX
+
+    override suspend fun publicKey(): String {
+        throw IllegalAccessException("Public key of an erc20 cannot be accessed use the L1")
+    }
 
     override val activity: Single<ActivitySummaryList>
         get() {

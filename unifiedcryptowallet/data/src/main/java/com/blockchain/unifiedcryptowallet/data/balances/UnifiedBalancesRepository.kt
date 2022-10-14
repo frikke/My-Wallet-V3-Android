@@ -12,11 +12,10 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.firstOutcome
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalanceNotFoundException
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 
@@ -27,31 +26,36 @@ internal class UnifiedBalancesRepository(
     private val assetCatalogue: AssetCatalogue,
     private val currencyPrefs: CurrencyPrefs,
 ) : UnifiedBalancesService {
-
-    override suspend fun balances(): List<NetworkBalance> {
-        val networkWallets = networkAccountsService.allWallets()
+    /**
+     * Specify those to get the balance of a specific Wallet.
+     */
+    override suspend fun balances(wallet: NetworkWallet?): List<NetworkBalance> {
+        val networkWallets = networkAccountsService.allNetworks()
 
         val pubKeys = networkWallets.associateWith {
             it.publicKey()
         }
+
         subscribe(pubKeys)
 
         return unifiedBalancesStore.stream(FreshnessStrategy.Cached(false)).firstOutcome()
             .map { response ->
-                response.balances.mapNotNull {
-                    val currency = assetCatalogue.fromNetworkTicker(it.currency)
+                response.balances.filter {
+                    if (wallet == null) true
+                    else it.currency == wallet.currency.networkTicker && it.account.index == wallet.index &&
+                        it.account.name == wallet.label
+                }.mapNotNull {
+                    val cc = assetCatalogue.fromNetworkTicker(it.currency)
                     NetworkBalance(
-                        currency = currency ?: return@mapNotNull null,
+                        currency = cc ?: return@mapNotNull null,
                         balance = it.balance?.amount?.let { amount ->
-                            Money.fromMinor(currency, amount)
+                            Money.fromMinor(cc, amount)
                         } ?: return@mapNotNull null,
                         unconfirmedBalance = it.pending?.amount?.let { amount ->
-                            Money.fromMinor(currency, amount)
+                            Money.fromMinor(cc, amount)
                         } ?: return@mapNotNull null,
-                        index = it.account.index,
-                        name = it.account.name,
                         exchangeRate = ExchangeRate(
-                            from = currency,
+                            from = cc,
                             to = currencyPrefs.selectedFiatCurrency,
                             rate = it.price
                         )
@@ -61,21 +65,17 @@ internal class UnifiedBalancesRepository(
             .getOrThrow()
     }
 
-    override suspend fun balanceForAccount(
-        name: String,
-        index: Int,
-        currency: Currency
+    override suspend fun balanceForWallet(
+        wallet: NetworkWallet
     ): NetworkBalance {
-        return balances().firstOrNull {
-            it.name == name && it.index == index && it.currency.networkTicker == currency.networkTicker
-        } ?: throw UnifiedBalanceNotFoundException(
-            currency = currency,
-            name = name,
-            index = index
+        return balances(wallet).firstOrNull() ?: throw UnifiedBalanceNotFoundException(
+            currency = wallet.currency.networkTicker,
+            name = wallet.label,
+            index = wallet.index
         )
     }
 
-    private suspend fun subscribe(networkAccountsPubKeys: Map<NetworkNonCustodialAccount, String>): CommonResponse {
+    private suspend fun subscribe(networkAccountsPubKeys: Map<NetworkWallet, String>): CommonResponse {
 
         val subscriptions = networkAccountsPubKeys.keys.map {
             check(networkAccountsPubKeys[it] != null)

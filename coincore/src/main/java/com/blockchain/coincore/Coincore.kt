@@ -16,7 +16,7 @@ import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -317,8 +317,12 @@ class Coincore internal constructor(
 }
 
 internal class NetworkAccountsRepository(private val coincore: Coincore) : NetworkAccountsService {
-    override suspend fun allWallets(): List<NetworkNonCustodialAccount> =
+    override suspend fun allNetworks(): List<NetworkWallet> =
         coincore.allWallets().map { it.accounts }.map { accounts ->
-            accounts.filterIsInstance<NetworkNonCustodialAccount>()
+            accounts.filterIsInstance<NetworkWallet>().filter {
+                (it.currency as? AssetInfo)?.let { assetInfo ->
+                    assetInfo.l1chainTicker == null
+                } ?: false
+            }
         }.await()
 }

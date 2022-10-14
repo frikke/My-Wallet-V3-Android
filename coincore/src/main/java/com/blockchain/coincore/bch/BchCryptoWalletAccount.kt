@@ -17,7 +17,7 @@ import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.unifiedcryptowallet.domain.balances.NetworkNonCustodialAccount
+import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import info.blockchain.wallet.bch.BchMainNetParams
@@ -47,8 +47,7 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
     override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(
     CryptoCurrency.BCH
-),
-    NetworkNonCustodialAccount {
+) {
 
     override val label: String
         get() = internalAccount.label
@@ -85,7 +84,7 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
         get() = addressIndex
 
     override val style: String
-        get() = NetworkNonCustodialAccount.EXTENDED_PUB_KEY_STYLE
+        get() = NetworkWallet.EXTENDED_PUB_KEY_STYLE
 
     override val activity: Single<ActivitySummaryList>
         get() = bchManager.getAddressTransactions(

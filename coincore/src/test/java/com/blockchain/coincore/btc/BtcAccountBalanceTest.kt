@@ -65,17 +65,14 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
         val btcBalance = 100.bitcoin()
 
         coEvery {
-            unifiedBalancesService.balanceForAccount(
-                index = -1,
-                name = jsonAccount.label,
-                currency = subject.currency
+            unifiedBalancesService.balanceForWallet(
+                subject
             )
         } returns NetworkBalance(
             currency = subject.currency,
             balance = btcBalance,
             unconfirmedBalance = 0.bitcoin(),
-            index = -1,
-            name = jsonAccount.label,
+
             exchangeRate = BTC_TO_USER_RATE
         )
 
@@ -94,17 +91,13 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
     @Test
     fun `zero balance calculated correctly`() {
         coEvery {
-            unifiedBalancesService.balanceForAccount(
-                index = -1,
-                name = jsonAccount.label,
-                currency = subject.currency
+            unifiedBalancesService.balanceForWallet(
+                subject
             )
         } returns NetworkBalance(
             currency = subject.currency,
             balance = 0.bitcoin(),
             unconfirmedBalance = 0.bitcoin(),
-            index = -1,
-            name = jsonAccount.label,
             exchangeRate = BTC_TO_USER_RATE
         )
 
