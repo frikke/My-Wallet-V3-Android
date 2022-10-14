@@ -20,16 +20,11 @@ internal interface StakingApi {
     ): Outcome<Exception, StakingRatesDto>
 
     @GET("accounts/staking")
-    suspend fun getAccountBalances(): Outcome<Exception, Map<String, StakingBalanceDto>>
+    suspend fun getAccountBalances(): Outcome<Exception, Map<String, StakingBalanceDto>?>
 
     // TODO(dserrano) - STAKING
     //    @GET("earn/limits")
     //    suspend fun getTickersLimits(
     //        @Query("currency") ticker: String
     //    ): Outcome<Exception, StakingAssetLimitsDto>
-    //
-    //    @GET("earn/rates-user")
-    //    suspend fun getStakingRatesForCurrency(
-    //        @Query("ccy") cryptoCurrencyTicker: String
-    //    ): Outcome<Exception, StakingRatesDto>
 }

@@ -4,6 +4,7 @@ import com.blockchain.api.staking.data.StakingBalanceDto
 import com.blockchain.api.staking.data.StakingEligibilityDto
 import com.blockchain.api.staking.data.StakingRatesDto
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.map
 
 class StakingApiService internal constructor(
     private val stakingApi: StakingApi
@@ -15,5 +16,7 @@ class StakingApiService internal constructor(
         stakingApi.getStakingEligibility()
 
     suspend fun getStakingBalances(): Outcome<Exception, Map<String, StakingBalanceDto>> =
-        stakingApi.getAccountBalances()
+        stakingApi.getAccountBalances().map { response ->
+            response ?: emptyMap()
+        }
 }
