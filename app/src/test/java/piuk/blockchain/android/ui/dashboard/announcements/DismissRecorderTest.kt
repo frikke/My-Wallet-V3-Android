@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
+import com.blockchain.preferences.SessionPrefs
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -12,7 +13,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class DismissRecorderTest {
 

@@ -15,11 +15,11 @@ import com.blockchain.store.KeyedStore
 import com.blockchain.store.Mediator
 import com.blockchain.store.mapData
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
+import com.blockchain.utils.rxSingleOutcome
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class Erc20L2Store(
     private val evmService: NonCustodialEvmService,

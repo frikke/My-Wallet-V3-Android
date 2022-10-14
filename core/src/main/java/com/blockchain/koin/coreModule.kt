@@ -1,10 +1,10 @@
 package com.blockchain.koin
 
-import android.content.Context
-import android.preference.PreferenceManager
 import com.blockchain.api.services.SelfCustodyServiceAuthCredentials
 import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
+import com.blockchain.core.access.PinRepository
+import com.blockchain.core.access.PinRepositoryImpl
 import com.blockchain.core.asset.data.AssetRepository
 import com.blockchain.core.asset.data.dataresources.AssetInformationStore
 import com.blockchain.core.asset.domain.AssetService
@@ -17,6 +17,8 @@ import com.blockchain.core.buy.data.dataresources.BuyPairsStore
 import com.blockchain.core.buy.data.dataresources.SimpleBuyEligibilityStore
 import com.blockchain.core.buy.domain.SimpleBuyService
 import com.blockchain.core.chains.EvmNetworksService
+import com.blockchain.core.chains.bitcoin.PaymentService
+import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.chains.bitcoincash.BchBalanceCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
@@ -39,6 +41,9 @@ import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.chains.ethereum.EthMessageSigner
 import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.common.caching.StoreWiperImpl
+import com.blockchain.core.connectivity.SSLPinningEmitter
+import com.blockchain.core.connectivity.SSLPinningObservable
+import com.blockchain.core.connectivity.SSLPinningSubject
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.data.TradingRepository
 import com.blockchain.core.custodial.data.store.TradingStore
@@ -63,6 +68,10 @@ import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.payload.DataManagerPayloadDecrypt
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.payload.PayloadDataManagerSeedAccessAdapter
+import com.blockchain.core.payload.PayloadService
+import com.blockchain.core.payload.PromptingSeedAccessAdapter
 import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.payments.WithdrawLocksCache
 import com.blockchain.core.payments.cache.LinkedCardsStore
@@ -71,6 +80,13 @@ import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.core.sdd.data.SddRepository
 import com.blockchain.core.sdd.data.datasources.SddEligibilityStore
 import com.blockchain.core.sdd.domain.SddService
+import com.blockchain.core.settings.EmailSyncUpdater
+import com.blockchain.core.settings.PhoneNumberUpdater
+import com.blockchain.core.settings.SettingsDataManager
+import com.blockchain.core.settings.SettingsEmailAndSyncUpdater
+import com.blockchain.core.settings.SettingsPhoneNumberUpdater
+import com.blockchain.core.settings.SettingsService
+import com.blockchain.core.settings.datastore.SettingsStore
 import com.blockchain.core.staking.data.StakingRepository
 import com.blockchain.core.staking.data.datasources.StakingBalanceStore
 import com.blockchain.core.staking.data.datasources.StakingEligibilityStore
@@ -80,6 +96,8 @@ import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistDataManagerImpl
+import com.blockchain.core.utils.AESUtilWrapper
+import com.blockchain.core.utils.UUIDGenerator
 import com.blockchain.core.walletoptions.WalletOptionsDataManager
 import com.blockchain.core.walletoptions.WalletOptionsState
 import com.blockchain.core.watchlist.data.WatchlistRepository
@@ -87,7 +105,6 @@ import com.blockchain.core.watchlist.data.datasources.WatchlistStore
 import com.blockchain.core.watchlist.domain.WatchlistService
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.eligibility.EligibilityService
-import com.blockchain.domain.experiments.RemoteConfigService
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
@@ -96,29 +113,6 @@ import com.blockchain.domain.referral.ReferralService
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.payload.PayloadDecrypt
-import com.blockchain.preferences.AppInfoPrefs
-import com.blockchain.preferences.AppMaintenancePrefs
-import com.blockchain.preferences.AppRatingPrefs
-import com.blockchain.preferences.AuthPrefs
-import com.blockchain.preferences.BankLinkingPrefs
-import com.blockchain.preferences.BlockchainCardPrefs
-import com.blockchain.preferences.CowboysPrefs
-import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.preferences.LocalSettingsPrefs
-import com.blockchain.preferences.MultiAppAssetsFilterService
-import com.blockchain.preferences.NftAnnouncementPrefs
-import com.blockchain.preferences.NotificationPrefs
-import com.blockchain.preferences.OnboardingPrefs
-import com.blockchain.preferences.ReferralPrefs
-import com.blockchain.preferences.RemoteConfigPrefs
-import com.blockchain.preferences.SecureChannelPrefs
-import com.blockchain.preferences.SecurityPrefs
-import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.preferences.SuperAppMvpPrefs
-import com.blockchain.preferences.TransactionPrefs
-import com.blockchain.preferences.WalletStatusPrefs
-import com.blockchain.remoteconfig.RemoteConfigRepository
 import com.blockchain.storedatasource.StoreWiper
 import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
@@ -130,32 +124,6 @@ import info.blockchain.wallet.util.PrivateKeyFactory
 import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.access.PinRepositoryImpl
-import piuk.blockchain.androidcore.data.connectivity.SSLPinningEmitter
-import piuk.blockchain.androidcore.data.connectivity.SSLPinningObservable
-import piuk.blockchain.androidcore.data.connectivity.SSLPinningSubject
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManagerSeedAccessAdapter
-import piuk.blockchain.androidcore.data.payload.PayloadService
-import piuk.blockchain.androidcore.data.payload.PromptingSeedAccessAdapter
-import piuk.blockchain.androidcore.data.payments.PaymentService
-import piuk.blockchain.androidcore.data.payments.SendDataManager
-import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
-import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.data.settings.SettingsEmailAndSyncUpdater
-import piuk.blockchain.androidcore.data.settings.SettingsPhoneNumberUpdater
-import piuk.blockchain.androidcore.data.settings.SettingsService
-import piuk.blockchain.androidcore.data.settings.datastore.SettingsStore
-import piuk.blockchain.androidcore.utils.AESUtilWrapper
-import piuk.blockchain.androidcore.utils.CloudBackupAgent
-import piuk.blockchain.androidcore.utils.DeviceIdGenerator
-import piuk.blockchain.androidcore.utils.DeviceIdGeneratorImpl
-import piuk.blockchain.androidcore.utils.EncryptedPrefs
-import piuk.blockchain.androidcore.utils.PrefsUtil
-import piuk.blockchain.androidcore.utils.SessionPrefs
-import piuk.blockchain.androidcore.utils.UUIDGenerator
 
 val coreModule = module {
 
@@ -502,7 +470,7 @@ val coreModule = module {
                 authApiService = get(),
                 walletAuthService = get(),
                 pinRepository = get(),
-                aesUtilWrapper = get(),
+                aesUtilWrapper = AESUtilWrapper,
                 remoteLogger = get(),
                 authPrefs = get(),
                 walletStatusPrefs = get(),
@@ -652,15 +620,6 @@ val coreModule = module {
     }
 
     single {
-        RemoteConfigRepository(
-            firebaseRemoteConfig = get(),
-            remoteConfigPrefs = get(),
-            experimentsStore = get(),
-            json = get(),
-        )
-    }.bind(RemoteConfigService::class)
-
-    single {
         DynamicAssetsDataManagerImpl(
             discoveryService = get(),
         )
@@ -679,54 +638,10 @@ val coreModule = module {
     }
 
     factory {
-        DeviceIdGeneratorImpl(
-            platformDeviceIdGenerator = get(),
-            analytics = get()
-        )
-    }.bind(DeviceIdGenerator::class)
-
-    factory {
         object : UUIDGenerator {
             override fun generateUUID(): String = UUID.randomUUID().toString()
         }
     }.bind(UUIDGenerator::class)
-
-    single {
-        PrefsUtil(
-            ctx = get(),
-            store = get(),
-            backupStore = CloudBackupAgent.backupPrefs(ctx = get()),
-            idGenerator = get(),
-            uuidGenerator = get(),
-            assetCatalogue = get(),
-            environmentConfig = get()
-        )
-    }.apply {
-        bind(SessionPrefs::class)
-        bind(CurrencyPrefs::class)
-        bind(NotificationPrefs::class)
-        bind(DashboardPrefs::class)
-        bind(SecurityPrefs::class)
-        bind(RemoteConfigPrefs::class)
-        bind(SimpleBuyPrefs::class)
-        bind(WalletStatusPrefs::class)
-        bind(EncryptedPrefs::class)
-        bind(TransactionPrefs::class)
-        bind(AuthPrefs::class)
-        bind(AppInfoPrefs::class)
-        bind(BankLinkingPrefs::class)
-        bind(SecureChannelPrefs::class)
-        bind(OnboardingPrefs::class)
-        bind(AppMaintenancePrefs::class)
-        bind(AppRatingPrefs::class)
-        bind(NftAnnouncementPrefs::class)
-        bind(ReferralPrefs::class)
-        bind(LocalSettingsPrefs::class)
-        bind(SuperAppMvpPrefs::class)
-        bind(CowboysPrefs::class)
-        bind(BlockchainCardPrefs::class)
-        bind(MultiAppAssetsFilterService::class)
-    }
 
     factory {
         PaymentService(
@@ -735,21 +650,9 @@ val coreModule = module {
         )
     }
 
-    factory {
-        PreferenceManager.getDefaultSharedPreferences(
-            /* context = */ get()
-        )
-    }
-
-    factory(featureFlagsPrefs) {
-        get<Context>().getSharedPreferences("FeatureFlagsPrefs", Context.MODE_PRIVATE)
-    }
-
     single {
         PinRepositoryImpl()
     }.bind(PinRepository::class)
-
-    factory { AESUtilWrapper() }
 
     single<StoreWiper> {
         StoreWiperImpl(

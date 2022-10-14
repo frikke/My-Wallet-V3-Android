@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
@@ -26,7 +27,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import retrofit2.Response
 import timber.log.Timber
 

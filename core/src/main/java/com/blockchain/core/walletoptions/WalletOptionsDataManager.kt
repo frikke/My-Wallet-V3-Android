@@ -1,16 +1,16 @@
 package com.blockchain.core.walletoptions
 
 import com.blockchain.core.auth.WalletAuthService
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.wallet.api.data.UpdateType
 import info.blockchain.wallet.api.data.WalletOptions
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Locale
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class WalletOptionsDataManager(
     authService: WalletAuthService,

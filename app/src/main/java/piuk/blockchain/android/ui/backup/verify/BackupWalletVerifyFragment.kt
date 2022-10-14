@@ -12,7 +12,7 @@ import androidx.fragment.app.FragmentManager
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupWalletVerifyBinding
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedFragment

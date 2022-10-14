@@ -7,6 +7,7 @@ import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.CardToBeActivated
+import com.blockchain.domain.paymentmethods.model.CardType
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.Partner
@@ -19,7 +20,6 @@ import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.serializers.IsoDateSerializer
 import com.blockchain.serializers.KZonedDateTimeSerializer
 import com.blockchain.testutils.USD
-import com.braintreepayments.cardform.utils.CardType
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -80,7 +80,7 @@ class CardModelTest {
         endDigits = "endDigits",
         partner = Partner.CARDPROVIDER,
         expireDate = Calendar.getInstance().time,
-        cardType = "cardType",
+        cardType = CardType.AMEX,
         status = CardStatus.ACTIVE,
         cardFundSources = listOf(),
         mobilePaymentType = MobilePaymentType.UNKNOWN,
@@ -334,7 +334,7 @@ class CardModelTest {
             endDigits = "1234",
             partner = Partner.CARDPROVIDER,
             expireDate = Date(),
-            cardType = CardType.HIPERCARD.name,
+            cardType = CardType.HIPERCARD,
             status = CardStatus.ACTIVE,
             isEligible = true
         )
@@ -368,7 +368,7 @@ class CardModelTest {
             endDigits = "1234",
             partner = Partner.CARDPROVIDER,
             expireDate = Date(),
-            cardType = CardType.HIPERCARD.name,
+            cardType = CardType.HIPERCARD,
             status = CardStatus.BLOCKED,
             isEligible = true
         )

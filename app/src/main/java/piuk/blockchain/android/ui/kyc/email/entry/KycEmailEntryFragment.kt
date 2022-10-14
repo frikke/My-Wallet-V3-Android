@@ -14,12 +14,12 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.koin.scopedInject
+import com.blockchain.core.settings.Email
+import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.EmailVerificationArgs
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycAddEmailBinding
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
-import piuk.blockchain.androidcore.data.settings.Email
 
 class KycEmailEntryFragment :
     MviFragment<EmailVerificationModel, EmailVerificationIntent, EmailVerificationState, FragmentKycAddEmailBinding>(),

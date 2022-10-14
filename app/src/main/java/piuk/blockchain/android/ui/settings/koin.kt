@@ -278,7 +278,7 @@ val redesignSettingsModule = module {
 
         scoped<BackupPhrasePinService> {
             BackupPhrasePinRequest(
-                secondPasswordHandler = get()
+                secondPasswordDialog = get()
             )
         }
 

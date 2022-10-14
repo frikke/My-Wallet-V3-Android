@@ -1,11 +1,11 @@
 package com.blockchain.core.auth.metadata
 
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.metadata.load
 import com.blockchain.metadata.save
 import io.reactivex.rxjava3.core.Completable
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class WalletCredentialsMetadataUpdater(
     private val metadataRepository: MetadataRepository,

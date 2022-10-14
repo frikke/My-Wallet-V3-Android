@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.launcher
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SuperAppMvpPrefs
 import com.blockchain.walletmode.WalletMode
@@ -27,7 +28,6 @@ import piuk.blockchain.android.ui.launcher.loader.LoginMethod
 import piuk.blockchain.android.ui.launcher.loader.ProgressStep
 import piuk.blockchain.android.ui.launcher.loader.ToastType
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 @RunWith(MockitoJUnitRunner.Silent::class)
 class LoaderModelTest {

@@ -20,7 +20,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions

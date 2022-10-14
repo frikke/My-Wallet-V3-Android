@@ -15,6 +15,8 @@ import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AppLaunchEvent
+import com.blockchain.core.connectivity.ConnectionEvent
+import com.blockchain.core.connectivity.SSLPinningObservable
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.KoinStarter
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -42,10 +44,7 @@ import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.ui.ssl.SSLVerifyActivity
 import piuk.blockchain.android.util.AppAnalytics
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.lifecycle.AppLifecycleListener
-import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent
-import piuk.blockchain.androidcore.data.connectivity.SSLPinningObservable
 import timber.log.Timber
 
 open class BlockchainApplication : Application() {
@@ -54,7 +53,6 @@ open class BlockchainApplication : Application() {
     private val lifeCycleInterestedComponent: LifecycleInterestedComponent by inject()
     private val appInfoPrefs: AppInfoPrefs by inject()
     private val sslPinningObservable: SSLPinningObservable by inject()
-    private val currentContextAccess: CurrentContextAccess by inject()
     private val appUtils: AppUtil by inject()
     private val analytics: Analytics by inject()
     private val remoteLogger: RemoteLogger by inject()
@@ -279,12 +277,10 @@ open class BlockchainApplication : Application() {
         }
 
         override fun onActivityResumed(activity: Activity) {
-            currentContextAccess.contextOpen(activity)
             trust.onActivityResume(activity)
         }
 
         override fun onActivityPaused(activity: Activity) {
-            currentContextAccess.contextClose(activity)
             trust.onActivityPause()
         }
 

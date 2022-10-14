@@ -47,10 +47,10 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.extensions.enumValueOfOrNull
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService

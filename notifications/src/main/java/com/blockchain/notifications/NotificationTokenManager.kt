@@ -4,13 +4,13 @@ import android.annotation.SuppressLint
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.NotificationPrefs
+import com.blockchain.utils.then
 import com.google.common.base.Optional
 import info.blockchain.wallet.payload.WalletPayloadService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
 class NotificationTokenManager(

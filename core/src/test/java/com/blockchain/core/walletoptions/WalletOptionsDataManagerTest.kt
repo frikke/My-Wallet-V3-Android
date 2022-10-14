@@ -1,7 +1,8 @@
 package com.blockchain.core.walletoptions
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.auth.WalletAuthService
+import com.blockchain.core.settings.SettingsDataManager
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.AndroidUpgrade
@@ -13,7 +14,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class WalletOptionsDataManagerTest {
 

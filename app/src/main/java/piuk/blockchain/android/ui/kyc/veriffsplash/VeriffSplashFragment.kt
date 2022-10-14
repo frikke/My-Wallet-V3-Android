@@ -28,8 +28,9 @@ import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import com.blockchain.veriff.VeriffApplicantAndToken
 import com.blockchain.veriff.VeriffLauncher
 import com.blockchain.veriff.VeriffResultHandler
@@ -54,7 +55,6 @@ import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_GOLD_UNAVAILABLE_SUPPORT
 import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_KYC_SUPPORTED_COUNTRIES_LIST
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.throttledClicks
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class VeriffSplashFragment :
     BaseFragment<VeriffSplashView, VeriffSplashPresenter>(),

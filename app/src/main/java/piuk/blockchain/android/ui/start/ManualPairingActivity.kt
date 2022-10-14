@@ -15,8 +15,8 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.hideKeyboard
-import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.textfield.TextInputEditText
 import org.json.JSONObject
 import org.koin.android.ext.android.inject

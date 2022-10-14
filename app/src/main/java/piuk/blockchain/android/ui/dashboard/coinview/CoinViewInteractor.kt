@@ -37,6 +37,7 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.store.asSingle
+import com.blockchain.utils.zipSingles
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
@@ -51,7 +52,6 @@ import io.reactivex.rxjava3.kotlin.Singles
 import kotlinx.coroutines.rx3.asObservable
 import piuk.blockchain.android.domain.repositories.TradeDataService
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
-import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 class CoinViewInteractor(
     private val coincore: Coincore,

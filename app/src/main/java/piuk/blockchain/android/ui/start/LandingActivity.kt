@@ -15,10 +15,10 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.logging.MomentParam
+import com.blockchain.presentation.koin.scopedInject
 import java.util.Timer
 import java.util.TimerTask
 import org.koin.android.ext.android.inject

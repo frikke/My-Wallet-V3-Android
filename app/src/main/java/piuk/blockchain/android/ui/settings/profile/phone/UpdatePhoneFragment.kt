@@ -14,7 +14,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import com.mukesh.countrypicker.CountryPicker
 import info.blockchain.wallet.api.data.Settings
 import java.util.Locale

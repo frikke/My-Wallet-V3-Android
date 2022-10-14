@@ -8,6 +8,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.dynamicselfcustody.domain.NonCustodialService
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
@@ -16,6 +17,7 @@ import com.blockchain.outcome.getOrThrow
 import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
+import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
@@ -28,8 +30,6 @@ import java.math.BigDecimal
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.rx3.rxSingle
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class DynamicNonCustodialAccount(
     val payloadManager: PayloadDataManager,

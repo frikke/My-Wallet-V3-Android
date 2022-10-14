@@ -2,10 +2,10 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.analytics.UserAnalytics
 import com.blockchain.analytics.UserProperty
+import com.blockchain.preferences.SessionPrefs
 import info.blockchain.wallet.api.data.Settings
 import java.security.MessageDigest
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 interface WalletReporter {
     fun reportWalletGuid(walletGuid: String)

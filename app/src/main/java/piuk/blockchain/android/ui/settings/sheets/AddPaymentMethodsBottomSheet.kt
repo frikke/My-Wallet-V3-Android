@@ -9,7 +9,7 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetAddPaymentMethodBinding
 import piuk.blockchain.android.util.StringLocalizationUtil

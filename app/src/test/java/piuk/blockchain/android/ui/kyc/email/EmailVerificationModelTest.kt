@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.kyc.email
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.settings.Email
 import com.blockchain.enviroment.EnvironmentConfig
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -14,7 +15,6 @@ import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationIntent
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationModel
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationState
-import piuk.blockchain.androidcore.data.settings.Email
 
 class EmailVerificationModelTest {
 

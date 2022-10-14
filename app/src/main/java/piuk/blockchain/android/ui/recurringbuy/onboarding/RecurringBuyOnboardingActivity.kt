@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import org.koin.android.ext.android.inject
@@ -17,7 +18,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityRecurringBuyOnBoardingBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class RecurringBuyOnboardingActivity : AppCompatActivity() {
 

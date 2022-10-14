@@ -34,15 +34,14 @@ import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.core.payments.toCardType
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.presentation.koin.scopedInject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -51,6 +50,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CardDetailsActivity
 import piuk.blockchain.android.cards.RemoveCardBottomSheet
 import piuk.blockchain.android.cards.icon
+import piuk.blockchain.android.cards.mapper.icon
 import piuk.blockchain.android.databinding.FragmentRedesignSettingsBinding
 import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
@@ -417,7 +417,7 @@ class SettingsFragment :
                     titleStart = buildAnnotatedString { append(card.uiLabel()) }
                     titleEnd = buildAnnotatedString { append(card.dottedEndDigits()) }
                     startImageResource = ImageResource.Local(
-                        (card as? PaymentMethod.Card)?.cardType?.toCardType()?.icon()
+                        (card as? PaymentMethod.Card)?.cardType?.icon()
                             ?: R.drawable.ic_card_icon,
                         null
                     )

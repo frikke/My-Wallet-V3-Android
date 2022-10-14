@@ -18,11 +18,15 @@ import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.then
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -45,10 +49,6 @@ import org.bitcoinj.core.Transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.payments.SendDataManager
-import piuk.blockchain.androidcore.utils.extensions.then
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 private const val STATE_UTXO = "btc_utxo"

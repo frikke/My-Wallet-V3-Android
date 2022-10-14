@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAccountResetBinding
 import piuk.blockchain.android.ui.recover.AccountRecoveryAnalytics

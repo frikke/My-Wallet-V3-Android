@@ -20,7 +20,8 @@ import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -37,7 +38,6 @@ import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import retrofit2.HttpException
 
 class BuySellFragment :

@@ -20,7 +20,7 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.referral.model.ReferralInfo
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.kotlin.plusAssign

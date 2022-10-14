@@ -15,7 +15,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentUpdateEmailBinding

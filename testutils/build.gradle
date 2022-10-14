@@ -1,18 +1,8 @@
 apply from: rootProject.file('gradle/local/common-feature.gradle')
 
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = Versions.kotlinJvmTarget
-    }
-}
-
-java {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-}
-
 dependencies {
     implementation project(':balance')
+    implementation project(":common:interface")
 
     // RxJava
     implementation Libraries.rxJava

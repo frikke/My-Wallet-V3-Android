@@ -29,11 +29,12 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.minus
-import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -108,7 +109,6 @@ import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.launchUrlInBrowser
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 class PortfolioFragment :

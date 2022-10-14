@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.settings.profile.email
 
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.core.settings.Email
+import com.blockchain.core.settings.EmailSyncUpdater
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.preferences.AuthPrefs
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.settings.Email
-import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class EmailInteractor internal constructor(
     private val emailUpdater: EmailSyncUpdater,

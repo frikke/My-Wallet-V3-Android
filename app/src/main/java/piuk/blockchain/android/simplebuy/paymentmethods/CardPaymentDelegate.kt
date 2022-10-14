@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
-import com.blockchain.core.payments.toCardType
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import java.text.SimpleDateFormat
@@ -16,6 +15,7 @@ import java.util.Locale
 import org.koin.core.component.KoinComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.icon
+import piuk.blockchain.android.cards.mapper.icon
 import piuk.blockchain.android.databinding.CardPaymentMethodLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 
@@ -56,7 +56,7 @@ class CardPaymentDelegate(
                         titleStart = buildAnnotatedString { append(it.uiLabel()) }
                         titleEnd = buildAnnotatedString { append(it.dottedEndDigits()) }
                         startImageResource = ImageResource.Local(
-                            id = it.cardType.toCardType().icon(),
+                            id = it.cardType.icon(),
                         )
                         bodyStart = buildAnnotatedString {
                             append(

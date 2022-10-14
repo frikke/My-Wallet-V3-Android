@@ -14,9 +14,9 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.koin.scopedInject
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.presentation.koin.scopedInject
 import com.checkout.android_sdk.PaymentForm
 import com.checkout.android_sdk.Utils.Environment
 import com.stripe.android.PaymentAuthConfig

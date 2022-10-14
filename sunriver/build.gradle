@@ -2,18 +2,6 @@ apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature.gradle')
 apply from: rootProject.file('gradle/local/common-tests.gradle')
 
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = Versions.kotlinJvmTarget
-    }
-}
-
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = Versions.kotlinJvmTarget
-    }
-}
-
 test {
     testLogging {
         events 'skipped', 'failed', 'standardOut', 'standardError'

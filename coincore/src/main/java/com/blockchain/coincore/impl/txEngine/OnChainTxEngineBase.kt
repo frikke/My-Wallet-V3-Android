@@ -10,6 +10,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
@@ -21,7 +22,6 @@ import info.blockchain.wallet.api.data.FeeOptions
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.koin.core.component.inject
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 abstract class OnChainTxEngineBase(
     override val requireSecondPassword: Boolean,

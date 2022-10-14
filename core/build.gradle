@@ -1,31 +1,5 @@
+apply from: rootProject.file('gradle/local/common-feature-domain.gradle')
 apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file('gradle/local/common-feature-android-data.gradle')
-
-final buildProperties = new BuildProperties(
-        file('../app/secrets.properties'), file('../app/secretsDefaults.properties')
-)
-
-android {
-    compileOptions {
-        coreLibraryDesugaringEnabled true
-    }
-
-    lintOptions {
-        baseline file("lint-baseline.xml")
-        warningsAsErrors true
-        abortOnError true
-    }
-
-    buildTypes {
-        release {
-            consumerProguardFiles 'proguard-rules.pro'
-            manifestPlaceholders = [PLACES_KEY: buildProperties.secrets['placesReleaseKey'].toString()]
-        }
-        debug {
-            manifestPlaceholders = [PLACES_KEY: buildProperties.secrets['placesDebugKey'].toString()]
-        }
-    }
-}
 
 dependencies {
     implementation project(':wallet')
@@ -52,24 +26,13 @@ dependencies {
     implementation Libraries.okHttpInterceptor
     implementation Libraries.kotlinJson
 
-    implementation Libraries.cardForm
     implementation Libraries.rxJava
     implementation Libraries.rxKotlin
-    implementation Libraries.rxAndroid
-
-    // Firebase
-    implementation platform(Libraries.firebaseBom)
-    implementation(Libraries.firebaseConfig) {
-        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
-    }
-
-    coreLibraryDesugaring Libraries.desugaring
 
     implementation Libraries.kotlinCoroutines
     implementation Libraries.rxjava3Coroutines
 
     // Unit Test dependencies
     testImplementation Libraries.koinTest
-    testImplementation Libraries.koinTestJunit
-    testImplementation project(':testutils-android')
+    testImplementation project(':testutils')
 }

@@ -20,6 +20,7 @@ import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.custodial.domain.TradingService
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.interest.domain.InterestService
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.staking.domain.StakingService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
@@ -27,6 +28,10 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
+import com.blockchain.utils.filterList
+import com.blockchain.utils.filterListItemIsInstance
+import com.blockchain.utils.mapList
+import com.blockchain.utils.zipSingles
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
@@ -48,11 +53,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.rx3.await
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.filterList
-import piuk.blockchain.androidcore.utils.extensions.filterListItemIsInstance
-import piuk.blockchain.androidcore.utils.extensions.mapList
-import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
 
 // This is a rubbish regex, but it'll do until I'm provided a better one

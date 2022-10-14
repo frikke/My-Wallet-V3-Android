@@ -14,9 +14,9 @@ import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.firstOutcome
 import com.blockchain.store_caches_inmemory.InMemoryCacheStoreBuilder
+import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.Currency
 import java.util.Calendar
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 internal class AssetPriceStoreCache(
     private val assetPriceService: AssetPriceService,

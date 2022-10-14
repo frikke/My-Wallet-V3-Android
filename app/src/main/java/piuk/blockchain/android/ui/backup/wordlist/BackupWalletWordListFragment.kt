@@ -14,15 +14,15 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupWordListBinding
 import piuk.blockchain.android.ui.backup.verify.BackupWalletVerifyFragment
 import piuk.blockchain.android.ui.base.BaseFragment
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class BackupWalletWordListFragment :
     BaseFragment<BackupWalletWordListView, BackupWalletWordListPresenter>(),

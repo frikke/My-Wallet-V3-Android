@@ -9,6 +9,7 @@ import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.kyc.domain.model.KycTiers
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.dataremediation.DataRemediationService
@@ -52,7 +53,6 @@ import org.junit.Test
 import piuk.blockchain.android.ui.cowboys.CowboysPromoDataProvider
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class DashboardActionInteractorTest {
 

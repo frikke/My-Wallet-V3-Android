@@ -8,11 +8,12 @@ import androidx.lifecycle.Lifecycle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.presentation.BackupPhrasePinService
 import com.blockchain.ui.password.SecondPasswordHandler
+import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.ui.settings.security.pin.PinActivity.Companion.OriginScreenToPin
 
 class BackupPhrasePinRequest(
-    private val secondPasswordHandler: SecondPasswordHandler
+    private val secondPasswordDialog: SecondPasswordDialog
 ) : BackupPhrasePinService {
 
     private var onPinVerificationResult: ActivityResultLauncher<Intent>? = null
@@ -46,7 +47,7 @@ class BackupPhrasePinRequest(
             "lifecycle state is ${activity!!.lifecycle.currentState}, should be at least STARTED"
         }
 
-        secondPasswordHandler.validate(
+        secondPasswordDialog.validate(
             activity!!,
             object : SecondPasswordHandler.ResultListener {
                 override fun onNoSecondPassword() {

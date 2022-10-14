@@ -8,9 +8,9 @@ import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
+import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.CryptoCurrency
 import kotlinx.coroutines.launch
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 import timber.log.Timber
 
 class SelectNetworkViewModel(

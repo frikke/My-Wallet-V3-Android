@@ -14,7 +14,8 @@ import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.domain.dataremediation.model.Questionnaire
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
@@ -29,7 +30,6 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class KycAddressVerificationFragment :
     BaseMvpFragment<KycHomeAddressView, KycHomeAddressPresenter>(),

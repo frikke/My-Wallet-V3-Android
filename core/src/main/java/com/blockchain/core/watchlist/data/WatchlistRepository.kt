@@ -9,12 +9,12 @@ import com.blockchain.data.DataResource
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.data.doOnData
 import com.blockchain.store.mapData
+import com.blockchain.utils.rxSingleOutcome
+import com.blockchain.utils.toDataResource
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
-import piuk.blockchain.androidcore.utils.extensions.toDataResource
 
 typealias Watchlist = List<Currency>
 

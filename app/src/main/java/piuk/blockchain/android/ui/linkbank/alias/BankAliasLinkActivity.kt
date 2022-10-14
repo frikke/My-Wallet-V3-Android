@@ -11,9 +11,9 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.FragmentActivityBinding
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.extensions.exhaustive
+import com.blockchain.utils.consume
 import com.google.android.material.snackbar.Snackbar
 import piuk.blockchain.android.R
-import piuk.blockchain.androidcore.utils.helperfunctions.consume
 
 class BankAliasLinkActivity :
     BlockchainActivity(),

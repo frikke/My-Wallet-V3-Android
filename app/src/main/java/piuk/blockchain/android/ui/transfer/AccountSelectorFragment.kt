@@ -16,8 +16,8 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.koin.defaultOrder
-import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.core.Single
 import org.koin.android.ext.android.inject

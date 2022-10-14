@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.kyc.mobile.entry
 
+import com.blockchain.core.settings.PhoneNumberUpdater
 import com.blockchain.nabu.NabuUserSync
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -8,7 +9,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneDisplayModel
-import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
 import timber.log.Timber
 
 class KycMobileEntryPresenter(

@@ -20,6 +20,7 @@ import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.toActionState
 import com.blockchain.coincore.toUserFiat
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject
@@ -33,6 +34,7 @@ import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
+import com.blockchain.utils.zipSingles
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
@@ -50,8 +52,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.rxSingle
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 internal const val transactionFetchCount = 50
 internal const val transactionFetchOffset = 0

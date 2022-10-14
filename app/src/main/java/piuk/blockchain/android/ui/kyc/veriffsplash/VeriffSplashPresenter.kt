@@ -6,6 +6,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.preferences.SessionPrefs
 import com.blockchain.veriff.VeriffApplicantAndToken
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -15,7 +16,6 @@ import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.navhost.models.UiState
-import piuk.blockchain.androidcore.utils.SessionPrefs
 import timber.log.Timber
 
 class VeriffSplashPresenter(

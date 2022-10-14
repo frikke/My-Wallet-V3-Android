@@ -13,7 +13,8 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.DEBOUNCE_TIMEOUT
 import com.blockchain.componentlib.viewextensions.listenForTextChanges
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -28,7 +29,6 @@ import piuk.blockchain.android.ui.kyc.address.models.OldAddressDetailsModel
 import piuk.blockchain.android.ui.kyc.address.models.OldProfileModel
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class KycAutocompleteAddressFragment :
     MviFragment<KycAutocompleteAddressModel, KycAutocompleteAddressIntents, KycAutocompleteAddressState,

@@ -1,6 +1,5 @@
 package com.blockchain.core.limits
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.txlimits.data.ApiMoneyMinor
 import com.blockchain.api.txlimits.data.CurrentLimits
@@ -17,6 +16,7 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.nabu.USD
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock

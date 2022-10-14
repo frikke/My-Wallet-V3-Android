@@ -6,7 +6,7 @@ import com.blockchain.store.Store
 import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_inmemory.InMemoryCacheStoreBuilder
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
+import com.blockchain.utils.rxSingleOutcome
 
 class ExperimentsStore(
     private val experimentsApiService: ExperimentsApiService

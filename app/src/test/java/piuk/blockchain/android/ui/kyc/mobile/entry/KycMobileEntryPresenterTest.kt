@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.kyc.mobile.entry
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.settings.PhoneNumber
+import com.blockchain.core.settings.PhoneNumberUpdater
 import com.blockchain.nabu.NabuUserSync
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
@@ -17,8 +19,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneDisplayModel
-import piuk.blockchain.androidcore.data.settings.PhoneNumber
-import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
 
 class KycMobileEntryPresenterTest {
 

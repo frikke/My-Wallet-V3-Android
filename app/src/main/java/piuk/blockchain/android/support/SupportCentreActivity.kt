@@ -13,8 +13,8 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
+import com.blockchain.presentation.koin.scopedInject
 import io.intercom.android.sdk.Intercom
 import io.intercom.android.sdk.UserAttributes
 import piuk.blockchain.android.BuildConfig

@@ -7,9 +7,9 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.blockchain.utils.unsafeLazy
 import java.util.Locale
 import piuk.blockchain.android.databinding.EverypayAuthorise3dsBinding
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 class CardAuthoriseWebViewActivity : AppCompatActivity() {

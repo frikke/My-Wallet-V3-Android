@@ -10,7 +10,7 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

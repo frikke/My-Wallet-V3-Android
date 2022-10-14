@@ -23,6 +23,7 @@ import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.googlepay.manager.request.BillingAddressParameters
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -40,7 +41,6 @@ import kotlinx.serialization.Transient
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 /**
  * This is an object that gets serialized with Json so any properties that we don't

@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SimpleBuyCancelOrderBottomSheetBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics

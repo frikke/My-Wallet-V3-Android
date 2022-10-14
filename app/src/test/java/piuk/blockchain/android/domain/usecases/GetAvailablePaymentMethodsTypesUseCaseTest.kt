@@ -6,6 +6,7 @@ import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.CardType
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.Partner
@@ -14,7 +15,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibility
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
-import com.braintreepayments.cardform.utils.CardType
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -158,7 +158,7 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
                 endDigits = "",
                 partner = Partner.CARDPROVIDER,
                 expireDate = Date(),
-                cardType = CardType.AMEX.name,
+                cardType = CardType.AMEX,
                 status = CardStatus.ACTIVE,
                 cardFundSources = CARD_FUND_SOURCES,
                 mobilePaymentType = MobilePaymentType.GOOGLE_PAY,

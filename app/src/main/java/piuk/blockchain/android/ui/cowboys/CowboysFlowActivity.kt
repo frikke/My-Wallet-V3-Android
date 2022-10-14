@@ -49,7 +49,7 @@ import com.blockchain.deeplinking.processor.DeeplinkProcessorV2.Companion.KYC_UR
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import info.blockchain.balance.AssetCatalogue
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single

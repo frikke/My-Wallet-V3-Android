@@ -19,6 +19,7 @@ import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.then
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -33,7 +34,6 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import org.web3j.crypto.RawTransaction
 import org.web3j.utils.Convert
-import piuk.blockchain.androidcore.utils.extensions.then
 
 class EthOnChainTxEngine(
     private val ethDataManager: EthDataManager,

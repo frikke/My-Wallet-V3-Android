@@ -14,6 +14,7 @@ import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.coreandroid.remoteconfig.RemoteConfigRepository
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.Region
@@ -63,8 +64,8 @@ import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.presentation.complexcomponents.QuickFillButtonData
 import com.blockchain.presentation.complexcomponents.QuickFillDisplayAndAmount
-import com.blockchain.remoteconfig.RemoteConfigRepository
 import com.blockchain.serializers.StringMapSerializer
+import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.ExchangeRate
@@ -100,7 +101,6 @@ import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.transactionflow.engine.domain.QuickFillRoundingService
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
 
 class SimpleBuyInteractor(

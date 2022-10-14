@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.settings.profile.email
 
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.commonarch.presentation.mvi.MviIntent
-import piuk.blockchain.androidcore.data.settings.Email
+import com.blockchain.core.settings.Email
 
 sealed class EmailIntent : MviIntent<EmailState> {
 

@@ -1,9 +1,14 @@
 package com.blockchain.core.auth
 
 import com.blockchain.api.services.AuthApiService
+import com.blockchain.core.access.PinRepository
+import com.blockchain.core.utils.AESUtilWrapper
+import com.blockchain.core.utils.EncryptedPrefs
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.testutils.RxTest
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -24,11 +29,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.ArgumentMatchers.anyString
-import piuk.blockchain.android.testutils.RxTest
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.utils.AESUtilWrapper
-import piuk.blockchain.androidcore.utils.EncryptedPrefs
-import piuk.blockchain.androidcore.utils.SessionPrefs
 import retrofit2.Response
 
 class AuthDataManagerTest : RxTest() {
@@ -159,7 +159,7 @@ class AuthDataManagerTest : RxTest() {
 
         verify(authPrefs).encryptedPassword
 
-        verify(encryptedPrefs).restoreFromBackup(anyString(), eq(aesUtilWrapper))
+        verify(encryptedPrefs).restoreFromBackup(anyString())
 
         verify(walletAuthService).validateAccess(key, pin)
         verifyNoMoreInteractions(walletAuthService)
@@ -281,7 +281,7 @@ class AuthDataManagerTest : RxTest() {
         verify(encryptedPrefs).backupEnabled
         verify(encryptedPrefs).hasBackup()
 
-        verify(encryptedPrefs).backupCurrentPrefs(anyString(), eq(aesUtilWrapper))
+        verify(encryptedPrefs).backupCurrentPrefs(anyString())
         verifyNoMoreInteractions(prefsUtil)
         verifyNoMoreInteractions(walletStatusPrefs)
         verifyNoMoreInteractions(encryptedPrefs)

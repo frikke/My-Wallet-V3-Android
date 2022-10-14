@@ -7,11 +7,14 @@ import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.chains.ethereum.datastores.EthDataStore
 import com.blockchain.core.chains.ethereum.models.CombinedEthModel
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.utils.schedulers.applySchedulers
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
+import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -39,9 +42,6 @@ import java.math.BigInteger
 import java.util.HashMap
 import org.web3j.crypto.RawTransaction
 import org.web3j.utils.Convert
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.applySchedulers
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class EthDataManager(
     private val payloadDataManager: PayloadDataManager,

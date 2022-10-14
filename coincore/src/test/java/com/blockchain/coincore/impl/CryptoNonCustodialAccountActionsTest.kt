@@ -13,6 +13,7 @@ import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_ASSET
 import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_TO_USER_RATE
 import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_USER_FIAT
 import com.blockchain.coincore.testutil.CoinCoreFakeData.userFiatToUserFiat
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
@@ -37,7 +38,6 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class CryptoNonCustodialAccountActionsTest : KoinTest {
 

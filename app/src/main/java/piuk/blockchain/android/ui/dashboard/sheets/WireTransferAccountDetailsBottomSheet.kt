@@ -14,9 +14,11 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.rxMaybeOutcome
+import com.blockchain.utils.unsafeLazy
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -35,8 +37,6 @@ import piuk.blockchain.android.simplebuy.linkBankFieldCopied
 import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.urllinks.MODULAR_TERMS_AND_CONDITIONS
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class WireTransferAccountDetailsBottomSheet :
     SlidingModalBottomDialog<DialogSheetLinkBankAccountBinding>(),

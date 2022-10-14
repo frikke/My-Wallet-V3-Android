@@ -11,8 +11,8 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.demo.ComponentLibDemoActivity
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.access.PinRepository
 import com.blockchain.core.kyc.data.datasources.KycTiersStore
-import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.preferences.AppMaintenancePrefs
@@ -20,7 +20,9 @@ import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
+import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.snackbar.Snackbar
@@ -33,8 +35,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.referral.presentation.ReferralInviteNowSheet
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 // todo (gabor): revert this back to AppCompatActivity once trigger mechanism in place
 class FeatureFlagsHandlingActivity : BlockchainActivity() {

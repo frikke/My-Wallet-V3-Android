@@ -4,12 +4,12 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.utils.thenSingle
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 class BuySellFlowNavigator(
     private val simpleBuySyncFactory: SimpleBuySyncFactory,

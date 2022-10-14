@@ -16,7 +16,7 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentPasswordUpdateBinding
 import piuk.blockchain.android.util.AfterTextChangedWatcher

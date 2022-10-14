@@ -15,5 +15,7 @@ dependencies {
     implementation Libraries.kotlinJson
     implementation Libraries.commonsLang
     implementation Libraries.rxKotlin
+    implementation Libraries.rxJava
+    implementation Libraries.rxjava3Coroutines
     implementation Libraries.androidCoroutines
 }

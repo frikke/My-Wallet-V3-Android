@@ -1,14 +1,14 @@
 package piuk.blockchain.android.ui.settings.profile.phone
 
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.utils.thenSingle
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 class PhoneInteractor internal constructor(
     private val authPrefs: AuthPrefs,

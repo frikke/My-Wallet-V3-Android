@@ -18,9 +18,9 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.storedatasource.FlushableDataSource
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class OnChainSwapTxEngine(
     quotesEngine: TransferQuotesEngine,

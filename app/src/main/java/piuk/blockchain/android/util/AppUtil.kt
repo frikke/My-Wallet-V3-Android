@@ -5,17 +5,17 @@ import android.content.Intent
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.core.access.PinRepository
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.SessionPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.wallet.payload.PayloadScopeWiper
 import io.intercom.android.sdk.Intercom
 import piuk.blockchain.android.ui.auth.LogoutActivity
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.launcher.loader.LoginMethod
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class AppUtil(
     private val context: Context,

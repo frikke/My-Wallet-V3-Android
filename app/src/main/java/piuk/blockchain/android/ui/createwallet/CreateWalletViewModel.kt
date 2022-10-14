@@ -9,6 +9,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.referral.ReferralService
@@ -18,6 +19,7 @@ import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.awaitOutcome
 import com.blockchain.wallet.DefaultLabels
 import com.google.android.gms.recaptcha.RecaptchaActionType
 import info.blockchain.wallet.util.PasswordUtil
@@ -27,8 +29,6 @@ import kotlinx.coroutines.launch
 import piuk.blockchain.android.ui.referral.presentation.ReferralAnalyticsEvents
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 enum class CreateWalletPasswordError {
     InvalidPasswordTooLong,

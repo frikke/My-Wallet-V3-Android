@@ -57,6 +57,7 @@ import com.blockchain.domain.paymentmethods.model.CardRejectionCheckError
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.CardToBeActivated
+import com.blockchain.domain.paymentmethods.model.CardType
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
 import com.blockchain.domain.paymentmethods.model.EveryPayCredentials
 import com.blockchain.domain.paymentmethods.model.FundsLock
@@ -97,8 +98,8 @@ import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.store.firstOutcome
 import com.blockchain.store.mapData
+import com.blockchain.utils.rxSingleOutcome
 import com.blockchain.utils.toZonedDateTime
-import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
@@ -115,7 +116,6 @@ import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.rxSingle
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class PaymentsRepository(
     private val paymentsService: PaymentsService,
@@ -657,7 +657,7 @@ class PaymentsRepository(
                     )
                 }.time
             } ?: Date(),
-            cardType = (card?.type?.toCardType() ?: CardType.UNKNOWN).name,
+            cardType = card?.type?.toCardType() ?: CardType.UNKNOWN,
             status = state.toCardStatus(),
             currency = assetCatalogue.fiatFromNetworkTicker(currency)
                 ?: throw IllegalStateException("Unknown currency $currency"),
@@ -919,7 +919,7 @@ class PaymentsRepository(
     }
 }
 
-fun String.toCardType(): CardType = try {
+private fun String.toCardType(): CardType = try {
     CardType.valueOf(this)
 } catch (ex: Exception) {
     CardType.UNKNOWN

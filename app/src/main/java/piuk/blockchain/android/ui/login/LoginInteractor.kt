@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.login
 
 import android.net.Uri
 import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.auth.isValidGuid
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.preferences.AuthPrefs
@@ -15,8 +17,6 @@ import okhttp3.ResponseBody
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
 
 class LoginInteractor(

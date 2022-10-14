@@ -27,7 +27,6 @@ import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -35,6 +34,9 @@ import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.consume
+import com.blockchain.utils.unsafeLazy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -70,8 +72,6 @@ import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragmen
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.util.checkValidUrlAndOpen
-import piuk.blockchain.androidcore.utils.helperfunctions.consume
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 class SimpleBuyActivity :

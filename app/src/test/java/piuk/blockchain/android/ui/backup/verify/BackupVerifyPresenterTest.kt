@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.backup.verify
 
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.BackupWallet
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
@@ -16,7 +16,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import piuk.blockchain.android.R
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class BackupVerifyPresenterTest {
 

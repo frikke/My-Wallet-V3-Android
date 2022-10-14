@@ -1,8 +1,9 @@
 package com.blockchain.core.auth.metadata
 
-import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -13,7 +14,6 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 @OptIn(InternalSerializationApi::class)
 class WalletCredentialsMetadataUpdaterTest {

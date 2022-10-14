@@ -18,6 +18,8 @@ import com.blockchain.store.asObservable
 import com.blockchain.store.firstOutcome
 import com.blockchain.store.mapData
 import com.blockchain.store.mapError
+import com.blockchain.utils.rxCompletableOutcome
+import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -31,8 +33,6 @@ import java.math.RoundingMode
 import java.util.Calendar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 internal class ExchangeRatesDataManagerImpl(
     private val priceStore: AssetPriceStore,

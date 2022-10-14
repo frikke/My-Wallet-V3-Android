@@ -18,6 +18,7 @@ import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.presentation.koin.scopedInject
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign

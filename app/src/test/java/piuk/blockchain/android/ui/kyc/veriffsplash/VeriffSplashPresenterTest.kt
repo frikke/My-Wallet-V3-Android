@@ -8,6 +8,7 @@ import com.blockchain.core.kyc.data.datasources.KycTiersStore
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
+import com.blockchain.preferences.SessionPrefs
 import com.blockchain.veriff.VeriffApplicantAndToken
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
@@ -21,7 +22,6 @@ import okhttp3.ResponseBody
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.kyc.navhost.models.UiState
-import piuk.blockchain.androidcore.utils.SessionPrefs
 import retrofit2.HttpException
 import retrofit2.Response
 

@@ -1,11 +1,11 @@
 package com.blockchain.api.interceptors
 
+import com.blockchain.core.connectivity.SSLPinningEmitter
 import javax.net.ssl.SSLPeerUnverifiedException
 import okhttp3.Interceptor
 import okhttp3.Protocol
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
-import piuk.blockchain.androidcore.data.connectivity.SSLPinningEmitter
 
 class SSLPinningInterceptor(val sslPinningEmitter: SSLPinningEmitter) : Interceptor {
 

@@ -15,7 +15,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import info.blockchain.balance.AssetInfo
 import java.io.Serializable
 import piuk.blockchain.android.R

@@ -3,11 +3,13 @@ package piuk.blockchain.android.ui.launcher
 import android.content.Intent
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
+import com.blockchain.core.utils.EncryptedPrefs
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SecurityPrefs
+import com.blockchain.preferences.SessionPrefs
 import com.blockchain.testutils.CoroutineTestRule
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -26,8 +28,6 @@ import org.mockito.junit.MockitoJUnitRunner
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.utils.EncryptedPrefs
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 @RunWith(MockitoJUnitRunner::class)
 class LauncherViewModelTest {

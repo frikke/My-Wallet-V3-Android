@@ -138,7 +138,7 @@ sealed class PaymentMethod(
         val endDigits: String,
         val partner: Partner,
         val expireDate: Date,
-        val cardType: String,
+        val cardType: CardType,
         val status: CardStatus,
         val mobilePaymentType: MobilePaymentType? = null,
         override val isEligible: Boolean,
@@ -161,14 +161,14 @@ sealed class PaymentMethod(
         fun dottedEndDigits() =
             "•••• $endDigits"
 
-        private fun getCardTypeLabel(cardType: String) =
+        private fun getCardTypeLabel(cardType: CardType) =
             when (cardType) {
-                "VISA" -> "Visa"
-                "MASTERCARD" -> "Mastercard"
-                "AMEX" -> "American Express"
-                "DINERS_CLUB" -> "Diners Club"
-                "MAESTRO" -> "Maestro"
-                "JCB" -> "JCB"
+                CardType.VISA -> "Visa"
+                CardType.MASTERCARD -> "Mastercard"
+                CardType.AMEX -> "American Express"
+                CardType.DINERS_CLUB -> "Diners Club"
+                CardType.MAESTRO -> "Maestro"
+                CardType.JCB -> "JCB"
                 else -> ""
             }
 

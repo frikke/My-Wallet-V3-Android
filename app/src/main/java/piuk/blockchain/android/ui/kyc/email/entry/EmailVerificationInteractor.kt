@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.kyc.email.entry
 
+import com.blockchain.core.settings.Email
+import com.blockchain.core.settings.EmailSyncUpdater
 import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.network.PollService
+import com.blockchain.utils.thenSingle
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.settings.Email
-import piuk.blockchain.androidcore.data.settings.EmailSyncUpdater
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 class EmailVerificationInteractor(
     private val emailUpdater: EmailSyncUpdater,

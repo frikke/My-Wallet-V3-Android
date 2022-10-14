@@ -3,6 +3,8 @@ package piuk.blockchain.android.ui.start
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.coreandroid.utils.PrefsUtil
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.any
@@ -28,8 +30,6 @@ import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.verify
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PrefsUtil
 import retrofit2.Response
 
 class TestAuthPresenter(

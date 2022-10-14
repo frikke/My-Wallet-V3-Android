@@ -14,8 +14,10 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.core.settings.PhoneNumber
 import com.blockchain.domain.dataremediation.model.Questionnaire
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
@@ -37,8 +39,6 @@ import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.throttledClicks
-import piuk.blockchain.androidcore.data.settings.PhoneNumber
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class KycMobileValidationFragment :
     BaseMvpFragment<KycMobileValidationView, KycMobileValidationPresenter>(),

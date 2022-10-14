@@ -15,6 +15,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.utils.unsafeLazy
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ErrorSlidingBottomDialogBinding
@@ -22,7 +23,6 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_UNKNOWN
 import piuk.blockchain.android.util.loadRemoteErrorAndStatusIcons
 import piuk.blockchain.android.util.loadRemoteErrorIcon
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDialogBinding>() {
 

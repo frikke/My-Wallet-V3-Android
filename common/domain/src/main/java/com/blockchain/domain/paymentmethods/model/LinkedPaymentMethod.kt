@@ -21,7 +21,7 @@ sealed class LinkedPaymentMethod(
         val endDigits: String,
         val partner: Partner,
         val expireDate: @Contextual Date,
-        val cardType: String,
+        val cardType: CardType,
         val status: CardStatus,
         val cardFundSources: List<String>? = null,
         val mobilePaymentType: MobilePaymentType? = null,

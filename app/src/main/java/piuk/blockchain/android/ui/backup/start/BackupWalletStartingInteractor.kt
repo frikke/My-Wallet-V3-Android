@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.backup.start
 
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.preferences.AuthPrefs
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class BackupWalletStartingInteractor(
     private val authPrefs: AuthPrefs,

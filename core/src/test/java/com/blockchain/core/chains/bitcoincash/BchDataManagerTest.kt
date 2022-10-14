@@ -2,11 +2,11 @@
 
 package com.blockchain.core.chains.bitcoincash
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataRepository
-import com.blockchain.utils.MockLoggerKoinTestRule
+import com.blockchain.testutils.rxInit
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -34,7 +34,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class BchDataManagerTest {
 
@@ -42,9 +41,6 @@ class BchDataManagerTest {
     val rxSchedulers = rxInit {
         ioTrampoline()
     }
-
-    @get:Rule
-    val mockLoggerKoinTestRule = MockLoggerKoinTestRule()
 
     private lateinit var subject: BchDataManager
 

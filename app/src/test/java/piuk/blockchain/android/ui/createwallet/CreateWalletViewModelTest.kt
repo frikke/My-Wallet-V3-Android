@@ -5,6 +5,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.Region
@@ -38,7 +39,6 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class CreateWalletViewModelTest {
     @ExperimentalCoroutinesApi

@@ -3,7 +3,7 @@ package com.blockchain.nabu.datamanagers
 import com.blockchain.analytics.UserAnalytics
 import com.blockchain.analytics.UserProperty
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import piuk.blockchain.androidcore.utils.SessionPrefs
+import com.blockchain.preferences.SessionPrefs
 
 interface NabuUserReporter {
     fun reportUserId(userId: String)

@@ -1,5 +1,9 @@
 package piuk.blockchain.android.ui.settings.security
 
+import com.blockchain.core.access.PinRepository
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.settings.SettingsDataManager
+import com.blockchain.core.utils.EncryptedPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.nhaarman.mockitokotlin2.any
@@ -14,10 +18,6 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.data.biometrics.BiometricsController
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.EncryptedPrefs
 
 class SecurityInteractorTest {
 

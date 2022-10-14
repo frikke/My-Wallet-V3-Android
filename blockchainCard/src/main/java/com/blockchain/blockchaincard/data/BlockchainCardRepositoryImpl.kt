@@ -46,13 +46,13 @@ import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.preferences.BlockchainCardPrefs
+import com.blockchain.utils.awaitOutcome
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import java.math.BigDecimal
 import kotlinx.coroutines.rx3.rxSingle
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 private const val DEFAULT_CARD_ID = "DEFAULT_CARD_ID"
 

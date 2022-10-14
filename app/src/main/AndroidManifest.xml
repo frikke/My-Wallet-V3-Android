@@ -31,7 +31,7 @@
     <application
         android:name=".BlockchainApplication"
         android:allowBackup="true"
-        android:backupAgent="piuk.blockchain.androidcore.utils.CloudBackupAgent"
+        android:backupAgent="com.blockchain.coreandroid.utils.CloudBackupAgent"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="${APP_NAME}"

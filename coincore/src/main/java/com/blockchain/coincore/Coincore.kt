@@ -9,6 +9,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.featureflag.FeatureFlag
@@ -31,7 +32,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.await
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
 

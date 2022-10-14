@@ -3,12 +3,12 @@ package com.blockchain.core.user
 import com.blockchain.api.services.AssetTag
 import com.blockchain.api.services.WatchlistApiService
 import com.blockchain.outcome.map
+import com.blockchain.utils.rxCompletableOutcome
+import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 @Deprecated("use WatchlistService")
 interface WatchlistDataManager {

@@ -8,13 +8,13 @@ import android.text.method.LinkMovementMethod
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.utils.unsafeLazy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityOnHoldDetailsBinding
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class LocksDetailsActivity : BlockchainActivity() {
 

@@ -12,6 +12,9 @@ import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.network.PollService
+import com.blockchain.utils.rxSingleOutcome
+import com.blockchain.utils.thenSingle
+import com.blockchain.utils.unsafeLazy
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -27,9 +30,6 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.address.models.AddressModel
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 class KycOldHomeAddressPresenter(

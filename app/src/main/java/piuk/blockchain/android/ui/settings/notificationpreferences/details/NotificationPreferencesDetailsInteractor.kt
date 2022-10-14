@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.settings.notificationpreferences.details
 import com.blockchain.api.services.ContactPreferenceAction
 import com.blockchain.api.services.ContactPreferenceUpdate
 import com.blockchain.core.user.NabuUserDataManager
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
+import com.blockchain.utils.awaitOutcome
 
 class NotificationPreferencesDetailsInteractor(private val userDataManager: NabuUserDataManager) {
 

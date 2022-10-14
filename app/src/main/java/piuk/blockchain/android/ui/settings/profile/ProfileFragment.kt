@@ -17,8 +17,8 @@ import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.kyc.domain.model.KycTier
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
+import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.capitalizeFirstChar
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentProfileBinding

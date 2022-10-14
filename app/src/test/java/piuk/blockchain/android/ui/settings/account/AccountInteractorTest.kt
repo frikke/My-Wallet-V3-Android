@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.settings.account
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
 import com.blockchain.featureflag.FeatureFlag
@@ -25,7 +26,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class AccountInteractorTest {
 

@@ -1,14 +1,14 @@
 package piuk.blockchain.android.ui.login.auth
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.core.auth.model.AccountLockedException
+import com.blockchain.core.auth.model.AuthRequiredException
+import com.blockchain.core.auth.model.InitialErrorException
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.androidcore.utils.extensions.AccountLockedException
-import piuk.blockchain.androidcore.utils.extensions.AuthRequiredException
-import piuk.blockchain.androidcore.utils.extensions.InitialErrorException
 import timber.log.Timber
 
 class LoginAuthModel(

@@ -19,6 +19,7 @@ import com.blockchain.notifications.models.NotificationDataConstants.DATA
 import com.blockchain.notifications.models.NotificationDataConstants.DATA_REFERRAL_SUCCESS_BODY
 import com.blockchain.notifications.models.NotificationDataConstants.DATA_REFERRAL_SUCCESS_TITLE
 import com.blockchain.notifications.models.NotificationDataConstants.DATA_URL
+import com.blockchain.presentation.koin.scopedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.json.JSONException

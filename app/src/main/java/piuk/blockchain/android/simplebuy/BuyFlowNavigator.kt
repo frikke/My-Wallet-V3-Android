@@ -9,13 +9,13 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.map
+import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class BuyFlowNavigator(
     private val simpleBuySyncFactory: SimpleBuySyncFactory,

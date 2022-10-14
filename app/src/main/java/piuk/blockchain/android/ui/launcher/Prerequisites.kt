@@ -3,11 +3,14 @@ package piuk.blockchain.android.ui.launcher
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
 import com.blockchain.core.chains.ethereum.EthDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
 import com.blockchain.metadata.MetadataService
 import com.blockchain.sunriver.XlmDataManager
+import com.blockchain.utils.then
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.HDWalletException
@@ -15,9 +18,6 @@ import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.extensions.then
 
 class Prerequisites(
     private val metadataService: MetadataService,

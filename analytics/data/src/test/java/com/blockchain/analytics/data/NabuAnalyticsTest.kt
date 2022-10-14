@@ -9,6 +9,7 @@ import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.blockchain.nabu.stores.NabuSessionTokenStore
+import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.Optional
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
@@ -24,7 +25,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 @OptIn(ExperimentalCoroutinesApi::class) class NabuAnalyticsTest {
     private val localAnalyticsPersistence = mock<AnalyticsLocalPersistence>()

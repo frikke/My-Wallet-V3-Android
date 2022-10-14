@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import java.text.DateFormat
 import kotlin.math.max
 import org.koin.android.ext.android.inject

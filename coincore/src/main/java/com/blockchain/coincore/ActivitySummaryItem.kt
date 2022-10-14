@@ -12,6 +12,7 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
@@ -22,8 +23,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import kotlin.math.sign
-import piuk.blockchain.androidcore.utils.helperfunctions.JavaHashCode
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 abstract class CryptoActivitySummaryItem : ActivitySummaryItem() {
     abstract val asset: AssetInfo
@@ -256,14 +255,14 @@ abstract class NonCustodialActivitySummaryItem : CryptoActivitySummaryItem() {
         var result = 17
         result = 31 * result + asset.hashCode()
         result = 31 * result + transactionType.hashCode()
-        result = 31 * result + JavaHashCode.hashCode(timeStampMs)
+        result = 31 * result + timeStampMs.hashCode()
         result = 31 * result + value.hashCode()
         result = 31 * result + txId.hashCode()
         result = 31 * result + inputsMap.hashCode()
         result = 31 * result + outputsMap.hashCode()
-        result = 31 * result + JavaHashCode.hashCode(confirmations)
-        result = 31 * result + JavaHashCode.hashCode(isFeeTransaction)
-        result = 31 * result + JavaHashCode.hashCode(doubleSpend)
+        result = 31 * result + confirmations.hashCode()
+        result = 31 * result + isFeeTransaction.hashCode()
+        result = 31 * result + doubleSpend.hashCode()
         result = 31 * result + (note?.hashCode() ?: 0)
         return result
     }

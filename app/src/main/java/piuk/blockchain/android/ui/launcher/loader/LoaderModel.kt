@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.launcher.loader
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
@@ -15,7 +16,6 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import timber.log.Timber
 
 class LoaderModel(

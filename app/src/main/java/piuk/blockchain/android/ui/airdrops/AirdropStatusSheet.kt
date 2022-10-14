@@ -15,14 +15,14 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import java.lang.IllegalStateException
 import java.text.DateFormat
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.sunriverCampaignName
 import piuk.blockchain.android.databinding.DialogAirdropStatusBinding
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(), AirdropCentreView {
 

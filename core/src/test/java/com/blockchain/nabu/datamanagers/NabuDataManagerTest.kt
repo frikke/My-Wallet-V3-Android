@@ -1,6 +1,8 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.api.ApiException
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
@@ -12,6 +14,7 @@ import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
+import com.blockchain.preferences.SessionPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -21,9 +24,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class NabuDataManagerTest {
 

@@ -6,18 +6,18 @@ import android.view.ViewGroup
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.core.payments.toCardType
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.unsafeLazy
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import piuk.blockchain.android.cards.mapper.icon
 import piuk.blockchain.android.databinding.RemoveCardBottomSheetBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class RemoveCardBottomSheet : SlidingModalBottomDialog<RemoveCardBottomSheetBinding>() {
 
@@ -38,7 +38,7 @@ class RemoveCardBottomSheet : SlidingModalBottomDialog<RemoveCardBottomSheetBind
         with(binding) {
             title.text = card.uiLabel()
             endDigits.text = card.dottedEndDigits()
-            icon.setImageResource(card.cardType.toCardType().icon())
+            icon.setImageResource(card.cardType.icon())
             rmvCardBtn.setOnClickListener {
                 compositeDisposable += cardService.deleteCard(card.id)
                     .observeOn(AndroidSchedulers.mainThread())

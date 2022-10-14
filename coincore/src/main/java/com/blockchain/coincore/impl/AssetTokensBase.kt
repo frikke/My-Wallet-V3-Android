@@ -32,6 +32,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.store.asSingle
 import com.blockchain.store.filterNotLoading
 import com.blockchain.store.mapData
+import com.blockchain.utils.unsafeLazy
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletModeService
 import exchange.ExchangeLinking
@@ -47,7 +48,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
 interface AccountRefreshTrigger {

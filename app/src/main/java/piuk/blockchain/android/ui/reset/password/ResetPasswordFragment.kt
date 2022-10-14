@@ -14,7 +14,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R

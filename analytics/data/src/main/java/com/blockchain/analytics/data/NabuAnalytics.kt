@@ -12,7 +12,10 @@ import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.operations.AppStartUpFlushable
+import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.Optional
+import com.blockchain.utils.emptySubscribe
+import com.blockchain.utils.then
 import com.blockchain.utils.toUtcIso8601
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -26,9 +29,6 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import piuk.blockchain.androidcore.utils.SessionPrefs
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
-import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
 class NabuAnalytics(

@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.login.auth
 
 import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import io.reactivex.rxjava3.core.Completable
@@ -12,8 +13,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.json.JSONObject
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PrefsUtil
 
 class LoginAuthInteractor(
     private val authDataManager: AuthDataManager,
@@ -64,7 +63,7 @@ class LoginAuthInteractor(
     private fun consume2FaRetry() = walletStatusPrefs.setResendSmsRetries(walletStatusPrefs.resendSmsRetries - 1)
 
     fun reset2FaRetries(): Completable =
-        Completable.fromCallable { walletStatusPrefs.setResendSmsRetries(PrefsUtil.MAX_ALLOWED_RETRIES) }
+        Completable.fromCallable { walletStatusPrefs.setResendSmsRetries(WalletStatusPrefs.MAX_ALLOWED_RETRIES) }
 
     fun requestNew2FaCode(guid: String, sessionId: String): Single<JsonObject> =
         if (getRemaining2FaRetries() > 0) {

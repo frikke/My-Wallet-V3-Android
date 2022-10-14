@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.settings.sheets.sms
 
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.nabu.NabuUserSync
+import com.blockchain.utils.thenSingle
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 class SMSVerificationInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,

@@ -1,6 +1,5 @@
 package com.blockchain.core.chains.erc20
 
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
@@ -13,6 +12,7 @@ import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.data.DataResource
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify

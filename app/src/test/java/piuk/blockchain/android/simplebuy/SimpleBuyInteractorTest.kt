@@ -10,6 +10,7 @@ import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.coreandroid.remoteconfig.RemoteConfigRepository
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.domain.paymentmethods.BankService
@@ -30,7 +31,6 @@ import com.blockchain.payments.core.CardProcessor
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.remoteconfig.RemoteConfigRepository
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify

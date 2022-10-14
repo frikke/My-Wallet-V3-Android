@@ -7,6 +7,7 @@ import com.blockchain.metadata.MetadataService
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.storedatasource.StoreWiper
+import com.blockchain.utils.then
 import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
@@ -14,7 +15,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.rx3.rxCompletable
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
 class CredentialsWiper(

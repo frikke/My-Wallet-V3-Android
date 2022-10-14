@@ -11,9 +11,9 @@ import com.blockchain.componentlib.viewextensions.px
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.domain.eligibility.model.TransactionsLimit
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.RoundedCornerTreatment
 import com.google.android.material.shape.ShapeAppearanceModel

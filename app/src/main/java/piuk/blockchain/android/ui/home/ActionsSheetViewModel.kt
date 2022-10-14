@@ -14,12 +14,12 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.doOnSuccess
+import com.blockchain.utils.awaitOutcome
 import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 class ActionsSheetViewModel(private val userIdentity: UserIdentity) : MviViewModel<
     ActionsSheetIntent,

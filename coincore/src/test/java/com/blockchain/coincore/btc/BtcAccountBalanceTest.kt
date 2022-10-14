@@ -2,7 +2,9 @@ package com.blockchain.coincore.btc
 
 import com.blockchain.coincore.impl.AccountRefreshTrigger
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.fees.FeeDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.bitcoin
@@ -19,8 +21,6 @@ import io.reactivex.rxjava3.core.Observable
 import junit.framework.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.payments.SendDataManager
 
 class BtcAccountBalanceTest : CoincoreTestBase() {
 

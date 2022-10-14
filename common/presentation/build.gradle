@@ -13,6 +13,7 @@ android {
 dependencies {
     implementation project(':componentlib')
     implementation project(':logging:domain')
+    implementation project(':common:interface')
     implementation project(':balance')
 
     // Compose
@@ -26,4 +27,8 @@ dependencies {
     implementation Libraries.composeUiPoolingContainer
     implementation Libraries.accompanistSystemUi
     implementation Libraries.accompanistNavigationMaterial
+
+    implementation Libraries.rxJava
+    implementation Libraries.rxAndroid
+    implementation Libraries.koin
 }

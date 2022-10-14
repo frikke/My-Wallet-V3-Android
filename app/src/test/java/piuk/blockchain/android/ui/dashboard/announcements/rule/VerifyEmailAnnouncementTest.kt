@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
+import com.blockchain.core.settings.SettingsDataManager
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
@@ -7,7 +8,6 @@ import io.reactivex.rxjava3.core.Observable
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class VerifyEmailAnnouncementTest {
 

@@ -2,6 +2,7 @@ package com.blockchain.coincore.bch
 
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -9,7 +10,6 @@ import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 /*internal*/ class BchActivitySummaryItem internal constructor(
     private val transactionSummary: TransactionSummary,

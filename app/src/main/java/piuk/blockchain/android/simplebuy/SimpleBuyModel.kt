@@ -45,6 +45,7 @@ import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.network.PollResult
 import com.blockchain.outcome.getOrThrow
 import com.blockchain.payments.core.CardAcquirer
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
@@ -65,7 +66,6 @@ import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 import piuk.blockchain.android.ui.linkbank.domain.openbanking.usecase.GetSafeConnectTosLinkUseCase
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import retrofit2.HttpException
 import timber.log.Timber
 

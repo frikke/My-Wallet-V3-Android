@@ -4,8 +4,8 @@ import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.models.responses.nabu.NabuUser
+import com.blockchain.utils.rxMaybeOutcome
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
 
 class TiersReentryDecision(
     private val dataRemediationService: DataRemediationService,

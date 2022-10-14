@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.DialogFragment
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import com.google.android.material.textfield.TextInputEditText
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ChangeEmailBottomSheetBinding

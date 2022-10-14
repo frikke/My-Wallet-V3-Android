@@ -1,11 +1,13 @@
 package com.blockchain.core.chains.bitcoincash
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.utils.schedulers.applySchedulers
 import com.blockchain.logging.Logger
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
+import com.blockchain.utils.then
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -27,9 +29,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import org.bitcoinj.core.LegacyAddress
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.applySchedulers
-import piuk.blockchain.androidcore.utils.extensions.then
 
 class BchDataManager(
     private val payloadDataManager: PayloadDataManager,
@@ -108,7 +107,7 @@ class BchDataManager(
     fun updateTransactions(): Completable =
         Completable.fromObservable(getWalletTransactions(50, 50))
 
-    @VisibleForTesting
+    // VisibleForTesting
     internal fun fetchMetadata(
         defaultLabel: String,
         accountTotal: Int
@@ -125,7 +124,7 @@ class BchDataManager(
                 metaData
             }
 
-    @VisibleForTesting
+    // VisibleForTesting
     internal fun createMetadata(defaultLabel: String, accountTotal: Int): GenericMetadataWallet {
         val bchAccounts = getAccountsAfterIndex(defaultLabel, 0, accountTotal)
 
@@ -157,7 +156,7 @@ class BchDataManager(
     /**
      * Restore bitcoin cash wallet
      */
-    @VisibleForTesting
+    // VisibleForTesting
     internal fun restoreBchWallet(walletMetadata: GenericMetadataWallet): GenericMetadataWallet {
         if (!payloadDataManager.isDoubleEncrypted) {
             bchDataStore.bchWallet = BitcoinCashWallet.restore(

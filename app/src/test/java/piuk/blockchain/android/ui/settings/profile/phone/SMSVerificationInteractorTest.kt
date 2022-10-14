@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.settings.profile.phone
 
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.nabu.NabuUserSync
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -12,8 +14,6 @@ import io.reactivex.rxjava3.core.Observable
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.settings.sheets.sms.SMSVerificationInteractor
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class SMSVerificationInteractorTest {
     private lateinit var interactor: SMSVerificationInteractor

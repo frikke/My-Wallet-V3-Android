@@ -8,7 +8,7 @@ import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.storedatasource.FlushableDataSource
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
+import com.blockchain.utils.rxSingleOutcome
 
 class WatchlistStore internal constructor(
     private val watchlistService: WatchlistApiService,

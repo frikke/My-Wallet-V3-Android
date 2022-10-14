@@ -10,6 +10,7 @@ import com.blockchain.coincore.coincoreModule
 import com.blockchain.common.util.commonMpUtilsModule
 import com.blockchain.core.experiments.experimentsTraitsModule
 import com.blockchain.core.price.pricesModule
+import com.blockchain.coreandroid.coreAndroidModule
 import com.blockchain.deeplinking.koin.deeplinkModule
 import com.blockchain.defiwalletbackup.data.koin.backupPhraseDataModule
 import com.blockchain.home.data.koin.homeDataModule
@@ -34,6 +35,7 @@ import com.blockchain.nfts.data.koin.nftDataModule
 import com.blockchain.nfts.koin.nftPresentationModule
 import com.blockchain.notifications.koin.notificationModule
 import com.blockchain.payments.googlepay.googlePayPresentationModule
+import com.blockchain.presentation.commonPresentationModule
 import com.blockchain.presentation.koin.backupPhrasePresentationModule
 import com.blockchain.serializers.jsonSerializers
 import com.blockchain.store_caches_inmemory.storeCachesInMemoryModule
@@ -119,8 +121,10 @@ object KoinStarter {
                     coincoreModule,
                     transactionModule,
                     commonMpUtilsModule,
+                    commonPresentationModule,
                     okHttpModule,
                     coreModule,
+                    coreAndroidModule,
                     pricesModule,
                     dashboardAnnouncementsModule,
                     environmentModule,

@@ -19,8 +19,9 @@ import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.extensions.exhaustive
-import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.consume
 import com.plaid.link.OpenPlaidLink
 import com.plaid.link.linkTokenConfiguration
 import com.plaid.link.result.LinkExit
@@ -38,7 +39,6 @@ import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.O
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyBankSelectionFragment
 import piuk.blockchain.android.ui.linkbank.yodlee.YodleeSplashFragment
 import piuk.blockchain.android.ui.linkbank.yodlee.YodleeWebViewFragment
-import piuk.blockchain.androidcore.utils.helperfunctions.consume
 
 class BankAuthActivity :
     BlockchainActivity(),

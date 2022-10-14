@@ -1,9 +1,9 @@
 package com.blockchain.core.auth.metadata
 
+import com.blockchain.core.auth.isValidGuid
 import com.blockchain.serialization.JsonSerializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 
 @Serializable
 data class WalletCredentialsMetadata(

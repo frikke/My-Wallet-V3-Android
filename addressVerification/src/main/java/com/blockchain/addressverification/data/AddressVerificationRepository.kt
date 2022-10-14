@@ -15,10 +15,10 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.store.firstOutcome
+import com.blockchain.utils.awaitOutcome
+import com.blockchain.utils.rxSingleOutcome
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class AddressVerificationRepository(
     private val api: AddressVerificationApiService,

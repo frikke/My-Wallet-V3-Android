@@ -2,6 +2,8 @@ package com.blockchain.presentation.backup
 
 import app.cash.turbine.test
 import com.blockchain.analytics.Analytics
+import com.blockchain.core.settings.SettingsDataManager
+import com.blockchain.core.utils.EncryptedPrefs
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.AuthPrefs
@@ -22,8 +24,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.EncryptedPrefs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BackupPhraseViewModelTest {

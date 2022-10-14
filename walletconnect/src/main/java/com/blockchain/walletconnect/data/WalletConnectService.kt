@@ -7,6 +7,8 @@ import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
+import com.blockchain.utils.emptySubscribe
+import com.blockchain.utils.then
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest
@@ -34,8 +36,6 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.UUID
 import okhttp3.OkHttpClient
 import okhttp3.WebSocketListener
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
-import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
 class WalletConnectService(

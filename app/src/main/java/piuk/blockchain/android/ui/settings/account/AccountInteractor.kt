@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.settings.account
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.Outcome
@@ -11,6 +12,8 @@ import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.utils.rxCompletableOutcome
+import com.blockchain.utils.rxSingleOutcome
 import exchange.ExchangeLinking
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
@@ -20,9 +23,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class AccountInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,

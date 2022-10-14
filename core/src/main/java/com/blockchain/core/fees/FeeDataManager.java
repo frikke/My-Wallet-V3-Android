@@ -1,8 +1,9 @@
 package com.blockchain.core.fees;
 
+import com.blockchain.rx.MainScheduler;
+
 import info.blockchain.wallet.api.FeeApi;
 import info.blockchain.wallet.api.data.FeeOptions;
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 
 public class FeeDataManager {
@@ -22,7 +23,7 @@ public class FeeDataManager {
     public Observable<FeeOptions> getBtcFeeOptions() {
         return feeApi.getBtcFeeOptions()
             .onErrorReturnItem(FeeOptions.Companion.defaultForBtc())
-            .observeOn(AndroidSchedulers.mainThread());
+            .observeOn(MainScheduler.INSTANCE.main());
     }
 
     /**
@@ -34,7 +35,7 @@ public class FeeDataManager {
     public Observable<FeeOptions> getEthFeeOptions() {
         return feeApi.getEthFeeOptions()
                 .onErrorReturnItem(FeeOptions.Companion.defaultForEth())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(MainScheduler.INSTANCE.main());
     }
 
     /**
@@ -47,7 +48,7 @@ public class FeeDataManager {
     public Observable<FeeOptions> getErc20FeeOptions(String parentChain, String contractAddress) {
         return feeApi.getEvmFeeOptions(parentChain, contractAddress)
             .onErrorReturnItem(FeeOptions.Companion.defaultForErc20())
-            .observeOn(AndroidSchedulers.mainThread());
+            .observeOn(MainScheduler.INSTANCE.main());
     }
 
     /**
@@ -60,7 +61,7 @@ public class FeeDataManager {
     public Observable<FeeOptions> getEvmFeeOptions(String network) {
         return feeApi.getEvmFeeOptions(network, null)
             .onErrorReturnItem(FeeOptions.Companion.defaultForEvm(network))
-            .observeOn(AndroidSchedulers.mainThread());
+            .observeOn(MainScheduler.INSTANCE.main());
     }
 
     /**

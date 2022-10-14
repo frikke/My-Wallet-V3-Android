@@ -3,6 +3,7 @@ package com.blockchain.coincore.xlm
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.walletoptions.WalletOptionsDataManager
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
@@ -27,7 +28,6 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import org.junit.Test
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class XlmAccountActivityTest : CoincoreTestBase() {
 

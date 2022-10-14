@@ -1,6 +1,7 @@
 package com.blockchain.nabu.api.getuser.data
 
 import com.blockchain.api.interceptors.SessionInfo
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.datamanagers.NabuUserReporter
 import com.blockchain.nabu.datamanagers.WalletReporter
@@ -16,7 +17,6 @@ import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelig
 import com.blockchain.storedatasource.FlushableDataSource
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class GetUserStore(
     private val nabuService: NabuService,

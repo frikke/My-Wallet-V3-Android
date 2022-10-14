@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.kyc.mobile.validation
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.settings.PhoneNumber
+import com.blockchain.core.settings.PhoneNumberUpdater
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.QuestionnaireContext
@@ -24,8 +26,6 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneVerificationModel
 import piuk.blockchain.android.ui.kyc.mobile.validation.models.VerificationCode
-import piuk.blockchain.androidcore.data.settings.PhoneNumber
-import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
 
 class KycMobileValidationPresenterTest {
 

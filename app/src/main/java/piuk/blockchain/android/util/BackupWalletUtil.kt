@@ -1,8 +1,8 @@
 package piuk.blockchain.android.util
 
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.wallet.BackupWallet
 import java.security.SecureRandom
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import timber.log.Timber
 
 class BackupWalletUtil(

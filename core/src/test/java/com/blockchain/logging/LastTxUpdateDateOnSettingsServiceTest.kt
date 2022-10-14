@@ -1,6 +1,7 @@
 package com.blockchain.logging
 
-import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.settings.SettingsService
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
@@ -10,7 +11,6 @@ import java.util.Calendar
 import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.androidcore.data.settings.SettingsService
 
 class LastTxUpdateDateOnSettingsServiceTest {
 

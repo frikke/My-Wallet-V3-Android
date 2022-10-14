@@ -10,14 +10,14 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
-import com.blockchain.koin.scopedInject
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.consume
 import org.koin.android.ext.android.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityBackupWalletBinding
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedFragment
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.helperfunctions.consume
 
 // todo(othman) setup BackupPhraseActivity in portfolio announcement card
 @Deprecated("this is a legacy class, replaced by BackupPhraseActivity")

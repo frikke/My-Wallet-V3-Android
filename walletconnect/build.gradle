@@ -9,6 +9,7 @@ dependencies {
     implementation project(':metadata')
     implementation project(':componentlib')
     implementation project(':common:interface')
+    implementation project(':common:presentation')
     implementation project(':common-mp:utils:domain')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')

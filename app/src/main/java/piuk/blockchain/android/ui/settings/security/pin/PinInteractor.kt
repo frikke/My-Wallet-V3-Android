@@ -1,12 +1,16 @@
 package piuk.blockchain.android.ui.settings.security.pin
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.core.access.PinRepository
 import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.walletoptions.WalletOptionsDataManager
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.SessionPrefs
+import com.blockchain.utils.then
 import com.blockchain.wallet.DefaultLabels
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -24,10 +28,6 @@ import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.SessionPrefs
-import piuk.blockchain.androidcore.utils.extensions.then
 
 class PinInteractor internal constructor(
     private val apiStatus: ApiStatus,

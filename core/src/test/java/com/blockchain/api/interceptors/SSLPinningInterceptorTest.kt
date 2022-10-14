@@ -1,5 +1,6 @@
 package com.blockchain.api.interceptors
 
+import com.blockchain.core.connectivity.SSLPinningSubject
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
@@ -7,7 +8,6 @@ import javax.net.ssl.SSLPeerUnverifiedException
 import kotlin.test.assertEquals
 import okhttp3.Interceptor
 import org.junit.Test
-import piuk.blockchain.androidcore.data.connectivity.SSLPinningSubject
 
 class SSLPinningInterceptorTest {
     private val sslPinningSubject: SSLPinningSubject = mock()

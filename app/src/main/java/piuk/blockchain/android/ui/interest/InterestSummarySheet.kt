@@ -19,8 +19,8 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRates
-import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue

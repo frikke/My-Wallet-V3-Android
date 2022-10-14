@@ -20,6 +20,7 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.network.PollResult
 import com.blockchain.utils.capitalizeFirstChar
+import com.blockchain.utils.emptySubscribe
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
@@ -45,7 +46,6 @@ import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import timber.log.Timber
 
 class MainModel(

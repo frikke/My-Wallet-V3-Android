@@ -1,8 +1,6 @@
 package com.blockchain.core.payments
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
-import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuUxErrorResponse
 import com.blockchain.api.paymentmethods.models.ActivateCardResponse
@@ -87,8 +85,8 @@ import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.testutils.GBP
 import com.blockchain.testutils.MockKRule
 import com.blockchain.testutils.USD
+import com.blockchain.testutils.rxInit
 import com.blockchain.testutils.usd
-import com.blockchain.utils.MockLoggerKoinTestRule
 import com.blockchain.utils.toZonedDateTime
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
@@ -109,7 +107,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PaymentsRepositoryTest {
@@ -122,13 +119,7 @@ class PaymentsRepositoryTest {
     }
 
     @get:Rule
-    val mockLoggerKoinTestRule = MockLoggerKoinTestRule()
-
-    @get:Rule
     val mockKRule = MockKRule()
-
-    @get:Rule
-    val instantTaskExecutorRule: TestRule = InstantTaskExecutorRule()
 
     @ExperimentalCoroutinesApi
     @get:Rule

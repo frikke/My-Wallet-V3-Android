@@ -34,10 +34,10 @@ import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.logging.MomentParam
+import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -59,6 +59,7 @@ import piuk.blockchain.android.ui.auth.BiometricsEnrollmentBottomSheet
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
+import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
@@ -89,7 +90,7 @@ class PinActivity :
 
     private val environmentConfig: EnvironmentConfig by inject()
     private val util: AppUtil by inject()
-    private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
+    private val secondPasswordDialog: SecondPasswordDialog by scopedInjectActivity()
     private val biometricsController: BiometricsController by scopedInject()
     private var isBiometricsVisible = false
 
@@ -923,7 +924,7 @@ class PinActivity :
     }
 
     fun walletUpgradeRequired(passwordTriesRemaining: Int, isFromPinCreation: Boolean) {
-        secondPasswordHandler.validate(
+        secondPasswordDialog.validate(
             this,
             object : SecondPasswordHandler.ResultListener {
                 override fun onNoSecondPassword() {

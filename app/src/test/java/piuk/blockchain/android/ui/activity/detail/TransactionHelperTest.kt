@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.activity.detail
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.testutils.satoshi
 import com.blockchain.testutils.satoshiCash
@@ -18,7 +19,6 @@ import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Observable
 import kotlin.test.assertEquals
 import org.junit.Test
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 @Suppress("PrivatePropertyName")
 class TransactionHelperTest {

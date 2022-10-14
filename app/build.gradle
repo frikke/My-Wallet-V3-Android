@@ -354,6 +354,7 @@ dependencies {
     implementation project(':sunriver') // Just for pit linking TODO: Fix that
     implementation project(':coincore')
     implementation project(':core')
+    implementation project(':coreandroid')
     implementation project(':metadata')
     implementation project(':veriff:presentation')
     implementation project(':blockchainApi')

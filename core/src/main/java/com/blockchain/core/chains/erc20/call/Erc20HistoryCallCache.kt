@@ -10,13 +10,13 @@ import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryList
 import com.blockchain.core.chains.ethereum.EthDataManager
 import com.blockchain.extensions.filterIf
 import com.blockchain.outcome.map
+import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 // This doesn't cache anything at this time, since it makes a call for a single
 // asset. We can review this, when we look at activity caching in detail

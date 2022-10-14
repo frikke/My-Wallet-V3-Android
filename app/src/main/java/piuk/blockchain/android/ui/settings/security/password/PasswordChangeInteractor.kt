@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.settings.security.password
 
+import com.blockchain.core.access.PinRepository
 import com.blockchain.core.auth.AuthDataManager
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.utils.then
+import com.blockchain.utils.thenSingle
 import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.core.Single
 import kotlin.math.roundToInt
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.then
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
 
 class PasswordChangeInteractor internal constructor(
     private val payloadManager: PayloadDataManager,

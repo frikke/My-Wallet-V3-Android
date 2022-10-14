@@ -7,19 +7,19 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.blockchain.core.auth.isValidGuid
+import com.blockchain.core.utils.EncryptedPrefs
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SecurityPrefs
+import com.blockchain.preferences.SessionPrefs
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.utils.EncryptedPrefs
-import piuk.blockchain.androidcore.utils.SessionPrefs
-import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
 
 sealed interface LaunchNavigationEvent : NavigationEvent {

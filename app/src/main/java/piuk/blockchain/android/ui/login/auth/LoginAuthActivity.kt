@@ -19,10 +19,11 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.auth.isValidGuid
 import com.blockchain.extensions.exhaustive
-import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.android.ext.android.inject
@@ -47,7 +48,6 @@ import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.clearErrorState
 import piuk.blockchain.android.util.setErrorState
-import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
 
 class LoginAuthActivity :

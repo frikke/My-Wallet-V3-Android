@@ -15,6 +15,7 @@ compileKotlin {
         jvmTarget = Versions.kotlinJvmTarget
     }
 }
+
 compileTestKotlin {
     kotlinOptions {
         jvmTarget = Versions.kotlinJvmTarget

@@ -8,6 +8,7 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.domain.common.model.PromotionStyleInfo
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
@@ -22,7 +23,6 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.DASHBO
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.LOCKS_INDEX
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class AssetMap(private val map: Map<Currency, DashboardAsset>) :
     Map<Currency, DashboardAsset> by map {

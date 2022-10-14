@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.customviews.inputview
 
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.utils.emptySubscribe
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
@@ -8,7 +9,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 
 internal data class ConvertedAmounts(
     val inputAmount: Money,

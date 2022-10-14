@@ -1,5 +1,9 @@
 package piuk.blockchain.android.ui.settings.security
 
+import com.blockchain.core.access.PinRepository
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.settings.SettingsDataManager
+import com.blockchain.core.utils.EncryptedPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.SecurityPrefs
 import info.blockchain.wallet.api.data.Settings
@@ -7,10 +11,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.data.biometrics.BiometricsController
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.EncryptedPrefs
 
 class SecurityInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,

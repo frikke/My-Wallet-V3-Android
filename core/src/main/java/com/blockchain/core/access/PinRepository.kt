@@ -1,6 +1,6 @@
-package piuk.blockchain.androidcore.data.access
+package com.blockchain.core.access
 
-import piuk.blockchain.androidcore.utils.extensions.isValidPin
+import com.blockchain.core.auth.isValidPin
 
 interface PinRepository {
     val pin: String

@@ -6,9 +6,9 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.mapError
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.awaitOutcome
 import com.blockchain.wallet.BackupWallet
 import info.blockchain.wallet.payload.WalletPayloadService
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 import timber.log.Timber
 
 class BackupPhraseRepository(

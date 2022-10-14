@@ -13,7 +13,9 @@ import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.componentlib.theme.AppThemeProvider
+import com.blockchain.core.access.PinRepository
 import com.blockchain.core.auth.metadata.WalletCredentialsMetadataUpdater
+import com.blockchain.core.utils.SSLVerifyUtil
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
@@ -58,6 +60,7 @@ import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.binds
@@ -153,7 +156,6 @@ import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailIntentHel
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.BackupWalletUtil
-import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.android.util.OSUtil
 import piuk.blockchain.android.util.ResourceDefaultLabels
@@ -162,8 +164,6 @@ import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.wiper.DataWiper
 import piuk.blockchain.android.util.wiper.DataWiperImpl
 import piuk.blockchain.android.walletmode.WalletModeThemeProvider
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 
 val applicationModule = module {
 
@@ -204,8 +204,6 @@ val applicationModule = module {
 
     factory { get<Context>().resources }
 
-    single { CurrentContextAccess() }
-
     single {
         WalletModeThemeProvider(
             walletModeService = get()
@@ -229,7 +227,7 @@ val applicationModule = module {
     scope(payloadScopeQualifier) {
 
         factory {
-            SecondPasswordDialog(contextAccess = get(), payloadManager = get())
+            SecondPasswordDialog(context = androidContext(), payloadManager = get())
         }.bind(SecondPasswordHandler::class)
 
         factory {
@@ -691,7 +689,7 @@ val applicationModule = module {
         }
 
         factory<BiometricDataRepository> {
-            BiometricsDataRepositoryImpl(prefsUtil = get())
+            BiometricsDataRepositoryImpl(authPrefs = get())
         }
 
         factory {

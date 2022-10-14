@@ -8,6 +8,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
+import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.data.DataResource
 import com.blockchain.data.KeyedFreshnessStrategy
 import com.blockchain.extensions.exhaustive
@@ -20,7 +21,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class WalletModeSelectionViewModel(
     private val walletModeService: WalletModeService,

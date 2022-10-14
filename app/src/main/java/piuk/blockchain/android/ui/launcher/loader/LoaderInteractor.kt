@@ -6,6 +6,8 @@ import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.core.experiments.cache.ExperimentsStore
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.referral.ReferralService
@@ -15,6 +17,8 @@ import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.utils.rxCompletableOutcome
+import com.blockchain.utils.then
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.wallet.api.data.Settings
@@ -30,10 +34,6 @@ import java.io.Serializable
 import kotlinx.coroutines.rx3.rxCompletable
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
-import piuk.blockchain.androidcore.utils.extensions.then
 
 class LoaderInteractor(
     private val payloadDataManager: PayloadDataManager,

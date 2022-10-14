@@ -8,9 +8,9 @@ import com.blockchain.metadata.load
 import com.blockchain.metadata.save
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.mapToBlockchainCredentialsMetadata
+import com.blockchain.utils.thenMaybe
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
-import piuk.blockchain.androidcore.utils.extensions.thenMaybe
 
 class AccountCredentialsMetadata(
     private val metadataRepository: MetadataRepository,

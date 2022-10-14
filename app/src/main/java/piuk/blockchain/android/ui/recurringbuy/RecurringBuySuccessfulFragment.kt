@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat.getColor
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.utils.secondsToDays
 import java.util.Locale
 import piuk.blockchain.android.R

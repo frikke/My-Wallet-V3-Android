@@ -1,6 +1,6 @@
 package com.blockchain.core.fees
 
-import com.blockchain.android.testutils.rxInit
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.FeeApi

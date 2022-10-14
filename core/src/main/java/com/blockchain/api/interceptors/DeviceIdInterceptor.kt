@@ -1,9 +1,9 @@
 package com.blockchain.api.interceptors
 
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.preferences.SessionPrefs
 import okhttp3.Interceptor
 import okhttp3.Response
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class DeviceIdInterceptor(private val prefs: Lazy<SessionPrefs>, private val environmentConfig: EnvironmentConfig) :
     Interceptor {

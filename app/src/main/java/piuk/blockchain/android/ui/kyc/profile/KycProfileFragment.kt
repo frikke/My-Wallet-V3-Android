@@ -17,7 +17,8 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.hideKeyboard
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
+import com.blockchain.utils.consume
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -44,7 +45,6 @@ import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.util.throttledClicks
-import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import timber.log.Timber
 
 class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), KycProfileView {

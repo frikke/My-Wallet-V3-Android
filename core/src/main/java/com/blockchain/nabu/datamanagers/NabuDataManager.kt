@@ -1,9 +1,10 @@
 package com.blockchain.nabu.datamanagers
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.api.ApiException
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
+import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.core.settings.SettingsDataManager
 import com.blockchain.data.FreshnessStrategy
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.api.getuser.domain.UserService
@@ -19,6 +20,7 @@ import com.blockchain.nabu.models.responses.tokenresponse.toNabuOfflineToken
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.stores.NabuSessionTokenStore
+import com.blockchain.preferences.SessionPrefs
 import com.blockchain.utils.Optional
 import com.blockchain.veriff.VeriffApplicantAndToken
 import io.reactivex.rxjava3.core.Completable
@@ -26,9 +28,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.core.SingleSource
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.rx3.asObservable
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 interface NabuDataManager {
 
@@ -131,7 +130,7 @@ internal class NabuDataManagerImpl(
 
     private var sessionToken: Single<NabuSessionTokenResponse>? = null
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    // VisibleForTesting
     @Synchronized
     fun getSessionToken(
         offlineTokenResponse: NabuOfflineToken

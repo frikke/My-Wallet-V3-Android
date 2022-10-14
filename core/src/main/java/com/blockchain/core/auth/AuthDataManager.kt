@@ -1,7 +1,14 @@
 package com.blockchain.core.auth
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.api.services.AuthApiService
+import com.blockchain.core.access.PinRepository
+import com.blockchain.core.auth.model.AccountLockedException
+import com.blockchain.core.auth.model.AuthRequiredException
+import com.blockchain.core.auth.model.InitialErrorException
+import com.blockchain.core.auth.model.UnknownErrorException
+import com.blockchain.core.utils.AESUtilWrapper
+import com.blockchain.core.utils.EncryptedPrefs
+import com.blockchain.core.utils.schedulers.applySchedulers
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
@@ -15,15 +22,10 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.exceptions.Exceptions
 import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.utils.AESUtilWrapper
-import piuk.blockchain.androidcore.utils.EncryptedPrefs
-import piuk.blockchain.androidcore.utils.extensions.applySchedulers
-import piuk.blockchain.androidcore.utils.extensions.handleResponse
-import piuk.blockchain.androidcore.utils.extensions.isValidPin
 import retrofit2.Response
 
 class AuthDataManager(
@@ -37,7 +39,7 @@ class AuthDataManager(
     private val encryptedPrefs: EncryptedPrefs
 ) {
 
-    @VisibleForTesting
+    // VisibleForTesting
     internal var timer: Int = 0
 
     private var shouldVerifyCloudBackup = false
@@ -228,11 +230,11 @@ class AuthDataManager(
                 false
             }
             encryptedPrefs.hasBackup() && authPrefs.walletGuid.isEmpty() -> {
-                encryptedPrefs.restoreFromBackup(decryptionKey, aesUtilWrapper)
+                encryptedPrefs.restoreFromBackup(decryptionKey)
                 false
             }
             else -> {
-                encryptedPrefs.backupCurrentPrefs(decryptionKey, aesUtilWrapper)
+                encryptedPrefs.backupCurrentPrefs(decryptionKey)
                 true
             }
         }
@@ -365,9 +367,40 @@ class AuthDataManager(
     ): Completable = walletAuthService.updateLoginApprovalStatus(sessionId, payload, confirmDevice)
 
     companion object {
-        @VisibleForTesting
+        // VisibleForTesting
         internal const val AUTHORIZATION_REQUIRED = "authorization_required"
         private const val DEVICE_TYPE_ANDROID = 2
+
+        // Internal for test visibility
+        internal fun Response<ResponseBody>.handleResponse(): Single<JsonObject> =
+            if (isSuccessful) {
+                body()?.let { responseBody ->
+                    Single.just(Json.parseToJsonElement(responseBody.string()) as JsonObject)
+                } ?: Single.error(UnknownErrorException())
+            } else {
+                val errorResponse = errorBody()?.string()
+
+                errorResponse?.let {
+                    if (it.contains(ACCOUNT_LOCKED)) {
+                        Single.error(AccountLockedException())
+                    } else {
+                        val errorBody = Json.parseToJsonElement(it) as JsonObject
+                        Single.error(
+                            when {
+                                errorBody.containsKey(INITIAL_ERROR) -> InitialErrorException()
+                                errorBody.containsKey(KEY_AUTH_REQUIRED) -> AuthRequiredException()
+                                else -> UnknownErrorException()
+                            }
+                        )
+                    }
+                } ?: kotlin.run {
+                    Single.error(UnknownErrorException())
+                }
+            }
+
+        private const val INITIAL_ERROR = "initial_error"
+        private const val KEY_AUTH_REQUIRED = "authorization_required"
+        private const val ACCOUNT_LOCKED = "locked"
         private const val DESIRED_GUID_LENGTH = 36
     }
 }

@@ -7,10 +7,10 @@ import com.blockchain.api.services.DynamicAsset
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.FiatAssetList
 import com.blockchain.outcome.map
+import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 internal class DynamicAssetsDataManagerImpl(
     private val discoveryService: AssetDiscoveryApiService

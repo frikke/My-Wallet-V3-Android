@@ -12,6 +12,7 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.extensions.exhaustive
+import com.blockchain.utils.consume
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
@@ -24,7 +25,6 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.putAccount
-import piuk.blockchain.androidcore.utils.helperfunctions.consume
 
 class InterestDashboardActivity :
     BlockchainActivity(),

@@ -15,13 +15,13 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.utils.unsafeLazy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentRecurringBuyOnBoardingBinding
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.urllinks.DOLLAR_COST_AVERAGING
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class RecurringBuyOnBoardingFragment : Fragment() {
 

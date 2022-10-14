@@ -4,13 +4,13 @@ import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
+import com.blockchain.utils.emptySubscribe
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.`should be`
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 
 class AssetCatalogueTest : CoincoreTestBase() {
 

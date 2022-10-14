@@ -20,6 +20,8 @@ import com.blockchain.core.chains.dynamicselfcustody.domain.model.TransactionSig
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.storedatasource.FlushableDataSource
+import com.blockchain.utils.rxSingleOutcome
+import com.blockchain.utils.then
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -30,8 +32,6 @@ import java.math.BigInteger
 import kotlinx.serialization.json.JsonObject
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
-import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
 class DynamicOnChanTxEngine(

@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.email.entry
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
-import piuk.blockchain.androidcore.data.settings.Email
+import com.blockchain.core.settings.Email
 
 sealed class EmailVerificationIntent : MviIntent<EmailVerificationState> {
 

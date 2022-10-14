@@ -18,8 +18,8 @@ import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.scopedInject
 import com.blockchain.koin.superappRedesignFeatureFlag
+import com.blockchain.presentation.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -32,7 +32,6 @@ import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.multiapp.MultiAppActivity
 import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.android.util.AppUtil.Companion.INTENT_EXTRA_VERIFIED
 
 class LoaderActivity :
     MviActivity<LoaderModel, LoaderIntents, LoaderState, ActivityLoaderBinding>(),

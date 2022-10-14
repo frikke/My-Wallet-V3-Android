@@ -18,13 +18,14 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
-import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.koin.scopedInject
 import com.braintreepayments.cardform.utils.CardType
 import java.util.Calendar
 import java.util.Date
 import kotlinx.serialization.Contextual
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.cards.mapper.isEquals
 import piuk.blockchain.android.cards.views.CardNumberEditText
 import piuk.blockchain.android.databinding.FragmentAddNewCardBinding
 import piuk.blockchain.android.fraud.domain.service.FraudFlow
@@ -223,7 +224,7 @@ class AddNewCardFragment :
                         year = expiryDate.year.toInt().asCalendarYear()
                     ) &&
                     cardNumber.text?.toString()?.takeLast(4) == it.endDigits &&
-                    cardNumber.cardType.name == it.cardType
+                    cardNumber.cardType.isEquals(it.cardType)
                 )
                     return true
             }

@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.login.auth
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.auth.model.AuthRequiredException
 import com.blockchain.enviroment.EnvironmentConfig
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -14,7 +15,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
-import piuk.blockchain.androidcore.utils.extensions.AuthRequiredException
 
 class LoginAuthModelTest {
     private lateinit var model: LoginAuthModel

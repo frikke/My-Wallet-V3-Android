@@ -3,13 +3,13 @@ package piuk.blockchain.android.ui.dashboard.model
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.utils.unsafeLazy
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.DASHBOARD_FIAT_ASSETS
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.TOTAL_BALANCE_INDEX
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 interface DashboardBalance : DashboardItem {
     val isLoading: Boolean
