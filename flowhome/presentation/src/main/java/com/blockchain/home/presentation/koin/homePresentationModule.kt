@@ -11,7 +11,8 @@ val homePresentationModule = module {
             AssetsViewModel(
                 homeAccountsService = get(),
                 currencyPrefs = get(),
-                exchangeRates = get()
+                exchangeRates = get(),
+                filterService = get()
             )
         }
     }

@@ -12,8 +12,7 @@ val homeDataModule = module {
         scoped {
             HomeAccountsRepository(
                 coincore = get(),
-                walletModeService = get(superAppModeService),
-                multiAppAssetsPrefs = get()
+                walletModeService = get(superAppModeService)
             )
         }.bind(HomeAccountsService::class)
     }

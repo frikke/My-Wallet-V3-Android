@@ -15,8 +15,10 @@ import com.blockchain.data.updateDataWith
 import com.blockchain.extensions.replace
 import com.blockchain.home.domain.HomeAccountsService
 import com.blockchain.home.model.AssetFilter
+import com.blockchain.home.model.AssetFilterStatus
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.MultiAppAssetsFilterService
 import info.blockchain.balance.Money
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -34,11 +36,11 @@ class AssetsViewModel(
     private val homeAccountsService: HomeAccountsService,
     private val currencyPrefs: CurrencyPrefs,
     private val exchangeRates: ExchangeRatesDataManager,
+    private val filterService: MultiAppAssetsFilterService
 ) : MviViewModel<AssetsIntent, AssetsViewState, AssetsModelState, HomeNavEvent, ModelConfigArgs.NoArgs>(
     AssetsModelState()
 ) {
 
-    private var filtersJob: Job? = null
     private var accountsJob: Job? = null
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
@@ -148,7 +150,9 @@ class AssetsViewModel(
             }
 
             is AssetsIntent.LoadFilters -> {
-                loadFilters()
+                updateState {
+                    it.copy(filters = filterService.toFilterStatus())
+                }
             }
 
             is AssetsIntent.FilterSearch -> {
@@ -158,21 +162,11 @@ class AssetsViewModel(
             }
 
             is AssetsIntent.UpdateFilters -> {
-                homeAccountsService.updateFilters(intent.filters)
-            }
-        }
-    }
-
-    private fun loadFilters() {
-        filtersJob?.cancel()
-        filtersJob = viewModelScope.launch {
-            homeAccountsService.filters()
-                .onEach { assetFilters ->
-                    updateState {
-                        it.copy(filters = assetFilters)
-                    }
+                filterService.fromFilterStatus(intent.filters)
+                updateState {
+                    it.copy(filters = intent.filters)
                 }
-                .collect()
+            }
         }
     }
 
@@ -307,5 +301,26 @@ private fun DataResource<List<ModelAccount>>.withPricing(
                 )
             )
         )
+    }
+}
+
+private fun MultiAppAssetsFilterService.toFilterStatus(): List<AssetFilterStatus> {
+    val allFilters = listOf<AssetFilter>(AssetFilter.ShowSmallBalances)
+
+    return allFilters.map { filter ->
+        AssetFilterStatus(
+            filter = filter,
+            isEnabled = when (filter) {
+                AssetFilter.ShowSmallBalances -> shouldShowSmallBalances
+            }
+        )
+    }
+}
+
+private fun MultiAppAssetsFilterService.fromFilterStatus(filters: List<AssetFilterStatus>) {
+    filters.forEach { assetFilter ->
+        when (assetFilter.filter) {
+            AssetFilter.ShowSmallBalances -> shouldShowSmallBalances = assetFilter.isEnabled
+        }
     }
 }

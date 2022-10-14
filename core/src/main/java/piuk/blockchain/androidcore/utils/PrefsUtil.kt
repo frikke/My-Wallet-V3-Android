@@ -20,7 +20,7 @@ import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
-import com.blockchain.preferences.MultiAppAssetsPrefs
+import com.blockchain.preferences.MultiAppAssetsFilterService
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -79,7 +79,7 @@ class PrefsUtil(
     SuperAppMvpPrefs,
     CowboysPrefs,
     BlockchainCardPrefs,
-    MultiAppAssetsPrefs {
+    MultiAppAssetsFilterService {
 
     private var isUnderAutomationTesting = false // Don't persist!
 

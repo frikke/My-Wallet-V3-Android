@@ -1,5 +1,5 @@
 package com.blockchain.preferences
 
-interface MultiAppAssetsPrefs {
+interface MultiAppAssetsFilterService {
     var shouldShowSmallBalances: Boolean
 }

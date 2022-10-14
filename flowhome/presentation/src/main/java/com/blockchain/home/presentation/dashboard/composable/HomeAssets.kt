@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
@@ -57,8 +58,19 @@ fun HomeAssets(
 
     DisposableEffect(key1 = viewModel) {
         viewModel.onIntent(AssetsIntent.LoadAccounts(SectionSize.Limited()))
-        viewModel.onIntent(AssetsIntent.LoadFilters)
         onDispose { }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.onIntent(AssetsIntent.LoadFilters)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     viewState?.let { state ->
