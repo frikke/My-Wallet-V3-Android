@@ -20,6 +20,7 @@ import com.blockchain.preferences.CowboysPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.LocalSettingsPrefs
+import com.blockchain.preferences.MultiAppAssetsFilterService
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -77,7 +78,8 @@ class PrefsUtil(
     LocalSettingsPrefs,
     SuperAppMvpPrefs,
     CowboysPrefs,
-    BlockchainCardPrefs {
+    BlockchainCardPrefs,
+    MultiAppAssetsFilterService {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -751,6 +753,10 @@ class PrefsUtil(
         get() = getValue(DEFAULT_BLOCKCHAIN_CARD_ID, "")
         set(value) = setValue(DEFAULT_BLOCKCHAIN_CARD_ID, value)
 
+    override var shouldShowSmallBalances: Boolean
+        get() = getValue(SHOULD_SHOW_SMALL_BALANCES, false)
+        set(value) = setValue(SHOULD_SHOW_SMALL_BALANCES, value)
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -888,6 +894,9 @@ class PrefsUtil(
 
         // Blockchain Card
         private const val DEFAULT_BLOCKCHAIN_CARD_ID = "default_blockchain_card_id"
+
+        // multiapp assets
+        private const val SHOULD_SHOW_SMALL_BALANCES = "should_show_small_balances"
     }
 }
 

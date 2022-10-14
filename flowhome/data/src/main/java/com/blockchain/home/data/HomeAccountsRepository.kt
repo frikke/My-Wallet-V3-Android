@@ -12,8 +12,10 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 
-class HomeAccountsRepository(private val coincore: Coincore, private val walletModeService: WalletModeService) :
-    HomeAccountsService {
+class HomeAccountsRepository(
+    private val coincore: Coincore,
+    private val walletModeService: WalletModeService
+) : HomeAccountsService {
     override fun accounts(): Flow<DataResource<List<SingleAccount>>> {
         return walletModeService.walletMode.flatMapLatest { wMode ->
             coincore.activeWalletsInMode(wMode).map { it.accounts }

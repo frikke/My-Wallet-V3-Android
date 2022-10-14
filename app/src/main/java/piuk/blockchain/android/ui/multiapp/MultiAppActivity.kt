@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
+import com.blockchain.home.presentation.allassets.AllAssetsActivity
 import com.blockchain.koin.payloadScope
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import org.koin.androidx.compose.getViewModel
@@ -30,7 +31,11 @@ class MultiAppActivity : BlockchainActivity() {
             val viewModel: MultiAppViewModel = getViewModel(scope = payloadScope)
             viewModel.viewCreated(ModelConfigArgs.NoArgs)
 
-            MultiAppChrome(viewModel)
+            MultiAppChrome(
+                viewModel = viewModel,
+                // todo(othman) navigation - not like this
+                openAllAssets = { startActivity(AllAssetsActivity.newIntent(this)) }
+            )
         }
     }
 

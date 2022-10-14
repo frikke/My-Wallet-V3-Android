@@ -9,7 +9,7 @@ import org.koin.dsl.module
 
 val homeDataModule = module {
     scope(payloadScopeQualifier) {
-        factory {
+        scoped {
             HomeAccountsRepository(
                 coincore = get(),
                 walletModeService = get(superAppModeService)

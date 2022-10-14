@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.blockchain.componentlib.chrome.ChromeScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
-import com.blockchain.home.presentation.ui.HomeScreen
+import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
 
 @Composable
@@ -18,17 +18,20 @@ fun MultiAppNavigationGraph(
     enableRefresh: Boolean,
     updateScrollInfo: (Pair<ChromeBottomNavigationItem, ListStateInfo>) -> Unit,
     refreshStarted: () -> Unit,
-    refreshComplete: () -> Unit
+    refreshComplete: () -> Unit,
+    openAllAssets: () -> Unit
 ) {
     NavHost(navController, startDestination = ChromeBottomNavigationItem.Home.route) {
         composable(ChromeBottomNavigationItem.Home.route) {
             val listState = rememberLazyListState()
             ChromeScreen(
                 modifier = modifier,
-                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Trade, it)) },
+                updateScrollInfo = { updateScrollInfo(Pair(ChromeBottomNavigationItem.Home, it)) },
+                isPullToRefreshEnabled = enableRefresh,
                 content = {
                     HomeScreen(
-                        listState = listState
+                        listState = listState,
+                        openAllAssets = openAllAssets
                     )
                 },
                 listState = listState,

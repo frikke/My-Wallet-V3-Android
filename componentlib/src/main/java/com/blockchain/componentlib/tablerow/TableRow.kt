@@ -87,7 +87,8 @@ fun FlexibleTableRow(
     contentStart: @Composable (RowScope.() -> Unit)? = null,
     contentEnd: @Composable (RowScope.() -> Unit)? = null,
     contentBottom: @Composable (() -> Unit)? = null,
-    onContentClicked: (() -> Unit)? = null
+    onContentClicked: (() -> Unit)? = null,
+    backgroundColor: Color = AppTheme.colors.background
 ) {
     TableRow(
         paddingValues = paddingValues,
@@ -95,6 +96,7 @@ fun FlexibleTableRow(
         contentStart = contentStart,
         contentEnd = contentEnd,
         contentBottom = contentBottom,
-        onContentClicked = onContentClicked
+        onContentClicked = onContentClicked,
+        backgroundColor = backgroundColor
     )
 }

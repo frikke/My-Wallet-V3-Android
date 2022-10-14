@@ -75,7 +75,7 @@ private fun rememberToolbarState(): CollapsingToolbarState {
 }
 
 @Composable
-fun MultiAppChrome(viewModel: MultiAppViewModel) {
+fun MultiAppChrome(viewModel: MultiAppViewModel, openAllAssets: () -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
@@ -96,7 +96,8 @@ fun MultiAppChrome(viewModel: MultiAppViewModel) {
                 bottomNavigationItems = state.bottomNavigationItems,
                 onModeSelected = { walletMode ->
                     viewModel.onIntent(MultiAppIntents.WalletModeChanged(walletMode))
-                }
+                },
+                openAllAssets = openAllAssets
             )
         }
     }
@@ -111,7 +112,8 @@ fun MultiAppChromeScreen(
     backgroundColors: ChromeBackgroundColors,
     balance: DataResource<String>,
     bottomNavigationItems: List<ChromeBottomNavigationItem>,
-    onModeSelected: (WalletMode) -> Unit
+    onModeSelected: (WalletMode) -> Unit,
+    openAllAssets: () -> Unit
 ) {
     //    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }
     //    var balanceSectionHeight = remember { headerSectionHeightPx }
@@ -597,7 +599,8 @@ fun MultiAppChromeScreen(
                 },
                 refreshComplete = {
                     stopRefresh()
-                }
+                },
+                openAllAssets = openAllAssets
             )
         }
 
@@ -672,6 +675,7 @@ fun PreviewMultiAppContainer() {
             ChromeBottomNavigationItem.Trade,
             ChromeBottomNavigationItem.Card
         ),
-        onModeSelected = {}
+        onModeSelected = {},
+        openAllAssets = {}
     )
 }
