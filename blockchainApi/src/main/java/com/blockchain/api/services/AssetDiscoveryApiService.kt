@@ -13,6 +13,8 @@ import com.blockchain.outcome.map
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 enum class DynamicAssetProducts {
     PrivateKey,
@@ -25,17 +27,29 @@ enum class DynamicAssetProducts {
     DynamicSelfCustody
 }
 
+@Serializable
 data class DynamicAsset(
+    @SerialName("assetName")
     val assetName: String,
+    @SerialName("networkTicker")
     val networkTicker: String,
+    @SerialName("displayTicker")
     val displayTicker: String,
+    @SerialName("isFiat")
     val isFiat: Boolean,
+    @SerialName("precision")
     val precision: Int,
+    @SerialName("products")
     val products: Set<DynamicAssetProducts>,
+    @SerialName("logoUrl")
     val logoUrl: String? = null,
+    @SerialName("websiteUrl")
     val websiteUrl: String? = null,
+    @SerialName("minConfirmations")
     val minConfirmations: Int = 0,
+    @SerialName("parentChain")
     val parentChain: String? = null,
+    @SerialName("chainIdentifier")
     val chainIdentifier: String? = null
 )
 
@@ -69,8 +83,8 @@ class AssetDiscoveryApiService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    suspend fun getL2AssetsForL1(l1Ticker: String): Outcome<Exception, DynamicAssetList> =
-        api.getL2CurrenciesForL1(l1Ticker)
+    suspend fun getL2AssetsForEVM(): Outcome<Exception, DynamicAssetList> =
+        api.getL2CurrenciesForL1()
             .map { dto ->
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
@@ -78,6 +92,8 @@ class AssetDiscoveryApiService internal constructor(
     suspend fun getAssetInformation(assetTicker: String): Outcome<Exception, AssetInformationDto> =
         api.getAssetInfo(assetTicker)
 
+    // TODO(dtverdota): these methods for mapping DynamicCurrency to DynamicAsset needs to be extracted
+    // to respect single responsibility and local reasoning
     private fun DynamicCurrency.toDynamicAsset(): DynamicAsset? =
         when {
             coinType is Erc20Asset &&

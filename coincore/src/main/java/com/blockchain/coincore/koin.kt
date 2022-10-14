@@ -14,6 +14,7 @@ import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.loader.DynamicAssetsService
 import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetRepository
+import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetStore
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
@@ -230,9 +231,14 @@ val coincoreModule = module {
 
     single {
         NonCustodialL2sDynamicAssetRepository(
-            l1EvmAssets = experimentalL1EvmAssetList(),
-            discoveryService = get(),
+            l2Store = get(),
             layerTwoFeatureFlag = lazy { get(ethLayerTwoFeatureFlag) }
+        )
+    }
+
+    single {
+        NonCustodialL2sDynamicAssetStore(
+            discoveryService = get()
         )
     }
 
