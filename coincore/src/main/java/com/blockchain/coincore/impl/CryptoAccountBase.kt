@@ -22,6 +22,7 @@ import com.blockchain.coincore.toActionState
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.data.DataResource
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.unifiedBalancesFlag
@@ -31,6 +32,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
+import com.blockchain.store.asObservable
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
@@ -214,31 +216,31 @@ abstract class CryptoNonCustodialAccount(
     /**
      * We only add this method to make it portable with NetworkWallet.
      */
-    override val networkBalance: Flow<NetworkBalance>
+    override val networkBalance: Flow<DataResource<NetworkBalance>>
         get() = balance.map {
-            NetworkBalance(
-                currency = currency,
-                balance = it.total,
-                unconfirmedBalance = it.pending,
-                exchangeRate = it.exchangeRate
+            DataResource.Data(
+                NetworkBalance(
+                    currency = currency,
+                    balance = it.total,
+                    unconfirmedBalance = it.pending,
+                    exchangeRate = it.exchangeRate
+                )
             )
         }
 
     override val balanceRx: Observable<AccountBalance>
         get() = unifiedBalancesFeatureFlag.enabled.flatMapObservable {
             if (it) {
-                rxSingle {
-                    unifiedBalancesService.balanceForWallet(
-                        this@CryptoNonCustodialAccount
-                    )
-                }.map {
+                unifiedBalancesService.balanceForWallet(
+                    this@CryptoNonCustodialAccount
+                ).asObservable().map {
                     AccountBalance(
                         total = it.balance,
                         pending = it.unconfirmedBalance,
                         exchangeRate = it.exchangeRate,
                         withdrawable = it.balance,
                     )
-                }.toObservable()
+                }
             } else {
                 Observable.combineLatest(
                     getOnChainBalance(),

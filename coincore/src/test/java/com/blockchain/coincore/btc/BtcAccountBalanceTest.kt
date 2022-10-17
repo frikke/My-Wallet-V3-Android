@@ -5,6 +5,7 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.chains.bitcoin.SendDataManager
 import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.payload.PayloadDataManager
+import com.blockchain.data.DataResource
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.bitcoin
@@ -19,6 +20,7 @@ import info.blockchain.wallet.payload.data.XPubs
 import io.mockk.coEvery
 import io.reactivex.rxjava3.core.Observable
 import junit.framework.Assert.assertFalse
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
 
@@ -68,12 +70,16 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
             unifiedBalancesService.balanceForWallet(
                 subject
             )
-        } returns NetworkBalance(
-            currency = subject.currency,
-            balance = btcBalance,
-            unconfirmedBalance = 0.bitcoin(),
+        } returns flowOf(
+            DataResource.Data(
+                NetworkBalance(
+                    currency = subject.currency,
+                    balance = btcBalance,
+                    unconfirmedBalance = 0.bitcoin(),
 
-            exchangeRate = BTC_TO_USER_RATE
+                    exchangeRate = BTC_TO_USER_RATE
+                )
+            )
         )
 
         subject.balanceRx
@@ -94,11 +100,15 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
             unifiedBalancesService.balanceForWallet(
                 subject
             )
-        } returns NetworkBalance(
-            currency = subject.currency,
-            balance = 0.bitcoin(),
-            unconfirmedBalance = 0.bitcoin(),
-            exchangeRate = BTC_TO_USER_RATE
+        } returns flowOf(
+            DataResource.Data(
+                NetworkBalance(
+                    currency = subject.currency,
+                    balance = 0.bitcoin(),
+                    unconfirmedBalance = 0.bitcoin(),
+                    exchangeRate = BTC_TO_USER_RATE
+                )
+            )
         )
 
         subject.balanceRx

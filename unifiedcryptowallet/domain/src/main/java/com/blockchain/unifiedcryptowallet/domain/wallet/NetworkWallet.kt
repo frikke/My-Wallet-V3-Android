@@ -1,12 +1,12 @@
 package com.blockchain.unifiedcryptowallet.domain.wallet
 
+import com.blockchain.data.DataResource
 import com.blockchain.koin.payloadScope
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkBalance
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.Currency
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.parameter.ParametersDefinition
@@ -16,7 +16,7 @@ interface NetworkWallet {
     val label: String
     val currency: Currency
     val index: Int
-    val networkBalance: Flow<NetworkBalance>
+    val networkBalance: Flow<DataResource<NetworkBalance>>
 
     /**
      * The descriptor field will need some explanation. Over time some currencies change the
@@ -53,10 +53,9 @@ class CryptoNetworkWallet(
     private val defaultLabels: DefaultLabels by inject()
     private val balancesService: UnifiedBalancesService by scopedInject()
 
-    override val networkBalance: Flow<NetworkBalance>
-        get() = flow {
-            emit(balancesService.balanceForWallet(this@CryptoNetworkWallet))
-        }
+    override val networkBalance: Flow<DataResource<NetworkBalance>>
+        get() =
+            balancesService.balanceForWallet(this@CryptoNetworkWallet)
 
     override val label: String
         get() = _label ?: defaultLabels.getAllNonCustodialWalletsLabel()

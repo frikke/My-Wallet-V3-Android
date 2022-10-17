@@ -11,8 +11,6 @@ import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.Mediator
 import com.blockchain.store.Store
-import com.blockchain.store.impl.Freshness
-import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import com.blockchain.storedatasource.FlushableDataSource
 import kotlinx.serialization.builtins.ListSerializer
@@ -31,7 +29,11 @@ internal class UnifiedBalancesStore(
             }
         ),
         dataSerializer = BalancesResponse.serializer(),
-        mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
+        mediator = object : Mediator<Unit, BalancesResponse> {
+            override fun shouldFetch(cachedData: CachedData<Unit, BalancesResponse>?): Boolean {
+                return cachedData == null || cachedData.lastFetched == 0L
+            }
+        }
     ),
     FlushableDataSource {
 

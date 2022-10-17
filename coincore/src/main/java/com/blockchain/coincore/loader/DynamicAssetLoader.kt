@@ -22,11 +22,13 @@ import com.blockchain.core.fees.FeeDataManager
 import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.core.staking.domain.StakingService
+import com.blockchain.data.DataResource
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.store.mapData
 import com.blockchain.unifiedcryptowallet.domain.balances.UnifiedBalancesService
 import com.blockchain.utils.filterList
 import com.blockchain.utils.filterListItemIsInstance
@@ -50,6 +52,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.rx3.await
@@ -218,15 +221,11 @@ internal class DynamicAssetLoader(
     }
 
     private fun loadNonCustodialAssetsUsingUnifiedBalances(): Flow<List<Asset>> {
-        val selfCustodialAssetsFlow = flow {
-            emit(
-                unifiedBalancesService.value.balances().map {
-                    get(it.currency)
-                }
-            )
-        }.catch {
-            emit(emptyList())
-        }
+        val selfCustodialAssetsFlow = unifiedBalancesService.value.balances().mapData { balances ->
+            balances.map {
+                get(it.currency)
+            }
+        }.filterIsInstance<DataResource.Data<List<Asset>>>()
 
         val enabledL1AssetsFlow = flow {
             val evmAssets = enabledEvmL1Assets.await()
@@ -237,7 +236,7 @@ internal class DynamicAssetLoader(
             selfCustodialAssetsFlow,
             enabledL1AssetsFlow
         ) { dynamicSelfCustodyAssets, standardAssets ->
-            dynamicSelfCustodyAssets.filter {
+            dynamicSelfCustodyAssets.data.filter {
                 it.currency.networkTicker !in standardAssets.map { asset -> asset.currency.networkTicker }
             } + standardAssets
         }

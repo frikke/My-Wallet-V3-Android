@@ -268,7 +268,7 @@ class DashboardActionInteractor(
     private fun refreshAssetBalance(
         currency: Currency,
         model: DashboardModel,
-    ): Single<Money> =
+    ): Observable<Money> =
         coincore[currency].accountGroup(defFilter)
             .logGroupLoadError(currency, defFilter)
             .flatMapObservable { group ->
@@ -288,7 +288,6 @@ class DashboardActionInteractor(
                 model.process(DashboardIntent.BalanceUpdate(currency, accountBalance))
             }
             .doOnComplete { model.process(DashboardIntent.BalanceFetching(currency, false)) }
-            .firstOrError()
             .map {
                 it.total
             }

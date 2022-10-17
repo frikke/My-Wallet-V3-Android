@@ -1,17 +1,19 @@
 package com.blockchain.unifiedcryptowallet.domain.balances
 
+import com.blockchain.data.DataResource
 import com.blockchain.unifiedcryptowallet.domain.wallet.NetworkWallet
 import info.blockchain.balance.Currency
 import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.Money
 import java.lang.IllegalArgumentException
+import kotlinx.coroutines.flow.Flow
 
 interface UnifiedBalancesService {
-    suspend fun balances(wallet: NetworkWallet? = null): List<NetworkBalance>
+    fun balances(wallet: NetworkWallet? = null): Flow<DataResource<List<NetworkBalance>>>
 
-    suspend fun balanceForWallet(
+    fun balanceForWallet(
         wallet: NetworkWallet
-    ): NetworkBalance
+    ): Flow<DataResource<NetworkBalance>>
 }
 
 interface NetworkAccountsService {
