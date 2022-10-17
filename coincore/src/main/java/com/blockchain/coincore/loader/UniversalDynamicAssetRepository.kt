@@ -5,9 +5,9 @@ import com.blockchain.api.services.DynamicAsset
 import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.outcome.map
+import com.blockchain.utils.rxSingleOutcome
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class UniversalDynamicAssetRepository(
     private val dominantL1Assets: Set<AssetInfo>,
