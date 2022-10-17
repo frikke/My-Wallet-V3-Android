@@ -13,9 +13,9 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
 import com.blockchain.store.firstOutcome
+import com.blockchain.utils.rxSingleOutcome
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.rxSingle
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class NonCustodialL2sDynamicAssetRepository(
     private val discoveryService: AssetDiscoveryApiService,
