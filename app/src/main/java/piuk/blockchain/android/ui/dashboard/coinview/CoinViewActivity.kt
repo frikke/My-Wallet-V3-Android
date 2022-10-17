@@ -49,6 +49,7 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.models.data.RecurringBuy
+import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.presentation.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
@@ -946,7 +947,7 @@ class CoinViewActivity :
                 }
                 val recurringBuysItems = recurringBuys.map {
                     AssetDetailsItem.RecurringBuyInfo(it)
-                }
+                }.filter { it.recurringBuy.state != RecurringBuyState.INACTIVE }
                 listItems.addAll(recurringBuysItems)
             }
             shouldShowUpsell -> {
