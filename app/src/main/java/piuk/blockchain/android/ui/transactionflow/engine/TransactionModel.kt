@@ -193,7 +193,7 @@ data class TransactionState(
                 Money.min(
                     available,
                     (it.limits?.max as? TxLimit.Limited)?.amount ?: available
-                )
+                ).minus(it.feeAmount)
             } ?: sendingAccount.getZeroAmountForAccount()
         }
 
