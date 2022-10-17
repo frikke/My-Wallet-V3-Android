@@ -53,11 +53,11 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Maybes
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import java.util.Stack
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transactionflow.engine.domain.model.QuickFillRoundingData
 import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
 import timber.log.Timber
+import java.util.Stack
 
 enum class TransactionStep(val addToBackStack: Boolean = false) {
     ZERO,
@@ -193,7 +193,7 @@ data class TransactionState(
                 Money.min(
                     available,
                     (it.limits?.max as? TxLimit.Limited)?.amount ?: available
-                )
+                ).minus(it.feeAmount)
             } ?: sendingAccount.getZeroAmountForAccount()
         }
 
@@ -729,9 +729,9 @@ class TransactionModel(
             onComplete = {
                 process(TransactionIntent.UpdateTransactionCancelled)
             }, onError = {
-            Timber.d("!TRANSACTION!> Unable to cancel transaction: $it")
-            errorLogger.log(TxFlowLogError.ExecuteFail(it))
-        }
+                Timber.d("!TRANSACTION!> Unable to cancel transaction: $it")
+                errorLogger.log(TxFlowLogError.ExecuteFail(it))
+            }
         )
 
     private fun processModifyTxOptionRequest(newConfirmation: TxConfirmationValue): Disposable =
