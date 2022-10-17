@@ -10,4 +10,5 @@ test {
 dependencies {
     implementation Libraries.kotlin
     implementation Libraries.kotlinJson
+    implementation Libraries.rxJava
 }

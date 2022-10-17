@@ -22,7 +22,9 @@ data class EvmNetwork(
     @SerialName("chainId")
     val chainId: Int,
     @SerialName("nodeUrl")
-    val nodeUrl: String
+    val nodeUrl: String,
+    @SerialName("explorerUrl")
+    val explorerUrl: String
 )
 
 class EvmNetworksService(

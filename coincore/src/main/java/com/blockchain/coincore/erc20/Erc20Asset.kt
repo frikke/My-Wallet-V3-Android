@@ -24,6 +24,7 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 
 internal class Erc20Asset(
     override val currency: AssetInfo,
@@ -34,38 +35,58 @@ internal class Erc20Asset(
     private val formatUtils: FormatUtilities,
     private val addressResolver: EthHotWalletAddressResolver,
     private val layerTwoFeatureFlag: FeatureFlag,
+    private val coinNetworksFeatureFlag: FeatureFlag,
+    private val evmNetworks: Single<List<EvmNetwork>>
 ) : CryptoAssetBase() {
     private val erc20address
         get() = erc20DataManager.accountHash
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        layerTwoFeatureFlag.enabled.flatMap { isEnabled ->
-            if (isEnabled) {
-                erc20DataManager.getSupportedNetworks().map { supportedL2Networks ->
-                    if (currency.categories.contains(AssetCategory.NON_CUSTODIAL)) {
-                        supportedL2Networks.firstOrNull { evmNetwork ->
-                            evmNetwork.networkTicker == currency.l1chainTicker
-                        }?.let { evmNetwork ->
-                            listOf(getNonCustodialAccount(evmNetwork))
-                        } ?: emptyList()
-                    } else {
-                        emptyList()
+        Singles.zip(
+            layerTwoFeatureFlag.enabled,
+            coinNetworksFeatureFlag.enabled
+        )
+            .flatMap { (isL2Enabled, isCoinNetworksEnabled) ->
+                when {
+                    isL2Enabled && isCoinNetworksEnabled -> {
+                        // Find the correct network from the new coin networks endpoint
+                        evmNetworks.map { networks ->
+                            loadNonCustodialAccount(networks)
+                        }
                     }
-                }
-            } else {
-                Single.fromCallable {
-                    // Only load ERC20 accounts on the Ethereum network when the FF is disabled
-                    if (
-                        currency.categories.contains(AssetCategory.NON_CUSTODIAL) &&
-                        CryptoCurrency.ETHER.networkTicker == currency.l1chainTicker
-                    ) {
-                        listOf(getNonCustodialAccount(EthDataManager.ethChain))
-                    } else {
-                        emptyList()
+                    isL2Enabled -> {
+                        // Get the network from the remote config
+                        erc20DataManager.getSupportedNetworks().map { networks ->
+                            loadNonCustodialAccount(networks.toList())
+                        }
+                    }
+                    else -> {
+                        Single.fromCallable {
+                            // Only load ERC20 accounts on the Ethereum network when the FF is disabled
+                            if (
+                                currency.categories.contains(AssetCategory.NON_CUSTODIAL) &&
+                                CryptoCurrency.ETHER.networkTicker == currency.l1chainTicker
+                            ) {
+                                listOf(getNonCustodialAccount(EthDataManager.ethChain))
+                            } else {
+                                emptyList()
+                            }
+                        }
                     }
                 }
             }
+
+    private fun loadNonCustodialAccount(supportedNetworks: List<EvmNetwork>): SingleAccountList {
+        return if (currency.categories.contains(AssetCategory.NON_CUSTODIAL)) {
+            supportedNetworks.firstOrNull { evmNetwork ->
+                evmNetwork.networkTicker == currency.l1chainTicker
+            }?.let { evmNetwork ->
+                listOf(getNonCustodialAccount(evmNetwork))
+            } ?: emptyList()
+        } else {
+            emptyList()
         }
+    }
 
     private fun getNonCustodialAccount(evmNetwork: EvmNetwork): Erc20NonCustodialAccount =
         Erc20NonCustodialAccount(

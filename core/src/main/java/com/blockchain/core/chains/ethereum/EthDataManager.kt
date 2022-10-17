@@ -429,7 +429,8 @@ class EthDataManager(
             networkTicker = CryptoCurrency.ETHER.networkTicker,
             networkName = CryptoCurrency.ETHER.name,
             chainId = ETH_CHAIN_ID,
-            nodeUrl = EthUrls.ETH_NODES
+            nodeUrl = EthUrls.ETH_NODES,
+            explorerUrl = CryptoCurrency.ETHER.txExplorerUrlBase ?: ""
         )
     }
 }

@@ -28,6 +28,11 @@ internal interface AssetDiscoveryApiInterface {
 
     @Cacheable(maxAge = Cacheable.MAX_AGE_THREE_DAYS)
     @DoNotLogResponseBody
+    @GET("assets/currencies/coin")
+    suspend fun getL1Coins(): Outcome<Exception, DynamicCurrencyList>
+
+    @Cacheable(maxAge = Cacheable.MAX_AGE_THREE_DAYS)
+    @DoNotLogResponseBody
     @GET("assets/currencies/other_erc20")
     suspend fun getL2CurrenciesForL1(): Outcome<Exception, DynamicCurrencyList>
 

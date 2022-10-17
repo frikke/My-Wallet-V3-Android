@@ -118,7 +118,6 @@ import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
 import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
 import java.util.UUID
@@ -661,6 +660,3 @@ val coreModule = module {
         )
     }
 }
-
-fun experimentalL1EvmAssetList(): Set<CryptoCurrency> =
-    setOf(CryptoCurrency.MATIC, CryptoCurrency.BNB, CryptoCurrency.AVAX)

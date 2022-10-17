@@ -69,6 +69,7 @@ class Erc20DataManagerTest {
                     CryptoCurrency.ETHER.networkTicker,
                     CryptoCurrency.ETHER.name,
                     EthDataManager.ETH_CHAIN_ID,
+                    "",
                     ""
                 )
             )
@@ -426,7 +427,8 @@ class Erc20DataManagerTest {
             l1chainTicker = ETHER.networkTicker,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
-            colour = "#123456"
+            colour = "#123456",
+            isErc20 = true
         ) {}
 
         private val UNKNOWN_ERC20_TOKEN: AssetInfo = object : CryptoCurrency(
@@ -438,7 +440,8 @@ class Erc20DataManagerTest {
             l1chainTicker = ETHER.networkTicker,
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
-            colour = "#123456"
+            colour = "#123456",
+            isErc20 = true
         ) {}
     }
 }

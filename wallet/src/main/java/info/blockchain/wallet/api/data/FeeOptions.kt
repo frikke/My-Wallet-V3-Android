@@ -85,7 +85,7 @@ class FeeOptions constructor(
         fun defaultForErc20(): FeeOptions = defaultForEth()
 
         fun defaultForEvm(networkTicker: String): FeeOptions {
-            return if (networkTicker == CryptoCurrency.AVAX.networkTicker) {
+            return if (networkTicker == CryptoCurrency.AVAX) {
                 // Fees for Avalanche are significantly higher than for other EVM networks
                 FeeOptions(
                     gasLimit = 25000,

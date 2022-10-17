@@ -126,7 +126,13 @@ class SelectNetworkViewModelTest {
 
     companion object {
         private const val ETH_CHAIN_ID = 1
-        private val ethEvmNetwork = EvmNetwork("ETH", "Ethereum", ETH_CHAIN_ID, "")
+        private val ethEvmNetwork = EvmNetwork(
+            "ETH",
+            "Ethereum",
+            ETH_CHAIN_ID,
+            "",
+            ""
+        )
         private val evmAsset = CryptoCurrency(
             displayTicker = "EVM",
             networkTicker = "EVM",
@@ -135,9 +141,16 @@ class SelectNetworkViewModelTest {
             precisionDp = 1,
             requiredConfirmations = 1,
             colour = "",
-            logo = "logo"
+            logo = "logo",
+            isErc20 = true
         )
         private const val EVM_CHAIN_ID = 2
-        private val otherEvmNetwork = EvmNetwork("OTHER", "Other", EVM_CHAIN_ID, "")
+        private val otherEvmNetwork = EvmNetwork(
+            "OTHER",
+            "Other",
+            EVM_CHAIN_ID,
+            "",
+            ""
+        )
     }
 }

@@ -10,6 +10,7 @@ import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cardRejectionCheckFeatureFlag
+import com.blockchain.koin.coinNetworksFeatureFlag
 import com.blockchain.koin.cowboysPromoFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.evmWithoutL1BalanceFeatureFlag
@@ -95,6 +96,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_eth_layer_two_networks",
                 "Enable Eth L2 Networks"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(coinNetworksFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_coin_networks",
+                "Enable Coin Networks"
             )
         )
     }.bind(FeatureFlag::class)

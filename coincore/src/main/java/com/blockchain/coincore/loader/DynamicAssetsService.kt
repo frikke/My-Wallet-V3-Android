@@ -3,6 +3,7 @@ package com.blockchain.coincore.loader
 import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.DynamicAsset
 import com.blockchain.api.services.DynamicAssetProducts
+import com.blockchain.core.chains.EvmNetwork
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -10,9 +11,13 @@ import io.reactivex.rxjava3.core.Single
 
 interface DynamicAssetsService {
     fun availableCryptoAssets(): Single<List<AssetInfo>>
+    fun availableL1Assets(): Single<List<AssetInfo>>
+    fun otherEvmAssets(): Single<List<AssetInfo>>
+    fun allEvmNetworks(): Single<List<EvmNetwork>>
+    fun otherEvmNetworks(): Single<List<EvmNetwork>>
 }
 
-internal fun DynamicAsset.toAssetInfo(): AssetInfo =
+internal fun DynamicAsset.toAssetInfo(evmChains: List<String> = emptyList()): AssetInfo =
     CryptoCurrency(
         displayTicker = displayTicker,
         networkTicker = networkTicker,
@@ -22,12 +27,7 @@ internal fun DynamicAsset.toAssetInfo(): AssetInfo =
         categories = mapCategories(products),
         precisionDp = precision,
         l1chainTicker = parentChain?.let { chain ->
-            // TODO this is not scalable, need a way to enable L2 networks from remote config/service
-            CryptoCurrency.evmCurrencies.find {
-                // For example MATIC's network ticker is MATIC.MATIC on Polygon while the display ticker is MATIC
-                it.networkTicker == chain ||
-                    it.displayTicker == chain
-            }?.displayTicker ?: kotlin.run {
+            evmChains.find { it == chain } ?: kotlin.run {
                 when (chain) {
                     AssetDiscoveryApiService.CELO -> AssetDiscoveryApiService.CELO
                     else -> throw IllegalStateException("Unknown l1 chain: $chain")
@@ -38,13 +38,15 @@ internal fun DynamicAsset.toAssetInfo(): AssetInfo =
         requiredConfirmations = minConfirmations,
         startDate = BTC_START_DATE,
         colour = mapColour(),
-        logo = logoUrl ?: "" // TODO: Um?
+        logo = logoUrl ?: "", // TODO: Um?
+        isErc20 = parentChain?.let { chain -> evmChains.find { it == chain } != null } ?: false,
+        txExplorerUrlBase = explorerUrl
     )
 
 private const val BTC_START_DATE = 1282089600L
 
 private fun String.forParentTicker(parentChain: String): String {
-    if (parentChain == CryptoCurrency.MATIC.displayTicker && !this.endsWith(POLYGON_NETWORK_SUFFIX)) {
+    if (parentChain == CryptoCurrency.MATIC && !this.endsWith(POLYGON_NETWORK_SUFFIX)) {
         return this.plus(POLYGON_NETWORK_SUFFIX)
     }
     return this

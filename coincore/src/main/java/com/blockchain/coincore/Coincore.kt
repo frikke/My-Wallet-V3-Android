@@ -13,7 +13,6 @@ import com.blockchain.core.payload.PayloadDataManager
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.unifiedcryptowallet.domain.balances.NetworkAccountsService
@@ -52,7 +51,7 @@ class Coincore internal constructor(
     private val remoteLogger: RemoteLogger,
     private val bankService: BankService,
     private val walletModeService: WalletModeService,
-    private val ethLayerTwoFF: FeatureFlag,
+    private val ethLayerTwoFF: FeatureFlag
 ) {
     fun getWithdrawalLocks(localCurrency: Currency): Maybe<FundsLocks> =
         if (walletModeService.enabledWalletMode().custodialEnabled) {
@@ -300,11 +299,13 @@ class Coincore internal constructor(
         activeWalletsInModeRx(walletMode).firstOrError()
 
     fun availableCryptoAssets(): Single<List<AssetInfo>> =
-        ethLayerTwoFF.enabled.map {
-            if (it) {
-                assetCatalogue.supportedCryptoAssets
+        ethLayerTwoFF.enabled.flatMap { isL2Enabled ->
+            if (isL2Enabled) {
+                Single.just(assetCatalogue.supportedCryptoAssets)
             } else {
-                assetCatalogue.supportedCryptoAssets.minus(experimentalL1EvmAssetList().toSet())
+                assetCatalogue.otherEvmAssets().map { supportedEvmAssets ->
+                    assetCatalogue.supportedCryptoAssets.minus(supportedEvmAssets.toSet())
+                }
             }
         }
 

@@ -19,6 +19,8 @@ import com.blockchain.api.bitcoin.BitcoinApi
 import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.blockchainCard.WalletHelperUrl
 import com.blockchain.api.brokerage.BrokerageApi
+import com.blockchain.api.coinnetworks.CoinNetworkApiInterface
+import com.blockchain.api.coinnetworks.MockInterceptor
 import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.dataremediation.DataRemediationApi
 import com.blockchain.api.eligibility.EligibilityApi
@@ -77,7 +79,9 @@ import com.blockchain.api.watchlist.WatchlistApi
 import com.blockchain.koin.authOkHttpClient
 import com.blockchain.koin.kotlinJsonConverterFactory
 import com.blockchain.koin.kotlinXApiRetrofit
+import com.blockchain.koin.kotlinXCoinApiRetrofit
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.network.modules.OkHttpLoggingInterceptors
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.serializers.IsoDateSerializer
@@ -91,6 +95,7 @@ import kotlinx.serialization.modules.contextual
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.scope.Scope
 import org.koin.dsl.bind
@@ -146,6 +151,33 @@ val blockchainApiModule = module {
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
             .addConverterFactory(get(kotlinJsonConverterFactory))
+            .build()
+    }
+
+    single {
+        MockInterceptor()
+    }
+
+    single(kotlinXCoinApiRetrofit) {
+        val builder: OkHttpClient.Builder = get()
+        builder.addInterceptor(get<MockInterceptor>())
+        get<OkHttpLoggingInterceptors>().forEach {
+            builder.addInterceptor(it)
+        }
+        val client = builder.build()
+
+        val json = Json {
+            explicitNulls = false
+            ignoreUnknownKeys = true
+            coerceInputValues = true
+            isLenient = true
+            encodeDefaults = true
+        }
+        Retrofit.Builder()
+            .baseUrl(getBaseUrl("blockchain-api"))
+            .client(client)
+            .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
 
@@ -223,8 +255,10 @@ val blockchainApiModule = module {
 
     factory {
         val api = get<Retrofit>(assetsApi).create(AssetDiscoveryApiInterface::class.java)
+        val coinNetworkApi = get<Retrofit>(kotlinXCoinApiRetrofit).create(CoinNetworkApiInterface::class.java)
         AssetDiscoveryApiService(
-            api
+            api,
+            coinNetworkApi
         )
     }
 

@@ -87,8 +87,8 @@ class SelectNetworkViewModel(
 
     private fun EvmNetwork.toNetworkInfo() =
         NetworkInfo(
-            networkTicker = if (networkTicker == CryptoCurrency.MATIC.displayTicker) {
-                CryptoCurrency.MATIC.networkTicker
+            networkTicker = if (networkTicker == CryptoCurrency.MATIC) {
+                CryptoCurrency.MATIC_ON_POLYGON
             } else {
                 networkTicker
             },

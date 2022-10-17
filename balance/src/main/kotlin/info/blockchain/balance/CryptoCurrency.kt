@@ -1,5 +1,6 @@
 package info.blockchain.balance
 
+import io.reactivex.rxjava3.core.Single
 import java.io.Serializable
 
 enum class AssetCategory {
@@ -21,6 +22,8 @@ interface AssetInfo : Currency, Serializable {
 
     override val type: CurrencyType
         get() = CurrencyType.CRYPTO
+
+    val isErc20: Boolean
 }
 
 val Currency.isCustodialOnly: Boolean
@@ -50,6 +53,8 @@ interface AssetCatalogue {
     fun assetInfoFromNetworkTicker(symbol: String): AssetInfo?
     fun assetFromL1ChainByContractAddress(l1chain: String, contractAddress: String): AssetInfo?
     fun supportedL2Assets(chain: AssetInfo): List<AssetInfo>
+    fun availableL1Assets(): Single<List<AssetInfo>>
+    fun otherEvmAssets(): Single<List<AssetInfo>>
 }
 
 open class CryptoCurrency(
@@ -64,7 +69,8 @@ open class CryptoCurrency(
     override val l2identifier: String? = null,
     override val colour: String,
     override val logo: String = "",
-    override val txExplorerUrlBase: String? = null
+    override val txExplorerUrlBase: String? = null,
+    override val isErc20: Boolean = false
 ) : AssetInfo {
 
     override val symbol: String
@@ -150,50 +156,12 @@ open class CryptoCurrency(
         override val index: Int
             get() = XLM_ORDER_INDEX
     }
-
-    object MATIC : CryptoCurrency(
-        displayTicker = "MATIC",
-        networkTicker = "MATIC.MATIC",
-        name = "Matic",
-        categories = setOf(AssetCategory.NON_CUSTODIAL),
-        precisionDp = 18,
-        requiredConfirmations = 12,
-        startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
-        colour = "#8247E5",
-        logo = "file:///android_asset/logo/matic/logo.png",
-        txExplorerUrlBase = "https://polygonscan.com/tx/"
-    )
-
-    object BNB : CryptoCurrency(
-        displayTicker = "BNB",
-        networkTicker = "BNB",
-        name = "Binance Coin",
-        categories = setOf(AssetCategory.NON_CUSTODIAL),
-        precisionDp = 18,
-        requiredConfirmations = 12,
-        startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
-        colour = "#F0B90B",
-        logo = "file:///android_asset/logo/bsc/logo.png",
-        txExplorerUrlBase = "https://bscscan.com/tx/"
-    )
-
-    object AVAX : CryptoCurrency(
-        displayTicker = "AVAX",
-        networkTicker = "AVAX",
-        name = "Avalanche",
-        categories = setOf(AssetCategory.NON_CUSTODIAL),
-        precisionDp = 18,
-        requiredConfirmations = 12,
-        startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
-        colour = "#E84142",
-        logo = "file:///android_asset/logo/avax/logo.png",
-        txExplorerUrlBase = "https://snowtrace.io/tx/"
-    )
-
     companion object {
-        val evmCurrencies by lazy {
-            listOf(ETHER, MATIC, BNB, AVAX)
-        }
+        // TODO(dtverdota): remove these once the coin networks feature flag is removed(enabled forever)
+        const val AVAX = "AVAX"
+        const val MATIC = "MATIC"
+        const val BNB = "BNB"
+        const val MATIC_ON_POLYGON = "MATIC.MATIC"
     }
 }
 

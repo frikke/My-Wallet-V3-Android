@@ -53,7 +53,7 @@ class EthAccountActivityTest : CoincoreTestBase() {
                 custodialWalletManager = custodialWalletManager,
                 assetCatalogue = mock(),
                 addressResolver = mock(),
-                l1Network = EvmNetwork("DUMMY", "Dummy", 1, "")
+                l1Network = EvmNetwork("DUMMY", "Dummy", 1, "", "")
             )
         )
 

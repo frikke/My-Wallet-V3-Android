@@ -22,6 +22,7 @@ import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 
 internal class L1EvmAsset(
     override val currency: AssetInfo,
@@ -33,6 +34,8 @@ internal class L1EvmAsset(
     private val formatUtils: FormatUtilities,
     private val addressResolver: EthHotWalletAddressResolver,
     private val layerTwoFeatureFlag: FeatureFlag,
+    private val coinNetworksFlag: FeatureFlag,
+    private val evmNetworks: Single<List<EvmNetwork>>
 ) : CryptoAssetBase(),
     StandardL1Asset {
     private val erc20address
@@ -42,23 +45,39 @@ internal class L1EvmAsset(
     private val nativeNetworkTicker = currency.networkTicker.split(".").first()
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        layerTwoFeatureFlag.enabled.flatMap { isEnabled ->
-            if (isEnabled) {
-                erc20DataManager.getSupportedNetworks().map { supportedNetworks ->
-                    if (currency.categories.contains(AssetCategory.NON_CUSTODIAL)) {
-                        supportedNetworks.firstOrNull { evmNetwork ->
-                            evmNetwork.networkTicker == nativeNetworkTicker
-                        }?.let { evmNetwork ->
-                            listOf(getNonCustodialAccount(evmNetwork))
-                        } ?: emptyList()
-                    } else {
-                        emptyList()
+        Singles.zip(
+            layerTwoFeatureFlag.enabled,
+            coinNetworksFlag.enabled
+        )
+            .flatMap { (isL2Enabled, isCoinNetworksEnabled) ->
+                when {
+                    isL2Enabled && isCoinNetworksEnabled -> {
+                        // Find the correct network from the new coin networks endpoint
+                        evmNetworks.map { networks ->
+                            loadNonCustodialAccount(networks)
+                        }
                     }
+                    isL2Enabled -> {
+                        // Get the network from the remote config
+                        erc20DataManager.getSupportedNetworks().map { supportedNetworks ->
+                            loadNonCustodialAccount(supportedNetworks.toList())
+                        }
+                    }
+                    else -> Single.just(emptyList())
                 }
-            } else {
-                Single.just(emptyList())
             }
+
+    private fun loadNonCustodialAccount(availableNetworks: List<EvmNetwork>): SingleAccountList {
+        return if (currency.categories.contains(AssetCategory.NON_CUSTODIAL)) {
+            availableNetworks.firstOrNull { evmNetwork ->
+                evmNetwork.networkTicker == nativeNetworkTicker
+            }?.let { evmNetwork ->
+                listOf(getNonCustodialAccount(evmNetwork))
+            } ?: emptyList()
+        } else {
+            emptyList()
         }
+    }
 
     private fun getNonCustodialAccount(evmNetwork: EvmNetwork): L1EvmNonCustodialAccount =
         L1EvmNonCustodialAccount(

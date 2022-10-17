@@ -8,11 +8,17 @@ import com.blockchain.api.assetdiscovery.data.DynamicCurrency
 import com.blockchain.api.assetdiscovery.data.Erc20Asset
 import com.blockchain.api.assetdiscovery.data.FiatAsset
 import com.blockchain.api.assetdiscovery.data.UnsupportedAsset
+import com.blockchain.api.coinnetworks.CoinNetworkApiInterface
+import com.blockchain.api.coinnetworks.data.CoinNetwork
+import com.blockchain.api.coinnetworks.data.NetworkType
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.flatMap
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -50,7 +56,9 @@ data class DynamicAsset(
     @SerialName("parentChain")
     val parentChain: String? = null,
     @SerialName("chainIdentifier")
-    val chainIdentifier: String? = null
+    val chainIdentifier: String? = null,
+    @SerialName("explorerUrl")
+    val explorerUrl: String? = null
 )
 
 data class DetailedAssetInformation(
@@ -62,7 +70,8 @@ data class DetailedAssetInformation(
 typealias DynamicAssetList = List<DynamicAsset>
 
 class AssetDiscoveryApiService internal constructor(
-    private val api: AssetDiscoveryApiInterface
+    private val api: AssetDiscoveryApiInterface,
+    private val coinNetworkApi: CoinNetworkApiInterface
 ) {
 
     fun getFiatAssets(): Single<DynamicAssetList> =
@@ -74,7 +83,7 @@ class AssetDiscoveryApiService internal constructor(
     fun getErc20Assets(): Single<DynamicAssetList> =
         api.getErc20Currencies()
             .map { dto ->
-                dto.currencies.mapNotNull { it.toDynamicAsset() }
+                dto.currencies.mapNotNull { it.toDynamicAsset(listOf(CryptoCurrency.ETHER.networkTicker)) }
             }
 
     fun getCustodialAssets(): Single<DynamicAssetList> =
@@ -83,10 +92,38 @@ class AssetDiscoveryApiService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    suspend fun getL2AssetsForEVM(): Outcome<Exception, DynamicAssetList> =
-        api.getL2CurrenciesForL1()
+    suspend fun getL1Coins(): Outcome<Exception, DynamicAssetList> =
+        api.getL1Coins()
             .map { dto ->
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
+            }
+
+    fun otherEvmNetworks(): Single<List<CoinNetwork>> {
+        return supportedEvmNetworks().map {
+            // TODO(dtverdota): remove this once Ethereum is moved to be a dynamic L1EvmAsset from the hard-coded
+            // Cryptocurrency.ETHER object
+            it.filter { coinNetwork -> coinNetwork.network != CryptoCurrency.ETHER.networkTicker }
+        }
+    }
+
+    fun supportedEvmNetworks(): Single<List<CoinNetwork>> {
+        return rxSingle {
+            coinNetworkApi.getCoinNetworks().map { response ->
+                response.networks.filter { coinNetwork ->
+                    coinNetwork.type == NetworkType.EVM
+                }
+            }.getOrDefault(emptyList())
+        }
+    }
+
+    suspend fun getL2AssetsForEVM(evmTickers: List<String>): Outcome<Exception, DynamicAssetList> =
+        api.getL2CurrenciesForL1()
+            .flatMap { dto ->
+                try {
+                    Outcome.Success(dto.currencies.mapNotNull { it.toDynamicAsset(evmTickers) })
+                } catch (ex: Exception) {
+                    Outcome.Failure(ex)
+                }
             }
 
     suspend fun getAssetInformation(assetTicker: String): Outcome<Exception, AssetInformationDto> =
@@ -94,10 +131,10 @@ class AssetDiscoveryApiService internal constructor(
 
     // TODO(dtverdota): these methods for mapping DynamicCurrency to DynamicAsset needs to be extracted
     // to respect single responsibility and local reasoning
-    private fun DynamicCurrency.toDynamicAsset(): DynamicAsset? =
+    private fun DynamicCurrency.toDynamicAsset(evmNetworks: List<String> = emptyList()): DynamicAsset? =
         when {
             coinType is Erc20Asset &&
-                !isParentChainEnabledEvm(CryptoCurrency.evmCurrencies, coinType.parentChain) -> null
+                !evmNetworks.contains(coinType.parentChain) -> null
             coinType is CeloTokenAsset && coinType.parentChain != CELO -> null
             coinType is UnsupportedAsset -> null
             else -> DynamicAsset(
@@ -115,7 +152,7 @@ class AssetDiscoveryApiService internal constructor(
                 logoUrl = coinType.logoUrl,
                 websiteUrl = coinType.websiteUrl,
                 minConfirmations = when (coinType) {
-                    is Erc20Asset -> if (isParentChainEnabledEvm(CryptoCurrency.evmCurrencies, coinType.parentChain)) {
+                    is Erc20Asset -> if (evmNetworks.contains(coinType.parentChain)) {
                         ERC20_CONFIRMATIONS
                     } else {
                         throw IllegalStateException("Unknown parent chain")

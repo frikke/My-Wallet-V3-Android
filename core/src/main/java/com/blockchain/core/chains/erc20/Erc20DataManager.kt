@@ -22,7 +22,6 @@ import com.blockchain.store.getDataOrThrow
 import com.blockchain.store.mapData
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.wallet.api.data.FeeOptions
@@ -438,8 +437,4 @@ internal class Erc20DataManagerImpl(
 }
 
 fun Currency.isErc20() =
-    (this as? AssetInfo)?.l1chainTicker?.let {
-        CryptoCurrency.evmCurrencies.find { evmCurrency ->
-            evmCurrency.networkTicker == it || evmCurrency.displayTicker == it
-        } != null
-    } ?: false
+    (this as? AssetInfo)?.isErc20 ?: false

@@ -133,7 +133,7 @@ class L1EvmOnChainTxEngine(
             ?: sourceAssetInfo.networkTicker
 
     private fun feeOptions(): Single<FeeOptions> =
-        if (sourceAssetInfo.networkTicker == CryptoCurrency.MATIC.networkTicker) {
+        if (sourceAssetInfo.networkTicker == CryptoCurrency.MATIC_ON_POLYGON) {
             feeManager.getEvmFeeOptions(evmNetworkTicker).singleOrError()
         } else {
             // Once MATIC is migrated onto the new endpoint, remember that the suffix needs to be removed from its ticker
