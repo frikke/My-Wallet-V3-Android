@@ -5,7 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
-import com.blockchain.home.presentation.allassets.composable.CryptoAssets
+import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.homeGraph
 import piuk.blockchain.android.ui.multiapp.composable.MultiAppChrome
@@ -28,7 +28,7 @@ private fun NavGraphBuilder.chrome(navController: NavHostController) {
     composable(navigationEvent = ChromeDestination.Main) {
         MultiAppChrome(
             openCryptoAssets = {
-                navController.navigate(HomeDestination.CryptoAssets.route)
+                navController.navigate(HomeDestination.CryptoAssets)
             }
         )
     }

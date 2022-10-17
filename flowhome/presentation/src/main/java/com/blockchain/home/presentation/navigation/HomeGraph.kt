@@ -8,4 +8,6 @@ fun NavGraphBuilder.homeGraph() {
     composable(navigationEvent = HomeDestination.CryptoAssets) {
         CryptoAssets()
     }
+
+    // add other composable screens here
 }

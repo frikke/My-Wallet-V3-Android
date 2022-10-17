@@ -263,7 +263,6 @@
         <activity android:name=".ui.coinview.presentation.CoinViewActivityV2" />
         <activity android:name=".ui.cowboys.CowboysFlowActivity" />
         <activity android:name=".ui.blockchaincard.BlockchainCardActivity" />
-        <activity android:name="com.blockchain.home.presentation.allassets.AllAssetsActivity" />
 
         <!-- Force Theme.AppCompat on internal PLAID Activity to prevent crash -->
         <activity

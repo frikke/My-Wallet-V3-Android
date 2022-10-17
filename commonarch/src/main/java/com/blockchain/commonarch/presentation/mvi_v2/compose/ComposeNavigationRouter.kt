@@ -33,7 +33,6 @@ import com.blockchain.componentlib.R
 import com.google.accompanist.navigation.material.BottomSheetNavigator
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
-import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
@@ -168,6 +167,14 @@ fun NavGraphBuilder.composable(
             }
         }
     )
+}
+
+fun NavHostController.navigate(destination: ComposeNavigationDestination) {
+    navigate(destination = destination, args = listOf())
+}
+
+fun NavHostController.navigate(destination: ComposeNavigationDestination, args: List<NavArgument>) {
+    navigate(destination.routeWithArgs(args))
 }
 
 @ExperimentalMaterialNavigationApi
