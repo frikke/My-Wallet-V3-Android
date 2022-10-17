@@ -16,6 +16,7 @@ import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.evmWithoutL1BalanceFeatureFlag
 import com.blockchain.koin.feynmanFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
+import com.blockchain.koin.googleWalletFeatureFlag
 import com.blockchain.koin.hideDustFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.loqateFeatureFlag
@@ -276,6 +277,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfigService>().featureFlag(
                 "android_ff_hide_dust",
                 "Enable Hiding Dust"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(googleWalletFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfigService>().featureFlag(
+                "android_ff_google_wallet",
+                "Google Wallet"
             )
         )
     }.bind(FeatureFlag::class)
