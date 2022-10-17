@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.flowWithLifecycle
+import androidx.navigation.NavHostController
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.system.ShimmerLoadingTableRow
@@ -48,7 +49,7 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun HomeAssets(
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
-    openAllAssets: () -> Unit,
+    openAllAssets: () -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {

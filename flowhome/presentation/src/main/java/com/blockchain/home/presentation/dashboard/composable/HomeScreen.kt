@@ -11,13 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun HomeScreen(
     listState: LazyListState,
-    // todo(othman) navigation - not like this
-    openAllAssets: () -> Unit
+    openCryptoAssets: () -> Unit
 ) {
     LazyColumn(
         state = listState,
@@ -29,7 +29,9 @@ fun HomeScreen(
             ),
     ) {
         item {
-            HomeAssets(openAllAssets = openAllAssets)
+            HomeAssets(
+                openAllAssets = openCryptoAssets
+            )
         }
 
         item {
