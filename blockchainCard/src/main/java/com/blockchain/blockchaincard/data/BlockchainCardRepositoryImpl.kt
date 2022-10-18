@@ -40,6 +40,7 @@ import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.eligibility.mapper.toDomain
 import com.blockchain.domain.eligibility.model.Region
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
@@ -63,7 +64,8 @@ internal class BlockchainCardRepositoryImpl(
     private val assetCatalogue: AssetCatalogue,
     private val userIdentity: UserIdentity,
     private val googleWalletManager: GoogleWalletManager,
-    private val blockchainCardPrefs: BlockchainCardPrefs
+    private val blockchainCardPrefs: BlockchainCardPrefs,
+    private val googleWalletFeatureFlag: FeatureFlag,
 ) : BlockchainCardRepository {
 
     override suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainCardProduct>> =
@@ -276,9 +278,13 @@ internal class BlockchainCardRepositoryImpl(
         }.awaitOutcome().wrapBlockchainCardError()
 
     override suspend fun getGoogleWalletTokenizationStatus(last4Digits: String): Outcome<BlockchainCardError, Boolean> =
-        rxSingle {
-            googleWalletManager.getTokenizationStatus(last4Digits)
-        }.awaitOutcome().wrapBlockchainCardError()
+        if (googleWalletFeatureFlag.coEnabled()) {
+            rxSingle {
+                googleWalletManager.getTokenizationStatus(last4Digits)
+            }.awaitOutcome().wrapBlockchainCardError()
+        } else {
+            Outcome.Success(true)
+        }
 
     override fun getDefaultCard(): String =
         blockchainCardPrefs.defaultCardId

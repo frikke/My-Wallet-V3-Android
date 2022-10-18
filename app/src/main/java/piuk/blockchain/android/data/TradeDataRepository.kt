@@ -19,12 +19,10 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import piuk.blockchain.android.domain.repositories.TradeDataService
-import timber.log.Timber
 
-@OptIn(ExperimentalCoroutinesApi::class) class TradeDataRepository(
+class TradeDataRepository(
     private val tradeService: TradeService,
     private val accumulatedInPeriodMapper: Mapper<List<AccumulatedInPeriod>, Boolean>,
     private val nextPaymentRecurringBuyMapper:
@@ -73,15 +71,13 @@ import timber.log.Timber
         amount: String,
         paymentMethod: String,
         orderProfileName: String
-    ): Observable<QuotePrice> {
-        Timber.e("quote repo")
-        return tradeService.getQuotePrice(
+    ): Observable<QuotePrice> =
+        tradeService.getQuotePrice(
             currencyPair = currencyPair,
             amount = amount,
             paymentMethod = paymentMethod,
             orderProfileName = orderProfileName
         ).map { response ->
-            Timber.e("quote map " + response)
             val currencyPair = CurrencyPair.fromRawPair(
                 rawValue = response.currencyPair,
                 assetCatalogue = assetCatalogue
@@ -97,17 +93,28 @@ import timber.log.Timber
                     currency = currencyPair.destination,
                     value = response.resultAmount.toBigInteger()
                 ),
+                dynamicFee = Money.fromMinor(
+                    currency = currencyPair.source,
+                    value = response.dynamicFee.toBigInteger()
+                ),
+                networkFee = response.networkFee?.let {
+                    Money.fromMinor(
+                        currency = currencyPair.source,
+                        value = it.toBigInteger()
+                    )
+                },
                 paymentMethod = response.paymentMethod.toPaymentMethodType(),
                 orderProfileName = response.orderProfileName
             )
         }
-    }
 }
 
 data class QuotePrice(
     val currencyPair: CurrencyPair,
     val amount: Money,
     val resultAmount: Money,
+    val dynamicFee: Money,
+    val networkFee: Money?,
     val paymentMethod: PaymentMethodType,
     val orderProfileName: String
 )

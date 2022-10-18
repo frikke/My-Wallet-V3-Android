@@ -471,7 +471,10 @@ class CoinViewActivity :
             is CoinViewViewState.ShowAccountInfo -> {
                 renderAccountsDetails(state.assetDetails)
                 renderBalanceInformation(
-                    state.totalCryptoBalance, state.totalFiatBalance, state.isAddedToWatchlist
+                    totalCryptoBalance = state.totalCryptoBalance,
+                    totalFiatBalance = state.totalFiatBalance,
+                    isInWatchList = state.isAddedToWatchlist,
+                    assetTicker = newState.asset?.currency?.displayTicker ?: assetTicker
                 )
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
             }
@@ -660,7 +663,10 @@ class CoinViewActivity :
             nonTradeableCard.apply {
                 visible()
                 isDismissable = false
-                title = getString(R.string.coinview_not_tradeable_title, assetName, assetTicker)
+                title = getString(
+                    R.string.coinview_not_tradeable_title, assetName,
+                    newState.asset?.currency?.displayTicker ?: assetTicker
+                )
                 subtitle = getString(R.string.coinview_not_tradeable_subtitle, assetName)
             }
 
@@ -669,7 +675,8 @@ class CoinViewActivity :
                     renderBalanceInformation(
                         totalCryptoBalance = hashMapOf(AssetFilter.All to CryptoValue.zero(assetInfo)),
                         totalFiatBalance = FiatValue.zero(selectedFiat),
-                        isInWatchList = isAddedToWatchlist
+                        isInWatchList = isAddedToWatchlist,
+                        assetTicker = assetInfo.displayTicker
                     )
                 }
             }
@@ -964,6 +971,7 @@ class CoinViewActivity :
         totalCryptoBalance: Map<AssetFilter, Money>,
         totalFiatBalance: Money,
         isInWatchList: Boolean,
+        assetTicker: String
     ) {
         // not showing this view in defi
         if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) return

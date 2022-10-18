@@ -9,7 +9,7 @@ data class QuoteResponse(
     val price: String,
     val resultAmount: String,
     val dynamicFee: String,
-    val networkFee: String,
+    val networkFee: String?,
     val paymentMethod: String,
     val orderProfileName: String,
 ) {

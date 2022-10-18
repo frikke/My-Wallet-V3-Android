@@ -26,7 +26,8 @@ import com.blockchain.koin.cardPaymentAsyncFeatureFlag
 import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
-import com.blockchain.koin.feynmanFeatureFlag
+import com.blockchain.koin.feynmanCheckoutFeatureFlag
+import com.blockchain.koin.feynmanEnterAmountFeatureFlag
 import com.blockchain.koin.gbp
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
@@ -438,6 +439,7 @@ val applicationModule = module {
                 cardService = get(),
                 paymentMethodService = get(),
                 paymentsRepository = get(),
+                brokerageDataManager = get(),
                 simpleBuyPrefs = get(),
                 onboardingPrefs = get(),
                 eligibilityService = get(),
@@ -447,7 +449,8 @@ val applicationModule = module {
                 rbFrequencySuggestionFF = get(rbFrequencyFeatureFlag),
                 cardRejectionFF = get(cardRejectionCheckFeatureFlag),
                 rbExperimentFF = get(rbExperimentFeatureFlag),
-                feynmanFF = get(feynmanFeatureFlag),
+                feynmanEnterAmountFF = get(feynmanEnterAmountFeatureFlag),
+                feynmanCheckoutFF = get(feynmanCheckoutFeatureFlag),
                 remoteConfigRepository = get(),
                 quickFillRoundingService = get()
             )

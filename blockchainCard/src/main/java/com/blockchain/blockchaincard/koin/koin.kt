@@ -5,6 +5,7 @@ import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.googlewallet.manager.GoogleWalletManager
 import com.blockchain.blockchaincard.viewmodel.managecard.ManageCardViewModel
 import com.blockchain.blockchaincard.viewmodel.ordercard.OrderCardViewModel
+import com.blockchain.koin.googleWalletFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
@@ -20,7 +21,8 @@ val blockchainCardModule = module {
                 assetCatalogue = get(),
                 userIdentity = get(),
                 googleWalletManager = get(),
-                blockchainCardPrefs = get()
+                blockchainCardPrefs = get(),
+                googleWalletFeatureFlag = get(googleWalletFeatureFlag)
             )
         }.bind(BlockchainCardRepository::class)
 

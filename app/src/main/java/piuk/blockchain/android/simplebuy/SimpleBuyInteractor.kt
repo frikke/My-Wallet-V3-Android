@@ -6,6 +6,8 @@ import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.custodial.BrokerageDataManager
+import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.kyc.domain.model.KycTier
 import com.blockchain.core.kyc.domain.model.KycTiers
@@ -31,6 +33,7 @@ import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
@@ -38,6 +41,8 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.OrderInput
+import com.blockchain.nabu.datamanagers.OrderOutput
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
 import com.blockchain.nabu.datamanagers.Product
@@ -45,6 +50,7 @@ import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
+import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
@@ -78,6 +84,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.PublishSubject
 import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 import kotlin.math.floor
@@ -123,6 +130,7 @@ class SimpleBuyInteractor(
     private val cardService: CardService,
     private val paymentMethodService: PaymentMethodService,
     private val paymentsRepository: PaymentsRepository,
+    private val brokerageDataManager: BrokerageDataManager,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val onboardingPrefs: OnboardingPrefs,
     private val eligibilityService: EligibilityService,
@@ -132,7 +140,8 @@ class SimpleBuyInteractor(
     private val rbFrequencySuggestionFF: FeatureFlag,
     private val cardRejectionFF: FeatureFlag,
     private val rbExperimentFF: FeatureFlag,
-    private val feynmanFF: FeatureFlag,
+    private val feynmanEnterAmountFF: FeatureFlag,
+    private val feynmanCheckoutFF: FeatureFlag,
     private val remoteConfigRepository: RemoteConfigRepository,
     private val quickFillRoundingService: QuickFillRoundingService
 ) {
@@ -183,6 +192,8 @@ class SimpleBuyInteractor(
         )
     }
 
+    val stopPollingQuotePrices = PublishSubject.create<Unit>()
+
     fun getQuotePrice(
         currencyPair: CurrencyPair,
         amount: Money,
@@ -207,8 +218,53 @@ class SimpleBuyInteractor(
             }.startWithItem(
                 quotePrice
             )
-        }
+        }.takeUntil(stopPollingQuotePrices)
     }
+
+    fun getBrokerageQuote(
+        cryptoAsset: AssetInfo,
+        amount: Money,
+        paymentMethodId: String? = null,
+        paymentMethod: PaymentMethodType,
+    ): Observable<BrokerageQuote> =
+        brokerageDataManager.quoteForTransaction(
+            pair = CurrencyPair(amount.currency, cryptoAsset),
+            amount = amount,
+            paymentMethodType = getPaymentMethodType(paymentMethod),
+            paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod),
+            product = Product.BUY
+        ).toObservable()
+
+    val stopPollingBrokerageQuotes = PublishSubject.create<Unit>()
+
+    fun startPollingBrokerageQuote(
+        cryptoAsset: AssetInfo,
+        amount: Money,
+        paymentMethodId: String? = null,
+        paymentMethod: PaymentMethodType,
+        brokerageQuote: BrokerageQuote
+    ): Observable<BrokerageQuote> =
+        Observable.interval(
+            brokerageQuote.millisToExpire(),
+            TimeUnit.MILLISECONDS
+        ).flatMap {
+            getBrokerageQuote(
+                cryptoAsset = cryptoAsset,
+                amount = amount,
+                paymentMethodId = paymentMethodId,
+                paymentMethod = paymentMethod
+            )
+        }.takeUntil(stopPollingBrokerageQuotes)
+
+    private fun getPaymentMethodType(paymentMethod: PaymentMethodType) =
+        // The API cannot handle GOOGLE_PAY as a payment method, so we're treating this as a card
+        if (paymentMethod == PaymentMethodType.GOOGLE_PAY) PaymentMethodType.PAYMENT_CARD else paymentMethod
+
+    private fun getPaymentMethodId(paymentMethodId: String? = null, paymentMethod: PaymentMethodType) =
+        // The API cannot handle GOOGLE_PAY as a payment method, so we're sending a null paymentMethodId
+        if (paymentMethod == PaymentMethodType.GOOGLE_PAY || paymentMethodId == PaymentMethod.GOOGLE_PAY_PAYMENT_ID)
+            null
+        else paymentMethodId
 
     fun cancelOrder(orderId: String): Completable = cancelOrderUseCase.invoke(orderId)
 
@@ -445,6 +501,33 @@ class SimpleBuyInteractor(
         )
     }
 
+    fun createOrder(
+        cryptoAsset: AssetInfo,
+        amount: Money,
+        paymentMethodId: String? = null,
+        paymentMethodType: PaymentMethodType,
+        recurringBuyFrequency: RecurringBuyFrequency?,
+        quote: BuyQuote
+    ): Single<BuySellOrder> {
+        return custodialWalletManager.createOrder(
+            custodialWalletOrder = CustodialWalletOrder(
+                quoteId = quote.id,
+                pair = "${cryptoAsset.networkTicker}-${amount.currencyCode}",
+                action = Product.BUY.name,
+                input = OrderInput(
+                    amount.currencyCode, amount.toBigInteger().toString()
+                ),
+                output = OrderOutput(
+                    cryptoAsset.networkTicker, null
+                ),
+                paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethodType),
+                paymentType = getPaymentMethodType(paymentMethodType).name,
+                period = recurringBuyFrequency?.name
+            ),
+            stateAction = "pending"
+        )
+    }
+
     fun pollForOrderStatus(orderId: String): Single<PollResult<BuySellOrder>> =
         cardPaymentAsyncFF.enabled.flatMap { isCardPaymentAsyncEnabled ->
             PollService(custodialWalletManager.getBuyOrder(orderId)) {
@@ -563,15 +646,18 @@ class SimpleBuyInteractor(
             plaidFF.enabled,
             rbFrequencySuggestionFF.enabled,
             rbExperimentFF.enabled,
-            feynmanFF.enabled
-        ) { cardRejectionFF, buyQuoteRefreshFF, plaidFF, rbFrequencySuggestionFF, rbExperimentFF, feynmanFF ->
+            feynmanEnterAmountFF.enabled,
+            feynmanCheckoutFF.enabled
+        ) { cardRejectionFF, buyQuoteRefreshFF, plaidFF, rbFrequencySuggestionFF, rbExperimentFF,
+            feynmanEnterAmountFF, feynmanCheckoutFF ->
             FeatureFlagsSet(
                 cardRejectionFF = cardRejectionFF,
                 buyQuoteRefreshFF = buyQuoteRefreshFF,
                 plaidFF = plaidFF,
                 rbFrequencySuggestionFF = rbFrequencySuggestionFF,
                 rbExperimentFF = rbExperimentFF,
-                feynmanFF = feynmanFF
+                feynmanEnterAmountFF = feynmanEnterAmountFF,
+                feynmanCheckoutFF = feynmanCheckoutFF
             )
         }
     }
