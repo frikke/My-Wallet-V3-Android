@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,17 +51,21 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.data.DataResource
+import com.blockchain.koin.payloadScope
 import com.blockchain.walletmode.WalletMode
 import kotlin.math.min
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.getViewModel
 import piuk.blockchain.android.ui.multiapp.ChromeBackgroundColors
 import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
 import piuk.blockchain.android.ui.multiapp.MultiAppIntents
 import piuk.blockchain.android.ui.multiapp.MultiAppViewModel
 import piuk.blockchain.android.ui.multiapp.MultiAppViewState
+import piuk.blockchain.android.ui.multiapp.navigation.MultiAppBottomNavigationHost
 import piuk.blockchain.android.ui.multiapp.toolbar.CollapsingToolbarState
 import piuk.blockchain.android.ui.multiapp.toolbar.EnterAlwaysCollapsedState
 import piuk.blockchain.android.ui.multiapp.toolbar.ScrollState
@@ -75,7 +80,15 @@ private fun rememberToolbarState(): CollapsingToolbarState {
 }
 
 @Composable
-fun MultiAppChrome(viewModel: MultiAppViewModel, openAllAssets: () -> Unit) {
+fun MultiAppChrome(
+    viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
+    openCryptoAssets: () -> Unit
+) {
+    DisposableEffect(key1 = viewModel) {
+        viewModel.viewCreated(ModelConfigArgs.NoArgs)
+        onDispose { }
+    }
+
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
@@ -97,7 +110,7 @@ fun MultiAppChrome(viewModel: MultiAppViewModel, openAllAssets: () -> Unit) {
                 onModeSelected = { walletMode ->
                     viewModel.onIntent(MultiAppIntents.WalletModeChanged(walletMode))
                 },
-                openAllAssets = openAllAssets
+                openCryptoAssets = openCryptoAssets
             )
         }
     }
@@ -113,7 +126,7 @@ fun MultiAppChromeScreen(
     balance: DataResource<String>,
     bottomNavigationItems: List<ChromeBottomNavigationItem>,
     onModeSelected: (WalletMode) -> Unit,
-    openAllAssets: () -> Unit
+    openCryptoAssets: () -> Unit
 ) {
     //    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }
     //    var balanceSectionHeight = remember { headerSectionHeightPx }
@@ -558,7 +571,7 @@ fun MultiAppChromeScreen(
                     )
             )
 
-            MultiAppNavigationGraph(
+            MultiAppBottomNavigationHost(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
@@ -600,7 +613,7 @@ fun MultiAppChromeScreen(
                 refreshComplete = {
                     stopRefresh()
                 },
-                openAllAssets = openAllAssets
+                openCryptoAssets = openCryptoAssets
             )
         }
 
@@ -676,6 +689,6 @@ fun PreviewMultiAppContainer() {
             ChromeBottomNavigationItem.Card
         ),
         onModeSelected = {},
-        openAllAssets = {}
+        openCryptoAssets = {}
     )
 }

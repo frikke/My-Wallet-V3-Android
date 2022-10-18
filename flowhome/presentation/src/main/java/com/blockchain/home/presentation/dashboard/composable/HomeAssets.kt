@@ -48,7 +48,7 @@ import org.koin.androidx.compose.getViewModel
 @Composable
 fun HomeAssets(
     viewModel: AssetsViewModel = getViewModel(scope = payloadScope),
-    openAllAssets: () -> Unit,
+    openAllAssets: () -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {

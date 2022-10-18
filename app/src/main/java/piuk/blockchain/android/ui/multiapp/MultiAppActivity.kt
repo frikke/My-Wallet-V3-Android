@@ -6,13 +6,10 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
+import androidx.navigation.compose.rememberNavController
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
-import com.blockchain.home.presentation.allassets.AllAssetsActivity
-import com.blockchain.koin.payloadScope
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import org.koin.androidx.compose.getViewModel
-import piuk.blockchain.android.ui.multiapp.composable.MultiAppChrome
+import piuk.blockchain.android.ui.multiapp.navigation.MultiAppNavHost
 
 class MultiAppActivity : BlockchainActivity() {
     override val alwaysDisableScreenshots: Boolean
@@ -28,14 +25,7 @@ class MultiAppActivity : BlockchainActivity() {
             val systemUiController = rememberSystemUiController()
             systemUiController.setStatusBarColor(Color.Transparent)
 
-            val viewModel: MultiAppViewModel = getViewModel(scope = payloadScope)
-            viewModel.viewCreated(ModelConfigArgs.NoArgs)
-
-            MultiAppChrome(
-                viewModel = viewModel,
-                // todo(othman) navigation - not like this
-                openAllAssets = { startActivity(AllAssetsActivity.newIntent(this)) }
-            )
+            MultiAppNavHost(navController = rememberNavController())
         }
     }
 

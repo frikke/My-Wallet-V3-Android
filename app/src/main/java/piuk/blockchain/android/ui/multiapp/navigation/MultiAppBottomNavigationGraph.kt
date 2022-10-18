@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.multiapp.composable
+package piuk.blockchain.android.ui.multiapp.navigation
 
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -10,16 +10,17 @@ import com.blockchain.componentlib.chrome.ChromeScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
 import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
+import piuk.blockchain.android.ui.multiapp.composable.DemoScreen
 
 @Composable
-fun MultiAppNavigationGraph(
+fun MultiAppBottomNavigationHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     enableRefresh: Boolean,
     updateScrollInfo: (Pair<ChromeBottomNavigationItem, ListStateInfo>) -> Unit,
     refreshStarted: () -> Unit,
     refreshComplete: () -> Unit,
-    openAllAssets: () -> Unit
+    openCryptoAssets: () -> Unit
 ) {
     NavHost(navController, startDestination = ChromeBottomNavigationItem.Home.route) {
         composable(ChromeBottomNavigationItem.Home.route) {
@@ -31,7 +32,7 @@ fun MultiAppNavigationGraph(
                 content = {
                     HomeScreen(
                         listState = listState,
-                        openAllAssets = openAllAssets
+                        openCryptoAssets = openCryptoAssets
                     )
                 },
                 listState = listState,
