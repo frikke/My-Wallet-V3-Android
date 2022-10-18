@@ -6,6 +6,7 @@ import com.blockchain.analytics.data.koin.analyticsModule
 import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
 import com.blockchain.blockchaincard.koin.blockchainCardModule
+import com.blockchain.chrome.multiAppModule
 import com.blockchain.coincore.coincoreModule
 import com.blockchain.common.util.commonMpUtilsModule
 import com.blockchain.core.experiments.experimentsTraitsModule
@@ -78,7 +79,6 @@ import piuk.blockchain.android.ui.linkbank.data.bankAuthDataModule
 import piuk.blockchain.android.ui.linkbank.domain.bankAuthDomainModule
 import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.bankAuthPresentationModule
 import piuk.blockchain.android.ui.login.loginUiModule
-import piuk.blockchain.android.ui.multiapp.multiAppModule
 import piuk.blockchain.android.ui.prices.presentation.pricesPresentationModule
 import piuk.blockchain.android.ui.referral.presentation.referralPresentationModule
 import piuk.blockchain.android.ui.reset.resetAccountModule

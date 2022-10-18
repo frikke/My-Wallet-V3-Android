@@ -86,6 +86,13 @@ val mainModule = module {
                 walletStatusPrefs = get()
             )
         }
+
+        scoped<WalletModeBalanceService> {
+            WalletModeBalanceRepository(
+                walletModeService = get(superAppModeService),
+                balanceStore = get()
+            )
+        }
     }
     factory {
         WalletModeTraitsRepository(
@@ -111,11 +118,4 @@ val mainModule = module {
             featureFlag = get(superAppFeatureFlag)
         )
     }.bind(WalletModeService::class)
-
-    single<WalletModeBalanceService> {
-        WalletModeBalanceRepository(
-            walletModeService = get(superAppModeService),
-            balanceStore = get()
-        )
-    }
 }

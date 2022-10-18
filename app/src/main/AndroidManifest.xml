@@ -124,7 +124,7 @@
             android:theme="@style/AppTheme.MainActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".ui.multiapp.MultiAppActivity"
+            android:name="com.blockchain.chrome.MultiAppActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" >
         </activity>
         <activity

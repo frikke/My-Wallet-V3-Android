@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.chrome.MultiAppActivity
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
@@ -29,7 +30,6 @@ import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
-import piuk.blockchain.android.ui.multiapp.MultiAppActivity
 import piuk.blockchain.android.ui.settings.security.pin.PinActivity
 import piuk.blockchain.android.util.AppUtil
 
