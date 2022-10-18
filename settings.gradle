@@ -34,5 +34,4 @@ include ':app',
         ':nfts:presentation', ':string-resources',
         ':flowhome:presentation', ':flowhome:domain', ':flowhome:data',
         ':fraud:data', ':fraud:domain', ':fraud:sardine', ':unifiedcryptowallet:domain', ':unifiedcryptowallet:data',
-        ':chrome:core'
-include ':chrome:common'
+        ':chrome:presentation', ':chrome:common'
