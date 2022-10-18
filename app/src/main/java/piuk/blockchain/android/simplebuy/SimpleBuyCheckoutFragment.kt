@@ -52,7 +52,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isCustodialOnly
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.time.ZonedDateTime
 import kotlin.math.max
 import org.koin.android.ext.android.inject
@@ -115,8 +114,6 @@ class SimpleBuyCheckoutFragment :
         arguments?.getBoolean(SHOW_ONLY_ORDER_DATA, false) ?: false
     }
 
-    private val compositeDisposable = CompositeDisposable()
-
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimplebuyCheckoutBinding =
         FragmentSimplebuyCheckoutBinding.inflate(inflater, container, false)
 
@@ -139,7 +136,6 @@ class SimpleBuyCheckoutFragment :
         if (!showOnlyOrderData) {
             setupToolbar()
         }
-        model.process(SimpleBuyIntent.GetRecurringBuyFrequencyRemote)
         model.process(SimpleBuyIntent.FetchWithdrawLockTime)
         model.process(SimpleBuyIntent.GetSafeConnectTermsOfServiceLink)
     }
@@ -194,9 +190,16 @@ class SimpleBuyCheckoutFragment :
         countDownTimer?.start()
     }
 
-    override fun render(newState: SimpleBuyState) {
+    private var startPolling = true
 
-        if (newState.featureFlagSet.buyQuoteRefreshFF) {
+    override fun render(newState: SimpleBuyState) {
+        if (newState.featureFlagSet.feynmanCheckoutFF && startPolling) {
+            startPolling = false
+            // TODO when removing the FF move this Intent to onViewCreated
+            model.process(SimpleBuyIntent.GetBrokerageQuote)
+        }
+
+        if (newState.featureFlagSet.buyQuoteRefreshFF || newState.featureFlagSet.feynmanCheckoutFF) {
             binding.quoteExpiration.visible()
             if (countDownTimer == null && newState.quote != null &&
                 !isPendingOrAwaitingFunds(newState.orderState)
@@ -214,7 +217,11 @@ class SimpleBuyCheckoutFragment :
             }
         }
 
-        showAmountForMethod(newState)
+        if (newState.featureFlagSet.feynmanCheckoutFF) {
+            showAmountsHeaders(newState)
+        } else {
+            showAmountForMethod(newState)
+        }
 
         // Event should be triggered only the first time a state is rendered
         if (lastState == null) {
@@ -422,6 +429,13 @@ class SimpleBuyCheckoutFragment :
         binding.amountFiat.text = newState.order.amount?.toStringWithSymbol()
     }
 
+    private fun showAmountsHeaders(newState: SimpleBuyState) {
+        with(binding) {
+            amount.text = newState.quotePrice?.amountInCrypto?.toStringWithSymbol()
+            amountFiat.text = newState.amount.toStringWithSymbol()
+        }
+    }
+
     private fun updateStatusPill(newState: SimpleBuyState) {
         with(binding.status) {
             when {
@@ -465,7 +479,11 @@ class SimpleBuyCheckoutFragment :
         return listOfNotNull(
             SimpleBuyCheckoutItem.ExpandableCheckoutItem(
                 label = getString(R.string.quote_price, state.selectedCryptoAsset.displayTicker),
-                title = state.exchangeRate?.toStringWithSymbol().orEmpty(),
+                title = if (state.featureFlagSet.feynmanCheckoutFF) {
+                    state.quotePrice?.amountInCrypto?.toStringWithSymbol().orEmpty()
+                } else {
+                    state.exchangeRate?.toStringWithSymbol().orEmpty()
+                },
                 expandableContent = priceExplanation,
                 hasChanged = state.hasQuoteChanged && state.featureFlagSet.buyQuoteRefreshFF,
                 expandableType = SimpleBuyCheckoutItem.ExpandableType.PRICE
@@ -579,7 +597,14 @@ class SimpleBuyCheckoutFragment :
             buttonAction.apply {
                 analytics.logEvent(BuyCheckoutScreenSubmittedEvent)
                 if (!isForPendingPayment && !isOrderAwaitingFunds) {
-                    text = getString(R.string.buy_asset_now, state.orderValue?.toStringWithSymbol())
+                    text = getString(
+                        R.string.buy_asset_now,
+                        if (state.featureFlagSet.feynmanCheckoutFF) {
+                            state.quotePrice?.amountInCrypto?.toStringWithSymbol()
+                        } else {
+                            state.orderValue?.toStringWithSymbol()
+                        }
+                    )
                     setOnClickListener {
                         when (
                             getSettlementReason(
@@ -603,14 +628,30 @@ class SimpleBuyCheckoutFragment :
                             SettlementReason.NONE -> {
                                 if (state.featureFlagSet.buyQuoteRefreshFF) quoteExpiration.invisible()
 
-                                if (updateRecurringBuy) {
-                                    model.process(
-                                        SimpleBuyIntent.RecurringBuySuggestionAccepted(
-                                            recurringBuyFrequency = state.recurringBuyForExperiment
+                                when {
+                                    state.featureFlagSet.feynmanCheckoutFF -> {
+                                        model.process(
+                                            SimpleBuyIntent.CreateAndConfirmOrder(
+                                                recurringBuyFrequency = if (updateRecurringBuy) {
+                                                    state.recurringBuyForExperiment
+                                                } else {
+                                                    state.recurringBuyFrequency
+                                                }
+                                            )
                                         )
-                                    )
-                                } else {
-                                    model.process(SimpleBuyIntent.ConfirmOrder)
+                                    }
+                                    updateRecurringBuy -> {
+                                        model.process(
+                                            SimpleBuyIntent.RecurringBuySuggestionAccepted(
+                                                recurringBuyFrequency = state.recurringBuyForExperiment
+                                            )
+                                        )
+                                    }
+                                    else -> {
+                                        state.id?.let { orderId ->
+                                            model.process(SimpleBuyIntent.ConfirmOrder(orderId))
+                                        }
+                                    }
                                 }
                                 analytics.logEvent(
                                     eventWithPaymentMethod(
@@ -895,7 +936,7 @@ class SimpleBuyCheckoutFragment :
     }
 
     override fun onDestroy() {
-        compositeDisposable.clear()
+        model.process(SimpleBuyIntent.StopPollingBrokerageQuotes)
         countDownTimer?.cancel()
         super.onDestroy()
     }
@@ -925,17 +966,17 @@ class SimpleBuyCheckoutFragment :
     ) {
         val googlePayAddress = getGooglePayAddress(address)
 
-        if (updateRecurringBuy) {
+        if (lastState?.featureFlagSet?.feynmanCheckoutFF == true) {
             model.process(
-                SimpleBuyIntent.RecurringBuySuggestionAccepted(
-                    recurringBuyFrequency = lastState?.recurringBuyForExperiment ?: RecurringBuyFrequency.ONE_TIME,
+                SimpleBuyIntent.CreateAndConfirmOrder(
                     googlePayPayload = token,
                     googlePayAddress = googlePayAddress
-                ),
+                )
             )
         } else {
             model.process(
                 SimpleBuyIntent.ConfirmGooglePayOrder(
+                    orderId = lastState?.id,
                     googlePayPayload = token,
                     googlePayAddress = googlePayAddress
                 )
@@ -987,7 +1028,7 @@ class SimpleBuyCheckoutFragment :
 
         fun newInstance(
             isForPending: Boolean = false,
-            showOnlyOrderData: Boolean = false,
+            showOnlyOrderData: Boolean = false
         ): SimpleBuyCheckoutFragment {
             val fragment = SimpleBuyCheckoutFragment()
             fragment.arguments = Bundle().apply {

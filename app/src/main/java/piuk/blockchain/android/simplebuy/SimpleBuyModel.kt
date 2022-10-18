@@ -104,53 +104,108 @@ class SimpleBuyModel(
                 interactor.initializeFeatureFlags().subscribeBy(
                     onSuccess = { featureFlagSet ->
                         process(SimpleBuyIntent.UpdateFeatureFlags(featureFlagSet))
+                        if (featureFlagSet.rbFrequencySuggestionFF)
+                            process(SimpleBuyIntent.GetRecurringBuyFrequencyRemote)
+
+                        if (featureFlagSet.buyQuoteRefreshFF && !featureFlagSet.feynmanCheckoutFF) {
+                            process(SimpleBuyIntent.ListenToQuotesUpdate)
+                        }
                     },
                     onError = {
                         process(SimpleBuyIntent.UpdateFeatureFlags(FeatureFlagsSet()))
                     }
                 )
             }
-            is SimpleBuyIntent.GetRecurringBuyFrequencyRemote -> {
-                if (previousState.featureFlagSet.rbFrequencySuggestionFF) {
-                    getRemoteRecurringBuy().subscribeBy(
-                        onSuccess = {
-                            process(SimpleBuyIntent.UpdateRecurringFrequencyRemote(it))
-                        },
-                        onError = {
-                            Timber.e("SimpleBuyModel - getRemoteRecurringBuy error: " + it.message)
-                            process(
-                                SimpleBuyIntent.UpdateRecurringFrequencyRemote(
-                                    RecurringBuyFrequency.ONE_TIME
-                                )
-                            )
-                        }
-                    )
-                }
-                if (previousState.featureFlagSet.buyQuoteRefreshFF) {
-                    process(SimpleBuyIntent.ListenToQuotesUpdate)
-                }
-                null
-            }
             is SimpleBuyIntent.GetQuotePrice -> {
+                interactor.stopPollingQuotePrices.onNext(Unit)
                 interactor.getQuotePrice(
                     currencyPair = intent.currencyPair,
                     amount = intent.amount,
                     paymentMethod = intent.paymentMethod,
                 ).subscribeBy(
                     onNext = {
-                        process(SimpleBuyIntent.UpdateQuote(it.resultAmount as CryptoValue))
+                        process(
+                            SimpleBuyIntent.UpdateQuotePrice(
+                                amountInCrypto = it.resultAmount as CryptoValue,
+                                dynamicFee = it.dynamicFee
+                            )
+                        )
                     },
                     onError = {
-                        Timber.e("SimpleBuyModel - GetQuote error: " + it.message)
                         processOrderErrors(it)
                     }
                 )
             }
-            is SimpleBuyIntent.UpdateExchangeRate -> interactor.updateExchangeRate(intent.fiatCurrency, intent.asset)
-                .subscribeBy(
-                    onSuccess = { process(SimpleBuyIntent.ExchangeRateUpdated(it)) },
-                    onError = { processOrderErrors(it) }
+            is SimpleBuyIntent.StopPollingQuotePrice -> {
+                interactor.stopPollingQuotePrices.onNext(Unit)
+                null
+            }
+            is SimpleBuyIntent.GetBrokerageQuote -> {
+                require(previousState.selectedCryptoAsset != null) { "selectedCryptoAsset is null" }
+                require(previousState.selectedPaymentMethod != null) { "selectedPaymentMethod is null" }
+                interactor.getBrokerageQuote(
+                    cryptoAsset = previousState.selectedCryptoAsset,
+                    amount = previousState.amount,
+                    paymentMethodId = previousState.selectedPaymentMethod.id,
+                    paymentMethod = previousState.selectedPaymentMethod.paymentMethodType
+                ).firstOrError().subscribeBy(
+                    onSuccess = { brokerageQuote ->
+                        process(
+                            SimpleBuyIntent.UpdateBrokerageQuote(
+                                quote = brokerageQuote,
+                                currencySource = previousState.fiatCurrency
+                            )
+                        )
+                        process(SimpleBuyIntent.StartPollingBrokerageQuotes(brokerageQuote))
+                    },
+                    onError = {
+                        processOrderErrors(it)
+                    }
                 )
+            }
+            is SimpleBuyIntent.StartPollingBrokerageQuotes -> {
+                require(previousState.selectedCryptoAsset != null) { "selectedCryptoAsset is null" }
+                require(previousState.selectedPaymentMethod != null) { "selectedPaymentMethod is null" }
+                interactor.startPollingBrokerageQuote(
+                    cryptoAsset = previousState.selectedCryptoAsset,
+                    amount = previousState.amount,
+                    paymentMethodId = previousState.selectedPaymentMethod.id,
+                    paymentMethod = previousState.selectedPaymentMethod.paymentMethodType,
+                    brokerageQuote = intent.brokerageQuote
+                ).subscribeBy(
+                    onNext = { brokerageQuote ->
+                        process(
+                            SimpleBuyIntent.UpdateBrokerageQuote(
+                                quote = brokerageQuote,
+                                currencySource = previousState.fiatCurrency
+                            )
+                        )
+                    },
+                    onError = {
+                        processOrderErrors(it)
+                    }
+                )
+            }
+            is SimpleBuyIntent.StopPollingBrokerageQuotes -> {
+                interactor.stopPollingBrokerageQuotes.onNext(Unit)
+                null
+            }
+            is SimpleBuyIntent.GetRecurringBuyFrequencyRemote -> {
+                getRemoteRecurringBuy().subscribeBy(
+                    onSuccess = {
+                        process(SimpleBuyIntent.UpdateRecurringFrequencyRemote(it))
+                    },
+                    onError = {
+                        Timber.e("SimpleBuyModel - getRemoteRecurringBuy error: " + it.message)
+                        process(
+                            SimpleBuyIntent.UpdateRecurringFrequencyRemote(
+                                RecurringBuyFrequency.ONE_TIME
+                            )
+                        )
+                    }
+                )
+                null
+            }
             is SimpleBuyIntent.CancelOrder,
             is SimpleBuyIntent.CancelOrderAndResetAuthorisation,
             -> (
@@ -173,7 +228,7 @@ class SimpleBuyModel(
                     onError = { processOrderErrors(it) }
                 )
 
-            is SimpleBuyIntent.ListenToQuotesUpdate ->
+            is SimpleBuyIntent.ListenToQuotesUpdate -> {
                 createBuyOrderUseCase.buyOrderAndQuote
                     .map { it.getOrThrow() }
                     .subscribeBy(
@@ -182,16 +237,19 @@ class SimpleBuyModel(
                         },
                         onError = { processOrderErrors(it) }
                     )
+            }
 
             is SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne -> {
-                createBuyOrderUseCase.createOrderAndStartsQuotesFetching(
-                    previousState.id,
-                    previousState.selectedCryptoAsset,
-                    previousState.selectedPaymentMethod,
-                    previousState.order,
-                    previousState.recurringBuyFrequency
-                )
-                process(SimpleBuyIntent.ListenToOrderCreation)
+                if (!previousState.featureFlagSet.feynmanCheckoutFF) {
+                    createBuyOrderUseCase.createOrderAndStartsQuotesFetching(
+                        previousState.id,
+                        previousState.selectedCryptoAsset,
+                        previousState.selectedPaymentMethod,
+                        previousState.order,
+                        previousState.recurringBuyFrequency
+                    )
+                    process(SimpleBuyIntent.ListenToOrderCreation)
+                }
                 null
             }
 
@@ -385,10 +443,22 @@ class SimpleBuyModel(
                     processOrderErrors(it)
                 }
             )
+            is SimpleBuyIntent.CreateAndConfirmOrder -> {
+                processCreateOrder(
+                    selectedCryptoAsset = previousState.selectedCryptoAsset,
+                    selectedPaymentMethod = previousState.selectedPaymentMethod,
+                    amount = previousState.amount,
+                    recurringBuyFrequency = intent.recurringBuyFrequency,
+                    quote = previousState.quote,
+                    googlePayPayload = intent.googlePayPayload,
+                    googlePayAddress = intent.googlePayAddress
+                )
+                null
+            }
             is SimpleBuyIntent.ConfirmOrder -> {
                 require(previousState.selectedCryptoAsset != null) { "ConfirmOrder Missing assetInfo" }
                 processConfirmOrder(
-                    id = previousState.id,
+                    id = intent.orderId,
                     selectedPaymentMethod = previousState.selectedPaymentMethod,
                     amount = previousState.amount,
                     pair = CurrencyPair(previousState.selectedCryptoAsset, previousState.fiatCurrency).rawValue,
@@ -397,7 +467,7 @@ class SimpleBuyModel(
             is SimpleBuyIntent.ConfirmGooglePayOrder -> {
                 require(previousState.selectedCryptoAsset != null) { "ConfirmGooglePayOrder Missing assetInfo" }
                 processConfirmOrder(
-                    id = previousState.id,
+                    id = intent.orderId,
                     googlePayPayload = intent.googlePayPayload,
                     googlePayBeneficiaryId = previousState.googlePayDetails?.beneficiaryId,
                     googlePayAddress = intent.googlePayAddress,
@@ -451,7 +521,8 @@ class SimpleBuyModel(
                     intent.recurringBuyFrequency,
                 ).trackProgress(activityIndicator)
                     .subscribeBy(
-                        onSuccess = {
+                        onSuccess =
+                        {
                             process(
                                 SimpleBuyIntent.RecurringBuyCreated(
                                     recurringBuyId = it.id.orEmpty(),
@@ -459,7 +530,8 @@ class SimpleBuyModel(
                                 )
                             )
                         },
-                        onError = { processOrderErrors(it) }
+                        onError =
+                        { processOrderErrors(it) }
                     )
             is SimpleBuyIntent.AmountUpdated -> validateAmount(
                 balance = previousState.availableBalance,
@@ -467,12 +539,10 @@ class SimpleBuyModel(
                 buyLimits = previousState.buyOrderLimits,
                 paymentMethodLimits = previousState.selectedPaymentMethodLimits
             ).subscribeBy(
-                onSuccess =
-                {
+                onSuccess = {
                     process(SimpleBuyIntent.UpdateErrorState(it))
                 },
-                onError =
-                {
+                onError = {
                     processOrderErrors(it)
                 }
             )
@@ -496,14 +566,12 @@ class SimpleBuyModel(
                     }
                 )
             is SimpleBuyIntent.GooglePayInfoRequested -> requestGooglePayInfo(
-                previousState.fiatCurrency
+                currency = previousState.fiatCurrency
             ).subscribeBy(
-                onSuccess =
-                {
+                onSuccess = {
                     process(it)
                 },
-                onError =
-                {
+                onError = {
                     processOrderErrors(it)
                 }
             )
@@ -1086,6 +1154,47 @@ class SimpleBuyModel(
                     processOrderErrors(it)
                 }
             )
+    }
+
+    private fun processCreateOrder(
+        selectedCryptoAsset: AssetInfo?,
+        selectedPaymentMethod: SelectedPaymentMethod?,
+        amount: Money,
+        recurringBuyFrequency: RecurringBuyFrequency?,
+        quote: BuyQuote?,
+        googlePayPayload: String?,
+        googlePayAddress: GooglePayAddress?
+    ): Disposable {
+        require(selectedCryptoAsset != null) { "Missing Cryptocurrency" }
+        require(selectedPaymentMethod != null) { "Missing selectedPaymentMethod" }
+        require(quote != null) { "Missing BuyQuote" }
+        return interactor.createOrder(
+            cryptoAsset = selectedCryptoAsset,
+            paymentMethodId = selectedPaymentMethod.id,
+            paymentMethodType = selectedPaymentMethod.paymentMethodType,
+            amount = amount,
+            recurringBuyFrequency = recurringBuyFrequency.takeIf { it != RecurringBuyFrequency.ONE_TIME },
+            quote = quote,
+        ).subscribeBy(
+            onSuccess = {
+                if (selectedPaymentMethod.paymentMethodType == PaymentMethodType.GOOGLE_PAY) {
+                    require(googlePayPayload != null) { "Missing googlePayPayload" }
+                    require(googlePayAddress != null) { "Missing googlePayAddress" }
+                    process(
+                        SimpleBuyIntent.ConfirmGooglePayOrder(
+                            orderId = it.id,
+                            googlePayPayload = googlePayPayload,
+                            googlePayAddress = googlePayAddress,
+                        )
+                    )
+                } else {
+                    process(SimpleBuyIntent.ConfirmOrder(it.id))
+                }
+            },
+            onError = {
+                processOrderErrors(it)
+            }
+        )
     }
 
     private fun triggerIntentsAfterOrderConfirmed(buySellOrder: BuySellOrder, isRbEnabled: Boolean = false) {

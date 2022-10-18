@@ -72,7 +72,7 @@ data class SimpleBuyState constructor(
     val eligibleAndNextPaymentRecurringBuy: List<EligibleAndNextPaymentRecurringBuy> = emptyList(),
     val googlePayDetails: GooglePayDetails? = null,
     val featureFlagSet: FeatureFlagsSet = FeatureFlagsSet(),
-    val amountInCrypto: @Contextual CryptoValue? = null,
+    val quotePrice: QuotePrice? = null,
     @Transient val quickFillButtonData: QuickFillButtonData? = null,
     @Transient val safeConnectTosLink: String? = null,
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
@@ -176,15 +176,21 @@ data class SimpleBuyState constructor(
         get() = selectedPaymentMethodDetails?.availableBalance
 
     fun shouldRequestNewQuote(lastState: SimpleBuyState?): Boolean {
-        return this.featureFlagSet.feynmanFF &&
-            this.amount.isPositive &&
-            lastState?.selectedPaymentMethod != this.selectedPaymentMethod
+        return this.featureFlagSet.feynmanEnterAmountFF &&
+            (
+                (
+                    this.amount.isPositive &&
+                        lastState?.selectedPaymentMethod != null &&
+                        lastState.selectedPaymentMethod != this.selectedPaymentMethod
+                    ) ||
+                    (lastState?.amount != this.amount)
+                )
     }
 
     fun shouldUpdateNewQuote(lastState: SimpleBuyState?): Boolean {
-        return this.featureFlagSet.feynmanFF &&
-            this.amountInCrypto != null &&
-            lastState?.amountInCrypto != this.amountInCrypto
+        return this.featureFlagSet.feynmanEnterAmountFF &&
+            this.quotePrice != null &&
+            lastState?.quotePrice?.amountInCrypto != this.quotePrice.amountInCrypto
     }
 }
 
@@ -211,13 +217,20 @@ enum class KycState {
 }
 
 @kotlinx.serialization.Serializable
+data class QuotePrice(
+    val amountInCrypto: @Contextual CryptoValue? = null,
+    val fee: FiatValue? = null
+)
+
+@kotlinx.serialization.Serializable
 data class FeatureFlagsSet(
     val buyQuoteRefreshFF: Boolean = false,
     val plaidFF: Boolean = false,
     val rbFrequencySuggestionFF: Boolean = false,
     val cardRejectionFF: Boolean = false,
     val rbExperimentFF: Boolean = false,
-    val feynmanFF: Boolean = false,
+    val feynmanEnterAmountFF: Boolean = false,
+    val feynmanCheckoutFF: Boolean = false,
 )
 
 enum class FlowScreen {
@@ -307,6 +320,25 @@ data class BuyQuote(
                 quoteMargin = brokerageQuote.quoteMargin,
                 feeDetails = BuyFees(
                     fee = fee(brokerageQuote.feeDetails.fee as FiatValue, orderFee as FiatValue),
+                    feeBeforePromo = brokerageQuote.feeDetails.feeBeforePromo as FiatValue,
+                    promo = brokerageQuote.feeDetails.promo
+                ),
+                createdAt = brokerageQuote.createdAt,
+                expiresAt = brokerageQuote.expiresAt,
+                remainingTime = brokerageQuote.secondsToExpire.toLong(),
+                chunksTimeCounter = getListOfTotalTimes(brokerageQuote.secondsToExpire.toDouble())
+            )
+
+        fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: FiatCurrency) =
+            BuyQuote(
+                id = brokerageQuote.id,
+                // we should pass the fiat to the state, otherwise Money interface wont get serialised.
+                price = brokerageQuote.price.toFiat(fiatCurrency),
+                availability = brokerageQuote.availability,
+                settlementReason = brokerageQuote.settlementReason,
+                quoteMargin = brokerageQuote.quoteMargin,
+                feeDetails = BuyFees(
+                    fee = brokerageQuote.feeDetails.fee as FiatValue,
                     feeBeforePromo = brokerageQuote.feeDetails.feeBeforePromo as FiatValue,
                     promo = brokerageQuote.feeDetails.promo
                 ),

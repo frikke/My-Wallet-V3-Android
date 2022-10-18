@@ -4,6 +4,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
+import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.kyc.domain.KycService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
@@ -77,7 +78,9 @@ class SimpleBuyInteractorTest {
     private val buyQuoteRefreshFF: FeatureFlag = mock()
     private val plaidFF: FeatureFlag = mock()
     private val cardPaymentAsyncFF: FeatureFlag = mock()
-    private val feynmannFF: FeatureFlag = mock()
+    private val feynmanEnterAmountScreenFF: FeatureFlag = mock()
+    private val feynmanCheckoutScreenFF: FeatureFlag = mock()
+    private val brokerageDataManager: BrokerageDataManager = mock()
     private val simpleBuyPrefs: SimpleBuyPrefs = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
     private val eligibilityService: EligibilityService = mock {
@@ -125,8 +128,10 @@ class SimpleBuyInteractorTest {
             rbExperimentFF = rbExperimentFF,
             remoteConfigRepository = remoteConfigRepository,
             tradeDataService = tradeDataService,
-            feynmanFF = feynmannFF,
-            quickFillRoundingService = quickFillRoundingService
+            feynmanEnterAmountFF = feynmanEnterAmountScreenFF,
+            feynmanCheckoutFF = feynmanCheckoutScreenFF,
+            quickFillRoundingService = quickFillRoundingService,
+            brokerageDataManager = brokerageDataManager
         )
 
         whenever(quickFillRoundingService.getQuickFillRoundingForAction(AssetAction.Buy)).thenReturn(
