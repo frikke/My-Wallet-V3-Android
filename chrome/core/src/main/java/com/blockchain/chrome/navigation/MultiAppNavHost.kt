@@ -7,7 +7,8 @@ import androidx.navigation.compose.NavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.home.presentation.navigation.HomeDestination
 import com.blockchain.home.presentation.navigation.homeGraph
-import com.blockchain.chrome.core.composable.MultiAppChrome
+import com.blockchain.chrome.composable.MultiAppChrome
+import com.blockchain.commonarch.presentation.mvi_v2.compose.navigate
 
 @Composable
 fun MultiAppNavHost(
@@ -17,8 +18,10 @@ fun MultiAppNavHost(
         navController = navController,
         startDestination = ChromeDestination.Main.route
     ) {
+        // main chrome
         chrome(navController)
 
+        // home screens
         homeGraph()
     }
 }

@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blockchain.chrome.core.R
+import com.blockchain.chrome.R
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 

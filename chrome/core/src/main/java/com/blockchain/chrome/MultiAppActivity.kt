@@ -7,9 +7,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
+import com.blockchain.chrome.navigation.MultiAppNavHost
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.blockchain.chrome.core.navigation.MultiAppNavHost
 
 class MultiAppActivity : BlockchainActivity() {
     override val alwaysDisableScreenshots: Boolean

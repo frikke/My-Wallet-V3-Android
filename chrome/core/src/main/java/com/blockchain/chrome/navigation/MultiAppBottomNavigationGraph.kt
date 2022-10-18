@@ -6,11 +6,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.blockchain.chrome.core.ChromeBottomNavigationItem
+import com.blockchain.chrome.ChromeBottomNavigationItem
+import com.blockchain.chrome.composable.DemoScreen
 import com.blockchain.componentlib.chrome.ChromeScreen
 import com.blockchain.componentlib.chrome.ListStateInfo
 import com.blockchain.home.presentation.dashboard.composable.HomeScreen
-import com.blockchain.chrome.core.composable.DemoScreen
 
 @Composable
 fun MultiAppBottomNavigationHost(

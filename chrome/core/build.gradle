@@ -10,6 +10,8 @@ dependencies {
     implementation project(':balance')
     implementation project(':componentlib')
 
+    implementation project(':flowhome:presentation')
+
     implementation Libraries.accompanistSystemUi
     implementation Libraries.accompanistSwipeRefresh
 
