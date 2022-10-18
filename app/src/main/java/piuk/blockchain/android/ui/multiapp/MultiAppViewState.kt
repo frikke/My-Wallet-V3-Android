@@ -10,7 +10,6 @@ import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
 import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
-import org.web3j.abi.datatypes.Bool
 import piuk.blockchain.android.R
 
 data class MultiAppViewState(

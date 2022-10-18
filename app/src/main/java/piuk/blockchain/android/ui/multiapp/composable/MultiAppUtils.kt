@@ -2,10 +2,10 @@ package piuk.blockchain.android.ui.multiapp.composable
 
 import androidx.annotation.StringRes
 import com.blockchain.walletmode.WalletMode
+import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.multiapp.ChromeBackgroundColors
 import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
-import java.util.concurrent.TimeUnit
 
 const val ANIMATION_DURATION = 400
 val REVEAL_BALANCE_DELAY_MS = TimeUnit.SECONDS.toMillis(3)
