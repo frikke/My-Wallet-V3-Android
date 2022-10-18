@@ -24,6 +24,24 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.walletmode.WalletModeService
 import org.koin.androidx.compose.get
 
+/**
+ * Use this to wrap any screen to give it the right superapp ui
+ *
+ * Each new module/feature should have its own extension that defines composable with destinations,
+ * wrap any of those screen with [MultiAppSingleScreen]
+ *
+ * ```
+ * fun NavGraphBuilder.homeGraph() {
+ *     composable(navigationEvent = HomeDestination.CryptoAssets) {
+ *         MultiAppSingleScreen(
+ *             Content = {
+ *                 CryptoAssets()
+ *             }
+ *         )
+ *     }
+ * }
+ * ```
+ */
 @Composable
 fun MultiAppSingleScreen(
     backgroundColors: ChromeBackgroundColors = get<WalletModeService>().enabledWalletMode().backgroundColors(),

@@ -11,7 +11,6 @@ import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Money
 import info.blockchain.balance.total
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 
