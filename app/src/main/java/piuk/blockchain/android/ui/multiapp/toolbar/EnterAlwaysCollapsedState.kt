@@ -75,8 +75,8 @@ class EnterAlwaysCollapsedState(
             mapSaver(
                 save = {
                     mapOf(
-                        topSectionHeight to it._halfCollapsedOffset,
-                        bottomSectionHeight to it._fullCollapsedOffset,
+                        topSectionHeight to it.topSectionHeight,
+                        bottomSectionHeight to it.bottomSectionHeight,
                         scrollOffsetKey to it.scrollOffset
                     )
                 },

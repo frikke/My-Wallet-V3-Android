@@ -52,10 +52,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.data.DataResource
 import com.blockchain.koin.payloadScope
 import com.blockchain.walletmode.WalletMode
-import kotlin.math.min
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -69,6 +69,7 @@ import piuk.blockchain.android.ui.multiapp.navigation.MultiAppBottomNavigationHo
 import piuk.blockchain.android.ui.multiapp.toolbar.CollapsingToolbarState
 import piuk.blockchain.android.ui.multiapp.toolbar.EnterAlwaysCollapsedState
 import piuk.blockchain.android.ui.multiapp.toolbar.ScrollState
+import kotlin.math.min
 
 @Composable
 private fun rememberToolbarState(): CollapsingToolbarState {
@@ -84,7 +85,7 @@ fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
     openCryptoAssets: () -> Unit
 ) {
-    DisposableEffect(key1 = viewModel) {
+    DisposableEffect(key1 = null) {
         viewModel.viewCreated(ModelConfigArgs.NoArgs)
         onDispose { }
     }
@@ -106,11 +107,15 @@ fun MultiAppChrome(
                 selectedMode = state.selectedMode,
                 backgroundColors = state.backgroundColors,
                 balance = state.totalBalance,
+                shouldRevealBalance = state.shouldRevealBalance,
                 bottomNavigationItems = state.bottomNavigationItems,
                 onModeSelected = { walletMode ->
                     viewModel.onIntent(MultiAppIntents.WalletModeChanged(walletMode))
                 },
-                openCryptoAssets = openCryptoAssets
+                openCryptoAssets = openCryptoAssets,
+                onBalanceRevealed = {
+                    viewModel.onIntent(MultiAppIntents.BalanceRevealed)
+                }
             )
         }
     }
@@ -124,9 +129,11 @@ fun MultiAppChromeScreen(
     selectedMode: WalletMode,
     backgroundColors: ChromeBackgroundColors,
     balance: DataResource<String>,
+    shouldRevealBalance: Boolean,
     bottomNavigationItems: List<ChromeBottomNavigationItem>,
     onModeSelected: (WalletMode) -> Unit,
-    openCryptoAssets: () -> Unit
+    openCryptoAssets: () -> Unit,
+    onBalanceRevealed: () -> Unit
 ) {
     //    val headerSectionHeightPx = with(LocalDensity.current) { 54.dp.toPx() }
     //    var balanceSectionHeight = remember { headerSectionHeightPx }
@@ -274,18 +281,17 @@ fun MultiAppChromeScreen(
      * will be false if user starts scrolling before data is available.
      * if the balance is revealed and user scrolls past the full header
      */
-    var shouldRevealBalance by remember { mutableStateOf(true) }
     fun revealSwitcher() {
         isRevealingTargetBalance = false
     }
 
     fun revealBalance() {
         if (isBalanceRevealInProgress.not()) {
-            // mark false for any future calls
-            shouldRevealBalance = false
 
             isBalanceRevealInProgress = true
             isRevealingTargetBalance = true
+
+            onBalanceRevealed()
 
             coroutineScopeBalanceReveal.launch {
                 delay(REVEAL_BALANCE_DELAY_MS)
@@ -567,7 +573,10 @@ fun MultiAppChromeScreen(
                     .alpha(contentAlpha)
                     .background(
                         color = Color(0XFFF1F2F7),
-                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                        shape = RoundedCornerShape(
+                            topStart = AppTheme.dimensions.standardSpacing,
+                            topEnd = AppTheme.dimensions.standardSpacing
+                        )
                     )
             )
 
@@ -583,7 +592,7 @@ fun MultiAppChromeScreen(
                                 // ignore the reveal if user interacts with the
                                 // content already before getting the balance
                                 if (isBalanceRevealInProgress.not()) {
-                                    shouldRevealBalance = false
+                                    onBalanceRevealed()
                                     coroutineScopeBalanceReveal.coroutineContext.cancelChildren()
                                 }
 
@@ -683,12 +692,14 @@ fun PreviewMultiAppContainer() {
         selectedMode = WalletMode.CUSTODIAL_ONLY,
         backgroundColors = ChromeBackgroundColors.Trading,
         balance = DataResource.Data("$278,031.12"),
+        shouldRevealBalance = false,
         bottomNavigationItems = listOf(
             ChromeBottomNavigationItem.Home,
             ChromeBottomNavigationItem.Trade,
             ChromeBottomNavigationItem.Card
         ),
         onModeSelected = {},
-        openCryptoAssets = {}
+        openCryptoAssets = {},
+        onBalanceRevealed = {}
     )
 }

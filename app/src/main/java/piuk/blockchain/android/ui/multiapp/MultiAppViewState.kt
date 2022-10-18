@@ -10,6 +10,7 @@ import com.blockchain.componentlib.theme.START_DEFI
 import com.blockchain.componentlib.theme.START_TRADING
 import com.blockchain.data.DataResource
 import com.blockchain.walletmode.WalletMode
+import org.web3j.abi.datatypes.Bool
 import piuk.blockchain.android.R
 
 data class MultiAppViewState(
@@ -17,12 +18,15 @@ data class MultiAppViewState(
     val selectedMode: WalletMode,
     val backgroundColors: ChromeBackgroundColors,
     val totalBalance: DataResource<String>,
+    val shouldRevealBalance: Boolean,
     val bottomNavigationItems: List<ChromeBottomNavigationItem>
 ) : ViewState
 
 sealed interface ChromeBackgroundColors {
     val startColor: Color
     val endColor: Color
+
+    fun asList() = listOf(startColor, endColor)
 
     object Trading : ChromeBackgroundColors {
         override val startColor: Color get() = START_TRADING
