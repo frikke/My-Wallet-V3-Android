@@ -38,6 +38,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.blockchaincard.R
@@ -441,29 +443,38 @@ fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
                     .padding(horizontal = AppTheme.dimensions.standardSpacing)
             )
 
+            var hideSSN by remember { mutableStateOf(true) }
+            val trailingIcon = if (hideSSN) {
+                ImageResource.Local(
+                    id = R.drawable.ic_visible_off_filled,
+                    colorFilter = ColorFilter.tint(
+                        Grey400
+                    )
+                )
+            } else {
+                ImageResource.Local(
+                    id = R.drawable.ic_visible_filled,
+                    colorFilter = ColorFilter.tint(
+                        Grey400
+                    )
+                )
+            }
+
             OutlinedTextInput(
                 value = ssn,
                 label = stringResource(R.string.ssn_title),
                 placeholder = stringResource(R.string.ssn_hint),
                 onValueChange = { if (it.length <= SSN_LENGTH) ssn = it },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                visualTransformation = if (hideSSN) PasswordVisualTransformation() else VisualTransformation.None,
                 modifier = Modifier.padding(
                     start = AppTheme.dimensions.smallSpacing,
                     end = AppTheme.dimensions.smallSpacing,
                     top = AppTheme.dimensions.standardSpacing
                 ),
-                unfocusedTrailingIcon = ImageResource.Local(
-                    id = R.drawable.ic_lock_filled,
-                    colorFilter = ColorFilter.tint(
-                        Grey400
-                    )
-                ),
-                focusedTrailingIcon = ImageResource.Local(
-                    id = R.drawable.ic_lock_filled,
-                    colorFilter = ColorFilter.tint(
-                        Grey400
-                    )
-                )
+                unfocusedTrailingIcon = trailingIcon,
+                focusedTrailingIcon = trailingIcon,
+                onTrailingIconClicked = { hideSSN = !hideSSN }
             )
 
             Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
