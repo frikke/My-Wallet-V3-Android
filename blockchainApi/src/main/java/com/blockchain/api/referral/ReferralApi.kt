@@ -21,7 +21,8 @@ interface ReferralApi {
     @AuthenticationNotRequired
     @GET("referral/{code}")
     suspend fun validateReferralCode(
-        @Path("code") code: String
+        @Path("code") code: String,
+        @Query("platform") platform: String
     ): Outcome<Exception, Unit>
 
     @POST("referral")
