@@ -24,11 +24,18 @@ import piuk.blockchain.android.BuildConfig
 val apiInterceptorsModule = module {
 
     single {
+        val env: EnvironmentConfig = get()
+        val buildTypeSuffix = if (env.isAlphaBuild()) "-alpha" else ""
         val versionName = BuildConfig.VERSION_NAME.removeSuffix(BuildConfig.VERSION_NAME_SUFFIX)
+
         OkHttpInterceptors(
             mutableListOf(
                 SSLPinningInterceptor(sslPinningEmitter = get()),
-                UserAgentInterceptor(versionName, Build.VERSION.RELEASE),
+                UserAgentInterceptor(
+                    versionName = versionName,
+                    versionType = Build.VERSION.RELEASE,
+                    buildTypeSuffix = buildTypeSuffix
+                ),
                 DeviceIdInterceptor(prefs = lazy { get() }, get()),
                 RequestIdInterceptor { UUID.randomUUID().toString() },
                 SessionIdInterceptor(environmentUrls = get(), sessionId = SessionInfo)

@@ -6,7 +6,8 @@ import okhttp3.Response
 
 class UserAgentInterceptor(
     private val versionName: String,
-    private val versionType: String
+    private val versionType: String,
+    private val buildTypeSuffix: String,
 ) : Interceptor {
 
     /**
@@ -14,7 +15,7 @@ class UserAgentInterceptor(
      * "Blockchain-Android/6.4.2 (Android 5.0.1)".
      */
     override fun intercept(chain: Interceptor.Chain): Response {
-        val userAgent = "Blockchain-Android/$versionName (Android $versionType)"
+        val userAgent = "Blockchain-Android$buildTypeSuffix/$versionName (Android $versionType)"
 
         val originalRequest = chain.request()
         val requestWithUserAgent = originalRequest.newBuilder()
