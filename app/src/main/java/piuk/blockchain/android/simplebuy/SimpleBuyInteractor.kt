@@ -636,7 +636,7 @@ class SimpleBuyInteractor(
     }
 
     fun updateExchangeRate(fiat: FiatCurrency, asset: AssetInfo): Single<ExchangeRate> {
-        return exchangeRatesDataManager.exchangeRate(asset, fiat).firstOrError()
+        return exchangeRatesDataManager.exchangeRateLegacy(asset, fiat).firstOrError()
     }
 
     fun initializeFeatureFlags(): Single<FeatureFlagsSet> {

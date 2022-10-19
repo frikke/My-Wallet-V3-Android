@@ -50,7 +50,7 @@ class LimitsDataManagerImplTest {
     private val limitsService: TxLimitsService = mock()
     private val cryptoToFiatRate: ExchangeRate = mock()
     private val exchangeRatesDataManager: ExchangeRatesDataManager = mock {
-        on { exchangeRate(OUTPUT_CRYPTO_CURRENCY, USD) }.thenReturn(
+        on { exchangeRateLegacy(OUTPUT_CRYPTO_CURRENCY, USD) }.thenReturn(
             Observable.just(cryptoToFiatRate)
         )
     }
@@ -114,7 +114,7 @@ class LimitsDataManagerImplTest {
             }
 
         legacyLimitsSingle.test().assertComplete()
-        verify(exchangeRatesDataManager).exchangeRate(OUTPUT_CRYPTO_CURRENCY, OUTPUT_FIAT_CURRENCY)
+        verify(exchangeRatesDataManager).exchangeRateLegacy(OUTPUT_CRYPTO_CURRENCY, OUTPUT_FIAT_CURRENCY)
         verify(cryptoToFiatRate).inverse(RoundingMode.CEILING, OUTPUT_CRYPTO_CURRENCY.precisionDp)
         verify(cryptoToFiatRate).inverse(RoundingMode.FLOOR, OUTPUT_CRYPTO_CURRENCY.precisionDp)
     }
@@ -244,7 +244,7 @@ class LimitsDataManagerImplTest {
             targetAccountType = AssetCategory.CUSTODIAL.name
         )
         verify(assetCatalogue, atLeastOnce()).fromNetworkTicker(OUTPUT_CRYPTO_CURRENCY.networkTicker)
-        verify(exchangeRatesDataManager).exchangeRate(OUTPUT_CRYPTO_CURRENCY, OUTPUT_FIAT_CURRENCY)
+        verify(exchangeRatesDataManager).exchangeRateLegacy(OUTPUT_CRYPTO_CURRENCY, OUTPUT_FIAT_CURRENCY)
         verify(cryptoToFiatRate).inverse(RoundingMode.CEILING, OUTPUT_CRYPTO_CURRENCY.precisionDp)
         verify(cryptoToFiatRate).inverse(RoundingMode.FLOOR, OUTPUT_CRYPTO_CURRENCY.precisionDp)
     }

@@ -17,5 +17,6 @@ data class ModelAccount(
     val singleAccount: SingleAccount,
     val balance: DataResource<Money>,
     val fiatBalance: DataResource<Money>,
+    val usdBalance: DataResource<Money>,
     val exchangeRateDayDelta: DataResource<Double>
 )

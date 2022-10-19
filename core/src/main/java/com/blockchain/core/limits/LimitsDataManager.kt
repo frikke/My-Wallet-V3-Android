@@ -146,7 +146,7 @@ class LimitsDataManagerImpl(
         return flatMap { legacy ->
             val legacyCurrency = assetCatalogue.fromNetworkTicker(legacy.currency)
             if (legacyCurrency != null && outputCurrency != legacyCurrency) {
-                exchangeRatesDataManager.exchangeRate(outputCurrency, legacyCurrency)
+                exchangeRatesDataManager.exchangeRateLegacy(outputCurrency, legacyCurrency)
                     .firstOrError()
                     .map { exchangeRate ->
                         object : LegacyLimits {

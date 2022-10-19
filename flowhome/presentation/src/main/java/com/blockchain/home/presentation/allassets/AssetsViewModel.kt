@@ -19,10 +19,12 @@ import com.blockchain.home.model.AssetFilterStatus
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.MultiAppAssetsFilterService
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
@@ -83,9 +85,9 @@ class AssetsViewModel(
                                                 )
                                             }
 
-                                            (modelAccount.fiatBalance.map { it.isHighBalance() } as? DataResource.Data)
+                                            (modelAccount.usdBalance.map { it.isHighBalance() } as? DataResource.Data)
                                                 ?.data.let { isHighBalance ->
-                                                    // i.e. if null (loading) or true -> pass
+                                                    // if null (e.g. loading), or true -> pass
                                                     isHighBalance != false
                                                 }
                                         }
@@ -197,7 +199,8 @@ class AssetsViewModel(
                                         singleAccount = account,
                                         balance = DataResource.Loading,
                                         exchangeRateDayDelta = DataResource.Loading,
-                                        fiatBalance = DataResource.Loading
+                                        fiatBalance = DataResource.Loading,
+                                        usdBalance = DataResource.Loading
                                     )
                                 }
                             )
@@ -207,13 +210,21 @@ class AssetsViewModel(
                 .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
                 .flatMapLatest { accounts ->
                     val balances = accounts.data.map { account ->
-                        account.balance.distinctUntilChanged().map { balance ->
-                            account to balance
+                        combine(
+                            account.balance.distinctUntilChanged(),
+                            // get USD rate for USD price - is used to hide small balances
+                            exchangeRates.exchangeRate(fromAsset = account.currency, toAsset = FiatCurrency.Dollars)
+                        ) { balance, usdExchangeRate ->
+                            Triple(account, balance, usdExchangeRate)
                         }
-                    }.merge().onEach { (account, balance) ->
+                    }.merge().onEach { (account, balance, usdExchangeRate) ->
                         updateState { state ->
                             state.copy(
-                                accounts = state.accounts.withBalancedAccount(account, balance)
+                                accounts = state.accounts.withBalancedAccount(
+                                    account = account,
+                                    balance = balance,
+                                    usdBalance = usdExchangeRate.map { it.convert(balance.total) }
+                                )
                             )
                         }
                     }
@@ -271,7 +282,8 @@ private fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money
 
 private fun DataResource<List<ModelAccount>>.withBalancedAccount(
     account: SingleAccount,
-    balance: AccountBalance
+    balance: AccountBalance,
+    usdBalance: DataResource<Money>
 ): DataResource<List<ModelAccount>> {
     return this.map { accounts ->
         val oldAccount = accounts.first { it.singleAccount == account }
@@ -279,7 +291,8 @@ private fun DataResource<List<ModelAccount>>.withBalancedAccount(
             old = oldAccount,
             new = oldAccount.copy(
                 balance = DataResource.Data(balance.total),
-                fiatBalance = DataResource.Data(balance.totalFiat)
+                fiatBalance = DataResource.Data(balance.totalFiat),
+                usdBalance = oldAccount.usdBalance.updateDataWith(usdBalance)
             )
         )
     }
