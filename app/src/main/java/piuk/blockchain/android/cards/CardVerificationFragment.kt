@@ -214,7 +214,7 @@ class CardVerificationFragment :
                     )
                 }
                 CardError.ActivationFailed -> renderLegacyError(
-                    title = R.string.title_cardInsufficientFunds,
+                    title = R.string.title_cardCreateBankDeclined,
                     subtitle = R.string.could_not_activate_card
                 )
                 CardError.CardAcquirerDeclined -> renderLegacyError(

@@ -105,7 +105,6 @@ import piuk.blockchain.android.ui.transactionflow.flow.sheets.TransactionFlowInf
 import piuk.blockchain.android.ui.transactionflow.flow.sheets.TransactionFlowInfoHost
 import piuk.blockchain.android.util.StringLocalizationUtil
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
-import timber.log.Timber
 
 class SimpleBuyCryptoFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyBuyCryptoBinding>(),
@@ -161,9 +160,13 @@ class SimpleBuyCryptoFragment :
 
     override fun onResume() {
         super.onResume()
-        model.process(SimpleBuyIntent.UpdateExchangeRate(fiatCurrency, asset))
         model.process(SimpleBuyIntent.FlowCurrentScreen(FlowScreen.ENTER_AMOUNT))
         model.process(SimpleBuyIntent.StopQuotesUpdate(false))
+    }
+
+    override fun onStop() {
+        super.onStop()
+        model.process(SimpleBuyIntent.StopPollingQuotePrice)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -198,21 +201,12 @@ class SimpleBuyCryptoFragment :
             }
             .subscribe { amount ->
                 when (amount) {
-                    is FiatValue -> {
-                        model.process(SimpleBuyIntent.AmountUpdated(amount))
-                        if (lastState?.featureFlagSet?.feynmanFF == true) {
-                            Timber.e("quote new number")
-                            updateQuote(amount)
-                        }
-                    }
+                    is FiatValue -> model.process(SimpleBuyIntent.AmountUpdated(amount))
                     else -> throw IllegalStateException("CryptoValue is not supported as input yet")
                 }
             }
 
-        binding.btnContinue.setOnClickListener {
-            startBuy()
-            // analytics.logEvent(BUY)
-        }
+        binding.btnContinue.setOnClickListener { startBuy() }
 
         compositeDisposable += binding.inputAmount.onImeAction.subscribe {
             if (it == PrefixedOrSuffixedEditText.ImeOptions.NEXT)
@@ -333,24 +327,22 @@ class SimpleBuyCryptoFragment :
         lastState?.takeIf { canContinue(it) }?.let { state ->
             binding.inputAmount.canEdit(false)
             model.process(SimpleBuyIntent.BuyButtonClicked)
-            analytics.logEvent(
-                buyConfirmClicked(
-                    state.amount.toBigInteger().toString(),
-                    state.fiatCurrency.networkTicker,
-                    state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
+            if (!state.featureFlagSet.feynmanCheckoutFF) {
+                analytics.logEvent(
+                    buyConfirmClicked(
+                        state.amount.toBigInteger().toString(),
+                        state.fiatCurrency.networkTicker,
+                        state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
+                    )
                 )
-            )
-
-            val paymentMethodDetails = state.selectedPaymentMethodDetails
-            check(paymentMethodDetails != null)
-
-            analytics.logEvent(
-                BuyAmountScreenNextClicked(
-                    inputAmount = state.amount,
-                    outputCurrency = state.selectedCryptoAsset?.networkTicker ?: return,
-                    paymentMethod = state.selectedPaymentMethod?.paymentMethodType ?: return
+                analytics.logEvent(
+                    BuyAmountScreenNextClicked(
+                        inputAmount = state.amount,
+                        outputCurrency = state.selectedCryptoAsset?.networkTicker ?: return,
+                        paymentMethod = state.selectedPaymentMethod?.paymentMethodType ?: return
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -431,7 +423,7 @@ class SimpleBuyCryptoFragment :
         }
 
         if (newState.shouldUpdateNewQuote(lastState)) {
-            binding.inputAmount.updateExchangeAmount(newState.amountInCrypto!!)
+            binding.inputAmount.updateExchangeAmount(newState.quotePrice?.amountInCrypto as Money)
         }
 
         lastState = newState
@@ -465,7 +457,7 @@ class SimpleBuyCryptoFragment :
                 exchangeCurrency = it,
                 canSwap = false,
                 predefinedAmount = newState.order.amount ?: FiatValue.zero(newState.fiatCurrency),
-                showExchangeRate = true
+                showExchangeRate = newState.featureFlagSet.feynmanEnterAmountFF
             )
             binding.buyIcon.setAssetIconColoursWithTint(it)
         }
@@ -528,7 +520,7 @@ class SimpleBuyCryptoFragment :
 
         if (newState.confirmationActionRequested &&
             newState.kycVerificationState != null &&
-            newState.orderState == OrderState.PENDING_CONFIRMATION
+            (newState.orderState == OrderState.PENDING_CONFIRMATION || newState.featureFlagSet.feynmanCheckoutFF)
         ) {
             handlePostOrderCreationAction(newState)
         }
@@ -697,7 +689,10 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun canContinue(state: SimpleBuyState): Boolean =
-        if (state.amount.isZero) false else {
+        if (state.amount.isZero || (state.featureFlagSet.feynmanCheckoutFF && state.quotePrice == null)
+        ) {
+            false
+        } else {
             state.errorState == TransactionErrorState.NONE &&
                 state.selectedPaymentMethod != null &&
                 !state.isLoading

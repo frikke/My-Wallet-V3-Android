@@ -81,7 +81,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
         selectedCardTransaction = state.selectedCardTransaction,
         isTransactionListRefreshing = state.isTransactionListRefreshing,
         countryStateList = state.countryStateList,
-        googleWalletStatus = state.googleWalletStatus
+        googleWalletStatus = state.googleWalletStatus,
+        cardOrderState = state.cardOrderState,
+        cardActivationUrl = state.cardActivationUrl
     )
 
     override suspend fun handleIntent(
@@ -95,6 +97,10 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 if (intent.card.status != BlockchainCardStatus.TERMINATED) {
                     onIntent(BlockchainCardIntent.LoadCardWidget)
                     onIntent(BlockchainCardIntent.LoadGoogleWalletTokenizationStatus)
+
+                    if (intent.card.status == BlockchainCardStatus.UNACTIVATED) {
+                        onIntent(BlockchainCardIntent.LoadCardOrderState)
+                    }
                 }
 
                 onIntent(BlockchainCardIntent.LoadUserFirstAndLastName)
@@ -626,6 +632,54 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
 
             is BlockchainCardIntent.GoogleWalletAddCardSuccess -> {
                 updateState { it.copy(googleWalletStatus = BlockchainCardGoogleWalletStatus.ADD_SUCCESS) }
+            }
+
+            is BlockchainCardIntent.LoadCardOrderState -> {
+                modelState.currentCard?.let { card ->
+                    blockchainCardRepository.getCardOrderState(card.id).fold(
+                        onSuccess = { orderState ->
+                            updateState { it.copy(cardOrderState = orderState) }
+                        },
+                        onFailure = { error ->
+                            Timber.e("Unable to fetch card order state")
+                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                        }
+                    )
+                }
+            }
+
+            is BlockchainCardIntent.ActivateCard -> {
+                blockchainCardRepository.getCardActivationUrl().fold(
+                    onSuccess = { url ->
+                        updateState { it.copy(cardActivationUrl = url) }
+                    },
+                    onFailure = { error ->
+                        Timber.e("Unable to fetch card activation URL")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                    }
+                )
+
+                navigate(BlockchainCardNavigationEvent.SeeCardActivationPage)
+            }
+
+            is BlockchainCardIntent.OnCardActivated -> {
+                modelState.currentCard?.let { card ->
+                    // Refresh Card
+                    blockchainCardRepository.getCard(card.id).fold(
+                        onSuccess = { updatedCard ->
+                            updateState { it.copy(currentCard = updatedCard) }
+                            navigate(BlockchainCardNavigationEvent.ActivateCardSuccess)
+                        },
+                        onFailure = { error ->
+                            Timber.e("Unable to fetch updated card after activation")
+                            updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
+                        }
+                    )
+                }
+            }
+
+            is BlockchainCardIntent.OnFinishCardActivation -> {
+                navigate(BlockchainCardNavigationEvent.ManageCard)
             }
 
             else -> {

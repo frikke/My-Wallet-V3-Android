@@ -3,9 +3,11 @@ package com.blockchain.api.services
 import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.blockchainCard.WalletHelperUrl
 import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocsFormDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardActivationUrlResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionRequestDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardOrderStateResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardAccountDto
 import com.blockchain.api.blockchainCard.data.CardAccountLinkDto
@@ -36,6 +38,12 @@ class BlockchainCardService internal constructor(
             productCode = productCode,
             ssn = ssn
         )
+    )
+
+    suspend fun getCard(
+        cardId: String
+    ): Outcome<Exception, CardDto> = api.getCard(
+        cardId = cardId
     )
 
     suspend fun deleteCard(
@@ -137,4 +145,13 @@ class BlockchainCardService internal constructor(
         cardId = cardId,
         provisionRequest = provisionRequest
     )
+
+    suspend fun getCardOrderState(
+        cardId: String
+    ): Outcome<Exception, BlockchainCardOrderStateResponseDto> = api.getCardOrderState(
+        cardId = cardId
+    )
+
+    suspend fun getCardActivationUrl(): Outcome<Exception, BlockchainCardActivationUrlResponseDto> =
+        api.getCardActivationUrl()
 }

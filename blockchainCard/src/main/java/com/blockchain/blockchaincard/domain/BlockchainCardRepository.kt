@@ -6,6 +6,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletData
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
+import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.coincore.AccountBalance
@@ -24,6 +25,10 @@ interface BlockchainCardRepository {
     suspend fun createCard(
         productCode: String,
         ssn: String
+    ): Outcome<BlockchainCardError, BlockchainCard>
+
+    suspend fun getCard(
+        cardId: String
     ): Outcome<BlockchainCardError, BlockchainCard>
 
     suspend fun deleteCard(
@@ -101,4 +106,8 @@ interface BlockchainCardRepository {
 
     fun getDefaultCard(): String
     fun saveCardAsDefault(cardId: String)
+
+    suspend fun getCardOrderState(cardId: String): Outcome<BlockchainCardError, BlockchainCardOrderState>
+
+    suspend fun getCardActivationUrl(): Outcome<BlockchainCardError, String>
 }

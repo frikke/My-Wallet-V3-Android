@@ -22,6 +22,8 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.domain.eligibility.model.Region
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.googleWalletFeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrNull
@@ -57,6 +59,8 @@ class BlockchainCardRepositoryImplTest {
 
     private val blockchainCardPrefs = mockk<BlockchainCardPrefs>()
 
+    private val googleWalletFeatureFlag = mockk<FeatureFlag>()
+
     private val blockchainCardRepository = BlockchainCardRepositoryImpl(
         blockchainCardService = blockchainCardService,
         eligibilityApiService = eligibilityApiService,
@@ -64,7 +68,8 @@ class BlockchainCardRepositoryImplTest {
         assetCatalogue = assetCatalogue,
         userIdentity = userIdentity,
         googleWalletManager = googleWalletManager,
-        blockchainCardPrefs = blockchainCardPrefs
+        blockchainCardPrefs = blockchainCardPrefs,
+        googleWalletFeatureFlag = googleWalletFeatureFlag
     )
 
     private val widgetToken = "widgetToken"

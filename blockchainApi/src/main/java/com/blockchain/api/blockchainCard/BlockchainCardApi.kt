@@ -1,9 +1,11 @@
 package com.blockchain.api.blockchainCard
 
 import com.blockchain.api.blockchainCard.data.BlockchainCardAcceptedDocsFormDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardActivationUrlResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionRequestDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardOrderStateResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardAccountDto
 import com.blockchain.api.blockchainCard.data.CardAccountLinkDto
@@ -33,6 +35,11 @@ internal interface BlockchainCardApi {
     @POST("card-issuing/cards")
     suspend fun createCard(
         @Body cardCreationRequest: CardCreationRequestBodyDto
+    ): Outcome<Exception, CardDto>
+
+    @GET("card-issuing/cards/{cardId}")
+    suspend fun getCard(
+        @Path("cardId") cardId: String,
     ): Outcome<Exception, CardDto>
 
     @DELETE("card-issuing/cards/{cardId}")
@@ -103,4 +110,12 @@ internal interface BlockchainCardApi {
         @Path("cardId") cardId: String,
         @Body provisionRequest: BlockchainCardGoogleWalletProvisionRequestDto
     ): Outcome<Exception, BlockchainCardGoogleWalletProvisionResponseDto>
+
+    @GET("card-issuing/cards/{cardId}/fulfillment")
+    suspend fun getCardOrderState(
+        @Path("cardId") cardId: String,
+    ): Outcome<Exception, BlockchainCardOrderStateResponseDto>
+
+    @GET("card-issuing/cards/activate-widget-url")
+    suspend fun getCardActivationUrl(): Outcome<Exception, BlockchainCardActivationUrlResponseDto>
 }

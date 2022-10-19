@@ -11,6 +11,8 @@ class EnvironmentSettings : EnvironmentConfig {
 
     override fun isCompanyInternalBuild(): Boolean = BuildConfig.INTERNAL
 
+    override fun isAlphaBuild(): Boolean = BuildConfig.ALPHA
+
     override val environment: Environment = Environment.fromString(BuildConfig.ENVIRONMENT)!!
 
     override val apiUrl: String = BuildConfig.API_URL

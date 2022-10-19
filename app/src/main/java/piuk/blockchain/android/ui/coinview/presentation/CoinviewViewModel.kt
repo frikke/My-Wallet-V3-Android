@@ -252,9 +252,10 @@ class CoinviewViewModel(
                     check(totalBalance.totalCryptoBalance.containsKey(AssetFilter.All)) { "balance not initialized" }
 
                     CoinviewTotalBalanceState.Data(
-                        assetName = asset.currency.name,
+                        assetName = asset.currency.displayTicker,
                         totalFiatBalance = totalBalance.totalFiatBalance.toStringWithSymbol(),
-                        totalCryptoBalance = totalBalance.totalCryptoBalance[AssetFilter.All]!!.toStringWithSymbol()
+                        totalCryptoBalance = totalBalance.totalCryptoBalance[AssetFilter.All]?.toStringWithSymbol()
+                            .orEmpty()
                     )
                 }
             }

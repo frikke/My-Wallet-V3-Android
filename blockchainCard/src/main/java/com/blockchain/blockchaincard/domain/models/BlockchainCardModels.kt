@@ -189,16 +189,31 @@ enum class BlockchainCardTransactionType {
     }
 }
 
-enum class BlockchainCardOrderStatus {
-    ORDERED,
-    SHIPPED,
-    DELIVERED
-}
-
 enum class BlockchainCardGoogleWalletStatus {
     NOT_ADDED,
     ADDED,
     ADD_IN_PROGRESS,
     ADD_SUCCESS,
     ADD_FAILED
+}
+
+data class BlockchainCardOrderState(
+    val status: BlockchainCardOrderStatus,
+    val address: BlockchainCardAddress?
+)
+
+enum class BlockchainCardOrderStatus {
+    PROCESSING,
+    SHIPPED,
+    DELIVERED,
+    COMPLETE;
+
+    fun getStringResource(): Int {
+        return when (this) {
+            PROCESSING -> R.string.bc_card_order_processing
+            SHIPPED -> R.string.bc_card_order_shipped
+            DELIVERED -> R.string.bc_card_order_delivered
+            COMPLETE -> R.string.bc_card_order_complete
+        }
+    }
 }

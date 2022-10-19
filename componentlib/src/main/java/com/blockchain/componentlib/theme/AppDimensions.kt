@@ -1,7 +1,11 @@
 package com.blockchain.componentlib.theme
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -87,6 +91,108 @@ class AppDimensions {
     val mediumElevation: Dp
         @Composable
         get() = dimensionResource(R.dimen.medium_elevation)
+}
+
+// Vertical Spacers
+@Composable
+fun SmallestVerticalSpacer() {
+    Spacer(modifier = Modifier.height(AppTheme.dimensions.smallestSpacing))
+}
+
+@Composable
+fun TinyVerticalSpacer() {
+    Spacer(modifier = Modifier.height(AppTheme.dimensions.tinySpacing))
+}
+
+@Composable
+fun VerySmallVerticalSpacer() {
+    Spacer(modifier = Modifier.height(AppTheme.dimensions.smallestSpacing))
+}
+
+@Composable
+fun SmallVerticalSpacer() {
+    Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+}
+
+@Composable
+fun MediumVerticalSpacer() {
+    Spacer(modifier = Modifier.height(AppTheme.dimensions.mediumSpacing))
+}
+
+@Composable
+fun StandardVerticalSpacer() {
+    Spacer(modifier = Modifier.height(AppTheme.dimensions.standardSpacing))
+}
+
+@Composable
+fun LargeVerticalSpacer() {
+    Spacer(modifier = Modifier.height(AppTheme.dimensions.largeSpacing))
+}
+
+@Composable
+fun XLargeVerticalSpacer() {
+    Spacer(modifier = Modifier.height(AppTheme.dimensions.xLargeSpacing))
+}
+
+@Composable
+fun HugeVerticalSpacer() {
+    Spacer(modifier = Modifier.height(AppTheme.dimensions.hugeSpacing))
+}
+
+@Composable
+fun EpicVerticalSpacer() {
+    Spacer(modifier = Modifier.height(AppTheme.dimensions.epicSpacing))
+}
+
+// Horizontal Spacers
+@Composable
+fun SmallestHorizontalSpacer() {
+    Spacer(modifier = Modifier.width(AppTheme.dimensions.smallestSpacing))
+}
+
+@Composable
+fun TinyHorizontalSpacer() {
+    Spacer(modifier = Modifier.width(AppTheme.dimensions.tinySpacing))
+}
+
+@Composable
+fun VerySmallHorizontalSpacer() {
+    Spacer(modifier = Modifier.width(AppTheme.dimensions.smallestSpacing))
+}
+
+@Composable
+fun SmallHorizontalSpacer() {
+    Spacer(modifier = Modifier.width(AppTheme.dimensions.smallSpacing))
+}
+
+@Composable
+fun MediumHorizontalSpacer() {
+    Spacer(modifier = Modifier.width(AppTheme.dimensions.mediumSpacing))
+}
+
+@Composable
+fun StandardHorizontalSpacer() {
+    Spacer(modifier = Modifier.width(AppTheme.dimensions.standardSpacing))
+}
+
+@Composable
+fun LargeHorizontalSpacer() {
+    Spacer(modifier = Modifier.width(AppTheme.dimensions.largeSpacing))
+}
+
+@Composable
+fun XLargeHorizontalSpacer() {
+    Spacer(modifier = Modifier.width(AppTheme.dimensions.xLargeSpacing))
+}
+
+@Composable
+fun HugeHorizontalSpacer() {
+    Spacer(modifier = Modifier.width(AppTheme.dimensions.hugeSpacing))
+}
+
+@Composable
+fun EpicHorizontalSpacer() {
+    Spacer(modifier = Modifier.width(AppTheme.dimensions.epicSpacing))
 }
 
 internal val LocalDimensions = staticCompositionLocalOf { AppDimensions() }

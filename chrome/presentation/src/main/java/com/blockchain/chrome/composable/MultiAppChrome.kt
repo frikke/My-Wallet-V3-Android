@@ -85,7 +85,7 @@ fun MultiAppChrome(
     viewModel: MultiAppViewModel = getViewModel(scope = payloadScope),
     openCryptoAssets: () -> Unit
 ) {
-    DisposableEffect(key1 = null) {
+    DisposableEffect(key1 = viewModel) {
         viewModel.viewCreated(ModelConfigArgs.NoArgs)
         onDispose { }
     }

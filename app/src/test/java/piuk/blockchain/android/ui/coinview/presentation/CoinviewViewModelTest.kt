@@ -114,6 +114,7 @@ class CoinviewViewModelTest {
 
         every { cryptoAsset.currency } returns currency
         every { cryptoAsset.currency.name } returns networkTicker
+        every { cryptoAsset.currency.displayTicker } returns networkTicker
         every { cryptoAsset.currency.logo } returns logo
         every { cryptoAsset.currency.colour } returns color
         every { cryptoAsset.currency.networkTicker } returns networkTicker

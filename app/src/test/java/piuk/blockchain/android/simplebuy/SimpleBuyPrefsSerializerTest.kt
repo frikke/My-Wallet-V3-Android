@@ -57,7 +57,7 @@ class SimpleBuyPrefsSerializerTest {
         amount = FiatValue.fromMinor(EUR, 1000.toBigInteger()),
         fiatCurrency = EUR,
         selectedCryptoAsset = CryptoCurrency.BTC,
-        amountInCrypto = null,
+        quotePrice = null,
         orderState = OrderState.AWAITING_FUNDS,
         kycVerificationState = KycState.PENDING,
         currentScreen = FlowScreen.KYC,

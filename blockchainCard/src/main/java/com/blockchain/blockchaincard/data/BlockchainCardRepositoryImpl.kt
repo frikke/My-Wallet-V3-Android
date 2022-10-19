@@ -7,6 +7,7 @@ import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisio
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletUserAddressDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardOrderStateResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardDto
 import com.blockchain.api.blockchainCard.data.ProductDto
@@ -23,6 +24,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletDat
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletUserAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
+import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
@@ -40,6 +42,7 @@ import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.eligibility.mapper.toDomain
 import com.blockchain.domain.eligibility.model.Region
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
@@ -63,7 +66,8 @@ internal class BlockchainCardRepositoryImpl(
     private val assetCatalogue: AssetCatalogue,
     private val userIdentity: UserIdentity,
     private val googleWalletManager: GoogleWalletManager,
-    private val blockchainCardPrefs: BlockchainCardPrefs
+    private val blockchainCardPrefs: BlockchainCardPrefs,
+    private val googleWalletFeatureFlag: FeatureFlag,
 ) : BlockchainCardRepository {
 
     override suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainCardProduct>> =
@@ -89,6 +93,13 @@ internal class BlockchainCardRepositoryImpl(
         blockchainCardService.createCard(
             productCode = productCode,
             ssn = ssn
+        ).map { card ->
+            card.toDomainModel()
+        }.wrapBlockchainCardError()
+
+    override suspend fun getCard(cardId: String): Outcome<BlockchainCardError, BlockchainCard> =
+        blockchainCardService.getCard(
+            cardId = cardId
         ).map { card ->
             card.toDomainModel()
         }.wrapBlockchainCardError()
@@ -276,9 +287,13 @@ internal class BlockchainCardRepositoryImpl(
         }.awaitOutcome().wrapBlockchainCardError()
 
     override suspend fun getGoogleWalletTokenizationStatus(last4Digits: String): Outcome<BlockchainCardError, Boolean> =
-        rxSingle {
-            googleWalletManager.getTokenizationStatus(last4Digits)
-        }.awaitOutcome().wrapBlockchainCardError()
+        if (googleWalletFeatureFlag.coEnabled()) {
+            rxSingle {
+                googleWalletManager.getTokenizationStatus(last4Digits)
+            }.awaitOutcome().wrapBlockchainCardError()
+        } else {
+            Outcome.Success(true)
+        }
 
     override fun getDefaultCard(): String =
         blockchainCardPrefs.defaultCardId
@@ -286,6 +301,16 @@ internal class BlockchainCardRepositoryImpl(
     override fun saveCardAsDefault(cardId: String) {
         blockchainCardPrefs.defaultCardId = cardId
     }
+
+    override suspend fun getCardOrderState(cardId: String): Outcome<BlockchainCardError, BlockchainCardOrderState> =
+        blockchainCardService.getCardOrderState(cardId).map { response ->
+            response.toDomainModel()
+        }.wrapBlockchainCardError()
+
+    override suspend fun getCardActivationUrl(): Outcome<BlockchainCardError, String> =
+        blockchainCardService.getCardActivationUrl().map {
+            it.url
+        }.wrapBlockchainCardError()
 
     //
     // Domain Model Conversion
@@ -417,6 +442,21 @@ internal class BlockchainCardRepositoryImpl(
             postalCode = postalCode,
             countryCode = countryCode,
             phone = phone
+        )
+
+    private fun BlockchainCardOrderStateResponseDto.toDomainModel(): BlockchainCardOrderState =
+        BlockchainCardOrderState(
+            status = BlockchainCardOrderStatus.valueOf(status),
+            address = address?.let {
+                BlockchainCardAddress(
+                    line1 = it.line1,
+                    line2 = it.line2,
+                    postCode = it.postCode,
+                    city = it.city,
+                    state = it.state,
+                    country = it.country
+                )
+            }
         )
 
     private fun NabuApiException.toBlockchainCardError(): BlockchainCardError =
