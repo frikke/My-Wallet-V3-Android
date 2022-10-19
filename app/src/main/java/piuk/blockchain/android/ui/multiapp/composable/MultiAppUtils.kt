@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import com.blockchain.walletmode.WalletMode
 import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.multiapp.ChromeBackgroundColors
 import piuk.blockchain.android.ui.multiapp.ChromeBottomNavigationItem
 
 const val ANIMATION_DURATION = 400
@@ -28,4 +29,12 @@ fun WalletMode.bottomNavigationItems(): List<ChromeBottomNavigationItem> = when 
         ChromeBottomNavigationItem.Nft
     )
     else -> error("UNIVERSAL not supported")
+}
+
+fun WalletMode.backgroundColors(): ChromeBackgroundColors {
+    return when (this) {
+        WalletMode.CUSTODIAL_ONLY -> ChromeBackgroundColors.Trading
+        WalletMode.NON_CUSTODIAL_ONLY -> ChromeBackgroundColors.DeFi
+        WalletMode.UNIVERSAL -> error("WalletMode.UNIVERSAL unsupported")
+    }
 }

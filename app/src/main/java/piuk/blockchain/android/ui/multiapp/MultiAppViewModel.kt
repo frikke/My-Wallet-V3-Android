@@ -9,13 +9,13 @@ import com.blockchain.data.FreshnessStrategy.Companion.withKey
 import com.blockchain.data.combineDataResources
 import com.blockchain.data.map
 import com.blockchain.store.mapData
-import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.total
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
+import piuk.blockchain.android.ui.multiapp.composable.backgroundColors
 import piuk.blockchain.android.ui.multiapp.composable.bottomNavigationItems
 
 class MultiAppViewModel(
@@ -51,12 +51,9 @@ class MultiAppViewModel(
         MultiAppViewState(
             modeSwitcherOptions = state.walletModes,
             selectedMode = state.selectedWalletMode,
-            backgroundColors = when (state.selectedWalletMode) {
-                WalletMode.CUSTODIAL_ONLY -> ChromeBackgroundColors.Trading
-                WalletMode.NON_CUSTODIAL_ONLY -> ChromeBackgroundColors.DeFi
-                WalletMode.UNIVERSAL -> error("WalletMode.UNIVERSAL unsupported")
-            },
+            backgroundColors = state.selectedWalletMode.backgroundColors(),
             totalBalance = state.totalBalance.map { balance -> balance.toStringWithSymbol() },
+            shouldRevealBalance = state.balanceRevealed.not(),
             bottomNavigationItems = state.selectedWalletMode.bottomNavigationItems()
         )
     }
@@ -65,6 +62,12 @@ class MultiAppViewModel(
         when (intent) {
             is MultiAppIntents.WalletModeChanged -> {
                 walletModeService.updateEnabledWalletMode(intent.walletMode)
+            }
+
+            is MultiAppIntents.BalanceRevealed -> {
+                updateState {
+                    it.copy(balanceRevealed = true)
+                }
             }
         }
     }
