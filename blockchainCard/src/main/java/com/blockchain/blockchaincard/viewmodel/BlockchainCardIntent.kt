@@ -76,4 +76,8 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object LoadDefaultCard : BlockchainCardIntent()
     data class SaveCardAsDefault(val defaultCardId: String) : BlockchainCardIntent()
     object LoadCards : BlockchainCardIntent()
+    object LoadCardOrderState : BlockchainCardIntent()
+    object ActivateCard : BlockchainCardIntent()
+    object OnCardActivated : BlockchainCardIntent()
+    object OnFinishCardActivation : BlockchainCardIntent()
 }

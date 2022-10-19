@@ -5,6 +5,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
+import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.coincore.AccountBalance
@@ -34,5 +35,7 @@ data class BlockchainCardViewState(
     val isLegalDocReviewComplete: Boolean = false,
     val singleLegalDocumentToSee: BlockchainCardLegalDocument? = null,
     val isAddressLoading: Boolean = true,
-    val googleWalletStatus: BlockchainCardGoogleWalletStatus = BlockchainCardGoogleWalletStatus.NOT_ADDED
+    val googleWalletStatus: BlockchainCardGoogleWalletStatus = BlockchainCardGoogleWalletStatus.NOT_ADDED,
+    val cardOrderState: BlockchainCardOrderState? = null,
+    val cardActivationUrl: String? = null
 ) : ViewState

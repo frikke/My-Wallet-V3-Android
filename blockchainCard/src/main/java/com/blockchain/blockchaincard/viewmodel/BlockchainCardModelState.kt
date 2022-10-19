@@ -5,6 +5,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
+import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.coincore.AccountBalance
@@ -38,6 +39,8 @@ data class BlockchainCardModelState(
     val googleWalletId: String? = null,
     val stableHardwareId: String? = null,
     val googleWalletStatus: BlockchainCardGoogleWalletStatus = BlockchainCardGoogleWalletStatus.NOT_ADDED,
+    val cardOrderState: BlockchainCardOrderState? = null,
+    val cardActivationUrl: String? = null
 ) : ModelState
 
 sealed class BlockchainCardErrorState {

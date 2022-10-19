@@ -20,6 +20,8 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.ui.composables.managecard.AccountPicker
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddress
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddressUpdated
+import com.blockchain.blockchaincard.ui.composables.managecard.CardActivationPage
+import com.blockchain.blockchaincard.ui.composables.managecard.CardActivationSuccess
 import com.blockchain.blockchaincard.ui.composables.managecard.CardSelector
 import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionDetails
 import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionHistory
@@ -278,6 +280,7 @@ fun BlockchainCardNavHost(
                             isTransactionListRefreshing = state.isTransactionListRefreshing,
                             transactionList = state.shortTransactionList,
                             googleWalletState = state.googleWalletStatus,
+                            cardOrderState = state.cardOrderState,
                             onViewCardSelector = { viewModel.onIntent(BlockchainCardIntent.SelectCard) },
                             onManageCardDetails = { card ->
                                 viewModel.onIntent(BlockchainCardIntent.ManageCardDetails(card))
@@ -305,6 +308,9 @@ fun BlockchainCardNavHost(
                             },
                             onAddToGoogleWallet = {
                                 viewModel.onIntent(BlockchainCardIntent.LoadGoogleWalletPushTokenizeData)
+                            },
+                            onActivateCard = {
+                                viewModel.onIntent(BlockchainCardIntent.ActivateCard)
                             }
                         )
                     }
@@ -493,6 +499,23 @@ fun BlockchainCardNavHost(
 
             composable(BlockchainCardDestination.ContactSupportPageDestination) {
                 SupportPage()
+            }
+
+            composable(BlockchainCardDestination.CardActivationDestination) {
+                state?.cardActivationUrl?.let { cardActivationUrl ->
+                    CardActivationPage(
+                        cardActivationUrl = cardActivationUrl,
+                        onCardActivated = {
+                            viewModel.onIntent(BlockchainCardIntent.OnCardActivated)
+                        }
+                    )
+                }
+            }
+
+            composable(BlockchainCardDestination.CardActivationSuccessDestination) {
+                CardActivationSuccess(
+                    onFinish = { viewModel.onIntent(BlockchainCardIntent.OnFinishCardActivation) }
+                )
             }
         }
     }

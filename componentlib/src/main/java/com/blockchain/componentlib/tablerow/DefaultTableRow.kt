@@ -1,6 +1,7 @@
 package com.blockchain.componentlib.tablerow
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -56,6 +57,107 @@ fun DefaultTableRow(
         backgroundColor = backgroundColor,
         primaryTextColor = primaryTextColor,
         secondaryTextColor = secondaryTextColor
+    )
+}
+
+@Composable
+fun DefaultTableRow(
+    primaryText: AnnotatedString,
+    onClick: () -> Unit,
+    secondaryText: AnnotatedString? = null,
+    paragraphText: AnnotatedString? = null,
+    endText: AnnotatedString? = null,
+    tags: List<TagViewState>? = null,
+    endTag: TagViewState? = null,
+    contentStart: @Composable (RowScope.() -> Unit)? = null,
+    endImageResource: ImageResource = ImageResource.Local(
+        id = R.drawable.ic_chevron_end,
+        contentDescription = null
+    ),
+    backgroundColor: Color = AppTheme.colors.background,
+    primaryTextColor: Color = AppTheme.colors.title,
+    secondaryTextColor: Color = AppTheme.colors.body
+) {
+    TableRow(
+        contentStart = contentStart,
+        content = {
+            val startPadding = if (contentStart != null) {
+                dimensionResource(R.dimen.medium_spacing)
+            } else {
+                dimensionResource(R.dimen.zero_spacing)
+            }
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = startPadding, end = 8.dp)
+            ) {
+                Text(
+                    text = primaryText,
+                    style = AppTheme.typography.body2,
+                    color = primaryTextColor
+                )
+                if (secondaryText != null) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = secondaryText,
+                        style = AppTheme.typography.paragraph1,
+                        color = secondaryTextColor
+                    )
+                }
+            }
+        },
+        contentEnd = {
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                if (endText != null) {
+                    Text(
+                        text = endText,
+                        style = AppTheme.typography.body2,
+                        color = AppTheme.colors.title
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+                }
+
+                if (endTag != null) {
+                    TagsRow(listOf(endTag))
+                } else {
+                    Image(
+                        imageResource = endImageResource,
+                        modifier = Modifier.requiredSizeIn(
+                            maxWidth = dimensionResource(R.dimen.standard_spacing),
+                            maxHeight = dimensionResource(R.dimen.standard_spacing),
+                        ),
+                    )
+                }
+            }
+        },
+        onContentClicked = onClick,
+        contentBottom = {
+            val startPadding = if (contentStart != null) 40.dp else 0.dp
+            Column(Modifier.padding(start = startPadding)) {
+                if (paragraphText != null) {
+                    Text(
+                        text = paragraphText,
+                        style = AppTheme.typography.caption1,
+                        color = AppTheme.colors.body,
+                        modifier = Modifier
+                            .padding(
+                                top = dimensionResource(R.dimen.smallest_spacing),
+                                bottom = if (tags.isNullOrEmpty()) 0.dp else 8.dp
+                            )
+                    )
+                }
+                if (!tags.isNullOrEmpty()) {
+                    TagsRow(
+                        tags = tags,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            }
+        },
+        backgroundColor = backgroundColor
     )
 }
 

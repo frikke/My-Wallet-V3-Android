@@ -17,7 +17,8 @@ fun Webview(
     loadWithOverviewMode: Boolean = true,
     disableScrolling: Boolean = false,
     modifier: Modifier = Modifier,
-    onPageLoaded: () -> Unit = {}
+    onPageLoaded: () -> Unit = {},
+    urlRedirectHandler: (String?) -> Boolean = { false }
 ) {
     AndroidView(
         factory = {
@@ -44,11 +45,11 @@ fun Webview(
                     @Deprecated("Necessary for backward compatibility")
                     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                         clearCache(true)
-                        return false
+                        return urlRedirectHandler(url)
                     }
                     override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                         clearCache(true)
-                        return false
+                        return urlRedirectHandler(request?.url?.toString())
                     }
                 }
 

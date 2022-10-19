@@ -83,6 +83,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.ManageCard -> {
+                navController.popBackStack(
+                    route = BlockchainCardDestination.CardActivationSuccessDestination.route,
+                    inclusive = true
+                )
                 destination = BlockchainCardDestination.ManageCardDestination
             }
 
@@ -194,6 +198,14 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                     pushTokenizeData = navigationEvent.blockchainCardTokenizationRequest
                 )
             }
+
+            is BlockchainCardNavigationEvent.SeeCardActivationPage -> {
+                destination = BlockchainCardDestination.CardActivationDestination
+            }
+
+            is BlockchainCardNavigationEvent.ActivateCardSuccess -> {
+                destination = BlockchainCardDestination.CardActivationSuccessDestination
+            }
         }.exhaustive
 
         if (destination !is BlockchainCardDestination.NoDestination)
@@ -284,6 +296,10 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
     data class AddCardToGoogleWallet(
         val blockchainCardTokenizationRequest: BlockchainCardGoogleWalletPushTokenizeData
     ) : BlockchainCardNavigationEvent()
+
+    object SeeCardActivationPage : BlockchainCardNavigationEvent()
+
+    object ActivateCardSuccess : BlockchainCardNavigationEvent()
 }
 
 sealed class BlockchainCardDestination(override val route: String) : ComposeNavigationDestination {
@@ -352,4 +368,8 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
     object FAQPageDestination : BlockchainCardDestination(route = "faq_page")
 
     object ContactSupportPageDestination : BlockchainCardDestination(route = "contact_support_page")
+
+    object CardActivationDestination : BlockchainCardDestination(route = "card_activation")
+
+    object CardActivationSuccessDestination : BlockchainCardDestination(route = "card_activation_success")
 }

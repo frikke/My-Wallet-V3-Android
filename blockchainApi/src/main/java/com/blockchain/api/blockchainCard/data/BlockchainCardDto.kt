@@ -139,3 +139,14 @@ data class BlockchainCardGoogleWalletUserAddressDto(
     val countryCode: String,
     val phone: String
 )
+
+@Serializable
+data class BlockchainCardOrderStateResponseDto(
+    val status: String,
+    val address: ResidentialAddressDto?
+)
+
+@Serializable
+data class BlockchainCardActivationUrlResponseDto(
+    val url: String
+)

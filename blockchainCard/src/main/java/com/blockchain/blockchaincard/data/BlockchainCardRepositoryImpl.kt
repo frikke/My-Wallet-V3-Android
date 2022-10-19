@@ -7,6 +7,7 @@ import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisio
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletProvisionResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardGoogleWalletUserAddressDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardLegalDocumentDto
+import com.blockchain.api.blockchainCard.data.BlockchainCardOrderStateResponseDto
 import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardDto
 import com.blockchain.api.blockchainCard.data.ProductDto
@@ -23,6 +24,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletDat
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletPushTokenizeData
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletUserAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardLegalDocument
+import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
@@ -91,6 +93,13 @@ internal class BlockchainCardRepositoryImpl(
         blockchainCardService.createCard(
             productCode = productCode,
             ssn = ssn
+        ).map { card ->
+            card.toDomainModel()
+        }.wrapBlockchainCardError()
+
+    override suspend fun getCard(cardId: String): Outcome<BlockchainCardError, BlockchainCard> =
+        blockchainCardService.getCard(
+            cardId = cardId
         ).map { card ->
             card.toDomainModel()
         }.wrapBlockchainCardError()
@@ -293,6 +302,16 @@ internal class BlockchainCardRepositoryImpl(
         blockchainCardPrefs.defaultCardId = cardId
     }
 
+    override suspend fun getCardOrderState(cardId: String): Outcome<BlockchainCardError, BlockchainCardOrderState> =
+        blockchainCardService.getCardOrderState(cardId).map { response ->
+            response.toDomainModel()
+        }.wrapBlockchainCardError()
+
+    override suspend fun getCardActivationUrl(): Outcome<BlockchainCardError, String> =
+        blockchainCardService.getCardActivationUrl().map {
+            it.url
+        }.wrapBlockchainCardError()
+
     //
     // Domain Model Conversion
     //
@@ -423,6 +442,21 @@ internal class BlockchainCardRepositoryImpl(
             postalCode = postalCode,
             countryCode = countryCode,
             phone = phone
+        )
+
+    private fun BlockchainCardOrderStateResponseDto.toDomainModel(): BlockchainCardOrderState =
+        BlockchainCardOrderState(
+            status = BlockchainCardOrderStatus.valueOf(status),
+            address = address?.let {
+                BlockchainCardAddress(
+                    line1 = it.line1,
+                    line2 = it.line2,
+                    postCode = it.postCode,
+                    city = it.city,
+                    state = it.state,
+                    country = it.country
+                )
+            }
         )
 
     private fun NabuApiException.toBlockchainCardError(): BlockchainCardError =

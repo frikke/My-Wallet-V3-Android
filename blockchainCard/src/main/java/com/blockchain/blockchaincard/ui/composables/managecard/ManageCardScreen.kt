@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -26,7 +27,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -70,6 +70,8 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardGoogleWalletStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderState
+import com.blockchain.blockchaincard.domain.models.BlockchainCardOrderStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
@@ -131,6 +133,7 @@ fun ManageCard(
     isTransactionListRefreshing: Boolean,
     transactionList: List<BlockchainCardTransaction>?,
     googleWalletState: BlockchainCardGoogleWalletStatus,
+    cardOrderState: BlockchainCardOrderState?,
     onViewCardSelector: () -> Unit,
     onManageCardDetails: (BlockchainCard) -> Unit,
     onFundingAccountClicked: () -> Unit,
@@ -140,7 +143,8 @@ fun ManageCard(
     onRefreshTransactions: () -> Unit,
     onRefreshCardWidgetUrl: () -> Unit,
     onAddFunds: () -> Unit,
-    onAddToGoogleWallet: () -> Unit
+    onAddToGoogleWallet: () -> Unit,
+    onActivateCard: () -> Unit
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -269,6 +273,76 @@ fun ManageCard(
                             else -> false
                         }
 
+                        card?.let {
+                            if (card.status == BlockchainCardStatus.UNACTIVATED) {
+                                Box(
+                                    modifier = Modifier.border(
+                                        width = 1.dp,
+                                        color = AppTheme.colors.light,
+                                        shape = RoundedCornerShape(16.dp)
+                                    )
+                                ) {
+                                    when (cardOrderState?.status) {
+                                        BlockchainCardOrderStatus.PROCESSING -> {
+                                            DefaultTableRow(
+                                                primaryText = buildAnnotatedString {
+                                                    append(
+                                                        stringResource(R.string.bc_card_processing_title)
+                                                    )
+                                                },
+                                                onClick = {},
+                                                secondaryText = buildAnnotatedString {
+                                                    append(stringResource(R.string.bc_card_processing_subtitle))
+                                                },
+                                                contentStart = {
+                                                    CircularProgressBar(
+                                                        modifier = Modifier
+                                                            .align(Alignment.CenterVertically)
+                                                            .size(dimensionResource(R.dimen.standard_spacing))
+                                                    )
+                                                },
+                                            )
+                                        }
+
+                                        BlockchainCardOrderStatus.SHIPPED -> {
+                                            DefaultTableRow(
+                                                primaryText = buildAnnotatedString {
+                                                    append(
+                                                        stringResource(R.string.bc_card_shipped_title)
+                                                    )
+                                                },
+                                                onClick = onActivateCard,
+                                                secondaryText = buildAnnotatedString {
+                                                    append(stringResource(R.string.bc_card_shipped_subtitle))
+                                                },
+                                                startImageResource = ImageResource.Local(id = R.drawable.ic_send),
+                                            )
+                                        }
+
+                                        BlockchainCardOrderStatus.DELIVERED -> {
+                                            DefaultTableRow(
+                                                primaryText = buildAnnotatedString {
+                                                    append(
+                                                        stringResource(R.string.bc_card_delivered_title)
+                                                    )
+                                                },
+                                                onClick = {},
+                                                secondaryText = buildAnnotatedString {
+                                                    append(
+                                                        stringResource(R.string.bc_card_delivered_subtitle)
+                                                    )
+                                                },
+                                                startImageResource = ImageResource.Local(id = R.drawable.credit_card),
+                                            )
+                                        }
+                                        else -> {}
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
+                            }
+                        }
+
                         if (!hasFunds) {
                             Box(
                                 modifier = Modifier.border(
@@ -285,6 +359,7 @@ fun ManageCard(
 
                             Spacer(modifier = Modifier.height(AppTheme.dimensions.smallSpacing))
                         }
+
                         SimpleText(
                             text = stringResource(id = R.string.bc_card_transaction_payment_method),
                             style = ComposeTypographies.Paragraph1,
@@ -439,6 +514,12 @@ private fun PreviewManageCard() {
         isTransactionListRefreshing = false,
         transactionList = null,
         googleWalletState = BlockchainCardGoogleWalletStatus.NOT_ADDED,
+        cardOrderState = BlockchainCardOrderState(
+            status = BlockchainCardOrderStatus.PROCESSING,
+            address = BlockchainCardAddress(
+                line1 = "", line2 = "", postCode = "", city = "", state = "", country = ""
+            )
+        ),
         onViewCardSelector = {},
         onManageCardDetails = {},
         onFundingAccountClicked = {},
@@ -448,7 +529,8 @@ private fun PreviewManageCard() {
         onRefreshTransactions = {},
         onRefreshCardWidgetUrl = {},
         onAddFunds = {},
-        onAddToGoogleWallet = {}
+        onAddToGoogleWallet = {},
+        onActivateCard = {}
     )
 }
 
@@ -656,7 +738,7 @@ fun PreviewCardSelector() {
             id = "1111",
             type = BlockchainCardType.PHYSICAL,
             last4 = "1234",
-            expiry = "12/22",
+            expiry = "1222",
             brand = BlockchainCardBrand.VISA,
             status = BlockchainCardStatus.ACTIVE,
             orderStatus = null,
@@ -666,7 +748,7 @@ fun PreviewCardSelector() {
             id = "1111",
             type = BlockchainCardType.VIRTUAL,
             last4 = "1234",
-            expiry = "12/22",
+            expiry = "1222",
             brand = BlockchainCardBrand.VISA,
             status = BlockchainCardStatus.ACTIVE,
             orderStatus = null,
@@ -676,7 +758,7 @@ fun PreviewCardSelector() {
             id = "1111",
             type = BlockchainCardType.VIRTUAL,
             last4 = "1234",
-            expiry = "12/22",
+            expiry = "1222",
             brand = BlockchainCardBrand.VISA,
             status = BlockchainCardStatus.ACTIVE,
             orderStatus = null,
@@ -686,7 +768,7 @@ fun PreviewCardSelector() {
             id = "1111",
             type = BlockchainCardType.VIRTUAL,
             last4 = "1234",
-            expiry = "12/22",
+            expiry = "1222",
             brand = BlockchainCardBrand.VISA,
             status = BlockchainCardStatus.ACTIVE,
             orderStatus = null,
@@ -867,7 +949,7 @@ private fun PreviewCardSelectorItem() {
         cardType = BlockchainCardType.PHYSICAL,
         last4digits = "1234",
         cardStatus = BlockchainCardStatus.ACTIVE,
-        expDate = "12/22",
+        expDate = "1222",
         isSelected = true,
         isDefault = false,
         onManageCard = {},
@@ -2369,6 +2451,61 @@ fun PreviewFundingAccountActionChooser() {
 }
 
 @Composable
+fun CardActivationSuccess(onFinish: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(AppTheme.dimensions.xHugeSpacing),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.credit_card_success),
+                contentDescription = stringResource(R.string.bc_card_activation_success_title),
+                modifier = Modifier.wrapContentWidth(),
+            )
+            SimpleText(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.bc_card_activation_success_title),
+                style = ComposeTypographies.Title3,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
+            )
+            SimpleText(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.bc_card_activation_success_subtitle),
+                style = ComposeTypographies.Paragraph1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Centre
+            )
+        }
+
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.standardSpacing)
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            PrimaryButton(
+                text = stringResource(id = R.string.go_to_dashboard),
+                state = ButtonState.Enabled,
+                onClick = onFinish,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCardActivationSuccess() {
+    CardActivationSuccess({})
+}
+
+@Composable
 fun AccountPicker(
     eligibleTradingAccountBalances: List<AccountBalance>,
     onAccountSelected: (String) -> Unit,
@@ -2553,4 +2690,24 @@ fun SupportPage() {
         modifier = Modifier
             .padding(top = AppTheme.dimensions.smallSpacing)
     )
+}
+
+@Composable
+fun CardActivationPage(cardActivationUrl: String?, onCardActivated: () -> Unit) {
+    cardActivationUrl?.let { url ->
+        Webview(
+            url = url,
+            urlRedirectHandler = { redirectUrl ->
+                if (redirectUrl == "https://blockchain.com/en/app/card-issuing/activated") {
+                    onCardActivated()
+                    true // don't load the URL
+                } else {
+                    false // proceed loading the redirect
+                }
+            },
+            useWideViewPort = false,
+            modifier = Modifier
+                .padding(top = AppTheme.dimensions.smallSpacing)
+        )
+    } ?: CircularProgressBar()
 }
