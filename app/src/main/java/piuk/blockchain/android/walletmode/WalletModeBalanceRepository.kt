@@ -27,9 +27,7 @@ class WalletModeBalanceRepository(
 
     override fun totalBalance(): Flow<DataResource<Money>> {
         val balances = walletModeService.availableModes().map { walletMode ->
-            balanceStore
-                .stream(FreshnessStrategy.Cached(forceRefresh = true).withKey(walletMode))
-                .mapData { it.total }
+            balanceFor(walletMode)
         }
 
         return combine(balances) { balancesArray ->

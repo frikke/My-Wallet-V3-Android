@@ -8,7 +8,7 @@ import com.blockchain.home.presentation.allassets.composable.CryptoAssets
 fun NavGraphBuilder.homeGraph() {
     composable(navigationEvent = HomeDestination.CryptoAssets) {
         MultiAppSingleScreen(
-            Content = {
+            content = {
                 CryptoAssets()
             }
         )

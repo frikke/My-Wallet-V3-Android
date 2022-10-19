@@ -34,7 +34,7 @@ import org.koin.androidx.compose.get
  * fun NavGraphBuilder.homeGraph() {
  *     composable(navigationEvent = HomeDestination.CryptoAssets) {
  *         MultiAppSingleScreen(
- *             Content = {
+ *             content = {
  *                 CryptoAssets()
  *             }
  *         )
@@ -45,7 +45,7 @@ import org.koin.androidx.compose.get
 @Composable
 fun MultiAppSingleScreen(
     backgroundColors: ChromeBackgroundColors = get<WalletModeService>().enabledWalletMode().backgroundColors(),
-    Content: @Composable () -> Unit
+    content: @Composable () -> Unit
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -83,7 +83,7 @@ fun MultiAppSingleScreen(
                 ),
                 elevation = 0.dp
             ) {
-                Content()
+                content()
             }
 
             // status bar
