@@ -46,6 +46,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
@@ -77,6 +78,7 @@ class DashboardActionInteractorTest {
     private val referralService: ReferralService = mock()
     private val cowboysPrefs: CowboysPrefs = mock()
     private val stakingFF: FeatureFlag = mock()
+    private val shouldAssetShowUseCase: ShouldAssetShowUseCase = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -116,8 +118,11 @@ class DashboardActionInteractorTest {
             cowboysDataProvider = cowboysDataProvider,
             referralService = referralService,
             cowboysPrefs = cowboysPrefs,
-            stakingFeatureFlag = stakingFF
+            stakingFeatureFlag = stakingFF,
+            shouldAssetShowUseCase = shouldAssetShowUseCase
         )
+
+        whenever(shouldAssetShowUseCase.invoke(any(), any())).thenReturn(flowOf(true))
     }
 
     @Test

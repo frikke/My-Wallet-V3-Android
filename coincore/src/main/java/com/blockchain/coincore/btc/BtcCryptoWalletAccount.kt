@@ -298,6 +298,6 @@ import io.reactivex.rxjava3.core.Single
             addressResolver = addressResolver
         )
 
-        private const val IMPORTED_ACCOUNT_NO_INDEX = -1
+        private const val IMPORTED_ACCOUNT_NO_INDEX = Int.MAX_VALUE
     }
 }

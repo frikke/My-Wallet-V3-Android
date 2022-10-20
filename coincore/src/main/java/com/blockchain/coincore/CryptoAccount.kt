@@ -188,6 +188,7 @@ interface AccountGroup : BlockchainAccount {
 
 interface SameCurrencyAccountGroup : AccountGroup {
     val currency: Currency
+
     override val balanceRx: Observable<AccountBalance>
         get() = Single.just(accounts).flattenAsObservable { it }.flatMapSingle {
             it.balanceRx.firstOrError()
@@ -221,6 +222,3 @@ interface MultipleCurrenciesAccountGroup : AccountGroup {
 
 internal fun BlockchainAccount.isTrading(): Boolean =
     this is CustodialTradingAccount
-
-internal fun BlockchainAccount.isNonCustodial(): Boolean =
-    this is NonCustodialAccount

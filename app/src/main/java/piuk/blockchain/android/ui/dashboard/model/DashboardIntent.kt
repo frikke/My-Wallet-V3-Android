@@ -180,7 +180,8 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
     class BalanceUpdate(
         val asset: Currency,
-        private val newBalance: AccountBalance
+        private val newBalance: AccountBalance,
+        private val shouldAssetShow: Boolean
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val balance = newBalance.total
@@ -190,6 +191,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
             val oldAsset = oldState[asset]
             val newAsset = oldAsset.updateBalance(accountBalance = newBalance)
+                .shouldAssetShow(shouldAssetShow)
             val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
 
             return oldState.copy(activeAssets = newAssets, isLoadingAssets = false)

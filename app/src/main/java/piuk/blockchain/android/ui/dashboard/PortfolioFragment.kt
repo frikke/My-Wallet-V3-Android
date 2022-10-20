@@ -71,7 +71,7 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.dashboard.assetdetails.fiatAssetAction
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
-import piuk.blockchain.android.ui.dashboard.model.BrokearageFiatAsset
+import piuk.blockchain.android.ui.dashboard.model.BrokerageFiatAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardCowboysState
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
@@ -210,10 +210,22 @@ class PortfolioFragment :
         }
     }
 
-    private fun isDashboardLoading(state: DashboardState): Boolean {
-        val atLeastOneAssetIsLoading = state.activeAssets.values.any { it.isUILoading }
-        val dashboardLoading = state.isLoadingAssets
-        return dashboardLoading || atLeastOneAssetIsLoading
+    // For the split dashboard, this onResume is called only once. When the fragment is created.
+    // To fix that we need to use a different PagerAdapter (FragmentStateAdapter) with the corresponding behavior
+    override fun onResume() {
+        super.onResume()
+        if (activeFiat != currencyPrefs.selectedFiatCurrency) {
+            activeFiat = currencyPrefs.selectedFiatCurrency
+            model.process(DashboardIntent.ResetDashboardAssets)
+        }
+        if (isHidden) return
+
+        announcements.checkLatest(announcementHost, compositeDisposable)
+        model.process(DashboardIntent.FetchOnboardingSteps)
+        model.process(DashboardIntent.CheckCowboysFlow)
+        model.process(DashboardIntent.GetActiveAssets(loadSilently = true))
+        model.process(DashboardIntent.FetchReferralSuccess)
+        model.process(DashboardIntent.LoadStakingFlag)
     }
 
     @UiThread
@@ -253,7 +265,7 @@ class PortfolioFragment :
             newState.fiatDashboardAssets.takeIf { it.isNotEmpty() }?.let { FiatBalanceInfo(it) }
         )
 
-        val cryptoAssets = newState.displayableAssets.filterNot { it is BrokearageFiatAsset }.sortedWith(
+        val cryptoAssets = newState.displayableAssets.filterNot { it is BrokerageFiatAsset }.sortedWith(
             compareByDescending<DashboardAsset> { it.fiatBalance?.toBigInteger() }
                 .thenByDescending {
                     it.currency.index
@@ -289,6 +301,12 @@ class PortfolioFragment :
                 }
             }
         }
+    }
+
+    private fun isDashboardLoading(state: DashboardState): Boolean {
+        val atLeastOneAssetIsLoading = state.activeAssets.values.any { it.isUILoading }
+        val dashboardLoading = state.isLoadingAssets
+        return dashboardLoading || atLeastOneAssetIsLoading
     }
 
     /**
@@ -624,24 +642,6 @@ class PortfolioFragment :
                 R.color.blue_200
             )
         }
-    }
-
-    // For the split dashboard, this onResume is called only once. When the fragment is created.
-    // To fix that we need to use a different PagerAdapter (FragmentStateAdapter) with the corresponding behavior
-    override fun onResume() {
-        super.onResume()
-        if (activeFiat != currencyPrefs.selectedFiatCurrency) {
-            activeFiat = currencyPrefs.selectedFiatCurrency
-            model.process(DashboardIntent.ResetDashboardAssets)
-        }
-        if (isHidden) return
-
-        announcements.checkLatest(announcementHost, compositeDisposable)
-        model.process(DashboardIntent.FetchOnboardingSteps)
-        model.process(DashboardIntent.CheckCowboysFlow)
-        model.process(DashboardIntent.GetActiveAssets(loadSilently = true))
-        model.process(DashboardIntent.FetchReferralSuccess)
-        model.process(DashboardIntent.LoadStakingFlag)
     }
 
     // This method doesn't get called when we use the split portfolio/prices dashboard.

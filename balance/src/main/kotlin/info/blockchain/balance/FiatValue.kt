@@ -66,16 +66,22 @@ class FiatValue private constructor(
     override val symbol: String =
         currency.symbol
 
-    override val maxDecimalPlaces: Int get() = maxDecimalPlaces(currencyCode)
+    override val maxDecimalPlaces: Int
+        get() = maxDecimalPlaces(currencyCode)
 
-    override val isZero: Boolean get() = amount.signum() == 0
+    override val isZero: Boolean
+        get() = amount.signum() == 0
 
-    override val isPositive: Boolean get() = amount.signum() == 1
+    override val isPositive: Boolean
+        get() = amount.signum() == 1
 
     override fun toBigDecimal(): BigDecimal = amount
 
     override fun toBigInteger(): BigInteger =
         amount.movePointRight(maxDecimalPlaces).toBigInteger()
+
+    override fun isDust(): Boolean =
+        amount.toFloat() <= PENNY_THRESHOLD
 
     override fun toFloat(): Float =
         toBigDecimal().toFloat()

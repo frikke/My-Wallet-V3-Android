@@ -16,6 +16,8 @@ class UnknownValue private constructor(
     override val maxDecimalPlaces: Int
         get() = 0
 
+    override fun isDust(): Boolean = false
+
     override fun toZero(): Money {
         throw IllegalStateException("Cannot Zero unknown value")
     }
