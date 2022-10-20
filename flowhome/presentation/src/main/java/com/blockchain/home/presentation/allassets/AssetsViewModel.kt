@@ -19,12 +19,12 @@ import com.blockchain.home.model.AssetFilterStatus
 import com.blockchain.home.presentation.dashboard.HomeNavEvent
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.MultiAppAssetsFilterService
+import info.blockchain.balance.ExchangeRate
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
@@ -200,7 +200,7 @@ class AssetsViewModel(
                                         balance = DataResource.Loading,
                                         exchangeRateDayDelta = DataResource.Loading,
                                         fiatBalance = DataResource.Loading,
-                                        usdBalance = DataResource.Loading
+                                        usdRate = DataResource.Loading
                                     )
                                 }
                             )
@@ -210,31 +210,36 @@ class AssetsViewModel(
                 .filterIsInstance<DataResource.Data<List<SingleAccount>>>()
                 .flatMapLatest { accounts ->
                     val balances = accounts.data.map { account ->
-                        combine(
-                            account.balance.distinctUntilChanged(),
-                            // get USD rate for USD price - is used to hide small balances
-                            exchangeRates.exchangeRate(fromAsset = account.currency, toAsset = FiatCurrency.Dollars)
-                        ) { balance, usdExchangeRate ->
-                            Triple(account, balance, usdExchangeRate)
-                        }
-                    }.merge().onEach { (account, balance, usdExchangeRate) ->
+                        account.balance.distinctUntilChanged()
+                            .map { it to account }
+                    }.merge().onEach { (balance, account) ->
                         updateState { state ->
                             state.copy(
                                 accounts = state.accounts.withBalancedAccount(
                                     account = account,
                                     balance = balance,
-                                    usdBalance = usdExchangeRate.map { it.convert(balance.total) }
+                                )
+                            )
+                        }
+                    }
+
+                    val usdRate = accounts.data.map { account ->
+                        exchangeRates.exchangeRate(fromAsset = account.currency, toAsset = FiatCurrency.Dollars)
+                            .map { it to account }
+                    }.merge().onEach { (usdExchangeRate, account) ->
+                        updateState { state ->
+                            state.copy(
+                                accounts = state.accounts.withUsdRate(
+                                    account = account,
+                                    usdRate = usdExchangeRate
                                 )
                             )
                         }
                     }
 
                     val exchangeRates = accounts.data.map { account ->
-                        exchangeRates.getPricesWith24hDelta(
-                            fromAsset = account.currency
-                        ).map {
-                            it to account
-                        }
+                        exchangeRates.getPricesWith24hDelta(fromAsset = account.currency)
+                            .map { it to account }
                     }.merge().onEach { (price, account) ->
                         updateState { state ->
                             state.copy(
@@ -242,7 +247,8 @@ class AssetsViewModel(
                             )
                         }
                     }
-                    merge(exchangeRates, balances)
+                    merge(usdRate, balances, exchangeRates)
+
                 }.collect()
         }
     }
@@ -282,8 +288,7 @@ private fun List<DataResource<Money>>.sumAvailableBalances(): DataResource<Money
 
 private fun DataResource<List<ModelAccount>>.withBalancedAccount(
     account: SingleAccount,
-    balance: AccountBalance,
-    usdBalance: DataResource<Money>
+    balance: AccountBalance
 ): DataResource<List<ModelAccount>> {
     return this.map { accounts ->
         val oldAccount = accounts.first { it.singleAccount == account }
@@ -291,8 +296,22 @@ private fun DataResource<List<ModelAccount>>.withBalancedAccount(
             old = oldAccount,
             new = oldAccount.copy(
                 balance = DataResource.Data(balance.total),
-                fiatBalance = DataResource.Data(balance.totalFiat),
-                usdBalance = oldAccount.usdBalance.updateDataWith(usdBalance)
+                fiatBalance = DataResource.Data(balance.totalFiat)
+            )
+        )
+    }
+}
+
+private fun DataResource<List<ModelAccount>>.withUsdRate(
+    account: SingleAccount,
+    usdRate: DataResource<ExchangeRate>
+): DataResource<List<ModelAccount>> {
+    return this.map { accounts ->
+        val oldAccount = accounts.first { it.singleAccount == account }
+        accounts.replace(
+            old = oldAccount,
+            new = oldAccount.copy(
+                usdRate = oldAccount.usdRate.updateDataWith(usdRate)
             )
         )
     }
